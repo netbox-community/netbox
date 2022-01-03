@@ -1,4 +1,5 @@
 {% extends 'ipam/prefix/base.html' %}
+{% load humanize %}
 {% load helpers %}
 {% load plugins %}
 
@@ -124,9 +125,18 @@
                 <a href="{% url 'ipam:prefix_ipaddresses' pk=object.pk %}">{{ child_ip_count }}</a>
               </td>
             </tr>
+          {% endwith %}
+          {% with available_count=object.get_available_ips.size %}
             <tr>
               <th scope="row">Available IPs</th>
-              <td>{{ object.get_available_ips|length }}</td>
+              <td>
+                {# Use human-friendly words for counts greater than one million #}
+                {% if available_count > 1000000 %}
+                  {{ available_count|intword }}
+                {% else %}
+                  {{ available_count|intcomma }}
+                {% endif %}
+              </td>
             </tr>
           {% endwith %}
           <tr>
