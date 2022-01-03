@@ -5,7 +5,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('virtualization', '0026_vminterface_bridge'),
-        ('extras', '0066_customfield_name_validation'),
+        ('extras', '0067_customfield_min_max_values'),
     ]
 
     operations = [

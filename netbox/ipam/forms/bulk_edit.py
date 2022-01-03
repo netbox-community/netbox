@@ -302,7 +302,8 @@ class IPAddressBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     )
     dns_name = forms.CharField(
         max_length=255,
-        required=False
+        required=False,
+        label='DNS name'
     )
     description = forms.CharField(
         max_length=100,

@@ -381,8 +381,9 @@ class TagColumn(tables.TemplateColumn):
     Display a list of tags assigned to the object.
     """
     template_code = """
+    {% load helpers %}
     {% for tag in value.all %}
-        {% include 'utilities/templatetags/tag.html' %}
+        {% tag tag url_name=url_name %}
     {% empty %}
         <span class="text-muted">&mdash;</span>
     {% endfor %}

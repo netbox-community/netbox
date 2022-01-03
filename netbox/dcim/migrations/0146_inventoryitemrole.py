@@ -8,7 +8,7 @@ import utilities.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0067_configcontext_cluster_types'),
+        ('extras', '0068_configcontext_cluster_types'),
         ('dcim', '0145_modules'),
     ]
 

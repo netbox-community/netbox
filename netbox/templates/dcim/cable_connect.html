@@ -5,6 +5,14 @@
 
 {% block title %}Connect {{ form.instance.termination_a.device }} {{ form.instance.termination_a }} to {{ termination_b_type|bettertitle }}{% endblock %}
 
+{% block tabs %}
+<ul class="nav nav-tabs px-3">
+  <li class="nav-item" role="presentation">
+    <a href="#" role="tab" data-bs-toggle="tab" class="nav-link active">Connect Cable</a>
+  </li>
+</ul>
+{% endblock %}
+
 {% block content-wrapper %}
   <div class="tab-content">
     {% with termination_a=form.instance.termination_a %}
@@ -25,6 +33,12 @@
                               <label class="col-sm-3 col-form-label text-lg-end">Region</label>
                               <div class="col">
                                   <input class="form-control" value="{{ termination_a.device.site.region }}" disabled />
+                              </div>
+                          </div>
+                          <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label text-lg-end">Site Group</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a.device.site.group }}" disabled />
                               </div>
                           </div>
                           <div class="row mb-3">
@@ -114,6 +128,9 @@
                       {% endif %}
                       {% if 'termination_b_region' in form.fields %}
                           {% render_field form.termination_b_region %}
+                      {% endif %}
+                      {% if 'termination_b_sitegroup' in form.fields %}
+                          {% render_field form.termination_b_sitegroup %}
                       {% endif %}
                       {% if 'termination_b_site' in form.fields %}
                           {% render_field form.termination_b_site %}
