@@ -6,6 +6,7 @@
 
 * [#8192](https://github.com/netbox-community/netbox/issues/8192) - Add "add prefix" button to aggregate child prefixes view
 * [#8194](https://github.com/netbox-community/netbox/issues/8194) - Enable bulk user assignment to groups under admin UI
+* [#8210](https://github.com/netbox-community/netbox/issues/8210) - Establish `netbox/local/` as a path for local resources
 
 ### Bug Fixes
 

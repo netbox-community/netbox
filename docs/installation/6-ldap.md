@@ -152,7 +152,7 @@ LOGGING = {
         'netbox_auth_log': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/opt/netbox/logs/django-ldap-debug.log',
+            'filename': '/opt/netbox/local/logs/django-ldap-debug.log',
             'maxBytes': 1024 * 500,
             'backupCount': 5,
         },
