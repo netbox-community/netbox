@@ -6,7 +6,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('extras', '0067_configcontext_cluster_types'),
+        ('extras', '0068_configcontext_cluster_types'),
     ]
 
     operations = [
