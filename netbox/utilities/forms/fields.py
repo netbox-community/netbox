@@ -168,11 +168,11 @@ class ContentTypeChoiceMixin:
 
 
 class ContentTypeChoiceField(ContentTypeChoiceMixin, forms.ModelChoiceField):
-    pass
+    widget = widgets.StaticSelect
 
 
 class ContentTypeMultipleChoiceField(ContentTypeChoiceMixin, forms.ModelMultipleChoiceField):
-    pass
+    widget = widgets.StaticSelectMultiple
 
 
 #

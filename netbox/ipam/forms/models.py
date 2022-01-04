@@ -628,8 +628,7 @@ class FHRPGroupAssignmentForm(BootstrapMixin, forms.ModelForm):
 class VLANGroupForm(CustomFieldModelForm):
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
-        required=False,
-        widget=StaticSelect
+        required=False
     )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),

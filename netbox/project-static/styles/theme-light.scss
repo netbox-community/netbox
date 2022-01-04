@@ -2,8 +2,6 @@
 
 @import './theme-base.scss';
 
-$input-border-color: $gray-200;
-
 $theme-colors: map-merge(
   $theme-colors,
   (
