@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#8213](https://github.com/netbox-community/netbox/issues/8213) - Fix ValueError exception under prefix IP addresses view
+* [#8226](https://github.com/netbox-community/netbox/issues/8226) - Honor return URL after populating a device bay
 
 ---
 

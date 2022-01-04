@@ -2035,8 +2035,9 @@ class DeviceBayPopulateView(generic.ObjectEditView):
             device_bay.installed_device = form.cleaned_data['installed_device']
             device_bay.save()
             messages.success(request, "Added {} to {}.".format(device_bay.installed_device, device_bay))
+            return_url = self.get_return_url(request)
 
-            return redirect('dcim:device', pk=device_bay.device.pk)
+            return redirect(return_url)
 
         return render(request, 'dcim/devicebay_populate.html', {
             'device_bay': device_bay,
