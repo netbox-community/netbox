@@ -164,8 +164,8 @@ class ChoiceVar(ScriptVariable):
     def __init__(self, choices, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Set field choices. Add a blank choice if this field is not required.
-        self.field_attrs['choices'] = choices if kwargs.get('required') else add_blank_choice(choices)
+        # Set field choices, adding a blank choice to avoid forced selections
+        self.field_attrs['choices'] = add_blank_choice(choices)
 
 
 class MultiChoiceVar(ScriptVariable):
