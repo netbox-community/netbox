@@ -529,7 +529,6 @@ class PrefixEditView(generic.ObjectEditView):
 
 class PrefixDeleteView(generic.ObjectDeleteView):
     queryset = Prefix.objects.all()
-    template_name = 'ipam/prefix_delete.html'
 
 
 class PrefixBulkImportView(generic.BulkImportView):

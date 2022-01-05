@@ -1,9 +1,16 @@
-{% extends 'generic/confirmation_form.html' %}
+{% extends 'base/layout.html' %}
 {% load form_helpers %}
 
-{% block title %}Delete {{ obj_type }}?{% endblock %}
+{% block title %}Delete {{ object_type }}?{% endblock %}
 
-{% block message %}
-  <p>Are you sure you want to <strong class="text-danger">delete</strong> {{ obj_type }} <strong>{{ obj }}</strong>?</p>
-  {% block message_extra %}{% endblock %}
-{% endblock message %}
+{% block header %}{% endblock %}
+
+{% block content %}
+  <div class="modal" tabindex="-1" style="display: block; position: static">
+    <div class="modal-dialog">
+      <div class="modal-content" >
+        {% include 'htmx/delete_form.html' %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

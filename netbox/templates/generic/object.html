@@ -100,4 +100,8 @@
   <div class="tab-content">
     {% block content %}{% endblock %}
   </div>
-{% endblock %}
+{% endblock content-wrapper %}
+
+{% block modals %}
+  {% include 'inc/htmx_modal.html' %}
+{% endblock modals %}
