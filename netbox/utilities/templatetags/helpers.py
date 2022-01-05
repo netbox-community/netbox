@@ -16,9 +16,10 @@ from django.utils.safestring import mark_safe
 from markdown import markdown
 
 from netbox.config import get_config
+from netbox.settings import PLUGINS
 from utilities.forms import get_selected_values, TableConfigForm
 from utilities.markdown import StrikethroughExtension
-from utilities.utils import foreground_color
+from utilities.utils import foreground_color, resolve_namespace
 
 register = template.Library()
 
@@ -115,7 +116,8 @@ def viewname(model, action):
     """
     Return the view name for the given model and action. Does not perform any validation.
     """
-    return f'{model._meta.app_label}:{model._meta.model_name}_{action}'
+    namespace = resolve_namespace(model)
+    return f'{namespace}:{model._meta.model_name}_{action}'
 
 
 @register.filter()
@@ -123,7 +125,8 @@ def validated_viewname(model, action):
     """
     Return the view name for the given model and action if valid, or None if invalid.
     """
-    viewname = f'{model._meta.app_label}:{model._meta.model_name}_{action}'
+    namespace = resolve_namespace(model)
+    viewname = f'{namespace}:{model._meta.model_name}_{action}'
     try:
         # Validate and return the view name. We don't return the actual URL yet because many of the templates
         # are written to pass a name to {% url %}.

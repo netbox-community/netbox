@@ -216,18 +216,19 @@ class ButtonsColumn(tables.TemplateColumn):
     attrs = {'td': {'class': 'text-end text-nowrap noprint'}}
     # Note that braces are escaped to allow for string formatting prior to template rendering
     template_code = """
+    {{% load helpers %}}
     {{% if "changelog" in buttons %}}
-        <a href="{{% url '{app_label}:{model_name}_changelog' pk=record.pk %}}" class="btn btn-outline-dark btn-sm" title="Change log">
+        <a href="{{% url record|viewname:'changelog' pk=record.pk %}}" class="btn btn-outline-dark btn-sm" title="Change log">
             <i class="mdi mdi-history"></i>
         </a>
     {{% endif %}}
     {{% if "edit" in buttons and perms.{app_label}.change_{model_name} %}}
-        <a href="{{% url '{app_label}:{model_name}_edit' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-sm btn-warning" title="Edit">
+        <a href="{{% url record|viewname:'edit' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-sm btn-warning" title="Edit">
             <i class="mdi mdi-pencil"></i>
         </a>
     {{% endif %}}
     {{% if "delete" in buttons and perms.{app_label}.delete_{model_name} %}}
-        <a href="{{% url '{app_label}:{model_name}_delete' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-sm btn-danger" title="Delete">
+        <a href="{{% url record|viewname:'delete' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-sm btn-danger" title="Delete">
             <i class="mdi mdi-trash-can-outline"></i>
         </a>
     {{% endif %}}
