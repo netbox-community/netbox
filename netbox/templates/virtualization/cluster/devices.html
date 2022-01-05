@@ -6,13 +6,11 @@
   <form action="{% url 'virtualization:cluster_remove_devices' pk=object.pk %}" method="post">
     {% csrf_token %}
     {% include 'inc/table_controls_htmx.html' with table_modal="DeviceTable_config" %}
-
     <div class="card">
       <div class="card-body" id="object_list">
         {% include 'htmx/table.html' %}
       </div>
     </div>
-
     <div class="noprint bulk-buttons">
       <div class="bulk-button-group">
         {% if perms.virtualization.change_cluster %}
@@ -23,5 +21,8 @@
       </div>
     </div>
   </form>
+{% endblock content %}
+
+{% block modals %}
   {% table_config_form table %}
-{% endblock %}
+{% endblock modals %}
