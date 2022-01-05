@@ -12,6 +12,7 @@
 * [#8213](https://github.com/netbox-community/netbox/issues/8213) - Fix ValueError exception under prefix IP addresses view
 * [#8224](https://github.com/netbox-community/netbox/issues/8224) - Fix KeyError exception when creating FHRP group with IP address and protocol "other"
 * [#8226](https://github.com/netbox-community/netbox/issues/8226) - Honor return URL after populating a device bay
+* [#8228](https://github.com/netbox-community/netbox/issues/8228) - Optional ChoiceVar fields should not force a selection
 
 ---
 
