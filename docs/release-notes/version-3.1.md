@@ -2,6 +2,10 @@
 
 ## v3.1.5 (FUTURE)
 
+### Enhancements
+
+* [#8231](https://github.com/netbox-community/netbox/issues/8231) - Use in-page dialogs for confirming object deletion
+
 ### Bug Fixes
 
 * [#8213](https://github.com/netbox-community/netbox/issues/8213) - Fix ValueError exception under prefix IP addresses view
