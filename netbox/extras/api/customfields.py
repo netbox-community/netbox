@@ -53,6 +53,9 @@ class CustomFieldsDataField(Field):
             if value is not None and cf.type == CustomFieldTypeChoices.TYPE_OBJECT:
                 serializer = get_serializer_for_model(cf.object_type.model_class(), prefix='Nested')
                 value = serializer(value, context=self.parent.context).data
+            elif value is not None and cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+                serializer = get_serializer_for_model(cf.object_type.model_class(), prefix='Nested')
+                value = serializer(value, many=True, context=self.parent.context).data
             data[cf.name] = value
 
         return data

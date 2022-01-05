@@ -206,6 +206,9 @@ class CustomFieldAPITest(APITestCase):
         vlans = (
             VLAN(name='VLAN 1', vid=1),
             VLAN(name='VLAN 2', vid=2),
+            VLAN(name='VLAN 3', vid=3),
+            VLAN(name='VLAN 4', vid=4),
+            VLAN(name='VLAN 5', vid=5),
         )
         VLAN.objects.bulk_create(vlans)
 
@@ -225,6 +228,12 @@ class CustomFieldAPITest(APITestCase):
                 name='object_field',
                 object_type=ContentType.objects.get_for_model(VLAN),
                 default=vlans[0].pk,
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
+                name='multiobject_field',
+                object_type=ContentType.objects.get_for_model(VLAN),
+                default=[vlans[0].pk, vlans[1].pk],
             ),
         )
         for cf in custom_fields:
@@ -250,6 +259,7 @@ class CustomFieldAPITest(APITestCase):
             custom_fields[6].name: '{"foo": 1, "bar": 2}',
             custom_fields[7].name: 'Bar',
             custom_fields[8].name: vlans[1].pk,
+            custom_fields[9].name: [vlans[2].pk, vlans[3].pk],
         }
         sites[1].save()
 
@@ -273,6 +283,7 @@ class CustomFieldAPITest(APITestCase):
             'json_field': None,
             'choice_field': None,
             'object_field': None,
+            'multiobject_field': None,
         })
 
     def test_get_single_object_with_custom_field_data(self):
@@ -295,6 +306,10 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response.data['custom_fields']['json_field'], site2_cfvs['json_field'])
         self.assertEqual(response.data['custom_fields']['choice_field'], site2_cfvs['choice_field'])
         self.assertEqual(response.data['custom_fields']['object_field']['id'], site2_cfvs['object_field'])
+        self.assertEqual(
+            [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
+            site2_cfvs['multiobject_field']
+        )
 
     def test_create_single_object_with_defaults(self):
         """
@@ -324,6 +339,10 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response_cf['json_field'], cf_defaults['json_field'])
         self.assertEqual(response_cf['choice_field'], cf_defaults['choice_field'])
         self.assertEqual(response_cf['object_field']['id'], cf_defaults['object_field'])
+        self.assertEqual(
+            [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
+            cf_defaults['multiobject_field']
+        )
 
         # Validate database data
         site = Site.objects.get(pk=response.data['id'])
@@ -336,6 +355,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(site.custom_field_data['json_field'], cf_defaults['json_field'])
         self.assertEqual(site.custom_field_data['choice_field'], cf_defaults['choice_field'])
         self.assertEqual(site.custom_field_data['object_field'], cf_defaults['object_field'])
+        self.assertEqual(site.custom_field_data['multiobject_field'], cf_defaults['multiobject_field'])
 
     def test_create_single_object_with_values(self):
         """
@@ -354,6 +374,7 @@ class CustomFieldAPITest(APITestCase):
                 'json_field': '{"foo": 1, "bar": 2}',
                 'choice_field': 'Bar',
                 'object_field': VLAN.objects.get(vid=2).pk,
+                'multiobject_field': list(VLAN.objects.filter(vid__in=[3, 4]).values_list('pk', flat=True)),
             },
         }
         url = reverse('dcim-api:site-list')
@@ -374,6 +395,10 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response_cf['json_field'], data_cf['json_field'])
         self.assertEqual(response_cf['choice_field'], data_cf['choice_field'])
         self.assertEqual(response_cf['object_field']['id'], data_cf['object_field'])
+        self.assertEqual(
+            [obj['id'] for obj in response_cf['multiobject_field']],
+            data_cf['multiobject_field']
+        )
 
         # Validate database data
         site = Site.objects.get(pk=response.data['id'])
@@ -386,6 +411,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(site.custom_field_data['json_field'], data_cf['json_field'])
         self.assertEqual(site.custom_field_data['choice_field'], data_cf['choice_field'])
         self.assertEqual(site.custom_field_data['object_field'], data_cf['object_field'])
+        self.assertEqual(site.custom_field_data['multiobject_field'], data_cf['multiobject_field'])
 
     def test_create_multiple_objects_with_defaults(self):
         """
@@ -429,6 +455,10 @@ class CustomFieldAPITest(APITestCase):
             self.assertEqual(response_cf['json_field'], cf_defaults['json_field'])
             self.assertEqual(response_cf['choice_field'], cf_defaults['choice_field'])
             self.assertEqual(response_cf['object_field']['id'], cf_defaults['object_field'])
+            self.assertEqual(
+                [obj['id'] for obj in response_cf['multiobject_field']],
+                cf_defaults['multiobject_field']
+            )
 
             # Validate database data
             site = Site.objects.get(pk=response.data[i]['id'])
@@ -441,6 +471,7 @@ class CustomFieldAPITest(APITestCase):
             self.assertEqual(site.custom_field_data['json_field'], cf_defaults['json_field'])
             self.assertEqual(site.custom_field_data['choice_field'], cf_defaults['choice_field'])
             self.assertEqual(site.custom_field_data['object_field'], cf_defaults['object_field'])
+            self.assertEqual(site.custom_field_data['multiobject_field'], cf_defaults['multiobject_field'])
 
     def test_create_multiple_objects_with_values(self):
         """
@@ -456,6 +487,7 @@ class CustomFieldAPITest(APITestCase):
             'json_field': '{"foo": 1, "bar": 2}',
             'choice_field': 'Bar',
             'object_field': VLAN.objects.get(vid=2).pk,
+            'multiobject_field': list(VLAN.objects.filter(vid__in=[3, 4]).values_list('pk', flat=True)),
         }
         data = (
             {
@@ -493,6 +525,10 @@ class CustomFieldAPITest(APITestCase):
             self.assertEqual(response_cf['url_field'], custom_field_data['url_field'])
             self.assertEqual(response_cf['json_field'], custom_field_data['json_field'])
             self.assertEqual(response_cf['choice_field'], custom_field_data['choice_field'])
+            self.assertEqual(
+                [obj['id'] for obj in response_cf['multiobject_field']],
+                custom_field_data['multiobject_field']
+            )
 
             # Validate database data
             site = Site.objects.get(pk=response.data[i]['id'])
@@ -504,6 +540,7 @@ class CustomFieldAPITest(APITestCase):
             self.assertEqual(site.custom_field_data['url_field'], custom_field_data['url_field'])
             self.assertEqual(site.custom_field_data['json_field'], custom_field_data['json_field'])
             self.assertEqual(site.custom_field_data['choice_field'], custom_field_data['choice_field'])
+            self.assertEqual(site.custom_field_data['multiobject_field'], custom_field_data['multiobject_field'])
 
     def test_update_single_object_with_values(self):
         """
@@ -534,6 +571,10 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response_cf['url_field'], original_cfvs['url_field'])
         self.assertEqual(response_cf['json_field'], original_cfvs['json_field'])
         self.assertEqual(response_cf['choice_field'], original_cfvs['choice_field'])
+        self.assertEqual(
+            [obj['id'] for obj in response_cf['multiobject_field']],
+            original_cfvs['multiobject_field']
+        )
 
         # Validate database data
         site2.refresh_from_db()
@@ -545,6 +586,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(site2.custom_field_data['url_field'], original_cfvs['url_field'])
         self.assertEqual(site2.custom_field_data['json_field'], original_cfvs['json_field'])
         self.assertEqual(site2.custom_field_data['choice_field'], original_cfvs['choice_field'])
+        self.assertEqual(site2.custom_field_data['multiobject_field'], original_cfvs['multiobject_field'])
 
     def test_minimum_maximum_values_validation(self):
         site2 = Site.objects.get(name='Site 2')

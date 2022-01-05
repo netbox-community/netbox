@@ -16,8 +16,8 @@ from extras.utils import FeatureQuery, extras_features
 from netbox.models import ChangeLoggedModel
 from utilities import filters
 from utilities.forms import (
-    CSVChoiceField, DatePicker, DynamicModelChoiceField, LaxURLField, StaticSelectMultiple, StaticSelect,
-    add_blank_choice,
+    CSVChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, LaxURLField,
+    StaticSelectMultiple, StaticSelect, add_blank_choice,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
@@ -61,7 +61,6 @@ class CustomField(ChangeLoggedModel):
         null=True,
         help_text='The type of NetBox object this field maps to (for object fields)'
     )
-
     name = models.CharField(
         max_length=50,
         unique=True,
@@ -247,17 +246,26 @@ class CustomField(ChangeLoggedModel):
         """
         Prepare a value for storage as JSON data.
         """
-        if self.type == CustomFieldTypeChoices.TYPE_OBJECT and value is not None:
+        if value is None:
+            return value
+        if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             return value.pk
+        if self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+            return [obj.pk for obj in value]
         return value
 
     def deserialize(self, value):
         """
         Convert JSON data to a Python object suitable for the field type.
         """
-        if self.type == CustomFieldTypeChoices.TYPE_OBJECT and value is not None:
+        if value is None:
+            return value
+        if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             model = self.object_type.model_class()
             return model.objects.filter(pk=value).first()
+        if self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+            model = self.object_type.model_class()
+            return model.objects.filter(pk__in=value)
         return value
 
     def to_form_field(self, set_initial=True, enforce_required=True, for_csv_import=False):
@@ -330,6 +338,15 @@ class CustomField(ChangeLoggedModel):
         elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             model = self.object_type.model_class()
             field = DynamicModelChoiceField(
+                queryset=model.objects.all(),
+                required=required,
+                initial=initial
+            )
+
+        # Multiple objects
+        elif self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+            model = self.object_type.model_class()
+            field = DynamicModelMultipleChoiceField(
                 queryset=model.objects.all(),
                 required=required,
                 initial=initial

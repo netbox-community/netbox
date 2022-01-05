@@ -3,14 +3,14 @@
 {% with custom_fields=object.get_custom_fields %}
     {% if custom_fields %}
         <div class="card">
-            <h5 class="card-header">
-                Custom Fields
-            </h5>
+            <h5 class="card-header">Custom Fields</h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     {% for field, value in custom_fields.items %}
                         <tr>
-                            <td><span title="{{ field.description|escape }}">{{ field }}</span></td>
+                            <td>
+                              <span title="{{ field.description|escape }}">{{ field }}</span>
+                            </td>
                             <td>
                                 {% if field.type == 'longtext' and value %}
                                     {{ value|render_markdown }}
@@ -26,6 +26,14 @@
                                     {{ value|join:", " }}
                                 {% elif field.type == 'object' and value %}
                                     <a href="{{ value.get_absolute_url }}">{{ value }}</a>
+                                {% elif field.type == 'multiobject' and value %}
+                                    {% if value %}
+                                      <ul>
+                                        {% for obj in value %}
+                                          <li><a href="{{ obj.get_absolute_url }}">{{ obj }}</a></li>
+                                        {% endfor %}
+                                      </ul>
+                                    {% endif %}
                                 {% elif value is not None %}
                                     {{ value }}
                                 {% elif field.required %}
