@@ -3,6 +3,7 @@
 @use 'sass:map';
 @import './theme-base';
 
+// Theme colors (BS5 classes)
 $primary: $blue-300;
 $secondary: $gray-500;
 $success: $green-300;
@@ -13,6 +14,7 @@ $light: $gray-300;
 $dark: $gray-500;
 
 $theme-colors: (
+  // BS5 theme colors
   'primary': $primary,
   'secondary': $secondary,
   'success': $success,
@@ -21,17 +23,22 @@ $theme-colors: (
   'danger': $danger,
   'light': $light,
   'dark': $dark,
-  'red': $red-300,
-  'yellow': $yellow-300,
-  'green': $green-300,
+
+  // General-purpose palette
   'blue': $blue-300,
-  'cyan': $cyan-300,
   'indigo': $indigo-300,
   'purple': $purple-300,
   'pink': $pink-300,
+  'red': $red-300,
+  'orange': $orange-300,
+  'yellow': $yellow-300,
+  'green': $green-300,
+  'teal': $teal-300,
+  'cyan': $cyan-300,
+  'gray': $gray-300,
+  'black': $black,
+  'white': $white,
 );
-
-$theme-colors: map-merge($theme-colors, $theme-color-addons);
 
 // Gradient
 $gradient: linear-gradient(180deg, rgba($white, 0.15), rgba($white, 0));
