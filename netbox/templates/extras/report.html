@@ -21,30 +21,41 @@
 {% endblock %}
 
 {% block controls %}{% endblock %}
-{% block tabs %}{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    <li class="nav-item" role="presentation">
+      <a href="#report" role="tab" data-bs-toggle="tab" class="nav-link active">Report</a>
+    </li>
+  </ul>
+{% endblock %}
 
 {% block content-wrapper %}
-  {% if perms.extras.run_report %}
-    <div class="px-3 float-end noprint">
-        <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
-            {% csrf_token %}
-            <button type="submit" name="_run" class="btn btn-primary">
-                {% if report.result %}
-                    <i class="mdi mdi-replay"></i> Run Again
-                {% else %}
-                    <i class="mdi mdi-play"></i> Run Report
-                {% endif %}
-            </button>
-        </form>
-    </div>
-  {% endif %}
-  <div class="row px-3">
-      <div class="col col-md-12">
-          {% if report.result %}
-              Last run: <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">
-                  <strong>{{ report.result.created|annotated_date }}</strong>
-              </a>
-          {% endif %}
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="report">
+      {% if perms.extras.run_report %}
+        <div class="px-3 float-end noprint">
+            <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
+                {% csrf_token %}
+                <button type="submit" name="_run" class="btn btn-primary">
+                    {% if report.result %}
+                        <i class="mdi mdi-replay"></i> Run Again
+                    {% else %}
+                        <i class="mdi mdi-play"></i> Run Report
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+      {% endif %}
+      <div class="row px-3">
+          <div class="col col-md-12">
+              {% if report.result %}
+                  Last run: <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">
+                      <strong>{{ report.result.created|annotated_date }}</strong>
+                  </a>
+              {% endif %}
+          </div>
       </div>
+    </div>
   </div>
 {% endblock %}
