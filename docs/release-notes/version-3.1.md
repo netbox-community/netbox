@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#8231](https://github.com/netbox-community/netbox/issues/8231) - Use in-page dialogs for confirming object deletion
+* [#8244](https://github.com/netbox-community/netbox/issues/8244) - Add length & length unit fields to cable filter form
 
 ### Bug Fixes
 
