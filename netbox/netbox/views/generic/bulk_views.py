@@ -285,7 +285,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         return get_permission_for_model(self.queryset.model, 'change')
 
     def _update_objects(self, form, request):
-        custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
+        custom_fields = getattr(form, 'custom_fields', [])
         standard_fields = [
             field for field in form.fields if field not in custom_fields + ['pk']
         ]
@@ -327,7 +327,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 if name in form.nullable_fields and name in nullified_fields:
                     obj.custom_field_data[name] = None
                 elif name in form.changed_data:
-                    obj.custom_field_data[name] = form.cleaned_data[name]
+                    obj.custom_field_data[name] = form.fields[name].prepare_value(form.cleaned_data[name])
 
             obj.full_clean()
             obj.save()
