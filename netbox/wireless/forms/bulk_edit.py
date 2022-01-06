@@ -3,7 +3,7 @@ from django import forms
 from dcim.choices import LinkStatusChoices
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.models import VLAN
-from utilities.forms import DynamicModelChoiceField
+from utilities.forms import add_blank_choice, DynamicModelChoiceField
 from wireless.choices import *
 from wireless.constants import SSID_MAX_LENGTH
 from wireless.models import *
@@ -45,24 +45,27 @@ class WirelessLANBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
+        label='VLAN'
     )
     ssid = forms.CharField(
         max_length=SSID_MAX_LENGTH,
-        required=False
+        required=False,
+        label='SSID'
     )
     description = forms.CharField(
         required=False
     )
     auth_type = forms.ChoiceField(
-        choices=WirelessAuthTypeChoices,
+        choices=add_blank_choice(WirelessAuthTypeChoices),
         required=False
     )
     auth_cipher = forms.ChoiceField(
-        choices=WirelessAuthCipherChoices,
+        choices=add_blank_choice(WirelessAuthCipherChoices),
         required=False
     )
     auth_psk = forms.CharField(
-        required=False
+        required=False,
+        label='Pre-shared key'
     )
 
     class Meta:
@@ -76,25 +79,27 @@ class WirelessLinkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     )
     ssid = forms.CharField(
         max_length=SSID_MAX_LENGTH,
-        required=False
+        required=False,
+        label='SSID'
     )
     status = forms.ChoiceField(
-        choices=LinkStatusChoices,
+        choices=add_blank_choice(LinkStatusChoices),
         required=False
     )
     description = forms.CharField(
         required=False
     )
     auth_type = forms.ChoiceField(
-        choices=WirelessAuthTypeChoices,
+        choices=add_blank_choice(WirelessAuthTypeChoices),
         required=False
     )
     auth_cipher = forms.ChoiceField(
-        choices=WirelessAuthCipherChoices,
+        choices=add_blank_choice(WirelessAuthCipherChoices),
         required=False
     )
     auth_psk = forms.CharField(
-        required=False
+        required=False,
+        label='Pre-shared key'
     )
 
     class Meta:

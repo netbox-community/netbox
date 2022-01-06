@@ -580,7 +580,7 @@ class FHRPGroupForm(CustomFieldModelForm):
                 vrf=self.cleaned_data['ip_vrf'],
                 address=self.cleaned_data['ip_address'],
                 status=self.cleaned_data['ip_status'],
-                role=FHRP_PROTOCOL_ROLE_MAPPINGS[self.cleaned_data['protocol']],
+                role=FHRP_PROTOCOL_ROLE_MAPPINGS.get(self.cleaned_data['protocol'], IPAddressRoleChoices.ROLE_VIP),
                 assigned_object=instance
             )
             ipaddress.save()
@@ -628,8 +628,7 @@ class FHRPGroupAssignmentForm(BootstrapMixin, forms.ModelForm):
 class VLANGroupForm(CustomFieldModelForm):
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
-        required=False,
-        widget=StaticSelect
+        required=False
     )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),

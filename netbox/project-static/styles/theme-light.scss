@@ -2,27 +2,46 @@
 
 @import './theme-base.scss';
 
-$input-border-color: $gray-200;
+// Theme colors (BS5 classes)
+$primary: #337ab7;
+$secondary: $gray-600;
+$success: $green-500;
+$info: #54d6f0;
+$warning: $yellow-500;
+$danger: $red-500;
+$light: $gray-200;
+$dark: $gray-800;
 
-$theme-colors: map-merge(
-  $theme-colors,
-  (
-    'primary': #337ab7,
-    'info': #54d6f0,
-    'red': $red-500,
-    'yellow': $yellow-500,
-    'green': $green-500,
-    'blue': $blue-500,
-    'cyan': $cyan-500,
-    'indigo': $indigo-500,
-    'purple': $purple-500,
-    'pink': $pink-500,
-  )
+$theme-colors: (
+  // BS5 theme colors
+  'primary': $primary,
+  'secondary': $secondary,
+  'success': $success,
+  'info': $info,
+  'warning': $warning,
+  'danger': $danger,
+  'light': $light,
+  'dark': $dark,
+
+  // General-purpose palette
+  'blue': $blue-500,
+  'indigo': $indigo-500,
+  'purple': $purple-500,
+  'pink': $pink-500,
+  'red': $red-500,
+  'orange': $orange-500,
+  'yellow': $yellow-500,
+  'green': $green-500,
+  'teal': $teal-500,
+  'cyan': $cyan-500,
+  'gray': $gray-500,
+  'black': $black,
+  'white': $white,
 );
 
-$theme-colors: map-merge($theme-colors, $theme-color-addons);
-
 $light: $gray-200;
+
+$navbar-light-color: $gray-100;
 
 $card-cap-color: $gray-800;
 

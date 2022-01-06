@@ -14,7 +14,6 @@ __all__ = (
     'BulkEditNullBooleanSelect',
     'ClearableFileInput',
     'ColorSelect',
-    'ContentTypeSelect',
     'DatePicker',
     'DateTimePicker',
     'NumericArrayField',
@@ -108,15 +107,6 @@ class SelectWithPK(StaticSelect):
     Include the primary key of each option in the option label (e.g. "Router7 (4721)").
     """
     option_template_name = 'widgets/select_option_with_pk.html'
-
-
-class ContentTypeSelect(StaticSelect):
-    """
-    Appends an `api-value` attribute equal to the slugified model name for each ContentType. For example:
-        <option value="37" api-value="console-server-port">console server port</option>
-    This attribute can be used to reference the relevant API endpoint for a particular ContentType.
-    """
-    option_template_name = 'widgets/select_contenttype.html'
 
 
 class SelectSpeedWidget(forms.NumberInput):

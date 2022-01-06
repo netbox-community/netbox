@@ -3,6 +3,7 @@
 @use 'sass:map';
 @import './theme-base';
 
+// Theme colors (BS5 classes)
 $primary: $blue-300;
 $secondary: $gray-500;
 $success: $green-300;
@@ -13,6 +14,7 @@ $light: $gray-300;
 $dark: $gray-500;
 
 $theme-colors: (
+  // BS5 theme colors
   'primary': $primary,
   'secondary': $secondary,
   'success': $success,
@@ -21,17 +23,22 @@ $theme-colors: (
   'danger': $danger,
   'light': $light,
   'dark': $dark,
-  'red': $red-300,
-  'yellow': $yellow-300,
-  'green': $green-300,
+
+  // General-purpose palette
   'blue': $blue-300,
-  'cyan': $cyan-300,
   'indigo': $indigo-300,
   'purple': $purple-300,
   'pink': $pink-300,
+  'red': $red-300,
+  'orange': $orange-300,
+  'yellow': $yellow-300,
+  'green': $green-300,
+  'teal': $teal-300,
+  'cyan': $cyan-300,
+  'gray': $gray-300,
+  'black': $black,
+  'white': $white,
 );
-
-$theme-colors: map-merge($theme-colors, $theme-color-addons);
 
 // Gradient
 $gradient: linear-gradient(180deg, rgba($white, 0.15), rgba($white, 0));
@@ -139,7 +146,7 @@ $nav-tabs-link-active-border-color: $gray-800 $gray-800 $nav-tabs-link-active-bg
 $nav-pills-link-active-color: $component-active-color;
 $nav-pills-link-active-bg: $component-active-bg;
 
-$navbar-light-color: $gray-500;
+$navbar-light-color: $darkest;
 $navbar-light-toggler-icon-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='#{$navbar-light-color}' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
 $navbar-light-toggler-border-color: $gray-700;
 

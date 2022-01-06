@@ -578,7 +578,7 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['site_id', 'rack_id', 'device_id'],
-        ['type', 'status', 'color'],
+        ['type', 'status', 'color', 'length', 'length_unit'],
         ['tenant_group_id', 'tenant_id'],
     ]
     region_id = DynamicModelMultipleChoiceField(
@@ -603,6 +603,16 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
             'site_id': '$site_id'
         }
     )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site_id',
+            'tenant_id': '$tenant_id',
+            'rack_id': '$rack_id',
+        },
+        label=_('Device')
+    )
     type = forms.MultipleChoiceField(
         choices=add_blank_choice(CableTypeChoices),
         required=False,
@@ -616,15 +626,12 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     color = ColorField(
         required=False
     )
-    device_id = DynamicModelMultipleChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        query_params={
-            'site_id': '$site_id',
-            'tenant_id': '$tenant_id',
-            'rack_id': '$rack_id',
-        },
-        label=_('Device')
+    length = forms.IntegerField(
+        required=False
+    )
+    length_unit = forms.ChoiceField(
+        choices=add_blank_choice(CableLengthUnitChoices),
+        required=False
     )
     tag = TagFilterField(model)
 
