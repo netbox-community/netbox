@@ -52,6 +52,13 @@ class CustomFieldModelFormTest(TestCase):
         )
         cf_object.content_types.set([obj_type])
 
+        cf_multiobject = CustomField.objects.create(
+            name='multiobject',
+            type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
+            object_type=ContentType.objects.get_for_model(Site)
+        )
+        cf_multiobject.content_types.set([obj_type])
+
     def test_empty_values(self):
         """
         Test that empty custom field values are stored as null

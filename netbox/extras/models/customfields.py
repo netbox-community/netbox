@@ -251,7 +251,7 @@ class CustomField(ChangeLoggedModel):
         if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             return value.pk
         if self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
-            return [obj.pk for obj in value]
+            return [obj.pk for obj in value] or None
         return value
 
     def deserialize(self, value):
