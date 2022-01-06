@@ -20,7 +20,7 @@ class CustomFieldsMixin:
     Extend a Form to include custom field support.
     """
     def __init__(self, *args, **kwargs):
-        self.custom_fields = []
+        self.custom_fields = {}
 
         super().__init__(*args, **kwargs)
 
@@ -49,7 +49,7 @@ class CustomFieldsMixin:
             self.fields[field_name] = self._get_form_field(customfield)
 
             # Annotate the field in the list of CustomField form fields
-            self.custom_fields.append(field_name)
+            self.custom_fields[field_name] = customfield
 
 
 class CustomFieldModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
@@ -70,12 +70,15 @@ class CustomFieldModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
     def clean(self):
 
         # Save custom field data on instance
-        for cf_name in self.custom_fields:
+        for cf_name, customfield in self.custom_fields.items():
             key = cf_name[3:]  # Strip "cf_" from field name
             value = self.cleaned_data.get(cf_name)
-            empty_values = self.fields[cf_name].empty_values
+
             # Convert "empty" values to null
-            self.instance.custom_field_data[key] = value if value not in empty_values else None
+            if value in self.fields[cf_name].empty_values:
+                self.instance.custom_field_data[key] = None
+            else:
+                self.instance.custom_field_data[key] = customfield.serialize(value)
 
         return super().clean()
 
