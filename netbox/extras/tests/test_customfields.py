@@ -15,7 +15,8 @@ from virtualization.models import VirtualMachine
 
 class CustomFieldTest(TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
 
         Site.objects.bulk_create([
             Site(name='Site A', slug='site-a'),
@@ -23,137 +24,294 @@ class CustomFieldTest(TestCase):
             Site(name='Site C', slug='site-c'),
         ])
 
-    def test_simple_fields(self):
-        DATA = (
-            {
-                'field': {
-                    'type': CustomFieldTypeChoices.TYPE_TEXT,
-                },
-                'value': 'Foobar!',
-            },
-            {
-                'field': {
-                    'type': CustomFieldTypeChoices.TYPE_LONGTEXT,
-                },
-                'value': 'Text with **Markdown**',
-            },
-            {
-                'field': {
-                    'type': CustomFieldTypeChoices.TYPE_INTEGER,
-                },
-                'value': 0,
-            },
-            {
-                'field': {
-                    'type': CustomFieldTypeChoices.TYPE_INTEGER,
-                    'validation_minimum': 1,
-                    'validation_maximum': 100,
-                },
-                'value': 42,
-            },
-            {
-                'field': {
-                    'type': CustomFieldTypeChoices.TYPE_INTEGER,
-                    'validation_minimum': -100,
-                    'validation_maximum': -1,
-                },
-                'value': -42,
-            },
-            {
-                'field': {
-                    'type': CustomFieldTypeChoices.TYPE_BOOLEAN,
-                },
-                'value': True,
-            },
-            {
-                'field': {
-                    'type': CustomFieldTypeChoices.TYPE_BOOLEAN,
-                },
-                'value': False,
-            },
-            {
-                'field': {
-                    'type': CustomFieldTypeChoices.TYPE_DATE,
-                },
-                'value': '2016-06-23',
-            },
-            {
-                'field': {
-                    'type': CustomFieldTypeChoices.TYPE_URL,
-                },
-                'value': 'http://example.com/',
-            },
-            {
-                'field': {
-                    'type': CustomFieldTypeChoices.TYPE_JSON,
-                },
-                'value': '{"foo": 1, "bar": 2}',
-            },
+        cls.object_type = ContentType.objects.get_for_model(Site)
+
+    def test_text_field(self):
+        value = 'Foobar!'
+
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='text_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            required=False
         )
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
 
-        obj_type = ContentType.objects.get_for_model(Site)
+        # Assign a value and check that it is saved
+        instance.custom_field_data[cf.name] = value
+        instance.save()
+        instance.refresh_from_db()
+        self.assertEqual(instance.custom_field_data[cf.name], value)
 
-        for data in DATA:
+        # Delete the stored value and check that it is now null
+        instance.custom_field_data.pop(cf.name)
+        instance.save()
+        instance.refresh_from_db()
+        self.assertIsNone(instance.custom_field_data.get(cf.name))
 
-            # Create a custom field
-            cf = CustomField(name='my_field', required=False, **data['field'])
-            cf.save()
-            cf.content_types.set([obj_type])
+    def test_longtext_field(self):
+        value = 'A' * 256
 
-            # Check that the field has a null initial value
-            site = Site.objects.first()
-            self.assertIsNone(site.custom_field_data[cf.name])
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='longtext_field',
+            type=CustomFieldTypeChoices.TYPE_LONGTEXT,
+            required=False
+        )
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
 
-            # Assign a value to the first Site
-            site.custom_field_data[cf.name] = data['value']
-            site.save()
+        # Assign a value and check that it is saved
+        instance.custom_field_data[cf.name] = value
+        instance.save()
+        instance.refresh_from_db()
+        self.assertEqual(instance.custom_field_data[cf.name], value)
 
-            # Retrieve the stored value
-            site.refresh_from_db()
-            self.assertEqual(site.custom_field_data[cf.name], data['value'])
+        # Delete the stored value and check that it is now null
+        instance.custom_field_data.pop(cf.name)
+        instance.save()
+        instance.refresh_from_db()
+        self.assertIsNone(instance.custom_field_data.get(cf.name))
 
-            # Delete the stored value
-            site.custom_field_data.pop(cf.name)
-            site.save()
-            site.refresh_from_db()
-            self.assertIsNone(site.custom_field_data.get(cf.name))
+    def test_integer_field(self):
 
-            # Delete the custom field
-            cf.delete()
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='integer_field',
+            type=CustomFieldTypeChoices.TYPE_INTEGER,
+            required=False
+        )
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
+
+        for value in (123456, 0, -123456):
+
+            # Assign a value and check that it is saved
+            instance.custom_field_data[cf.name] = value
+            instance.save()
+            instance.refresh_from_db()
+            self.assertEqual(instance.custom_field_data[cf.name], value)
+
+            # Delete the stored value and check that it is now null
+            instance.custom_field_data.pop(cf.name)
+            instance.save()
+            instance.refresh_from_db()
+            self.assertIsNone(instance.custom_field_data.get(cf.name))
+
+    def test_boolean_field(self):
+
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='boolean_field',
+            type=CustomFieldTypeChoices.TYPE_INTEGER,
+            required=False
+        )
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
+
+        for value in (True, False):
+
+            # Assign a value and check that it is saved
+            instance.custom_field_data[cf.name] = value
+            instance.save()
+            instance.refresh_from_db()
+            self.assertEqual(instance.custom_field_data[cf.name], value)
+
+            # Delete the stored value and check that it is now null
+            instance.custom_field_data.pop(cf.name)
+            instance.save()
+            instance.refresh_from_db()
+            self.assertIsNone(instance.custom_field_data.get(cf.name))
+
+    def test_date_field(self):
+        value = '2016-06-23'
+
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='date_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            required=False
+        )
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
+
+        # Assign a value and check that it is saved
+        instance.custom_field_data[cf.name] = value
+        instance.save()
+        instance.refresh_from_db()
+        self.assertEqual(instance.custom_field_data[cf.name], value)
+
+        # Delete the stored value and check that it is now null
+        instance.custom_field_data.pop(cf.name)
+        instance.save()
+        instance.refresh_from_db()
+        self.assertIsNone(instance.custom_field_data.get(cf.name))
+
+    def test_url_field(self):
+        value = 'http://example.com/'
+
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='url_field',
+            type=CustomFieldTypeChoices.TYPE_URL,
+            required=False
+        )
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
+
+        # Assign a value and check that it is saved
+        instance.custom_field_data[cf.name] = value
+        instance.save()
+        instance.refresh_from_db()
+        self.assertEqual(instance.custom_field_data[cf.name], value)
+
+        # Delete the stored value and check that it is now null
+        instance.custom_field_data.pop(cf.name)
+        instance.save()
+        instance.refresh_from_db()
+        self.assertIsNone(instance.custom_field_data.get(cf.name))
+
+    def test_json_field(self):
+        value = '{"foo": 1, "bar": 2}'
+
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='json_field',
+            type=CustomFieldTypeChoices.TYPE_JSON,
+            required=False
+        )
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
+
+        # Assign a value and check that it is saved
+        instance.custom_field_data[cf.name] = value
+        instance.save()
+        instance.refresh_from_db()
+        self.assertEqual(instance.custom_field_data[cf.name], value)
+
+        # Delete the stored value and check that it is now null
+        instance.custom_field_data.pop(cf.name)
+        instance.save()
+        instance.refresh_from_db()
+        self.assertIsNone(instance.custom_field_data.get(cf.name))
 
     def test_select_field(self):
-        obj_type = ContentType.objects.get_for_model(Site)
+        CHOICES = ('Option A', 'Option B', 'Option C')
+        value = CHOICES[1]
 
-        # Create a custom field
-        cf = CustomField(
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='select_field',
             type=CustomFieldTypeChoices.TYPE_SELECT,
-            name='my_field',
             required=False,
-            choices=['Option A', 'Option B', 'Option C']
+            choices=CHOICES
         )
-        cf.save()
-        cf.content_types.set([obj_type])
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
 
-        # Check that the field has a null initial value
-        site = Site.objects.first()
-        self.assertIsNone(site.custom_field_data[cf.name])
+        # Assign a value and check that it is saved
+        instance.custom_field_data[cf.name] = value
+        instance.save()
+        instance.refresh_from_db()
+        self.assertEqual(instance.custom_field_data[cf.name], value)
 
-        # Assign a value to the first Site
-        site.custom_field_data[cf.name] = 'Option A'
-        site.save()
+        # Delete the stored value and check that it is now null
+        instance.custom_field_data.pop(cf.name)
+        instance.save()
+        instance.refresh_from_db()
+        self.assertIsNone(instance.custom_field_data.get(cf.name))
 
-        # Retrieve the stored value
-        site.refresh_from_db()
-        self.assertEqual(site.custom_field_data[cf.name], 'Option A')
+    def test_multiselect_field(self):
+        CHOICES = ['Option A', 'Option B', 'Option C']
+        value = [CHOICES[1], CHOICES[2]]
 
-        # Delete the stored value
-        site.custom_field_data.pop(cf.name)
-        site.save()
-        site.refresh_from_db()
-        self.assertIsNone(site.custom_field_data.get(cf.name))
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='multiselect_field',
+            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+            required=False,
+            choices=CHOICES
+        )
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
 
-        # Delete the custom field
-        cf.delete()
+        # Assign a value and check that it is saved
+        instance.custom_field_data[cf.name] = value
+        instance.save()
+        instance.refresh_from_db()
+        self.assertEqual(instance.custom_field_data[cf.name], value)
+
+        # Delete the stored value and check that it is now null
+        instance.custom_field_data.pop(cf.name)
+        instance.save()
+        instance.refresh_from_db()
+        self.assertIsNone(instance.custom_field_data.get(cf.name))
+
+    def test_object_field(self):
+        value = VLAN.objects.create(name='VLAN 1', vid=1).pk
+
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='object_field',
+            type=CustomFieldTypeChoices.TYPE_OBJECT,
+            required=False
+        )
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
+
+        # Assign a value and check that it is saved
+        instance.custom_field_data[cf.name] = value
+        instance.save()
+        instance.refresh_from_db()
+        self.assertEqual(instance.custom_field_data[cf.name], value)
+
+        # Delete the stored value and check that it is now null
+        instance.custom_field_data.pop(cf.name)
+        instance.save()
+        instance.refresh_from_db()
+        self.assertIsNone(instance.custom_field_data.get(cf.name))
+
+    def test_multiobject_field(self):
+        vlans = (
+            VLAN(name='VLAN 1', vid=1),
+            VLAN(name='VLAN 2', vid=2),
+            VLAN(name='VLAN 3', vid=3),
+        )
+        VLAN.objects.bulk_create(vlans)
+        value = [vlan.pk for vlan in vlans]
+
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='object_field',
+            type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
+            required=False
+        )
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
+
+        # Assign a value and check that it is saved
+        instance.custom_field_data[cf.name] = value
+        instance.save()
+        instance.refresh_from_db()
+        self.assertEqual(instance.custom_field_data[cf.name], value)
+
+        # Delete the stored value and check that it is now null
+        instance.custom_field_data.pop(cf.name)
+        instance.save()
+        instance.refresh_from_db()
+        self.assertIsNone(instance.custom_field_data.get(cf.name))
 
     def test_rename_customfield(self):
         obj_type = ContentType.objects.get_for_model(Site)
