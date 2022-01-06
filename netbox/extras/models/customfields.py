@@ -242,6 +242,17 @@ class CustomField(ChangeLoggedModel):
                 'default': f"The specified default value ({self.default}) is not listed as an available choice."
             })
 
+        # Object fields must define an object_type; other fields must not
+        if self.type in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
+            if not self.object_type:
+                raise ValidationError({
+                    'object_type': "Object fields must define an object type."
+                })
+        elif self.object_type:
+            raise ValidationError({
+                'object_type': f"{self.get_type_display()} fields may not define an object type."
+            })
+
     def serialize(self, value):
         """
         Prepare a value for storage as JSON data.
