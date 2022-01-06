@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ContentTypeColumn, LinkedCountColumn, linkify_phone, MarkdownColumn, MPTTColumn,
+    ActionsColumn, BaseTable, ContentTypeColumn, LinkedCountColumn, linkify_phone, MarkdownColumn, MPTTColumn,
     TagColumn, ToggleColumn,
 )
 from .models import *
@@ -59,7 +59,7 @@ class TenantGroupTable(BaseTable):
     tags = TagColumn(
         url_name='tenancy:tenantgroup_list'
     )
-    actions = ButtonsColumn(TenantGroup)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = TenantGroup
@@ -103,7 +103,7 @@ class ContactGroupTable(BaseTable):
     tags = TagColumn(
         url_name='tenancy:contactgroup_list'
     )
-    actions = ButtonsColumn(ContactGroup)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = ContactGroup
@@ -116,7 +116,7 @@ class ContactRoleTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
-    actions = ButtonsColumn(ContactRole)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = ContactRole
@@ -164,9 +164,8 @@ class ContactAssignmentTable(BaseTable):
     role = tables.Column(
         linkify=True
     )
-    actions = ButtonsColumn(
-        model=ContactAssignment,
-        buttons=('edit', 'delete')
+    actions = ActionsColumn(
+        actions=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):

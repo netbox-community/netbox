@@ -4,7 +4,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Rack, RackReservation, RackRole
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn,
+    ActionsColumn, BaseTable, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn,
     TagColumn, ToggleColumn, UtilizationColumn,
 )
 
@@ -27,7 +27,7 @@ class RackRoleTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:rackrole_list'
     )
-    actions = ButtonsColumn(RackRole)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = RackRole
@@ -121,7 +121,7 @@ class RackReservationTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:rackreservation_list'
     )
-    actions = ButtonsColumn(RackReservation)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = RackReservation

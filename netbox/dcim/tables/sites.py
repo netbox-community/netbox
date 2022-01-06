@@ -3,7 +3,8 @@ import django_tables2 as tables
 from dcim.models import Location, Region, Site, SiteGroup
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn, TagColumn, ToggleColumn,
+    ActionsColumn, BaseTable, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn,
+    TagColumn, ToggleColumn,
 )
 from .template_code import LOCATION_ELEVATIONS
 
@@ -32,7 +33,7 @@ class RegionTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:region_list'
     )
-    actions = ButtonsColumn(Region)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = Region
@@ -57,7 +58,7 @@ class SiteGroupTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:sitegroup_list'
     )
-    actions = ButtonsColumn(SiteGroup)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = SiteGroup

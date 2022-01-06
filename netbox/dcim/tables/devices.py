@@ -7,7 +7,7 @@ from dcim.models import (
 )
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
+    ActionsColumn, BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
     MarkdownColumn, TagColumn, TemplateColumn, ToggleColumn,
 )
 from .template_code import *
@@ -94,7 +94,7 @@ class DeviceRoleTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:devicerole_list'
     )
-    actions = ButtonsColumn(DeviceRole)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
@@ -127,7 +127,7 @@ class PlatformTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:platform_list'
     )
-    actions = ButtonsColumn(Platform)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = Platform
@@ -839,7 +839,7 @@ class InventoryItemRoleTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:inventoryitemrole_list'
     )
-    actions = ButtonsColumn(InventoryItemRole)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = InventoryItemRole

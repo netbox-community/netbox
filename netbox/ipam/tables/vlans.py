@@ -5,8 +5,8 @@ from django_tables2.utils import Accessor
 from dcim.models import Interface
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ContentTypeColumn, LinkedCountColumn, TagColumn,
-    TemplateColumn, ToggleColumn,
+    ActionsColumn, BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ContentTypeColumn, LinkedCountColumn,
+    TagColumn, TemplateColumn, ToggleColumn,
 )
 from virtualization.models import VMInterface
 from ipam.models import *
@@ -153,7 +153,9 @@ class VLANDevicesTable(VLANMembersTable):
     device = tables.Column(
         linkify=True
     )
-    actions = ButtonsColumn(Interface, buttons=['edit'])
+    actions = ActionsColumn(
+        actions=('edit',)
+    )
 
     class Meta(BaseTable.Meta):
         model = Interface
@@ -165,7 +167,9 @@ class VLANVirtualMachinesTable(VLANMembersTable):
     virtual_machine = tables.Column(
         linkify=True
     )
-    actions = ButtonsColumn(VMInterface, buttons=['edit'])
+    actions = ActionsColumn(
+        actions=('edit',)
+    )
 
     class Meta(BaseTable.Meta):
         model = VMInterface

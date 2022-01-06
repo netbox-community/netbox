@@ -6,7 +6,8 @@ from dcim.models import (
     InventoryItemTemplate, Manufacturer, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, LinkedCountColumn, MarkdownColumn, TagColumn, ToggleColumn,
+    ActionsColumn, BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, LinkedCountColumn, MarkdownColumn, TagColumn,
+    ToggleColumn,
 )
 from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS
 
@@ -48,7 +49,7 @@ class ManufacturerTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:manufacturer_list'
     )
-    actions = ButtonsColumn(Manufacturer)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = Manufacturer

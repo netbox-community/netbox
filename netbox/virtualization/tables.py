@@ -2,8 +2,8 @@ import django_tables2 as tables
 from dcim.tables.devices import BaseInterfaceTable
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn, TagColumn,
-    ToggleColumn,
+    ActionsColumn, BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn,
+    TagColumn, ToggleColumn,
 )
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -40,7 +40,7 @@ class ClusterTypeTable(BaseTable):
     tags = TagColumn(
         url_name='virtualization:clustertype_list'
     )
-    actions = ButtonsColumn(ClusterType)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = ClusterType
@@ -63,7 +63,7 @@ class ClusterGroupTable(BaseTable):
     tags = TagColumn(
         url_name='virtualization:clustergroup_list'
     )
-    actions = ButtonsColumn(ClusterGroup)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = ClusterGroup

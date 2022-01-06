@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 import django_tables2 as tables
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
@@ -203,6 +205,52 @@ class TemplateColumn(tables.TemplateColumn):
         if ret == self.PLACEHOLDER:
             return ''
         return ret
+
+
+ActionsMenuItem = namedtuple('ActionsMenuItem', ['title', 'icon'])
+
+
+class ActionsColumn(tables.Column):
+    attrs = {'td': {'class': 'text-end noprint'}}
+    empty_values = ()
+    _actions = {
+        'edit': ActionsMenuItem('Edit', 'pencil'),
+        'delete': ActionsMenuItem('Delete', 'trash-can-outline'),
+        'changelog': ActionsMenuItem('Changelog', 'history'),
+    }
+
+    def __init__(self, *args, actions=('edit', 'delete', 'changelog'), **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Determine which actions to enable
+        self.actions = {
+            name: self._actions[name] for name in actions
+        }
+
+    def header(self):
+        return ''
+
+    def render(self, record, table, **kwargs):
+        if not self.actions:
+            return ''
+
+        model = table.Meta.model
+        viewname_base = f'{model._meta.app_label}:{model._meta.model_name}'
+        request = getattr(table, 'context', {}).get('request')
+        url_appendix = f'?return_url={request.path}' if request else ''
+
+        menu = '<div class="dropdown">' \
+               '<a class="btn btn-sm btn-outline-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown"><i class="mdi mdi-wrench"></i></a>' \
+               '<ul class="dropdown-menu">'
+
+        for action, attrs in self.actions.items():
+            viewname = f'{viewname_base}_{action}'
+            url = reverse(viewname, kwargs={'pk': record.pk})
+            menu += f'<li><a class="dropdown-item" href="{url}{url_appendix}"><i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>'
+
+        menu += '</ul></div>'
+
+        return mark_safe(menu)
 
 
 class ButtonsColumn(tables.TemplateColumn):

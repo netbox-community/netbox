@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from dcim.models import Interface
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, MPTTColumn, TagColumn, ToggleColumn,
+    ActionsColumn, BaseTable, ChoiceFieldColumn, LinkedCountColumn, MPTTColumn, TagColumn, ToggleColumn,
 )
 from .models import *
 
@@ -26,7 +26,7 @@ class WirelessLANGroupTable(BaseTable):
     tags = TagColumn(
         url_name='wireless:wirelesslangroup_list'
     )
-    actions = ButtonsColumn(WirelessLANGroup)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = WirelessLANGroup

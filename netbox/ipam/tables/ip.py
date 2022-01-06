@@ -4,8 +4,8 @@ from django_tables2.utils import Accessor
 
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, TagColumn,
-    ToggleColumn, UtilizationColumn,
+    ActionsColumn, BaseTable, BooleanColumn, ChoiceFieldColumn, LinkedCountColumn, TagColumn, ToggleColumn,
+    UtilizationColumn,
 )
 from ipam.models import *
 
@@ -89,7 +89,7 @@ class RIRTable(BaseTable):
     tags = TagColumn(
         url_name='ipam:rir_list'
     )
-    actions = ButtonsColumn(RIR)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = RIR
@@ -111,7 +111,7 @@ class ASNTable(BaseTable):
         url_params={'asn_id': 'pk'},
         verbose_name='Sites'
     )
-    actions = ButtonsColumn(ASN)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = ASN
@@ -173,7 +173,7 @@ class RoleTable(BaseTable):
     tags = TagColumn(
         url_name='ipam:role_list'
     )
-    actions = ButtonsColumn(Role)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = Role
@@ -405,9 +405,7 @@ class AssignedIPAddressesTable(BaseTable):
     )
     status = ChoiceFieldColumn()
     tenant = TenantColumn()
-    actions = ButtonsColumn(
-        model=IPAddress
-    )
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = IPAddress

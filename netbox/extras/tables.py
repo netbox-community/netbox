@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django.conf import settings
 
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ContentTypesColumn,
+    ActionsColumn, BaseTable, BooleanColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ContentTypesColumn,
     MarkdownColumn, ToggleColumn,
 )
 from .models import *
@@ -152,7 +152,7 @@ class TagTable(BaseTable):
         linkify=True
     )
     color = ColorColumn()
-    actions = ButtonsColumn(Tag)
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = Tag
@@ -233,9 +233,7 @@ class ObjectJournalTable(BaseTable):
     comments = tables.TemplateColumn(
         template_code='{% load helpers %}{{ value|render_markdown|truncatewords_html:50 }}'
     )
-    actions = ButtonsColumn(
-        model=JournalEntry
-    )
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = JournalEntry
