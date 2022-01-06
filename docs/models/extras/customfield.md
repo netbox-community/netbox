@@ -19,6 +19,8 @@ Custom fields may be created by navigating to Customization > Custom Fields. Net
 * JSON: Arbitrary data stored in JSON format
 * Selection: A selection of one of several pre-defined custom choices
 * Multiple selection: A selection field which supports the assignment of multiple values
+* Object: A single NetBox object of the type defined by `object_type`
+* Multiple object: One or more NetBox objects of the type defined by `object_type`
 
 Each custom field must have a name. This should be a simple database-friendly string (e.g. `tps_report`) and may contain only alphanumeric characters and underscores. You may also assign a corresponding human-friendly label (e.g. "TPS report"); the label will be displayed on web forms. A weight is also required: Higher-weight fields will be ordered lower within a form. (The default weight is 100.) If a description is provided, it will appear beneath the field in a form.
 
@@ -41,3 +43,7 @@ NetBox supports limited custom validation for custom field values. Following are
 Each custom selection field must have at least two choices. These are specified as a comma-separated list. Choices appear in forms in the order they are listed. Note that choice values are saved exactly as they appear, so it's best to avoid superfluous punctuation or symbols where possible.
 
 If a default value is specified for a selection field, it must exactly match one of the provided choices. The value of a multiple selection field will always return a list, even if only one value is selected.
+
+### Custom Object Fields
+
+An object or multi-object custom field can be used to refer to a particular NetBox object or objects as the "value" for a custom field. These custom fields must define an `object_type`, which determines the type of object to which custom field instances point.

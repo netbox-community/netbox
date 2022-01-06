@@ -22,6 +22,12 @@ A new REST API endpoint has been added at `/api/ipam/vlan-groups/<pk>/available-
 
 A new model has been introduced to represent function roles for inventory items, similar to device roles. The assignment of roles to inventory items is optional.
 
+#### Custom Object Fields ([#7006](https://github.com/netbox-community/netbox/issues/7006))
+
+Two new types of custom field have been added: object and multi-object. These can be used to associate objects with other objects in NetBox. For example, you might create a custom field named `primary_site` on the tenant model so that a particular site can be associated with each tenant as its primary. The multi-object custom field type allows for the assignment of one or more objects of the same type.
+
+Custom field object assignment is fully supported in the REST API, and functions similarly to normal foreign key relations. Nested representations are provided for each custom field object.
+
 #### Modules & Module Types ([#7844](https://github.com/netbox-community/netbox/issues/7844))
 
 Several new models have been added to support field-replaceable device modules, such as those within a chassis-based switch or router. Similar to devices, each module is instantiated from a user-defined module type, and can have components associated with it. These components become available to the parent device once the module has been installed within a module bay. This makes it very convenient to replicate the addition and deletion of device components as modules are installed and removed. 
@@ -96,6 +102,8 @@ Inventory item templates can be arranged hierarchically within a device type, an
     * Removed the `asn`, `contact_name`, `contact_phone`, and `contact_email` fields
 * extras.ConfigContext
     * Add `cluster_types` field
+* extras.CustomField
+    * Added `object_type` field
 * ipam.VLANGroup
     * Added the `/availables-vlans/` endpoint
     * Added the `min_vid` and `max_vid` fields
