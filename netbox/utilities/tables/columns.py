@@ -102,18 +102,22 @@ class ActionsItem:
 class ActionsColumn(tables.Column):
     attrs = {'td': {'class': 'text-end noprint'}}
     empty_values = ()
-    _actions = {
+    actions = {
         'edit': ActionsItem('Edit', 'pencil', 'change'),
         'delete': ActionsItem('Delete', 'trash-can-outline', 'delete'),
         'changelog': ActionsItem('Changelog', 'history'),
     }
 
-    def __init__(self, *args, actions=('edit', 'delete', 'changelog'), **kwargs):
+    def __init__(self, *args, extra_actions=None, sequence=('edit', 'delete', 'changelog'), **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Add/update any extra actions passed
+        if extra_actions:
+            self.actions.update(extra_actions)
 
         # Determine which actions to enable
         self.actions = {
-            name: self._actions[name] for name in actions
+            name: self.actions[name] for name in sequence
         }
 
     def header(self):

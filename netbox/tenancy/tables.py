@@ -162,7 +162,7 @@ class ContactAssignmentTable(BaseTable):
         linkify=True
     )
     actions = ActionsColumn(
-        actions=('edit', 'delete')
+        sequence=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):

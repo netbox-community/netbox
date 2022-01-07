@@ -214,7 +214,7 @@ class ObjectChangeTable(BaseTable):
         template_code=OBJECTCHANGE_REQUEST_ID,
         verbose_name='Request ID'
     )
-    actions = ActionsColumn(actions=())
+    actions = ActionsColumn(sequence=())
 
     class Meta(BaseTable.Meta):
         model = ObjectChange
