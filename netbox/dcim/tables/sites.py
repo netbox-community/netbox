@@ -3,8 +3,7 @@ import django_tables2 as tables
 from dcim.models import Location, Region, Site, SiteGroup
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    ActionsColumn, BaseTable, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn,
-    TagColumn, ToggleColumn,
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn, TagColumn, ToggleColumn,
 )
 from .template_code import LOCATION_ELEVATIONS
 
@@ -33,12 +32,11 @@ class RegionTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:region_list'
     )
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = Region
         fields = ('pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'site_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'site_count', 'description')
 
 
 #
@@ -58,12 +56,11 @@ class SiteGroupTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:sitegroup_list'
     )
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = SiteGroup
         fields = ('pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'site_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'site_count', 'description')
 
 
 #
@@ -99,6 +96,7 @@ class SiteTable(BaseTable):
         fields = (
             'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asn_count', 'time_zone',
             'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments', 'tags',
+            'actions',
         )
         default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'description')
 
@@ -140,4 +138,4 @@ class LocationTable(BaseTable):
             'pk', 'id', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'tags',
             'actions',
         )
-        default_columns = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description')

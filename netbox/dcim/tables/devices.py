@@ -94,7 +94,6 @@ class DeviceRoleTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:devicerole_list'
     )
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
@@ -102,7 +101,7 @@ class DeviceRoleTable(BaseTable):
             'pk', 'id', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'slug', 'tags',
             'actions',
         )
-        default_columns = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'actions')
+        default_columns = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description')
 
 
 #
@@ -127,7 +126,6 @@ class PlatformTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:platform_list'
     )
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = Platform
@@ -136,7 +134,7 @@ class PlatformTable(BaseTable):
             'description', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'napalm_driver', 'description', 'actions',
+            'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'napalm_driver', 'description',
         )
 
 
@@ -336,7 +334,7 @@ class DeviceConsolePortTable(ConsolePortTable):
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'speed', 'description', 'mark_connected',
             'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'actions'
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection', 'actions')
+        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection')
         row_attrs = {
             'class': get_cabletermination_row_class
         }
@@ -381,7 +379,7 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'speed', 'description', 'mark_connected',
             'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection', 'actions')
+        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection')
         row_attrs = {
             'class': get_cabletermination_row_class
         }
@@ -428,7 +426,6 @@ class DevicePowerPortTable(PowerPortTable):
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'connection',
-            'actions',
         )
         row_attrs = {
             'class': get_cabletermination_row_class
@@ -477,7 +474,7 @@ class DevicePowerOutletTable(PowerOutletTable):
             'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'connection', 'actions',
+            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'connection',
         )
         row_attrs = {
             'class': get_cabletermination_row_class
@@ -572,7 +569,7 @@ class DeviceInterfaceTable(InterfaceTable):
         order_by = ('name',)
         default_columns = (
             'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mtu', 'mode', 'description', 'ip_addresses',
-            'cable', 'connection', 'actions',
+            'cable', 'connection',
         )
         row_attrs = {
             'class': get_interface_row_class,
@@ -631,7 +628,6 @@ class DeviceFrontPortTable(FrontPortTable):
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'link_peer',
-            'actions',
         )
         row_attrs = {
             'class': get_cabletermination_row_class
@@ -679,7 +675,7 @@ class DeviceRearPortTable(RearPortTable):
             'cable', 'cable_color', 'link_peer', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'link_peer', 'actions',
+            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'link_peer',
         )
         row_attrs = {
             'class': get_cabletermination_row_class
@@ -728,9 +724,7 @@ class DeviceDeviceBayTable(DeviceBayTable):
         fields = (
             'pk', 'id', 'name', 'label', 'status', 'installed_device', 'description', 'tags', 'actions',
         )
-        default_columns = (
-            'pk', 'name', 'label', 'status', 'installed_device', 'description', 'actions',
-        )
+        default_columns = ('pk', 'name', 'label', 'status', 'installed_device', 'description')
 
 
 class ModuleBayTable(DeviceComponentTable):
@@ -764,7 +758,7 @@ class DeviceModuleBayTable(ModuleBayTable):
     class Meta(DeviceComponentTable.Meta):
         model = ModuleBay
         fields = ('pk', 'id', 'name', 'label', 'description', 'installed_module', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'label', 'description', 'installed_module', 'actions')
+        default_columns = ('pk', 'name', 'label', 'description', 'installed_module')
 
 
 class InventoryItemTable(DeviceComponentTable):
@@ -821,7 +815,7 @@ class DeviceInventoryItemTable(InventoryItemTable):
             'description', 'discovered', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'component', 'actions',
+            'pk', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'component',
         )
 
 
@@ -839,14 +833,13 @@ class InventoryItemRoleTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:inventoryitemrole_list'
     )
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = InventoryItemRole
         fields = (
             'pk', 'id', 'name', 'inventoryitem_count', 'color', 'description', 'slug', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'inventoryitem_count', 'color', 'description', 'actions')
+        default_columns = ('pk', 'name', 'inventoryitem_count', 'color', 'description')
 
 
 #

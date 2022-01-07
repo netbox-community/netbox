@@ -114,7 +114,8 @@ class ActionsColumn(tables.Column):
         return ''
 
     def render(self, record, table, **kwargs):
-        if not self.actions:
+        # Skip dummy records (e.g. available VLANs) or those with no actions
+        if not hasattr(record, 'pk') or not self.actions:
             return ''
 
         model = table.Meta.model

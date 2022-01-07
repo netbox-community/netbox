@@ -152,12 +152,11 @@ class TagTable(BaseTable):
         linkify=True
     )
     color = ColorColumn()
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = Tag
         fields = ('pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'actions')
-        default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description', 'actions')
+        default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description')
 
 
 class TaggedItemTable(BaseTable):
@@ -215,6 +214,7 @@ class ObjectChangeTable(BaseTable):
         template_code=OBJECTCHANGE_REQUEST_ID,
         verbose_name='Request ID'
     )
+    actions = ActionsColumn(actions=())
 
     class Meta(BaseTable.Meta):
         model = ObjectChange
@@ -233,7 +233,6 @@ class ObjectJournalTable(BaseTable):
     comments = tables.TemplateColumn(
         template_code='{% load helpers %}{{ value|render_markdown|truncatewords_html:50 }}'
     )
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = JournalEntry
@@ -259,6 +258,5 @@ class JournalEntryTable(ObjectJournalTable):
             'comments', 'actions'
         )
         default_columns = (
-            'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind',
-            'comments', 'actions'
+            'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind', 'comments'
         )

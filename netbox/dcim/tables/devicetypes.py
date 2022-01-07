@@ -49,7 +49,6 @@ class ManufacturerTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:manufacturer_list'
     )
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = Manufacturer
@@ -58,7 +57,7 @@ class ManufacturerTable(BaseTable):
             'actions',
         )
         default_columns = (
-            'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug', 'actions',
+            'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug',
         )
 
 

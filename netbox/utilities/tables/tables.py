@@ -24,6 +24,7 @@ class BaseTable(tables.Table):
         linkify=True,
         verbose_name='ID'
     )
+    actions = columns.ActionsColumn()
 
     class Meta:
         attrs = {
@@ -50,12 +51,11 @@ class BaseTable(tables.Table):
         if self.empty_text is None:
             self.empty_text = f"No {self._meta.model._meta.verbose_name_plural} found"
 
-        # Hide non-default columns
-        default_columns = getattr(self.Meta, 'default_columns', list())
-        if default_columns:
-            for column in self.columns:
-                if column.name not in default_columns:
-                    self.columns.hide(column.name)
+        # Hide non-default columns (except for actions)
+        default_columns = [*getattr(self.Meta, 'default_columns', self.Meta.fields), 'actions']
+        for column in self.columns:
+            if column.name not in default_columns:
+                self.columns.hide(column.name)
 
         # Apply custom column ordering for user
         if user is not None and not isinstance(user, AnonymousUser):

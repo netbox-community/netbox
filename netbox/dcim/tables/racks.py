@@ -4,8 +4,8 @@ from django_tables2.utils import Accessor
 from dcim.models import Rack, RackReservation, RackRole
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    ActionsColumn, BaseTable, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn,
-    TagColumn, ToggleColumn, UtilizationColumn,
+    BaseTable, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn, TagColumn,
+    ToggleColumn, UtilizationColumn,
 )
 
 __all__ = (
@@ -27,12 +27,11 @@ class RackRoleTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:rackrole_list'
     )
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = RackRole
         fields = ('pk', 'id', 'name', 'rack_count', 'color', 'description', 'slug', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'rack_count', 'color', 'description', 'actions')
+        default_columns = ('pk', 'name', 'rack_count', 'color', 'description')
 
 
 #
@@ -121,7 +120,6 @@ class RackReservationTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:rackreservation_list'
     )
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = RackReservation
@@ -129,6 +127,4 @@ class RackReservationTable(BaseTable):
             'pk', 'id', 'reservation', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'tags',
             'actions',
         )
-        default_columns = (
-            'pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'description', 'actions',
-        )
+        default_columns = ('pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'description')

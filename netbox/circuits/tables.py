@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from tenancy.tables import TenantColumn
-from utilities.tables import ActionsColumn, BaseTable, ChoiceFieldColumn, MarkdownColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ChoiceFieldColumn, MarkdownColumn, TagColumn, ToggleColumn
 from .models import *
 
 
@@ -88,12 +88,11 @@ class CircuitTypeTable(BaseTable):
     circuit_count = tables.Column(
         verbose_name='Circuits'
     )
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = CircuitType
         fields = ('pk', 'id', 'name', 'circuit_count', 'description', 'slug', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'circuit_count', 'description', 'slug', 'actions')
+        default_columns = ('pk', 'name', 'circuit_count', 'description', 'slug')
 
 
 #

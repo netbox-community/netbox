@@ -1,9 +1,10 @@
 import django_tables2 as tables
+
 from dcim.tables.devices import BaseInterfaceTable
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    ActionsColumn, BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn,
-    TagColumn, ToggleColumn,
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn, TagColumn,
+    ToggleColumn,
 )
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -40,12 +41,11 @@ class ClusterTypeTable(BaseTable):
     tags = TagColumn(
         url_name='virtualization:clustertype_list'
     )
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = ClusterType
         fields = ('pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'cluster_count', 'description')
 
 
 #
@@ -63,12 +63,11 @@ class ClusterGroupTable(BaseTable):
     tags = TagColumn(
         url_name='virtualization:clustergroup_list'
     )
-    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = ClusterGroup
         fields = ('pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'cluster_count', 'description')
 
 
 #
@@ -196,9 +195,7 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
             'pk', 'id', 'name', 'enabled', 'parent', 'bridge', 'mac_address', 'mtu', 'mode', 'description', 'tags',
             'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
-        default_columns = (
-            'pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses', 'actions',
-        )
+        default_columns = ('pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses')
         row_attrs = {
             'data-name': lambda record: record.name,
         }
