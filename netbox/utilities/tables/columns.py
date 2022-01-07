@@ -90,16 +90,16 @@ class TemplateColumn(tables.TemplateColumn):
         return ret
 
 
-ActionsMenuItem = namedtuple('ActionsMenuItem', ['title', 'icon'])
+ActionsMenuItem = namedtuple('ActionsMenuItem', ['title', 'icon', 'permission'])
 
 
 class ActionsColumn(tables.Column):
     attrs = {'td': {'class': 'text-end noprint'}}
     empty_values = ()
     _actions = {
-        'edit': ActionsMenuItem('Edit', 'pencil'),
-        'delete': ActionsMenuItem('Delete', 'trash-can-outline'),
-        'changelog': ActionsMenuItem('Changelog', 'history'),
+        'edit': ActionsMenuItem('Edit', 'pencil', 'change'),
+        'delete': ActionsMenuItem('Delete', 'trash-can-outline', 'delete'),
+        'changelog': ActionsMenuItem('Changelog', 'history', None),
     }
 
     def __init__(self, *args, actions=('edit', 'delete', 'changelog'), **kwargs):
@@ -123,16 +123,21 @@ class ActionsColumn(tables.Column):
         request = getattr(table, 'context', {}).get('request')
         url_appendix = f'?return_url={request.path}' if request else ''
 
-        menu = '<div class="dropdown">' \
-               '<a class="btn btn-sm btn-outline-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown"><i class="mdi mdi-wrench"></i></a>' \
-               '<ul class="dropdown-menu">'
-
+        links = []
         for action, attrs in self.actions.items():
-            viewname = f'{viewname_base}_{action}'
-            url = reverse(viewname, kwargs={'pk': record.pk})
-            menu += f'<li><a class="dropdown-item" href="{url}{url_appendix}"><i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>'
+            permission = f'{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}'
+            if attrs.permission is None or request.user.has_perm(permission):
+                url = reverse(f'{viewname_base}_{action}', kwargs={'pk': record.pk})
+                links.append(f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
+                             f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>')
 
-        menu += '</ul></div>'
+        if not links:
+            return ''
+
+        menu = f'<div class="dropdown">' \
+               f'<a class="btn btn-sm btn-outline-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown">' \
+               f'<i class="mdi mdi-wrench"></i></a>' \
+               f'<ul class="dropdown-menu">{"".join(links)}</ul></div>'
 
         return mark_safe(menu)
 
