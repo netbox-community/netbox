@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from extras.filters import TagFilter
 from extras.filtersets import LocalConfigContextFilterSet
-from ipam.models import ASN
+from ipam.models import ASN, VRF
 from netbox.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
 )
@@ -1216,6 +1216,17 @@ class InterfaceFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
     )
     rf_channel = django_filters.MultipleChoiceFilter(
         choices=WirelessChannelChoices
+    )
+    vrf_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vrf',
+        queryset=VRF.objects.all(),
+        label='VRF',
+    )
+    vrf = django_filters.ModelMultipleChoiceFilter(
+        field_name='vrf__rd',
+        queryset=VRF.objects.all(),
+        to_field_name='rd',
+        label='VRF (RD)',
     )
 
     class Meta:
