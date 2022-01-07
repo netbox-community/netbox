@@ -61,6 +61,7 @@ Inventory item templates can be arranged hierarchically within a device type, an
 * [#7759](https://github.com/netbox-community/netbox/issues/7759) - Improved the user preferences form
 * [#7784](https://github.com/netbox-community/netbox/issues/7784) - Support cluster type assignment for config contexts
 * [#7846](https://github.com/netbox-community/netbox/issues/7846) - Enable associating inventory items with device components
+* [#7852](https://github.com/netbox-community/netbox/issues/7852) - Enable assigning interfaces to VRFs
 * [#8168](https://github.com/netbox-community/netbox/issues/8168) - Add `min_vid` and `max_vid` fields to VLAN group
 
 ### Other Changes
@@ -88,7 +89,7 @@ Inventory item templates can be arranged hierarchically within a device type, an
 * dcim.FrontPort
     * Added `module` field
 * dcim.Interface
-    * Added `module` field
+    * Added `module` and `vrf` fields
 * dcim.InventoryItem
     * Added `component_type`, `component_id`, and `role` fields
     * Added read-only `component` field

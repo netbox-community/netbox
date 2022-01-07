@@ -108,6 +108,16 @@
                             <th scope="row">802.1Q Mode</th>
                             <td>{{ object.get_mode_display|placeholder }}</td>
                         </tr>
+                        <tr>
+                            <th scope="row">VRF</th>
+                            <td>
+                                {% if object.vrf %}
+                                    <a href="{{ object.vrf.get_absolute_url }}">{{ object.vrf }}</a>
+                                {% else %}
+                                    <span class="text-muted">None</span>
+                                {% endif %}
+                            </td>
+                        </tr>
                     </table>
                 </div>
             </div>

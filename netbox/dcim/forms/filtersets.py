@@ -6,7 +6,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterForm
-from ipam.models import ASN
+from ipam.models import ASN, VRF
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
     APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm, StaticSelect,
@@ -920,7 +920,8 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
     field_groups = [
         ['q', 'tag'],
-        ['name', 'label', 'kind', 'type', 'enabled', 'mgmt_only', 'mac_address', 'wwn'],
+        ['name', 'label', 'kind', 'type', 'enabled', 'mgmt_only'],
+        ['vrf_id', 'mac_address', 'wwn'],
         ['rf_role', 'rf_channel', 'rf_channel_width', 'tx_power'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
@@ -979,6 +980,11 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         label='Transmit power (dBm)',
         min_value=0,
         max_value=127
+    )
+    vrf_id = DynamicModelMultipleChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
     )
     tag = TagFilterField(model)
 

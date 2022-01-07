@@ -8,6 +8,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.forms import CustomFieldModelCSVForm
+from ipam.models import VRF
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField, SlugField
 from virtualization.models import Cluster
@@ -622,6 +623,12 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='IEEE 802.1Q operational mode (for L2 interfaces)'
     )
+    vrf = CSVModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        to_field_name='rd',
+        help_text='Assigned VRF'
+    )
     rf_role = CSVChoiceField(
         choices=WirelessRoleChoices,
         required=False,
@@ -632,7 +639,7 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
         model = Interface
         fields = (
             'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address',
-            'wwn', 'mtu', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'wwn', 'mtu', 'mgmt_only', 'description', 'mode', 'vrf', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power',
         )
 

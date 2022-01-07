@@ -521,6 +521,9 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         orderable=False,
         verbose_name='Wireless LANs'
     )
+    vrf = tables.Column(
+        linkify=True
+    )
     tags = TagColumn(
         url_name='dcim:interface_list'
     )
@@ -531,7 +534,7 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
             'mode', 'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
             'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans',
-            'link_peer', 'connection', 'tags', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
+            'link_peer', 'connection', 'tags', 'vrf', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 

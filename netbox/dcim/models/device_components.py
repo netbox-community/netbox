@@ -616,6 +616,14 @@ class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpo
         blank=True,
         verbose_name='Tagged VLANs'
     )
+    vrf = models.ForeignKey(
+        to='ipam.VRF',
+        on_delete=models.SET_NULL,
+        related_name='interfaces',
+        null=True,
+        blank=True,
+        verbose_name='VRF'
+    )
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',
         content_type_field='assigned_object_type',

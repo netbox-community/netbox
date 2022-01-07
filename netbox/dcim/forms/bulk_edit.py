@@ -7,7 +7,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
-from ipam.models import VLAN, ASN
+from ipam.models import ASN, VLAN, VRF
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, CommentField, DynamicModelChoiceField,
@@ -1061,7 +1061,8 @@ class InterfaceBulkEditForm(
         required=False,
         query_params={
             'type': 'lag',
-        }
+        },
+        label='LAG'
     )
     mgmt_only = forms.NullBooleanField(
         required=False,
@@ -1080,11 +1081,16 @@ class InterfaceBulkEditForm(
         queryset=VLAN.objects.all(),
         required=False
     )
+    vrf = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
+    )
 
     class Meta:
         nullable_fields = [
             'label', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu', 'description', 'mode', 'rf_channel',
-            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans',
+            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'vrf',
         ]
 
     def __init__(self, *args, **kwargs):
