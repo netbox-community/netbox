@@ -203,7 +203,7 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         :param table: The Table instance to export
         :param columns: A list of specific columns to include. If not specified, all columns will be exported.
         """
-        exclude_columns = {'pk'}
+        exclude_columns = {'pk', 'actions'}
         if columns:
             all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
             exclude_columns.update({
