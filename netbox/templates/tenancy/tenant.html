@@ -95,6 +95,10 @@
                     <h2><a href="{% url 'virtualization:cluster_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.cluster_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.cluster_count }}</a></h2>
                     <p>Clusters</p>
                 </div>
+                <div class="col col-md-4 text-center">
+                    <h2><a href="{% url 'dcim:cable_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.cable_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.cable_count }}</a></h2>
+                    <p>Cables</p>
+                </div>
             </div>
         </div>
         {% plugin_right_page object %}
