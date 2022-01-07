@@ -1,4 +1,6 @@
 from collections import namedtuple
+from dataclasses import dataclass
+from typing import Optional
 
 import django_tables2 as tables
 from django.conf import settings
@@ -90,16 +92,20 @@ class TemplateColumn(tables.TemplateColumn):
         return ret
 
 
-ActionsMenuItem = namedtuple('ActionsMenuItem', ['title', 'icon', 'permission'])
+@dataclass
+class ActionsItem:
+    title: str
+    icon: str
+    permission: Optional[str] = None
 
 
 class ActionsColumn(tables.Column):
     attrs = {'td': {'class': 'text-end noprint'}}
     empty_values = ()
     _actions = {
-        'edit': ActionsMenuItem('Edit', 'pencil', 'change'),
-        'delete': ActionsMenuItem('Delete', 'trash-can-outline', 'delete'),
-        'changelog': ActionsMenuItem('Changelog', 'history', None),
+        'edit': ActionsItem('Edit', 'pencil', 'change'),
+        'delete': ActionsItem('Delete', 'trash-can-outline', 'delete'),
+        'changelog': ActionsItem('Changelog', 'history'),
     }
 
     def __init__(self, *args, actions=('edit', 'delete', 'changelog'), **kwargs):
