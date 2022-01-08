@@ -2,6 +2,11 @@
 
 ## v3.1.6 (FUTURE)
 
+### Enhancements
+
+* [#8262](https://github.com/netbox-community/netbox/issues/8262) - Add cables to tenant stats
+* [#8265](https://github.com/netbox-community/netbox/issues/8265) - Add newer Stackwise-n interface types
+
 ### Bug Fixes
 
 * [#8287](https://github.com/netbox-community/netbox/issues/8287) - Correct label in Export Template Form
