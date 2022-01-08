@@ -10,7 +10,7 @@ from ipam.models import ASN, VRF
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
     APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm, StaticSelect,
-    StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES, SelectSpeedWidget,
 )
 from wireless.choices import *
 
@@ -920,7 +920,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
     field_groups = [
         ['q', 'tag'],
-        ['name', 'label', 'kind', 'type', 'enabled', 'mgmt_only'],
+        ['name', 'label', 'kind', 'type', 'speed', 'duplex', 'enabled', 'mgmt_only'],
         ['vrf_id', 'mac_address', 'wwn'],
         ['rf_role', 'rf_channel', 'rf_channel_width', 'tx_power'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
@@ -934,6 +934,16 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         choices=InterfaceTypeChoices,
         required=False,
         widget=StaticSelectMultiple()
+    )
+    speed = forms.IntegerField(
+        required=False,
+        label='Select Speed',
+        widget=SelectSpeedWidget(attrs={'readonly': None})
+    )
+    duplex = forms.ChoiceField(
+        choices=InterfaceDuplexChoices,
+        required=False,
+        label='Select Duplex'
     )
     enabled = forms.NullBooleanField(
         required=False,

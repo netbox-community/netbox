@@ -618,6 +618,10 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
         choices=InterfaceTypeChoices,
         help_text='Physical medium'
     )
+    duplex = CSVChoiceField(
+        choices=InterfaceDuplexChoices,
+        help_text='Duplex'
+    )
     mode = CSVChoiceField(
         choices=InterfaceModeChoices,
         required=False,
@@ -638,7 +642,7 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Interface
         fields = (
-            'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address',
+            'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'speed', 'duplex', 'enabled', 'mark_connected', 'mac_address',
             'wwn', 'mtu', 'mgmt_only', 'description', 'mode', 'vrf', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power',
         )

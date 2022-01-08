@@ -14,7 +14,7 @@ from tenancy.forms import TenancyForm
 from utilities.forms import (
     APISelect, add_blank_choice, BootstrapMixin, ClearableFileInput, CommentField, ContentTypeChoiceField,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SelectWithPK, SmallTextarea,
-    SlugField, StaticSelect,
+    SlugField, StaticSelect, SelectSpeedWidget,
 )
 from virtualization.models import Cluster, ClusterGroup
 from wireless.models import WirelessLAN, WirelessLANGroup
@@ -1274,12 +1274,12 @@ class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'label', 'type', 'enabled', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu',
+            'device', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu',
             'mgmt_only', 'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
         ]
         fieldsets = (
-            ('Interface', ('device', 'name', 'type', 'label', 'description', 'tags')),
+            ('Interface', ('device', 'name', 'type', 'speed', 'duplex', 'label', 'description', 'tags')),
             ('Addressing', ('vrf', 'mac_address', 'wwn')),
             ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
             ('Related Interfaces', ('parent', 'bridge', 'lag')),
@@ -1295,6 +1295,7 @@ class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
             'mode': StaticSelect(),
             'rf_role': StaticSelect(),
             'rf_channel': StaticSelect(),
+            'speed': SelectSpeedWidget(attrs={'readonly': None}),
         }
         labels = {
             'mode': '802.1Q Mode',

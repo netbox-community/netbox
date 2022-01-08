@@ -943,6 +943,19 @@ class InterfaceTypeChoices(ChoiceSet):
     )
 
 
+class InterfaceDuplexChoices(ChoiceSet):
+
+    DUPLEX_HALF = 'half'
+    DUPLEX_FULL = 'full'
+    DUPLEX_AUTO = 'auto'
+
+    CHOICES = (
+        (DUPLEX_HALF, 'Half'),
+        (DUPLEX_FULL, 'Full'),
+        (DUPLEX_AUTO, 'Auto'),
+    )
+
+
 class InterfaceModeChoices(ChoiceSet):
 
     MODE_ACCESS = 'access'

@@ -551,6 +551,18 @@ class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpo
         verbose_name='Management only',
         help_text='This interface is used only for out-of-band management'
     )
+    speed = models.PositiveIntegerField(
+        verbose_name='Speed',
+        blank=True,
+        null=True
+    )
+    duplex = models.CharField(
+        verbose_name='Duplex',
+        max_length=50,
+        blank=True,
+        null=True,
+        choices=InterfaceDuplexChoices
+    )
     wwn = WWNField(
         null=True,
         blank=True,
