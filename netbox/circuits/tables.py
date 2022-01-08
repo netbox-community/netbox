@@ -26,6 +26,7 @@ CIRCUITTERMINATION_LINK = """
 # Table columns
 #
 
+
 class CommitRateColumn(tables.TemplateColumn):
     """
     Humanize the commit rate in the column view
@@ -45,6 +46,7 @@ class CommitRateColumn(tables.TemplateColumn):
 #
 # Providers
 #
+
 
 class ProviderTable(BaseTable):
     pk = ToggleColumn()
