@@ -192,6 +192,9 @@ class CustomLink(ChangeLoggedModel):
         max_length=100,
         unique=True
     )
+    enabled = models.BooleanField(
+        default=True
+    )
     link_text = models.CharField(
         max_length=500,
         help_text="Jinja2 template code for link text"

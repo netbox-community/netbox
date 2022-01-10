@@ -53,7 +53,7 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
         model = CustomLink
         fields = '__all__'
         fieldsets = (
-            ('Custom Link', ('name', 'content_type', 'weight', 'group_name', 'button_class', 'new_window')),
+            ('Custom Link', ('name', 'content_type', 'weight', 'group_name', 'button_class', 'enabled', 'new_window')),
             ('Templates', ('link_text', 'link_url')),
         )
         widgets = {

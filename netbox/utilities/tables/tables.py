@@ -35,15 +35,16 @@ class BaseTable(tables.Table):
         if extra_columns is None:
             extra_columns = []
 
-        # Add custom field columns
-        obj_type = ContentType.objects.get_for_model(self._meta.model)
-        cf_columns = [
-            (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in CustomField.objects.filter(content_types=obj_type)
-        ]
-        cl_columns = [
-            (f'cl_{cl.name}', columns.CustomLinkColumn(cl)) for cl in CustomLink.objects.filter(content_type=obj_type)
-        ]
-        extra_columns.extend([*cf_columns, *cl_columns])
+        # Add custom field & custom link columns
+        content_type = ContentType.objects.get_for_model(self._meta.model)
+        custom_fields = CustomField.objects.filter(content_types=content_type)
+        extra_columns.extend([
+            (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in custom_fields
+        ])
+        custom_links = CustomLink.objects.filter(content_type=content_type, enabled=True)
+        extra_columns.extend([
+            (f'cl_{cl.name}', columns.CustomLinkColumn(cl)) for cl in custom_links
+        ])
 
         super().__init__(*args, extra_columns=extra_columns, **kwargs)
 

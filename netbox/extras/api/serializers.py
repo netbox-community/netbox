@@ -101,7 +101,7 @@ class CustomLinkSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomLink
         fields = [
-            'id', 'url', 'display', 'content_type', 'name', 'link_text', 'link_url', 'weight', 'group_name',
+            'id', 'url', 'display', 'content_type', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
             'button_class', 'new_window',
         ]
 

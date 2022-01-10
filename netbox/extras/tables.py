@@ -73,15 +73,16 @@ class CustomLinkTable(BaseTable):
         linkify=True
     )
     content_type = ContentTypeColumn()
+    enabled = BooleanColumn()
     new_window = BooleanColumn()
 
     class Meta(BaseTable.Meta):
         model = CustomLink
         fields = (
-            'pk', 'id', 'name', 'content_type', 'link_text', 'link_url', 'weight', 'group_name',
+            'pk', 'id', 'name', 'content_type', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
             'button_class', 'new_window',
         )
-        default_columns = ('pk', 'name', 'content_type', 'group_name', 'button_class', 'new_window')
+        default_columns = ('pk', 'name', 'content_type', 'enabled', 'group_name', 'button_class', 'new_window')
 
 
 #

@@ -47,6 +47,10 @@ class CustomLinkBulkEditForm(BulkEditForm):
         limit_choices_to=FeatureQuery('custom_fields'),
         required=False
     )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
     new_window = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect()
