@@ -4,11 +4,13 @@
 
 ### Enhancements
 
+* [#8246](https://github.com/netbox-community/netbox/issues/8246) - Show human-friendly values for commit rates in circuits table
 * [#8262](https://github.com/netbox-community/netbox/issues/8262) - Add cable count to tenant stats
 * [#8265](https://github.com/netbox-community/netbox/issues/8265) - Add Stackwise-n interface types
 
 ### Bug Fixes
 
+* [#8285](https://github.com/netbox-community/netbox/issues/8285) - Fix `cluster_count` under tenant REST API serializer
 * [#8287](https://github.com/netbox-community/netbox/issues/8287) - Correct label in export template form
 
 ---
