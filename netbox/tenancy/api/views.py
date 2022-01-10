@@ -47,8 +47,7 @@ class TenantViewSet(CustomFieldModelViewSet):
         site_count=count_related(Site, 'tenant'),
         virtualmachine_count=count_related(VirtualMachine, 'tenant'),
         vlan_count=count_related(VLAN, 'tenant'),
-        vrf_count=count_related(VRF, 'tenant'),
-        cable_count=count_related(Cable, 'tenant')
+        vrf_count=count_related(VRF, 'tenant')
     )
     serializer_class = serializers.TenantSerializer
     filterset_class = filtersets.TenantFilterSet
