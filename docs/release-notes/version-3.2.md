@@ -57,6 +57,7 @@ Inventory item templates can be arranged hierarchically within a device type, an
 ### Enhancements
 
 * [#7650](https://github.com/netbox-community/netbox/issues/7650) - Add support for local account password validation
+* [#7679](https://github.com/netbox-community/netbox/issues/7679) - Add actions menu to all object tables
 * [#7681](https://github.com/netbox-community/netbox/issues/7681) - Add `service_id` field for provider networks
 * [#7759](https://github.com/netbox-community/netbox/issues/7759) - Improved the user preferences form
 * [#7784](https://github.com/netbox-community/netbox/issues/7784) - Support cluster type assignment for config contexts
