@@ -38,7 +38,7 @@
   </div>
 {% else %}
   <div class="btn-group">
-    <a class="btn btn-primary ws-nowrap" type="button" href="{% url 'login' %}">
+    <a class="btn btn-primary ws-nowrap" type="button" href="{% url 'login' %}?next={{ request.path }}">
       <i class="mdi mdi-login-variant"></i> Log In
     </a>
     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">

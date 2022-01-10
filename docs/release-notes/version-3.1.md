@@ -14,6 +14,7 @@
 * [#8285](https://github.com/netbox-community/netbox/issues/8285) - Fix `cluster_count` under tenant REST API serializer
 * [#8287](https://github.com/netbox-community/netbox/issues/8287) - Correct label in export template form
 * [#8301](https://github.com/netbox-community/netbox/issues/8301) - Fix delete button for various object children views
+* [#8306](https://github.com/netbox-community/netbox/issues/8306) - Redirect user to previous page after login
 
 ---
 
