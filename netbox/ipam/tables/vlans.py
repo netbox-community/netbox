@@ -5,8 +5,8 @@ from django_tables2.utils import Accessor
 from dcim.models import Interface
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    ActionsColumn, BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ContentTypeColumn, LinkedCountColumn,
-    TagColumn, TemplateColumn, ToggleColumn,
+    ActionsColumn, BaseTable, BooleanColumn, ChoiceFieldColumn, ContentTypeColumn, LinkedCountColumn, TagColumn,
+    TemplateColumn, ToggleColumn,
 )
 from virtualization.models import VMInterface
 from ipam.models import *
@@ -38,7 +38,7 @@ VLAN_PREFIXES = """
 {% endfor %}
 """
 
-VLANGROUP_ADD_VLAN = """
+VLANGROUP_BUTTONS = """
 {% with next_vid=record.get_next_available_vid %}
     {% if next_vid and perms.ipam.add_vlan %}
         <a href="{% url 'ipam:vlan_add' %}?group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-sm btn-success">
@@ -77,9 +77,8 @@ class VLANGroupTable(BaseTable):
     tags = TagColumn(
         url_name='ipam:vlangroup_list'
     )
-    actions = ButtonsColumn(
-        model=VLANGroup,
-        prepend_template=VLANGROUP_ADD_VLAN
+    actions = ActionsColumn(
+        extra_buttons=VLANGROUP_BUTTONS
     )
 
     class Meta(BaseTable.Meta):

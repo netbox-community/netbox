@@ -1,9 +1,10 @@
-from collections import namedtuple
 from dataclasses import dataclass
 from typing import Optional
 
 import django_tables2 as tables
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
+from django.template import Context, Template
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
@@ -14,7 +15,6 @@ from utilities.utils import content_type_identifier, content_type_name
 __all__ = (
     'ActionsColumn',
     'BooleanColumn',
-    'ButtonsColumn',
     'ChoiceFieldColumn',
     'ColorColumn',
     'ColoredLabelColumn',
@@ -100,7 +100,14 @@ class ActionsItem:
 
 
 class ActionsColumn(tables.Column):
-    attrs = {'td': {'class': 'text-end noprint'}}
+    """
+    A dropdown menu which provides edit, delete, and changelog links for an object. Can optionally include
+    additional buttons rendered from a template string.
+
+    :param sequence: The ordered list of dropdown menu items to include
+    :param extra_buttons: A Django template string which renders additional buttons preceding the actions dropdown
+    """
+    attrs = {'td': {'class': 'text-end text-nowrap noprint'}}
     empty_values = ()
     actions = {
         'edit': ActionsItem('Edit', 'pencil', 'change'),
@@ -108,12 +115,10 @@ class ActionsColumn(tables.Column):
         'changelog': ActionsItem('Changelog', 'history'),
     }
 
-    def __init__(self, *args, extra_actions=None, sequence=('edit', 'delete', 'changelog'), **kwargs):
+    def __init__(self, *args, sequence=('edit', 'delete', 'changelog'), extra_buttons='', **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Add/update any extra actions passed
-        if extra_actions:
-            self.actions.update(extra_actions)
+        self.extra_buttons = extra_buttons
 
         # Determine which actions to enable
         self.actions = {
@@ -134,9 +139,10 @@ class ActionsColumn(tables.Column):
         url_appendix = f'?return_url={request.path}' if request else ''
 
         links = []
+        user = getattr(request, 'user', AnonymousUser())
         for action, attrs in self.actions.items():
             permission = f'{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}'
-            if attrs.permission is None or request.user.has_perm(permission):
+            if attrs.permission is None or user.has_perm(permission):
                 url = reverse(f'{viewname_base}_{action}', kwargs={'pk': record.pk})
                 links.append(f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
                              f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>')
@@ -144,66 +150,19 @@ class ActionsColumn(tables.Column):
         if not links:
             return ''
 
-        menu = f'<div class="dropdown">' \
-               f'<a class="btn btn-sm btn-outline-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown">' \
+        menu = f'<span class="dropdown">' \
+               f'<a class="btn btn-sm btn-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown">' \
                f'<i class="mdi mdi-wrench"></i></a>' \
-               f'<ul class="dropdown-menu">{"".join(links)}</ul></div>'
+               f'<ul class="dropdown-menu">{"".join(links)}</ul></span>'
+
+        # Render any extra buttons from template code
+        if self.extra_buttons:
+            template = Template(self.extra_buttons)
+            context = getattr(table, "context", Context())
+            context.update({'record': record})
+            menu = template.render(context) + menu
 
         return mark_safe(menu)
-
-
-class ButtonsColumn(tables.TemplateColumn):
-    """
-    Render edit, delete, and changelog buttons for an object.
-
-    :param model: Model class to use for calculating URL view names
-    :param prepend_content: Additional template content to render in the column (optional)
-    """
-    buttons = ('changelog', 'edit', 'delete')
-    attrs = {'td': {'class': 'text-end text-nowrap noprint'}}
-    # Note that braces are escaped to allow for string formatting prior to template rendering
-    template_code = """
-    {{% if "changelog" in buttons %}}
-        <a href="{{% url '{app_label}:{model_name}_changelog' pk=record.pk %}}" class="btn btn-outline-dark btn-sm" title="Change log">
-            <i class="mdi mdi-history"></i>
-        </a>
-    {{% endif %}}
-    {{% if "edit" in buttons and perms.{app_label}.change_{model_name} %}}
-        <a href="{{% url '{app_label}:{model_name}_edit' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-sm btn-warning" title="Edit">
-            <i class="mdi mdi-pencil"></i>
-        </a>
-    {{% endif %}}
-    {{% if "delete" in buttons and perms.{app_label}.delete_{model_name} %}}
-        <a href="{{% url '{app_label}:{model_name}_delete' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-sm btn-danger" title="Delete">
-            <i class="mdi mdi-trash-can-outline"></i>
-        </a>
-    {{% endif %}}
-    """
-
-    def __init__(self, model, *args, buttons=None, prepend_template=None, **kwargs):
-        if prepend_template:
-            prepend_template = prepend_template.replace('{', '{{')
-            prepend_template = prepend_template.replace('}', '}}')
-            self.template_code = prepend_template + self.template_code
-
-        template_code = self.template_code.format(
-            app_label=model._meta.app_label,
-            model_name=model._meta.model_name,
-            buttons=buttons
-        )
-
-        super().__init__(template_code=template_code, *args, **kwargs)
-
-        # Exclude from export by default
-        if 'exclude_from_export' not in kwargs:
-            self.exclude_from_export = True
-
-        self.extra_context.update({
-            'buttons': buttons or self.buttons,
-        })
-
-    def header(self):
-        return ''
 
 
 class ChoiceFieldColumn(tables.Column):

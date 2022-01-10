@@ -3,7 +3,7 @@ import django_tables2 as tables
 from dcim.tables.devices import BaseInterfaceTable
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn, TagColumn,
+    ActionsColumn, BaseTable, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn, TagColumn,
     ToggleColumn,
 )
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -183,10 +183,9 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
     bridge = tables.Column(
         linkify=True
     )
-    actions = ButtonsColumn(
-        model=VMInterface,
-        buttons=('edit', 'delete'),
-        prepend_template=VMINTERFACE_BUTTONS
+    actions = ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=VMINTERFACE_BUTTONS
     )
 
     class Meta(BaseTable.Meta):

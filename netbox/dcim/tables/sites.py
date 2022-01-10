@@ -3,9 +3,9 @@ import django_tables2 as tables
 from dcim.models import Location, Region, Site, SiteGroup
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn, TagColumn, ToggleColumn,
+    ActionsColumn, BaseTable, ChoiceFieldColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn, TagColumn, ToggleColumn,
 )
-from .template_code import LOCATION_ELEVATIONS
+from .template_code import LOCATION_BUTTONS
 
 __all__ = (
     'LocationTable',
@@ -127,9 +127,8 @@ class LocationTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:location_list'
     )
-    actions = ButtonsColumn(
-        model=Location,
-        prepend_template=LOCATION_ELEVATIONS
+    actions = ActionsColumn(
+        extra_buttons=LOCATION_BUTTONS
     )
 
     class Meta(BaseTable.Meta):

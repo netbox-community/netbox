@@ -6,8 +6,7 @@ from dcim.models import (
     InventoryItemTemplate, Manufacturer, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
 from utilities.tables import (
-    ActionsColumn, BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, LinkedCountColumn, MarkdownColumn, TagColumn,
-    ToggleColumn,
+    ActionsColumn, BaseTable, BooleanColumn, ColorColumn, LinkedCountColumn, MarkdownColumn, TagColumn, ToggleColumn,
 )
 from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS
 
@@ -113,10 +112,9 @@ class ComponentTemplateTable(BaseTable):
 
 
 class ConsolePortTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=ConsolePortTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    actions = ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -126,10 +124,9 @@ class ConsolePortTemplateTable(ComponentTemplateTable):
 
 
 class ConsoleServerPortTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=ConsoleServerPortTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    actions = ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -139,10 +136,9 @@ class ConsoleServerPortTemplateTable(ComponentTemplateTable):
 
 
 class PowerPortTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=PowerPortTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    actions = ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -152,10 +148,9 @@ class PowerPortTemplateTable(ComponentTemplateTable):
 
 
 class PowerOutletTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=PowerOutletTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    actions = ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -168,10 +163,9 @@ class InterfaceTemplateTable(ComponentTemplateTable):
     mgmt_only = BooleanColumn(
         verbose_name='Management Only'
     )
-    actions = ButtonsColumn(
-        model=InterfaceTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    actions = ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -185,10 +179,9 @@ class FrontPortTemplateTable(ComponentTemplateTable):
         verbose_name='Position'
     )
     color = ColorColumn()
-    actions = ButtonsColumn(
-        model=FrontPortTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    actions = ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -199,10 +192,9 @@ class FrontPortTemplateTable(ComponentTemplateTable):
 
 class RearPortTemplateTable(ComponentTemplateTable):
     color = ColorColumn()
-    actions = ButtonsColumn(
-        model=RearPortTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    actions = ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -212,9 +204,8 @@ class RearPortTemplateTable(ComponentTemplateTable):
 
 
 class ModuleBayTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=ModuleBayTemplate,
-        buttons=('edit', 'delete')
+    actions = ActionsColumn(
+        sequence=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -224,9 +215,8 @@ class ModuleBayTemplateTable(ComponentTemplateTable):
 
 
 class DeviceBayTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=DeviceBayTemplate,
-        buttons=('edit', 'delete')
+    actions = ActionsColumn(
+        sequence=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -236,9 +226,8 @@ class DeviceBayTemplateTable(ComponentTemplateTable):
 
 
 class InventoryItemTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=InventoryItemTemplate,
-        buttons=('edit', 'delete')
+    actions = ActionsColumn(
+        sequence=('edit', 'delete')
     )
     role = tables.Column(
         linkify=True

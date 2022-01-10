@@ -30,7 +30,8 @@ class TagColumnTest(TestCase):
 
     def test_tagcolumn(self):
         template = Template('{% load render_table from django_tables2 %}{% render_table table %}')
+        table = TagColumnTable(Site.objects.all(), orderable=False)
         context = Context({
-            'table': TagColumnTable(Site.objects.all(), orderable=False)
+            'table': table
         })
         template.render(context)

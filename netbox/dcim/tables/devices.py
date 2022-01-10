@@ -7,7 +7,7 @@ from dcim.models import (
 )
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    ActionsColumn, BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
+    ActionsColumn, BaseTable, BooleanColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
     MarkdownColumn, TagColumn, TemplateColumn, ToggleColumn,
 )
 from .template_code import *
@@ -322,10 +322,8 @@ class DeviceConsolePortTable(ConsolePortTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=ConsolePort,
-        buttons=('edit', 'delete'),
-        prepend_template=CONSOLEPORT_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=CONSOLEPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -367,10 +365,8 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=ConsoleServerPort,
-        buttons=('edit', 'delete'),
-        prepend_template=CONSOLESERVERPORT_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=CONSOLESERVERPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -412,10 +408,8 @@ class DevicePowerPortTable(PowerPortTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=PowerPort,
-        buttons=('edit', 'delete'),
-        prepend_template=POWERPORT_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=POWERPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -461,10 +455,8 @@ class DevicePowerOutletTable(PowerOutletTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=PowerOutlet,
-        buttons=('edit', 'delete'),
-        prepend_template=POWEROUTLET_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=POWEROUTLET_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -551,10 +543,8 @@ class DeviceInterfaceTable(InterfaceTable):
         linkify=True,
         verbose_name='LAG'
     )
-    actions = ButtonsColumn(
-        model=Interface,
-        buttons=('edit', 'delete'),
-        prepend_template=INTERFACE_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=INTERFACE_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -614,10 +604,8 @@ class DeviceFrontPortTable(FrontPortTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=FrontPort,
-        buttons=('edit', 'delete'),
-        prepend_template=FRONTPORT_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=FRONTPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -662,10 +650,8 @@ class DeviceRearPortTable(RearPortTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=RearPort,
-        buttons=('edit', 'delete'),
-        prepend_template=REARPORT_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=REARPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -713,10 +699,8 @@ class DeviceDeviceBayTable(DeviceBayTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=DeviceBay,
-        buttons=('edit', 'delete'),
-        prepend_template=DEVICEBAY_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=DEVICEBAY_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -749,10 +733,8 @@ class ModuleBayTable(DeviceComponentTable):
 
 
 class DeviceModuleBayTable(ModuleBayTable):
-    actions = ButtonsColumn(
-        model=DeviceBay,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULEBAY_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=MODULEBAY_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -803,10 +785,7 @@ class DeviceInventoryItemTable(InventoryItemTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=InventoryItem,
-        buttons=('edit', 'delete')
-    )
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = InventoryItem
