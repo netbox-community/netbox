@@ -8,7 +8,7 @@ from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from dcim.tables import SiteTable
 from netbox.views import generic
-from utilities.tables import paginate_table
+from utilities.tables import configure_table
 from utilities.utils import count_related
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.models import VMInterface
@@ -161,7 +161,7 @@ class RIRView(generic.ObjectView):
             rir=instance
         )
         aggregates_table = tables.AggregateTable(aggregates, exclude=('rir', 'utilization'))
-        paginate_table(aggregates_table, request)
+        configure_table(aggregates_table, request)
 
         return {
             'aggregates_table': aggregates_table,
@@ -219,7 +219,7 @@ class ASNView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         sites = instance.sites.restrict(request.user, 'view')
         sites_table = SiteTable(sites)
-        paginate_table(sites_table, request)
+        configure_table(sites_table, request)
 
         return {
             'sites_table': sites_table,
@@ -356,7 +356,7 @@ class RoleView(generic.ObjectView):
         )
 
         prefixes_table = tables.PrefixTable(prefixes, exclude=('role', 'utilization'))
-        paginate_table(prefixes_table, request)
+        configure_table(prefixes_table, request)
 
         return {
             'prefixes_table': prefixes_table,
@@ -664,7 +664,7 @@ class IPAddressView(generic.ObjectView):
             vrf=instance.vrf, address__net_contained_or_equal=str(instance.address)
         )
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
-        paginate_table(related_ips_table, request)
+        configure_table(related_ips_table, request)
 
         return {
             'parent_prefixes_table': parent_prefixes_table,
@@ -800,7 +800,7 @@ class VLANGroupView(generic.ObjectView):
         vlans_table = tables.VLANTable(vlans, exclude=('site', 'group', 'prefixes'))
         if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
             vlans_table.columns.show('pk')
-        paginate_table(vlans_table, request)
+        configure_table(vlans_table, request)
 
         # Compile permissions list for rendering the object table
         permissions = {

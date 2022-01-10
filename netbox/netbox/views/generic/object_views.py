@@ -15,7 +15,6 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2.export import TableExport
 
-from dcim.forms.object_create import ComponentCreateForm
 from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
@@ -23,7 +22,7 @@ from utilities.exceptions import AbortTransaction, PermissionsViolation
 from utilities.forms import ConfirmationForm, ImportForm, restrict_form_fields
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
-from utilities.tables import paginate_table
+from utilities.tables import configure_table
 from utilities.utils import normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 
@@ -135,7 +134,7 @@ class ObjectChildrenView(ObjectView):
         # Determine whether to display bulk action checkboxes
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
-        paginate_table(table, request)
+        configure_table(table, request)
 
         # If this is an HTMX request, return only the rendered table HTML
         if is_htmx(request):
@@ -284,7 +283,7 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
 
         # Render the objects table
         table = self.get_table(request, permissions)
-        paginate_table(table, request)
+        configure_table(table, request)
 
         # If this is an HTMX request, return only the rendered table HTML
         if is_htmx(request):
