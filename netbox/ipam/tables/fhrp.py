@@ -60,7 +60,7 @@ class FHRPGroupAssignmentTable(BaseTable):
     )
     actions = ButtonsColumn(
         model=FHRPGroupAssignment,
-        buttons=('edit', 'delete', 'foo')
+        buttons=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):

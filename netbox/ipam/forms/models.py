@@ -592,6 +592,8 @@ class FHRPGroupForm(CustomFieldModelForm):
         return instance
 
     def clean(self):
+        super().clean()
+
         ip_vrf = self.cleaned_data.get('ip_vrf')
         ip_address = self.cleaned_data.get('ip_address')
         ip_status = self.cleaned_data.get('ip_status')
