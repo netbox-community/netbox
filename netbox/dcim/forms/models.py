@@ -1292,10 +1292,11 @@ class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
         widgets = {
             'device': forms.HiddenInput(),
             'type': StaticSelect(),
+            'speed': SelectSpeedWidget(),
+            'duplex': StaticSelect(),
             'mode': StaticSelect(),
             'rf_role': StaticSelect(),
             'rf_channel': StaticSelect(),
-            'speed': SelectSpeedWidget(attrs={'readonly': None}),
         }
         labels = {
             'mode': '802.1Q Mode',
