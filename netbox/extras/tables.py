@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django.conf import settings
 
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ContentTypesColumn,
+    ActionsColumn, BaseTable, BooleanColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ContentTypesColumn,
     MarkdownColumn, ToggleColumn,
 )
 from .models import *
@@ -152,12 +152,11 @@ class TagTable(BaseTable):
         linkify=True
     )
     color = ColorColumn()
-    actions = ButtonsColumn(Tag)
 
     class Meta(BaseTable.Meta):
         model = Tag
         fields = ('pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'actions')
-        default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description', 'actions')
+        default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description')
 
 
 class TaggedItemTable(BaseTable):
@@ -215,6 +214,7 @@ class ObjectChangeTable(BaseTable):
         template_code=OBJECTCHANGE_REQUEST_ID,
         verbose_name='Request ID'
     )
+    actions = ActionsColumn(sequence=())
 
     class Meta(BaseTable.Meta):
         model = ObjectChange
@@ -232,9 +232,6 @@ class ObjectJournalTable(BaseTable):
     kind = ChoiceFieldColumn()
     comments = tables.TemplateColumn(
         template_code='{% load helpers %}{{ value|render_markdown|truncatewords_html:50 }}'
-    )
-    actions = ButtonsColumn(
-        model=JournalEntry
     )
 
     class Meta(BaseTable.Meta):
@@ -261,6 +258,5 @@ class JournalEntryTable(ObjectJournalTable):
             'comments', 'actions'
         )
         default_columns = (
-            'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind',
-            'comments', 'actions'
+            'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind', 'comments'
         )

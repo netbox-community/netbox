@@ -7,7 +7,7 @@ from dcim.models import (
 )
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
+    ActionsColumn, BaseTable, BooleanColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
     MarkdownColumn, TagColumn, TemplateColumn, ToggleColumn,
 )
 from .template_code import *
@@ -94,7 +94,6 @@ class DeviceRoleTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:devicerole_list'
     )
-    actions = ButtonsColumn(DeviceRole)
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
@@ -102,7 +101,7 @@ class DeviceRoleTable(BaseTable):
             'pk', 'id', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'slug', 'tags',
             'actions',
         )
-        default_columns = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'actions')
+        default_columns = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description')
 
 
 #
@@ -127,7 +126,6 @@ class PlatformTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:platform_list'
     )
-    actions = ButtonsColumn(Platform)
 
     class Meta(BaseTable.Meta):
         model = Platform
@@ -136,7 +134,7 @@ class PlatformTable(BaseTable):
             'description', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'napalm_driver', 'description', 'actions',
+            'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'napalm_driver', 'description',
         )
 
 
@@ -324,10 +322,8 @@ class DeviceConsolePortTable(ConsolePortTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=ConsolePort,
-        buttons=('edit', 'delete'),
-        prepend_template=CONSOLEPORT_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=CONSOLEPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -336,7 +332,7 @@ class DeviceConsolePortTable(ConsolePortTable):
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'speed', 'description', 'mark_connected',
             'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'actions'
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection', 'actions')
+        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection')
         row_attrs = {
             'class': get_cabletermination_row_class
         }
@@ -369,10 +365,8 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=ConsoleServerPort,
-        buttons=('edit', 'delete'),
-        prepend_template=CONSOLESERVERPORT_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=CONSOLESERVERPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -381,7 +375,7 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'speed', 'description', 'mark_connected',
             'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection', 'actions')
+        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection')
         row_attrs = {
             'class': get_cabletermination_row_class
         }
@@ -414,10 +408,8 @@ class DevicePowerPortTable(PowerPortTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=PowerPort,
-        buttons=('edit', 'delete'),
-        prepend_template=POWERPORT_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=POWERPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -428,7 +420,6 @@ class DevicePowerPortTable(PowerPortTable):
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'connection',
-            'actions',
         )
         row_attrs = {
             'class': get_cabletermination_row_class
@@ -464,10 +455,8 @@ class DevicePowerOutletTable(PowerOutletTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=PowerOutlet,
-        buttons=('edit', 'delete'),
-        prepend_template=POWEROUTLET_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=POWEROUTLET_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -477,7 +466,7 @@ class DevicePowerOutletTable(PowerOutletTable):
             'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'connection', 'actions',
+            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'connection',
         )
         row_attrs = {
             'class': get_cabletermination_row_class
@@ -557,10 +546,8 @@ class DeviceInterfaceTable(InterfaceTable):
         linkify=True,
         verbose_name='LAG'
     )
-    actions = ButtonsColumn(
-        model=Interface,
-        buttons=('edit', 'delete'),
-        prepend_template=INTERFACE_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=INTERFACE_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -575,7 +562,7 @@ class DeviceInterfaceTable(InterfaceTable):
         order_by = ('name',)
         default_columns = (
             'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mtu', 'mode', 'description', 'ip_addresses',
-            'cable', 'connection', 'actions',
+            'cable', 'connection',
         )
         row_attrs = {
             'class': get_interface_row_class,
@@ -620,10 +607,8 @@ class DeviceFrontPortTable(FrontPortTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=FrontPort,
-        buttons=('edit', 'delete'),
-        prepend_template=FRONTPORT_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=FRONTPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -634,7 +619,6 @@ class DeviceFrontPortTable(FrontPortTable):
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'link_peer',
-            'actions',
         )
         row_attrs = {
             'class': get_cabletermination_row_class
@@ -669,10 +653,8 @@ class DeviceRearPortTable(RearPortTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=RearPort,
-        buttons=('edit', 'delete'),
-        prepend_template=REARPORT_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=REARPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -682,7 +664,7 @@ class DeviceRearPortTable(RearPortTable):
             'cable', 'cable_color', 'link_peer', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'link_peer', 'actions',
+            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'link_peer',
         )
         row_attrs = {
             'class': get_cabletermination_row_class
@@ -720,10 +702,8 @@ class DeviceDeviceBayTable(DeviceBayTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=DeviceBay,
-        buttons=('edit', 'delete'),
-        prepend_template=DEVICEBAY_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=DEVICEBAY_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -731,9 +711,7 @@ class DeviceDeviceBayTable(DeviceBayTable):
         fields = (
             'pk', 'id', 'name', 'label', 'status', 'installed_device', 'description', 'tags', 'actions',
         )
-        default_columns = (
-            'pk', 'name', 'label', 'status', 'installed_device', 'description', 'actions',
-        )
+        default_columns = ('pk', 'name', 'label', 'status', 'installed_device', 'description')
 
 
 class ModuleBayTable(DeviceComponentTable):
@@ -758,16 +736,14 @@ class ModuleBayTable(DeviceComponentTable):
 
 
 class DeviceModuleBayTable(ModuleBayTable):
-    actions = ButtonsColumn(
-        model=DeviceBay,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULEBAY_BUTTONS
+    actions = ActionsColumn(
+        extra_buttons=MODULEBAY_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = ModuleBay
         fields = ('pk', 'id', 'name', 'label', 'description', 'installed_module', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'label', 'description', 'installed_module', 'actions')
+        default_columns = ('pk', 'name', 'label', 'description', 'installed_module')
 
 
 class InventoryItemTable(DeviceComponentTable):
@@ -812,10 +788,7 @@ class DeviceInventoryItemTable(InventoryItemTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = ButtonsColumn(
-        model=InventoryItem,
-        buttons=('edit', 'delete')
-    )
+    actions = ActionsColumn()
 
     class Meta(BaseTable.Meta):
         model = InventoryItem
@@ -824,7 +797,7 @@ class DeviceInventoryItemTable(InventoryItemTable):
             'description', 'discovered', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'component', 'actions',
+            'pk', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'component',
         )
 
 
@@ -842,14 +815,13 @@ class InventoryItemRoleTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:inventoryitemrole_list'
     )
-    actions = ButtonsColumn(InventoryItemRole)
 
     class Meta(BaseTable.Meta):
         model = InventoryItemRole
         fields = (
             'pk', 'id', 'name', 'inventoryitem_count', 'color', 'description', 'slug', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'inventoryitem_count', 'color', 'description', 'actions')
+        default_columns = ('pk', 'name', 'inventoryitem_count', 'color', 'description')
 
 
 #

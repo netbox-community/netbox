@@ -5,7 +5,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Interface
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ContentTypeColumn, LinkedCountColumn, TagColumn,
+    ActionsColumn, BaseTable, BooleanColumn, ChoiceFieldColumn, ContentTypeColumn, LinkedCountColumn, TagColumn,
     TemplateColumn, ToggleColumn,
 )
 from virtualization.models import VMInterface
@@ -38,7 +38,7 @@ VLAN_PREFIXES = """
 {% endfor %}
 """
 
-VLANGROUP_ADD_VLAN = """
+VLANGROUP_BUTTONS = """
 {% with next_vid=record.get_next_available_vid %}
     {% if next_vid and perms.ipam.add_vlan %}
         <a href="{% url 'ipam:vlan_add' %}?group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-sm btn-success">
@@ -77,9 +77,8 @@ class VLANGroupTable(BaseTable):
     tags = TagColumn(
         url_name='ipam:vlangroup_list'
     )
-    actions = ButtonsColumn(
-        model=VLANGroup,
-        prepend_template=VLANGROUP_ADD_VLAN
+    actions = ActionsColumn(
+        extra_buttons=VLANGROUP_BUTTONS
     )
 
     class Meta(BaseTable.Meta):
@@ -88,7 +87,7 @@ class VLANGroupTable(BaseTable):
             'pk', 'id', 'name', 'scope_type', 'scope', 'min_vid', 'max_vid', 'vlan_count', 'slug', 'description',
             'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'description')
 
 
 #
@@ -153,7 +152,9 @@ class VLANDevicesTable(VLANMembersTable):
     device = tables.Column(
         linkify=True
     )
-    actions = ButtonsColumn(Interface, buttons=['edit'])
+    actions = ActionsColumn(
+        sequence=('edit',)
+    )
 
     class Meta(BaseTable.Meta):
         model = Interface
@@ -165,7 +166,9 @@ class VLANVirtualMachinesTable(VLANMembersTable):
     virtual_machine = tables.Column(
         linkify=True
     )
-    actions = ButtonsColumn(VMInterface, buttons=['edit'])
+    actions = ActionsColumn(
+        sequence=('edit',)
+    )
 
     class Meta(BaseTable.Meta):
         model = VMInterface
