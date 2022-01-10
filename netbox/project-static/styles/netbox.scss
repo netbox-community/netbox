@@ -597,6 +597,10 @@ span.color-label {
   box-shadow: $box-shadow-sm;
 }
 
+.badge a {
+  color: inherit;
+}
+
 .btn {
   white-space: nowrap;
 }
