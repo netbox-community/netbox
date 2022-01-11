@@ -20,11 +20,13 @@ class EnhancedURLValidator(URLValidator):
         r'(?::\d{2,5})?'                    # Port number
         r'(?:[/?#][^\s]*)?'                 # Path
         r'\Z', re.IGNORECASE)
+    schemes = None
 
-    def __init__(self, schemes=None, **kwargs):
-        super().__init__(**kwargs)
-        if schemes is not None:
+    def __call__(self, value):
+        if self.schemes is None:
+            # We can't load the allowed schemes until the configuration has been initialized
             self.schemes = get_config().ALLOWED_URL_SCHEMES
+        return super().__call__(value)
 
 
 class ExclusionValidator(BaseValidator):

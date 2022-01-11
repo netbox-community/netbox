@@ -18,6 +18,7 @@
 * [#8306](https://github.com/netbox-community/netbox/issues/8306) - Redirect user to previous page after login
 * [#8314](https://github.com/netbox-community/netbox/issues/8314) - Prevent custom fields with default values from appearing as applied filters erroneously
 * [#8317](https://github.com/netbox-community/netbox/issues/8317) - Fix CSV import of multi-select custom field values
+* [#8319](https://github.com/netbox-community/netbox/issues/8319) - Custom URL fields should honor `ALLOWED_URL_SCHEMES` config parameter
 
 ---
 
