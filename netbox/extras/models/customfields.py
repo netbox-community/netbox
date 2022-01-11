@@ -239,7 +239,7 @@ class CustomField(ChangeLoggedModel):
         """
         Return a form field suitable for setting a CustomField's value for an object.
 
-        set_initial: Set initial date for the field. This should be False when generating a field for bulk editing.
+        set_initial: Set initial data for the field. This should be False when generating a field for bulk editing.
         enforce_required: Honor the value of CustomField.required. Set to False for filtering/bulk editing.
         for_csv_import: Return a form field suitable for bulk import of objects in CSV format.
         """
