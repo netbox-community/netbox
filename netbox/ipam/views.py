@@ -505,9 +505,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
     template_name = 'ipam/prefix/ip_addresses.html'
 
     def get_children(self, request, parent):
-        return parent.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'role', 'tenant',
-        )
+        return parent.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf', 'tenant')
 
     def prep_table_data(self, request, queryset, parent):
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
@@ -531,7 +529,6 @@ class PrefixEditView(generic.ObjectEditView):
 
 class PrefixDeleteView(generic.ObjectDeleteView):
     queryset = Prefix.objects.all()
-    template_name = 'ipam/prefix_delete.html'
 
 
 class PrefixBulkImportView(generic.BulkImportView):

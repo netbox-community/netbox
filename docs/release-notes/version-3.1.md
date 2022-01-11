@@ -1,6 +1,42 @@
 # NetBox v3.1
 
-## v3.1.5 (FUTURE)
+## v3.1.6 (FUTURE)
+
+### Enhancements
+
+* [#8246](https://github.com/netbox-community/netbox/issues/8246) - Show human-friendly values for commit rates in circuits table
+* [#8262](https://github.com/netbox-community/netbox/issues/8262) - Add cable count to tenant stats
+* [#8265](https://github.com/netbox-community/netbox/issues/8265) - Add Stackwise-n interface types
+* [#8302](https://github.com/netbox-community/netbox/issues/8302) - Linkify role column in device & VM tables
+
+### Bug Fixes
+
+* [#8285](https://github.com/netbox-community/netbox/issues/8285) - Fix `cluster_count` under tenant REST API serializer
+* [#8287](https://github.com/netbox-community/netbox/issues/8287) - Correct label in export template form
+* [#8301](https://github.com/netbox-community/netbox/issues/8301) - Fix delete button for various object children views
+* [#8305](https://github.com/netbox-community/netbox/issues/8305) - Fix assignment of custom field data to FHRP groups via UI
+* [#8306](https://github.com/netbox-community/netbox/issues/8306) - Redirect user to previous page after login
+* [#8314](https://github.com/netbox-community/netbox/issues/8314) - Prevent custom fields with default values from appearing as applied filters erroneously
+* [#8317](https://github.com/netbox-community/netbox/issues/8317) - Fix CSV import of multi-select custom field values
+* [#8319](https://github.com/netbox-community/netbox/issues/8319) - Custom URL fields should honor `ALLOWED_URL_SCHEMES` config parameter
+
+---
+
+## v3.1.5 (2022-01-06)
+
+### Enhancements
+
+* [#8231](https://github.com/netbox-community/netbox/issues/8231) - Use in-page dialogs for confirming object deletion
+* [#8244](https://github.com/netbox-community/netbox/issues/8244) - Add length & length unit fields to cable filter form
+* [#8252](https://github.com/netbox-community/netbox/issues/8252) - Linkify type and group columns in clusters table
+
+### Bug Fixes
+
+* [#8213](https://github.com/netbox-community/netbox/issues/8213) - Fix ValueError exception under prefix IP addresses view
+* [#8224](https://github.com/netbox-community/netbox/issues/8224) - Fix KeyError exception when creating FHRP group with IP address and protocol "other"
+* [#8226](https://github.com/netbox-community/netbox/issues/8226) - Honor return URL after populating a device bay
+* [#8228](https://github.com/netbox-community/netbox/issues/8228) - Optional ChoiceVar fields should not force a selection
+* [#8255](https://github.com/netbox-community/netbox/issues/8255) - Fix bulk editing of authentication parameters for wireless LANs and links
 
 ---
 

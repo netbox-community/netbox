@@ -1,13 +1,13 @@
 from rest_framework.routers import APIRootView
 
 from circuits.models import Circuit
-from dcim.models import Device, Rack, Site
+from dcim.models import Device, Rack, Site, Cable
 from extras.api.views import CustomFieldModelViewSet
 from ipam.models import IPAddress, Prefix, VLAN, VRF
 from tenancy import filtersets
 from tenancy.models import *
 from utilities.utils import count_related
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, Cluster
 from . import serializers
 
 
@@ -47,7 +47,8 @@ class TenantViewSet(CustomFieldModelViewSet):
         site_count=count_related(Site, 'tenant'),
         virtualmachine_count=count_related(VirtualMachine, 'tenant'),
         vlan_count=count_related(VLAN, 'tenant'),
-        vrf_count=count_related(VRF, 'tenant')
+        vrf_count=count_related(VRF, 'tenant'),
+        cluster_count=count_related(Cluster, 'tenant')
     )
     serializer_class = serializers.TenantSerializer
     filterset_class = filtersets.TenantFilterSet

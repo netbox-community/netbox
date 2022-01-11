@@ -79,6 +79,12 @@ class ClusterTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
+    type = tables.Column(
+        linkify=True
+    )
+    group = tables.Column(
+        linkify=True
+    )
     tenant = tables.Column(
         linkify=True
     )

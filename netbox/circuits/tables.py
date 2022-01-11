@@ -22,10 +22,31 @@ CIRCUITTERMINATION_LINK = """
 {% endif %}
 """
 
+#
+# Table columns
+#
+
+
+class CommitRateColumn(tables.TemplateColumn):
+    """
+    Humanize the commit rate in the column view
+    """
+
+    template_code = """
+        {% load helpers %}
+        {{ record.commit_rate|humanize_speed }}
+        """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(template_code=self.template_code, *args, **kwargs)
+
+    def value(self, value):
+        return str(value) if value else None
 
 #
 # Providers
 #
+
 
 class ProviderTable(BaseTable):
     pk = ToggleColumn()
@@ -118,6 +139,7 @@ class CircuitTable(BaseTable):
         template_code=CIRCUITTERMINATION_LINK,
         verbose_name='Side Z'
     )
+    commit_rate = CommitRateColumn()
     comments = MarkdownColumn()
     tags = TagColumn(
         url_name='circuits:circuit_list'

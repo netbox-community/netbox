@@ -9,6 +9,7 @@ from django.db.models import ProtectedError
 from django.forms.widgets import HiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
@@ -623,10 +624,21 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         obj = self.get_object(**kwargs)
         form = ConfirmationForm(initial=request.GET)
 
+        # If this is an HTMX request, return only the rendered deletion form as modal content
+        if is_htmx(request):
+            viewname = f'{self.queryset.model._meta.app_label}:{self.queryset.model._meta.model_name}_delete'
+            form_url = reverse(viewname, kwargs={'pk': obj.pk})
+            return render(request, 'htmx/delete_form.html', {
+                'object': obj,
+                'object_type': self.queryset.model._meta.verbose_name,
+                'form': form,
+                'form_url': form_url,
+            })
+
         return render(request, self.template_name, {
-            'obj': obj,
+            'object': obj,
+            'object_type': self.queryset.model._meta.verbose_name,
             'form': form,
-            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request, obj),
         })
 
@@ -664,9 +676,9 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
-            'obj': obj,
+            'object': obj,
+            'object_type': self.queryset.model._meta.verbose_name,
             'form': form,
-            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request, obj),
         })
 

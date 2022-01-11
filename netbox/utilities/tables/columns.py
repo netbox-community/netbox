@@ -130,7 +130,7 @@ class ActionsColumn(tables.Column):
 
     def render(self, record, table, **kwargs):
         # Skip dummy records (e.g. available VLANs) or those with no actions
-        if not hasattr(record, 'pk') or not self.actions:
+        if not getattr(record, 'pk', None) or not self.actions:
             return ''
 
         model = table.Meta.model
@@ -236,15 +236,15 @@ class ColoredLabelColumn(tables.TemplateColumn):
     Render a colored label (e.g. for DeviceRoles).
     """
     template_code = """
-    {% load helpers %}
-    {% if value %}
-    <span class="badge" style="color: {{ value.color|fgcolor }}; background-color: #{{ value.color }}">
-      {{ value }}
-    </span>
-    {% else %}
-    &mdash;
-    {% endif %}
-    """
+{% load helpers %}
+  {% if value %}
+  <span class="badge" style="color: {{ value.color|fgcolor }}; background-color: #{{ value.color }}">
+    <a href="{{ value.get_absolute_url }}">{{ value }}</a>
+  </span>
+{% else %}
+  &mdash;
+{% endif %}
+"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(template_code=self.template_code, *args, **kwargs)

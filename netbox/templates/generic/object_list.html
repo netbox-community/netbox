@@ -133,6 +133,8 @@
     {% endif %}
   </div>
 
-  {# Table config form #}
-  {% table_config_form table table_name="ObjectTable" %}
 {% endblock content-wrapper %}
+
+{% block modals %}
+  {% table_config_form table table_name="ObjectTable" %}
+{% endblock modals %}

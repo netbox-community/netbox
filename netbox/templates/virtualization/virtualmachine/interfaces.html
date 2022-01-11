@@ -37,5 +37,9 @@
         <div class="clearfix"></div>
      </div>
   </form>
+{% endblock content %}
+
+{% block modals %}
+  {{ block.super }}
   {% table_config_form table %}
-{% endblock %}
+{% endblock modals %}

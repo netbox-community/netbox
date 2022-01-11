@@ -5,13 +5,15 @@
   <form method="post">
     {% csrf_token %}
     {% include 'inc/table_controls_htmx.html' with table_modal="VLANVirtualMachinesTable_config" %}
-
     <div class="card">
       <div class="card-body" id="object_list">
         {% include 'htmx/table.html' %}
       </div>
     </div>
-
   </form>
+{% endblock content %}
+
+{% block modals %}
+  {{ block.super }}
   {% table_config_form table %}
-{% endblock %}
+{% endblock modals %}

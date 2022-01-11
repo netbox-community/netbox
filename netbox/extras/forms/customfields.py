@@ -124,5 +124,5 @@ class CustomFieldModelFilterForm(FilterForm):
         )
         for cf in custom_fields:
             field_name = f'cf_{cf.name}'
-            self.fields[field_name] = cf.to_form_field(set_initial=True, enforce_required=False)
+            self.fields[field_name] = cf.to_form_field(set_initial=False, enforce_required=False)
             self.custom_field_filters.append(field_name)
