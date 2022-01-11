@@ -16,7 +16,8 @@ from extras.utils import FeatureQuery, extras_features
 from netbox.models import ChangeLoggedModel
 from utilities import filters
 from utilities.forms import (
-    CSVChoiceField, DatePicker, LaxURLField, StaticSelectMultiple, StaticSelect, add_blank_choice,
+    CSVChoiceField, CSVMultipleChoiceField, DatePicker, LaxURLField, StaticSelectMultiple, StaticSelect,
+    add_blank_choice,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
@@ -287,7 +288,7 @@ class CustomField(ChangeLoggedModel):
                     choices=choices, required=required, initial=initial, widget=StaticSelect()
                 )
             else:
-                field_class = CSVChoiceField if for_csv_import else forms.MultipleChoiceField
+                field_class = CSVMultipleChoiceField if for_csv_import else forms.MultipleChoiceField
                 field = field_class(
                     choices=choices, required=required, initial=initial, widget=StaticSelectMultiple()
                 )

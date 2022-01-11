@@ -16,6 +16,7 @@
 * [#8301](https://github.com/netbox-community/netbox/issues/8301) - Fix delete button for various object children views
 * [#8305](https://github.com/netbox-community/netbox/issues/8305) - Fix assignment of custom field data to FHRP groups via UI
 * [#8306](https://github.com/netbox-community/netbox/issues/8306) - Redirect user to previous page after login
+* [#8317](https://github.com/netbox-community/netbox/issues/8317) - Fix CSV import of multi-select custom field values
 
 ---
 
