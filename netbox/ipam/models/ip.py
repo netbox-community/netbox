@@ -125,7 +125,10 @@ class ASN(PrimaryModel):
         verbose_name_plural = 'ASNs'
 
     def __str__(self):
-        return f'AS{self.asn}'
+        if self.asn > 65535:
+            return 'AS{} ({}.{})'.format(self.asn, self.asn // 65536, self.asn % 65536)
+        else:
+            return f'AS{self.asn}'
 
     def get_absolute_url(self):
         return reverse('ipam:asn', args=[self.pk])
