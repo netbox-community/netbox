@@ -19,7 +19,7 @@ netbox.pid
 .vscode
 .venv
 .tox
-!docker/configuration/gunicorn_config.py
+!docker_old/configuration/gunicorn_config.py
 .idea
 .coverage
 .vscode

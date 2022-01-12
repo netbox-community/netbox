@@ -2,74 +2,61 @@ version: '3.4'
 services:
   netbox: &netbox
     image: vaporio/netbox:develop
-    build:
-      context: .
-      args:
-        BUILD_VERSION: 'local-dev'
-        BUILD_DATE: ''
-        VCS_REF: 'tip'
     depends_on:
     - postgres
     - redis
     - redis-cache
     - netbox-worker
     env_file: docker/env/netbox.env
-    #user: '1000:1000'
+    user: '101'
     volumes:
-    - ./netbox:/opt/netbox/netbox
     - ./docker/startup_scripts:/opt/netbox/startup_scripts:z,ro
     - ./docker/initializers:/opt/netbox/initializers:z,ro
     - ./docker/configuration:/etc/netbox/config:z,ro
     - ./reports:/etc/netbox/reports:z,ro
     - ./scripts:/etc/netbox/scripts:z,ro
-    - netbox-nginx-config:/etc/netbox-nginx:z
-    - netbox-static-files:/opt/netbox/netbox/static:z
     - netbox-media-files:/opt/netbox/netbox/media:z
+    ports:
+    - "8000:8080"
   netbox-worker:
     <<: *netbox
     depends_on:
     - redis
     entrypoint:
-    - python3
+    - /opt/netbox/venv/bin/python
     - /opt/netbox/netbox/manage.py
     command:
     - rqworker
-  nginx:
-    command: nginx -c /etc/netbox-nginx/nginx.conf
-    image: nginx:1.18
-    depends_on:
-    - netbox
-    ports:
-    - 8000:8080
-    volumes:
-    - netbox-static-files:/opt/netbox/netbox/static:ro
-    - netbox-nginx-config:/etc/netbox-nginx/:ro
+    ports: [ ]
+
   postgres:
-    image: postgres:11-alpine
-    environment:
-      POSTGRES_PASSWORD: "12345"
-      POSTGRES_DB: netbox
+    image: postgres:12-alpine
+    env_file: docker/env/postgres.env
     ports:
-    - 5432:5432
+    - "5432:5432"
     volumes:
     - netbox-postgres-data:/var/lib/postgresql/data
+
   redis:
-    image: redis:5-alpine
+    image: redis:6-alpine
     command:
-    - redis-server
-    - --appendonly yes
-    - --requirepass 12345
-    ports:
-    - 6379:6379
+    - sh
+    - -c # this is to evaluate the $REDIS_PASSWORD from the env
+    - redis-server --appendonly yes --requirepass $$REDIS_PASSWORD ## $$ because of docker-compose
     volumes:
     - netbox-redis-data:/data
+    ports:
+      - "6379:6379"
+    env_file: docker/env/redis.env
   redis-cache:
-    image: redis:5-alpine
+    image: redis:6-alpine
+    command:
+    - sh
+    - -c # this is to evaluate the $REDIS_PASSWORD from the env
+    - redis-server --requirepass $$REDIS_PASSWORD ## $$ because of docker-compose
+    env_file: docker/env/redis-cache.env
+
 volumes:
-  netbox-static-files:
-    driver: local
-  netbox-nginx-config:
-    driver: local
   netbox-media-files:
     driver: local
   netbox-postgres-data:

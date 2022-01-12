@@ -1,78 +1,84 @@
-FROM vaporio/python:3.7 as builder
+FROM alpine:3.13 as builder
 
-RUN apt-get update -qy \
- && apt-get install -y \
-      libsasl2-dev \
+RUN apk add --no-cache \
+      bash \
+      build-base \
+      cargo \
+      ca-certificates \
+      cyrus-sasl-dev \
       graphviz \
-      libjpeg-dev \
+      jpeg-dev \
+      libevent-dev \
       libffi-dev \
-      libxml2-dev \
-      libxslt1-dev \
-      libldap2-dev \
-      libpq-dev \
-      ttf-ubuntu-font-family \
- && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /install
-
-RUN pip install --prefix="/install" --no-warn-script-location \
-# gunicorn is used for launching netbox
-      gunicorn \
-      greenlet \
-      eventlet \
-# napalm is used for gathering information from network devices
-      napalm \
-# ruamel is used in startup_scripts
-      'ruamel.yaml>=0.15,<0.16' \
-# django-storages was introduced in 2.7 and is optional
-      django-storages
+      libressl-dev \
+      libxslt-dev \
+      musl-dev \
+      openldap-dev \
+      postgresql-dev \
+      py3-pip \
+      python3-dev \
+  && python3 -m venv /opt/netbox/venv \
+  && /opt/netbox/venv/bin/python3 -m pip install --upgrade \
+      pip \
+      setuptools \
+      wheel
 
 ARG NETBOX_PATH=.
-COPY ${NETBOX_PATH}/requirements.txt /
-COPY ${NETBOX_PATH}/requirements.extras.txt /
-RUN pip install --prefix="/install" --no-warn-script-location -r /requirements.txt -r /requirements.extras.txt
+COPY ${NETBOX_PATH}/requirements.txt requirements.extras.txt /
+RUN /opt/netbox/venv/bin/pip install \
+      -r /requirements.txt \
+      -r /requirements.extras.txt
 
-FROM vaporio/python:3.7-slim
+###
+# Main stage
+###
 
-RUN apt-get update -qy \
- && apt-get install -y \
-      libsasl2-dev \
+FROM alpine:3.13 as main
+
+
+RUN apk add --no-cache \
+      bash \
+      ca-certificates \
+      curl \
       graphviz \
-      libjpeg-dev \
-      libffi-dev \
-      libxml2-dev \
-      libxslt1-dev \
-      libldap2-dev \
-      libpq-dev \
+      libevent \
+      libffi \
+      libjpeg-turbo \
+      libressl \
+      libxslt \
+      postgresql-libs \
+      python3 \
+      py3-pip \
       ttf-ubuntu-font-family \
- && rm -rf /var/lib/apt/lists/*
+      unit \
+      unit-python3
 
 WORKDIR /opt
 
-COPY --from=builder /install /usr/local
+COPY --from=builder /opt/netbox/venv /opt/netbox/venv
 
 ARG NETBOX_PATH=.
 COPY ${NETBOX_PATH} /opt/netbox
 
 COPY docker/configuration.docker.py /opt/netbox/netbox/netbox/configuration.py
-COPY docker/configuration/gunicorn_config.py /etc/netbox/config/
-COPY docker/nginx.conf /etc/netbox-nginx/nginx.conf
 COPY docker/docker-entrypoint.sh /opt/netbox/docker-entrypoint.sh
+COPY docker/launch-netbox.sh /opt/netbox/launch-netbox.sh
 COPY docker/startup_scripts/ /opt/netbox/startup_scripts/
 COPY docker/initializers/ /opt/netbox/initializers/
-COPY docker/configuration/configuration.py /etc/netbox/config/configuration.py
+COPY docker/configuration/ /etc/netbox/config/
+COPY docker/nginx-unit.json /etc/unit/
 
 WORKDIR /opt/netbox/netbox
 
-RUN mkdir -p static && chmod g+w static media
+# Must set permissions for '/opt/netbox/netbox/media' directory
+# to g+w so that pictures can be uploaded to netbox.
+RUN mkdir -p static /opt/unit/state/ /opt/unit/tmp/ \
+      && chmod -R g+w media /opt/unit/ \
+      && SECRET_KEY="dummy" /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py collectstatic --no-input
 
 ENTRYPOINT [ "/opt/netbox/docker-entrypoint.sh" ]
 
-CMD ["gunicorn", "-c /etc/netbox/config/gunicorn_config.py", "netbox.wsgi"]
-
-ARG BUILD_VERSION
-ARG BUILD_DATE
-ARG VCS_REF
+CMD [ "/opt/netbox/launch-netbox.sh" ]
 
 LABEL maintainer="Vapor IO" \
 # See http://label-schema.org/rc1/#build-time-labels
@@ -100,3 +106,13 @@ LABEL maintainer="Vapor IO" \
       org.opencontainers.image.source="https://github.com/vapor-ware/netbox.git" \
       org.opencontainers.image.revision=$VCS_REF \
       org.opencontainers.image.version=$BUILD_VERSION
+
+
+FROM main as ldap
+
+RUN apk add --no-cache \
+      libsasl \
+      libldap \
+      util-linux
+
+COPY docker/ldap_config.docker.py /opt/netbox/netbox/netbox/ldap_config.py

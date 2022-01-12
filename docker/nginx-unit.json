@@ -1,0 +1,40 @@
+{
+  "listeners": {
+    "*:8080": {
+      "pass": "routes"
+    }
+  },
+
+  "routes": [
+    {
+      "match": {
+        "uri": "/static/*"
+      },
+      "action": {
+        "share": "/opt/netbox/netbox"
+      }
+    },
+
+    {
+      "action": {
+        "pass": "applications/netbox"
+      }
+    }
+  ],
+
+  "applications": {
+    "netbox": {
+      "type": "python 3",
+      "path": "/opt/netbox/netbox/",
+      "module": "netbox.wsgi",
+      "home": "/opt/netbox/venv",
+      "processes": {
+        "max": 4,
+        "spare": 1,
+        "idle_timeout": 120
+      }
+    }
+  },
+
+  "access_log": "/dev/stdout"
+}
