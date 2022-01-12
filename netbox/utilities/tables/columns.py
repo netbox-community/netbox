@@ -324,7 +324,10 @@ class CustomFieldColumn(tables.Column):
             # Linkify custom URLs
             return mark_safe(f'<a href="{value}">{value}</a>')
         if value is not None:
-            return value
+            obj = self.customfield.deserialize(value)
+            if hasattr(obj, 'get_absolute_url'):
+                return mark_safe(f'<a href="{obj.get_absolute_url}">{obj}</a>')
+            return obj
         return self.default
 
 
