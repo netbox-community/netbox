@@ -130,6 +130,14 @@ class ASN(PrimaryModel):
     def get_absolute_url(self):
         return reverse('ipam:asn', args=[self.pk])
 
+    @property
+    def asdot_notation(self):
+        # Return asdot notation for an ASN larger than 65535
+        if self.asn > 65535:
+            return '{}.{}'.format(self.asn // 65536, self.asn % 65536)
+        else:
+            return None
+
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):

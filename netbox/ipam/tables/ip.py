@@ -106,6 +106,13 @@ class ASNTable(BaseTable):
     asn = tables.Column(
         linkify=True
     )
+
+    def render_asn(self, value, record):
+        if record.asdot_notation:
+            return f'{value} ({record.asdot_notation})'
+        else:
+            return value
+
     site_count = LinkedCountColumn(
         viewname='dcim:site_list',
         url_params={'asn_id': 'pk'},
