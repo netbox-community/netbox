@@ -13,11 +13,59 @@ from utilities.utils import array_to_string
 
 __all__ = (
     'Service',
+    'ServiceTemplate',
 )
 
 
+class ServiceBase(models.Model):
+    protocol = models.CharField(
+        max_length=50,
+        choices=ServiceProtocolChoices
+    )
+    ports = ArrayField(
+        base_field=models.PositiveIntegerField(
+            validators=[
+                MinValueValidator(SERVICE_PORT_MIN),
+                MaxValueValidator(SERVICE_PORT_MAX)
+            ]
+        ),
+        verbose_name='Port numbers'
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return f'{self.name} ({self.get_protocol_display()}/{self.port_list})'
+
+    @property
+    def port_list(self):
+        return array_to_string(self.ports)
+
+
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Service(PrimaryModel):
+class ServiceTemplate(ServiceBase, PrimaryModel):
+    """
+    A template for a Service to be applied to a device or virtual machine.
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    class Meta:
+        ordering = ('name',)
+
+    def get_absolute_url(self):
+        return reverse('ipam:servicetemplate', args=[self.pk])
+
+
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
+class Service(ServiceBase, PrimaryModel):
     """
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may
     optionally be tied to one or more specific IPAddresses belonging to its parent.
@@ -40,35 +88,15 @@ class Service(PrimaryModel):
     name = models.CharField(
         max_length=100
     )
-    protocol = models.CharField(
-        max_length=50,
-        choices=ServiceProtocolChoices
-    )
-    ports = ArrayField(
-        base_field=models.PositiveIntegerField(
-            validators=[
-                MinValueValidator(SERVICE_PORT_MIN),
-                MaxValueValidator(SERVICE_PORT_MAX)
-            ]
-        ),
-        verbose_name='Port numbers'
-    )
     ipaddresses = models.ManyToManyField(
         to='ipam.IPAddress',
         related_name='services',
         blank=True,
         verbose_name='IP addresses'
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
 
     class Meta:
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
-
-    def __str__(self):
-        return f'{self.name} ({self.get_protocol_display()}/{self.port_list})'
 
     def get_absolute_url(self):
         return reverse('ipam:service', args=[self.pk])
@@ -85,7 +113,3 @@ class Service(PrimaryModel):
             raise ValidationError("A service cannot be associated with both a device and a virtual machine.")
         if not self.device and not self.virtual_machine:
             raise ValidationError("A service must be associated with either a device or a virtual machine.")
-
-    @property
-    def port_list(self):
-        return array_to_string(self.ports)

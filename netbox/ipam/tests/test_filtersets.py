@@ -1307,6 +1307,35 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)  # 5 scoped + 1 global
 
 
+class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ServiceTemplate.objects.all()
+    filterset = ServiceTemplateFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        service_templates = (
+            ServiceTemplate(name='Service Template 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1001]),
+            ServiceTemplate(name='Service Template 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1002]),
+            ServiceTemplate(name='Service Template 3', protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[1003]),
+            ServiceTemplate(name='Service Template 4', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2001]),
+            ServiceTemplate(name='Service Template 5', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2002]),
+            ServiceTemplate(name='Service Template 6', protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[2003]),
+        )
+        ServiceTemplate.objects.bulk_create(service_templates)
+
+    def test_name(self):
+        params = {'name': ['Service Template 1', 'Service Template 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_protocol(self):
+        params = {'protocol': ServiceProtocolChoices.PROTOCOL_TCP}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_port(self):
+        params = {'port': '1001'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+
 class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Service.objects.all()
     filterset = ServiceFilterSet

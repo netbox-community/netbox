@@ -32,6 +32,9 @@ class IPAMQuery(graphene.ObjectType):
     service = ObjectField(ServiceType)
     service_list = ObjectListField(ServiceType)
 
+    service_template = ObjectField(ServiceTemplateType)
+    service_template_list = ObjectListField(ServiceTemplateType)
+
     fhrp_group = ObjectField(FHRPGroupType)
     fhrp_group_list = ObjectListField(FHRPGroupType)
 

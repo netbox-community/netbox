@@ -1029,6 +1029,49 @@ class VLANBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Service templates
+#
+
+class ServiceTemplateListView(generic.ObjectListView):
+    queryset = ServiceTemplate.objects.all()
+    filterset = filtersets.ServiceTemplateFilterSet
+    filterset_form = forms.ServiceTemplateFilterForm
+    table = tables.ServiceTemplateTable
+
+
+class ServiceTemplateView(generic.ObjectView):
+    queryset = ServiceTemplate.objects.all()
+
+
+class ServiceTemplateEditView(generic.ObjectEditView):
+    queryset = ServiceTemplate.objects.all()
+    model_form = forms.ServiceTemplateForm
+
+
+class ServiceTemplateDeleteView(generic.ObjectDeleteView):
+    queryset = ServiceTemplate.objects.all()
+
+
+class ServiceTemplateBulkImportView(generic.BulkImportView):
+    queryset = ServiceTemplate.objects.all()
+    model_form = forms.ServiceTemplateCSVForm
+    table = tables.ServiceTemplateTable
+
+
+class ServiceTemplateBulkEditView(generic.BulkEditView):
+    queryset = ServiceTemplate.objects.all()
+    filterset = filtersets.ServiceTemplateFilterSet
+    table = tables.ServiceTemplateTable
+    form = forms.ServiceTemplateBulkEditForm
+
+
+class ServiceTemplateBulkDeleteView(generic.BulkDeleteView):
+    queryset = ServiceTemplate.objects.all()
+    filterset = filtersets.ServiceTemplateFilterSet
+    table = tables.ServiceTemplateTable
+
+
+#
 # Services
 #
 
@@ -1050,14 +1093,14 @@ class ServiceEditView(generic.ObjectEditView):
     template_name = 'ipam/service_edit.html'
 
 
+class ServiceDeleteView(generic.ObjectDeleteView):
+    queryset = Service.objects.all()
+
+
 class ServiceBulkImportView(generic.BulkImportView):
     queryset = Service.objects.all()
     model_form = forms.ServiceCSVForm
     table = tables.ServiceTable
-
-
-class ServiceDeleteView(generic.ObjectDeleteView):
-    queryset = Service.objects.all()
 
 
 class ServiceBulkEditView(generic.BulkEditView):

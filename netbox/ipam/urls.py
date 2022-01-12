@@ -162,6 +162,18 @@ urlpatterns = [
     path('vlans/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='vlan_changelog', kwargs={'model': VLAN}),
     path('vlans/<int:pk>/journal/', ObjectJournalView.as_view(), name='vlan_journal', kwargs={'model': VLAN}),
 
+    # Service templates
+    path('service-templates/', views.ServiceTemplateListView.as_view(), name='servicetemplate_list'),
+    path('service-templates/add/', views.ServiceTemplateEditView.as_view(), name='servicetemplate_add'),
+    path('service-templates/import/', views.ServiceTemplateBulkImportView.as_view(), name='servicetemplate_import'),
+    path('service-templates/edit/', views.ServiceTemplateBulkEditView.as_view(), name='servicetemplate_bulk_edit'),
+    path('service-templates/delete/', views.ServiceTemplateBulkDeleteView.as_view(), name='servicetemplate_bulk_delete'),
+    path('service-templates/<int:pk>/', views.ServiceTemplateView.as_view(), name='servicetemplate'),
+    path('service-templates/<int:pk>/edit/', views.ServiceTemplateEditView.as_view(), name='servicetemplate_edit'),
+    path('service-templates/<int:pk>/delete/', views.ServiceTemplateDeleteView.as_view(), name='servicetemplate_delete'),
+    path('service-templates/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='servicetemplate_changelog', kwargs={'model': ServiceTemplate}),
+    path('service-templates/<int:pk>/journal/', ObjectJournalView.as_view(), name='servicetemplate_journal', kwargs={'model': ServiceTemplate}),
+
     # Services
     path('services/', views.ServiceListView.as_view(), name='service_list'),
     path('services/add/', views.ServiceEditView.as_view(), name='service_add'),

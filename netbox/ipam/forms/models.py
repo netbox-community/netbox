@@ -31,6 +31,7 @@ __all__ = (
     'RoleForm',
     'RouteTargetForm',
     'ServiceForm',
+    'ServiceTemplateForm',
     'VLANForm',
     'VLANGroupForm',
     'VRFForm',
@@ -812,6 +813,27 @@ class VLANForm(TenancyForm, CustomFieldModelForm):
         }
         widgets = {
             'status': StaticSelect(),
+        }
+
+
+class ServiceTemplateForm(CustomFieldModelForm):
+    ports = NumericArrayField(
+        base_field=forms.IntegerField(
+            min_value=SERVICE_PORT_MIN,
+            max_value=SERVICE_PORT_MAX
+        ),
+        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen."
+    )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = ServiceTemplate
+        fields = ('name', 'protocol', 'ports', 'description', 'tags')
+        widgets = {
+            'protocol': StaticSelect(),
         }
 
 

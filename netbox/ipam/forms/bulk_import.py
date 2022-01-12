@@ -21,6 +21,7 @@ __all__ = (
     'RoleCSVForm',
     'RouteTargetCSVForm',
     'ServiceCSVForm',
+    'ServiceTemplateCSVForm',
     'VLANCSVForm',
     'VLANGroupCSVForm',
     'VRFCSVForm',
@@ -390,6 +391,17 @@ class VLANCSVForm(CustomFieldModelCSVForm):
             'vid': 'Numeric VLAN ID (1-4095)',
             'name': 'VLAN name',
         }
+
+
+class ServiceTemplateCSVForm(CustomFieldModelCSVForm):
+    protocol = CSVChoiceField(
+        choices=ServiceProtocolChoices,
+        help_text='IP protocol'
+    )
+
+    class Meta:
+        model = ServiceTemplate
+        fields = ('name', 'protocol', 'ports', 'description')
 
 
 class ServiceCSVForm(CustomFieldModelCSVForm):
