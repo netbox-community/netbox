@@ -31,6 +31,7 @@ __all__ = (
     'RoleForm',
     'RouteTargetForm',
     'ServiceForm',
+    'ServiceCreateForm',
     'ServiceTemplateForm',
     'VLANForm',
     'VLANGroupForm',
@@ -880,3 +881,36 @@ class ServiceForm(CustomFieldModelForm):
             'protocol': StaticSelect(),
             'ipaddresses': StaticSelectMultiple(),
         }
+
+
+class ServiceCreateForm(ServiceForm):
+    service_template = DynamicModelChoiceField(
+        queryset=ServiceTemplate.objects.all(),
+        required=False
+    )
+
+    class Meta(ServiceForm.Meta):
+        fields = [
+            'device', 'virtual_machine', 'service_template', 'name', 'protocol', 'ports', 'ipaddresses', 'description',
+            'tags',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Fields which may be populated from a ServiceTemplate are not required
+        for field in ('name', 'protocol', 'ports'):
+            self.fields[field].required = False
+            del(self.fields[field].widget.attrs['required'])
+
+    def clean(self):
+        if self.cleaned_data['service_template']:
+            # Create a new Service from the specified template
+            service_template = self.cleaned_data['service_template']
+            self.cleaned_data['name'] = service_template.name
+            self.cleaned_data['protocol'] = service_template.protocol
+            self.cleaned_data['ports'] = service_template.ports
+            if not self.cleaned_data['description']:
+                self.cleaned_data['description'] = service_template.description
+        elif not all(self.cleaned_data[f] for f in ('name', 'protocol', 'ports')):
+            raise forms.ValidationError("Must specify name, protocol, and port(s) if not using a service template.")

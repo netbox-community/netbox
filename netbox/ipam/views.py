@@ -1087,6 +1087,12 @@ class ServiceView(generic.ObjectView):
     queryset = Service.objects.prefetch_related('ipaddresses')
 
 
+class ServiceCreateView(generic.ObjectEditView):
+    queryset = Service.objects.all()
+    model_form = forms.ServiceCreateForm
+    template_name = 'ipam/service_create.html'
+
+
 class ServiceEditView(generic.ObjectEditView):
     queryset = Service.objects.prefetch_related('ipaddresses')
     model_form = forms.ServiceForm
