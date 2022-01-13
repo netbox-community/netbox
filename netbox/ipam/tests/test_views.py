@@ -719,3 +719,29 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'ports': '106,107',
             'description': 'New description',
         }
+
+    def test_create_from_template(self):
+        self.add_permissions('ipam.add_service')
+
+        device = Device.objects.first()
+        service_template = ServiceTemplate.objects.create(
+            name='HTTP',
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=[80],
+            description='Hypertext transfer protocol'
+        )
+
+        request = {
+            'path': self._get_url('add'),
+            'data': {
+                'device': device.pk,
+                'service_template': service_template.pk,
+            },
+        }
+        self.assertHttpStatus(self.client.post(**request), 302)
+        instance = self._get_queryset().order_by('pk').last()
+        self.assertEqual(instance.device, device)
+        self.assertEqual(instance.name, service_template.name)
+        self.assertEqual(instance.protocol, service_template.protocol)
+        self.assertEqual(instance.ports, service_template.ports)
+        self.assertEqual(instance.description, service_template.description)
