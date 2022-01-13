@@ -104,11 +104,9 @@ class RIRTable(BaseTable):
 class ASNTable(BaseTable):
     pk = ToggleColumn()
     asn = tables.Column(
+        accessor=tables.A('asn_asdot'),
         linkify=True
     )
-
-    def render_asn(self, value, record):
-        return record.asn_with_asdot
 
     site_count = LinkedCountColumn(
         viewname='dcim:site_list',

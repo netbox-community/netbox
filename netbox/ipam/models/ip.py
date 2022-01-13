@@ -131,8 +131,19 @@ class ASN(PrimaryModel):
         return reverse('ipam:asn', args=[self.pk])
 
     @property
+    def asn_asdot(self):
+        """
+        Return ASDOT notation for AS numbers greater than 16 bits.
+        """
+        if self.asn > 65535:
+            return f'{self.asn // 65536}.{self.asn % 65536}'
+        return self.asn
+
+    @property
     def asn_with_asdot(self):
-        # Return asn with asdot notation for an ASN larger than 65535 otherwise return the plain ASN
+        """
+        Return both plain and ASDOT notation, where applicable.
+        """
         if self.asn > 65535:
             return f'{self.asn} ({self.asn // 65536}.{self.asn % 65536})'
         else:
