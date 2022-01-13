@@ -68,7 +68,8 @@ class Webhook(ChangeLoggedModel):
     payload_url = models.CharField(
         max_length=500,
         verbose_name='URL',
-        help_text="A POST will be sent to this URL when the webhook is called."
+        help_text='This URL will be called using the HTTP method defined when the webhook is called. '
+                  'Jinja2 template processing is supported with the same context as the request body.'
     )
     enabled = models.BooleanField(
         default=True
@@ -175,6 +176,12 @@ class Webhook(ChangeLoggedModel):
             return render_jinja2(self.body_template, context)
         else:
             return json.dumps(context, cls=JSONEncoder)
+
+    def render_payload_url(self, context):
+        """
+        Render the payload URL.
+        """
+        return render_jinja2(self.payload_url, context)
 
 
 @extras_features('webhooks', 'export_templates')
