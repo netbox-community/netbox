@@ -125,10 +125,18 @@ class ASN(PrimaryModel):
         verbose_name_plural = 'ASNs'
 
     def __str__(self):
-        return f'AS{self.asn}'
+        return f'AS{self.asn_with_asdot}'
 
     def get_absolute_url(self):
         return reverse('ipam:asn', args=[self.pk])
+
+    @property
+    def asn_with_asdot(self):
+        # Return asn with asdot notation for an ASN larger than 65535 otherwise return the plain ASN
+        if self.asn > 65535:
+            return f'{self.asn} ({self.asn // 65536}.{self.asn % 65536})'
+        else:
+            return self.asn
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
