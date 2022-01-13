@@ -44,7 +44,9 @@ class ClusterTypeTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ClusterType
-        fields = ('pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions', 'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
 
@@ -67,7 +69,9 @@ class ClusterGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ClusterGroup
-        fields = ('pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions', 'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
 
@@ -109,7 +113,10 @@ class ClusterTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Cluster
-        fields = ('pk', 'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'device_count', 'vm_count', 'tags')
+        fields = (
+            'pk', 'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'device_count', 'vm_count', 'tags',
+            'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'device_count', 'vm_count')
 
 
@@ -150,8 +157,8 @@ class VirtualMachineTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = VirtualMachine
         fields = (
-            'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'primary_ip4',
-            'primary_ip6', 'primary_ip', 'comments', 'tags',
+            'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
+            'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
@@ -178,7 +185,7 @@ class VMInterfaceTable(BaseInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
+            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 

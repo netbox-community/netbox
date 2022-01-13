@@ -30,7 +30,9 @@ class WirelessLANGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = WirelessLANGroup
-        fields = ('pk', 'name', 'wirelesslan_count', 'description', 'slug', 'tags', 'actions')
+        fields = (
+            'pk', 'name', 'wirelesslan_count', 'description', 'slug', 'tags', 'actions', 'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'wirelesslan_count', 'description', 'actions')
 
 
@@ -53,7 +55,7 @@ class WirelessLANTable(BaseTable):
         model = WirelessLAN
         fields = (
             'pk', 'ssid', 'group', 'description', 'vlan', 'interface_count', 'auth_type', 'auth_cipher', 'auth_psk',
-            'tags',
+            'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'ssid', 'group', 'description', 'vlan', 'auth_type', 'interface_count')
 
@@ -102,7 +104,7 @@ class WirelessLinkTable(BaseTable):
         model = WirelessLink
         fields = (
             'pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'description',
-            'auth_type', 'auth_cipher', 'auth_psk', 'tags',
+            'auth_type', 'auth_cipher', 'auth_psk', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'auth_type',
