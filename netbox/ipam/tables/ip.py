@@ -108,10 +108,7 @@ class ASNTable(BaseTable):
     )
 
     def render_asn(self, value, record):
-        if record.asdot_notation:
-            return f'{value} ({record.asdot_notation})'
-        else:
-            return value
+        return record.asn_with_asdot
 
     site_count = LinkedCountColumn(
         viewname='dcim:site_list',
