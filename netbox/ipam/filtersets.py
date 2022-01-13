@@ -29,6 +29,7 @@ __all__ = (
     'RoleFilterSet',
     'RouteTargetFilterSet',
     'ServiceFilterSet',
+    'ServiceTemplateFilterSet',
     'VLANFilterSet',
     'VLANGroupFilterSet',
     'VRFFilterSet',
@@ -852,6 +853,28 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     def get_for_virtualmachine(self, queryset, name, value):
         return queryset.get_for_virtualmachine(value)
+
+
+class ServiceTemplateFilterSet(PrimaryModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    port = NumericArrayFilter(
+        field_name='ports',
+        lookup_expr='contains'
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = ServiceTemplate
+        fields = ['id', 'name', 'protocol']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
+        return queryset.filter(qs_filter)
 
 
 class ServiceFilterSet(PrimaryModelFilterSet):

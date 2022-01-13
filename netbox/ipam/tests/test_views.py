@@ -641,6 +641,41 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ServiceTemplate
+
+    @classmethod
+    def setUpTestData(cls):
+        ServiceTemplate.objects.bulk_create([
+            ServiceTemplate(name='Service Template 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
+            ServiceTemplate(name='Service Template 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
+            ServiceTemplate(name='Service Template 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
+        ])
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Service Template X',
+            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
+            'ports': '104,105',
+            'description': 'A new service template',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,protocol,ports,description",
+            "Service Template 4,tcp,1,First service template",
+            "Service Template 5,tcp,2,Second service template",
+            "Service Template 6,tcp,3,Third service template",
+        )
+
+        cls.bulk_edit_data = {
+            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
+            'ports': '106,107',
+            'description': 'New description',
+        }
+
+
 class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Service
 
@@ -684,3 +719,30 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'ports': '106,107',
             'description': 'New description',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_create_from_template(self):
+        self.add_permissions('ipam.add_service')
+
+        device = Device.objects.first()
+        service_template = ServiceTemplate.objects.create(
+            name='HTTP',
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=[80],
+            description='Hypertext transfer protocol'
+        )
+
+        request = {
+            'path': self._get_url('add'),
+            'data': {
+                'device': device.pk,
+                'service_template': service_template.pk,
+            },
+        }
+        self.assertHttpStatus(self.client.post(**request), 302)
+        instance = self._get_queryset().order_by('pk').last()
+        self.assertEqual(instance.device, device)
+        self.assertEqual(instance.name, service_template.name)
+        self.assertEqual(instance.protocol, service_template.protocol)
+        self.assertEqual(instance.ports, service_template.ports)
+        self.assertEqual(instance.description, service_template.description)

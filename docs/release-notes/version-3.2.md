@@ -14,6 +14,10 @@
 
 ### New Features
 
+#### Service Templates ([#1591](https://github.com/netbox-community/netbox/issues/1591))
+
+A new service template model has been introduced to assist in standardizing the definition and application of layer four services to devices and virtual machines. As an alternative to manually defining a name, protocol, and port(s) each time a service is created, a user now has the option of selecting a pre-defined template from which these values will be populated.
+
 #### Automatic Provisioning of Next Available VLANs ([#2658](https://github.com/netbox-community/netbox/issues/2658))
 
 A new REST API endpoint has been added at `/api/ipam/vlan-groups/<pk>/available-vlans/`. A GET request to this endpoint will return a list of available VLANs within the group. A POST request can be made to this endpoint specifying the name(s) of one or more VLANs to create within the group, and their VLAN IDs will be assigned automatically.
@@ -83,6 +87,7 @@ Inventory item templates can be arranged hierarchically within a device type, an
     * `/api/dcim/module-bays/`
     * `/api/dcim/module-bay-templates/`
     * `/api/dcim/module-types/`
+    * `/api/extras/service-templates/`
 * circuits.ProviderNetwork
     * Added `service_id` field
 * dcim.ConsolePort

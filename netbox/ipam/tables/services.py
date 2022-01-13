@@ -5,12 +5,27 @@ from ipam.models import *
 
 __all__ = (
     'ServiceTable',
+    'ServiceTemplateTable',
 )
 
 
-#
-# Services
-#
+class ServiceTemplateTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+    ports = tables.Column(
+        accessor=tables.A('port_list')
+    )
+    tags = TagColumn(
+        url_name='ipam:servicetemplate_list'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = ServiceTemplate
+        fields = ('pk', 'id', 'name', 'protocol', 'ports', 'description', 'tags')
+        default_columns = ('pk', 'name', 'protocol', 'ports', 'description')
+
 
 class ServiceTable(BaseTable):
     pk = ToggleColumn()
@@ -21,9 +36,8 @@ class ServiceTable(BaseTable):
         linkify=True,
         order_by=('device', 'virtual_machine')
     )
-    ports = tables.TemplateColumn(
-        template_code='{{ record.port_list }}',
-        verbose_name='Ports'
+    ports = tables.Column(
+        accessor=tables.A('port_list')
     )
     tags = TagColumn(
         url_name='ipam:service_list'
