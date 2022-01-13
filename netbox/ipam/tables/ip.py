@@ -93,7 +93,10 @@ class RIRTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RIR
-        fields = ('pk', 'id', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'tags', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'tags', 'actions', 'created',
+            'last_updated',
+        )
         default_columns = ('pk', 'name', 'is_private', 'aggregate_count', 'description', 'actions')
 
 
@@ -115,7 +118,7 @@ class ASNTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ASN
-        fields = ('pk', 'asn', 'rir', 'site_count', 'tenant', 'description', 'actions')
+        fields = ('pk', 'asn', 'rir', 'site_count', 'tenant', 'description', 'actions', 'created', 'last_updated',)
         default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'tenant', 'actions')
 
 
@@ -147,7 +150,10 @@ class AggregateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Aggregate
-        fields = ('pk', 'id', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description', 'tags')
+        fields = (
+            'pk', 'id', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description', 'tags',
+            'created', 'last_updated',
+        )
         default_columns = ('pk', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description')
 
 
@@ -177,7 +183,10 @@ class RoleTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Role
-        fields = ('pk', 'id', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'tags', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'tags', 'actions',
+            'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'prefix_count', 'vlan_count', 'description', 'actions')
 
 
@@ -264,8 +273,8 @@ class PrefixTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan_group',
-            'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'tags',
+            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site',
+            'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',
@@ -306,7 +315,7 @@ class IPRangeTable(BaseTable):
         model = IPRange
         fields = (
             'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
-            'utilization', 'tags',
+            'utilization', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
@@ -364,7 +373,7 @@ class IPAddressTable(BaseTable):
         model = IPAddress
         fields = (
             'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'assigned', 'dns_name', 'description',
-            'tags',
+            'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',
