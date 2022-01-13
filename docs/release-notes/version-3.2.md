@@ -69,6 +69,7 @@ Inventory item templates can be arranged hierarchically within a device type, an
 * [#7846](https://github.com/netbox-community/netbox/issues/7846) - Enable associating inventory items with device components
 * [#7852](https://github.com/netbox-community/netbox/issues/7852) - Enable assigning interfaces to VRFs
 * [#8168](https://github.com/netbox-community/netbox/issues/8168) - Add `min_vid` and `max_vid` fields to VLAN group
+* [#8295](https://github.com/netbox-community/netbox/issues/8295) - Webhook URLs can now be templatized
 * [#8296](https://github.com/netbox-community/netbox/issues/8296) - Allow disabling custom links
 
 ### Other Changes
