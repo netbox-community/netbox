@@ -9,6 +9,7 @@
 * [#8265](https://github.com/netbox-community/netbox/issues/8265) - Add Stackwise-n interface types
 * [#8293](https://github.com/netbox-community/netbox/issues/8293) - Show 4-byte ASNs in ASDOT notation
 * [#8302](https://github.com/netbox-community/netbox/issues/8302) - Linkify role column in device & VM tables
+* [#8337](https://github.com/netbox-community/netbox/issues/8337) - Enable sorting object tables by created & updated times
 
 ### Bug Fixes
 
