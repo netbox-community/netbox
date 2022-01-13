@@ -720,6 +720,7 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_create_from_template(self):
         self.add_permissions('ipam.add_service')
 
