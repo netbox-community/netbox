@@ -61,7 +61,7 @@ class WebhookSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url',
             'enabled', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
-            'conditions', 'ssl_verification', 'ca_file_path',
+            'conditions', 'ssl_verification', 'ca_file_path', 'created', 'last_updated',
         ]
 
 
@@ -82,7 +82,8 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         model = CustomField
         fields = [
             'id', 'url', 'display', 'content_types', 'type', 'name', 'label', 'description', 'required', 'filter_logic',
-            'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices',
+            'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'created',
+            'last_updated',
         ]
 
 
@@ -100,7 +101,7 @@ class CustomLinkSerializer(ValidatedModelSerializer):
         model = CustomLink
         fields = [
             'id', 'url', 'display', 'content_type', 'name', 'link_text', 'link_url', 'weight', 'group_name',
-            'button_class', 'new_window',
+            'button_class', 'new_window', 'created', 'last_updated',
         ]
 
 
@@ -118,7 +119,7 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
         model = ExportTemplate
         fields = [
             'id', 'url', 'display', 'content_type', 'name', 'description', 'template_code', 'mime_type',
-            'file_extension', 'as_attachment',
+            'file_extension', 'as_attachment', 'created', 'last_updated',
         ]
 
 
@@ -132,7 +133,9 @@ class TagSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ['id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tagged_items']
+        fields = [
+            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tagged_items', 'created', 'last_updated',
+        ]
 
 
 #
