@@ -3,7 +3,6 @@ import re
 
 import yaml
 from django import forms
-from django.utils.translation import gettext as _
 
 from .widgets import APISelect, APISelectMultiple, ClearableFileInput, StaticSelect
 
@@ -11,6 +10,7 @@ from .widgets import APISelect, APISelectMultiple, ClearableFileInput, StaticSel
 __all__ = (
     'BootstrapMixin',
     'BulkEditForm',
+    'BulkEditBaseForm',
     'BulkRenameForm',
     'ConfirmationForm',
     'CSVModelForm',
@@ -75,11 +75,10 @@ class ConfirmationForm(BootstrapMixin, ReturnURLForm):
     confirm = forms.BooleanField(required=True, widget=forms.HiddenInput(), initial=True)
 
 
-class BulkEditForm(BootstrapMixin, forms.Form):
+class BulkEditBaseForm(forms.Form):
     """
     Base form for editing multiple objects in bulk
     """
-
     def __init__(self, model, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = model
@@ -88,6 +87,10 @@ class BulkEditForm(BootstrapMixin, forms.Form):
         # Copy any nullable fields defined in Meta
         if hasattr(self.Meta, 'nullable_fields'):
             self.nullable_fields = self.Meta.nullable_fields
+
+
+class BulkEditForm(BootstrapMixin, BulkEditBaseForm):
+    pass
 
 
 class BulkRenameForm(BootstrapMixin, forms.Form):
@@ -185,10 +188,7 @@ class FilterForm(BootstrapMixin, forms.Form):
     """
     q = forms.CharField(
         required=False,
-        widget=forms.TextInput(
-            attrs={'placeholder': _('All fields')}
-        ),
-        label=_('Search')
+        label='Search'
     )
 
 

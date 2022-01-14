@@ -24,6 +24,7 @@
 * [#8319](https://github.com/netbox-community/netbox/issues/8319) - Custom URL fields should honor `ALLOWED_URL_SCHEMES` config parameter
 * [#8342](https://github.com/netbox-community/netbox/issues/8342) - Restore `created` & `last_updated` fields missing from several REST API serializers
 * [#8357](https://github.com/netbox-community/netbox/issues/8357) - Add missing tags field to location filter form
+* [#8358](https://github.com/netbox-community/netbox/issues/8358) - Fix inconsistent styling of custom fields on filter & bulk edit forms
 
 ---
 
