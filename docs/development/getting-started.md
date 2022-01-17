@@ -114,6 +114,12 @@ This ensures that your development environment is now complete and operational. 
 !!! info "IDE Integration"
     Some IDEs, such as PyCharm, will integrate with Django's development server and allow you to run it directly within the IDE. This is strongly encouraged as it makes for a much more convenient development environment.
 
+## Populating Demo Data
+
+Once you have your development environment up and running, it might be helpful to populate some "dummy" data to make interacting with the UI and APIs more convenient. Check out the [netbox-demo-data](https://github.com/netbox-community/netbox-demo-data) repo on GitHub, which houses a collection of sample data that can be easily imported to any new NetBox deployment. (This sample data is used to populate the public demo instance at <https://demo.netbox.dev>.)
+
+The demo data is provided in JSON format and loaded into an empty database using Django's `loaddata` management command. Consult the demo data repo's `README` file for complete instructions on populating the data.
+
 ## Running Tests
 
 Prior to committing any substantial changes to the code base, be sure to run NetBox's test suite to catch any potential errors. Tests are run using the `test` management command. Remember to ensure the Python virtual environment is active before running this command.

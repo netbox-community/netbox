@@ -3,7 +3,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from circuits.models import Circuit
-from dcim.models import Site, Rack, Device, RackReservation
+from dcim.models import Site, Rack, Device, RackReservation, Cable
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from netbox.views import generic
 from utilities.tables import paginate_table
@@ -112,6 +112,7 @@ class TenantView(generic.ObjectView):
             'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'virtualmachine_count': VirtualMachine.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'cluster_count': Cluster.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'cable_count': Cable.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
         }
 
         return {

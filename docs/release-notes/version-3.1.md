@@ -1,5 +1,33 @@
 # NetBox v3.1
 
+## v3.1.6 (2022-01-17)
+
+### Enhancements
+
+* [#8246](https://github.com/netbox-community/netbox/issues/8246) - Show human-friendly values for commit rates in circuits table
+* [#8262](https://github.com/netbox-community/netbox/issues/8262) - Add cable count to tenant stats
+* [#8265](https://github.com/netbox-community/netbox/issues/8265) - Add Stackwise-n interface types
+* [#8293](https://github.com/netbox-community/netbox/issues/8293) - Show 4-byte ASNs in ASDOT notation
+* [#8302](https://github.com/netbox-community/netbox/issues/8302) - Linkify role column in device & VM tables
+* [#8337](https://github.com/netbox-community/netbox/issues/8337) - Enable sorting object tables by created & updated times
+
+### Bug Fixes
+
+* [#8279](https://github.com/netbox-community/netbox/issues/8279) - Fix display of virtual chassis members in rack elevations
+* [#8285](https://github.com/netbox-community/netbox/issues/8285) - Fix `cluster_count` under tenant REST API serializer
+* [#8287](https://github.com/netbox-community/netbox/issues/8287) - Correct label in export template form
+* [#8301](https://github.com/netbox-community/netbox/issues/8301) - Fix delete button for various object children views
+* [#8305](https://github.com/netbox-community/netbox/issues/8305) - Fix assignment of custom field data to FHRP groups via UI
+* [#8306](https://github.com/netbox-community/netbox/issues/8306) - Redirect user to previous page after login
+* [#8314](https://github.com/netbox-community/netbox/issues/8314) - Prevent custom fields with default values from appearing as applied filters erroneously
+* [#8317](https://github.com/netbox-community/netbox/issues/8317) - Fix CSV import of multi-select custom field values
+* [#8319](https://github.com/netbox-community/netbox/issues/8319) - Custom URL fields should honor `ALLOWED_URL_SCHEMES` config parameter
+* [#8342](https://github.com/netbox-community/netbox/issues/8342) - Restore `created` & `last_updated` fields missing from several REST API serializers
+* [#8357](https://github.com/netbox-community/netbox/issues/8357) - Add missing tags field to location filter form
+* [#8358](https://github.com/netbox-community/netbox/issues/8358) - Fix inconsistent styling of custom fields on filter & bulk edit forms
+
+---
+
 ## v3.1.5 (2022-01-06)
 
 ### Enhancements

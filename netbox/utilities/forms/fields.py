@@ -31,6 +31,7 @@ __all__ = (
     'CSVDataField',
     'CSVFileField',
     'CSVModelChoiceField',
+    'CSVMultipleChoiceField',
     'CSVMultipleContentTypeField',
     'CSVTypedChoiceField',
     'DynamicModelChoiceField',
@@ -263,15 +264,31 @@ class CSVFileField(forms.FileField):
         return value
 
 
-class CSVChoiceField(forms.ChoiceField):
-    """
-    Invert the provided set of choices to take the human-friendly label as input, and return the database value.
-    """
+class CSVChoicesMixin:
     STATIC_CHOICES = True
 
     def __init__(self, *, choices=(), **kwargs):
         super().__init__(choices=choices, **kwargs)
         self.choices = unpack_grouped_choices(choices)
+
+
+class CSVChoiceField(CSVChoicesMixin, forms.ChoiceField):
+    """
+    A CSV field which accepts a single selection value.
+    """
+    pass
+
+
+class CSVMultipleChoiceField(CSVChoicesMixin, forms.MultipleChoiceField):
+    """
+    A CSV field which accepts multiple selection values.
+    """
+    def to_python(self, value):
+        if not value:
+            return []
+        if not isinstance(value, str):
+            raise forms.ValidationError(f"Invalid value for a multiple choice field: {value}")
+        return value.split(',')
 
 
 class CSVTypedChoiceField(forms.TypedChoiceField):

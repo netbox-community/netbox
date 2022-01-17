@@ -31,5 +31,8 @@ class ServiceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Service
-        fields = ('pk', 'id', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'tags')
+        fields = (
+            'pk', 'id', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'tags', 'created',
+            'last_updated',
+        )
         default_columns = ('pk', 'name', 'parent', 'protocol', 'ports', 'description')

@@ -82,7 +82,7 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
         model = ExportTemplate
         fields = '__all__'
         fieldsets = (
-            ('Custom Link', ('name', 'content_type', 'description')),
+            ('Export Template', ('name', 'content_type', 'description')),
             ('Template', ('template_code',)),
             ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
         )

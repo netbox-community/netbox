@@ -122,13 +122,14 @@ class CustomFieldTest(TestCase):
 
     def test_select_field(self):
         obj_type = ContentType.objects.get_for_model(Site)
+        choices = ['Option A', 'Option B', 'Option C']
 
         # Create a custom field
         cf = CustomField(
             type=CustomFieldTypeChoices.TYPE_SELECT,
             name='my_field',
             required=False,
-            choices=['Option A', 'Option B', 'Option C']
+            choices=choices
         )
         cf.save()
         cf.content_types.set([obj_type])
@@ -138,12 +139,47 @@ class CustomFieldTest(TestCase):
         self.assertIsNone(site.custom_field_data[cf.name])
 
         # Assign a value to the first Site
-        site.custom_field_data[cf.name] = 'Option A'
+        site.custom_field_data[cf.name] = choices[0]
         site.save()
 
         # Retrieve the stored value
         site.refresh_from_db()
-        self.assertEqual(site.custom_field_data[cf.name], 'Option A')
+        self.assertEqual(site.custom_field_data[cf.name], choices[0])
+
+        # Delete the stored value
+        site.custom_field_data.pop(cf.name)
+        site.save()
+        site.refresh_from_db()
+        self.assertIsNone(site.custom_field_data.get(cf.name))
+
+        # Delete the custom field
+        cf.delete()
+
+    def test_multiselect_field(self):
+        obj_type = ContentType.objects.get_for_model(Site)
+        choices = ['Option A', 'Option B', 'Option C']
+
+        # Create a custom field
+        cf = CustomField(
+            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+            name='my_field',
+            required=False,
+            choices=choices
+        )
+        cf.save()
+        cf.content_types.set([obj_type])
+
+        # Check that the field has a null initial value
+        site = Site.objects.first()
+        self.assertIsNone(site.custom_field_data[cf.name])
+
+        # Assign a value to the first Site
+        site.custom_field_data[cf.name] = [choices[0], choices[1]]
+        site.save()
+
+        # Retrieve the stored value
+        site.refresh_from_db()
+        self.assertEqual(site.custom_field_data[cf.name], [choices[0], choices[1]])
 
         # Delete the stored value
         site.custom_field_data.pop(cf.name)
@@ -597,6 +633,9 @@ class CustomFieldImportTest(TestCase):
             CustomField(name='select', type=CustomFieldTypeChoices.TYPE_SELECT, choices=[
                 'Choice A', 'Choice B', 'Choice C',
             ]),
+            CustomField(name='multiselect', type=CustomFieldTypeChoices.TYPE_MULTISELECT, choices=[
+                'Choice A', 'Choice B', 'Choice C',
+            ]),
         )
         for cf in custom_fields:
             cf.save()
@@ -607,19 +646,20 @@ class CustomFieldImportTest(TestCase):
         Import a Site in CSV format, including a value for each CustomField.
         """
         data = (
-            ('name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_boolean', 'cf_date', 'cf_url', 'cf_json', 'cf_select'),
-            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', 'True', '2020-01-01', 'http://example.com/1', '{"foo": 123}', 'Choice A'),
-            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', 'False', '2020-01-02', 'http://example.com/2', '{"bar": 456}', 'Choice B'),
-            ('Site 3', 'site-3', 'active', '', '', '', '', '', '', '', ''),
+            ('name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_boolean', 'cf_date', 'cf_url', 'cf_json', 'cf_select', 'cf_multiselect'),
+            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', 'True', '2020-01-01', 'http://example.com/1', '{"foo": 123}', 'Choice A', '"Choice A,Choice B"'),
+            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', 'False', '2020-01-02', 'http://example.com/2', '{"bar": 456}', 'Choice B', '"Choice B,Choice C"'),
+            ('Site 3', 'site-3', 'active', '', '', '', '', '', '', '', '', ''),
         )
         csv_data = '\n'.join(','.join(row) for row in data)
 
         response = self.client.post(reverse('dcim:site_import'), {'csv': csv_data})
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(Site.objects.count(), 3)
 
         # Validate data for site 1
         site1 = Site.objects.get(name='Site 1')
-        self.assertEqual(len(site1.custom_field_data), 8)
+        self.assertEqual(len(site1.custom_field_data), 9)
         self.assertEqual(site1.custom_field_data['text'], 'ABC')
         self.assertEqual(site1.custom_field_data['longtext'], 'Foo')
         self.assertEqual(site1.custom_field_data['integer'], 123)
@@ -628,10 +668,11 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site1.custom_field_data['url'], 'http://example.com/1')
         self.assertEqual(site1.custom_field_data['json'], {"foo": 123})
         self.assertEqual(site1.custom_field_data['select'], 'Choice A')
+        self.assertEqual(site1.custom_field_data['multiselect'], ['Choice A', 'Choice B'])
 
         # Validate data for site 2
         site2 = Site.objects.get(name='Site 2')
-        self.assertEqual(len(site2.custom_field_data), 8)
+        self.assertEqual(len(site2.custom_field_data), 9)
         self.assertEqual(site2.custom_field_data['text'], 'DEF')
         self.assertEqual(site2.custom_field_data['longtext'], 'Bar')
         self.assertEqual(site2.custom_field_data['integer'], 456)
@@ -640,6 +681,7 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site2.custom_field_data['url'], 'http://example.com/2')
         self.assertEqual(site2.custom_field_data['json'], {"bar": 456})
         self.assertEqual(site2.custom_field_data['select'], 'Choice B')
+        self.assertEqual(site2.custom_field_data['multiselect'], ['Choice B', 'Choice C'])
 
         # No custom field data should be set for site 3
         site3 = Site.objects.get(name='Site 3')

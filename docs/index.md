@@ -50,7 +50,7 @@ NetBox is built on the [Django](https://djangoproject.com/) Python framework and
 | Application        | Django/Python     |
 | Database           | PostgreSQL 10+    |
 | Task queuing       | Redis/django-rq   |
-| Live device access | NAPALM            |
+| Live device access | NAPALM (optional) |
 
 ## Supported Python Versions
 
@@ -58,4 +58,6 @@ NetBox supports Python 3.7, 3.8, and 3.9 environments currently. (Support for Py
 
 ## Getting Started
 
-See the [installation guide](installation/index.md) for help getting NetBox up and running quickly.
+Minor NetBox releases (e.g. v3.1) are published three times a year; in April, August, and December. These typically introduce major new features and may contain breaking API changes. Patch releases are published roughly every one to two weeks to resolve bugs and fulfill minor feature requests. These are backward-compatible with previous releases unless otherwise noted. The NetBox maintainers strongly recommend running the latest stable release whenever possible.
+
+Please see the [official installation guide](installation/index.md) for detailed instructions on obtaining and installing NetBox.
