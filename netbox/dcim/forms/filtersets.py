@@ -157,7 +157,7 @@ class SiteFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
 class LocationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Location
     field_groups = [
-        ['q'],
+        ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id', 'parent_id'],
         ['tenant_group_id', 'tenant_id'],
     ]

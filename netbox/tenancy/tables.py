@@ -62,7 +62,9 @@ class TenantGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = TenantGroup
-        fields = ('pk', 'id', 'name', 'tenant_count', 'description', 'slug', 'tags', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'tenant_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
+        )
         default_columns = ('pk', 'name', 'tenant_count', 'description')
 
 
@@ -81,7 +83,7 @@ class TenantTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Tenant
-        fields = ('pk', 'id', 'name', 'slug', 'group', 'description', 'comments', 'tags')
+        fields = ('pk', 'id', 'name', 'slug', 'group', 'description', 'comments', 'tags', 'created', 'last_updated',)
         default_columns = ('pk', 'name', 'group', 'description')
 
 
@@ -105,7 +107,9 @@ class ContactGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ContactGroup
-        fields = ('pk', 'name', 'contact_count', 'description', 'slug', 'tags', 'actions')
+        fields = (
+            'pk', 'name', 'contact_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
+        )
         default_columns = ('pk', 'name', 'contact_count', 'description')
 
 
@@ -117,7 +121,7 @@ class ContactRoleTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ContactRole
-        fields = ('pk', 'name', 'description', 'slug', 'actions')
+        fields = ('pk', 'name', 'description', 'slug', 'created', 'last_updated', 'actions')
         default_columns = ('pk', 'name', 'description')
 
 
@@ -142,7 +146,10 @@ class ContactTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Contact
-        fields = ('pk', 'name', 'group', 'title', 'phone', 'email', 'address', 'comments', 'assignment_count', 'tags')
+        fields = (
+            'pk', 'name', 'group', 'title', 'phone', 'email', 'address', 'comments', 'assignment_count', 'tags',
+            'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'group', 'assignment_count', 'title', 'phone', 'email')
 
 

@@ -1,5 +1,8 @@
 # Plugin Development
 
+!!! info "Help Improve the NetBox Plugins Framework!"
+    We're looking for volunteers to help improve NetBox's plugins framework. If you have experience developing plugins, we'd love to hear from you! You can find more information about this initiative [here](https://github.com/netbox-community/netbox/discussions/8338).
+
 This documentation covers the development of custom plugins for NetBox. Plugins are essentially self-contained [Django apps](https://docs.djangoproject.com/en/stable/) which integrate with NetBox to provide custom functionality. Since the development of Django apps is already very well-documented, we'll only be covering the aspects that are specific to NetBox.
 
 Plugins can do a lot, including:

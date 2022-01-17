@@ -99,7 +99,7 @@ class DeviceRoleTable(BaseTable):
         model = DeviceRole
         fields = (
             'pk', 'id', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'slug', 'tags',
-            'actions',
+            'actions', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description')
 
@@ -131,7 +131,7 @@ class PlatformTable(BaseTable):
         model = Platform
         fields = (
             'pk', 'id', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'napalm_args',
-            'description', 'tags', 'actions',
+            'description', 'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'napalm_driver', 'description',
@@ -205,7 +205,8 @@ class DeviceTable(BaseTable):
         fields = (
             'pk', 'id', 'name', 'status', 'tenant', 'device_role', 'manufacturer', 'device_type', 'platform', 'serial',
             'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'primary_ip', 'airflow', 'primary_ip4',
-            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'tags',
+            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',
@@ -311,7 +312,7 @@ class ConsolePortTable(ModularDeviceComponentTable, PathEndpointTable):
         model = ConsolePort
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'speed', 'description',
-            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags',
+            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'type', 'speed', 'description')
 
@@ -353,7 +354,7 @@ class ConsoleServerPortTable(ModularDeviceComponentTable, PathEndpointTable):
         model = ConsoleServerPort
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'speed', 'description',
-            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags',
+            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'type', 'speed', 'description')
 
@@ -396,7 +397,8 @@ class PowerPortTable(ModularDeviceComponentTable, PathEndpointTable):
         model = PowerPort
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'description', 'mark_connected',
-            'maximum_draw', 'allocated_draw', 'cable', 'cable_color', 'link_peer', 'connection', 'tags',
+            'maximum_draw', 'allocated_draw', 'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
@@ -444,7 +446,8 @@ class PowerOutletTable(ModularDeviceComponentTable, PathEndpointTable):
         model = PowerOutlet
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'description', 'power_port',
-            'feed_leg', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags',
+            'feed_leg', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'type', 'power_port', 'feed_leg', 'description')
 
@@ -524,6 +527,7 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
             'mode', 'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
             'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans',
             'link_peer', 'connection', 'tags', 'vrf', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
+            'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -594,6 +598,7 @@ class FrontPortTable(ModularDeviceComponentTable, CableTerminationTable):
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'color', 'rear_port',
             'rear_port_position', 'description', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'device', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description',
@@ -641,7 +646,7 @@ class RearPortTable(ModularDeviceComponentTable, CableTerminationTable):
         model = RearPort
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'color', 'positions', 'description',
-            'mark_connected', 'cable', 'cable_color', 'link_peer', 'tags',
+            'mark_connected', 'cable', 'cable_color', 'link_peer', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'type', 'color', 'description')
 
@@ -691,7 +696,11 @@ class DeviceBayTable(DeviceComponentTable):
 
     class Meta(DeviceComponentTable.Meta):
         model = DeviceBay
-        fields = ('pk', 'id', 'name', 'device', 'label', 'status', 'installed_device', 'description', 'tags')
+        fields = (
+            'pk', 'id', 'name', 'device', 'label', 'status', 'installed_device', 'description', 'tags',
+            'created', 'last_updated',
+        )
+
         default_columns = ('pk', 'name', 'device', 'label', 'status', 'installed_device', 'description')
 
 
@@ -774,7 +783,7 @@ class InventoryItemTable(DeviceComponentTable):
         model = InventoryItem
         fields = (
             'pk', 'id', 'name', 'device', 'component', 'label', 'role', 'manufacturer', 'part_id', 'serial',
-            'asset_tag', 'description', 'discovered', 'tags',
+            'asset_tag', 'description', 'discovered', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'device', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
@@ -847,5 +856,5 @@ class VirtualChassisTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VirtualChassis
-        fields = ('pk', 'id', 'name', 'domain', 'master', 'member_count', 'tags')
+        fields = ('pk', 'id', 'name', 'domain', 'master', 'member_count', 'tags', 'created', 'last_updated',)
         default_columns = ('pk', 'name', 'domain', 'master', 'member_count')

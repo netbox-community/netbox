@@ -85,7 +85,7 @@ class VLANGroupTable(BaseTable):
         model = VLANGroup
         fields = (
             'pk', 'id', 'name', 'scope_type', 'scope', 'min_vid', 'max_vid', 'vlan_count', 'slug', 'description',
-            'tags', 'actions',
+            'tags', 'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'description')
 
@@ -127,7 +127,10 @@ class VLANTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VLAN
-        fields = ('pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags')
+        fields = (
+            'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags',
+            'created', 'last_updated',
+        )
         default_columns = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, VLAN) else '',

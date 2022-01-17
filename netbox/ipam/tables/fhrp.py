@@ -38,7 +38,7 @@ class FHRPGroupTable(BaseTable):
         model = FHRPGroup
         fields = (
             'pk', 'group_id', 'protocol', 'auth_type', 'auth_key', 'description', 'ip_addresses', 'interface_count',
-            'tags',
+            'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'group_id', 'protocol', 'auth_type', 'description', 'ip_addresses', 'interface_count')
 

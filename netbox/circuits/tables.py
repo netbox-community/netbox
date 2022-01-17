@@ -66,7 +66,7 @@ class ProviderTable(BaseTable):
         model = Provider
         fields = (
             'pk', 'id', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count',
-            'comments', 'tags',
+            'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'asn', 'account', 'circuit_count')
 
@@ -90,7 +90,9 @@ class ProviderNetworkTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ProviderNetwork
-        fields = ('pk', 'id', 'name', 'provider', 'service_id', 'description', 'comments', 'tags')
+        fields = (
+            'pk', 'id', 'name', 'provider', 'service_id', 'description', 'comments', 'created', 'last_updated', 'tags',
+        )
         default_columns = ('pk', 'name', 'provider', 'service_id', 'description')
 
 
@@ -112,7 +114,9 @@ class CircuitTypeTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = CircuitType
-        fields = ('pk', 'id', 'name', 'circuit_count', 'description', 'slug', 'tags', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'circuit_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
+        )
         default_columns = ('pk', 'name', 'circuit_count', 'description', 'slug')
 
 
@@ -149,7 +153,7 @@ class CircuitTable(BaseTable):
         model = Circuit
         fields = (
             'pk', 'id', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'install_date',
-            'commit_rate', 'description', 'comments', 'tags',
+            'commit_rate', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'description',

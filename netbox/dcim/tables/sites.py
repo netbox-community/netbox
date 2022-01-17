@@ -35,7 +35,9 @@ class RegionTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Region
-        fields = ('pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'created', 'last_updated', 'actions',
+        )
         default_columns = ('pk', 'name', 'site_count', 'description')
 
 
@@ -59,7 +61,9 @@ class SiteGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = SiteGroup
-        fields = ('pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'created', 'last_updated', 'actions',
+        )
         default_columns = ('pk', 'name', 'site_count', 'description')
 
 
@@ -96,7 +100,7 @@ class SiteTable(BaseTable):
         fields = (
             'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asn_count', 'time_zone',
             'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments', 'tags',
-            'actions',
+            'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'description')
 
@@ -135,6 +139,6 @@ class LocationTable(BaseTable):
         model = Location
         fields = (
             'pk', 'id', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'tags',
-            'actions',
+            'actions', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description')

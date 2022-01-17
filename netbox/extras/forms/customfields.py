@@ -4,7 +4,7 @@ from django.db.models import Q
 
 from extras.choices import *
 from extras.models import *
-from utilities.forms import BootstrapMixin, BulkEditForm, CSVModelForm, FilterForm
+from utilities.forms import BootstrapMixin, BulkEditBaseForm, CSVModelForm
 
 __all__ = (
     'CustomFieldModelCSVForm',
@@ -34,6 +34,9 @@ class CustomFieldsMixin:
             raise NotImplementedError(f"{self.__class__.__name__} must specify a model class.")
         return ContentType.objects.get_for_model(self.model)
 
+    def _get_custom_fields(self, content_type):
+        return CustomField.objects.filter(content_types=content_type)
+
     def _get_form_field(self, customfield):
         return customfield.to_form_field()
 
@@ -41,10 +44,7 @@ class CustomFieldsMixin:
         """
         Append form fields for all CustomFields assigned to this object type.
         """
-        content_type = self._get_content_type()
-
-        # Append form fields; assign initial values if modifying and existing object
-        for customfield in CustomField.objects.filter(content_types=content_type):
+        for customfield in self._get_custom_fields(self._get_content_type()):
             field_name = f'cf_{customfield.name}'
             self.fields[field_name] = self._get_form_field(customfield)
 
@@ -89,40 +89,37 @@ class CustomFieldModelCSVForm(CSVModelForm, CustomFieldModelForm):
         return customfield.to_form_field(for_csv_import=True)
 
 
-class CustomFieldModelBulkEditForm(BulkEditForm):
+class CustomFieldModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, BulkEditBaseForm):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def _get_form_field(self, customfield):
+        return customfield.to_form_field(set_initial=False, enforce_required=False)
 
-        self.custom_fields = []
-        self.obj_type = ContentType.objects.get_for_model(self.model)
-
-        # Add all applicable CustomFields to the form
-        custom_fields = CustomField.objects.filter(content_types=self.obj_type)
-        for cf in custom_fields:
+    def _append_customfield_fields(self):
+        """
+        Append form fields for all CustomFields assigned to this object type.
+        """
+        for customfield in self._get_custom_fields(self._get_content_type()):
             # Annotate non-required custom fields as nullable
-            if not cf.required:
-                self.nullable_fields.append(cf.name)
-            self.fields[cf.name] = cf.to_form_field(set_initial=False, enforce_required=False)
-            # Annotate this as a custom field
-            self.custom_fields.append(cf.name)
+            if not customfield.required:
+                self.nullable_fields.append(customfield.name)
+
+            self.fields[customfield.name] = self._get_form_field(customfield)
+
+            # Annotate the field in the list of CustomField form fields
+            self.custom_fields[customfield.name] = customfield
 
 
-class CustomFieldModelFilterForm(FilterForm):
+class CustomFieldModelFilterForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
 
-    def __init__(self, *args, **kwargs):
-
-        self.obj_type = ContentType.objects.get_for_model(self.model)
-
-        super().__init__(*args, **kwargs)
-
-        # Add all applicable CustomFields to the form
-        self.custom_field_filters = []
-        custom_fields = CustomField.objects.filter(content_types=self.obj_type).exclude(
+    def _get_custom_fields(self, content_type):
+        return CustomField.objects.filter(content_types=content_type).exclude(
             Q(filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED) |
             Q(type=CustomFieldTypeChoices.TYPE_JSON)
         )
-        for cf in custom_fields:
-            field_name = f'cf_{cf.name}'
-            self.fields[field_name] = cf.to_form_field(set_initial=False, enforce_required=False)
-            self.custom_field_filters.append(field_name)
+
+    def _get_form_field(self, customfield):
+        return customfield.to_form_field(set_initial=False, enforce_required=False)

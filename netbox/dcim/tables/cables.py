@@ -56,7 +56,7 @@ class CableTable(BaseTable):
         model = Cable
         fields = (
             'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',
-            'status', 'type', 'tenant', 'color', 'length', 'tags',
+            'status', 'type', 'tenant', 'color', 'length', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',
