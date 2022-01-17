@@ -98,10 +98,6 @@ psycopg2-binary
 # https://github.com/yaml/pyyaml
 PyYAML
 
-# In-memory key/value store used for caching and queuing
-# https://github.com/andymccurdy/redis-py
-redis
-
 # Social authentication framework
 # https://github.com/python-social-auth/social-core
 social-auth-core[all]
