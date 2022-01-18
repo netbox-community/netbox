@@ -2,6 +2,10 @@
 
 ## v3.1.7 (FUTURE)
 
+### Bug Fixes
+
+* [#8377](https://github.com/netbox-community/netbox/issues/8377) - Fix calculation of absolute cable lengths when specified in fractional units
+
 ---
 
 ## v3.1.6 (2022-01-17)
