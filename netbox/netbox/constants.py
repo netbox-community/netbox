@@ -12,9 +12,11 @@ from dcim.tables import (
     CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, RackReservationTable, LocationTable, SiteTable,
     VirtualChassisTable,
 )
-from ipam.filtersets import AggregateFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet
-from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
-from ipam.tables import AggregateTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
+from ipam.filtersets import (
+    AggregateFilterSet, ASNFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet,
+)
+from ipam.models import Aggregate, ASN, IPAddress, Prefix, VLAN, VRF
+from ipam.tables import AggregateTable, ASNTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
 from tenancy.filtersets import TenantFilterSet
 from tenancy.models import Tenant
 from tenancy.tables import TenantTable
@@ -169,6 +171,12 @@ SEARCH_TYPES = OrderedDict((
         'filterset': VLANFilterSet,
         'table': VLANTable,
         'url': 'ipam:vlan_list',
+    }),
+    ('asn', {
+        'queryset': ASN.objects.prefetch_related('rir', 'tenant'),
+        'filterset': ASNFilterSet,
+        'table': ASNTable,
+        'url': 'ipam:asn_list',
     }),
     # Tenancy
     ('tenant', {
