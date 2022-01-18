@@ -71,6 +71,7 @@ Inventory item templates can be arranged hierarchically within a device type, an
 * [#8168](https://github.com/netbox-community/netbox/issues/8168) - Add `min_vid` and `max_vid` fields to VLAN group
 * [#8295](https://github.com/netbox-community/netbox/issues/8295) - Webhook URLs can now be templatized
 * [#8296](https://github.com/netbox-community/netbox/issues/8296) - Allow disabling custom links
+* [#8307](https://github.com/netbox-community/netbox/issues/8307) - Add `data_type` indicator to REST API serializer for custom fields
 
 ### Other Changes
 

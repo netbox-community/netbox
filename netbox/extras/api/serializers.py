@@ -79,14 +79,27 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     )
     type = ChoiceField(choices=CustomFieldTypeChoices)
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
+    data_type = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomField
         fields = [
-            'id', 'url', 'display', 'content_types', 'type', 'name', 'label', 'description', 'required', 'filter_logic',
-            'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'content_types', 'type', 'data_type', 'name', 'label', 'description', 'required',
+            'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
+            'choices', 'created', 'last_updated',
         ]
+
+    def get_data_type(self, obj):
+        types = CustomFieldTypeChoices
+        if obj.type == types.TYPE_INTEGER:
+            return 'integer'
+        if obj.type == types.TYPE_BOOLEAN:
+            return 'boolean'
+        if obj.type in (types.TYPE_JSON, types.TYPE_OBJECT):
+            return 'object'
+        if obj.type in (types.TYPE_MULTISELECT, types.TYPE_MULTIOBJECT):
+            return 'array'
+        return 'string'
 
 
 #
