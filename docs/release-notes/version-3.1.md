@@ -2,6 +2,10 @@
 
 ## v3.1.7 (FUTURE)
 
+### Enhancements
+
+* [#8275](https://github.com/netbox-community/netbox/issues/8275) - Change ASN display column from ASDOT to ASPLAIN.  Add ASDOT display column.
+
 ### Bug Fixes
 
 * [#8377](https://github.com/netbox-community/netbox/issues/8377) - Fix calculation of absolute cable lengths when specified in fractional units
