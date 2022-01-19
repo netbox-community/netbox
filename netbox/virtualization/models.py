@@ -7,14 +7,12 @@ from django.urls import reverse
 from dcim.models import BaseInterface, Device
 from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
-from extras.utils import extras_features
 from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
 from .choices import *
-
 
 __all__ = (
     'Cluster',
@@ -29,7 +27,6 @@ __all__ = (
 # Cluster types
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ClusterType(OrganizationalModel):
     """
     A type of Cluster.
@@ -61,7 +58,6 @@ class ClusterType(OrganizationalModel):
 # Cluster groups
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ClusterGroup(OrganizationalModel):
     """
     An organizational group of Clusters.
@@ -104,7 +100,6 @@ class ClusterGroup(OrganizationalModel):
 # Clusters
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Cluster(PrimaryModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
@@ -188,7 +183,6 @@ class Cluster(PrimaryModel):
 # Virtual machines
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class VirtualMachine(PrimaryModel, ConfigContextModel):
     """
     A virtual machine which runs inside a Cluster.
@@ -351,7 +345,6 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
 # Interfaces
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class VMInterface(PrimaryModel, BaseInterface):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',

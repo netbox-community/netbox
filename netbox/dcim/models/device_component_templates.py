@@ -1,4 +1,4 @@
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -7,8 +7,8 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
-from extras.utils import extras_features
 from netbox.models import ChangeLoggedModel
+from netbox.models.features import WebhooksMixin
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
@@ -32,7 +32,7 @@ __all__ = (
 )
 
 
-class ComponentTemplateModel(ChangeLoggedModel):
+class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
@@ -135,7 +135,6 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         return self.name
 
 
-@extras_features('webhooks')
 class ConsolePortTemplate(ModularComponentTemplateModel):
     """
     A template for a ConsolePort to be created for a new Device.
@@ -164,7 +163,6 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
         )
 
 
-@extras_features('webhooks')
 class ConsoleServerPortTemplate(ModularComponentTemplateModel):
     """
     A template for a ConsoleServerPort to be created for a new Device.
@@ -193,7 +191,6 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
         )
 
 
-@extras_features('webhooks')
 class PowerPortTemplate(ModularComponentTemplateModel):
     """
     A template for a PowerPort to be created for a new Device.
@@ -245,7 +242,6 @@ class PowerPortTemplate(ModularComponentTemplateModel):
                 })
 
 
-@extras_features('webhooks')
 class PowerOutletTemplate(ModularComponentTemplateModel):
     """
     A template for a PowerOutlet to be created for a new Device.
@@ -307,7 +303,6 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         )
 
 
-@extras_features('webhooks')
 class InterfaceTemplate(ModularComponentTemplateModel):
     """
     A template for a physical data interface on a new Device.
@@ -347,7 +342,6 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         )
 
 
-@extras_features('webhooks')
 class FrontPortTemplate(ModularComponentTemplateModel):
     """
     Template for a pass-through port on the front of a new Device.
@@ -420,7 +414,6 @@ class FrontPortTemplate(ModularComponentTemplateModel):
         )
 
 
-@extras_features('webhooks')
 class RearPortTemplate(ModularComponentTemplateModel):
     """
     Template for a pass-through port on the rear of a new Device.
@@ -460,7 +453,6 @@ class RearPortTemplate(ModularComponentTemplateModel):
         )
 
 
-@extras_features('webhooks')
 class ModuleBayTemplate(ComponentTemplateModel):
     """
     A template for a ModuleBay to be created for a new parent Device.
@@ -486,7 +478,6 @@ class ModuleBayTemplate(ComponentTemplateModel):
         )
 
 
-@extras_features('webhooks')
 class DeviceBayTemplate(ComponentTemplateModel):
     """
     A template for a DeviceBay to be created for a new parent Device.
@@ -511,7 +502,6 @@ class DeviceBayTemplate(ComponentTemplateModel):
             )
 
 
-@extras_features('webhooks')
 class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
     """
     A template for an InventoryItem to be created for a new parent Device.

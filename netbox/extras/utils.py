@@ -67,14 +67,3 @@ def register_features(model, features):
             raise ValueError(f"{feature} is not a valid extras feature!")
         app_label, model_name = model._meta.label_lower.split('.')
         registry['model_features'][feature][app_label].append(model_name)
-
-
-def extras_features(*features):
-    """
-    Decorator used to register extras provided features to a model
-    """
-    def wrapper(model_class):
-        # Initialize the model_features store if not already defined
-        register_features(model_class, features)
-        return model_class
-    return wrapper

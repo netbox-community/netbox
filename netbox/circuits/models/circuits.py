@@ -5,8 +5,8 @@ from django.urls import reverse
 
 from circuits.choices import *
 from dcim.models import LinkTermination
-from extras.utils import extras_features
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
+from netbox.models.features import WebhooksMixin
 
 __all__ = (
     'Circuit',
@@ -15,7 +15,6 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class CircuitType(OrganizationalModel):
     """
     Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named
@@ -44,7 +43,6 @@ class CircuitType(OrganizationalModel):
         return reverse('circuits:circuittype', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Circuit(PrimaryModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
@@ -138,8 +136,7 @@ class Circuit(PrimaryModel):
         return CircuitStatusChoices.colors.get(self.status, 'secondary')
 
 
-@extras_features('webhooks')
-class CircuitTermination(ChangeLoggedModel, LinkTermination):
+class CircuitTermination(WebhooksMixin, ChangeLoggedModel, LinkTermination):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,

@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import ValidationError
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
@@ -19,6 +18,18 @@ __all__ = (
 #
 # Base model classes
 #
+
+class BaseModel(
+    CustomFieldsMixin,
+    CustomLinksMixin,
+    ExportTemplatesMixin,
+    JournalingMixin,
+    TagsMixin,
+    WebhooksMixin,
+):
+    class Meta:
+        abstract = True
+
 
 class BigIDModel(models.Model):
     """
@@ -42,23 +53,17 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, BigIDModel):
         abstract = True
 
 
-class PrimaryModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, TagsMixin, BigIDModel):
+class PrimaryModel(BaseModel, ChangeLoggingMixin, CustomValidationMixin, BigIDModel):
     """
     Primary models represent real objects within the infrastructure being modeled.
     """
-    journal_entries = GenericRelation(
-        to='extras.JournalEntry',
-        object_id_field='assigned_object_id',
-        content_type_field='assigned_object_type'
-    )
-
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True
 
 
-class NestedGroupModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, TagsMixin, BigIDModel, MPTTModel):
+class NestedGroupModel(BaseModel, ChangeLoggingMixin, CustomValidationMixin, BigIDModel, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.
@@ -100,7 +105,7 @@ class NestedGroupModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMi
             })
 
 
-class OrganizationalModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, TagsMixin, BigIDModel):
+class OrganizationalModel(BaseModel, ChangeLoggingMixin, CustomValidationMixin, BigIDModel):
     """
     Organizational models are those which are used solely to categorize and qualify other objects, and do not convey
     any real information about the infrastructure being modeled (for example, functional device roles). Organizational

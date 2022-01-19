@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models.signals import class_prepared
 from django.dispatch import receiver
 
@@ -20,6 +21,7 @@ __all__ = (
     'CustomValidationMixin',
     'ExportTemplatesMixin',
     'JobResultsMixin',
+    'JournalingMixin',
     'TagsMixin',
     'WebhooksMixin',
 )
@@ -169,6 +171,20 @@ class JobResultsMixin(models.Model):
         abstract = True
 
 
+class JournalingMixin(models.Model):
+    """
+    Enables support for JournalEntry assignment.
+    """
+    journal_entries = GenericRelation(
+        to='extras.JournalEntry',
+        object_id_field='assigned_object_id',
+        content_type_field='assigned_object_type'
+    )
+
+    class Meta:
+        abstract = True
+
+
 class TagsMixin(models.Model):
     """
     Enable the assignment of Tags to a model.
@@ -194,6 +210,7 @@ FEATURES_MAP = (
     ('custom_links', CustomLinksMixin),
     ('export_templates', ExportTemplatesMixin),
     ('job_results', JobResultsMixin),
+    ('journaling', JournalingMixin),
     ('tags', TagsMixin),
     ('webhooks', WebhooksMixin),
 )

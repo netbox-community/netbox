@@ -3,8 +3,8 @@ from django.urls import reverse
 from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
-from extras.utils import extras_features
 from netbox.models import BigIDModel, ChangeLoggedModel
+from netbox.models.features import ExportTemplatesMixin, WebhooksMixin
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField
 
@@ -13,8 +13,7 @@ from utilities.fields import ColorField
 # Tags
 #
 
-@extras_features('webhooks', 'export_templates')
-class Tag(ChangeLoggedModel, TagBase):
+class Tag(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel, TagBase):
     color = ColorField(
         default=ColorChoices.COLOR_GREY
     )
