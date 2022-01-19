@@ -5,3 +5,7 @@ markdown-include
 # MkDocs Material theme (for documentation build)
 # https://github.com/squidfunk/mkdocs-material
 mkdocs-material
+
+# Introspection for embedded code
+# https://github.com/mkdocstrings/mkdocstrings
+mkdocstrings
