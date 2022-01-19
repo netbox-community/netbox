@@ -1,5 +1,3 @@
-import collections
-
 from django.db.models import Q
 from django.utils.deconstruct import deconstructible
 from taggit.managers import _TaggableManager
@@ -58,12 +56,8 @@ class FeatureQuery:
 
 
 def register_features(model, features):
-    if 'model_features' not in registry:
-        registry['model_features'] = {
-            f: collections.defaultdict(list) for f in EXTRAS_FEATURES
-        }
     for feature in features:
         if feature not in EXTRAS_FEATURES:
             raise ValueError(f"{feature} is not a valid extras feature!")
         app_label, model_name = model._meta.label_lower.split('.')
-        registry['model_features'][feature][app_label].append(model_name)
+        registry['model_features'][feature][app_label].add(model_name)
