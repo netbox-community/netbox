@@ -16,6 +16,19 @@ theme:
       toggle:
         icon: material/lightbulb
         name: Switch to Light Mode
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          setup_commands:
+            - import os
+            - import django
+            - os.environ.setdefault("DJANGO_SETTINGS_MODULE", "netbox.settings")
+            - django.setup()
+          rendering:
+            show_root_heading: true
+            show_root_full_path: false
+            show_root_toc_entry: false
 extra:
   social:
     - icon: fontawesome/brands/github
@@ -84,7 +97,10 @@ nav:
         - Webhooks: 'additional-features/webhooks.md'
     - Plugins:
         - Using Plugins: 'plugins/index.md'
-        - Developing Plugins: 'plugins/development.md'
+        - Developing Plugins:
+            - Introduction: 'plugins/development/index.md'
+            - Model Features: 'plugins/development/model-features.md'
+        - Developing Plugins (Old): 'plugins/development.md'
     - Administration:
         - Authentication: 'administration/authentication.md'
         - Permissions: 'administration/permissions.md'

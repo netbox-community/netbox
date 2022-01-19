@@ -93,13 +93,25 @@ class CustomFieldsMixin(models.Model):
     @property
     def cf(self):
         """
-        Convenience wrapper for custom field data.
+        A pass-through convenience alias for accessing `custom_field_data` (read-only).
+
+        ```python
+        >>> tenant = Tenant.objects.first()
+        >>> tenant.cf
+        {'cust_id': 'CYB01'}
+        ```
         """
         return self.custom_field_data
 
     def get_custom_fields(self):
         """
-        Return a dictionary of custom fields for a single object in the form {<field>: value}.
+        Return a dictionary of custom fields for a single object in the form `{field: value}`.
+
+        ```python
+        >>> tenant = Tenant.objects.first()
+        >>> tenant.get_custom_fields()
+        {<CustomField: Customer ID>: 'CYB01'}
+        ```
         """
         from extras.models import CustomField
 
@@ -165,7 +177,7 @@ class ExportTemplatesMixin(models.Model):
 
 class JobResultsMixin(models.Model):
     """
-    Enable the assignment of JobResults to a model.
+    Enables support for job results.
     """
     class Meta:
         abstract = True
@@ -173,7 +185,8 @@ class JobResultsMixin(models.Model):
 
 class JournalingMixin(models.Model):
     """
-    Enables support for JournalEntry assignment.
+    Enables support for object journaling. Adds a generic relation (`journal_entries`)
+    to NetBox's JournalEntry model.
     """
     journal_entries = GenericRelation(
         to='extras.JournalEntry',
@@ -187,7 +200,8 @@ class JournalingMixin(models.Model):
 
 class TagsMixin(models.Model):
     """
-    Enable the assignment of Tags to a model.
+    Enables support for tag assignment. Assigned tags can be managed via the `tags` attribute,
+    which is a `TaggableManager` instance.
     """
     tags = TaggableManager(
         through='extras.TaggedItem'
