@@ -26,6 +26,16 @@ PREFERENCES = {
         description='The number of objects to display per page',
         coerce=lambda x: int(x)
     ),
+    'pagination.placement': UserPreference(
+        label='Paginator placement',
+        choices=(
+            ('bottom', 'Bottom'),
+            ('top', 'Top'),
+            ('both', 'Both'),
+        ),
+        description='Where the paginator controls will be displayed relative to a table',
+        default='bottom'
+    ),
 
     # Miscellaneous
     'data_format': UserPreference(

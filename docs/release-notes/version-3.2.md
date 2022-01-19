@@ -60,6 +60,7 @@ Inventory item templates can be arranged hierarchically within a device type, an
 
 ### Enhancements
 
+* [#5429](https://github.com/netbox-community/netbox/issues/5429) - Enable toggling the placement of table paginators
 * [#6954](https://github.com/netbox-community/netbox/issues/6954) - Remember users' table ordering preferences
 * [#7650](https://github.com/netbox-community/netbox/issues/7650) - Add support for local account password validation
 * [#7679](https://github.com/netbox-community/netbox/issues/7679) - Add actions menu to all object tables

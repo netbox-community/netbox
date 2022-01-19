@@ -47,6 +47,7 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
         fieldsets = (
             ('User Interface', (
                 'pagination.per_page',
+                'pagination.placement',
                 'ui.colormode',
             )),
             ('Miscellaneous', (
