@@ -1197,7 +1197,9 @@ class InterfaceFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
         label='LAG interface (ID)',
     )
     speed = MultiValueNumberFilter()
-    duplex = django_filters.CharFilter()
+    duplex = django_filters.MultipleChoiceFilter(
+        choices=InterfaceDuplexChoices
+    )
     mac_address = MultiValueMACAddressFilter()
     wwn = MultiValueWWNFilter()
     tag = TagFilter()

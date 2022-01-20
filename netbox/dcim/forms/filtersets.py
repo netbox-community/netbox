@@ -947,10 +947,11 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         label='Select Speed',
         widget=SelectSpeedWidget(attrs={'readonly': None})
     )
-    duplex = forms.ChoiceField(
+    duplex = forms.MultipleChoiceField(
         choices=InterfaceDuplexChoices,
         required=False,
-        label='Select Duplex'
+        label='Select Duplex',
+        widget=StaticSelectMultiple()
     )
     enabled = forms.NullBooleanField(
         required=False,
