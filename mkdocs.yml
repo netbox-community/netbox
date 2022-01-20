@@ -102,6 +102,7 @@ nav:
         - Developing Plugins:
             - Introduction: 'plugins/development/index.md'
             - Model Features: 'plugins/development/model-features.md'
+            - Generic Views: 'plugins/development/generic-views.md'
         - Developing Plugins (Old): 'plugins/development.md'
     - Administration:
         - Authentication: 'administration/authentication.md'

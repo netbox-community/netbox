@@ -2,21 +2,16 @@ import logging
 from copy import deepcopy
 
 from django.contrib import messages
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
 from django.forms.widgets import HiddenInput
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
-from django.views.generic import View
-from django_tables2.export import TableExport
 
-from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortTransaction, PermissionsViolation
@@ -25,7 +20,8 @@ from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.tables import configure_table
 from utilities.utils import normalize_querydict, prepare_cloned_fields
-from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
+from utilities.views import GetReturnURLMixin
+from .base import GenericView
 
 __all__ = (
     'ComponentCreateView',
@@ -33,27 +29,31 @@ __all__ = (
     'ObjectDeleteView',
     'ObjectEditView',
     'ObjectImportView',
-    'ObjectListView',
     'ObjectView',
 )
 
 
-class ObjectView(ObjectPermissionRequiredMixin, View):
+class ObjectView(GenericView):
     """
     Retrieve a single object for display.
 
-    queryset: The base queryset for retrieving the object
-    template_name: Name of the template to use
+    Note: If `template_name` is not specified, it will be determined automatically based on the queryset model.
     """
-    queryset = None
-    template_name = None
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
 
+    def get_object(self, **kwargs):
+        """
+        Return the object being viewed, identified by the keyword arguments passed. If no matching object is found,
+        raise a 404 error.
+        """
+        return get_object_or_404(self.queryset, **kwargs)
+
     def get_template_name(self):
         """
-        Return self.template_name if set. Otherwise, resolve the template path by model app_label and name.
+        Return self.template_name if defined. Otherwise, dynamically resolve the template name using the queryset
+        model's `app_label` and `model_name`.
         """
         if self.template_name is not None:
             return self.template_name
@@ -64,18 +64,20 @@ class ObjectView(ObjectPermissionRequiredMixin, View):
         """
         Return any additional context data for the template.
 
-        :param request: The current request
-        :param instance: The object being viewed
+        Args:
+            request: The current request
+            instance: The object being viewed
         """
         return {}
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         """
-        GET request handler. *args and **kwargs are passed to identify the object being queried.
+        GET request handler. `*args` and `**kwargs` are passed to identify the object being queried.
 
-        :param request: The current request
+        Args:
+            request: The current request
         """
-        instance = get_object_or_404(self.queryset, **kwargs)
+        instance = self.get_object(**kwargs)
 
         return render(request, self.get_template_name(), {
             'object': instance,
@@ -87,15 +89,12 @@ class ObjectChildrenView(ObjectView):
     """
     Display a table of child objects associated with the parent object.
 
-    queryset: The base queryset for retrieving the *parent* object
-    table: Table class used to render child objects list
-    template_name: Name of the template to use
+    Attributes:
+        table: Table class used to render child objects list
     """
-    queryset = None
     child_model = None
     table = None
     filterset = None
-    template_name = None
 
     def get_children(self, request, parent):
         """
@@ -110,9 +109,10 @@ class ObjectChildrenView(ObjectView):
         """
         Provides a hook for subclassed views to modify data before initializing the table.
 
-        :param request: The current request
-        :param queryset: The filtered queryset of child objects
-        :param parent: The parent object
+        Args:
+            request: The current request
+            queryset: The filtered queryset of child objects
+            parent: The parent object
         """
         return queryset
 
@@ -120,7 +120,7 @@ class ObjectChildrenView(ObjectView):
         """
         GET handler for rendering child objects.
         """
-        instance = get_object_or_404(self.queryset, **kwargs)
+        instance = self.get_object(**kwargs)
         child_objects = self.get_children(request, instance)
 
         if self.filterset:
@@ -152,171 +152,17 @@ class ObjectChildrenView(ObjectView):
         })
 
 
-class ObjectListView(ObjectPermissionRequiredMixin, View):
-    """
-    List a series of objects.
-
-    queryset: The queryset of objects to display. Note: Prefetching related objects is not necessary, as the
-      table will prefetch objects as needed depending on the columns being displayed.
-    filterset: A django-filter FilterSet that is applied to the queryset
-    filterset_form: The form used to render filter options
-    table: The django-tables2 Table used to render the objects list
-    template_name: The name of the template
-    action_buttons: A list of buttons to include at the top of the page
-    """
-    queryset = None
-    filterset = None
-    filterset_form = None
-    table = None
-    template_name = 'generic/object_list.html'
-    action_buttons = ('add', 'import', 'export')
-
-    def get_required_permission(self):
-        return get_permission_for_model(self.queryset.model, 'view')
-
-    def get_table(self, request, permissions):
-        """
-        Return the django-tables2 Table instance to be used for rendering the objects list.
-
-        :param request: The current request
-        :param permissions: A dictionary mapping of the view, add, change, and delete permissions to booleans indicating
-            whether the user has each
-        """
-        table = self.table(self.queryset, user=request.user)
-        if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
-            table.columns.show('pk')
-
-        return table
-
-    def export_yaml(self):
-        """
-        Export the queryset of objects as concatenated YAML documents.
-        """
-        yaml_data = [obj.to_yaml() for obj in self.queryset]
-
-        return '---\n'.join(yaml_data)
-
-    def export_table(self, table, columns=None):
-        """
-        Export all table data in CSV format.
-
-        :param table: The Table instance to export
-        :param columns: A list of specific columns to include. If not specified, all columns will be exported.
-        """
-        exclude_columns = {'pk', 'actions'}
-        if columns:
-            all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
-            exclude_columns.update({
-                col for col in all_columns if col not in columns
-            })
-        exporter = TableExport(
-            export_format=TableExport.CSV,
-            table=table,
-            exclude_columns=exclude_columns
-        )
-        return exporter.response(
-            filename=f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
-        )
-
-    def export_template(self, template, request):
-        """
-        Render an ExportTemplate using the current queryset.
-
-        :param template: ExportTemplate instance
-        :param request: The current request
-        """
-        try:
-            return template.render_to_response(self.queryset)
-        except Exception as e:
-            messages.error(request, f"There was an error rendering the selected export template ({template.name}): {e}")
-            return redirect(request.path)
-
-    def get_extra_context(self, request):
-        """
-        Return any additional context data for the template.
-
-        :param request: The current request
-        """
-        return {}
-
-    def get(self, request):
-        """
-        GET request handler.
-
-        :param request: The current request
-        """
-        model = self.queryset.model
-        content_type = ContentType.objects.get_for_model(model)
-
-        if self.filterset:
-            self.queryset = self.filterset(request.GET, self.queryset).qs
-
-        # Compile a dictionary indicating which permissions are available to the current user for this model
-        permissions = {}
-        for action in ('add', 'change', 'delete', 'view'):
-            perm_name = get_permission_for_model(model, action)
-            permissions[action] = request.user.has_perm(perm_name)
-
-        if 'export' in request.GET:
-
-            # Export the current table view
-            if request.GET['export'] == 'table':
-                table = self.get_table(request, permissions)
-                columns = [name for name, _ in table.selected_columns]
-                return self.export_table(table, columns)
-
-            # Render an ExportTemplate
-            elif request.GET['export']:
-                template = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
-                return self.export_template(template, request)
-
-            # Check for YAML export support on the model
-            elif hasattr(model, 'to_yaml'):
-                response = HttpResponse(self.export_yaml(), content_type='text/yaml')
-                filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
-                response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-                return response
-
-            # Fall back to default table/YAML export
-            else:
-                table = self.get_table(request, permissions)
-                return self.export_table(table)
-
-        # Render the objects table
-        table = self.get_table(request, permissions)
-        configure_table(table, request)
-
-        # If this is an HTMX request, return only the rendered table HTML
-        if is_htmx(request):
-            return render(request, 'htmx/table.html', {
-                'table': table,
-            })
-
-        context = {
-            'content_type': content_type,
-            'table': table,
-            'permissions': permissions,
-            'action_buttons': self.action_buttons,
-            'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
-        }
-        context.update(self.get_extra_context(request))
-
-        return render(request, self.template_name, context)
-
-
-class ObjectImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+class ObjectImportView(GetReturnURLMixin, GenericView):
     """
     Import a single object (YAML or JSON format).
 
-    queryset: Base queryset for the objects being created
-    model_form: The ModelForm used to create individual objects
-    related_object_forms: A dictionary mapping of forms to be used for the creation of related (child) objects
-    template_name: The name of the template
+    Attributes:
+        model_form: The ModelForm used to create individual objects
+        related_object_forms: A dictionary mapping of forms to be used for the creation of related (child) objects
     """
-    queryset = None
+    template_name = 'generic/object_import.html'
     model_form = None
     related_object_forms = dict()
-    template_name = 'generic/object_import.html'
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -445,17 +291,21 @@ class ObjectImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         })
 
 
-class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+class ObjectEditView(GetReturnURLMixin, GenericView):
     """
     Create or edit a single object.
 
-    queryset: The base QuerySet for the object being modified
-    model_form: The form used to create or edit the object
-    template_name: The name of the template
+    Attributes:
+        model_form: The form used to create or edit the object
     """
-    queryset = None
-    model_form = None
     template_name = 'generic/object_edit.html'
+    model_form = None
+
+    def dispatch(self, request, *args, **kwargs):
+        # Determine required permission based on whether we are editing an existing object
+        self._permission_action = 'change' if kwargs else 'add'
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_required_permission(self):
         # self._permission_action is set by dispatch() to either "add" or "change" depending on whether
@@ -466,13 +316,16 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         """
         Return an instance for editing. If a PK has been specified, this will be an existing object.
 
-        :param kwargs: URL path kwargs
+        Args:
+            kwargs: URL path kwargs
         """
         if 'pk' in kwargs:
             obj = get_object_or_404(self.queryset, **kwargs)
+
             # Take a snapshot of change-logged models
             if hasattr(obj, 'snapshot'):
                 obj.snapshot()
+
             return obj
 
         return self.queryset.model()
@@ -482,24 +335,20 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         Provides a hook for views to modify an object before it is processed. For example, a parent object can be
         defined given some parameter from the request URL.
 
-        :param obj: The object being edited
-        :param request: The current request
-        :param url_args: URL path args
-        :param url_kwargs: URL path kwargs
+        Args:
+            obj: The object being edited
+            request: The current request
+            url_args: URL path args
+            url_kwargs: URL path kwargs
         """
         return obj
-
-    def dispatch(self, request, *args, **kwargs):
-        # Determine required permission based on whether we are editing an existing object
-        self._permission_action = 'change' if kwargs else 'add'
-
-        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         """
         GET request handler.
 
-        :param request: The current request
+        Args:
+            request: The current request
         """
         obj = self.get_object(**kwargs)
         obj = self.alter_object(obj, request, args, kwargs)
@@ -519,7 +368,8 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         """
         POST request handler.
 
-        :param request: The current request
+        Args:
+            request: The current request
         """
         logger = logging.getLogger('netbox.views.ObjectEditView')
         obj = self.get_object(**kwargs)
@@ -588,14 +438,10 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         })
 
 
-class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+class ObjectDeleteView(GetReturnURLMixin, GenericView):
     """
     Delete a single object.
-
-    queryset: The base queryset for the object being deleted
-    template_name: The name of the template
     """
-    queryset = None
     template_name = 'generic/object_delete.html'
 
     def get_required_permission(self):
@@ -605,7 +451,8 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         """
         Return an instance for deletion. If a PK has been specified, this will be an existing object.
 
-        :param kwargs: URL path kwargs
+        Args:
+            kwargs: URL path kwargs
         """
         obj = get_object_or_404(self.queryset, **kwargs)
 
@@ -619,7 +466,8 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         """
         GET request handler.
 
-        :param request: The current request
+        Args:
+            request: The current request
         """
         obj = self.get_object(**kwargs)
         form = ConfirmationForm(initial=request.GET)
@@ -646,7 +494,8 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         """
         POST request handler.
 
-        :param request: The current request
+        Args:
+            request: The current request
         """
         logger = logging.getLogger('netbox.views.ObjectDeleteView')
         obj = self.get_object(**kwargs)
@@ -687,14 +536,13 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 # Device/VirtualMachine components
 #
 
-class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+class ComponentCreateView(GetReturnURLMixin, GenericView):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a Device or VirtualMachine.
     """
-    queryset = None
+    template_name = 'dcim/component_create.html'
     form = None
     model_form = None
-    template_name = 'dcim/component_create.html'
     patterned_fields = ('name', 'label')
 
     def get_required_permission(self):
