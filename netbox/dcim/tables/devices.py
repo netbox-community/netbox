@@ -524,10 +524,10 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         model = Interface
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
-            'mode', 'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
-            'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans',
-            'link_peer', 'connection', 'tags', 'vrf', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
-            'created', 'last_updated',
+            'speed', 'duplex', 'mode', 'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
+            'wireless_lans', 'link_peer', 'connection', 'tags', 'vrf', 'ip_addresses', 'fhrp_groups', 'untagged_vlan',
+            'tagged_vlans', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
