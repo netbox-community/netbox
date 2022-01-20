@@ -23,6 +23,7 @@ plugins:
           setup_commands:
             - import os
             - import django
+            - os.chdir('netbox/')
             - os.environ.setdefault("DJANGO_SETTINGS_MODULE", "netbox.settings")
             - django.setup()
           rendering:
