@@ -23,6 +23,7 @@ __all__ = (
     'RoleBulkEditForm',
     'RouteTargetBulkEditForm',
     'ServiceBulkEditForm',
+    'ServiceTemplateBulkEditForm',
     'VLANBulkEditForm',
     'VLANGroupBulkEditForm',
     'VRFBulkEditForm',
@@ -433,9 +434,9 @@ class VLANBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class ServiceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ServiceTemplateBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        queryset=Service.objects.all(),
+        queryset=ServiceTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
     protocol = forms.ChoiceField(
@@ -459,3 +460,10 @@ class ServiceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = [
             'description',
         ]
+
+
+class ServiceBulkEditForm(ServiceTemplateBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Service.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )

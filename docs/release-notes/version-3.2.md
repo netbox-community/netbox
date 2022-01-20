@@ -14,6 +14,10 @@
 
 ### New Features
 
+#### Service Templates ([#1591](https://github.com/netbox-community/netbox/issues/1591))
+
+A new service template model has been introduced to assist in standardizing the definition and application of layer four services to devices and virtual machines. As an alternative to manually defining a name, protocol, and port(s) each time a service is created, a user now has the option of selecting a pre-defined template from which these values will be populated.
+
 #### Automatic Provisioning of Next Available VLANs ([#2658](https://github.com/netbox-community/netbox/issues/2658))
 
 A new REST API endpoint has been added at `/api/ipam/vlan-groups/<pk>/available-vlans/`. A GET request to this endpoint will return a list of available VLANs within the group. A POST request can be made to this endpoint specifying the name(s) of one or more VLANs to create within the group, and their VLAN IDs will be assigned automatically.
@@ -56,13 +60,19 @@ Inventory item templates can be arranged hierarchically within a device type, an
 
 ### Enhancements
 
+* [#5429](https://github.com/netbox-community/netbox/issues/5429) - Enable toggling the placement of table paginators
+* [#6954](https://github.com/netbox-community/netbox/issues/6954) - Remember users' table ordering preferences
 * [#7650](https://github.com/netbox-community/netbox/issues/7650) - Add support for local account password validation
+* [#7679](https://github.com/netbox-community/netbox/issues/7679) - Add actions menu to all object tables
 * [#7681](https://github.com/netbox-community/netbox/issues/7681) - Add `service_id` field for provider networks
 * [#7759](https://github.com/netbox-community/netbox/issues/7759) - Improved the user preferences form
 * [#7784](https://github.com/netbox-community/netbox/issues/7784) - Support cluster type assignment for config contexts
 * [#7846](https://github.com/netbox-community/netbox/issues/7846) - Enable associating inventory items with device components
 * [#7852](https://github.com/netbox-community/netbox/issues/7852) - Enable assigning interfaces to VRFs
 * [#8168](https://github.com/netbox-community/netbox/issues/8168) - Add `min_vid` and `max_vid` fields to VLAN group
+* [#8295](https://github.com/netbox-community/netbox/issues/8295) - Webhook URLs can now be templatized
+* [#8296](https://github.com/netbox-community/netbox/issues/8296) - Allow disabling custom links
+* [#8307](https://github.com/netbox-community/netbox/issues/8307) - Add `data_type` indicator to REST API serializer for custom fields
 
 ### Other Changes
 
@@ -80,6 +90,7 @@ Inventory item templates can be arranged hierarchically within a device type, an
     * `/api/dcim/module-bays/`
     * `/api/dcim/module-bay-templates/`
     * `/api/dcim/module-types/`
+    * `/api/extras/service-templates/`
 * circuits.ProviderNetwork
     * Added `service_id` field
 * dcim.ConsolePort
@@ -105,6 +116,8 @@ Inventory item templates can be arranged hierarchically within a device type, an
     * Add `cluster_types` field
 * extras.CustomField
     * Added `object_type` field
+* extras.CustomLink
+    * Added `enabled` field
 * ipam.VLANGroup
     * Added the `/availables-vlans/` endpoint
     * Added the `min_vid` and `max_vid` fields

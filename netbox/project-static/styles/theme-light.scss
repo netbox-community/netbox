@@ -2,8 +2,6 @@
 
 @import './theme-base.scss';
 
-$input-border-color: $gray-200;
-
 // Theme colors (BS5 classes)
 $primary: #337ab7;
 $secondary: $gray-600;
@@ -42,6 +40,8 @@ $theme-colors: (
 );
 
 $light: $gray-200;
+
+$navbar-light-color: $gray-100;
 
 $card-cap-color: $gray-800;
 

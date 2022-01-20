@@ -16,6 +16,7 @@ __all__ = (
     'RoleType',
     'RouteTargetType',
     'ServiceType',
+    'ServiceTemplateType',
     'VLANType',
     'VLANGroupType',
     'VRFType',
@@ -118,6 +119,14 @@ class ServiceType(PrimaryObjectType):
         model = models.Service
         fields = '__all__'
         filterset_class = filtersets.ServiceFilterSet
+
+
+class ServiceTemplateType(PrimaryObjectType):
+
+    class Meta:
+        model = models.ServiceTemplate
+        fields = '__all__'
+        filterset_class = filtersets.ServiceTemplateFilterSet
 
 
 class VLANType(PrimaryObjectType):

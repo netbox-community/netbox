@@ -36,7 +36,7 @@ def custom_links(context, obj):
     Render all applicable links for the given object.
     """
     content_type = ContentType.objects.get_for_model(obj)
-    custom_links = CustomLink.objects.filter(content_type=content_type)
+    custom_links = CustomLink.objects.filter(content_type=content_type, enabled=True)
     if not custom_links:
         return ''
 

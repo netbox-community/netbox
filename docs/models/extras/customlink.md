@@ -15,7 +15,7 @@ When viewing a device named Router4, this link would render as:
 <a href="https://nms.example.com/nodes/?name=Router4">View NMS</a>
 ```
 
-Custom links appear as buttons in the top right corner of the page. Numeric weighting can be used to influence the ordering of links.
+Custom links appear as buttons in the top right corner of the page. Numeric weighting can be used to influence the ordering of links, and each link can be enabled or disabled individually.
 
 !!! warning
     Custom links rely on user-created code to generate arbitrary HTML output, which may be dangerous. Only grant permission to create or modify custom links to trusted users.

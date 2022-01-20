@@ -3,9 +3,9 @@ import django_tables2 as tables
 from dcim.models import Location, Region, Site, SiteGroup
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn, TagColumn, ToggleColumn,
+    ActionsColumn, BaseTable, ChoiceFieldColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn, TagColumn, ToggleColumn,
 )
-from .template_code import LOCATION_ELEVATIONS
+from .template_code import LOCATION_BUTTONS
 
 __all__ = (
     'LocationTable',
@@ -32,12 +32,13 @@ class RegionTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:region_list'
     )
-    actions = ButtonsColumn(Region)
 
     class Meta(BaseTable.Meta):
         model = Region
-        fields = ('pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'site_count', 'description', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'created', 'last_updated', 'actions',
+        )
+        default_columns = ('pk', 'name', 'site_count', 'description')
 
 
 #
@@ -57,12 +58,13 @@ class SiteGroupTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:sitegroup_list'
     )
-    actions = ButtonsColumn(SiteGroup)
 
     class Meta(BaseTable.Meta):
         model = SiteGroup
-        fields = ('pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'site_count', 'description', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'created', 'last_updated', 'actions',
+        )
+        default_columns = ('pk', 'name', 'site_count', 'description')
 
 
 #
@@ -98,6 +100,7 @@ class SiteTable(BaseTable):
         fields = (
             'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asn_count', 'time_zone',
             'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments', 'tags',
+            'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'description')
 
@@ -128,15 +131,14 @@ class LocationTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:location_list'
     )
-    actions = ButtonsColumn(
-        model=Location,
-        prepend_template=LOCATION_ELEVATIONS
+    actions = ActionsColumn(
+        extra_buttons=LOCATION_BUTTONS
     )
 
     class Meta(BaseTable.Meta):
         model = Location
         fields = (
             'pk', 'id', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'tags',
-            'actions',
+            'actions', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description')

@@ -358,7 +358,7 @@ nav.search {
   // Don't overtake dropdowns
   z-index: 999;
   justify-content: center;
-  background-color: var(--nbx-body-bg);
+  background-color: $navbar-light-color;
 
   .search-container {
     display: flex;
@@ -452,8 +452,8 @@ main.login-container {
 }
 
 .footer {
+  background-color: $tab-content-bg;
   padding: 0;
-
   .nav-link {
     padding: 0.5rem;
   }
@@ -517,6 +517,10 @@ h6.accordion-item-title {
   }
 }
 
+.navbar {
+  border-bottom: 1px solid $border-color;
+}
+
 .navbar-brand {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
@@ -554,6 +558,7 @@ div.content-container {
   }
 
   div.content {
+    background-color: $tab-content-bg;
     flex: 1;
   }
 
@@ -590,6 +595,10 @@ span.color-label {
   border: 1px solid #303030;
   border-radius: $border-radius;
   box-shadow: $box-shadow-sm;
+}
+
+.badge a {
+  color: inherit;
 }
 
 .btn {
@@ -898,6 +907,7 @@ div.card-overlay {
 
 // Tabbed content
 .nav-tabs {
+  background-color: $body-bg;
   .nav-link {
     &:hover {
       // Don't show a bottom-border on a hovered nav link because it overlaps with the .nav-tab border.
@@ -919,14 +929,6 @@ div.card-overlay {
   display: flex;
   flex-direction: column;
   padding: $spacer;
-  background-color: $tab-content-bg;
-  border-bottom: 1px solid $nav-tabs-border-color;
-
-  // Remove background and border when printing.
-  @media print {
-    background-color: var(--nbx-body-bg) !important;
-    border-bottom: none !important;
-  }
 }
 
 // Override masonry-layout styles when printing.

@@ -287,7 +287,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     def _update_objects(self, form, request):
         custom_fields = getattr(form, 'custom_fields', [])
         standard_fields = [
-            field for field in form.fields if field not in custom_fields + ['pk']
+            field for field in form.fields if field not in list(custom_fields) + ['pk']
         ]
         nullified_fields = request.POST.getlist('_nullify')
         updated_objects = []

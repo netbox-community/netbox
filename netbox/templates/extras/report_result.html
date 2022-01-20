@@ -1,7 +1,7 @@
 {% extends 'extras/report.html' %}
 
 {% block content-wrapper %}
-  <div class="row px-3">
+  <div class="row p-3">
     <div class="col col-md-12"{% if not result.completed %} hx-get="{% url 'extras:report_result' job_result_pk=result.pk %}" hx-trigger="every 3s"{% endif %}>
       {% include 'extras/htmx/report_result.html' %}
     </div>

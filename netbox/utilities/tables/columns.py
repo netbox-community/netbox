@@ -1,149 +1,36 @@
+from dataclasses import dataclass
+from typing import Optional
+
 import django_tables2 as tables
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist
-from django.db.models.fields.related import RelatedField
+from django.template import Context, Template
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django_tables2 import RequestConfig
-from django_tables2.data import TableQuerysetData
 from django_tables2.utils import Accessor
 
 from extras.choices import CustomFieldTypeChoices
-from extras.models import CustomField, CustomLink
-from .utils import content_type_identifier, content_type_name
-from .paginator import EnhancedPaginator, get_paginate_count
+from utilities.utils import content_type_identifier, content_type_name
 
+__all__ = (
+    'ActionsColumn',
+    'BooleanColumn',
+    'ChoiceFieldColumn',
+    'ColorColumn',
+    'ColoredLabelColumn',
+    'ContentTypeColumn',
+    'ContentTypesColumn',
+    'CustomFieldColumn',
+    'CustomLinkColumn',
+    'LinkedCountColumn',
+    'MarkdownColumn',
+    'MPTTColumn',
+    'TagColumn',
+    'TemplateColumn',
+    'ToggleColumn',
+    'UtilizationColumn',
+)
 
-class BaseTable(tables.Table):
-    """
-    Default table for object lists
-
-    :param user: Personalize table display for the given user (optional). Has no effect if AnonymousUser is passed.
-    """
-    id = tables.Column(
-        linkify=True,
-        verbose_name='ID'
-    )
-
-    class Meta:
-        attrs = {
-            'class': 'table table-hover object-list',
-        }
-
-    def __init__(self, *args, user=None, extra_columns=None, **kwargs):
-        if extra_columns is None:
-            extra_columns = []
-
-        # Add custom field columns
-        obj_type = ContentType.objects.get_for_model(self._meta.model)
-        cf_columns = [
-            (f'cf_{cf.name}', CustomFieldColumn(cf)) for cf in CustomField.objects.filter(content_types=obj_type)
-        ]
-        cl_columns = [
-            (f'cl_{cl.name}', CustomLinkColumn(cl)) for cl in CustomLink.objects.filter(content_type=obj_type)
-        ]
-        extra_columns.extend([*cf_columns, *cl_columns])
-
-        super().__init__(*args, extra_columns=extra_columns, **kwargs)
-
-        # Set default empty_text if none was provided
-        if self.empty_text is None:
-            self.empty_text = f"No {self._meta.model._meta.verbose_name_plural} found"
-
-        # Hide non-default columns
-        default_columns = getattr(self.Meta, 'default_columns', list())
-        if default_columns:
-            for column in self.columns:
-                if column.name not in default_columns:
-                    self.columns.hide(column.name)
-
-        # Apply custom column ordering for user
-        if user is not None and not isinstance(user, AnonymousUser):
-            selected_columns = user.config.get(f"tables.{self.__class__.__name__}.columns")
-            if selected_columns:
-
-                # Show only persistent or selected columns
-                for name, column in self.columns.items():
-                    if name in ['pk', 'actions', *selected_columns]:
-                        self.columns.show(name)
-                    else:
-                        self.columns.hide(name)
-
-                # Rearrange the sequence to list selected columns first, followed by all remaining columns
-                # TODO: There's probably a more clever way to accomplish this
-                self.sequence = [
-                    *[c for c in selected_columns if c in self.columns.names()],
-                    *[c for c in self.columns.names() if c not in selected_columns]
-                ]
-
-                # PK column should always come first
-                if 'pk' in self.sequence:
-                    self.sequence.remove('pk')
-                    self.sequence.insert(0, 'pk')
-
-                # Actions column should always come last
-                if 'actions' in self.sequence:
-                    self.sequence.remove('actions')
-                    self.sequence.append('actions')
-
-        # Dynamically update the table's QuerySet to ensure related fields are pre-fetched
-        if isinstance(self.data, TableQuerysetData):
-
-            prefetch_fields = []
-            for column in self.columns:
-                if column.visible:
-                    model = getattr(self.Meta, 'model')
-                    accessor = column.accessor
-                    prefetch_path = []
-                    for field_name in accessor.split(accessor.SEPARATOR):
-                        try:
-                            field = model._meta.get_field(field_name)
-                        except FieldDoesNotExist:
-                            break
-                        if isinstance(field, RelatedField):
-                            # Follow ForeignKeys to the related model
-                            prefetch_path.append(field_name)
-                            model = field.remote_field.model
-                        elif isinstance(field, GenericForeignKey):
-                            # Can't prefetch beyond a GenericForeignKey
-                            prefetch_path.append(field_name)
-                            break
-                    if prefetch_path:
-                        prefetch_fields.append('__'.join(prefetch_path))
-            self.data.data = self.data.data.prefetch_related(None).prefetch_related(*prefetch_fields)
-
-    def _get_columns(self, visible=True):
-        columns = []
-        for name, column in self.columns.items():
-            if column.visible == visible and name not in ['pk', 'actions']:
-                columns.append((name, column.verbose_name))
-        return columns
-
-    @property
-    def available_columns(self):
-        return self._get_columns(visible=False)
-
-    @property
-    def selected_columns(self):
-        return self._get_columns(visible=True)
-
-    @property
-    def objects_count(self):
-        """
-        Return the total number of real objects represented by the Table. This is useful when dealing with
-        prefixes/IP addresses/etc., where some table rows may represent available address space.
-        """
-        if not hasattr(self, '_objects_count'):
-            self._objects_count = sum(1 for obj in self.data if hasattr(obj, 'pk'))
-        return self._objects_count
-
-
-#
-# Table columns
-#
 
 class ToggleColumn(tables.CheckBoxColumn):
     """
@@ -205,58 +92,77 @@ class TemplateColumn(tables.TemplateColumn):
         return ret
 
 
-class ButtonsColumn(tables.TemplateColumn):
-    """
-    Render edit, delete, and changelog buttons for an object.
+@dataclass
+class ActionsItem:
+    title: str
+    icon: str
+    permission: Optional[str] = None
 
-    :param model: Model class to use for calculating URL view names
-    :param prepend_content: Additional template content to render in the column (optional)
+
+class ActionsColumn(tables.Column):
     """
-    buttons = ('changelog', 'edit', 'delete')
+    A dropdown menu which provides edit, delete, and changelog links for an object. Can optionally include
+    additional buttons rendered from a template string.
+
+    :param sequence: The ordered list of dropdown menu items to include
+    :param extra_buttons: A Django template string which renders additional buttons preceding the actions dropdown
+    """
     attrs = {'td': {'class': 'text-end text-nowrap noprint'}}
-    # Note that braces are escaped to allow for string formatting prior to template rendering
-    template_code = """
-    {{% if "changelog" in buttons %}}
-        <a href="{{% url '{app_label}:{model_name}_changelog' pk=record.pk %}}" class="btn btn-outline-dark btn-sm" title="Change log">
-            <i class="mdi mdi-history"></i>
-        </a>
-    {{% endif %}}
-    {{% if "edit" in buttons and perms.{app_label}.change_{model_name} %}}
-        <a href="{{% url '{app_label}:{model_name}_edit' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-sm btn-warning" title="Edit">
-            <i class="mdi mdi-pencil"></i>
-        </a>
-    {{% endif %}}
-    {{% if "delete" in buttons and perms.{app_label}.delete_{model_name} %}}
-        <a href="{{% url '{app_label}:{model_name}_delete' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-sm btn-danger" title="Delete">
-            <i class="mdi mdi-trash-can-outline"></i>
-        </a>
-    {{% endif %}}
-    """
+    empty_values = ()
+    actions = {
+        'edit': ActionsItem('Edit', 'pencil', 'change'),
+        'delete': ActionsItem('Delete', 'trash-can-outline', 'delete'),
+        'changelog': ActionsItem('Changelog', 'history'),
+    }
 
-    def __init__(self, model, *args, buttons=None, prepend_template=None, **kwargs):
-        if prepend_template:
-            prepend_template = prepend_template.replace('{', '{{')
-            prepend_template = prepend_template.replace('}', '}}')
-            self.template_code = prepend_template + self.template_code
+    def __init__(self, *args, sequence=('edit', 'delete', 'changelog'), extra_buttons='', **kwargs):
+        super().__init__(*args, **kwargs)
 
-        template_code = self.template_code.format(
-            app_label=model._meta.app_label,
-            model_name=model._meta.model_name,
-            buttons=buttons
-        )
+        self.extra_buttons = extra_buttons
 
-        super().__init__(template_code=template_code, *args, **kwargs)
-
-        # Exclude from export by default
-        if 'exclude_from_export' not in kwargs:
-            self.exclude_from_export = True
-
-        self.extra_context.update({
-            'buttons': buttons or self.buttons,
-        })
+        # Determine which actions to enable
+        self.actions = {
+            name: self.actions[name] for name in sequence
+        }
 
     def header(self):
         return ''
+
+    def render(self, record, table, **kwargs):
+        # Skip dummy records (e.g. available VLANs) or those with no actions
+        if not getattr(record, 'pk', None) or not self.actions:
+            return ''
+
+        model = table.Meta.model
+        viewname_base = f'{model._meta.app_label}:{model._meta.model_name}'
+        request = getattr(table, 'context', {}).get('request')
+        url_appendix = f'?return_url={request.path}' if request else ''
+
+        links = []
+        user = getattr(request, 'user', AnonymousUser())
+        for action, attrs in self.actions.items():
+            permission = f'{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}'
+            if attrs.permission is None or user.has_perm(permission):
+                url = reverse(f'{viewname_base}_{action}', kwargs={'pk': record.pk})
+                links.append(f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
+                             f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>')
+
+        if not links:
+            return ''
+
+        menu = f'<span class="dropdown">' \
+               f'<a class="btn btn-sm btn-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown">' \
+               f'<i class="mdi mdi-wrench"></i></a>' \
+               f'<ul class="dropdown-menu">{"".join(links)}</ul></span>'
+
+        # Render any extra buttons from template code
+        if self.extra_buttons:
+            template = Template(self.extra_buttons)
+            context = getattr(table, "context", Context())
+            context.update({'record': record})
+            menu = template.render(context) + menu
+
+        return mark_safe(menu)
 
 
 class ChoiceFieldColumn(tables.Column):
@@ -330,15 +236,15 @@ class ColoredLabelColumn(tables.TemplateColumn):
     Render a colored label (e.g. for DeviceRoles).
     """
     template_code = """
-    {% load helpers %}
-    {% if value %}
-    <span class="badge" style="color: {{ value.color|fgcolor }}; background-color: #{{ value.color }}">
-      {{ value }}
-    </span>
-    {% else %}
-    &mdash;
-    {% endif %}
-    """
+{% load helpers %}
+  {% if value %}
+  <span class="badge" style="color: {{ value.color|fgcolor }}; background-color: #{{ value.color }}">
+    <a href="{{ value.get_absolute_url }}">{{ value }}</a>
+  </span>
+{% else %}
+  &mdash;
+{% endif %}
+"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(template_code=self.template_code, *args, **kwargs)
@@ -418,7 +324,10 @@ class CustomFieldColumn(tables.Column):
             # Linkify custom URLs
             return mark_safe(f'<a href="{value}">{value}</a>')
         if value is not None:
-            return value
+            obj = self.customfield.deserialize(value)
+            if hasattr(obj, 'get_absolute_url'):
+                return mark_safe(f'<a href="{obj.get_absolute_url}">{obj}</a>')
+            return obj
         return self.default
 
 
@@ -509,34 +418,3 @@ class MarkdownColumn(tables.TemplateColumn):
 
     def value(self, value):
         return value
-
-
-#
-# Pagination
-#
-
-def paginate_table(table, request):
-    """
-    Paginate a table given a request context.
-    """
-    paginate = {
-        'paginator_class': EnhancedPaginator,
-        'per_page': get_paginate_count(request)
-    }
-    RequestConfig(request, paginate).configure(table)
-
-
-#
-# Callables
-#
-
-def linkify_email(value):
-    if value is None:
-        return None
-    return f"mailto:{value}"
-
-
-def linkify_phone(value):
-    if value is None:
-        return None
-    return f"tel:{value}"

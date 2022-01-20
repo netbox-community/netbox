@@ -87,7 +87,7 @@ POWERFEED_CABLETERMINATION = """
 <a href="{{ value.get_absolute_url }}">{{ value }}</a>
 """
 
-LOCATION_ELEVATIONS = """
+LOCATION_BUTTONS = """
 <a href="{% url 'dcim:rack_elevation_list' %}?site={{ record.site.slug }}&location_id={{ record.pk }}" class="btn btn-sm btn-primary" title="View elevations">
     <i class="mdi mdi-server"></i>
 </a>
@@ -99,8 +99,8 @@ LOCATION_ELEVATIONS = """
 
 MODULAR_COMPONENT_TEMPLATE_BUTTONS = """
 {% load helpers %}
-{% if perms.dcim.add_invnetoryitemtemplate %}
-<a href="{% url 'dcim:inventoryitemtemplate_add' %}?device_type={{ record.device_type.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={{ request.path }}" title="Add inventory item" class="btn btn-primary btn-sm">
+{% if perms.dcim.add_inventoryitemtemplate %}
+<a href="{% url 'dcim:inventoryitemtemplate_add' %}?device_type={{ record.device_type_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={{ request.path }}" title="Add inventory item" class="btn btn-primary btn-sm">
   <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
 </a>
 {% endif %}

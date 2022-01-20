@@ -100,5 +100,5 @@ class CircuitTerminationSerializer(ValidatedModelSerializer, LinkTerminationSeri
         fields = [
             'id', 'url', 'display', 'circuit', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed',
             'xconnect_id', 'pp_info', 'description', 'mark_connected', 'cable', 'link_peer', 'link_peer_type',
-            '_occupied',
+            '_occupied', 'created', 'last_updated',
         ]

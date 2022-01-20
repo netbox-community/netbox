@@ -1,5 +1,7 @@
 import datetime
 
+from django.test import override_settings
+from django.urls import reverse
 from netaddr import IPNetwork
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
@@ -222,6 +224,21 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_aggregate_prefixes(self):
+        rir = RIR.objects.first()
+        aggregate = Aggregate.objects.create(prefix=IPNetwork('192.168.0.0/16'), rir=rir)
+        prefixes = (
+            Prefix(prefix=IPNetwork('192.168.1.0/24')),
+            Prefix(prefix=IPNetwork('192.168.2.0/24')),
+            Prefix(prefix=IPNetwork('192.168.3.0/24')),
+        )
+        Prefix.objects.bulk_create(prefixes)
+        self.assertEqual(aggregate.get_child_prefixes().count(), 3)
+
+        url = reverse('ipam:aggregate_prefixes', kwargs={'pk': aggregate.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
 
 class RoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Role
@@ -319,6 +336,48 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_prefixes(self):
+        prefixes = (
+            Prefix(prefix=IPNetwork('192.168.0.0/16')),
+            Prefix(prefix=IPNetwork('192.168.1.0/24')),
+            Prefix(prefix=IPNetwork('192.168.2.0/24')),
+            Prefix(prefix=IPNetwork('192.168.3.0/24')),
+        )
+        Prefix.objects.bulk_create(prefixes)
+        self.assertEqual(prefixes[0].get_child_prefixes().count(), 3)
+
+        url = reverse('ipam:prefix_prefixes', kwargs={'pk': prefixes[0].pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_ipranges(self):
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
+        ip_ranges = (
+            IPRange(start_address='192.168.0.1/24', end_address='192.168.0.100/24', size=99),
+            IPRange(start_address='192.168.1.1/24', end_address='192.168.1.100/24', size=99),
+            IPRange(start_address='192.168.2.1/24', end_address='192.168.2.100/24', size=99),
+        )
+        IPRange.objects.bulk_create(ip_ranges)
+        self.assertEqual(prefix.get_child_ranges().count(), 3)
+
+        url = reverse('ipam:prefix_ipranges', kwargs={'pk': prefix.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_ipaddresses(self):
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
+        ip_addresses = (
+            IPAddress(address=IPNetwork('192.168.0.1/16')),
+            IPAddress(address=IPNetwork('192.168.0.2/16')),
+            IPAddress(address=IPNetwork('192.168.0.3/16')),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
+        self.assertEqual(prefix.get_child_ips().count(), 3)
+
+        url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
 
 class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = IPRange
@@ -376,6 +435,24 @@ class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'role': roles[1].pk,
             'description': 'New description',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_iprange_ipaddresses(self):
+        iprange = IPRange.objects.create(
+            start_address=IPNetwork('192.168.0.1/24'),
+            end_address=IPNetwork('192.168.0.100/24'),
+            size=99
+        )
+        ip_addresses = (
+            IPAddress(address=IPNetwork('192.168.0.1/24')),
+            IPAddress(address=IPNetwork('192.168.0.2/24')),
+            IPAddress(address=IPNetwork('192.168.0.3/24')),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
+        self.assertEqual(iprange.get_child_ips().count(), 3)
+
+        url = reverse('ipam:iprange_ipaddresses', kwargs={'pk': iprange.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
 
 
 class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -564,6 +641,41 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ServiceTemplate
+
+    @classmethod
+    def setUpTestData(cls):
+        ServiceTemplate.objects.bulk_create([
+            ServiceTemplate(name='Service Template 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
+            ServiceTemplate(name='Service Template 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
+            ServiceTemplate(name='Service Template 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
+        ])
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Service Template X',
+            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
+            'ports': '104,105',
+            'description': 'A new service template',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,protocol,ports,description",
+            "Service Template 4,tcp,1,First service template",
+            "Service Template 5,tcp,2,Second service template",
+            "Service Template 6,tcp,3,Third service template",
+        )
+
+        cls.bulk_edit_data = {
+            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
+            'ports': '106,107',
+            'description': 'New description',
+        }
+
+
 class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Service
 
@@ -607,3 +719,30 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'ports': '106,107',
             'description': 'New description',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_create_from_template(self):
+        self.add_permissions('ipam.add_service')
+
+        device = Device.objects.first()
+        service_template = ServiceTemplate.objects.create(
+            name='HTTP',
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=[80],
+            description='Hypertext transfer protocol'
+        )
+
+        request = {
+            'path': self._get_url('add'),
+            'data': {
+                'device': device.pk,
+                'service_template': service_template.pk,
+            },
+        }
+        self.assertHttpStatus(self.client.post(**request), 302)
+        instance = self._get_queryset().order_by('pk').last()
+        self.assertEqual(instance.device, device)
+        self.assertEqual(instance.name, service_template.name)
+        self.assertEqual(instance.protocol, service_template.protocol)
+        self.assertEqual(instance.ports, service_template.ports)
+        self.assertEqual(instance.description, service_template.description)

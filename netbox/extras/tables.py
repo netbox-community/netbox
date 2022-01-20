@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django.conf import settings
 
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ContentTypesColumn,
+    ActionsColumn, BaseTable, BooleanColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ContentTypesColumn,
     MarkdownColumn, ToggleColumn,
 )
 from .models import *
@@ -58,7 +58,7 @@ class CustomFieldTable(BaseTable):
         model = CustomField
         fields = (
             'pk', 'id', 'name', 'content_types', 'label', 'type', 'required', 'weight', 'default',
-            'description', 'filter_logic', 'choices',
+            'description', 'filter_logic', 'choices', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'type', 'required', 'description')
 
@@ -73,15 +73,16 @@ class CustomLinkTable(BaseTable):
         linkify=True
     )
     content_type = ContentTypeColumn()
+    enabled = BooleanColumn()
     new_window = BooleanColumn()
 
     class Meta(BaseTable.Meta):
         model = CustomLink
         fields = (
-            'pk', 'id', 'name', 'content_type', 'link_text', 'link_url', 'weight', 'group_name',
-            'button_class', 'new_window',
+            'pk', 'id', 'name', 'content_type', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
+            'button_class', 'new_window', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'content_type', 'group_name', 'button_class', 'new_window')
+        default_columns = ('pk', 'name', 'content_type', 'enabled', 'group_name', 'button_class', 'new_window')
 
 
 #
@@ -100,6 +101,7 @@ class ExportTemplateTable(BaseTable):
         model = ExportTemplate
         fields = (
             'pk', 'id', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
+            'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
@@ -134,7 +136,7 @@ class WebhookTable(BaseTable):
         model = Webhook
         fields = (
             'pk', 'id', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method',
-            'payload_url', 'secret', 'ssl_validation', 'ca_file_path',
+            'payload_url', 'secret', 'ssl_validation', 'ca_file_path', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method',
@@ -152,12 +154,11 @@ class TagTable(BaseTable):
         linkify=True
     )
     color = ColorColumn()
-    actions = ButtonsColumn(Tag)
 
     class Meta(BaseTable.Meta):
         model = Tag
-        fields = ('pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'actions')
-        default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description', 'actions')
+        fields = ('pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'created', 'last_updated', 'actions')
+        default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description')
 
 
 class TaggedItemTable(BaseTable):
@@ -193,7 +194,8 @@ class ConfigContextTable(BaseTable):
         model = ConfigContext
         fields = (
             'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'roles',
-            'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants',
+            'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'weight', 'is_active', 'description')
 
@@ -215,6 +217,7 @@ class ObjectChangeTable(BaseTable):
         template_code=OBJECTCHANGE_REQUEST_ID,
         verbose_name='Request ID'
     )
+    actions = ActionsColumn(sequence=())
 
     class Meta(BaseTable.Meta):
         model = ObjectChange
@@ -232,9 +235,6 @@ class ObjectJournalTable(BaseTable):
     kind = ChoiceFieldColumn()
     comments = tables.TemplateColumn(
         template_code='{% load helpers %}{{ value|render_markdown|truncatewords_html:50 }}'
-    )
-    actions = ButtonsColumn(
-        model=JournalEntry
     )
 
     class Meta(BaseTable.Meta):
@@ -261,6 +261,5 @@ class JournalEntryTable(ObjectJournalTable):
             'comments', 'actions'
         )
         default_columns = (
-            'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind',
-            'comments', 'actions'
+            'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind', 'comments'
         )

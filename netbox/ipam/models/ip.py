@@ -9,7 +9,6 @@ from django.utils.functional import cached_property
 
 from dcim.fields import ASNField
 from dcim.models import Device
-from extras.utils import extras_features
 from netbox.models import OrganizationalModel, PrimaryModel
 from ipam.choices import *
 from ipam.constants import *
@@ -54,7 +53,6 @@ class GetAvailablePrefixesMixin:
         return available_prefixes.iter_cidrs()[0]
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RIR(OrganizationalModel):
     """
     A Regional Internet Registry (RIR) is responsible for the allocation of a large portion of the global IP address
@@ -90,7 +88,6 @@ class RIR(OrganizationalModel):
         return reverse('ipam:rir', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ASN(PrimaryModel):
     """
     An autonomous system (AS) number is typically used to represent an independent routing domain. A site can have
@@ -125,13 +122,31 @@ class ASN(PrimaryModel):
         verbose_name_plural = 'ASNs'
 
     def __str__(self):
-        return f'AS{self.asn}'
+        return f'AS{self.asn_with_asdot}'
 
     def get_absolute_url(self):
         return reverse('ipam:asn', args=[self.pk])
 
+    @property
+    def asn_asdot(self):
+        """
+        Return ASDOT notation for AS numbers greater than 16 bits.
+        """
+        if self.asn > 65535:
+            return f'{self.asn // 65536}.{self.asn % 65536}'
+        return self.asn
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
+    @property
+    def asn_with_asdot(self):
+        """
+        Return both plain and ASDOT notation, where applicable.
+        """
+        if self.asn > 65535:
+            return f'{self.asn} ({self.asn // 65536}.{self.asn % 65536})'
+        else:
+            return self.asn
+
+
 class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
     """
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
@@ -234,7 +249,6 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
         return min(utilization, 100)
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Role(OrganizationalModel):
     """
     A Role represents the functional role of a Prefix or VLAN; for example, "Customer," "Infrastructure," or
@@ -266,7 +280,6 @@ class Role(OrganizationalModel):
         return reverse('ipam:role', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
     """
     A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
@@ -544,7 +557,6 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         return min(utilization, 100)
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class IPRange(PrimaryModel):
     """
     A range of IP addresses, defined by start and end addresses.
@@ -740,7 +752,6 @@ class IPRange(PrimaryModel):
         return int(float(child_count) / self.size * 100)
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class IPAddress(PrimaryModel):
     """
     An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is

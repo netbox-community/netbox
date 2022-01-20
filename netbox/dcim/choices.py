@@ -793,6 +793,10 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_STACKWISE_PLUS = 'cisco-stackwise-plus'
     TYPE_FLEXSTACK = 'cisco-flexstack'
     TYPE_FLEXSTACK_PLUS = 'cisco-flexstack-plus'
+    TYPE_STACKWISE80 = 'cisco-stackwise-80'
+    TYPE_STACKWISE160 = 'cisco-stackwise-160'
+    TYPE_STACKWISE320 = 'cisco-stackwise-320'
+    TYPE_STACKWISE480 = 'cisco-stackwise-480'
     TYPE_JUNIPER_VCP = 'juniper-vcp'
     TYPE_SUMMITSTACK = 'extreme-summitstack'
     TYPE_SUMMITSTACK128 = 'extreme-summitstack-128'
@@ -927,6 +931,10 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_STACKWISE_PLUS, 'Cisco StackWise Plus'),
                 (TYPE_FLEXSTACK, 'Cisco FlexStack'),
                 (TYPE_FLEXSTACK_PLUS, 'Cisco FlexStack Plus'),
+                (TYPE_STACKWISE80, 'Cisco StackWise-80'),
+                (TYPE_STACKWISE160, 'Cisco StackWise-160'),
+                (TYPE_STACKWISE320, 'Cisco StackWise-320'),
+                (TYPE_STACKWISE480, 'Cisco StackWise-480'),
                 (TYPE_JUNIPER_VCP, 'Juniper VCP'),
                 (TYPE_SUMMITSTACK, 'Extreme SummitStack'),
                 (TYPE_SUMMITSTACK128, 'Extreme SummitStack-128'),

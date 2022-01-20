@@ -82,7 +82,9 @@ class CustomLinkFilterSet(BaseFilterSet):
 
     class Meta:
         model = CustomLink
-        fields = ['id', 'content_type', 'name', 'link_text', 'link_url', 'weight', 'group_name', 'new_window']
+        fields = [
+            'id', 'content_type', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name', 'new_window',
+        ]
 
     def search(self, queryset, name, value):
         if not value.strip():

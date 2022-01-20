@@ -11,7 +11,6 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_object
-from extras.utils import extras_features
 from netbox.models import BigIDModel, PrimaryModel
 from utilities.fields import ColorField
 from utilities.utils import to_meters
@@ -29,7 +28,6 @@ __all__ = (
 # Cables
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Cable(PrimaryModel):
     """
     A physical connection between two endpoints.

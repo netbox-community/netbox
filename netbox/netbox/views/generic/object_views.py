@@ -9,13 +9,13 @@ from django.db.models import ProtectedError
 from django.forms.widgets import HiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2.export import TableExport
 
-from dcim.forms.object_create import ComponentCreateForm
 from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
@@ -23,7 +23,7 @@ from utilities.exceptions import AbortTransaction, PermissionsViolation
 from utilities.forms import ConfirmationForm, ImportForm, restrict_form_fields
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
-from utilities.tables import paginate_table
+from utilities.tables import configure_table
 from utilities.utils import normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 
@@ -135,7 +135,7 @@ class ObjectChildrenView(ObjectView):
         # Determine whether to display bulk action checkboxes
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
-        paginate_table(table, request)
+        configure_table(table, request)
 
         # If this is an HTMX request, return only the rendered table HTML
         if is_htmx(request):
@@ -203,7 +203,7 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         :param table: The Table instance to export
         :param columns: A list of specific columns to include. If not specified, all columns will be exported.
         """
-        exclude_columns = {'pk'}
+        exclude_columns = {'pk', 'actions'}
         if columns:
             all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
             exclude_columns.update({
@@ -284,7 +284,7 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
 
         # Render the objects table
         table = self.get_table(request, permissions)
-        paginate_table(table, request)
+        configure_table(table, request)
 
         # If this is an HTMX request, return only the rendered table HTML
         if is_htmx(request):
@@ -624,10 +624,21 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         obj = self.get_object(**kwargs)
         form = ConfirmationForm(initial=request.GET)
 
+        # If this is an HTMX request, return only the rendered deletion form as modal content
+        if is_htmx(request):
+            viewname = f'{self.queryset.model._meta.app_label}:{self.queryset.model._meta.model_name}_delete'
+            form_url = reverse(viewname, kwargs={'pk': obj.pk})
+            return render(request, 'htmx/delete_form.html', {
+                'object': obj,
+                'object_type': self.queryset.model._meta.verbose_name,
+                'form': form,
+                'form_url': form_url,
+            })
+
         return render(request, self.template_name, {
-            'obj': obj,
+            'object': obj,
+            'object_type': self.queryset.model._meta.verbose_name,
             'form': form,
-            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request, obj),
         })
 
@@ -665,9 +676,9 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
-            'obj': obj,
+            'object': obj,
+            'object_type': self.queryset.model._meta.verbose_name,
             'form': form,
-            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request, obj),
         })
 

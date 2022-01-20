@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ContentTypeColumn, LinkedCountColumn, linkify_phone, MarkdownColumn, MPTTColumn,
+    ActionsColumn, BaseTable, ContentTypeColumn, LinkedCountColumn, linkify_phone, MarkdownColumn, MPTTColumn,
     TagColumn, ToggleColumn,
 )
 from .models import *
@@ -59,12 +59,13 @@ class TenantGroupTable(BaseTable):
     tags = TagColumn(
         url_name='tenancy:tenantgroup_list'
     )
-    actions = ButtonsColumn(TenantGroup)
 
     class Meta(BaseTable.Meta):
         model = TenantGroup
-        fields = ('pk', 'id', 'name', 'tenant_count', 'description', 'slug', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'tenant_count', 'description', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'tenant_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
+        )
+        default_columns = ('pk', 'name', 'tenant_count', 'description')
 
 
 class TenantTable(BaseTable):
@@ -82,7 +83,7 @@ class TenantTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Tenant
-        fields = ('pk', 'id', 'name', 'slug', 'group', 'description', 'comments', 'tags')
+        fields = ('pk', 'id', 'name', 'slug', 'group', 'description', 'comments', 'tags', 'created', 'last_updated',)
         default_columns = ('pk', 'name', 'group', 'description')
 
 
@@ -103,12 +104,13 @@ class ContactGroupTable(BaseTable):
     tags = TagColumn(
         url_name='tenancy:contactgroup_list'
     )
-    actions = ButtonsColumn(ContactGroup)
 
     class Meta(BaseTable.Meta):
         model = ContactGroup
-        fields = ('pk', 'name', 'contact_count', 'description', 'slug', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'contact_count', 'description', 'actions')
+        fields = (
+            'pk', 'name', 'contact_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
+        )
+        default_columns = ('pk', 'name', 'contact_count', 'description')
 
 
 class ContactRoleTable(BaseTable):
@@ -116,12 +118,11 @@ class ContactRoleTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
-    actions = ButtonsColumn(ContactRole)
 
     class Meta(BaseTable.Meta):
         model = ContactRole
-        fields = ('pk', 'name', 'description', 'slug', 'actions')
-        default_columns = ('pk', 'name', 'description', 'actions')
+        fields = ('pk', 'name', 'description', 'slug', 'created', 'last_updated', 'actions')
+        default_columns = ('pk', 'name', 'description')
 
 
 class ContactTable(BaseTable):
@@ -145,7 +146,10 @@ class ContactTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Contact
-        fields = ('pk', 'name', 'group', 'title', 'phone', 'email', 'address', 'comments', 'assignment_count', 'tags')
+        fields = (
+            'pk', 'name', 'group', 'title', 'phone', 'email', 'address', 'comments', 'assignment_count', 'tags',
+            'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'group', 'assignment_count', 'title', 'phone', 'email')
 
 
@@ -164,12 +168,11 @@ class ContactAssignmentTable(BaseTable):
     role = tables.Column(
         linkify=True
     )
-    actions = ButtonsColumn(
-        model=ContactAssignment,
-        buttons=('edit', 'delete')
+    actions = ActionsColumn(
+        sequence=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):
         model = ContactAssignment
         fields = ('pk', 'content_type', 'object', 'contact', 'role', 'priority', 'actions')
-        default_columns = ('pk', 'content_type', 'object', 'contact', 'role', 'priority', 'actions')
+        default_columns = ('pk', 'content_type', 'object', 'contact', 'role', 'priority')

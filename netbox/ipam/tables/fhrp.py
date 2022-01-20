@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, ButtonsColumn, MarkdownColumn, TagColumn, ToggleColumn
+from utilities.tables import ActionsColumn, BaseTable, MarkdownColumn, TagColumn, ToggleColumn
 from ipam.models import *
 
 __all__ = (
@@ -38,7 +38,7 @@ class FHRPGroupTable(BaseTable):
         model = FHRPGroup
         fields = (
             'pk', 'group_id', 'protocol', 'auth_type', 'auth_key', 'description', 'ip_addresses', 'interface_count',
-            'tags',
+            'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'group_id', 'protocol', 'auth_type', 'description', 'ip_addresses', 'interface_count')
 
@@ -58,9 +58,8 @@ class FHRPGroupAssignmentTable(BaseTable):
     group = tables.Column(
         linkify=True
     )
-    actions = ButtonsColumn(
-        model=FHRPGroupAssignment,
-        buttons=('edit', 'delete', 'foo')
+    actions = ActionsColumn(
+        sequence=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):

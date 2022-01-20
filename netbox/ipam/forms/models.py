@@ -31,6 +31,8 @@ __all__ = (
     'RoleForm',
     'RouteTargetForm',
     'ServiceForm',
+    'ServiceCreateForm',
+    'ServiceTemplateForm',
     'VLANForm',
     'VLANGroupForm',
     'VRFForm',
@@ -580,7 +582,7 @@ class FHRPGroupForm(CustomFieldModelForm):
                 vrf=self.cleaned_data['ip_vrf'],
                 address=self.cleaned_data['ip_address'],
                 status=self.cleaned_data['ip_status'],
-                role=FHRP_PROTOCOL_ROLE_MAPPINGS[self.cleaned_data['protocol']],
+                role=FHRP_PROTOCOL_ROLE_MAPPINGS.get(self.cleaned_data['protocol'], IPAddressRoleChoices.ROLE_VIP),
                 assigned_object=instance
             )
             ipaddress.save()
@@ -592,6 +594,8 @@ class FHRPGroupForm(CustomFieldModelForm):
         return instance
 
     def clean(self):
+        super().clean()
+
         ip_vrf = self.cleaned_data.get('ip_vrf')
         ip_address = self.cleaned_data.get('ip_address')
         ip_status = self.cleaned_data.get('ip_status')
@@ -628,8 +632,7 @@ class FHRPGroupAssignmentForm(BootstrapMixin, forms.ModelForm):
 class VLANGroupForm(CustomFieldModelForm):
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
-        required=False,
-        widget=StaticSelect
+        required=False
     )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
@@ -814,6 +817,27 @@ class VLANForm(TenancyForm, CustomFieldModelForm):
         }
 
 
+class ServiceTemplateForm(CustomFieldModelForm):
+    ports = NumericArrayField(
+        base_field=forms.IntegerField(
+            min_value=SERVICE_PORT_MIN,
+            max_value=SERVICE_PORT_MAX
+        ),
+        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen."
+    )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = ServiceTemplate
+        fields = ('name', 'protocol', 'ports', 'description', 'tags')
+        widgets = {
+            'protocol': StaticSelect(),
+        }
+
+
 class ServiceForm(CustomFieldModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
@@ -857,3 +881,36 @@ class ServiceForm(CustomFieldModelForm):
             'protocol': StaticSelect(),
             'ipaddresses': StaticSelectMultiple(),
         }
+
+
+class ServiceCreateForm(ServiceForm):
+    service_template = DynamicModelChoiceField(
+        queryset=ServiceTemplate.objects.all(),
+        required=False
+    )
+
+    class Meta(ServiceForm.Meta):
+        fields = [
+            'device', 'virtual_machine', 'service_template', 'name', 'protocol', 'ports', 'ipaddresses', 'description',
+            'tags',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Fields which may be populated from a ServiceTemplate are not required
+        for field in ('name', 'protocol', 'ports'):
+            self.fields[field].required = False
+            del(self.fields[field].widget.attrs['required'])
+
+    def clean(self):
+        if self.cleaned_data['service_template']:
+            # Create a new Service from the specified template
+            service_template = self.cleaned_data['service_template']
+            self.cleaned_data['name'] = service_template.name
+            self.cleaned_data['protocol'] = service_template.protocol
+            self.cleaned_data['ports'] = service_template.ports
+            if not self.cleaned_data['description']:
+                self.cleaned_data['description'] = service_template.description
+        elif not all(self.cleaned_data[f] for f in ('name', 'protocol', 'ports')):
+            raise forms.ValidationError("Must specify name, protocol, and port(s) if not using a service template.")

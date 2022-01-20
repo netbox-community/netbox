@@ -24,6 +24,7 @@ __all__ = (
     'RoleFilterForm',
     'RouteTargetFilterForm',
     'ServiceFilterForm',
+    'ServiceTemplateFilterForm',
     'VLANFilterForm',
     'VLANGroupFilterForm',
     'VRFFilterForm',
@@ -447,8 +448,8 @@ class VLANFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ServiceFilterForm(CustomFieldModelFilterForm):
-    model = Service
+class ServiceTemplateFilterForm(CustomFieldModelFilterForm):
+    model = ServiceTemplate
     field_groups = (
         ('q', 'tag'),
         ('protocol', 'port'),
@@ -462,3 +463,7 @@ class ServiceFilterForm(CustomFieldModelFilterForm):
         required=False,
     )
     tag = TagFilterField(model)
+
+
+class ServiceFilterForm(ServiceTemplateFilterForm):
+    model = Service

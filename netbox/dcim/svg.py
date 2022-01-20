@@ -19,7 +19,12 @@ __all__ = (
 
 
 def get_device_name(device):
-    return device.name or str(device.device_type)
+    if device.virtual_chassis:
+        return f'{device.virtual_chassis.name}:{device.vc_position}'
+    elif device.name:
+        return device.name
+    else:
+        return str(device.device_type)
 
 
 class RackElevationSVG:

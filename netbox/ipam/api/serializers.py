@@ -403,6 +403,18 @@ class AvailableIPSerializer(serializers.Serializer):
 # Services
 #
 
+class ServiceTemplateSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:servicetemplate-detail')
+    protocol = ChoiceField(choices=ServiceProtocolChoices, required=False)
+
+    class Meta:
+        model = ServiceTemplate
+        fields = [
+            'id', 'url', 'display', 'name', 'ports', 'protocol', 'description', 'tags', 'custom_fields', 'created',
+            'last_updated',
+        ]
+
+
 class ServiceSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:service-detail')
     device = NestedDeviceSerializer(required=False, allow_null=True)

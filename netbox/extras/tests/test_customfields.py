@@ -378,9 +378,22 @@ class CustomFieldAPITest(APITestCase):
             CustomField(type=CustomFieldTypeChoices.TYPE_DATE, name='date_field', default='2020-01-01'),
             CustomField(type=CustomFieldTypeChoices.TYPE_URL, name='url_field', default='http://example.com/1'),
             CustomField(type=CustomFieldTypeChoices.TYPE_JSON, name='json_field', default='{"x": "y"}'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_SELECT, name='choice_field', default='Foo', choices=(
-                'Foo', 'Bar', 'Baz'
-            )),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_SELECT,
+                name='select_field',
+                default='Foo',
+                choices=(
+                    'Foo', 'Bar', 'Baz'
+                )
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+                name='multiselect_field',
+                default=['Foo'],
+                choices=(
+                    'Foo', 'Bar', 'Baz'
+                )
+            ),
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_OBJECT,
                 name='object_field',
@@ -416,10 +429,36 @@ class CustomFieldAPITest(APITestCase):
             custom_fields[5].name: 'http://example.com/2',
             custom_fields[6].name: '{"foo": 1, "bar": 2}',
             custom_fields[7].name: 'Bar',
-            custom_fields[8].name: vlans[1].pk,
-            custom_fields[9].name: [vlans[2].pk, vlans[3].pk],
+            custom_fields[8].name: ['Bar', 'Baz'],
+            custom_fields[9].name: vlans[1].pk,
+            custom_fields[10].name: [vlans[2].pk, vlans[3].pk],
         }
         sites[1].save()
+
+    def test_get_custom_fields(self):
+        TYPES = {
+            CustomFieldTypeChoices.TYPE_TEXT: 'string',
+            CustomFieldTypeChoices.TYPE_LONGTEXT: 'string',
+            CustomFieldTypeChoices.TYPE_INTEGER: 'integer',
+            CustomFieldTypeChoices.TYPE_BOOLEAN: 'boolean',
+            CustomFieldTypeChoices.TYPE_DATE: 'string',
+            CustomFieldTypeChoices.TYPE_URL: 'string',
+            CustomFieldTypeChoices.TYPE_JSON: 'object',
+            CustomFieldTypeChoices.TYPE_SELECT: 'string',
+            CustomFieldTypeChoices.TYPE_MULTISELECT: 'array',
+            CustomFieldTypeChoices.TYPE_OBJECT: 'object',
+            CustomFieldTypeChoices.TYPE_MULTIOBJECT: 'array',
+        }
+
+        self.add_permissions('extras.view_customfield')
+        url = reverse('extras-api:customfield-list')
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data['count'], len(TYPES))
+
+        # Validate data types
+        for customfield in response.data['results']:
+            cf_type = customfield['type']['value']
+            self.assertEqual(customfield['data_type'], TYPES[cf_type])
 
     def test_get_single_object_without_custom_field_data(self):
         """
@@ -439,7 +478,8 @@ class CustomFieldAPITest(APITestCase):
             'date_field': None,
             'url_field': None,
             'json_field': None,
-            'choice_field': None,
+            'select_field': None,
+            'multiselect_field': None,
             'object_field': None,
             'multiobject_field': None,
         })
@@ -462,7 +502,8 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response.data['custom_fields']['date_field'], site2_cfvs['date_field'])
         self.assertEqual(response.data['custom_fields']['url_field'], site2_cfvs['url_field'])
         self.assertEqual(response.data['custom_fields']['json_field'], site2_cfvs['json_field'])
-        self.assertEqual(response.data['custom_fields']['choice_field'], site2_cfvs['choice_field'])
+        self.assertEqual(response.data['custom_fields']['select_field'], site2_cfvs['select_field'])
+        self.assertEqual(response.data['custom_fields']['multiselect_field'], site2_cfvs['multiselect_field'])
         self.assertEqual(response.data['custom_fields']['object_field']['id'], site2_cfvs['object_field'])
         self.assertEqual(
             [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
@@ -495,7 +536,8 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response_cf['date_field'], cf_defaults['date_field'])
         self.assertEqual(response_cf['url_field'], cf_defaults['url_field'])
         self.assertEqual(response_cf['json_field'], cf_defaults['json_field'])
-        self.assertEqual(response_cf['choice_field'], cf_defaults['choice_field'])
+        self.assertEqual(response_cf['select_field'], cf_defaults['select_field'])
+        self.assertEqual(response_cf['multiselect_field'], cf_defaults['multiselect_field'])
         self.assertEqual(response_cf['object_field']['id'], cf_defaults['object_field'])
         self.assertEqual(
             [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
@@ -511,7 +553,8 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(str(site.custom_field_data['date_field']), cf_defaults['date_field'])
         self.assertEqual(site.custom_field_data['url_field'], cf_defaults['url_field'])
         self.assertEqual(site.custom_field_data['json_field'], cf_defaults['json_field'])
-        self.assertEqual(site.custom_field_data['choice_field'], cf_defaults['choice_field'])
+        self.assertEqual(site.custom_field_data['select_field'], cf_defaults['select_field'])
+        self.assertEqual(site.custom_field_data['multiselect_field'], cf_defaults['multiselect_field'])
         self.assertEqual(site.custom_field_data['object_field'], cf_defaults['object_field'])
         self.assertEqual(site.custom_field_data['multiobject_field'], cf_defaults['multiobject_field'])
 
@@ -530,7 +573,8 @@ class CustomFieldAPITest(APITestCase):
                 'date_field': '2020-01-02',
                 'url_field': 'http://example.com/2',
                 'json_field': '{"foo": 1, "bar": 2}',
-                'choice_field': 'Bar',
+                'select_field': 'Bar',
+                'multiselect_field': ['Bar', 'Baz'],
                 'object_field': VLAN.objects.get(vid=2).pk,
                 'multiobject_field': list(VLAN.objects.filter(vid__in=[3, 4]).values_list('pk', flat=True)),
             },
@@ -551,7 +595,8 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response_cf['date_field'], data_cf['date_field'])
         self.assertEqual(response_cf['url_field'], data_cf['url_field'])
         self.assertEqual(response_cf['json_field'], data_cf['json_field'])
-        self.assertEqual(response_cf['choice_field'], data_cf['choice_field'])
+        self.assertEqual(response_cf['select_field'], data_cf['select_field'])
+        self.assertEqual(response_cf['multiselect_field'], data_cf['multiselect_field'])
         self.assertEqual(response_cf['object_field']['id'], data_cf['object_field'])
         self.assertEqual(
             [obj['id'] for obj in response_cf['multiobject_field']],
@@ -567,7 +612,8 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(str(site.custom_field_data['date_field']), data_cf['date_field'])
         self.assertEqual(site.custom_field_data['url_field'], data_cf['url_field'])
         self.assertEqual(site.custom_field_data['json_field'], data_cf['json_field'])
-        self.assertEqual(site.custom_field_data['choice_field'], data_cf['choice_field'])
+        self.assertEqual(site.custom_field_data['select_field'], data_cf['select_field'])
+        self.assertEqual(site.custom_field_data['multiselect_field'], data_cf['multiselect_field'])
         self.assertEqual(site.custom_field_data['object_field'], data_cf['object_field'])
         self.assertEqual(site.custom_field_data['multiobject_field'], data_cf['multiobject_field'])
 
@@ -611,7 +657,8 @@ class CustomFieldAPITest(APITestCase):
             self.assertEqual(response_cf['date_field'], cf_defaults['date_field'])
             self.assertEqual(response_cf['url_field'], cf_defaults['url_field'])
             self.assertEqual(response_cf['json_field'], cf_defaults['json_field'])
-            self.assertEqual(response_cf['choice_field'], cf_defaults['choice_field'])
+            self.assertEqual(response_cf['select_field'], cf_defaults['select_field'])
+            self.assertEqual(response_cf['multiselect_field'], cf_defaults['multiselect_field'])
             self.assertEqual(response_cf['object_field']['id'], cf_defaults['object_field'])
             self.assertEqual(
                 [obj['id'] for obj in response_cf['multiobject_field']],
@@ -627,7 +674,8 @@ class CustomFieldAPITest(APITestCase):
             self.assertEqual(str(site.custom_field_data['date_field']), cf_defaults['date_field'])
             self.assertEqual(site.custom_field_data['url_field'], cf_defaults['url_field'])
             self.assertEqual(site.custom_field_data['json_field'], cf_defaults['json_field'])
-            self.assertEqual(site.custom_field_data['choice_field'], cf_defaults['choice_field'])
+            self.assertEqual(site.custom_field_data['select_field'], cf_defaults['select_field'])
+            self.assertEqual(site.custom_field_data['multiselect_field'], cf_defaults['multiselect_field'])
             self.assertEqual(site.custom_field_data['object_field'], cf_defaults['object_field'])
             self.assertEqual(site.custom_field_data['multiobject_field'], cf_defaults['multiobject_field'])
 
@@ -643,7 +691,8 @@ class CustomFieldAPITest(APITestCase):
             'date_field': '2020-01-02',
             'url_field': 'http://example.com/2',
             'json_field': '{"foo": 1, "bar": 2}',
-            'choice_field': 'Bar',
+            'select_field': 'Bar',
+            'multiselect_field': ['Bar', 'Baz'],
             'object_field': VLAN.objects.get(vid=2).pk,
             'multiobject_field': list(VLAN.objects.filter(vid__in=[3, 4]).values_list('pk', flat=True)),
         }
@@ -682,7 +731,9 @@ class CustomFieldAPITest(APITestCase):
             self.assertEqual(response_cf['date_field'], custom_field_data['date_field'])
             self.assertEqual(response_cf['url_field'], custom_field_data['url_field'])
             self.assertEqual(response_cf['json_field'], custom_field_data['json_field'])
-            self.assertEqual(response_cf['choice_field'], custom_field_data['choice_field'])
+            self.assertEqual(response_cf['select_field'], custom_field_data['select_field'])
+            self.assertEqual(response_cf['multiselect_field'], custom_field_data['multiselect_field'])
+            self.assertEqual(response_cf['object_field']['id'], custom_field_data['object_field'])
             self.assertEqual(
                 [obj['id'] for obj in response_cf['multiobject_field']],
                 custom_field_data['multiobject_field']
@@ -697,7 +748,9 @@ class CustomFieldAPITest(APITestCase):
             self.assertEqual(str(site.custom_field_data['date_field']), custom_field_data['date_field'])
             self.assertEqual(site.custom_field_data['url_field'], custom_field_data['url_field'])
             self.assertEqual(site.custom_field_data['json_field'], custom_field_data['json_field'])
-            self.assertEqual(site.custom_field_data['choice_field'], custom_field_data['choice_field'])
+            self.assertEqual(site.custom_field_data['select_field'], custom_field_data['select_field'])
+            self.assertEqual(site.custom_field_data['multiselect_field'], custom_field_data['multiselect_field'])
+            self.assertEqual(site.custom_field_data['object_field'], custom_field_data['object_field'])
             self.assertEqual(site.custom_field_data['multiobject_field'], custom_field_data['multiobject_field'])
 
     def test_update_single_object_with_values(self):
@@ -728,7 +781,9 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response_cf['date_field'], original_cfvs['date_field'])
         self.assertEqual(response_cf['url_field'], original_cfvs['url_field'])
         self.assertEqual(response_cf['json_field'], original_cfvs['json_field'])
-        self.assertEqual(response_cf['choice_field'], original_cfvs['choice_field'])
+        self.assertEqual(response_cf['select_field'], original_cfvs['select_field'])
+        self.assertEqual(response_cf['multiselect_field'], original_cfvs['multiselect_field'])
+        self.assertEqual(response_cf['object_field']['id'], original_cfvs['object_field'])
         self.assertEqual(
             [obj['id'] for obj in response_cf['multiobject_field']],
             original_cfvs['multiobject_field']
@@ -743,7 +798,9 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(site2.custom_field_data['date_field'], original_cfvs['date_field'])
         self.assertEqual(site2.custom_field_data['url_field'], original_cfvs['url_field'])
         self.assertEqual(site2.custom_field_data['json_field'], original_cfvs['json_field'])
-        self.assertEqual(site2.custom_field_data['choice_field'], original_cfvs['choice_field'])
+        self.assertEqual(site2.custom_field_data['select_field'], original_cfvs['select_field'])
+        self.assertEqual(site2.custom_field_data['multiselect_field'], original_cfvs['multiselect_field'])
+        self.assertEqual(site2.custom_field_data['object_field'], original_cfvs['object_field'])
         self.assertEqual(site2.custom_field_data['multiobject_field'], original_cfvs['multiobject_field'])
 
     def test_minimum_maximum_values_validation(self):
@@ -810,6 +867,9 @@ class CustomFieldImportTest(TestCase):
             CustomField(name='select', type=CustomFieldTypeChoices.TYPE_SELECT, choices=[
                 'Choice A', 'Choice B', 'Choice C',
             ]),
+            CustomField(name='multiselect', type=CustomFieldTypeChoices.TYPE_MULTISELECT, choices=[
+                'Choice A', 'Choice B', 'Choice C',
+            ]),
         )
         for cf in custom_fields:
             cf.save()
@@ -820,19 +880,20 @@ class CustomFieldImportTest(TestCase):
         Import a Site in CSV format, including a value for each CustomField.
         """
         data = (
-            ('name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_boolean', 'cf_date', 'cf_url', 'cf_json', 'cf_select'),
-            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', 'True', '2020-01-01', 'http://example.com/1', '{"foo": 123}', 'Choice A'),
-            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', 'False', '2020-01-02', 'http://example.com/2', '{"bar": 456}', 'Choice B'),
-            ('Site 3', 'site-3', 'active', '', '', '', '', '', '', '', ''),
+            ('name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_boolean', 'cf_date', 'cf_url', 'cf_json', 'cf_select', 'cf_multiselect'),
+            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', 'True', '2020-01-01', 'http://example.com/1', '{"foo": 123}', 'Choice A', '"Choice A,Choice B"'),
+            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', 'False', '2020-01-02', 'http://example.com/2', '{"bar": 456}', 'Choice B', '"Choice B,Choice C"'),
+            ('Site 3', 'site-3', 'active', '', '', '', '', '', '', '', '', ''),
         )
         csv_data = '\n'.join(','.join(row) for row in data)
 
         response = self.client.post(reverse('dcim:site_import'), {'csv': csv_data})
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(Site.objects.count(), 3)
 
         # Validate data for site 1
         site1 = Site.objects.get(name='Site 1')
-        self.assertEqual(len(site1.custom_field_data), 8)
+        self.assertEqual(len(site1.custom_field_data), 9)
         self.assertEqual(site1.custom_field_data['text'], 'ABC')
         self.assertEqual(site1.custom_field_data['longtext'], 'Foo')
         self.assertEqual(site1.custom_field_data['integer'], 123)
@@ -841,10 +902,11 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site1.custom_field_data['url'], 'http://example.com/1')
         self.assertEqual(site1.custom_field_data['json'], {"foo": 123})
         self.assertEqual(site1.custom_field_data['select'], 'Choice A')
+        self.assertEqual(site1.custom_field_data['multiselect'], ['Choice A', 'Choice B'])
 
         # Validate data for site 2
         site2 = Site.objects.get(name='Site 2')
-        self.assertEqual(len(site2.custom_field_data), 8)
+        self.assertEqual(len(site2.custom_field_data), 9)
         self.assertEqual(site2.custom_field_data['text'], 'DEF')
         self.assertEqual(site2.custom_field_data['longtext'], 'Bar')
         self.assertEqual(site2.custom_field_data['integer'], 456)
@@ -853,6 +915,7 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site2.custom_field_data['url'], 'http://example.com/2')
         self.assertEqual(site2.custom_field_data['json'], {"bar": 456})
         self.assertEqual(site2.custom_field_data['select'], 'Choice B')
+        self.assertEqual(site2.custom_field_data['multiselect'], ['Choice B', 'Choice C'])
 
         # No custom field data should be set for site 3
         site3 = Site.objects.get(name='Site 3')

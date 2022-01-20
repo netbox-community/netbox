@@ -100,6 +100,7 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
             CustomLink(
                 name='Custom Link 1',
                 content_type=content_types[0],
+                enabled=True,
                 weight=100,
                 new_window=False,
                 link_text='Link 1',
@@ -108,6 +109,7 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
             CustomLink(
                 name='Custom Link 2',
                 content_type=content_types[1],
+                enabled=True,
                 weight=200,
                 new_window=False,
                 link_text='Link 1',
@@ -116,6 +118,7 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
             CustomLink(
                 name='Custom Link 3',
                 content_type=content_types[2],
+                enabled=False,
                 weight=300,
                 new_window=True,
                 link_text='Link 1',
@@ -135,6 +138,12 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
     def test_weight(self):
         params = {'weight': [100, 200]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_new_window(self):
         params = {'new_window': False}
