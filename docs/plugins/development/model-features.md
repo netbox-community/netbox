@@ -8,7 +8,6 @@ Plugin models can leverage certain NetBox features by inheriting from NetBox's `
 * Custom links
 * Custom validation
 * Export templates
-* Job results
 * Journaling
 * Tags
 * Webhooks
@@ -57,8 +56,6 @@ The example above will enable export templates and tags, but no other NetBox fea
 ::: netbox.models.features.CustomValidationMixin
 
 ::: netbox.models.features.ExportTemplatesMixin
-
-::: netbox.models.features.JobResultsMixin
 
 ::: netbox.models.features.JournalingMixin
 
