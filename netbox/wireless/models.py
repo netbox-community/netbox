@@ -5,7 +5,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
-from extras.utils import extras_features
 from netbox.models import BigIDModel, NestedGroupModel, PrimaryModel
 from .choices import *
 from .constants import *
@@ -41,7 +40,6 @@ class WirelessAuthenticationBase(models.Model):
         abstract = True
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class WirelessLANGroup(NestedGroupModel):
     """
     A nested grouping of WirelessLANs
@@ -81,7 +79,6 @@ class WirelessLANGroup(NestedGroupModel):
         return reverse('wireless:wirelesslangroup', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
     """
     A wireless network formed among an arbitrary number of access point and clients.
@@ -120,7 +117,6 @@ class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
         return reverse('wireless:wirelesslan', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
     """
     A point-to-point connection between two wireless Interfaces.

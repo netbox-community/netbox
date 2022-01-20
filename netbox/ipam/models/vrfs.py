@@ -1,7 +1,6 @@
 from django.db import models
 from django.urls import reverse
 
-from extras.utils import extras_features
 from ipam.constants import *
 from netbox.models import PrimaryModel
 
@@ -12,7 +11,6 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class VRF(PrimaryModel):
     """
     A virtual routing and forwarding (VRF) table represents a discrete layer three forwarding domain (e.g. a routing
@@ -75,7 +73,6 @@ class VRF(PrimaryModel):
         return reverse('ipam:vrf', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RouteTarget(PrimaryModel):
     """
     A BGP extended community used to control the redistribution of routes among VRFs, as defined in RFC 4364.

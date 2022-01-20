@@ -11,7 +11,6 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField, WWNField
 from dcim.svg import CableTraceSVG
-from extras.utils import extras_features
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
@@ -254,7 +253,6 @@ class PathEndpoint(models.Model):
 # Console components
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ConsolePort(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
@@ -282,7 +280,6 @@ class ConsolePort(ModularComponentModel, LinkTermination, PathEndpoint):
         return reverse('dcim:consoleport', kwargs={'pk': self.pk})
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ConsoleServerPort(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
@@ -314,7 +311,6 @@ class ConsoleServerPort(ModularComponentModel, LinkTermination, PathEndpoint):
 # Power components
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class PowerPort(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
@@ -407,7 +403,6 @@ class PowerPort(ModularComponentModel, LinkTermination, PathEndpoint):
         }
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class PowerOutlet(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
@@ -522,7 +517,6 @@ class BaseInterface(models.Model):
         return self.fhrp_group_assignments.count()
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpoint):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
@@ -793,7 +787,6 @@ class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpo
 # Pass-through ports
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class FrontPort(ModularComponentModel, LinkTermination):
     """
     A pass-through port on the front of a Device.
@@ -847,7 +840,6 @@ class FrontPort(ModularComponentModel, LinkTermination):
             })
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RearPort(ModularComponentModel, LinkTermination):
     """
     A pass-through port on the rear of a Device.
@@ -891,7 +883,6 @@ class RearPort(ModularComponentModel, LinkTermination):
 # Bays
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ModuleBay(ComponentModel):
     """
     An empty space within a Device which can house a child device
@@ -912,7 +903,6 @@ class ModuleBay(ComponentModel):
         return reverse('dcim:modulebay', kwargs={'pk': self.pk})
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class DeviceBay(ComponentModel):
     """
     An empty space within a Device which can house a child device
@@ -963,7 +953,6 @@ class DeviceBay(ComponentModel):
 #
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class InventoryItemRole(OrganizationalModel):
     """
     Inventory items may optionally be assigned a functional role.
@@ -994,7 +983,6 @@ class InventoryItemRole(OrganizationalModel):
         return reverse('dcim:inventoryitemrole', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class InventoryItem(MPTTModel, ComponentModel):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.

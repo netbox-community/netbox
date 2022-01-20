@@ -82,6 +82,10 @@ markdown-include
 # https://github.com/squidfunk/mkdocs-material
 mkdocs-material
 
+# Introspection for embedded code
+# https://github.com/mkdocstrings/mkdocstrings
+mkdocstrings
+
 # Library for manipulating IP prefixes and addresses
 # https://github.com/drkjam/netaddr
 netaddr

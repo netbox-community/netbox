@@ -17,8 +17,9 @@ from rest_framework.utils.encoders import JSONEncoder
 from extras.choices import *
 from extras.constants import *
 from extras.conditions import ConditionSet
-from extras.utils import extras_features, FeatureQuery, image_upload
+from extras.utils import FeatureQuery, image_upload
 from netbox.models import BigIDModel, ChangeLoggedModel
+from netbox.models.features import ExportTemplatesMixin, JobResultsMixin, WebhooksMixin
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import render_jinja2
 
@@ -35,8 +36,7 @@ __all__ = (
 )
 
 
-@extras_features('webhooks', 'export_templates')
-class Webhook(ChangeLoggedModel):
+class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
@@ -184,8 +184,7 @@ class Webhook(ChangeLoggedModel):
         return render_jinja2(self.payload_url, context)
 
 
-@extras_features('webhooks', 'export_templates')
-class CustomLink(ChangeLoggedModel):
+class CustomLink(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
@@ -258,8 +257,7 @@ class CustomLink(ChangeLoggedModel):
         }
 
 
-@extras_features('webhooks', 'export_templates')
-class ExportTemplate(ChangeLoggedModel):
+class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
@@ -345,8 +343,7 @@ class ExportTemplate(ChangeLoggedModel):
         return response
 
 
-@extras_features('webhooks')
-class ImageAttachment(ChangeLoggedModel):
+class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
     """
     An uploaded image which is associated with an object.
     """
@@ -424,8 +421,7 @@ class ImageAttachment(ChangeLoggedModel):
         return super().to_objectchange(action, related_object=self.parent)
 
 
-@extras_features('webhooks')
-class JournalEntry(ChangeLoggedModel):
+class JournalEntry(WebhooksMixin, ChangeLoggedModel):
     """
     A historical remark concerning an object; collectively, these form an object's journal. The journal is used to
     preserve historical context around an object, and complements NetBox's built-in change logging. For example, you
@@ -603,8 +599,7 @@ class ConfigRevision(models.Model):
 # Custom scripts & reports
 #
 
-@extras_features('job_results')
-class Script(models.Model):
+class Script(JobResultsMixin, models.Model):
     """
     Dummy model used to generate permissions for custom scripts. Does not exist in the database.
     """
@@ -616,8 +611,7 @@ class Script(models.Model):
 # Reports
 #
 
-@extras_features('job_results')
-class Report(models.Model):
+class Report(JobResultsMixin, models.Model):
     """
     Dummy model used to generate permissions for reports. Does not exist in the database.
     """

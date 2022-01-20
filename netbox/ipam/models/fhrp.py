@@ -4,8 +4,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 
-from extras.utils import extras_features
 from netbox.models import ChangeLoggedModel, PrimaryModel
+from netbox.models.features import WebhooksMixin
 from ipam.choices import *
 from ipam.constants import *
 
@@ -15,7 +15,6 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class FHRPGroup(PrimaryModel):
     """
     A grouping of next hope resolution protocol (FHRP) peers. (For instance, VRRP or HSRP.)
@@ -70,8 +69,7 @@ class FHRPGroup(PrimaryModel):
         return reverse('ipam:fhrpgroup', args=[self.pk])
 
 
-@extras_features('webhooks')
-class FHRPGroupAssignment(ChangeLoggedModel):
+class FHRPGroupAssignment(WebhooksMixin, ChangeLoggedModel):
     interface_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE

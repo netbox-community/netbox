@@ -4,7 +4,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 
-from extras.utils import extras_features
 from ipam.choices import *
 from ipam.constants import *
 from netbox.models import PrimaryModel
@@ -47,7 +46,6 @@ class ServiceBase(models.Model):
         return array_to_string(self.ports)
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ServiceTemplate(ServiceBase, PrimaryModel):
     """
     A template for a Service to be applied to a device or virtual machine.
@@ -64,7 +62,6 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
         return reverse('ipam:servicetemplate', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Service(ServiceBase, PrimaryModel):
     """
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may

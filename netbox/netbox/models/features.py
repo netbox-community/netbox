@@ -1,34 +1,39 @@
 import logging
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.db.models.signals import class_prepared
+from django.dispatch import receiver
+
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import ValidationError
 from django.db import models
-from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 
 from extras.choices import ObjectChangeActionChoices
+from extras.utils import register_features
 from netbox.signals import post_clean
-from utilities.mptt import TreeManager
-from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
 
 __all__ = (
-    'BigIDModel',
-    'ChangeLoggedModel',
-    'NestedGroupModel',
-    'OrganizationalModel',
-    'PrimaryModel',
+    'ChangeLoggingMixin',
+    'CustomFieldsMixin',
+    'CustomLinksMixin',
+    'CustomValidationMixin',
+    'ExportTemplatesMixin',
+    'JobResultsMixin',
+    'JournalingMixin',
+    'TagsMixin',
+    'WebhooksMixin',
 )
 
 
 #
-# Mixins
+# Feature mixins
 #
 
 class ChangeLoggingMixin(models.Model):
     """
-    Provides change logging support.
+    Provides change logging support for a model. Adds the `created` and `last_updated` fields.
     """
     created = models.DateField(
         auto_now_add=True,
@@ -74,7 +79,7 @@ class ChangeLoggingMixin(models.Model):
 
 class CustomFieldsMixin(models.Model):
     """
-    Provides support for custom fields.
+    Enables support for custom fields.
     """
     custom_field_data = models.JSONField(
         encoder=DjangoJSONEncoder,
@@ -88,13 +93,25 @@ class CustomFieldsMixin(models.Model):
     @property
     def cf(self):
         """
-        Convenience wrapper for custom field data.
+        A pass-through convenience alias for accessing `custom_field_data` (read-only).
+
+        ```python
+        >>> tenant = Tenant.objects.first()
+        >>> tenant.cf
+        {'cust_id': 'CYB01'}
+        ```
         """
         return self.custom_field_data
 
     def get_custom_fields(self):
         """
-        Return a dictionary of custom fields for a single object in the form {<field>: value}.
+        Return a dictionary of custom fields for a single object in the form `{field: value}`.
+
+        ```python
+        >>> tenant = Tenant.objects.first()
+        >>> tenant.get_custom_fields()
+        {<CustomField: Customer ID>: 'CYB01'}
+        ```
         """
         from extras.models import CustomField
 
@@ -128,9 +145,17 @@ class CustomFieldsMixin(models.Model):
                 raise ValidationError(f"Missing required custom field '{cf.name}'.")
 
 
+class CustomLinksMixin(models.Model):
+    """
+    Enables support for custom links.
+    """
+    class Meta:
+        abstract = True
+
+
 class CustomValidationMixin(models.Model):
     """
-    Enables user-configured validation rules for built-in models by extending the clean() method.
+    Enables user-configured validation rules for models.
     """
     class Meta:
         abstract = True
@@ -142,9 +167,41 @@ class CustomValidationMixin(models.Model):
         post_clean.send(sender=self.__class__, instance=self)
 
 
+class ExportTemplatesMixin(models.Model):
+    """
+    Enables support for export templates.
+    """
+    class Meta:
+        abstract = True
+
+
+class JobResultsMixin(models.Model):
+    """
+    Enables support for job results.
+    """
+    class Meta:
+        abstract = True
+
+
+class JournalingMixin(models.Model):
+    """
+    Enables support for object journaling. Adds a generic relation (`journal_entries`)
+    to NetBox's JournalEntry model.
+    """
+    journal_entries = GenericRelation(
+        to='extras.JournalEntry',
+        object_id_field='assigned_object_id',
+        content_type_field='assigned_object_type'
+    )
+
+    class Meta:
+        abstract = True
+
+
 class TagsMixin(models.Model):
     """
-    Enable the assignment of Tags.
+    Enables support for tag assignment. Assigned tags can be managed via the `tags` attribute,
+    which is a `TaggableManager` instance.
     """
     tags = TaggableManager(
         through='extras.TaggedItem'
@@ -154,113 +211,28 @@ class TagsMixin(models.Model):
         abstract = True
 
 
-#
-# Base model classes
-
-class BigIDModel(models.Model):
+class WebhooksMixin(models.Model):
     """
-    Abstract base model for all data objects. Ensures the use of a 64-bit PK.
+    Enables support for webhooks.
     """
-    id = models.BigAutoField(
-        primary_key=True
-    )
-
     class Meta:
         abstract = True
 
 
-class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, BigIDModel):
-    """
-    Base model for all objects which support change logging.
-    """
-    objects = RestrictedQuerySet.as_manager()
-
-    class Meta:
-        abstract = True
-
-
-class PrimaryModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, TagsMixin, BigIDModel):
-    """
-    Primary models represent real objects within the infrastructure being modeled.
-    """
-    journal_entries = GenericRelation(
-        to='extras.JournalEntry',
-        object_id_field='assigned_object_id',
-        content_type_field='assigned_object_type'
-    )
-
-    objects = RestrictedQuerySet.as_manager()
-
-    class Meta:
-        abstract = True
+FEATURES_MAP = (
+    ('custom_fields', CustomFieldsMixin),
+    ('custom_links', CustomLinksMixin),
+    ('export_templates', ExportTemplatesMixin),
+    ('job_results', JobResultsMixin),
+    ('journaling', JournalingMixin),
+    ('tags', TagsMixin),
+    ('webhooks', WebhooksMixin),
+)
 
 
-class NestedGroupModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, TagsMixin, BigIDModel, MPTTModel):
-    """
-    Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
-    recursively using MPTT. Within each parent, each child instance must have a unique name.
-    """
-    parent = TreeForeignKey(
-        to='self',
-        on_delete=models.CASCADE,
-        related_name='children',
-        blank=True,
-        null=True,
-        db_index=True
-    )
-    name = models.CharField(
-        max_length=100
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
-    objects = TreeManager()
-
-    class Meta:
-        abstract = True
-
-    class MPTTMeta:
-        order_insertion_by = ('name',)
-
-    def __str__(self):
-        return self.name
-
-    def clean(self):
-        super().clean()
-
-        # An MPTT model cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({
-                "parent": "Cannot assign self as parent."
-            })
-
-
-class OrganizationalModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, TagsMixin, BigIDModel):
-    """
-    Organizational models are those which are used solely to categorize and qualify other objects, and do not convey
-    any real information about the infrastructure being modeled (for example, functional device roles). Organizational
-    models provide the following standard attributes:
-    - Unique name
-    - Unique slug (automatically derived from name)
-    - Optional description
-    """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
-    objects = RestrictedQuerySet.as_manager()
-
-    class Meta:
-        abstract = True
-        ordering = ('name',)
+@receiver(class_prepared)
+def _register_features(sender, **kwargs):
+    features = {
+        feature for feature, cls in FEATURES_MAP if issubclass(sender, cls)
+    }
+    register_features(sender, features)
