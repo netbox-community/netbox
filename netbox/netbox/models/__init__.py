@@ -22,6 +22,7 @@ __all__ = (
 class BaseModel(
     CustomFieldsMixin,
     CustomLinksMixin,
+    CustomValidationMixin,
     ExportTemplatesMixin,
     JournalingMixin,
     TagsMixin,
@@ -53,7 +54,7 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, BigIDModel):
         abstract = True
 
 
-class PrimaryModel(BaseModel, ChangeLoggingMixin, CustomValidationMixin, BigIDModel):
+class PrimaryModel(BaseModel, ChangeLoggingMixin, BigIDModel):
     """
     Primary models represent real objects within the infrastructure being modeled.
     """
@@ -63,7 +64,7 @@ class PrimaryModel(BaseModel, ChangeLoggingMixin, CustomValidationMixin, BigIDMo
         abstract = True
 
 
-class NestedGroupModel(BaseModel, ChangeLoggingMixin, CustomValidationMixin, BigIDModel, MPTTModel):
+class NestedGroupModel(BaseModel, ChangeLoggingMixin, BigIDModel, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.
@@ -105,7 +106,7 @@ class NestedGroupModel(BaseModel, ChangeLoggingMixin, CustomValidationMixin, Big
             })
 
 
-class OrganizationalModel(BaseModel, ChangeLoggingMixin, CustomValidationMixin, BigIDModel):
+class OrganizationalModel(BaseModel, ChangeLoggingMixin, BigIDModel):
     """
     Organizational models are those which are used solely to categorize and qualify other objects, and do not convey
     any real information about the infrastructure being modeled (for example, functional device roles). Organizational

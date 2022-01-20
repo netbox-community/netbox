@@ -155,7 +155,7 @@ class CustomLinksMixin(models.Model):
 
 class CustomValidationMixin(models.Model):
     """
-    Enables user-configured validation rules for built-in models by extending the clean() method.
+    Enables user-configured validation rules for models.
     """
     class Meta:
         abstract = True
