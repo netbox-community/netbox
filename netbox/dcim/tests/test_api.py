@@ -1442,6 +1442,8 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
                 'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
+                'speed': 1000000,
+                'duplex': 'full'
             },
             {
                 'device': device.pk,
@@ -1454,6 +1456,8 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
                 'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
+                'speed': 100000,
+                'duplex': 'half'
             },
             {
                 'device': device.pk,
