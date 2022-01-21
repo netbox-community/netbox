@@ -71,7 +71,6 @@ Below is the class definition for NetBox's BaseMultiObjectView. The attributes a
     selection:
       members:
         - get_table
-        - export_yaml
         - export_table
         - export_template
     rendering:

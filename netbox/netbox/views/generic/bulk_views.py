@@ -43,13 +43,11 @@ class ObjectListView(BaseMultiObjectView):
     Attributes:
         filterset: A django-filter FilterSet that is applied to the queryset
         filterset_form: The form class used to render filter options
-        table: The django-tables2 Table used to render the objects list
         action_buttons: A list of buttons to include at the top of the page
     """
     template_name = 'generic/object_list.html'
     filterset = None
     filterset_form = None
-    table = None
     action_buttons = ('add', 'import', 'export')
 
     def get_required_permission(self):
@@ -69,6 +67,61 @@ class ObjectListView(BaseMultiObjectView):
             table.columns.show('pk')
 
         return table
+
+    #
+    # Export methods
+    #
+
+    def export_yaml(self):
+        """
+        Export the queryset of objects as concatenated YAML documents.
+        """
+        yaml_data = [obj.to_yaml() for obj in self.queryset]
+
+        return '---\n'.join(yaml_data)
+
+    def export_table(self, table, columns=None, filename=None):
+        """
+        Export all table data in CSV format.
+
+        Args:
+            table: The Table instance to export
+            columns: A list of specific columns to include. If None, all columns will be exported.
+            filename: The name of the file attachment sent to the client. If None, will be determined automatically
+                from the queryset model name.
+        """
+        exclude_columns = {'pk', 'actions'}
+        if columns:
+            all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
+            exclude_columns.update({
+                col for col in all_columns if col not in columns
+            })
+        exporter = TableExport(
+            export_format=TableExport.CSV,
+            table=table,
+            exclude_columns=exclude_columns
+        )
+        return exporter.response(
+            filename=filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
+        )
+
+    def export_template(self, template, request):
+        """
+        Render an ExportTemplate using the current queryset.
+
+        Args:
+            template: ExportTemplate instance
+            request: The current request
+        """
+        try:
+            return template.render_to_response(self.queryset)
+        except Exception as e:
+            messages.error(request, f"There was an error rendering the selected export template ({template.name}): {e}")
+            return redirect(request.path)
+
+    #
+    # Request handlers
+    #
 
     def get(self, request):
         """
@@ -135,57 +188,6 @@ class ObjectListView(BaseMultiObjectView):
 
         return render(request, self.template_name, context)
 
-    #
-    # Export methods
-    #
-
-    def export_yaml(self):
-        """
-        Export the queryset of objects as concatenated YAML documents.
-        """
-        yaml_data = [obj.to_yaml() for obj in self.queryset]
-
-        return '---\n'.join(yaml_data)
-
-    def export_table(self, table, columns=None, filename=None):
-        """
-        Export all table data in CSV format.
-
-        Args:
-            table: The Table instance to export
-            columns: A list of specific columns to include. If None, all columns will be exported.
-            filename: The name of the file attachment sent to the client. If None, will be determined automatically
-                from the queryset model name.
-        """
-        exclude_columns = {'pk', 'actions'}
-        if columns:
-            all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
-            exclude_columns.update({
-                col for col in all_columns if col not in columns
-            })
-        exporter = TableExport(
-            export_format=TableExport.CSV,
-            table=table,
-            exclude_columns=exclude_columns
-        )
-        return exporter.response(
-            filename=filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
-        )
-
-    def export_template(self, template, request):
-        """
-        Render an ExportTemplate using the current queryset.
-
-        Args:
-            template: ExportTemplate instance
-            request: The current request
-        """
-        try:
-            return template.render_to_response(self.queryset)
-        except Exception as e:
-            messages.error(request, f"There was an error rendering the selected export template ({template.name}): {e}")
-            return redirect(request.path)
-
 
 class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
     """
@@ -226,6 +228,10 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
                 raise IntegrityError()
 
         return new_objects
+
+    #
+    # Request handlers
+    #
 
     def get(self, request):
         # Set initial values for visible form fields from query args
@@ -297,12 +303,10 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
     Attributes:
         model_form: The form used to create each imported object
-        table: The django-tables2 Table used to render the list of imported objects
         widget_attrs: A dict of attributes to apply to the import widget (e.g. to require a session key)
     """
     template_name = 'generic/object_bulk_import.html'
     model_form = None
-    table = None
     widget_attrs = {}
 
     def _import_form(self, *args, **kwargs):
@@ -360,6 +364,10 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
+
+    #
+    # Request handlers
+    #
 
     def get(self, request):
 
@@ -427,12 +435,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 
     Attributes:
         filterset: FilterSet to apply when deleting by QuerySet
-        table: The table used to display devices being edited
         form: The form class used to edit objects in bulk
     """
     template_name = 'generic/object_bulk_edit.html'
     filterset = None
-    table = None
     form = None
 
     def get_required_permission(self):
@@ -494,6 +500,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 obj.tags.remove(*form.cleaned_data['remove_tags'])
 
         return updated_objects
+
+    #
+    # Request handlers
+    #
 
     def get(self, request):
         return redirect(self.get_return_url(request))
@@ -691,6 +701,10 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
             return self.form
 
         return BulkDeleteForm
+
+    #
+    # Request handlers
+    #
 
     def get(self, request):
         return redirect(self.get_return_url(request))

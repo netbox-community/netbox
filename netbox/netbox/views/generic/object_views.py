@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
 from django.forms.widgets import HiddenInput
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
@@ -42,13 +42,6 @@ class ObjectView(BaseObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
 
-    def get_object(self, **kwargs):
-        """
-        Return the object being viewed, identified by the keyword arguments passed. If no matching object is found,
-        raise a 404 error.
-        """
-        return get_object_or_404(self.queryset, **kwargs)
-
     def get_template_name(self):
         """
         Return self.template_name if defined. Otherwise, dynamically resolve the template name using the queryset
@@ -58,6 +51,10 @@ class ObjectView(BaseObjectView):
             return self.template_name
         model_opts = self.queryset.model._meta
         return f'{model_opts.app_label}/{model_opts.model_name}.html'
+
+    #
+    # Request handlers
+    #
 
     def get(self, request, **kwargs):
         """
@@ -104,6 +101,10 @@ class ObjectChildrenView(ObjectView):
             parent: The parent object
         """
         return queryset
+
+    #
+    # Request handlers
+    #
 
     def get(self, request, *args, **kwargs):
         """
@@ -201,6 +202,10 @@ class ObjectImportView(GetReturnURLMixin, BaseObjectView):
                 raise ObjectDoesNotExist
 
         return obj
+
+    #
+    # Request handlers
+    #
 
     def get(self, request):
         form = ImportForm()
@@ -303,21 +308,12 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
 
     def get_object(self, **kwargs):
         """
-        Return an instance for editing. If a PK has been specified, this will be an existing object.
-
-        Args:
-            kwargs: URL path kwargs
+        Return an object for editing. If no keyword arguments have been specified, this will be a new instance.
         """
-        if 'pk' in kwargs:
-            obj = get_object_or_404(self.queryset, **kwargs)
-
-            # Take a snapshot of change-logged models
-            if hasattr(obj, 'snapshot'):
-                obj.snapshot()
-
-            return obj
-
-        return self.queryset.model()
+        if not kwargs:
+            # We're creating a new object
+            return self.queryset.model()
+        return super().get_object(**kwargs)
 
     def alter_object(self, obj, request, url_args, url_kwargs):
         """
@@ -331,6 +327,10 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
             url_kwargs: URL path kwargs
         """
         return obj
+
+    #
+    # Request handlers
+    #
 
     def get(self, request, *args, **kwargs):
         """
@@ -363,6 +363,11 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         """
         logger = logging.getLogger('netbox.views.ObjectEditView')
         obj = self.get_object(**kwargs)
+
+        # Take a snapshot for change logging (if editing an existing object)
+        if obj.pk and hasattr(obj, 'snapshot'):
+            obj.snapshot()
+
         obj = self.alter_object(obj, request, args, kwargs)
 
         form = self.model_form(
@@ -438,20 +443,9 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'delete')
 
-    def get_object(self, **kwargs):
-        """
-        Return an instance for deletion. If a PK has been specified, this will be an existing object.
-
-        Args:
-            kwargs: URL path kwargs
-        """
-        obj = get_object_or_404(self.queryset, **kwargs)
-
-        # Take a snapshot of change-logged models
-        if hasattr(obj, 'snapshot'):
-            obj.snapshot()
-
-        return obj
+    #
+    # Request handlers
+    #
 
     def get(self, request, *args, **kwargs):
         """
@@ -493,6 +487,10 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         logger = logging.getLogger('netbox.views.ObjectDeleteView')
         obj = self.get_object(**kwargs)
         form = ConfirmationForm(request.POST)
+
+        # Take a snapshot of change-logged models
+        if hasattr(obj, 'snapshot'):
+            obj.snapshot()
 
         if form.is_valid():
             logger.debug("Form validation was successful")
