@@ -23,7 +23,7 @@ from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.tables import configure_table
 from utilities.views import GetReturnURLMixin
-from .base import GenericView
+from .base import BaseMultiObjectView
 
 __all__ = (
     'BulkComponentCreateView',
@@ -36,7 +36,7 @@ __all__ = (
 )
 
 
-class ObjectListView(GenericView):
+class ObjectListView(BaseMultiObjectView):
     """
     Display multiple objects, all of the same type, as a table.
 
@@ -69,15 +69,6 @@ class ObjectListView(GenericView):
             table.columns.show('pk')
 
         return table
-
-    def get_extra_context(self, request):
-        """
-        Return any additional context data for the template.
-
-        Agrs:
-            request: The current request
-        """
-        return {}
 
     def get(self, request):
         """
@@ -139,8 +130,8 @@ class ObjectListView(GenericView):
             'permissions': permissions,
             'action_buttons': self.action_buttons,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
+            **self.get_extra_context(request),
         }
-        context.update(self.get_extra_context(request))
 
         return render(request, self.template_name, context)
 
@@ -196,7 +187,7 @@ class ObjectListView(GenericView):
             return redirect(request.path)
 
 
-class BulkCreateView(GetReturnURLMixin, GenericView):
+class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Create new objects in bulk.
 
@@ -251,6 +242,7 @@ class BulkCreateView(GetReturnURLMixin, GenericView):
             'form': form,
             'model_form': model_form,
             'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
         })
 
     def post(self, request):
@@ -295,10 +287,11 @@ class BulkCreateView(GetReturnURLMixin, GenericView):
             'model_form': model_form,
             'obj_type': model._meta.verbose_name,
             'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
         })
 
 
-class BulkImportView(GetReturnURLMixin, GenericView):
+class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Import objects in bulk (CSV format).
 
@@ -375,6 +368,7 @@ class BulkImportView(GetReturnURLMixin, GenericView):
             'fields': self.model_form().fields,
             'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
         })
 
     def post(self, request):
@@ -423,10 +417,11 @@ class BulkImportView(GetReturnURLMixin, GenericView):
             'fields': self.model_form().fields,
             'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
         })
 
 
-class BulkEditView(GetReturnURLMixin, GenericView):
+class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Edit objects in bulk.
 
@@ -578,10 +573,11 @@ class BulkEditView(GetReturnURLMixin, GenericView):
             'table': table,
             'obj_type_plural': model._meta.verbose_name_plural,
             'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
         })
 
 
-class BulkRenameView(GetReturnURLMixin, GenericView):
+class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     """
     An extendable view for renaming objects in bulk.
     """
@@ -668,7 +664,7 @@ class BulkRenameView(GetReturnURLMixin, GenericView):
         })
 
 
-class BulkDeleteView(GetReturnURLMixin, GenericView):
+class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Delete objects in bulk.
 
@@ -683,6 +679,18 @@ class BulkDeleteView(GetReturnURLMixin, GenericView):
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'delete')
+
+    def get_form(self):
+        """
+        Provide a standard bulk delete form if none has been specified for the view
+        """
+        class BulkDeleteForm(ConfirmationForm):
+            pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
+
+        if self.form:
+            return self.form
+
+        return BulkDeleteForm
 
     def get(self, request):
         return redirect(self.get_return_url(request))
@@ -746,26 +754,15 @@ class BulkDeleteView(GetReturnURLMixin, GenericView):
             'obj_type_plural': model._meta.verbose_name_plural,
             'table': table,
             'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
         })
-
-    def get_form(self):
-        """
-        Provide a standard bulk delete form if none has been specified for the view
-        """
-        class BulkDeleteForm(ConfirmationForm):
-            pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
-
-        if self.form:
-            return self.form
-
-        return BulkDeleteForm
 
 
 #
 # Device/VirtualMachine components
 #
 
-class BulkComponentCreateView(GetReturnURLMixin, GenericView):
+class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a set of Devices or VirtualMachines.
     """

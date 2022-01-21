@@ -12,6 +12,9 @@ NetBox provides several generic view classes to facilitate common operations, su
 | `BulkEditView` | Edit multiple objects |
 | `BulkDeleteView` | Delete multiple objects |
 
+!!! note
+    Please note that only the classes which appear in this documentation are currently supported. Although other classes may be present within the `views.generic` module, they are not yet supported for use by plugins.
+
 ### Example Usage
 
 ```python
@@ -25,23 +28,19 @@ class ThingEditView(ObjectEditView):
     ...
 ```
 
-## Generic Views Reference
+## Object Views
 
-Below is the class definition for NetBox's base GenericView. The attributes and methods defined here are available on all generic views.
+Below is the class definition for NetBox's BaseObjectView. The attributes and methods defined here are available on all generic views which handle a single object.
 
-::: netbox.views.generic.base.GenericView
+::: netbox.views.generic.base.BaseObjectView
     rendering:
       show_source: false
-
-!!! note
-    Please note that only the classes which appear in this documentation are currently supported. Although other classes may be present within the `views.generic` module, they are not yet supported for use by plugins.
 
 ::: netbox.views.generic.ObjectView
     selection:
       members:
         - get_object
         - get_template_name
-        - get_extra_context
     rendering:
       show_source: false
 
@@ -60,11 +59,18 @@ Below is the class definition for NetBox's base GenericView. The attributes and 
     rendering:
       show_source: false
 
+## Multi-Object Views
+
+Below is the class definition for NetBox's BaseMultiObjectView. The attributes and methods defined here are available on all generic views which deal with multiple objects.
+
+::: netbox.views.generic.base.BaseMultiObjectView
+    rendering:
+      show_source: false
+
 ::: netbox.views.generic.ObjectListView
     selection:
       members:
         - get_table
-        - get_extra_context
         - export_yaml
         - export_table
         - export_template

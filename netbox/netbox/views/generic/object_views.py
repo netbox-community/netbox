@@ -21,7 +21,7 @@ from utilities.permissions import get_permission_for_model
 from utilities.tables import configure_table
 from utilities.utils import normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin
-from .base import GenericView
+from .base import BaseObjectView
 
 __all__ = (
     'ComponentCreateView',
@@ -33,13 +33,12 @@ __all__ = (
 )
 
 
-class ObjectView(GenericView):
+class ObjectView(BaseObjectView):
     """
     Retrieve a single object for display.
 
     Note: If `template_name` is not specified, it will be determined automatically based on the queryset model.
     """
-
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
 
@@ -59,16 +58,6 @@ class ObjectView(GenericView):
             return self.template_name
         model_opts = self.queryset.model._meta
         return f'{model_opts.app_label}/{model_opts.model_name}.html'
-
-    def get_extra_context(self, request, instance):
-        """
-        Return any additional context data for the template.
-
-        Args:
-            request: The current request
-            instance: The object being viewed
-        """
-        return {}
 
     def get(self, request, **kwargs):
         """
@@ -152,7 +141,7 @@ class ObjectChildrenView(ObjectView):
         })
 
 
-class ObjectImportView(GetReturnURLMixin, GenericView):
+class ObjectImportView(GetReturnURLMixin, BaseObjectView):
     """
     Import a single object (YAML or JSON format).
 
@@ -291,7 +280,7 @@ class ObjectImportView(GetReturnURLMixin, GenericView):
         })
 
 
-class ObjectEditView(GetReturnURLMixin, GenericView):
+class ObjectEditView(GetReturnURLMixin, BaseObjectView):
     """
     Create or edit a single object.
 
@@ -362,6 +351,7 @@ class ObjectEditView(GetReturnURLMixin, GenericView):
             'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request, obj),
+            **self.get_extra_context(request, obj),
         })
 
     def post(self, request, *args, **kwargs):
@@ -435,10 +425,11 @@ class ObjectEditView(GetReturnURLMixin, GenericView):
             'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request, obj),
+            **self.get_extra_context(request, obj),
         })
 
 
-class ObjectDeleteView(GetReturnURLMixin, GenericView):
+class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
     """
     Delete a single object.
     """
@@ -481,6 +472,7 @@ class ObjectDeleteView(GetReturnURLMixin, GenericView):
                 'object_type': self.queryset.model._meta.verbose_name,
                 'form': form,
                 'form_url': form_url,
+                **self.get_extra_context(request, obj),
             })
 
         return render(request, self.template_name, {
@@ -488,6 +480,7 @@ class ObjectDeleteView(GetReturnURLMixin, GenericView):
             'object_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request, obj),
+            **self.get_extra_context(request, obj),
         })
 
     def post(self, request, *args, **kwargs):
@@ -529,6 +522,7 @@ class ObjectDeleteView(GetReturnURLMixin, GenericView):
             'object_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request, obj),
+            **self.get_extra_context(request, obj),
         })
 
 
@@ -536,7 +530,7 @@ class ObjectDeleteView(GetReturnURLMixin, GenericView):
 # Device/VirtualMachine components
 #
 
-class ComponentCreateView(GetReturnURLMixin, GenericView):
+class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a Device or VirtualMachine.
     """
