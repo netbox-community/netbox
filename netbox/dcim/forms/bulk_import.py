@@ -620,8 +620,7 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
     )
     duplex = CSVChoiceField(
         choices=InterfaceDuplexChoices,
-        required=False,
-        help_text='Duplex'
+        required=False
     )
     mode = CSVChoiceField(
         choices=InterfaceModeChoices,
