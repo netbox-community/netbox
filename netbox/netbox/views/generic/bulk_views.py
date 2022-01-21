@@ -303,18 +303,15 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
     Attributes:
         model_form: The form used to create each imported object
-        widget_attrs: A dict of attributes to apply to the import widget (e.g. to require a session key)
     """
     template_name = 'generic/object_bulk_import.html'
     model_form = None
-    widget_attrs = {}
 
     def _import_form(self, *args, **kwargs):
 
         class ImportForm(BootstrapMixin, Form):
             csv = CSVDataField(
-                from_form=self.model_form,
-                widget=Textarea(attrs=self.widget_attrs)
+                from_form=self.model_form
             )
             csv_file = CSVFileField(
                 label="CSV file",
