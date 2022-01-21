@@ -47,6 +47,14 @@
                             <td>{{ object.get_type_display }}</td>
                         </tr>
                         <tr>
+                            <th scope="row">Speed</th>
+                            <td>{{ object.speed|humanize_speed|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Duplex</th>
+                            <td>{{ object.get_duplex_display }}</td>
+                        </tr>
+                        <tr>
                             <th scope="row">Enabled</th>
                             <td>{% checkmark object.enabled %}</td>
                         </tr>
