@@ -28,6 +28,7 @@ plugins:
             - django.setup()
           rendering:
             heading_level: 3
+            members_order: source
             show_root_heading: true
             show_root_full_path: false
             show_root_toc_entry: false
@@ -102,6 +103,7 @@ nav:
         - Developing Plugins:
             - Introduction: 'plugins/development/index.md'
             - Model Features: 'plugins/development/model-features.md'
+            - Generic Views: 'plugins/development/generic-views.md'
         - Developing Plugins (Old): 'plugins/development.md'
     - Administration:
         - Authentication: 'administration/authentication.md'
