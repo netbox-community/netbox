@@ -59,12 +59,17 @@ class FHRPGroup(PrimaryModel):
         name = f'{self.get_protocol_display()}: {self.group_id}'
 
         # Append the first assigned IP addresses (if any) to serve as an additional identifier
+        # If present add the Description
         if self.pk:
             ip_address = self.ip_addresses.first()
             if ip_address:
+                if self.description:
+                    return f"{name} ({self.description}) ({ip_address})"
                 return f"{name} ({ip_address})"
-
+            if self.description:
+                return f"{name} ({self.description})"
         return name
+
 
     def get_absolute_url(self):
         return reverse('ipam:fhrpgroup', args=[self.pk])
