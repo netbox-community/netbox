@@ -131,7 +131,7 @@ class ContactAssignment(WebhooksMixin, ChangeLoggedModel):
         to=ContentType,
         on_delete=models.CASCADE
     )
-    object_id = models.PositiveIntegerField()
+    object_id = models.PositiveBigIntegerField()
     object = GenericForeignKey(
         ct_field='content_type',
         fk_field='object_id'

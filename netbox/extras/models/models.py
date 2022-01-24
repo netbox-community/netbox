@@ -351,7 +351,7 @@ class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
         to=ContentType,
         on_delete=models.CASCADE
     )
-    object_id = models.PositiveIntegerField()
+    object_id = models.PositiveBigIntegerField()
     parent = GenericForeignKey(
         ct_field='content_type',
         fk_field='object_id'
@@ -431,7 +431,7 @@ class JournalEntry(WebhooksMixin, ChangeLoggedModel):
         to=ContentType,
         on_delete=models.CASCADE
     )
-    assigned_object_id = models.PositiveIntegerField()
+    assigned_object_id = models.PositiveBigIntegerField()
     assigned_object = GenericForeignKey(
         ct_field='assigned_object_type',
         fk_field='assigned_object_id'

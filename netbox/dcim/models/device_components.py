@@ -130,7 +130,7 @@ class LinkTermination(models.Model):
         blank=True,
         null=True
     )
-    _link_peer_id = models.PositiveIntegerField(
+    _link_peer_id = models.PositiveBigIntegerField(
         blank=True,
         null=True
     )

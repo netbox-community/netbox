@@ -801,7 +801,7 @@ class IPAddress(PrimaryModel):
         blank=True,
         null=True
     )
-    assigned_object_id = models.PositiveIntegerField(
+    assigned_object_id = models.PositiveBigIntegerField(
         blank=True,
         null=True
     )

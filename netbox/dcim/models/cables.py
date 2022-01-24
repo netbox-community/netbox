@@ -38,7 +38,7 @@ class Cable(PrimaryModel):
         on_delete=models.PROTECT,
         related_name='+'
     )
-    termination_a_id = models.PositiveIntegerField()
+    termination_a_id = models.PositiveBigIntegerField()
     termination_a = GenericForeignKey(
         ct_field='termination_a_type',
         fk_field='termination_a_id'
@@ -49,7 +49,7 @@ class Cable(PrimaryModel):
         on_delete=models.PROTECT,
         related_name='+'
     )
-    termination_b_id = models.PositiveIntegerField()
+    termination_b_id = models.PositiveBigIntegerField()
     termination_b = GenericForeignKey(
         ct_field='termination_b_type',
         fk_field='termination_b_id'
@@ -327,7 +327,7 @@ class CablePath(BigIDModel):
         on_delete=models.CASCADE,
         related_name='+'
     )
-    origin_id = models.PositiveIntegerField()
+    origin_id = models.PositiveBigIntegerField()
     origin = GenericForeignKey(
         ct_field='origin_type',
         fk_field='origin_id'
@@ -339,7 +339,7 @@ class CablePath(BigIDModel):
         blank=True,
         null=True
     )
-    destination_id = models.PositiveIntegerField(
+    destination_id = models.PositiveBigIntegerField(
         blank=True,
         null=True
     )

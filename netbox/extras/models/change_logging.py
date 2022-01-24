@@ -43,7 +43,7 @@ class ObjectChange(BigIDModel):
         on_delete=models.PROTECT,
         related_name='+'
     )
-    changed_object_id = models.PositiveIntegerField()
+    changed_object_id = models.PositiveBigIntegerField()
     changed_object = GenericForeignKey(
         ct_field='changed_object_type',
         fk_field='changed_object_id'
@@ -55,7 +55,7 @@ class ObjectChange(BigIDModel):
         blank=True,
         null=True
     )
-    related_object_id = models.PositiveIntegerField(
+    related_object_id = models.PositiveBigIntegerField(
         blank=True,
         null=True
     )

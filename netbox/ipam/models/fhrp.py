@@ -74,7 +74,7 @@ class FHRPGroupAssignment(WebhooksMixin, ChangeLoggedModel):
         to=ContentType,
         on_delete=models.CASCADE
     )
-    interface_id = models.PositiveIntegerField()
+    interface_id = models.PositiveBigIntegerField()
     interface = GenericForeignKey(
         ct_field='interface_type',
         fk_field='interface_id'
