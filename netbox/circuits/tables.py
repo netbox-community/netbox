@@ -140,6 +140,9 @@ class CircuitTable(BaseTable):
         template_code=CIRCUITTERMINATION_LINK,
         verbose_name='Side Z'
     )
+    install_date = tables.DateColumn(
+        default=''
+    )
     commit_rate = CommitRateColumn()
     comments = MarkdownColumn()
     tags = TagColumn(
