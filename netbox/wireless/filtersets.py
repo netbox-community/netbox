@@ -2,7 +2,6 @@ import django_filters
 from django.db.models import Q
 
 from dcim.choices import LinkStatusChoices
-from extras.filters import TagFilter
 from ipam.models import VLAN
 from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
 from utilities.filters import MultiValueNumberFilter, TreeNodeMultipleChoiceFilter
@@ -25,7 +24,6 @@ class WirelessLANGroupFilterSet(OrganizationalModelFilterSet):
         queryset=WirelessLANGroup.objects.all(),
         to_field_name='slug'
     )
-    tag = TagFilter()
 
     class Meta:
         model = WirelessLANGroup
@@ -57,7 +55,6 @@ class WirelessLANFilterSet(PrimaryModelFilterSet):
     auth_cipher = django_filters.MultipleChoiceFilter(
         choices=WirelessAuthCipherChoices
     )
-    tag = TagFilter()
 
     class Meta:
         model = WirelessLAN
@@ -89,7 +86,6 @@ class WirelessLinkFilterSet(PrimaryModelFilterSet):
     auth_cipher = django_filters.MultipleChoiceFilter(
         choices=WirelessAuthCipherChoices
     )
-    tag = TagFilter()
 
     class Meta:
         model = WirelessLink

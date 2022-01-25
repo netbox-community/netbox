@@ -1,7 +1,6 @@
 import django_filters
 from django.contrib.auth.models import User
 
-from extras.filters import TagFilter
 from extras.filtersets import LocalConfigContextFilterSet
 from ipam.models import ASN, VRF
 from netbox.filtersets import (
@@ -79,7 +78,6 @@ class RegionFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Parent region (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Region
@@ -97,7 +95,6 @@ class SiteGroupFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Parent site group (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = SiteGroup
@@ -148,7 +145,6 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         queryset=ASN.objects.all(),
         label='AS (ID)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Site
@@ -225,7 +221,6 @@ class LocationFilterSet(TenancyFilterSet, OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Location (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Location
@@ -241,7 +236,6 @@ class LocationFilterSet(TenancyFilterSet, OrganizationalModelFilterSet):
 
 
 class RackRoleFilterSet(OrganizationalModelFilterSet):
-    tag = TagFilter()
 
     class Meta:
         model = RackRole
@@ -325,7 +319,6 @@ class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     serial = django_filters.CharFilter(
         lookup_expr='iexact'
     )
-    tag = TagFilter()
 
     class Meta:
         model = Rack
@@ -389,7 +382,6 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='username',
         label='User (name)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = RackReservation
@@ -407,7 +399,6 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
 
 class ManufacturerFilterSet(OrganizationalModelFilterSet):
-    tag = TagFilter()
 
     class Meta:
         model = Manufacturer
@@ -461,7 +452,6 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
         method='_device_bays',
         label='Has device bays',
     )
-    tag = TagFilter()
 
     class Meta:
         model = DeviceType
@@ -546,7 +536,6 @@ class ModuleTypeFilterSet(PrimaryModelFilterSet):
         method='_pass_through_ports',
         label='Has pass-through ports',
     )
-    tag = TagFilter()
 
     class Meta:
         model = ModuleType
@@ -732,7 +721,6 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
 
 
 class DeviceRoleFilterSet(OrganizationalModelFilterSet):
-    tag = TagFilter()
 
     class Meta:
         model = DeviceRole
@@ -751,7 +739,6 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Platform
@@ -916,7 +903,6 @@ class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContex
         method='_device_bays',
         label='Has device bays',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Device
@@ -990,7 +976,6 @@ class ModuleFilterSet(PrimaryModelFilterSet):
         queryset=Device.objects.all(),
         label='Device (ID)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Module
@@ -1080,7 +1065,6 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='name',
         label='Virtual Chassis',
     )
-    tag = TagFilter()
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1202,7 +1186,6 @@ class InterfaceFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
     )
     mac_address = MultiValueMACAddressFilter()
     wwn = MultiValueWWNFilter()
-    tag = TagFilter()
     vlan_id = django_filters.CharFilter(
         method='filter_vlan_id',
         label='Assigned VLAN'
@@ -1377,7 +1360,6 @@ class InventoryItemFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):
 
 
 class InventoryItemRoleFilterSet(OrganizationalModelFilterSet):
-    tag = TagFilter()
 
     class Meta:
         model = InventoryItemRole
@@ -1447,7 +1429,6 @@ class VirtualChassisFilterSet(PrimaryModelFilterSet):
         to_field_name='slug',
         label='Tenant (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = VirtualChassis
@@ -1505,7 +1486,6 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         method='filter_device',
         field_name='device__site__slug'
     )
-    tag = TagFilter()
 
     class Meta:
         model = Cable
@@ -1571,7 +1551,6 @@ class PowerPanelFilterSet(PrimaryModelFilterSet):
         lookup_expr='in',
         label='Location (ID)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = PowerPanel
@@ -1641,7 +1620,6 @@ class PowerFeedFilterSet(PrimaryModelFilterSet, CableTerminationFilterSet, PathE
         choices=PowerFeedStatusChoices,
         null_value=None
     )
-    tag = TagFilter()
 
     class Meta:
         model = PowerFeed

@@ -1,7 +1,6 @@
 import django_filters
 from django.db.models import Q
 
-from extras.filters import TagFilter
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
 from .models import *
@@ -33,7 +32,6 @@ class TenantGroupFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Tenant group (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = TenantGroup
@@ -58,7 +56,6 @@ class TenantFilterSet(PrimaryModelFilterSet):
         to_field_name='slug',
         label='Tenant group (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Tenant
@@ -119,7 +116,6 @@ class ContactGroupFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Contact group (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = ContactGroup
@@ -127,7 +123,6 @@ class ContactGroupFilterSet(OrganizationalModelFilterSet):
 
 
 class ContactRoleFilterSet(OrganizationalModelFilterSet):
-    tag = TagFilter()
 
     class Meta:
         model = ContactRole
@@ -152,7 +147,6 @@ class ContactFilterSet(PrimaryModelFilterSet):
         to_field_name='slug',
         label='Contact group (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Contact

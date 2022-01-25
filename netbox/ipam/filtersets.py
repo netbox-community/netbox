@@ -6,7 +6,6 @@ from django.db.models import Q
 from netaddr.core import AddrFormatError
 
 from dcim.models import Device, Interface, Region, Site, SiteGroup
-from extras.filters import TagFilter
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import (
@@ -63,7 +62,6 @@ class VRFFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='name',
         label='Export target (name)',
     )
-    tag = TagFilter()
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -106,7 +104,6 @@ class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='rd',
         label='Export VRF (RD)',
     )
-    tag = TagFilter()
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -122,7 +119,6 @@ class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
 
 class RIRFilterSet(OrganizationalModelFilterSet):
-    tag = TagFilter()
 
     class Meta:
         model = RIR
@@ -152,7 +148,6 @@ class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label='RIR (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Aggregate
@@ -218,7 +213,6 @@ class RoleFilterSet(OrganizationalModelFilterSet):
         method='search',
         label='Search',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Role
@@ -347,7 +341,6 @@ class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         choices=PrefixStatusChoices,
         null_value=None
     )
-    tag = TagFilter()
 
     class Meta:
         model = Prefix
@@ -453,7 +446,6 @@ class IPRangeFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         choices=IPRangeStatusChoices,
         null_value=None
     )
-    tag = TagFilter()
 
     class Meta:
         model = IPRange
@@ -578,7 +570,6 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     role = django_filters.MultipleChoiceFilter(
         choices=IPAddressRoleChoices
     )
-    tag = TagFilter()
 
     class Meta:
         model = IPAddress
@@ -664,7 +655,6 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
         queryset=IPAddress.objects.all(),
         method='filter_related_ip'
     )
-    tag = TagFilter()
 
     class Meta:
         model = FHRPGroup
@@ -737,7 +727,6 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
     cluster = django_filters.NumberFilter(
         method='filter_scope'
     )
-    tag = TagFilter()
 
     class Meta:
         model = VLANGroup
@@ -832,7 +821,6 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         queryset=VirtualMachine.objects.all(),
         method='get_for_virtualmachine'
     )
-    tag = TagFilter()
 
     class Meta:
         model = VLAN
@@ -864,7 +852,6 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
         field_name='ports',
         lookup_expr='contains'
     )
-    tag = TagFilter()
 
     class Meta:
         model = ServiceTemplate
@@ -906,7 +893,6 @@ class ServiceFilterSet(PrimaryModelFilterSet):
         field_name='ports',
         lookup_expr='contains'
     )
-    tag = TagFilter()
 
     class Meta:
         model = Service

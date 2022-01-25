@@ -120,6 +120,10 @@ class BaseFilterSet(django_filters.FilterSet):
     def get_additional_lookups(cls, existing_filter_name, existing_filter):
         new_filters = {}
 
+        # Skip on abstract models
+        if not cls._meta.model:
+            return {}
+
         # Skip nonstandard lookup expressions
         if existing_filter.method is not None or existing_filter.lookup_expr not in ['exact', 'in']:
             return {}
@@ -214,6 +218,7 @@ class ChangeLoggedModelFilterSet(BaseFilterSet):
 
 
 class PrimaryModelFilterSet(ChangeLoggedModelFilterSet):
+    tag = TagFilter()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
