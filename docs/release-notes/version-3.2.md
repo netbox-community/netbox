@@ -81,6 +81,7 @@ Inventory item templates can be arranged hierarchically within a device type, an
 * [#7743](https://github.com/netbox-community/netbox/issues/7743) - Remove legacy ASN field from site model
 * [#7748](https://github.com/netbox-community/netbox/issues/7748) - Remove legacy contact fields from site model
 * [#8031](https://github.com/netbox-community/netbox/issues/8031) - Remove automatic redirection of legacy slug-based URLs
+* [#8195](https://github.com/netbox-community/netbox/issues/8195), [#8454](https://github.com/netbox-community/netbox/issues/8454) - Use 64-bit integers for all primary keys
 
 ### REST API Changes
 

@@ -11,7 +11,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_object
-from netbox.models import BigIDModel, PrimaryModel
+from netbox.models import PrimaryModel
 from utilities.fields import ColorField
 from utilities.utils import to_meters
 from .devices import Device
@@ -298,7 +298,7 @@ class Cable(PrimaryModel):
         return COMPATIBLE_TERMINATION_TYPES[self.termination_a._meta.model_name]
 
 
-class CablePath(BigIDModel):
+class CablePath(models.Model):
     """
     A CablePath instance represents the physical path from an origin to a destination, including all intermediate
     elements in the path. Every instance must specify an `origin`, whereas `destination` may be null (for paths which do

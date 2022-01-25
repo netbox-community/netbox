@@ -7,7 +7,6 @@ from utilities.querysets import RestrictedQuerySet
 from netbox.models.features import *
 
 __all__ = (
-    'BigIDModel',
     'ChangeLoggedModel',
     'NestedGroupModel',
     'OrganizationalModel',
@@ -26,7 +25,7 @@ class BaseModel(
     ExportTemplatesMixin,
     JournalingMixin,
     TagsMixin,
-    WebhooksMixin,
+    WebhooksMixin
 ):
     class Meta:
         abstract = True
@@ -44,7 +43,7 @@ class BigIDModel(models.Model):
         abstract = True
 
 
-class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, BigIDModel):
+class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, models.Model):
     """
     Base model for all objects which support change logging.
     """
@@ -54,7 +53,7 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, BigIDModel):
         abstract = True
 
 
-class PrimaryModel(BaseModel, ChangeLoggingMixin, BigIDModel):
+class PrimaryModel(BaseModel, ChangeLoggingMixin, models.Model):
     """
     Primary models represent real objects within the infrastructure being modeled.
     """
@@ -64,7 +63,7 @@ class PrimaryModel(BaseModel, ChangeLoggingMixin, BigIDModel):
         abstract = True
 
 
-class NestedGroupModel(BaseModel, ChangeLoggingMixin, BigIDModel, MPTTModel):
+class NestedGroupModel(BaseModel, ChangeLoggingMixin, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.
@@ -106,7 +105,7 @@ class NestedGroupModel(BaseModel, ChangeLoggingMixin, BigIDModel, MPTTModel):
             })
 
 
-class OrganizationalModel(BaseModel, ChangeLoggingMixin, BigIDModel):
+class OrganizationalModel(BaseModel, ChangeLoggingMixin, models.Model):
     """
     Organizational models are those which are used solely to categorize and qualify other objects, and do not convey
     any real information about the infrastructure being modeled (for example, functional device roles). Organizational

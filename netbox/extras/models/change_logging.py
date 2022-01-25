@@ -5,11 +5,10 @@ from django.db import models
 from django.urls import reverse
 
 from extras.choices import *
-from netbox.models import BigIDModel
 from utilities.querysets import RestrictedQuerySet
 
 
-class ObjectChange(BigIDModel):
+class ObjectChange(models.Model):
     """
     Record a change to an object and the user account associated with that change. A change record may optionally
     indicate an object related to the one being changed. For example, a change to an interface may also indicate the

@@ -5,7 +5,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
-from netbox.models import BigIDModel, NestedGroupModel, PrimaryModel
+from netbox.models import NestedGroupModel, PrimaryModel
 from .choices import *
 from .constants import *
 

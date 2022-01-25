@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
-from netbox.models import BigIDModel, ChangeLoggedModel
+from netbox.models import ChangeLoggedModel
 from netbox.models.features import ExportTemplatesMixin, WebhooksMixin
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField
@@ -36,7 +36,7 @@ class Tag(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel, TagBase):
         return slug
 
 
-class TaggedItem(BigIDModel, GenericTaggedItemBase):
+class TaggedItem(GenericTaggedItemBase):
     tag = models.ForeignKey(
         to=Tag,
         related_name="%(app_label)s_%(class)s_items",

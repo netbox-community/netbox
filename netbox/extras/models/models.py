@@ -18,7 +18,7 @@ from extras.choices import *
 from extras.constants import *
 from extras.conditions import ConditionSet
 from extras.utils import FeatureQuery, image_upload
-from netbox.models import BigIDModel, ChangeLoggedModel
+from netbox.models import ChangeLoggedModel
 from netbox.models.features import ExportTemplatesMixin, JobResultsMixin, WebhooksMixin
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import render_jinja2
@@ -467,7 +467,7 @@ class JournalEntry(WebhooksMixin, ChangeLoggedModel):
         return JournalEntryKindChoices.colors.get(self.kind)
 
 
-class JobResult(BigIDModel):
+class JobResult(models.Model):
     """
     This model stores the results from running a user-defined report.
     """

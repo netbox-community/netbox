@@ -406,7 +406,7 @@ LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
 # by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.
