@@ -101,10 +101,11 @@ nav:
     - Plugins:
         - Using Plugins: 'plugins/index.md'
         - Developing Plugins:
-            - Introduction: 'plugins/development/index.md'
-            - Model Features: 'plugins/development/model-features.md'
-            - Generic Views: 'plugins/development/generic-views.md'
-        - Developing Plugins (Old): 'plugins/development.md'
+            - Getting Started: 'plugins/development/index.md'
+            - Database Models: 'plugins/development/models.md'
+            - Views: 'plugins/development/views.md'
+            - REST API: 'plugins/development/rest-api.md'
+            - Background Tasks: 'plugins/development/background-tasks.md'
     - Administration:
         - Authentication: 'administration/authentication.md'
         - Permissions: 'administration/permissions.md'
