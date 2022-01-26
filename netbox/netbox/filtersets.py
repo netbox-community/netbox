@@ -24,31 +24,6 @@ __all__ = (
 
 
 #
-# Mixins
-#
-
-class ChangeLoggedModelMixin:
-    created = django_filters.DateFilter()
-    created__gte = django_filters.DateFilter(
-        field_name='created',
-        lookup_expr='gte'
-    )
-    created__lte = django_filters.DateFilter(
-        field_name='created',
-        lookup_expr='lte'
-    )
-    last_updated = django_filters.DateTimeFilter()
-    last_updated__gte = django_filters.DateTimeFilter(
-        field_name='last_updated',
-        lookup_expr='gte'
-    )
-    last_updated__lte = django_filters.DateTimeFilter(
-        field_name='last_updated',
-        lookup_expr='lte'
-    )
-
-
-#
 # FilterSets
 #
 
@@ -221,11 +196,28 @@ class BaseFilterSet(django_filters.FilterSet):
         return filters
 
 
-class ChangeLoggedModelFilterSet(ChangeLoggedModelMixin, BaseFilterSet):
-    pass
+class ChangeLoggedModelFilterSet(BaseFilterSet):
+    created = django_filters.DateFilter()
+    created__gte = django_filters.DateFilter(
+        field_name='created',
+        lookup_expr='gte'
+    )
+    created__lte = django_filters.DateFilter(
+        field_name='created',
+        lookup_expr='lte'
+    )
+    last_updated = django_filters.DateTimeFilter()
+    last_updated__gte = django_filters.DateTimeFilter(
+        field_name='last_updated',
+        lookup_expr='gte'
+    )
+    last_updated__lte = django_filters.DateTimeFilter(
+        field_name='last_updated',
+        lookup_expr='lte'
+    )
 
 
-class PrimaryModelFilterSet(ChangeLoggedModelMixin, BaseFilterSet):
+class PrimaryModelFilterSet(ChangeLoggedModelFilterSet):
     tag = TagFilter()
 
     def __init__(self, *args, **kwargs):
