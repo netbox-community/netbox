@@ -14,6 +14,9 @@ from utilities.fields import ColorField
 #
 
 class Tag(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel, TagBase):
+    id = models.BigAutoField(
+        primary_key=True
+    )
     color = ColorField(
         default=ColorChoices.COLOR_GREY
     )

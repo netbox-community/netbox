@@ -55,11 +55,6 @@ class Migration(migrations.Migration):
             field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
         ),
         migrations.AlterField(
-            model_name='tag',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
-        ),
-        migrations.AlterField(
             model_name='taggeditem',
             name='id',
             field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False),

@@ -31,18 +31,6 @@ class BaseModel(
         abstract = True
 
 
-class BigIDModel(models.Model):
-    """
-    Abstract base model for all data objects. Ensures the use of a 64-bit PK.
-    """
-    id = models.BigAutoField(
-        primary_key=True
-    )
-
-    class Meta:
-        abstract = True
-
-
 class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, models.Model):
     """
     Base model for all objects which support change logging.
