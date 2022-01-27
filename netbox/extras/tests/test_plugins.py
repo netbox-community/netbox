@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from extras.registry import registry
 from extras.tests.dummy_plugin import config as dummy_config
+from netbox.graphql.schema import Query
 
 
 @skipIf('extras.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
@@ -143,3 +144,12 @@ class PluginTest(TestCase):
         user_config = {'bar': 456}
         DummyConfigWithDefaultSettings.validate(user_config, settings.VERSION)
         self.assertEqual(user_config['bar'], 456)
+
+    def test_graphql(self):
+        """
+        Validate the registration and operation of plugin-provided GraphQL schemas.
+        """
+        from extras.tests.dummy_plugin.graphql import DummyQuery
+
+        self.assertIn(DummyQuery, registry['plugins']['graphql_schemas'])
+        self.assertTrue(issubclass(Query, DummyQuery))

@@ -108,6 +108,7 @@ nav:
             - Forms: 'plugins/development/forms.md'
             - Filter Sets: 'plugins/development/filtersets.md'
             - REST API: 'plugins/development/rest-api.md'
+            - GraphQL API: 'plugins/development/graphql.md'
             - Background Tasks: 'plugins/development/background-tasks.md'
     - Administration:
         - Authentication: 'administration/authentication.md'
