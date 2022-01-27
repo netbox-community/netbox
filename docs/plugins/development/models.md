@@ -47,6 +47,7 @@ For more background on schema migrations, see the [Django documentation](https:/
 
 Plugin models can leverage certain NetBox features by inheriting from NetBox's `BaseModel` class. This class extends the plugin model to enable numerous feature, including:
 
+* Change logging
 * Custom fields
 * Custom links
 * Custom validation
@@ -91,6 +92,8 @@ The example above will enable export templates and tags, but no other NetBox fea
 
 !!! note
     Please note that only the classes which appear in this documentation are currently supported. Although other classes may be present within the `features` module, they are not yet supported for use by plugins.
+
+::: netbox.models.features.ChangeLoggingMixin
 
 ::: netbox.models.features.CustomLinksMixin
 

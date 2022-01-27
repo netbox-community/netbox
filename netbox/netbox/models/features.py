@@ -1,5 +1,3 @@
-import logging
-
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models.signals import class_prepared
 from django.dispatch import receiver
@@ -53,8 +51,6 @@ class ChangeLoggingMixin(models.Model):
         """
         Save a snapshot of the object's current state in preparation for modification.
         """
-        logger = logging.getLogger('netbox')
-        logger.debug(f"Taking a snapshot of {self}")
         self._prechange_snapshot = serialize_object(self)
 
     def to_objectchange(self, action):
