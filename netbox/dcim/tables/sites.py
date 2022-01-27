@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from dcim.models import Location, Region, Site, SiteGroup
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
 from .template_code import LOCATION_BUTTONS
 
@@ -17,8 +17,7 @@ __all__ = (
 # Regions
 #
 
-class RegionTable(BaseTable):
-    pk = columns.ToggleColumn()
+class RegionTable(NetBoxTable):
     name = columns.MPTTColumn(
         linkify=True
     )
@@ -31,7 +30,7 @@ class RegionTable(BaseTable):
         url_name='dcim:region_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Region
         fields = (
             'pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'created', 'last_updated', 'actions',
@@ -43,8 +42,7 @@ class RegionTable(BaseTable):
 # Site groups
 #
 
-class SiteGroupTable(BaseTable):
-    pk = columns.ToggleColumn()
+class SiteGroupTable(NetBoxTable):
     name = columns.MPTTColumn(
         linkify=True
     )
@@ -57,7 +55,7 @@ class SiteGroupTable(BaseTable):
         url_name='dcim:sitegroup_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = SiteGroup
         fields = (
             'pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'created', 'last_updated', 'actions',
@@ -69,8 +67,7 @@ class SiteGroupTable(BaseTable):
 # Sites
 #
 
-class SiteTable(BaseTable):
-    pk = columns.ToggleColumn()
+class SiteTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -93,7 +90,7 @@ class SiteTable(BaseTable):
         url_name='dcim:site_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Site
         fields = (
             'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asn_count', 'time_zone',
@@ -107,8 +104,7 @@ class SiteTable(BaseTable):
 # Locations
 #
 
-class LocationTable(BaseTable):
-    pk = columns.ToggleColumn()
+class LocationTable(NetBoxTable):
     name = columns.MPTTColumn(
         linkify=True
     )
@@ -133,7 +129,7 @@ class LocationTable(BaseTable):
         extra_buttons=LOCATION_BUTTONS
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Location
         fields = (
             'pk', 'id', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'tags',

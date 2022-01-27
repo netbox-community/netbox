@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django.conf import settings
 
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from .models import *
 
 __all__ = (
@@ -43,15 +43,14 @@ OBJECTCHANGE_REQUEST_ID = """
 # Custom fields
 #
 
-class CustomFieldTable(BaseTable):
-    pk = columns.ToggleColumn()
+class CustomFieldTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
     content_types = columns.ContentTypesColumn()
     required = columns.BooleanColumn()
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = CustomField
         fields = (
             'pk', 'id', 'name', 'content_types', 'label', 'type', 'required', 'weight', 'default',
@@ -64,8 +63,7 @@ class CustomFieldTable(BaseTable):
 # Custom links
 #
 
-class CustomLinkTable(BaseTable):
-    pk = columns.ToggleColumn()
+class CustomLinkTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -73,7 +71,7 @@ class CustomLinkTable(BaseTable):
     enabled = columns.BooleanColumn()
     new_window = columns.BooleanColumn()
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = CustomLink
         fields = (
             'pk', 'id', 'name', 'content_type', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
@@ -86,15 +84,14 @@ class CustomLinkTable(BaseTable):
 # Export templates
 #
 
-class ExportTemplateTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ExportTemplateTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
     content_type = columns.ContentTypeColumn()
     as_attachment = columns.BooleanColumn()
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ExportTemplate
         fields = (
             'pk', 'id', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
@@ -109,8 +106,7 @@ class ExportTemplateTable(BaseTable):
 # Webhooks
 #
 
-class WebhookTable(BaseTable):
-    pk = columns.ToggleColumn()
+class WebhookTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -129,7 +125,7 @@ class WebhookTable(BaseTable):
         verbose_name='SSL Validation'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Webhook
         fields = (
             'pk', 'id', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method',
@@ -145,20 +141,19 @@ class WebhookTable(BaseTable):
 # Tags
 #
 
-class TagTable(BaseTable):
-    pk = columns.ToggleColumn()
+class TagTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
     color = columns.ColorColumn()
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Tag
         fields = ('pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'created', 'last_updated', 'actions')
         default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description')
 
 
-class TaggedItemTable(BaseTable):
+class TaggedItemTable(NetBoxTable):
     id = tables.Column(
         verbose_name='ID',
         linkify=lambda record: record.content_object.get_absolute_url(),
@@ -173,13 +168,12 @@ class TaggedItemTable(BaseTable):
         verbose_name='Object'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = TaggedItem
         fields = ('id', 'content_type', 'content_object')
 
 
-class ConfigContextTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ConfigContextTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -187,7 +181,7 @@ class ConfigContextTable(BaseTable):
         verbose_name='Active'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ConfigContext
         fields = (
             'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'roles',
@@ -197,7 +191,7 @@ class ConfigContextTable(BaseTable):
         default_columns = ('pk', 'name', 'weight', 'is_active', 'description')
 
 
-class ObjectChangeTable(BaseTable):
+class ObjectChangeTable(NetBoxTable):
     time = tables.DateTimeColumn(
         linkify=True,
         format=settings.SHORT_DATETIME_FORMAT
@@ -216,12 +210,12 @@ class ObjectChangeTable(BaseTable):
     )
     actions = columns.ActionsColumn(sequence=())
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ObjectChange
         fields = ('id', 'time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
 
 
-class ObjectJournalTable(BaseTable):
+class ObjectJournalTable(NetBoxTable):
     """
     Used for displaying a set of JournalEntries within the context of a single object.
     """
@@ -234,13 +228,12 @@ class ObjectJournalTable(BaseTable):
         template_code='{% load helpers %}{{ value|render_markdown|truncatewords_html:50 }}'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = JournalEntry
         fields = ('id', 'created', 'created_by', 'kind', 'comments', 'actions')
 
 
 class JournalEntryTable(ObjectJournalTable):
-    pk = columns.ToggleColumn()
     assigned_object_type = columns.ContentTypeColumn(
         verbose_name='Object type'
     )
@@ -251,7 +244,7 @@ class JournalEntryTable(ObjectJournalTable):
     )
     comments = columns.MarkdownColumn()
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = JournalEntry
         fields = (
             'pk', 'id', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind',

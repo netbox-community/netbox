@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from utilities.tables import linkify_phone
 from .models import *
 
@@ -44,8 +44,7 @@ class TenantColumn(tables.TemplateColumn):
 # Tenants
 #
 
-class TenantGroupTable(BaseTable):
-    pk = columns.ToggleColumn()
+class TenantGroupTable(NetBoxTable):
     name = columns.MPTTColumn(
         linkify=True
     )
@@ -58,7 +57,7 @@ class TenantGroupTable(BaseTable):
         url_name='tenancy:tenantgroup_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = TenantGroup
         fields = (
             'pk', 'id', 'name', 'tenant_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
@@ -66,8 +65,7 @@ class TenantGroupTable(BaseTable):
         default_columns = ('pk', 'name', 'tenant_count', 'description')
 
 
-class TenantTable(BaseTable):
-    pk = columns.ToggleColumn()
+class TenantTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -79,7 +77,7 @@ class TenantTable(BaseTable):
         url_name='tenancy:tenant_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Tenant
         fields = ('pk', 'id', 'name', 'slug', 'group', 'description', 'comments', 'tags', 'created', 'last_updated',)
         default_columns = ('pk', 'name', 'group', 'description')
@@ -89,8 +87,7 @@ class TenantTable(BaseTable):
 # Contacts
 #
 
-class ContactGroupTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ContactGroupTable(NetBoxTable):
     name = columns.MPTTColumn(
         linkify=True
     )
@@ -103,7 +100,7 @@ class ContactGroupTable(BaseTable):
         url_name='tenancy:contactgroup_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ContactGroup
         fields = (
             'pk', 'name', 'contact_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
@@ -111,20 +108,18 @@ class ContactGroupTable(BaseTable):
         default_columns = ('pk', 'name', 'contact_count', 'description')
 
 
-class ContactRoleTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ContactRoleTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ContactRole
         fields = ('pk', 'name', 'description', 'slug', 'created', 'last_updated', 'actions')
         default_columns = ('pk', 'name', 'description')
 
 
-class ContactTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ContactTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -142,7 +137,7 @@ class ContactTable(BaseTable):
         url_name='tenancy:tenant_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Contact
         fields = (
             'pk', 'name', 'group', 'title', 'phone', 'email', 'address', 'comments', 'assignment_count', 'tags',
@@ -151,8 +146,7 @@ class ContactTable(BaseTable):
         default_columns = ('pk', 'name', 'group', 'assignment_count', 'title', 'phone', 'email')
 
 
-class ContactAssignmentTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ContactAssignmentTable(NetBoxTable):
     content_type = columns.ContentTypeColumn(
         verbose_name='Object Type'
     )
@@ -170,7 +164,7 @@ class ContactAssignmentTable(BaseTable):
         sequence=('edit', 'delete')
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ContactAssignment
         fields = ('pk', 'content_type', 'object', 'contact', 'role', 'priority', 'actions')
         default_columns = ('pk', 'content_type', 'object', 'contact', 'role', 'priority')

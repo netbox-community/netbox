@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
 from .models import *
 
@@ -47,8 +47,7 @@ class CommitRateColumn(tables.TemplateColumn):
 # Providers
 #
 
-class ProviderTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ProviderTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -61,7 +60,7 @@ class ProviderTable(BaseTable):
         url_name='circuits:provider_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Provider
         fields = (
             'pk', 'id', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count',
@@ -74,8 +73,7 @@ class ProviderTable(BaseTable):
 # Provider networks
 #
 
-class ProviderNetworkTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ProviderNetworkTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -87,7 +85,7 @@ class ProviderNetworkTable(BaseTable):
         url_name='circuits:providernetwork_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ProviderNetwork
         fields = (
             'pk', 'id', 'name', 'provider', 'service_id', 'description', 'comments', 'created', 'last_updated', 'tags',
@@ -99,8 +97,7 @@ class ProviderNetworkTable(BaseTable):
 # Circuit types
 #
 
-class CircuitTypeTable(BaseTable):
-    pk = columns.ToggleColumn()
+class CircuitTypeTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -111,7 +108,7 @@ class CircuitTypeTable(BaseTable):
         verbose_name='Circuits'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = CircuitType
         fields = (
             'pk', 'id', 'name', 'circuit_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
@@ -123,8 +120,7 @@ class CircuitTypeTable(BaseTable):
 # Circuits
 #
 
-class CircuitTable(BaseTable):
-    pk = columns.ToggleColumn()
+class CircuitTable(NetBoxTable):
     cid = tables.Column(
         linkify=True,
         verbose_name='Circuit ID'
@@ -148,7 +144,7 @@ class CircuitTable(BaseTable):
         url_name='circuits:circuit_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Circuit
         fields = (
             'pk', 'id', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'install_date',

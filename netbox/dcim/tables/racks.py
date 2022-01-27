@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import Rack, RackReservation, RackRole
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
 
 __all__ = (
@@ -16,8 +16,7 @@ __all__ = (
 # Rack roles
 #
 
-class RackRoleTable(BaseTable):
-    pk = columns.ToggleColumn()
+class RackRoleTable(NetBoxTable):
     name = tables.Column(linkify=True)
     rack_count = tables.Column(verbose_name='Racks')
     color = columns.ColorColumn()
@@ -25,7 +24,7 @@ class RackRoleTable(BaseTable):
         url_name='dcim:rackrole_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = RackRole
         fields = (
             'pk', 'id', 'name', 'rack_count', 'color', 'description', 'slug', 'tags', 'actions', 'created',
@@ -38,8 +37,7 @@ class RackRoleTable(BaseTable):
 # Racks
 #
 
-class RackTable(BaseTable):
-    pk = columns.ToggleColumn()
+class RackTable(NetBoxTable):
     name = tables.Column(
         order_by=('_name',),
         linkify=True
@@ -83,7 +81,7 @@ class RackTable(BaseTable):
         verbose_name='Outer Depth'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Rack
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag',
@@ -100,8 +98,7 @@ class RackTable(BaseTable):
 # Rack reservations
 #
 
-class RackReservationTable(BaseTable):
-    pk = columns.ToggleColumn()
+class RackReservationTable(NetBoxTable):
     reservation = tables.Column(
         accessor='pk',
         linkify=True
@@ -122,7 +119,7 @@ class RackReservationTable(BaseTable):
         url_name='dcim:rackreservation_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = RackReservation
         fields = (
             'pk', 'id', 'reservation', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'tags',

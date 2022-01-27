@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from ipam.models import *
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
 
 __all__ = (
@@ -20,8 +20,7 @@ VRF_TARGETS = """
 # VRFs
 #
 
-class VRFTable(BaseTable):
-    pk = columns.ToggleColumn()
+class VRFTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -44,7 +43,7 @@ class VRFTable(BaseTable):
         url_name='ipam:vrf_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VRF
         fields = (
             'pk', 'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets', 'export_targets',
@@ -57,8 +56,7 @@ class VRFTable(BaseTable):
 # Route targets
 #
 
-class RouteTargetTable(BaseTable):
-    pk = columns.ToggleColumn()
+class RouteTargetTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -67,7 +65,7 @@ class RouteTargetTable(BaseTable):
         url_name='ipam:vrf_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = RouteTarget
         fields = ('pk', 'id', 'name', 'tenant', 'description', 'tags', 'created', 'last_updated',)
         default_columns = ('pk', 'name', 'tenant', 'description')

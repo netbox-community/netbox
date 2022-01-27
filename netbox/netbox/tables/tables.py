@@ -11,49 +11,37 @@ from netbox.tables import columns
 
 __all__ = (
     'BaseTable',
+    'NetBoxTable',
 )
 
 
 class BaseTable(tables.Table):
     """
-    Default table for object lists
+    Base table class for NetBox objects. Adds support for:
+
+        * User configuration (column preferences)
+        * Automatic prefetching of related objects
+        * BS5 styling
 
     :param user: Personalize table display for the given user (optional). Has no effect if AnonymousUser is passed.
     """
-    id = tables.Column(
-        linkify=True,
-        verbose_name='ID'
-    )
-    actions = columns.ActionsColumn()
+    exempt_columns = ()
 
     class Meta:
         attrs = {
             'class': 'table table-hover object-list',
         }
 
-    def __init__(self, *args, user=None, extra_columns=None, **kwargs):
-        if extra_columns is None:
-            extra_columns = []
+    def __init__(self, *args, user=None, **kwargs):
 
-        # Add custom field & custom link columns
-        content_type = ContentType.objects.get_for_model(self._meta.model)
-        custom_fields = CustomField.objects.filter(content_types=content_type)
-        extra_columns.extend([
-            (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in custom_fields
-        ])
-        custom_links = CustomLink.objects.filter(content_type=content_type, enabled=True)
-        extra_columns.extend([
-            (f'cl_{cl.name}', columns.CustomLinkColumn(cl)) for cl in custom_links
-        ])
-
-        super().__init__(*args, extra_columns=extra_columns, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Set default empty_text if none was provided
         if self.empty_text is None:
             self.empty_text = f"No {self._meta.model._meta.verbose_name_plural} found"
 
-        # Hide non-default columns (except for actions)
-        default_columns = [*getattr(self.Meta, 'default_columns', self.Meta.fields), 'actions']
+        # Hide non-default columns
+        default_columns = [*getattr(self.Meta, 'default_columns', self.Meta.fields), *self.exempt_columns]
         for column in self.columns:
             if column.name not in default_columns:
                 self.columns.hide(column.name)
@@ -65,7 +53,7 @@ class BaseTable(tables.Table):
 
                 # Show only persistent or selected columns
                 for name, column in self.columns.items():
-                    if name in ['pk', 'actions', *selected_columns]:
+                    if name in [*self.exempt_columns, *selected_columns]:
                         self.columns.show(name)
                     else:
                         self.columns.hide(name)
@@ -116,7 +104,7 @@ class BaseTable(tables.Table):
     def _get_columns(self, visible=True):
         columns = []
         for name, column in self.columns.items():
-            if column.visible == visible and name not in ['pk', 'actions']:
+            if column.visible == visible and name not in self.exempt_columns:
                 columns.append((name, column.verbose_name))
         return columns
 
@@ -137,3 +125,44 @@ class BaseTable(tables.Table):
         if not hasattr(self, '_objects_count'):
             self._objects_count = sum(1 for obj in self.data if hasattr(obj, 'pk'))
         return self._objects_count
+
+
+class NetBoxTable(BaseTable):
+    """
+    Table class for most NetBox objects. Adds support for custom field & custom link columns. Includes
+    default columns for:
+
+        * PK (row selection)
+        * ID
+        * Actions
+    """
+    pk = columns.ToggleColumn(
+        visible=False
+    )
+    id = tables.Column(
+        linkify=True,
+        verbose_name='ID'
+    )
+    actions = columns.ActionsColumn()
+
+    exempt_columns = ('pk', 'actions')
+
+    class Meta(BaseTable.Meta):
+        pass
+
+    def __init__(self, *args, extra_columns=None, **kwargs):
+        if extra_columns is None:
+            extra_columns = []
+
+        # Add custom field & custom link columns
+        content_type = ContentType.objects.get_for_model(self._meta.model)
+        custom_fields = CustomField.objects.filter(content_types=content_type)
+        extra_columns.extend([
+            (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in custom_fields
+        ])
+        custom_links = CustomLink.objects.filter(content_type=content_type, enabled=True)
+        extra_columns.extend([
+            (f'cl_{cl.name}', columns.CustomLinkColumn(cl)) for cl in custom_links
+        ])
+
+        super().__init__(*args, extra_columns=extra_columns, **kwargs)

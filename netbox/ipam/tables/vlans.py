@@ -4,7 +4,7 @@ from django_tables2.utils import Accessor
 
 from dcim.models import Interface
 from ipam.models import *
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
 from virtualization.models import VMInterface
 
@@ -58,8 +58,7 @@ VLAN_MEMBER_TAGGED = """
 # VLAN groups
 #
 
-class VLANGroupTable(BaseTable):
-    pk = columns.ToggleColumn()
+class VLANGroupTable(NetBoxTable):
     name = tables.Column(linkify=True)
     scope_type = columns.ContentTypeColumn()
     scope = tables.Column(
@@ -78,7 +77,7 @@ class VLANGroupTable(BaseTable):
         extra_buttons=VLANGROUP_BUTTONS
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VLANGroup
         fields = (
             'pk', 'id', 'name', 'scope_type', 'scope', 'min_vid', 'max_vid', 'vlan_count', 'slug', 'description',
@@ -91,8 +90,7 @@ class VLANGroupTable(BaseTable):
 # VLANs
 #
 
-class VLANTable(BaseTable):
-    pk = columns.ToggleColumn()
+class VLANTable(NetBoxTable):
     vid = tables.TemplateColumn(
         template_code=VLAN_LINK,
         verbose_name='VID'
@@ -122,7 +120,7 @@ class VLANTable(BaseTable):
         url_name='ipam:vlan_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VLAN
         fields = (
             'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags',
@@ -134,7 +132,7 @@ class VLANTable(BaseTable):
         }
 
 
-class VLANMembersTable(BaseTable):
+class VLANMembersTable(NetBoxTable):
     """
     Base table for Interface and VMInterface assignments
     """
@@ -156,7 +154,7 @@ class VLANDevicesTable(VLANMembersTable):
         sequence=('edit',)
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Interface
         fields = ('device', 'name', 'tagged', 'actions')
         exclude = ('id', )
@@ -170,13 +168,13 @@ class VLANVirtualMachinesTable(VLANMembersTable):
         sequence=('edit',)
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VMInterface
         fields = ('virtual_machine', 'name', 'tagged', 'actions')
         exclude = ('id', )
 
 
-class InterfaceVLANTable(BaseTable):
+class InterfaceVLANTable(NetBoxTable):
     """
     List VLANs assigned to a specific Interface.
     """
@@ -198,7 +196,7 @@ class InterfaceVLANTable(BaseTable):
         linkify=True
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VLAN
         fields = ('vid', 'tagged', 'site', 'group', 'name', 'tenant', 'status', 'role', 'description')
         exclude = ('id', )

@@ -5,7 +5,7 @@ from dcim.models import (
     ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceType, FrontPortTemplate, InterfaceTemplate,
     InventoryItemTemplate, Manufacturer, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS
 
 __all__ = (
@@ -28,8 +28,7 @@ __all__ = (
 # Manufacturers
 #
 
-class ManufacturerTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ManufacturerTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -47,7 +46,7 @@ class ManufacturerTable(BaseTable):
         url_name='dcim:manufacturer_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Manufacturer
         fields = (
             'pk', 'id', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug',
@@ -62,8 +61,7 @@ class ManufacturerTable(BaseTable):
 # Device types
 #
 
-class DeviceTypeTable(BaseTable):
-    pk = columns.ToggleColumn()
+class DeviceTypeTable(NetBoxTable):
     model = tables.Column(
         linkify=True,
         verbose_name='Device Type'
@@ -81,7 +79,7 @@ class DeviceTypeTable(BaseTable):
         url_name='dcim:devicetype_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = DeviceType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
@@ -96,8 +94,7 @@ class DeviceTypeTable(BaseTable):
 # Device type components
 #
 
-class ComponentTemplateTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ComponentTemplateTable(NetBoxTable):
     id = tables.Column(
         verbose_name='ID'
     )
@@ -105,7 +102,7 @@ class ComponentTemplateTable(BaseTable):
         order_by=('_name',)
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         exclude = ('id', )
 
 

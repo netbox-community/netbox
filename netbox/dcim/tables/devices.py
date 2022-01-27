@@ -5,7 +5,7 @@ from dcim.models import (
     ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, FrontPort, Interface, InventoryItem,
     InventoryItemRole, ModuleBay, Platform, PowerOutlet, PowerPort, RearPort, VirtualChassis,
 )
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
 from .template_code import *
 
@@ -71,8 +71,7 @@ def get_interface_state_attribute(record):
 # Device roles
 #
 
-class DeviceRoleTable(BaseTable):
-    pk = columns.ToggleColumn()
+class DeviceRoleTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -92,7 +91,7 @@ class DeviceRoleTable(BaseTable):
         url_name='dcim:devicerole_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = DeviceRole
         fields = (
             'pk', 'id', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'slug', 'tags',
@@ -105,8 +104,7 @@ class DeviceRoleTable(BaseTable):
 # Platforms
 #
 
-class PlatformTable(BaseTable):
-    pk = columns.ToggleColumn()
+class PlatformTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -124,7 +122,7 @@ class PlatformTable(BaseTable):
         url_name='dcim:platform_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Platform
         fields = (
             'pk', 'id', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'napalm_args',
@@ -139,8 +137,7 @@ class PlatformTable(BaseTable):
 # Devices
 #
 
-class DeviceTable(BaseTable):
-    pk = columns.ToggleColumn()
+class DeviceTable(NetBoxTable):
     name = tables.TemplateColumn(
         order_by=('_name',),
         template_code=DEVICE_LINK
@@ -197,7 +194,7 @@ class DeviceTable(BaseTable):
         url_name='dcim:device_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Device
         fields = (
             'pk', 'id', 'name', 'status', 'tenant', 'device_role', 'manufacturer', 'device_type', 'platform', 'serial',
@@ -211,7 +208,7 @@ class DeviceTable(BaseTable):
         )
 
 
-class DeviceImportTable(BaseTable):
+class DeviceImportTable(NetBoxTable):
     name = tables.TemplateColumn(
         template_code=DEVICE_LINK
     )
@@ -230,7 +227,7 @@ class DeviceImportTable(BaseTable):
         verbose_name='Type'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Device
         fields = ('id', 'name', 'status', 'tenant', 'site', 'rack', 'position', 'device_role', 'device_type')
         empty_text = False
@@ -240,8 +237,7 @@ class DeviceImportTable(BaseTable):
 # Device components
 #
 
-class DeviceComponentTable(BaseTable):
-    pk = columns.ToggleColumn()
+class DeviceComponentTable(NetBoxTable):
     device = tables.Column(
         linkify=True
     )
@@ -250,7 +246,7 @@ class DeviceComponentTable(BaseTable):
         order_by=('_name',)
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         order_by = ('device', 'name')
 
 
@@ -267,7 +263,7 @@ class ModularDeviceComponentTable(DeviceComponentTable):
     )
 
 
-class CableTerminationTable(BaseTable):
+class CableTerminationTable(NetBoxTable):
     cable = tables.Column(
         linkify=True
     )
@@ -473,7 +469,7 @@ class DevicePowerOutletTable(PowerOutletTable):
         }
 
 
-class BaseInterfaceTable(BaseTable):
+class BaseInterfaceTable(NetBoxTable):
     enabled = columns.BooleanColumn()
     ip_addresses = tables.TemplateColumn(
         template_code=INTERFACE_IPADDRESSES,
@@ -776,7 +772,7 @@ class InventoryItemTable(DeviceComponentTable):
     )
     cable = None  # Override DeviceComponentTable
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = InventoryItem
         fields = (
             'pk', 'id', 'name', 'device', 'component', 'label', 'role', 'manufacturer', 'part_id', 'serial',
@@ -796,7 +792,7 @@ class DeviceInventoryItemTable(InventoryItemTable):
     )
     actions = columns.ActionsColumn()
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = InventoryItem
         fields = (
             'pk', 'id', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'component',
@@ -807,8 +803,7 @@ class DeviceInventoryItemTable(InventoryItemTable):
         )
 
 
-class InventoryItemRoleTable(BaseTable):
-    pk = columns.ToggleColumn()
+class InventoryItemRoleTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -822,7 +817,7 @@ class InventoryItemRoleTable(BaseTable):
         url_name='dcim:inventoryitemrole_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = InventoryItemRole
         fields = (
             'pk', 'id', 'name', 'inventoryitem_count', 'color', 'description', 'slug', 'tags', 'actions',
@@ -834,8 +829,7 @@ class InventoryItemRoleTable(BaseTable):
 # Virtual chassis
 #
 
-class VirtualChassisTable(BaseTable):
-    pk = columns.ToggleColumn()
+class VirtualChassisTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -851,7 +845,7 @@ class VirtualChassisTable(BaseTable):
         url_name='dcim:virtualchassis_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VirtualChassis
         fields = ('pk', 'id', 'name', 'domain', 'master', 'member_count', 'tags', 'created', 'last_updated',)
         default_columns = ('pk', 'name', 'domain', 'master', 'member_count')

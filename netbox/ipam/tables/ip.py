@@ -3,7 +3,7 @@ from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
 
 from ipam.models import *
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
 
 __all__ = (
@@ -70,8 +70,7 @@ VRF_LINK = """
 # RIRs
 #
 
-class RIRTable(BaseTable):
-    pk = columns.ToggleColumn()
+class RIRTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -87,7 +86,7 @@ class RIRTable(BaseTable):
         url_name='ipam:rir_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = RIR
         fields = (
             'pk', 'id', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'tags', 'created',
@@ -100,8 +99,7 @@ class RIRTable(BaseTable):
 # ASNs
 #
 
-class ASNTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ASNTable(NetBoxTable):
     asn = tables.Column(
         accessor=tables.A('asn_asdot'),
         linkify=True
@@ -113,7 +111,7 @@ class ASNTable(BaseTable):
         verbose_name='Sites'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ASN
         fields = ('pk', 'asn', 'rir', 'site_count', 'tenant', 'description', 'created', 'last_updated', 'actions')
         default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'tenant')
@@ -123,8 +121,7 @@ class ASNTable(BaseTable):
 # Aggregates
 #
 
-class AggregateTable(BaseTable):
-    pk = columns.ToggleColumn()
+class AggregateTable(NetBoxTable):
     prefix = tables.Column(
         linkify=True,
         verbose_name='Aggregate'
@@ -145,7 +142,7 @@ class AggregateTable(BaseTable):
         url_name='ipam:aggregate_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Aggregate
         fields = (
             'pk', 'id', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description', 'tags',
@@ -158,8 +155,7 @@ class AggregateTable(BaseTable):
 # Roles
 #
 
-class RoleTable(BaseTable):
-    pk = columns.ToggleColumn()
+class RoleTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -177,7 +173,7 @@ class RoleTable(BaseTable):
         url_name='ipam:role_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Role
         fields = (
             'pk', 'id', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'tags', 'created',
@@ -205,8 +201,7 @@ class PrefixUtilizationColumn(columns.UtilizationColumn):
     """
 
 
-class PrefixTable(BaseTable):
-    pk = columns.ToggleColumn()
+class PrefixTable(NetBoxTable):
     prefix = tables.TemplateColumn(
         template_code=PREFIX_LINK,
         attrs={'td': {'class': 'text-nowrap'}}
@@ -266,7 +261,7 @@ class PrefixTable(BaseTable):
         url_name='ipam:prefix_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Prefix
         fields = (
             'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site',
@@ -283,8 +278,7 @@ class PrefixTable(BaseTable):
 #
 # IP ranges
 #
-class IPRangeTable(BaseTable):
-    pk = columns.ToggleColumn()
+class IPRangeTable(NetBoxTable):
     start_address = tables.Column(
         linkify=True
     )
@@ -307,7 +301,7 @@ class IPRangeTable(BaseTable):
         url_name='ipam:iprange_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = IPRange
         fields = (
             'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
@@ -325,8 +319,7 @@ class IPRangeTable(BaseTable):
 # IPAddresses
 #
 
-class IPAddressTable(BaseTable):
-    pk = columns.ToggleColumn()
+class IPAddressTable(NetBoxTable):
     address = tables.TemplateColumn(
         template_code=IPADDRESS_LINK,
         verbose_name='IP Address'
@@ -365,7 +358,7 @@ class IPAddressTable(BaseTable):
         url_name='ipam:ipaddress_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = IPAddress
         fields = (
             'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'assigned', 'dns_name', 'description',
@@ -379,7 +372,7 @@ class IPAddressTable(BaseTable):
         }
 
 
-class IPAddressAssignTable(BaseTable):
+class IPAddressAssignTable(NetBoxTable):
     address = tables.TemplateColumn(
         template_code=IPADDRESS_ASSIGN_LINK,
         verbose_name='IP Address'
@@ -389,14 +382,14 @@ class IPAddressAssignTable(BaseTable):
         orderable=False
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = IPAddress
         fields = ('address', 'dns_name', 'vrf', 'status', 'role', 'tenant', 'assigned_object', 'description')
         exclude = ('id', )
         orderable = False
 
 
-class AssignedIPAddressesTable(BaseTable):
+class AssignedIPAddressesTable(NetBoxTable):
     """
     List IP addresses assigned to an object.
     """
@@ -411,7 +404,7 @@ class AssignedIPAddressesTable(BaseTable):
     status = columns.ChoiceFieldColumn()
     tenant = TenantColumn()
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = IPAddress
         fields = ('address', 'vrf', 'status', 'role', 'tenant', 'description')
         exclude = ('id', )

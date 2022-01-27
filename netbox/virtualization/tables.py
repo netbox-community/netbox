@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from dcim.tables.devices import BaseInterfaceTable
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -27,8 +27,7 @@ VMINTERFACE_BUTTONS = """
 # Cluster types
 #
 
-class ClusterTypeTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ClusterTypeTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -39,7 +38,7 @@ class ClusterTypeTable(BaseTable):
         url_name='virtualization:clustertype_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ClusterType
         fields = (
             'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'created', 'last_updated', 'tags', 'actions',
@@ -51,8 +50,7 @@ class ClusterTypeTable(BaseTable):
 # Cluster groups
 #
 
-class ClusterGroupTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ClusterGroupTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -63,7 +61,7 @@ class ClusterGroupTable(BaseTable):
         url_name='virtualization:clustergroup_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ClusterGroup
         fields = (
             'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'created', 'last_updated', 'actions',
@@ -75,8 +73,7 @@ class ClusterGroupTable(BaseTable):
 # Clusters
 #
 
-class ClusterTable(BaseTable):
-    pk = columns.ToggleColumn()
+class ClusterTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -107,7 +104,7 @@ class ClusterTable(BaseTable):
         url_name='virtualization:cluster_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Cluster
         fields = (
             'pk', 'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'device_count', 'vm_count', 'tags',
@@ -120,8 +117,7 @@ class ClusterTable(BaseTable):
 # Virtual machines
 #
 
-class VirtualMachineTable(BaseTable):
-    pk = columns.ToggleColumn()
+class VirtualMachineTable(NetBoxTable):
     name = tables.Column(
         order_by=('_name',),
         linkify=True
@@ -150,7 +146,7 @@ class VirtualMachineTable(BaseTable):
         url_name='virtualization:virtualmachine_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VirtualMachine
         fields = (
             'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
@@ -166,7 +162,6 @@ class VirtualMachineTable(BaseTable):
 #
 
 class VMInterfaceTable(BaseInterfaceTable):
-    pk = columns.ToggleColumn()
     virtual_machine = tables.Column(
         linkify=True
     )
@@ -177,7 +172,7 @@ class VMInterfaceTable(BaseInterfaceTable):
         url_name='virtualization:vminterface_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
@@ -198,7 +193,7 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
         extra_buttons=VMINTERFACE_BUTTONS
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'enabled', 'parent', 'bridge', 'mac_address', 'mtu', 'mode', 'description', 'tags',

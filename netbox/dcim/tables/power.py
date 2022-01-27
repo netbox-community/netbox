@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from dcim.models import PowerFeed, PowerPanel
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from .devices import CableTerminationTable
 
 __all__ = (
@@ -14,8 +14,7 @@ __all__ = (
 # Power panels
 #
 
-class PowerPanelTable(BaseTable):
-    pk = columns.ToggleColumn()
+class PowerPanelTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -31,7 +30,7 @@ class PowerPanelTable(BaseTable):
         url_name='dcim:powerpanel_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = PowerPanel
         fields = ('pk', 'id', 'name', 'site', 'location', 'powerfeed_count', 'tags', 'created', 'last_updated',)
         default_columns = ('pk', 'name', 'site', 'location', 'powerfeed_count')
@@ -44,7 +43,6 @@ class PowerPanelTable(BaseTable):
 # We're not using PathEndpointTable for PowerFeed because power connections
 # cannot traverse pass-through ports.
 class PowerFeedTable(CableTerminationTable):
-    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
@@ -67,7 +65,7 @@ class PowerFeedTable(CableTerminationTable):
         url_name='dcim:powerfeed_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = PowerFeed
         fields = (
             'pk', 'id', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',

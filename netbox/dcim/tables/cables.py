@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import Cable
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
 from .template_code import CABLE_LENGTH, CABLE_TERMINATION_PARENT
 
@@ -15,8 +15,7 @@ __all__ = (
 # Cables
 #
 
-class CableTable(BaseTable):
-    pk = columns.ToggleColumn()
+class CableTable(NetBoxTable):
     termination_a_parent = tables.TemplateColumn(
         template_code=CABLE_TERMINATION_PARENT,
         accessor=Accessor('termination_a'),
@@ -52,7 +51,7 @@ class CableTable(BaseTable):
         url_name='dcim:cable_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Cable
         fields = (
             'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',

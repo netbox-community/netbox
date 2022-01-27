@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from dcim.models import Interface
-from netbox.tables import BaseTable, columns
+from netbox.tables import NetBoxTable, columns
 from .models import *
 
 __all__ = (
@@ -11,8 +11,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupTable(BaseTable):
-    pk = columns.ToggleColumn()
+class WirelessLANGroupTable(NetBoxTable):
     name = columns.MPTTColumn(
         linkify=True
     )
@@ -25,7 +24,7 @@ class WirelessLANGroupTable(BaseTable):
         url_name='wireless:wirelesslangroup_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = WirelessLANGroup
         fields = (
             'pk', 'name', 'wirelesslan_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
@@ -33,8 +32,7 @@ class WirelessLANGroupTable(BaseTable):
         default_columns = ('pk', 'name', 'wirelesslan_count', 'description')
 
 
-class WirelessLANTable(BaseTable):
-    pk = columns.ToggleColumn()
+class WirelessLANTable(NetBoxTable):
     ssid = tables.Column(
         linkify=True
     )
@@ -48,7 +46,7 @@ class WirelessLANTable(BaseTable):
         url_name='wireless:wirelesslan_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = WirelessLAN
         fields = (
             'pk', 'ssid', 'group', 'description', 'vlan', 'interface_count', 'auth_type', 'auth_cipher', 'auth_psk',
@@ -57,8 +55,7 @@ class WirelessLANTable(BaseTable):
         default_columns = ('pk', 'ssid', 'group', 'description', 'vlan', 'auth_type', 'interface_count')
 
 
-class WirelessLANInterfacesTable(BaseTable):
-    pk = columns.ToggleColumn()
+class WirelessLANInterfacesTable(NetBoxTable):
     device = tables.Column(
         linkify=True
     )
@@ -66,14 +63,13 @@ class WirelessLANInterfacesTable(BaseTable):
         linkify=True
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Interface
         fields = ('pk', 'device', 'name', 'rf_role', 'rf_channel')
         default_columns = ('pk', 'device', 'name', 'rf_role', 'rf_channel')
 
 
-class WirelessLinkTable(BaseTable):
-    pk = columns.ToggleColumn()
+class WirelessLinkTable(NetBoxTable):
     id = tables.Column(
         linkify=True,
         verbose_name='ID'
@@ -97,7 +93,7 @@ class WirelessLinkTable(BaseTable):
         url_name='wireless:wirelesslink_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = WirelessLink
         fields = (
             'pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'description',
