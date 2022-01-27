@@ -209,13 +209,9 @@ class CircuitTermination(WebhooksMixin, ChangeLoggedModel, LinkTermination):
             raise ValidationError("A circuit termination cannot attach to both a site and a provider network.")
 
     def to_objectchange(self, action):
-        # Annotate the parent Circuit
-        try:
-            circuit = self.circuit
-        except Circuit.DoesNotExist:
-            # Parent circuit has been deleted
-            circuit = None
-        return super().to_objectchange(action, related_object=circuit)
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.circuit
+        return objectchange
 
     @property
     def parent_object(self):

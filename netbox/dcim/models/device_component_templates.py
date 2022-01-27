@@ -70,14 +70,10 @@ class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
         """
         raise NotImplementedError()
 
-    def to_objectchange(self, action, related_object=None):
-        # Annotate the parent DeviceType
-        try:
-            device_type = self.device_type
-        except ObjectDoesNotExist:
-            # The parent DeviceType has already been deleted
-            device_type = None
-        return super().to_objectchange(action, related_object=device_type)
+    def to_objectchange(self, action):
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.device_type
+        return objectchange
 
 
 class ModularComponentTemplateModel(ComponentTemplateModel):
@@ -102,19 +98,13 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
     class Meta:
         abstract = True
 
-    def to_objectchange(self, action, related_object=None):
-        # Annotate the parent DeviceType or ModuleType
-        try:
-            if getattr(self, 'device_type'):
-                return super().to_objectchange(action, related_object=self.device_type)
-        except ObjectDoesNotExist:
-            pass
-        try:
-            if getattr(self, 'module_type'):
-                return super().to_objectchange(action, related_object=self.module_type)
-        except ObjectDoesNotExist:
-            pass
-        return super().to_objectchange(action)
+    def to_objectchange(self, action):
+        objectchange = super().to_objectchange(action)
+        if self.device_type is not None:
+            objectchange.related_object = self.device_type
+        elif self.module_type is not None:
+            objectchange.related_object = self.module_type
+        return objectchange
 
     def clean(self):
         super().clean()

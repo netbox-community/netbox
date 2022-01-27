@@ -441,8 +441,9 @@ class VMInterface(PrimaryModel, BaseInterface):
             })
 
     def to_objectchange(self, action):
-        # Annotate the parent VirtualMachine
-        return super().to_objectchange(action, related_object=self.virtual_machine)
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.virtual_machine
+        return objectchange
 
     @property
     def parent_object(self):

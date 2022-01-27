@@ -418,7 +418,9 @@ class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
             return None
 
     def to_objectchange(self, action):
-        return super().to_objectchange(action, related_object=self.parent)
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.parent
+        return objectchange
 
 
 class JournalEntry(WebhooksMixin, ChangeLoggedModel):

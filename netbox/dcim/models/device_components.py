@@ -75,13 +75,9 @@ class ComponentModel(PrimaryModel):
         return self.name
 
     def to_objectchange(self, action):
-        # Annotate the parent Device
-        try:
-            device = self.device
-        except ObjectDoesNotExist:
-            # The parent Device has already been deleted
-            device = None
-        return super().to_objectchange(action, related_object=device)
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.device
+        return super().to_objectchange(action)
 
     @property
     def parent_object(self):

@@ -57,7 +57,7 @@ class ChangeLoggingMixin(models.Model):
         logger.debug(f"Taking a snapshot of {self}")
         self._prechange_snapshot = serialize_object(self)
 
-    def to_objectchange(self, action, related_object=None):
+    def to_objectchange(self, action):
         """
         Return a new ObjectChange representing a change made to this object. This will typically be called automatically
         by ChangeLoggingMiddleware.
@@ -65,7 +65,6 @@ class ChangeLoggingMixin(models.Model):
         from extras.models import ObjectChange
         objectchange = ObjectChange(
             changed_object=self,
-            related_object=related_object,
             object_repr=str(self)[:200],
             action=action
         )

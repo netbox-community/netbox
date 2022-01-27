@@ -904,8 +904,9 @@ class IPAddress(PrimaryModel):
         super().save(*args, **kwargs)
 
     def to_objectchange(self, action):
-        # Annotate the assigned object, if any
-        return super().to_objectchange(action, related_object=self.assigned_object)
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.assigned_object
+        return objectchange
 
     @property
     def family(self):
