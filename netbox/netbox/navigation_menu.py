@@ -390,10 +390,10 @@ MENUS = [
 # Add plugin menus
 #
 
-if registry['plugin_menu_items']:
+if registry['plugins']['menu_items']:
     plugin_menu_groups = []
 
-    for plugin_name, items in registry['plugin_menu_items'].items():
+    for plugin_name, items in registry['plugins']['menu_items'].items():
         plugin_menu_groups.append(
             MenuGroup(
                 label=plugin_name,
