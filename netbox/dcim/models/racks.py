@@ -14,7 +14,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.svg import RackElevationSVG
 from netbox.config import get_config
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.utils import array_to_string
@@ -63,7 +63,7 @@ class RackRole(OrganizationalModel):
         return reverse('dcim:rackrole', args=[self.pk])
 
 
-class Rack(PrimaryModel):
+class Rack(NetBoxModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
@@ -435,7 +435,7 @@ class Rack(PrimaryModel):
         return int(allocated_draw_total / available_power_total * 100)
 
 
-class RackReservation(PrimaryModel):
+class RackReservation(NetBoxModel):
     """
     One or more reserved units within a Rack.
     """

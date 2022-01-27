@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from circuits.choices import *
 from dcim.models import LinkTermination
-from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
+from netbox.models import ChangeLoggedModel, OrganizationalModel, NetBoxModel
 from netbox.models.features import WebhooksMixin
 
 __all__ = (
@@ -43,7 +43,7 @@ class CircuitType(OrganizationalModel):
         return reverse('circuits:circuittype', args=[self.pk])
 
 
-class Circuit(PrimaryModel):
+class Circuit(NetBoxModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
     circuits. Each circuit is also assigned a CircuitType and a Site.  Circuit port speed and commit rate are measured

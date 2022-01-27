@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from ipam.choices import *
 from ipam.constants import *
-from netbox.models import PrimaryModel
+from netbox.models import NetBoxModel
 from utilities.utils import array_to_string
 
 
@@ -46,7 +46,7 @@ class ServiceBase(models.Model):
         return array_to_string(self.ports)
 
 
-class ServiceTemplate(ServiceBase, PrimaryModel):
+class ServiceTemplate(ServiceBase, NetBoxModel):
     """
     A template for a Service to be applied to a device or virtual machine.
     """
@@ -62,7 +62,7 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
         return reverse('ipam:servicetemplate', args=[self.pk])
 
 
-class Service(ServiceBase, PrimaryModel):
+class Service(ServiceBase, NetBoxModel):
     """
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may
     optionally be tied to one or more specific IPAddresses belonging to its parent.

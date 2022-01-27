@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from dcim.choices import *
 from dcim.constants import *
-from netbox.models import PrimaryModel
+from netbox.models import NetBoxModel
 from utilities.validators import ExclusionValidator
 from .device_components import LinkTermination, PathEndpoint
 
@@ -20,7 +20,7 @@ __all__ = (
 # Power
 #
 
-class PowerPanel(PrimaryModel):
+class PowerPanel(NetBoxModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
     """
@@ -66,7 +66,7 @@ class PowerPanel(PrimaryModel):
             )
 
 
-class PowerFeed(PrimaryModel, PathEndpoint, LinkTermination):
+class PowerFeed(NetBoxModel, PathEndpoint, LinkTermination):
     """
     An electrical circuit delivered from a PowerPanel.
     """

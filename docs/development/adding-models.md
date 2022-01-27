@@ -2,7 +2,7 @@
 
 ## 1. Define the model class
 
-Models within each app are stored in either `models.py` or within a submodule under the `models/` directory. When creating a model, be sure to subclass the [appropriate base model](models.md) from `netbox.models`. This will typically be PrimaryModel or OrganizationalModel. Remember to add the model class to the `__all__` listing for the module.
+Models within each app are stored in either `models.py` or within a submodule under the `models/` directory. When creating a model, be sure to subclass the [appropriate base model](models.md) from `netbox.models`. This will typically be NetBoxModel or OrganizationalModel. Remember to add the model class to the `__all__` listing for the module.
 
 Each model should define, at a minimum:
 

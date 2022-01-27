@@ -7,7 +7,7 @@ from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
-from netbox.models import NestedGroupModel, PrimaryModel
+from netbox.models import NestedGroupModel, NetBoxModel
 from utilities.fields import NaturalOrderingField
 
 __all__ = (
@@ -194,7 +194,7 @@ class SiteGroup(NestedGroupModel):
 # Sites
 #
 
-class Site(PrimaryModel):
+class Site(NetBoxModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).

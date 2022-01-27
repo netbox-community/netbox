@@ -8,7 +8,7 @@ from dcim.models import BaseInterface, Device
 from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import get_config
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
@@ -100,7 +100,7 @@ class ClusterGroup(OrganizationalModel):
 # Clusters
 #
 
-class Cluster(PrimaryModel):
+class Cluster(NetBoxModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """
@@ -183,7 +183,7 @@ class Cluster(PrimaryModel):
 # Virtual machines
 #
 
-class VirtualMachine(PrimaryModel, ConfigContextModel):
+class VirtualMachine(NetBoxModel, ConfigContextModel):
     """
     A virtual machine which runs inside a Cluster.
     """
@@ -345,7 +345,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
 # Interfaces
 #
 
-class VMInterface(PrimaryModel, BaseInterface):
+class VMInterface(NetBoxModel, BaseInterface):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,

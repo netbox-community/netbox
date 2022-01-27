@@ -4,7 +4,7 @@ from django.db import models
 from django.urls import reverse
 from mptt.models import TreeForeignKey
 
-from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, PrimaryModel
+from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, NetBoxModel
 from netbox.models.features import WebhooksMixin
 from tenancy.choices import *
 
@@ -76,7 +76,7 @@ class ContactRole(OrganizationalModel):
         return reverse('tenancy:contactrole', args=[self.pk])
 
 
-class Contact(PrimaryModel):
+class Contact(NetBoxModel):
     """
     Contact information for a particular object(s) in NetBox.
     """

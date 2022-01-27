@@ -10,15 +10,11 @@ __all__ = (
     'ChangeLoggedModel',
     'NestedGroupModel',
     'OrganizationalModel',
-    'PrimaryModel',
+    'NetBoxModel',
 )
 
 
-#
-# Base model classes
-#
-
-class BaseModel(
+class NetBoxFeatureSet(
     ChangeLoggingMixin,
     CustomFieldsMixin,
     CustomLinksMixin,
@@ -32,9 +28,14 @@ class BaseModel(
         abstract = True
 
 
+#
+# Base model classes
+#
+
 class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, models.Model):
     """
-    Base model for all objects which support change logging.
+    Base model for ancillary models; provides limited functionality for models which don't
+    support NetBox's full feature set.
     """
     objects = RestrictedQuerySet.as_manager()
 
@@ -42,7 +43,7 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, models.Model)
         abstract = True
 
 
-class PrimaryModel(BaseModel, models.Model):
+class NetBoxModel(NetBoxFeatureSet, models.Model):
     """
     Primary models represent real objects within the infrastructure being modeled.
     """
@@ -52,7 +53,7 @@ class PrimaryModel(BaseModel, models.Model):
         abstract = True
 
 
-class NestedGroupModel(BaseModel, MPTTModel):
+class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.
@@ -94,7 +95,7 @@ class NestedGroupModel(BaseModel, MPTTModel):
             })
 
 
-class OrganizationalModel(BaseModel, models.Model):
+class OrganizationalModel(NetBoxFeatureSet, models.Model):
     """
     Organizational models are those which are used solely to categorize and qualify other objects, and do not convey
     any real information about the infrastructure being modeled (for example, functional device roles). Organizational

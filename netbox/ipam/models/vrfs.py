@@ -2,7 +2,7 @@ from django.db import models
 from django.urls import reverse
 
 from ipam.constants import *
-from netbox.models import PrimaryModel
+from netbox.models import NetBoxModel
 
 
 __all__ = (
@@ -11,7 +11,7 @@ __all__ = (
 )
 
 
-class VRF(PrimaryModel):
+class VRF(NetBoxModel):
     """
     A virtual routing and forwarding (VRF) table represents a discrete layer three forwarding domain (e.g. a routing
     table). Prefixes and IPAddresses can optionally be assigned to VRFs. (Prefixes and IPAddresses not assigned to a VRF
@@ -73,7 +73,7 @@ class VRF(PrimaryModel):
         return reverse('ipam:vrf', args=[self.pk])
 
 
-class RouteTarget(PrimaryModel):
+class RouteTarget(NetBoxModel):
     """
     A BGP extended community used to control the redistribution of routes among VRFs, as defined in RFC 4364.
     """

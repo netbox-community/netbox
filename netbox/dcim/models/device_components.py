@@ -11,7 +11,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField, WWNField
 from dcim.svg import CableTraceSVG
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
@@ -39,7 +39,7 @@ __all__ = (
 )
 
 
-class ComponentModel(PrimaryModel):
+class ComponentModel(NetBoxModel):
     """
     An abstract model inherited by any model which has a parent Device.
     """

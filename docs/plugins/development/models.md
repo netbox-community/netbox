@@ -65,9 +65,10 @@ Simply subclass BaseModel when defining a model in your plugin:
 
 ```python
 # models.py
-from netbox.models import BaseModel
+from django.db import models
+from netbox.models import NetBoxModel
 
-class MyModel(BaseModel):
+class MyModel(NetBoxModel):
     foo = models.CharField()
     ...
 ```
@@ -78,7 +79,7 @@ If you prefer instead to enable only a subset of these features for a plugin mod
 
 ```python
 # models.py
-from django.db.models import models
+from django.db import models
 from netbox.models.features import ExportTemplatesMixin, TagsMixin
 
 class MyModel(ExportTemplatesMixin, TagsMixin, models.Model):

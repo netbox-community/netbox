@@ -11,7 +11,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_object
-from netbox.models import PrimaryModel
+from netbox.models import NetBoxModel
 from utilities.fields import ColorField
 from utilities.utils import to_meters
 from .devices import Device
@@ -28,7 +28,7 @@ __all__ = (
 # Cables
 #
 
-class Cable(PrimaryModel):
+class Cable(NetBoxModel):
     """
     A physical connection between two endpoints.
     """

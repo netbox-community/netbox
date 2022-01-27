@@ -9,7 +9,7 @@ from dcim.models import Interface
 from ipam.choices import *
 from ipam.constants import *
 from ipam.querysets import VLANQuerySet
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, NetBoxModel
 from virtualization.models import VMInterface
 
 
@@ -116,7 +116,7 @@ class VLANGroup(OrganizationalModel):
         return None
 
 
-class VLAN(PrimaryModel):
+class VLAN(NetBoxModel):
     """
     A VLAN is a distinct layer two forwarding domain identified by a 12-bit integer (1-4094). Each VLAN must be assigned
     to a Site, however VLAN IDs need not be unique within a Site. A VLAN may optionally be assigned to a VLANGroup,

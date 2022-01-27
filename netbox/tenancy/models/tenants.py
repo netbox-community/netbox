@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 from mptt.models import TreeForeignKey
 
-from netbox.models import NestedGroupModel, PrimaryModel
+from netbox.models import NestedGroupModel, NetBoxModel
 
 __all__ = (
     'Tenant',
@@ -43,7 +43,7 @@ class TenantGroup(NestedGroupModel):
         return reverse('tenancy:tenantgroup', args=[self.pk])
 
 
-class Tenant(PrimaryModel):
+class Tenant(NetBoxModel):
     """
     A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal
     department.
