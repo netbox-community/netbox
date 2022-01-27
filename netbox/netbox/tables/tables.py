@@ -7,7 +7,7 @@ from django.db.models.fields.related import RelatedField
 from django_tables2.data import TableQuerysetData
 
 from extras.models import CustomField, CustomLink
-from . import columns
+from netbox.tables import columns
 
 __all__ = (
     'BaseTable',

@@ -1,10 +1,9 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
+from netbox.tables import BaseTable, columns
 from tenancy.tables import TenantColumn
-from utilities.tables import BaseTable, ChoiceFieldColumn, MarkdownColumn, TagColumn, ToggleColumn
 from .models import *
-
 
 __all__ = (
     'CircuitTable',
@@ -22,10 +21,10 @@ CIRCUITTERMINATION_LINK = """
 {% endif %}
 """
 
+
 #
 # Table columns
 #
-
 
 class CommitRateColumn(tables.TemplateColumn):
     """
@@ -43,13 +42,13 @@ class CommitRateColumn(tables.TemplateColumn):
     def value(self, value):
         return str(value) if value else None
 
+
 #
 # Providers
 #
 
-
 class ProviderTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
@@ -57,8 +56,8 @@ class ProviderTable(BaseTable):
         accessor=Accessor('count_circuits'),
         verbose_name='Circuits'
     )
-    comments = MarkdownColumn()
-    tags = TagColumn(
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn(
         url_name='circuits:provider_list'
     )
 
@@ -76,15 +75,15 @@ class ProviderTable(BaseTable):
 #
 
 class ProviderNetworkTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
     provider = tables.Column(
         linkify=True
     )
-    comments = MarkdownColumn()
-    tags = TagColumn(
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn(
         url_name='circuits:providernetwork_list'
     )
 
@@ -101,11 +100,11 @@ class ProviderNetworkTable(BaseTable):
 #
 
 class CircuitTypeTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='circuits:circuittype_list'
     )
     circuit_count = tables.Column(
@@ -125,7 +124,7 @@ class CircuitTypeTable(BaseTable):
 #
 
 class CircuitTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     cid = tables.Column(
         linkify=True,
         verbose_name='Circuit ID'
@@ -133,7 +132,7 @@ class CircuitTable(BaseTable):
     provider = tables.Column(
         linkify=True
     )
-    status = ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn()
     tenant = TenantColumn()
     termination_a = tables.TemplateColumn(
         template_code=CIRCUITTERMINATION_LINK,
@@ -144,8 +143,8 @@ class CircuitTable(BaseTable):
         verbose_name='Side Z'
     )
     commit_rate = CommitRateColumn()
-    comments = MarkdownColumn()
-    tags = TagColumn(
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn(
         url_name='circuits:circuit_list'
     )
 

@@ -2,8 +2,8 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import Cable
+from netbox.tables import BaseTable, columns
 from tenancy.tables import TenantColumn
-from utilities.tables import BaseTable, ChoiceFieldColumn, ColorColumn, TagColumn, TemplateColumn, ToggleColumn
 from .template_code import CABLE_LENGTH, CABLE_TERMINATION_PARENT
 
 __all__ = (
@@ -16,7 +16,7 @@ __all__ = (
 #
 
 class CableTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     termination_a_parent = tables.TemplateColumn(
         template_code=CABLE_TERMINATION_PARENT,
         accessor=Accessor('termination_a'),
@@ -41,14 +41,14 @@ class CableTable(BaseTable):
         linkify=True,
         verbose_name='Termination B'
     )
-    status = ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn()
     tenant = TenantColumn()
-    length = TemplateColumn(
+    length = columns.TemplateColumn(
         template_code=CABLE_LENGTH,
         order_by='_abs_length'
     )
-    color = ColorColumn()
-    tags = TagColumn(
+    color = columns.ColorColumn()
+    tags = columns.TagColumn(
         url_name='dcim:cable_list'
     )
 

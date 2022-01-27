@@ -1,10 +1,8 @@
 import django_tables2 as tables
 
 from dcim.models import Location, Region, Site, SiteGroup
+from netbox.tables import BaseTable, columns
 from tenancy.tables import TenantColumn
-from utilities.tables import (
-    ActionsColumn, BaseTable, ChoiceFieldColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn, TagColumn, ToggleColumn,
-)
 from .template_code import LOCATION_BUTTONS
 
 __all__ = (
@@ -20,16 +18,16 @@ __all__ = (
 #
 
 class RegionTable(BaseTable):
-    pk = ToggleColumn()
-    name = MPTTColumn(
+    pk = columns.ToggleColumn()
+    name = columns.MPTTColumn(
         linkify=True
     )
-    site_count = LinkedCountColumn(
+    site_count = columns.LinkedCountColumn(
         viewname='dcim:site_list',
         url_params={'region_id': 'pk'},
         verbose_name='Sites'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='dcim:region_list'
     )
 
@@ -46,16 +44,16 @@ class RegionTable(BaseTable):
 #
 
 class SiteGroupTable(BaseTable):
-    pk = ToggleColumn()
-    name = MPTTColumn(
+    pk = columns.ToggleColumn()
+    name = columns.MPTTColumn(
         linkify=True
     )
-    site_count = LinkedCountColumn(
+    site_count = columns.LinkedCountColumn(
         viewname='dcim:site_list',
         url_params={'group_id': 'pk'},
         verbose_name='Sites'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='dcim:sitegroup_list'
     )
 
@@ -72,26 +70,26 @@ class SiteGroupTable(BaseTable):
 #
 
 class SiteTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
-    status = ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn()
     region = tables.Column(
         linkify=True
     )
     group = tables.Column(
         linkify=True
     )
-    asn_count = LinkedCountColumn(
+    asn_count = columns.LinkedCountColumn(
         accessor=tables.A('asns.count'),
         viewname='ipam:asn_list',
         url_params={'site_id': 'pk'},
         verbose_name='ASNs'
     )
     tenant = TenantColumn()
-    comments = MarkdownColumn()
-    tags = TagColumn(
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn(
         url_name='dcim:site_list'
     )
 
@@ -110,28 +108,28 @@ class SiteTable(BaseTable):
 #
 
 class LocationTable(BaseTable):
-    pk = ToggleColumn()
-    name = MPTTColumn(
+    pk = columns.ToggleColumn()
+    name = columns.MPTTColumn(
         linkify=True
     )
     site = tables.Column(
         linkify=True
     )
     tenant = TenantColumn()
-    rack_count = LinkedCountColumn(
+    rack_count = columns.LinkedCountColumn(
         viewname='dcim:rack_list',
         url_params={'location_id': 'pk'},
         verbose_name='Racks'
     )
-    device_count = LinkedCountColumn(
+    device_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'location_id': 'pk'},
         verbose_name='Devices'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='dcim:location_list'
     )
-    actions = ActionsColumn(
+    actions = columns.ActionsColumn(
         extra_buttons=LOCATION_BUTTONS
     )
 

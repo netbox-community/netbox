@@ -21,7 +21,7 @@ from utilities.forms import (
 )
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
-from utilities.tables import configure_table
+from netbox.tables import configure_table
 from utilities.views import GetReturnURLMixin
 from .base import BaseMultiObjectView
 

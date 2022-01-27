@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from dcim.models import Module, ModuleType
-from utilities.tables import BaseTable, LinkedCountColumn, MarkdownColumn, TagColumn, ToggleColumn
+from netbox.tables import BaseTable, columns
 
 __all__ = (
     'ModuleTable',
@@ -10,18 +10,18 @@ __all__ = (
 
 
 class ModuleTypeTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     model = tables.Column(
         linkify=True,
         verbose_name='Module Type'
     )
-    instance_count = LinkedCountColumn(
+    instance_count = columns.LinkedCountColumn(
         viewname='dcim:module_list',
         url_params={'module_type_id': 'pk'},
         verbose_name='Instances'
     )
-    comments = MarkdownColumn()
-    tags = TagColumn(
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn(
         url_name='dcim:moduletype_list'
     )
 
@@ -36,7 +36,7 @@ class ModuleTypeTable(BaseTable):
 
 
 class ModuleTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     device = tables.Column(
         linkify=True
     )
@@ -46,8 +46,8 @@ class ModuleTable(BaseTable):
     module_type = tables.Column(
         linkify=True
     )
-    comments = MarkdownColumn()
-    tags = TagColumn(
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn(
         url_name='dcim:module_list'
     )
 

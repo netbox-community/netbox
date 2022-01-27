@@ -3,13 +3,10 @@ from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
 
 from dcim.models import Interface
-from tenancy.tables import TenantColumn
-from utilities.tables import (
-    ActionsColumn, BaseTable, BooleanColumn, ChoiceFieldColumn, ContentTypeColumn, LinkedCountColumn, TagColumn,
-    TemplateColumn, ToggleColumn,
-)
-from virtualization.models import VMInterface
 from ipam.models import *
+from netbox.tables import BaseTable, columns
+from tenancy.tables import TenantColumn
+from virtualization.models import VMInterface
 
 __all__ = (
     'InterfaceVLANTable',
@@ -62,22 +59,22 @@ VLAN_MEMBER_TAGGED = """
 #
 
 class VLANGroupTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(linkify=True)
-    scope_type = ContentTypeColumn()
+    scope_type = columns.ContentTypeColumn()
     scope = tables.Column(
         linkify=True,
         orderable=False
     )
-    vlan_count = LinkedCountColumn(
+    vlan_count = columns.LinkedCountColumn(
         viewname='ipam:vlan_list',
         url_params={'group_id': 'pk'},
         verbose_name='VLANs'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:vlangroup_list'
     )
-    actions = ActionsColumn(
+    actions = columns.ActionsColumn(
         extra_buttons=VLANGROUP_BUTTONS
     )
 
@@ -95,7 +92,7 @@ class VLANGroupTable(BaseTable):
 #
 
 class VLANTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     vid = tables.TemplateColumn(
         template_code=VLAN_LINK,
         verbose_name='VID'
@@ -110,18 +107,18 @@ class VLANTable(BaseTable):
         linkify=True
     )
     tenant = TenantColumn()
-    status = ChoiceFieldColumn(
+    status = columns.ChoiceFieldColumn(
         default=AVAILABLE_LABEL
     )
     role = tables.Column(
         linkify=True
     )
-    prefixes = TemplateColumn(
+    prefixes = columns.TemplateColumn(
         template_code=VLAN_PREFIXES,
         orderable=False,
         verbose_name='Prefixes'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:vlan_list'
     )
 
@@ -155,7 +152,7 @@ class VLANDevicesTable(VLANMembersTable):
     device = tables.Column(
         linkify=True
     )
-    actions = ActionsColumn(
+    actions = columns.ActionsColumn(
         sequence=('edit',)
     )
 
@@ -169,7 +166,7 @@ class VLANVirtualMachinesTable(VLANMembersTable):
     virtual_machine = tables.Column(
         linkify=True
     )
-    actions = ActionsColumn(
+    actions = columns.ActionsColumn(
         sequence=('edit',)
     )
 
@@ -187,7 +184,7 @@ class InterfaceVLANTable(BaseTable):
         linkify=True,
         verbose_name='ID'
     )
-    tagged = BooleanColumn()
+    tagged = columns.BooleanColumn()
     site = tables.Column(
         linkify=True
     )
@@ -196,7 +193,7 @@ class InterfaceVLANTable(BaseTable):
         verbose_name='Group'
     )
     tenant = TenantColumn()
-    status = ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn()
     role = tables.Column(
         linkify=True
     )

@@ -3,10 +3,8 @@ from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
 
 from ipam.models import *
+from netbox.tables import BaseTable, columns
 from tenancy.tables import TenantColumn
-from utilities.tables import (
-    BaseTable, BooleanColumn, ChoiceFieldColumn, LinkedCountColumn, TagColumn, ToggleColumn, UtilizationColumn,
-)
 
 __all__ = (
     'AggregateTable',
@@ -73,19 +71,19 @@ VRF_LINK = """
 #
 
 class RIRTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
-    is_private = BooleanColumn(
+    is_private = columns.BooleanColumn(
         verbose_name='Private'
     )
-    aggregate_count = LinkedCountColumn(
+    aggregate_count = columns.LinkedCountColumn(
         viewname='ipam:aggregate_list',
         url_params={'rir_id': 'pk'},
         verbose_name='Aggregates'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:rir_list'
     )
 
@@ -103,13 +101,13 @@ class RIRTable(BaseTable):
 #
 
 class ASNTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     asn = tables.Column(
         accessor=tables.A('asn_asdot'),
         linkify=True
     )
 
-    site_count = LinkedCountColumn(
+    site_count = columns.LinkedCountColumn(
         viewname='dcim:site_list',
         url_params={'asn_id': 'pk'},
         verbose_name='Sites'
@@ -126,7 +124,7 @@ class ASNTable(BaseTable):
 #
 
 class AggregateTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     prefix = tables.Column(
         linkify=True,
         verbose_name='Aggregate'
@@ -139,11 +137,11 @@ class AggregateTable(BaseTable):
     child_count = tables.Column(
         verbose_name='Prefixes'
     )
-    utilization = UtilizationColumn(
+    utilization = columns.UtilizationColumn(
         accessor='get_utilization',
         orderable=False
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:aggregate_list'
     )
 
@@ -161,21 +159,21 @@ class AggregateTable(BaseTable):
 #
 
 class RoleTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
-    prefix_count = LinkedCountColumn(
+    prefix_count = columns.LinkedCountColumn(
         viewname='ipam:prefix_list',
         url_params={'role_id': 'pk'},
         verbose_name='Prefixes'
     )
-    vlan_count = LinkedCountColumn(
+    vlan_count = columns.LinkedCountColumn(
         viewname='ipam:vlan_list',
         url_params={'role_id': 'pk'},
         verbose_name='VLANs'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:role_list'
     )
 
@@ -192,7 +190,7 @@ class RoleTable(BaseTable):
 # Prefixes
 #
 
-class PrefixUtilizationColumn(UtilizationColumn):
+class PrefixUtilizationColumn(columns.UtilizationColumn):
     """
     Extend UtilizationColumn to allow disabling the warning & danger thresholds for prefixes
     marked as fully utilized.
@@ -208,7 +206,7 @@ class PrefixUtilizationColumn(UtilizationColumn):
 
 
 class PrefixTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     prefix = tables.TemplateColumn(
         template_code=PREFIX_LINK,
         attrs={'td': {'class': 'text-nowrap'}}
@@ -222,7 +220,7 @@ class PrefixTable(BaseTable):
         accessor=Accessor('_depth'),
         verbose_name='Depth'
     )
-    children = LinkedCountColumn(
+    children = columns.LinkedCountColumn(
         accessor=Accessor('_children'),
         viewname='ipam:prefix_list',
         url_params={
@@ -231,7 +229,7 @@ class PrefixTable(BaseTable):
         },
         verbose_name='Children'
     )
-    status = ChoiceFieldColumn(
+    status = columns.ChoiceFieldColumn(
         default=AVAILABLE_LABEL
     )
     vrf = tables.TemplateColumn(
@@ -254,17 +252,17 @@ class PrefixTable(BaseTable):
     role = tables.Column(
         linkify=True
     )
-    is_pool = BooleanColumn(
+    is_pool = columns.BooleanColumn(
         verbose_name='Pool'
     )
-    mark_utilized = BooleanColumn(
+    mark_utilized = columns.BooleanColumn(
         verbose_name='Marked Utilized'
     )
     utilization = PrefixUtilizationColumn(
         accessor='get_utilization',
         orderable=False
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:prefix_list'
     )
 
@@ -286,7 +284,7 @@ class PrefixTable(BaseTable):
 # IP ranges
 #
 class IPRangeTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     start_address = tables.Column(
         linkify=True
     )
@@ -294,18 +292,18 @@ class IPRangeTable(BaseTable):
         template_code=VRF_LINK,
         verbose_name='VRF'
     )
-    status = ChoiceFieldColumn(
+    status = columns.ChoiceFieldColumn(
         default=AVAILABLE_LABEL
     )
     role = tables.Column(
         linkify=True
     )
     tenant = TenantColumn()
-    utilization = UtilizationColumn(
+    utilization = columns.UtilizationColumn(
         accessor='utilization',
         orderable=False
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:iprange_list'
     )
 
@@ -328,7 +326,7 @@ class IPRangeTable(BaseTable):
 #
 
 class IPAddressTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     address = tables.TemplateColumn(
         template_code=IPADDRESS_LINK,
         verbose_name='IP Address'
@@ -337,10 +335,10 @@ class IPAddressTable(BaseTable):
         template_code=VRF_LINK,
         verbose_name='VRF'
     )
-    status = ChoiceFieldColumn(
+    status = columns.ChoiceFieldColumn(
         default=AVAILABLE_LABEL
     )
-    role = ChoiceFieldColumn()
+    role = columns.ChoiceFieldColumn()
     tenant = TenantColumn()
     assigned_object = tables.Column(
         linkify=True,
@@ -358,12 +356,12 @@ class IPAddressTable(BaseTable):
         orderable=False,
         verbose_name='NAT (Inside)'
     )
-    assigned = BooleanColumn(
+    assigned = columns.BooleanColumn(
         accessor='assigned_object_id',
         linkify=True,
         verbose_name='Assigned'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:ipaddress_list'
     )
 
@@ -386,7 +384,7 @@ class IPAddressAssignTable(BaseTable):
         template_code=IPADDRESS_ASSIGN_LINK,
         verbose_name='IP Address'
     )
-    status = ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn()
     assigned_object = tables.Column(
         orderable=False
     )
@@ -410,7 +408,7 @@ class AssignedIPAddressesTable(BaseTable):
         template_code=VRF_LINK,
         verbose_name='VRF'
     )
-    status = ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn()
     tenant = TenantColumn()
 
     class Meta(BaseTable.Meta):

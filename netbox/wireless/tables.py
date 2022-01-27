@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from dcim.models import Interface
-from utilities.tables import BaseTable, ChoiceFieldColumn, LinkedCountColumn, MPTTColumn, TagColumn, ToggleColumn
+from netbox.tables import BaseTable, columns
 from .models import *
 
 __all__ = (
@@ -12,16 +12,16 @@ __all__ = (
 
 
 class WirelessLANGroupTable(BaseTable):
-    pk = ToggleColumn()
-    name = MPTTColumn(
+    pk = columns.ToggleColumn()
+    name = columns.MPTTColumn(
         linkify=True
     )
-    wirelesslan_count = LinkedCountColumn(
+    wirelesslan_count = columns.LinkedCountColumn(
         viewname='wireless:wirelesslan_list',
         url_params={'group_id': 'pk'},
         verbose_name='Wireless LANs'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='wireless:wirelesslangroup_list'
     )
 
@@ -34,7 +34,7 @@ class WirelessLANGroupTable(BaseTable):
 
 
 class WirelessLANTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     ssid = tables.Column(
         linkify=True
     )
@@ -44,7 +44,7 @@ class WirelessLANTable(BaseTable):
     interface_count = tables.Column(
         verbose_name='Interfaces'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='wireless:wirelesslan_list'
     )
 
@@ -58,7 +58,7 @@ class WirelessLANTable(BaseTable):
 
 
 class WirelessLANInterfacesTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     device = tables.Column(
         linkify=True
     )
@@ -73,12 +73,12 @@ class WirelessLANInterfacesTable(BaseTable):
 
 
 class WirelessLinkTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     id = tables.Column(
         linkify=True,
         verbose_name='ID'
     )
-    status = ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn()
     device_a = tables.Column(
         accessor=tables.A('interface_a__device'),
         linkify=True
@@ -93,7 +93,7 @@ class WirelessLinkTable(BaseTable):
     interface_b = tables.Column(
         linkify=True
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='wireless:wirelesslink_list'
     )
 

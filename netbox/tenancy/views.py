@@ -6,7 +6,7 @@ from circuits.models import Circuit
 from dcim.models import Site, Rack, Device, RackReservation, Cable
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from netbox.views import generic
-from utilities.tables import configure_table
+from netbox.tables import configure_table
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, Cluster
 from . import filtersets, forms, tables

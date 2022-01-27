@@ -1,11 +1,8 @@
 import django_tables2 as tables
 
 from dcim.tables.devices import BaseInterfaceTable
+from netbox.tables import BaseTable, columns
 from tenancy.tables import TenantColumn
-from utilities.tables import (
-    ActionsColumn, BaseTable, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn, TagColumn,
-    ToggleColumn,
-)
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 __all__ = (
@@ -31,14 +28,14 @@ VMINTERFACE_BUTTONS = """
 #
 
 class ClusterTypeTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='virtualization:clustertype_list'
     )
 
@@ -55,14 +52,14 @@ class ClusterTypeTable(BaseTable):
 #
 
 class ClusterGroupTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='virtualization:clustergroup_list'
     )
 
@@ -79,7 +76,7 @@ class ClusterGroupTable(BaseTable):
 #
 
 class ClusterTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
@@ -95,18 +92,18 @@ class ClusterTable(BaseTable):
     site = tables.Column(
         linkify=True
     )
-    device_count = LinkedCountColumn(
+    device_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'cluster_id': 'pk'},
         verbose_name='Devices'
     )
-    vm_count = LinkedCountColumn(
+    vm_count = columns.LinkedCountColumn(
         viewname='virtualization:virtualmachine_list',
         url_params={'cluster_id': 'pk'},
         verbose_name='VMs'
     )
-    comments = MarkdownColumn()
-    tags = TagColumn(
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn(
         url_name='virtualization:cluster_list'
     )
 
@@ -124,18 +121,18 @@ class ClusterTable(BaseTable):
 #
 
 class VirtualMachineTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         order_by=('_name',),
         linkify=True
     )
-    status = ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn()
     cluster = tables.Column(
         linkify=True
     )
-    role = ColoredLabelColumn()
+    role = columns.ColoredLabelColumn()
     tenant = TenantColumn()
-    comments = MarkdownColumn()
+    comments = columns.MarkdownColumn()
     primary_ip4 = tables.Column(
         linkify=True,
         verbose_name='IPv4 Address'
@@ -149,7 +146,7 @@ class VirtualMachineTable(BaseTable):
         order_by=('primary_ip4', 'primary_ip6'),
         verbose_name='IP Address'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='virtualization:virtualmachine_list'
     )
 
@@ -169,14 +166,14 @@ class VirtualMachineTable(BaseTable):
 #
 
 class VMInterfaceTable(BaseInterfaceTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     virtual_machine = tables.Column(
         linkify=True
     )
     name = tables.Column(
         linkify=True
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='virtualization:vminterface_list'
     )
 
@@ -196,7 +193,7 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
     bridge = tables.Column(
         linkify=True
     )
-    actions = ActionsColumn(
+    actions = columns.ActionsColumn(
         sequence=('edit', 'delete'),
         extra_buttons=VMINTERFACE_BUTTONS
     )

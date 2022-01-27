@@ -6,7 +6,7 @@ from django.urls import reverse
 from dcim.models import Site
 from dcim.tables import SiteTable
 from users.preferences import UserPreference
-from utilities.tables import configure_table
+from netbox.tables import configure_table
 from utilities.testing import TestCase
 
 

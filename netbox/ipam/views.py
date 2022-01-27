@@ -8,7 +8,7 @@ from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from dcim.tables import SiteTable
 from netbox.views import generic
-from utilities.tables import configure_table
+from netbox.tables import configure_table
 from utilities.utils import count_related
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.models import VMInterface

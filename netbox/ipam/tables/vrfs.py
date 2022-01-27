@@ -1,8 +1,8 @@
 import django_tables2 as tables
 
-from tenancy.tables import TenantColumn
-from utilities.tables import BaseTable, BooleanColumn, TagColumn, TemplateColumn, ToggleColumn
 from ipam.models import *
+from netbox.tables import BaseTable, columns
+from tenancy.tables import TenantColumn
 
 __all__ = (
     'RouteTargetTable',
@@ -21,7 +21,7 @@ VRF_TARGETS = """
 #
 
 class VRFTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
@@ -29,18 +29,18 @@ class VRFTable(BaseTable):
         verbose_name='RD'
     )
     tenant = TenantColumn()
-    enforce_unique = BooleanColumn(
+    enforce_unique = columns.BooleanColumn(
         verbose_name='Unique'
     )
-    import_targets = TemplateColumn(
+    import_targets = columns.TemplateColumn(
         template_code=VRF_TARGETS,
         orderable=False
     )
-    export_targets = TemplateColumn(
+    export_targets = columns.TemplateColumn(
         template_code=VRF_TARGETS,
         orderable=False
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:vrf_list'
     )
 
@@ -58,12 +58,12 @@ class VRFTable(BaseTable):
 #
 
 class RouteTargetTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
     tenant = TenantColumn()
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:vrf_list'
     )
 

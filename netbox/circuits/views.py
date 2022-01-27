@@ -5,10 +5,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
-from utilities.tables import configure_table
+from netbox.tables import configure_table
 from utilities.utils import count_related
 from . import filtersets, forms, tables
-from .choices import CircuitTerminationSideChoices
 from .models import *
 
 

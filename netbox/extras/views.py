@@ -11,7 +11,7 @@ from rq import Worker
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.htmx import is_htmx
-from utilities.tables import configure_table
+from netbox.tables import configure_table
 from utilities.utils import copy_safe_request, count_related, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filtersets, forms, tables

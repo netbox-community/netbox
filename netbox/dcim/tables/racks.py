@@ -2,11 +2,8 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import Rack, RackReservation, RackRole
+from netbox.tables import BaseTable, columns
 from tenancy.tables import TenantColumn
-from utilities.tables import (
-    BaseTable, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn, TagColumn,
-    ToggleColumn, UtilizationColumn,
-)
 
 __all__ = (
     'RackTable',
@@ -20,11 +17,11 @@ __all__ = (
 #
 
 class RackRoleTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(linkify=True)
     rack_count = tables.Column(verbose_name='Racks')
-    color = ColorColumn()
-    tags = TagColumn(
+    color = columns.ColorColumn()
+    tags = columns.TagColumn(
         url_name='dcim:rackrole_list'
     )
 
@@ -42,7 +39,7 @@ class RackRoleTable(BaseTable):
 #
 
 class RackTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         order_by=('_name',),
         linkify=True
@@ -54,27 +51,27 @@ class RackTable(BaseTable):
         linkify=True
     )
     tenant = TenantColumn()
-    status = ChoiceFieldColumn()
-    role = ColoredLabelColumn()
+    status = columns.ChoiceFieldColumn()
+    role = columns.ColoredLabelColumn()
     u_height = tables.TemplateColumn(
         template_code="{{ record.u_height }}U",
         verbose_name='Height'
     )
-    comments = MarkdownColumn()
-    device_count = LinkedCountColumn(
+    comments = columns.MarkdownColumn()
+    device_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'rack_id': 'pk'},
         verbose_name='Devices'
     )
-    get_utilization = UtilizationColumn(
+    get_utilization = columns.UtilizationColumn(
         orderable=False,
         verbose_name='Space'
     )
-    get_power_utilization = UtilizationColumn(
+    get_power_utilization = columns.UtilizationColumn(
         orderable=False,
         verbose_name='Power'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='dcim:rack_list'
     )
     outer_width = tables.TemplateColumn(
@@ -104,7 +101,7 @@ class RackTable(BaseTable):
 #
 
 class RackReservationTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     reservation = tables.Column(
         accessor='pk',
         linkify=True
@@ -121,7 +118,7 @@ class RackReservationTable(BaseTable):
         orderable=False,
         verbose_name='Units'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='dcim:rackreservation_list'
     )
 

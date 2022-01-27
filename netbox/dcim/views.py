@@ -20,7 +20,7 @@ from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
-from utilities.tables import configure_table
+from netbox.tables import configure_table
 from utilities.utils import count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 from virtualization.models import VirtualMachine

@@ -11,7 +11,7 @@ from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress, Service
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
-from utilities.tables import configure_table
+from netbox.tables import configure_table
 from utilities.utils import count_related
 from . import filtersets, forms, tables
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface

@@ -2,12 +2,12 @@ from django.template import Context, Template
 from django.test import TestCase
 
 from dcim.models import Site
-from utilities.tables import BaseTable, TagColumn
+from netbox.tables import BaseTable, columns
 from utilities.testing import create_tags
 
 
 class TagColumnTable(BaseTable):
-    tags = TagColumn(url_name='dcim:site_list')
+    tags = columns.TagColumn(url_name='dcim:site_list')
 
     class Meta(BaseTable.Meta):
         model = Site

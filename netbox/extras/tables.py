@@ -1,10 +1,7 @@
 import django_tables2 as tables
 from django.conf import settings
 
-from utilities.tables import (
-    ActionsColumn, BaseTable, BooleanColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ContentTypesColumn,
-    MarkdownColumn, ToggleColumn,
-)
+from netbox.tables import BaseTable, columns
 from .models import *
 
 __all__ = (
@@ -47,12 +44,12 @@ OBJECTCHANGE_REQUEST_ID = """
 #
 
 class CustomFieldTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
-    content_types = ContentTypesColumn()
-    required = BooleanColumn()
+    content_types = columns.ContentTypesColumn()
+    required = columns.BooleanColumn()
 
     class Meta(BaseTable.Meta):
         model = CustomField
@@ -68,13 +65,13 @@ class CustomFieldTable(BaseTable):
 #
 
 class CustomLinkTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
-    content_type = ContentTypeColumn()
-    enabled = BooleanColumn()
-    new_window = BooleanColumn()
+    content_type = columns.ContentTypeColumn()
+    enabled = columns.BooleanColumn()
+    new_window = columns.BooleanColumn()
 
     class Meta(BaseTable.Meta):
         model = CustomLink
@@ -90,12 +87,12 @@ class CustomLinkTable(BaseTable):
 #
 
 class ExportTemplateTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
-    content_type = ContentTypeColumn()
-    as_attachment = BooleanColumn()
+    content_type = columns.ContentTypeColumn()
+    as_attachment = columns.BooleanColumn()
 
     class Meta(BaseTable.Meta):
         model = ExportTemplate
@@ -113,22 +110,22 @@ class ExportTemplateTable(BaseTable):
 #
 
 class WebhookTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
-    content_types = ContentTypesColumn()
-    enabled = BooleanColumn()
-    type_create = BooleanColumn(
+    content_types = columns.ContentTypesColumn()
+    enabled = columns.BooleanColumn()
+    type_create = columns.BooleanColumn(
         verbose_name='Create'
     )
-    type_update = BooleanColumn(
+    type_update = columns.BooleanColumn(
         verbose_name='Update'
     )
-    type_delete = BooleanColumn(
+    type_delete = columns.BooleanColumn(
         verbose_name='Delete'
     )
-    ssl_validation = BooleanColumn(
+    ssl_validation = columns.BooleanColumn(
         verbose_name='SSL Validation'
     )
 
@@ -149,11 +146,11 @@ class WebhookTable(BaseTable):
 #
 
 class TagTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
-    color = ColorColumn()
+    color = columns.ColorColumn()
 
     class Meta(BaseTable.Meta):
         model = Tag
@@ -167,7 +164,7 @@ class TaggedItemTable(BaseTable):
         linkify=lambda record: record.content_object.get_absolute_url(),
         accessor='content_object__id'
     )
-    content_type = ContentTypeColumn(
+    content_type = columns.ContentTypeColumn(
         verbose_name='Type'
     )
     content_object = tables.Column(
@@ -182,11 +179,11 @@ class TaggedItemTable(BaseTable):
 
 
 class ConfigContextTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
-    is_active = BooleanColumn(
+    is_active = columns.BooleanColumn(
         verbose_name='Active'
     )
 
@@ -205,8 +202,8 @@ class ObjectChangeTable(BaseTable):
         linkify=True,
         format=settings.SHORT_DATETIME_FORMAT
     )
-    action = ChoiceFieldColumn()
-    changed_object_type = ContentTypeColumn(
+    action = columns.ChoiceFieldColumn()
+    changed_object_type = columns.ContentTypeColumn(
         verbose_name='Type'
     )
     object_repr = tables.TemplateColumn(
@@ -217,7 +214,7 @@ class ObjectChangeTable(BaseTable):
         template_code=OBJECTCHANGE_REQUEST_ID,
         verbose_name='Request ID'
     )
-    actions = ActionsColumn(sequence=())
+    actions = columns.ActionsColumn(sequence=())
 
     class Meta(BaseTable.Meta):
         model = ObjectChange
@@ -232,7 +229,7 @@ class ObjectJournalTable(BaseTable):
         linkify=True,
         format=settings.SHORT_DATETIME_FORMAT
     )
-    kind = ChoiceFieldColumn()
+    kind = columns.ChoiceFieldColumn()
     comments = tables.TemplateColumn(
         template_code='{% load helpers %}{{ value|render_markdown|truncatewords_html:50 }}'
     )
@@ -243,8 +240,8 @@ class ObjectJournalTable(BaseTable):
 
 
 class JournalEntryTable(ObjectJournalTable):
-    pk = ToggleColumn()
-    assigned_object_type = ContentTypeColumn(
+    pk = columns.ToggleColumn()
+    assigned_object_type = columns.ContentTypeColumn(
         verbose_name='Object type'
     )
     assigned_object = tables.Column(
@@ -252,7 +249,7 @@ class JournalEntryTable(ObjectJournalTable):
         orderable=False,
         verbose_name='Object'
     )
-    comments = MarkdownColumn()
+    comments = columns.MarkdownColumn()
 
     class Meta(BaseTable.Meta):
         model = JournalEntry

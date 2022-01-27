@@ -1,9 +1,7 @@
 import django_tables2 as tables
 
-from utilities.tables import (
-    ActionsColumn, BaseTable, ContentTypeColumn, LinkedCountColumn, linkify_phone, MarkdownColumn, MPTTColumn,
-    TagColumn, ToggleColumn,
-)
+from netbox.tables import BaseTable, columns
+from utilities.tables import linkify_phone
 from .models import *
 
 __all__ = (
@@ -47,16 +45,16 @@ class TenantColumn(tables.TemplateColumn):
 #
 
 class TenantGroupTable(BaseTable):
-    pk = ToggleColumn()
-    name = MPTTColumn(
+    pk = columns.ToggleColumn()
+    name = columns.MPTTColumn(
         linkify=True
     )
-    tenant_count = LinkedCountColumn(
+    tenant_count = columns.LinkedCountColumn(
         viewname='tenancy:tenant_list',
         url_params={'group_id': 'pk'},
         verbose_name='Tenants'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='tenancy:tenantgroup_list'
     )
 
@@ -69,15 +67,15 @@ class TenantGroupTable(BaseTable):
 
 
 class TenantTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
     group = tables.Column(
         linkify=True
     )
-    comments = MarkdownColumn()
-    tags = TagColumn(
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn(
         url_name='tenancy:tenant_list'
     )
 
@@ -92,16 +90,16 @@ class TenantTable(BaseTable):
 #
 
 class ContactGroupTable(BaseTable):
-    pk = ToggleColumn()
-    name = MPTTColumn(
+    pk = columns.ToggleColumn()
+    name = columns.MPTTColumn(
         linkify=True
     )
-    contact_count = LinkedCountColumn(
+    contact_count = columns.LinkedCountColumn(
         viewname='tenancy:contact_list',
         url_params={'role_id': 'pk'},
         verbose_name='Contacts'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='tenancy:contactgroup_list'
     )
 
@@ -114,7 +112,7 @@ class ContactGroupTable(BaseTable):
 
 
 class ContactRoleTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
@@ -126,7 +124,7 @@ class ContactRoleTable(BaseTable):
 
 
 class ContactTable(BaseTable):
-    pk = ToggleColumn()
+    pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
     )
@@ -136,11 +134,11 @@ class ContactTable(BaseTable):
     phone = tables.Column(
         linkify=linkify_phone,
     )
-    comments = MarkdownColumn()
+    comments = columns.MarkdownColumn()
     assignment_count = tables.Column(
         verbose_name='Assignments'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='tenancy:tenant_list'
     )
 
@@ -154,8 +152,8 @@ class ContactTable(BaseTable):
 
 
 class ContactAssignmentTable(BaseTable):
-    pk = ToggleColumn()
-    content_type = ContentTypeColumn(
+    pk = columns.ToggleColumn()
+    content_type = columns.ContentTypeColumn(
         verbose_name='Object Type'
     )
     object = tables.Column(
@@ -168,7 +166,7 @@ class ContactAssignmentTable(BaseTable):
     role = tables.Column(
         linkify=True
     )
-    actions = ActionsColumn(
+    actions = columns.ActionsColumn(
         sequence=('edit', 'delete')
     )
 

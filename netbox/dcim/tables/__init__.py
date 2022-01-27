@@ -1,8 +1,8 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from utilities.tables import BaseTable, BooleanColumn
 from dcim.models import ConsolePort, Interface, PowerPort
+from netbox.tables import BaseTable, columns
 from .cables import *
 from .devices import *
 from .devicetypes import *
@@ -36,7 +36,7 @@ class ConsoleConnectionTable(BaseTable):
         linkify=True,
         verbose_name='Console Port'
     )
-    reachable = BooleanColumn(
+    reachable = columns.BooleanColumn(
         accessor=Accessor('_path__is_active'),
         verbose_name='Reachable'
     )
@@ -67,7 +67,7 @@ class PowerConnectionTable(BaseTable):
         linkify=True,
         verbose_name='Power Port'
     )
-    reachable = BooleanColumn(
+    reachable = columns.BooleanColumn(
         accessor=Accessor('_path__is_active'),
         verbose_name='Reachable'
     )
@@ -101,7 +101,7 @@ class InterfaceConnectionTable(BaseTable):
         linkify=True,
         verbose_name='Interface B'
     )
-    reachable = BooleanColumn(
+    reachable = columns.BooleanColumn(
         accessor=Accessor('_path__is_active'),
         verbose_name='Reachable'
     )

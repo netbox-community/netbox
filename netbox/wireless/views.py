@@ -1,6 +1,6 @@
 from dcim.models import Interface
 from netbox.views import generic
-from utilities.tables import configure_table
+from netbox.tables import configure_table
 from utilities.utils import count_related
 from . import filtersets, forms, tables
 from .models import *

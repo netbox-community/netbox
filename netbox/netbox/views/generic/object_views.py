@@ -18,7 +18,7 @@ from utilities.exceptions import AbortTransaction, PermissionsViolation
 from utilities.forms import ConfirmationForm, ImportForm, restrict_form_fields
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
-from utilities.tables import configure_table
+from netbox.tables import configure_table
 from utilities.utils import normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin
 from .base import BaseObjectView
