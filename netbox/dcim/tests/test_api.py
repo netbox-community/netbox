@@ -6,7 +6,7 @@ from rest_framework import status
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from ipam.models import ASN, RIR, VLAN
+from ipam.models import ASN, RIR, VLAN, VRF
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from virtualization.models import Cluster, ClusterType
 from wireless.models import WirelessLAN
@@ -1424,6 +1424,13 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         )
         WirelessLAN.objects.bulk_create(wireless_lans)
 
+        vrfs = (
+            VRF(name='VRF 1'),
+            VRF(name='VRF 2'),
+            VRF(name='VRF 3'),
+        )
+        VRF.objects.bulk_create(vrfs)
+
         cls.create_data = [
             {
                 'device': device.pk,
@@ -1431,9 +1438,12 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'type': '1000base-t',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
                 'tx_power': 10,
+                'vrf': vrfs[0].pk,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
                 'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
+                'speed': 1000000,
+                'duplex': 'full'
             },
             {
                 'device': device.pk,
@@ -1442,9 +1452,12 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'mode': InterfaceModeChoices.MODE_TAGGED,
                 'bridge': interfaces[0].pk,
                 'tx_power': 10,
+                'vrf': vrfs[1].pk,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
                 'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
+                'speed': 100000,
+                'duplex': 'half'
             },
             {
                 'device': device.pk,
@@ -1453,6 +1466,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'mode': InterfaceModeChoices.MODE_TAGGED,
                 'parent': interfaces[1].pk,
                 'tx_power': 10,
+                'vrf': vrfs[2].pk,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
                 'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],

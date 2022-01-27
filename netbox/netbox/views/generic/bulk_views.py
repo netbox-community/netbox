@@ -3,21 +3,27 @@ import re
 from copy import deepcopy
 
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
-from django.shortcuts import redirect, render
-from django.views.generic import View
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django_tables2.export import TableExport
 
+from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
     BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, CSVFileField, restrict_form_fields,
 )
+from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
-from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
+from netbox.tables import configure_table
+from utilities.views import GetReturnURLMixin
+from .base import BaseMultiObjectView
 
 __all__ = (
     'BulkComponentCreateView',
@@ -26,24 +32,174 @@ __all__ = (
     'BulkEditView',
     'BulkImportView',
     'BulkRenameView',
+    'ObjectListView',
 )
 
 
-class BulkCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+class ObjectListView(BaseMultiObjectView):
+    """
+    Display multiple objects, all of the same type, as a table.
+
+    Attributes:
+        filterset: A django-filter FilterSet that is applied to the queryset
+        filterset_form: The form class used to render filter options
+        action_buttons: A list of buttons to include at the top of the page
+    """
+    template_name = 'generic/object_list.html'
+    filterset = None
+    filterset_form = None
+    action_buttons = ('add', 'import', 'export')
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'view')
+
+    def get_table(self, request, permissions):
+        """
+        Return the django-tables2 Table instance to be used for rendering the objects list.
+
+        Args:
+            request: The current request
+            permissions: A dictionary mapping of the view, add, change, and delete permissions to booleans indicating
+                whether the user has each
+        """
+        table = self.table(self.queryset, user=request.user)
+        if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
+            table.columns.show('pk')
+
+        return table
+
+    #
+    # Export methods
+    #
+
+    def export_yaml(self):
+        """
+        Export the queryset of objects as concatenated YAML documents.
+        """
+        yaml_data = [obj.to_yaml() for obj in self.queryset]
+
+        return '---\n'.join(yaml_data)
+
+    def export_table(self, table, columns=None, filename=None):
+        """
+        Export all table data in CSV format.
+
+        Args:
+            table: The Table instance to export
+            columns: A list of specific columns to include. If None, all columns will be exported.
+            filename: The name of the file attachment sent to the client. If None, will be determined automatically
+                from the queryset model name.
+        """
+        exclude_columns = {'pk', 'actions'}
+        if columns:
+            all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
+            exclude_columns.update({
+                col for col in all_columns if col not in columns
+            })
+        exporter = TableExport(
+            export_format=TableExport.CSV,
+            table=table,
+            exclude_columns=exclude_columns
+        )
+        return exporter.response(
+            filename=filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
+        )
+
+    def export_template(self, template, request):
+        """
+        Render an ExportTemplate using the current queryset.
+
+        Args:
+            template: ExportTemplate instance
+            request: The current request
+        """
+        try:
+            return template.render_to_response(self.queryset)
+        except Exception as e:
+            messages.error(request, f"There was an error rendering the selected export template ({template.name}): {e}")
+            return redirect(request.path)
+
+    #
+    # Request handlers
+    #
+
+    def get(self, request):
+        """
+        GET request handler.
+
+        Args:
+            request: The current request
+        """
+        model = self.queryset.model
+        content_type = ContentType.objects.get_for_model(model)
+
+        if self.filterset:
+            self.queryset = self.filterset(request.GET, self.queryset).qs
+
+        # Compile a dictionary indicating which permissions are available to the current user for this model
+        permissions = {}
+        for action in ('add', 'change', 'delete', 'view'):
+            perm_name = get_permission_for_model(model, action)
+            permissions[action] = request.user.has_perm(perm_name)
+
+        if 'export' in request.GET:
+
+            # Export the current table view
+            if request.GET['export'] == 'table':
+                table = self.get_table(request, permissions)
+                columns = [name for name, _ in table.selected_columns]
+                return self.export_table(table, columns)
+
+            # Render an ExportTemplate
+            elif request.GET['export']:
+                template = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
+                return self.export_template(template, request)
+
+            # Check for YAML export support on the model
+            elif hasattr(model, 'to_yaml'):
+                response = HttpResponse(self.export_yaml(), content_type='text/yaml')
+                filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
+                response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+                return response
+
+            # Fall back to default table/YAML export
+            else:
+                table = self.get_table(request, permissions)
+                return self.export_table(table)
+
+        # Render the objects table
+        table = self.get_table(request, permissions)
+        configure_table(table, request)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if is_htmx(request):
+            return render(request, 'htmx/table.html', {
+                'table': table,
+            })
+
+        context = {
+            'content_type': content_type,
+            'table': table,
+            'permissions': permissions,
+            'action_buttons': self.action_buttons,
+            'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
+            **self.get_extra_context(request),
+        }
+
+        return render(request, self.template_name, context)
+
+
+class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Create new objects in bulk.
 
-    queryset: Base queryset for the objects being created
     form: Form class which provides the `pattern` field
     model_form: The ModelForm used to create individual objects
     pattern_target: Name of the field to be evaluated as a pattern (if any)
-    template_name: The name of the template
     """
-    queryset = None
     form = None
     model_form = None
     pattern_target = ''
-    template_name = None
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -73,6 +229,10 @@ class BulkCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
         return new_objects
 
+    #
+    # Request handlers
+    #
+
     def get(self, request):
         # Set initial values for visible form fields from query args
         initial = {}
@@ -88,6 +248,7 @@ class BulkCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             'form': form,
             'model_form': model_form,
             'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
         })
 
     def post(self, request):
@@ -132,31 +293,25 @@ class BulkCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             'model_form': model_form,
             'obj_type': model._meta.verbose_name,
             'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
         })
 
 
-class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Import objects in bulk (CSV format).
 
-    queryset: Base queryset for the model
-    model_form: The form used to create each imported object
-    table: The django-tables2 Table used to render the list of imported objects
-    template_name: The name of the template
-    widget_attrs: A dict of attributes to apply to the import widget (e.g. to require a session key)
+    Attributes:
+        model_form: The form used to create each imported object
     """
-    queryset = None
-    model_form = None
-    table = None
     template_name = 'generic/object_bulk_import.html'
-    widget_attrs = {}
+    model_form = None
 
     def _import_form(self, *args, **kwargs):
 
         class ImportForm(BootstrapMixin, Form):
             csv = CSVDataField(
-                from_form=self.model_form,
-                widget=Textarea(attrs=self.widget_attrs)
+                from_form=self.model_form
             )
             csv_file = CSVFileField(
                 label="CSV file",
@@ -207,6 +362,10 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
 
+    #
+    # Request handlers
+    #
+
     def get(self, request):
 
         return render(request, self.template_name, {
@@ -214,6 +373,7 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             'fields': self.model_form().fields,
             'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
         })
 
     def post(self, request):
@@ -262,32 +422,29 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             'fields': self.model_form().fields,
             'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
         })
 
 
-class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Edit objects in bulk.
 
-    queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
-    filterset: FilterSet to apply when deleting by QuerySet
-    table: The table used to display devices being edited
-    form: The form class used to edit objects in bulk
-    template_name: The name of the template
+    Attributes:
+        filterset: FilterSet to apply when deleting by QuerySet
+        form: The form class used to edit objects in bulk
     """
-    queryset = None
-    filterset = None
-    table = None
-    form = None
     template_name = 'generic/object_bulk_edit.html'
+    filterset = None
+    form = None
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
 
     def _update_objects(self, form, request):
-        custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
+        custom_fields = getattr(form, 'custom_fields', [])
         standard_fields = [
-            field for field in form.fields if field not in custom_fields + ['pk']
+            field for field in form.fields if field not in list(custom_fields) + ['pk']
         ]
         nullified_fields = request.POST.getlist('_nullify')
         updated_objects = []
@@ -327,7 +484,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 if name in form.nullable_fields and name in nullified_fields:
                     obj.custom_field_data[name] = None
                 elif name in form.changed_data:
-                    obj.custom_field_data[name] = form.cleaned_data[name]
+                    obj.custom_field_data[name] = form.fields[name].prepare_value(form.cleaned_data[name])
 
             obj.full_clean()
             obj.save()
@@ -340,6 +497,10 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 obj.tags.remove(*form.cleaned_data['remove_tags'])
 
         return updated_objects
+
+    #
+    # Request handlers
+    #
 
     def get(self, request):
         return redirect(self.get_return_url(request))
@@ -419,17 +580,14 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             'table': table,
             'obj_type_plural': model._meta.verbose_name_plural,
             'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
         })
 
 
-class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     """
     An extendable view for renaming objects in bulk.
-
-    queryset: QuerySet of objects being renamed
-    template_name: The name of the template
     """
-    queryset = None
     template_name = 'generic/object_bulk_rename.html'
 
     def __init__(self, *args, **kwargs):
@@ -513,24 +671,37 @@ class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         })
 
 
-class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Delete objects in bulk.
 
-    queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
     filterset: FilterSet to apply when deleting by QuerySet
     table: The table used to display devices being deleted
     form: The form class used to delete objects in bulk
-    template_name: The name of the template
     """
-    queryset = None
+    template_name = 'generic/object_bulk_delete.html'
     filterset = None
     table = None
     form = None
-    template_name = 'generic/object_bulk_delete.html'
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'delete')
+
+    def get_form(self):
+        """
+        Provide a standard bulk delete form if none has been specified for the view
+        """
+        class BulkDeleteForm(ConfirmationForm):
+            pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
+
+        if self.form:
+            return self.form
+
+        return BulkDeleteForm
+
+    #
+    # Request handlers
+    #
 
     def get(self, request):
         return redirect(self.get_return_url(request))
@@ -594,37 +765,25 @@ class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             'obj_type_plural': model._meta.verbose_name_plural,
             'table': table,
             'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
         })
-
-    def get_form(self):
-        """
-        Provide a standard bulk delete form if none has been specified for the view
-        """
-        class BulkDeleteForm(ConfirmationForm):
-            pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
-
-        if self.form:
-            return self.form
-
-        return BulkDeleteForm
 
 
 #
 # Device/VirtualMachine components
 #
 
-class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a set of Devices or VirtualMachines.
     """
+    template_name = 'generic/object_bulk_add_component.html'
     parent_model = None
     parent_field = None
     form = None
-    queryset = None
     model_form = None
     filterset = None
     table = None
-    template_name = 'generic/object_bulk_add_component.html'
 
     def get_required_permission(self):
         return f'dcim.add_{self.queryset.model._meta.model_name}'

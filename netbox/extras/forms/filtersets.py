@@ -58,21 +58,27 @@ class CustomFieldFilterForm(FilterForm):
 class CustomLinkFilterForm(FilterForm):
     field_groups = [
         ['q'],
-        ['content_type', 'weight', 'new_window'],
+        ['content_type', 'enabled', 'new_window', 'weight'],
     ]
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
         required=False
     )
-    weight = forms.IntegerField(
-        required=False
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
     new_window = forms.NullBooleanField(
         required=False,
         widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    weight = forms.IntegerField(
+        required=False
     )
 
 

@@ -72,12 +72,12 @@ class PowerOutletBulkCreateForm(
 
 
 class InterfaceBulkCreateForm(
-    form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only', 'mark_connected']),
+    form_from_model(Interface, ['type', 'enabled', 'speed', 'duplex', 'mtu', 'mgmt_only', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = Interface
     field_order = (
-        'name_pattern', 'label_pattern', 'type', 'enabled', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'tags',
+        'name_pattern', 'label_pattern', 'type', 'enabled', 'speed', 'duplex', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'tags',
     )
 
 

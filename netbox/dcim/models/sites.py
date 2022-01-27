@@ -7,9 +7,7 @@ from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.fields import ASNField
-from extras.utils import extras_features
-from netbox.models import NestedGroupModel, PrimaryModel
+from netbox.models import NestedGroupModel, NetBoxModel
 from utilities.fields import NaturalOrderingField
 
 __all__ = (
@@ -24,7 +22,6 @@ __all__ = (
 # Regions
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Region(NestedGroupModel):
     """
     A region represents a geographic collection of sites. For example, you might create regions representing countries,
@@ -111,7 +108,6 @@ class Region(NestedGroupModel):
 # Site groups
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class SiteGroup(NestedGroupModel):
     """
     A site group is an arbitrary grouping of sites. For example, you might have corporate sites and customer sites; and
@@ -198,8 +194,7 @@ class SiteGroup(NestedGroupModel):
 # Sites
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Site(PrimaryModel):
+class Site(NetBoxModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
@@ -322,7 +317,6 @@ class Site(PrimaryModel):
 # Locations
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Location(NestedGroupModel):
     """
     A Location represents a subgroup of Racks and/or Devices within a Site. A Location may represent a building within a

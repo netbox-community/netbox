@@ -8,7 +8,7 @@ from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from dcim.tables import SiteTable
 from netbox.views import generic
-from utilities.tables import paginate_table
+from netbox.tables import configure_table
 from utilities.utils import count_related
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.models import VMInterface
@@ -161,7 +161,7 @@ class RIRView(generic.ObjectView):
             rir=instance
         )
         aggregates_table = tables.AggregateTable(aggregates, exclude=('rir', 'utilization'))
-        paginate_table(aggregates_table, request)
+        configure_table(aggregates_table, request)
 
         return {
             'aggregates_table': aggregates_table,
@@ -219,7 +219,7 @@ class ASNView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         sites = instance.sites.restrict(request.user, 'view')
         sites_table = SiteTable(sites)
-        paginate_table(sites_table, request)
+        configure_table(sites_table, request)
 
         return {
             'sites_table': sites_table,
@@ -356,7 +356,7 @@ class RoleView(generic.ObjectView):
         )
 
         prefixes_table = tables.PrefixTable(prefixes, exclude=('role', 'utilization'))
-        paginate_table(prefixes_table, request)
+        configure_table(prefixes_table, request)
 
         return {
             'prefixes_table': prefixes_table,
@@ -505,9 +505,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
     template_name = 'ipam/prefix/ip_addresses.html'
 
     def get_children(self, request, parent):
-        return parent.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'role', 'tenant',
-        )
+        return parent.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf', 'tenant')
 
     def prep_table_data(self, request, queryset, parent):
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
@@ -531,7 +529,6 @@ class PrefixEditView(generic.ObjectEditView):
 
 class PrefixDeleteView(generic.ObjectDeleteView):
     queryset = Prefix.objects.all()
-    template_name = 'ipam/prefix_delete.html'
 
 
 class PrefixBulkImportView(generic.BulkImportView):
@@ -664,7 +661,7 @@ class IPAddressView(generic.ObjectView):
             vrf=instance.vrf, address__net_contained_or_equal=str(instance.address)
         )
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
-        paginate_table(related_ips_table, request)
+        configure_table(related_ips_table, request)
 
         return {
             'parent_prefixes_table': parent_prefixes_table,
@@ -800,7 +797,7 @@ class VLANGroupView(generic.ObjectView):
         vlans_table = tables.VLANTable(vlans, exclude=('site', 'group', 'prefixes'))
         if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
             vlans_table.columns.show('pk')
-        paginate_table(vlans_table, request)
+        configure_table(vlans_table, request)
 
         # Compile permissions list for rendering the object table
         permissions = {
@@ -1032,6 +1029,49 @@ class VLANBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Service templates
+#
+
+class ServiceTemplateListView(generic.ObjectListView):
+    queryset = ServiceTemplate.objects.all()
+    filterset = filtersets.ServiceTemplateFilterSet
+    filterset_form = forms.ServiceTemplateFilterForm
+    table = tables.ServiceTemplateTable
+
+
+class ServiceTemplateView(generic.ObjectView):
+    queryset = ServiceTemplate.objects.all()
+
+
+class ServiceTemplateEditView(generic.ObjectEditView):
+    queryset = ServiceTemplate.objects.all()
+    model_form = forms.ServiceTemplateForm
+
+
+class ServiceTemplateDeleteView(generic.ObjectDeleteView):
+    queryset = ServiceTemplate.objects.all()
+
+
+class ServiceTemplateBulkImportView(generic.BulkImportView):
+    queryset = ServiceTemplate.objects.all()
+    model_form = forms.ServiceTemplateCSVForm
+    table = tables.ServiceTemplateTable
+
+
+class ServiceTemplateBulkEditView(generic.BulkEditView):
+    queryset = ServiceTemplate.objects.all()
+    filterset = filtersets.ServiceTemplateFilterSet
+    table = tables.ServiceTemplateTable
+    form = forms.ServiceTemplateBulkEditForm
+
+
+class ServiceTemplateBulkDeleteView(generic.BulkDeleteView):
+    queryset = ServiceTemplate.objects.all()
+    filterset = filtersets.ServiceTemplateFilterSet
+    table = tables.ServiceTemplateTable
+
+
+#
 # Services
 #
 
@@ -1047,20 +1087,26 @@ class ServiceView(generic.ObjectView):
     queryset = Service.objects.prefetch_related('ipaddresses')
 
 
+class ServiceCreateView(generic.ObjectEditView):
+    queryset = Service.objects.all()
+    model_form = forms.ServiceCreateForm
+    template_name = 'ipam/service_create.html'
+
+
 class ServiceEditView(generic.ObjectEditView):
     queryset = Service.objects.prefetch_related('ipaddresses')
     model_form = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
 
 
+class ServiceDeleteView(generic.ObjectDeleteView):
+    queryset = Service.objects.all()
+
+
 class ServiceBulkImportView(generic.BulkImportView):
     queryset = Service.objects.all()
     model_form = forms.ServiceCSVForm
     table = tables.ServiceTable
-
-
-class ServiceDeleteView(generic.ObjectDeleteView):
-    queryset = Service.objects.all()
 
 
 class ServiceBulkEditView(generic.BulkEditView):

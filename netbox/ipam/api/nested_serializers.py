@@ -15,6 +15,7 @@ __all__ = [
     'NestedRoleSerializer',
     'NestedRouteTargetSerializer',
     'NestedServiceSerializer',
+    'NestedServiceTemplateSerializer',
     'NestedVLANGroupSerializer',
     'NestedVLANSerializer',
     'NestedVRFSerializer',
@@ -174,6 +175,14 @@ class NestedIPAddressSerializer(WritableNestedSerializer):
 #
 # Services
 #
+
+class NestedServiceTemplateSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:servicetemplate-detail')
+
+    class Meta:
+        model = models.ServiceTemplate
+        fields = ['id', 'url', 'display', 'name', 'protocol', 'ports']
+
 
 class NestedServiceSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:service-detail')

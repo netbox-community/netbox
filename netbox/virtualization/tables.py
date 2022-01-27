@@ -1,10 +1,8 @@
 import django_tables2 as tables
+
 from dcim.tables.devices import BaseInterfaceTable
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
-from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn, TagColumn,
-    ToggleColumn,
-)
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 __all__ = (
@@ -29,55 +27,60 @@ VMINTERFACE_BUTTONS = """
 # Cluster types
 #
 
-class ClusterTypeTable(BaseTable):
-    pk = ToggleColumn()
+class ClusterTypeTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='virtualization:clustertype_list'
     )
-    actions = ButtonsColumn(ClusterType)
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ClusterType
-        fields = ('pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'created', 'last_updated', 'tags', 'actions',
+        )
+        default_columns = ('pk', 'name', 'cluster_count', 'description')
 
 
 #
 # Cluster groups
 #
 
-class ClusterGroupTable(BaseTable):
-    pk = ToggleColumn()
+class ClusterGroupTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='virtualization:clustergroup_list'
     )
-    actions = ButtonsColumn(ClusterGroup)
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ClusterGroup
-        fields = ('pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'created', 'last_updated', 'actions',
+        )
+        default_columns = ('pk', 'name', 'cluster_count', 'description')
 
 
 #
 # Clusters
 #
 
-class ClusterTable(BaseTable):
-    pk = ToggleColumn()
+class ClusterTable(NetBoxTable):
     name = tables.Column(
+        linkify=True
+    )
+    type = tables.Column(
+        linkify=True
+    )
+    group = tables.Column(
         linkify=True
     )
     tenant = tables.Column(
@@ -86,24 +89,27 @@ class ClusterTable(BaseTable):
     site = tables.Column(
         linkify=True
     )
-    device_count = LinkedCountColumn(
+    device_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'cluster_id': 'pk'},
         verbose_name='Devices'
     )
-    vm_count = LinkedCountColumn(
+    vm_count = columns.LinkedCountColumn(
         viewname='virtualization:virtualmachine_list',
         url_params={'cluster_id': 'pk'},
         verbose_name='VMs'
     )
-    comments = MarkdownColumn()
-    tags = TagColumn(
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn(
         url_name='virtualization:cluster_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Cluster
-        fields = ('pk', 'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'device_count', 'vm_count', 'tags')
+        fields = (
+            'pk', 'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'device_count', 'vm_count', 'tags',
+            'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'device_count', 'vm_count')
 
 
@@ -111,19 +117,18 @@ class ClusterTable(BaseTable):
 # Virtual machines
 #
 
-class VirtualMachineTable(BaseTable):
-    pk = ToggleColumn()
+class VirtualMachineTable(NetBoxTable):
     name = tables.Column(
         order_by=('_name',),
         linkify=True
     )
-    status = ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn()
     cluster = tables.Column(
         linkify=True
     )
-    role = ColoredLabelColumn()
+    role = columns.ColoredLabelColumn()
     tenant = TenantColumn()
-    comments = MarkdownColumn()
+    comments = columns.MarkdownColumn()
     primary_ip4 = tables.Column(
         linkify=True,
         verbose_name='IPv4 Address'
@@ -137,15 +142,15 @@ class VirtualMachineTable(BaseTable):
         order_by=('primary_ip4', 'primary_ip6'),
         verbose_name='IP Address'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='virtualization:virtualmachine_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VirtualMachine
         fields = (
-            'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'primary_ip4',
-            'primary_ip6', 'primary_ip', 'comments', 'tags',
+            'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
+            'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
@@ -157,22 +162,21 @@ class VirtualMachineTable(BaseTable):
 #
 
 class VMInterfaceTable(BaseInterfaceTable):
-    pk = ToggleColumn()
     virtual_machine = tables.Column(
         linkify=True
     )
     name = tables.Column(
         linkify=True
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='virtualization:vminterface_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
+            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 
@@ -184,21 +188,18 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
     bridge = tables.Column(
         linkify=True
     )
-    actions = ButtonsColumn(
-        model=VMInterface,
-        buttons=('edit', 'delete'),
-        prepend_template=VMINTERFACE_BUTTONS
+    actions = columns.ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=VMINTERFACE_BUTTONS
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'enabled', 'parent', 'bridge', 'mac_address', 'mtu', 'mode', 'description', 'tags',
             'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
-        default_columns = (
-            'pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses', 'actions',
-        )
+        default_columns = ('pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses')
         row_attrs = {
             'data-name': lambda record: record.name,
         }

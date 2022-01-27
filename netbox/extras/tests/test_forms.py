@@ -38,9 +38,26 @@ class CustomFieldModelFormTest(TestCase):
         cf_select = CustomField.objects.create(name='select', type=CustomFieldTypeChoices.TYPE_SELECT, choices=CHOICES)
         cf_select.content_types.set([obj_type])
 
-        cf_multiselect = CustomField.objects.create(name='multiselect', type=CustomFieldTypeChoices.TYPE_MULTISELECT,
-                                                    choices=CHOICES)
+        cf_multiselect = CustomField.objects.create(
+            name='multiselect',
+            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+            choices=CHOICES
+        )
         cf_multiselect.content_types.set([obj_type])
+
+        cf_object = CustomField.objects.create(
+            name='object',
+            type=CustomFieldTypeChoices.TYPE_OBJECT,
+            object_type=ContentType.objects.get_for_model(Site)
+        )
+        cf_object.content_types.set([obj_type])
+
+        cf_multiobject = CustomField.objects.create(
+            name='multiobject',
+            type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
+            object_type=ContentType.objects.get_for_model(Site)
+        )
+        cf_multiobject.content_types.set([obj_type])
 
     def test_empty_values(self):
         """

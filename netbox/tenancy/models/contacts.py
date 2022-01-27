@@ -4,8 +4,8 @@ from django.db import models
 from django.urls import reverse
 from mptt.models import TreeForeignKey
 
-from extras.utils import extras_features
-from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, PrimaryModel
+from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, NetBoxModel
+from netbox.models.features import WebhooksMixin
 from tenancy.choices import *
 
 __all__ = (
@@ -16,7 +16,6 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ContactGroup(NestedGroupModel):
     """
     An arbitrary collection of Contacts.
@@ -50,7 +49,6 @@ class ContactGroup(NestedGroupModel):
         return reverse('tenancy:contactgroup', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ContactRole(OrganizationalModel):
     """
     Functional role for a Contact assigned to an object.
@@ -78,8 +76,7 @@ class ContactRole(OrganizationalModel):
         return reverse('tenancy:contactrole', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Contact(PrimaryModel):
+class Contact(NetBoxModel):
     """
     Contact information for a particular object(s) in NetBox.
     """
@@ -129,13 +126,12 @@ class Contact(PrimaryModel):
         return reverse('tenancy:contact', args=[self.pk])
 
 
-@extras_features('webhooks')
-class ContactAssignment(ChangeLoggedModel):
+class ContactAssignment(WebhooksMixin, ChangeLoggedModel):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE
     )
-    object_id = models.PositiveIntegerField()
+    object_id = models.PositiveBigIntegerField()
     object = GenericForeignKey(
         ct_field='content_type',
         fk_field='object_id'

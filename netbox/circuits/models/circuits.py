@@ -5,8 +5,8 @@ from django.urls import reverse
 
 from circuits.choices import *
 from dcim.models import LinkTermination
-from extras.utils import extras_features
-from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
+from netbox.models import ChangeLoggedModel, OrganizationalModel, NetBoxModel
+from netbox.models.features import WebhooksMixin
 
 __all__ = (
     'Circuit',
@@ -15,7 +15,6 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class CircuitType(OrganizationalModel):
     """
     Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named
@@ -44,8 +43,7 @@ class CircuitType(OrganizationalModel):
         return reverse('circuits:circuittype', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Circuit(PrimaryModel):
+class Circuit(NetBoxModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
     circuits. Each circuit is also assigned a CircuitType and a Site.  Circuit port speed and commit rate are measured
@@ -138,8 +136,7 @@ class Circuit(PrimaryModel):
         return CircuitStatusChoices.colors.get(self.status, 'secondary')
 
 
-@extras_features('webhooks')
-class CircuitTermination(ChangeLoggedModel, LinkTermination):
+class CircuitTermination(WebhooksMixin, ChangeLoggedModel, LinkTermination):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,
@@ -212,13 +209,9 @@ class CircuitTermination(ChangeLoggedModel, LinkTermination):
             raise ValidationError("A circuit termination cannot attach to both a site and a provider network.")
 
     def to_objectchange(self, action):
-        # Annotate the parent Circuit
-        try:
-            circuit = self.circuit
-        except Circuit.DoesNotExist:
-            # Parent circuit has been deleted
-            circuit = None
-        return super().to_objectchange(action, related_object=circuit)
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.circuit
+        return objectchange
 
     @property
     def parent_object(self):

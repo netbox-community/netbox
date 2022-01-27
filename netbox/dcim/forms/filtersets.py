@@ -6,11 +6,11 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterForm
-from ipam.models import ASN
+from ipam.models import ASN, VRF
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
     APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm, StaticSelect,
-    StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES, SelectSpeedWidget,
 )
 from wireless.choices import *
 
@@ -157,7 +157,7 @@ class SiteFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
 class LocationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Location
     field_groups = [
-        ['q'],
+        ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id', 'parent_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
@@ -678,7 +678,7 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['site_id', 'rack_id', 'device_id'],
-        ['type', 'status', 'color'],
+        ['type', 'status', 'color', 'length', 'length_unit'],
         ['tenant_group_id', 'tenant_id'],
     ]
     region_id = DynamicModelMultipleChoiceField(
@@ -703,6 +703,16 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
             'site_id': '$site_id'
         }
     )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site_id',
+            'tenant_id': '$tenant_id',
+            'rack_id': '$rack_id',
+        },
+        label=_('Device')
+    )
     type = forms.MultipleChoiceField(
         choices=add_blank_choice(CableTypeChoices),
         required=False,
@@ -716,15 +726,12 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     color = ColorField(
         required=False
     )
-    device_id = DynamicModelMultipleChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        query_params={
-            'site_id': '$site_id',
-            'tenant_id': '$tenant_id',
-            'rack_id': '$rack_id',
-        },
-        label=_('Device')
+    length = forms.IntegerField(
+        required=False
+    )
+    length_unit = forms.ChoiceField(
+        choices=add_blank_choice(CableLengthUnitChoices),
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -920,7 +927,8 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
     field_groups = [
         ['q', 'tag'],
-        ['name', 'label', 'kind', 'type', 'enabled', 'mgmt_only', 'mac_address', 'wwn'],
+        ['name', 'label', 'kind', 'type', 'speed', 'duplex', 'enabled', 'mgmt_only'],
+        ['vrf_id', 'mac_address', 'wwn'],
         ['rf_role', 'rf_channel', 'rf_channel_width', 'tx_power'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
@@ -932,6 +940,17 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     type = forms.MultipleChoiceField(
         choices=InterfaceTypeChoices,
         required=False,
+        widget=StaticSelectMultiple()
+    )
+    speed = forms.IntegerField(
+        required=False,
+        label='Select Speed',
+        widget=SelectSpeedWidget(attrs={'readonly': None})
+    )
+    duplex = forms.MultipleChoiceField(
+        choices=InterfaceDuplexChoices,
+        required=False,
+        label='Select Duplex',
         widget=StaticSelectMultiple()
     )
     enabled = forms.NullBooleanField(
@@ -979,6 +998,11 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         label='Transmit power (dBm)',
         min_value=0,
         max_value=127
+    )
+    vrf_id = DynamicModelMultipleChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
     )
     tag = TagFilterField(model)
 

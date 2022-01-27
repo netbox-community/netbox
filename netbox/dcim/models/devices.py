@@ -13,9 +13,8 @@ from dcim.choices import *
 from dcim.constants import *
 from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
-from extras.utils import extras_features
 from netbox.config import ConfigItem
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from .device_components import *
@@ -37,7 +36,6 @@ __all__ = (
 # Device Types
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Manufacturer(OrganizationalModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
@@ -70,8 +68,7 @@ class Manufacturer(OrganizationalModel):
         return reverse('dcim:manufacturer', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class DeviceType(PrimaryModel):
+class DeviceType(NetBoxModel):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
@@ -353,8 +350,7 @@ class DeviceType(PrimaryModel):
         return self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class ModuleType(PrimaryModel):
+class ModuleType(NetBoxModel):
     """
     A ModuleType represents a hardware element that can be installed within a device and which houses additional
     components; for example, a line card within a chassis-based switch such as the Cisco Catalyst 6500. Like a
@@ -487,7 +483,6 @@ class ModuleType(PrimaryModel):
 # Devices
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class DeviceRole(OrganizationalModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
@@ -525,7 +520,6 @@ class DeviceRole(OrganizationalModel):
         return reverse('dcim:devicerole', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Platform(OrganizationalModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
@@ -575,8 +569,7 @@ class Platform(OrganizationalModel):
         return reverse('dcim:platform', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Device(PrimaryModel, ConfigContextModel):
+class Device(NetBoxModel, ConfigContextModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
@@ -1012,8 +1005,7 @@ class Device(PrimaryModel, ConfigContextModel):
         return DeviceStatusChoices.colors.get(self.status, 'secondary')
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Module(PrimaryModel, ConfigContextModel):
+class Module(NetBoxModel, ConfigContextModel):
     """
     A Module represents a field-installable component within a Device which may itself hold multiple device components
     (for example, a line card within a chassis switch). Modules are instantiated from ModuleTypes.
@@ -1095,8 +1087,7 @@ class Module(PrimaryModel, ConfigContextModel):
 # Virtual chassis
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class VirtualChassis(PrimaryModel):
+class VirtualChassis(NetBoxModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
     """

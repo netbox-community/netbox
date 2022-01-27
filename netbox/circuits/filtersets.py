@@ -3,8 +3,7 @@ from django.db.models import Q
 
 from dcim.filtersets import CableTerminationFilterSet
 from dcim.models import Region, Site, SiteGroup
-from extras.filters import TagFilter
-from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
+from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import TreeNodeMultipleChoiceFilter
 from .choices import *
@@ -19,7 +18,7 @@ __all__ = (
 )
 
 
-class ProviderFilterSet(PrimaryModelFilterSet):
+class ProviderFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -61,7 +60,6 @@ class ProviderFilterSet(PrimaryModelFilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Provider
@@ -79,7 +77,7 @@ class ProviderFilterSet(PrimaryModelFilterSet):
         )
 
 
-class ProviderNetworkFilterSet(PrimaryModelFilterSet):
+class ProviderNetworkFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -94,7 +92,6 @@ class ProviderNetworkFilterSet(PrimaryModelFilterSet):
         to_field_name='slug',
         label='Provider (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = ProviderNetwork
@@ -112,14 +109,13 @@ class ProviderNetworkFilterSet(PrimaryModelFilterSet):
 
 
 class CircuitTypeFilterSet(OrganizationalModelFilterSet):
-    tag = TagFilter()
 
     class Meta:
         model = CircuitType
         fields = ['id', 'name', 'slug']
 
 
-class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
+class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -190,7 +186,6 @@ class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Circuit

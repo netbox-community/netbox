@@ -9,12 +9,12 @@ from dcim.constants import *
 from dcim.models import *
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
-from ipam.models import IPAddress, VLAN, VLANGroup, ASN
+from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VRF
 from tenancy.forms import TenancyForm
 from utilities.forms import (
     APISelect, add_blank_choice, BootstrapMixin, ClearableFileInput, CommentField, ContentTypeChoiceField,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SelectWithPK, SmallTextarea,
-    SlugField, StaticSelect,
+    SlugField, StaticSelect, SelectSpeedWidget,
 )
 from virtualization.models import Cluster, ClusterGroup
 from wireless.models import WirelessLAN, WirelessLANGroup
@@ -1261,6 +1261,11 @@ class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
             'available_on_device': '$device',
         }
     )
+    vrf = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
+    )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1269,13 +1274,13 @@ class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'label', 'type', 'enabled', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu',
+            'device', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu',
             'mgmt_only', 'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
-            'rf_channel_width', 'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'tags',
+            'rf_channel_width', 'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
         ]
         fieldsets = (
-            ('Interface', ('device', 'name', 'type', 'label', 'description', 'tags')),
-            ('Addressing', ('mac_address', 'wwn')),
+            ('Interface', ('device', 'name', 'type', 'speed', 'duplex', 'label', 'description', 'tags')),
+            ('Addressing', ('vrf', 'mac_address', 'wwn')),
             ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
             ('Related Interfaces', ('parent', 'bridge', 'lag')),
             ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
@@ -1287,6 +1292,8 @@ class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
         widgets = {
             'device': forms.HiddenInput(),
             'type': StaticSelect(),
+            'speed': SelectSpeedWidget(),
+            'duplex': StaticSelect(),
             'mode': StaticSelect(),
             'rf_role': StaticSelect(),
             'rf_channel': StaticSelect(),

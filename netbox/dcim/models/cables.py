@@ -11,8 +11,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_object
-from extras.utils import extras_features
-from netbox.models import BigIDModel, PrimaryModel
+from netbox.models import NetBoxModel
 from utilities.fields import ColorField
 from utilities.utils import to_meters
 from .devices import Device
@@ -29,8 +28,7 @@ __all__ = (
 # Cables
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Cable(PrimaryModel):
+class Cable(NetBoxModel):
     """
     A physical connection between two endpoints.
     """
@@ -40,7 +38,7 @@ class Cable(PrimaryModel):
         on_delete=models.PROTECT,
         related_name='+'
     )
-    termination_a_id = models.PositiveIntegerField()
+    termination_a_id = models.PositiveBigIntegerField()
     termination_a = GenericForeignKey(
         ct_field='termination_a_type',
         fk_field='termination_a_id'
@@ -51,7 +49,7 @@ class Cable(PrimaryModel):
         on_delete=models.PROTECT,
         related_name='+'
     )
-    termination_b_id = models.PositiveIntegerField()
+    termination_b_id = models.PositiveBigIntegerField()
     termination_b = GenericForeignKey(
         ct_field='termination_b_type',
         fk_field='termination_b_id'
@@ -300,7 +298,7 @@ class Cable(PrimaryModel):
         return COMPATIBLE_TERMINATION_TYPES[self.termination_a._meta.model_name]
 
 
-class CablePath(BigIDModel):
+class CablePath(models.Model):
     """
     A CablePath instance represents the physical path from an origin to a destination, including all intermediate
     elements in the path. Every instance must specify an `origin`, whereas `destination` may be null (for paths which do
@@ -329,7 +327,7 @@ class CablePath(BigIDModel):
         on_delete=models.CASCADE,
         related_name='+'
     )
-    origin_id = models.PositiveIntegerField()
+    origin_id = models.PositiveBigIntegerField()
     origin = GenericForeignKey(
         ct_field='origin_type',
         fk_field='origin_id'
@@ -341,7 +339,7 @@ class CablePath(BigIDModel):
         blank=True,
         null=True
     )
-    destination_id = models.PositiveIntegerField(
+    destination_id = models.PositiveBigIntegerField(
         blank=True,
         null=True
     )

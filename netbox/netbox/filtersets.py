@@ -18,8 +18,8 @@ from utilities import filters
 __all__ = (
     'BaseFilterSet',
     'ChangeLoggedModelFilterSet',
+    'NetBoxModelFilterSet',
     'OrganizationalModelFilterSet',
-    'PrimaryModelFilterSet',
 )
 
 
@@ -29,7 +29,7 @@ __all__ = (
 
 class BaseFilterSet(django_filters.FilterSet):
     """
-    A base FilterSet which provides common functionality to all NetBox FilterSets
+    A base FilterSet which provides some enhanced functionality over django-filter2's FilterSet class.
     """
     FILTER_DEFAULTS = deepcopy(django_filters.filterset.FILTER_FOR_DBFIELD_DEFAULTS)
     FILTER_DEFAULTS.update({
@@ -119,6 +119,10 @@ class BaseFilterSet(django_filters.FilterSet):
     @classmethod
     def get_additional_lookups(cls, existing_filter_name, existing_filter):
         new_filters = {}
+
+        # Skip on abstract models
+        if not cls._meta.model:
+            return {}
 
         # Skip nonstandard lookup expressions
         if existing_filter.method is not None or existing_filter.lookup_expr not in ['exact', 'in']:
@@ -213,7 +217,11 @@ class ChangeLoggedModelFilterSet(BaseFilterSet):
     )
 
 
-class PrimaryModelFilterSet(ChangeLoggedModelFilterSet):
+class NetBoxModelFilterSet(ChangeLoggedModelFilterSet):
+    """
+    Provides additional filtering functionality (e.g. tags, custom fields) for core NetBox models.
+    """
+    tag = TagFilter()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -239,7 +247,7 @@ class PrimaryModelFilterSet(ChangeLoggedModelFilterSet):
         self.filters.update(custom_field_filters)
 
 
-class OrganizationalModelFilterSet(PrimaryModelFilterSet):
+class OrganizationalModelFilterSet(NetBoxModelFilterSet):
     """
     A base class for adding the search method to models which only expose the `name` and `slug` fields
     """

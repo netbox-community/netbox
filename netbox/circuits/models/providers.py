@@ -3,8 +3,7 @@ from django.db import models
 from django.urls import reverse
 
 from dcim.fields import ASNField
-from extras.utils import extras_features
-from netbox.models import PrimaryModel
+from netbox.models import NetBoxModel
 
 __all__ = (
     'ProviderNetwork',
@@ -12,8 +11,7 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Provider(PrimaryModel):
+class Provider(NetBoxModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
     stores information pertinent to the user's relationship with the Provider.
@@ -72,8 +70,7 @@ class Provider(PrimaryModel):
         return reverse('circuits:provider', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class ProviderNetwork(PrimaryModel):
+class ProviderNetwork(NetBoxModel):
     """
     This represents a provider network which exists outside of NetBox, the details of which are unknown or
     unimportant to the user.

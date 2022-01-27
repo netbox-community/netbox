@@ -21,7 +21,7 @@ from extras.models import JobResult
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortTransaction
-from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms import add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .context_managers import change_logging
 from .forms import ScriptForm
 
@@ -164,15 +164,21 @@ class ChoiceVar(ScriptVariable):
     def __init__(self, choices, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Set field choices
-        self.field_attrs['choices'] = choices
+        # Set field choices, adding a blank choice to avoid forced selections
+        self.field_attrs['choices'] = add_blank_choice(choices)
 
 
-class MultiChoiceVar(ChoiceVar):
+class MultiChoiceVar(ScriptVariable):
     """
     Like ChoiceVar, but allows for the selection of multiple choices.
     """
     form_field = forms.MultipleChoiceField
+
+    def __init__(self, choices, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set field choices
+        self.field_attrs['choices'] = choices
 
 
 class ObjectVar(ScriptVariable):

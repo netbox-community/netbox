@@ -7,14 +7,12 @@ from django.urls import reverse
 from dcim.models import BaseInterface, Device
 from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
-from extras.utils import extras_features
 from netbox.config import get_config
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
 from .choices import *
-
 
 __all__ = (
     'Cluster',
@@ -29,7 +27,6 @@ __all__ = (
 # Cluster types
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ClusterType(OrganizationalModel):
     """
     A type of Cluster.
@@ -61,7 +58,6 @@ class ClusterType(OrganizationalModel):
 # Cluster groups
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ClusterGroup(OrganizationalModel):
     """
     An organizational group of Clusters.
@@ -104,8 +100,7 @@ class ClusterGroup(OrganizationalModel):
 # Clusters
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Cluster(PrimaryModel):
+class Cluster(NetBoxModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """
@@ -188,8 +183,7 @@ class Cluster(PrimaryModel):
 # Virtual machines
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class VirtualMachine(PrimaryModel, ConfigContextModel):
+class VirtualMachine(NetBoxModel, ConfigContextModel):
     """
     A virtual machine which runs inside a Cluster.
     """
@@ -351,8 +345,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
 # Interfaces
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class VMInterface(PrimaryModel, BaseInterface):
+class VMInterface(NetBoxModel, BaseInterface):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,
@@ -448,8 +441,9 @@ class VMInterface(PrimaryModel, BaseInterface):
             })
 
     def to_objectchange(self, action):
-        # Annotate the parent VirtualMachine
-        return super().to_objectchange(action, related_object=self.virtual_machine)
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.virtual_machine
+        return objectchange
 
     @property
     def parent_object(self):

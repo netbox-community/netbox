@@ -13,9 +13,8 @@ from django.urls import reverse
 from dcim.choices import *
 from dcim.constants import *
 from dcim.svg import RackElevationSVG
-from extras.utils import extras_features
 from netbox.config import get_config
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.utils import array_to_string
@@ -34,7 +33,6 @@ __all__ = (
 # Racks
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RackRole(OrganizationalModel):
     """
     Racks can be organized by functional role, similar to Devices.
@@ -65,8 +63,7 @@ class RackRole(OrganizationalModel):
         return reverse('dcim:rackrole', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Rack(PrimaryModel):
+class Rack(NetBoxModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
@@ -438,8 +435,7 @@ class Rack(PrimaryModel):
         return int(allocated_draw_total / available_power_total * 100)
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class RackReservation(PrimaryModel):
+class RackReservation(NetBoxModel):
     """
     One or more reserved units within a Rack.
     """

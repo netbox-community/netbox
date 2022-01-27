@@ -1,6 +1,14 @@
 # Release Notes
 
-Listed below are the major features introduced in each NetBox release. For more detail on a specific release train, see its individual release notes page. 
+NetBox releases are numbered as major, minor, and patch releases. For example, version 3.1.0 is a minor release, and v3.1.5 is a patch release. Briefly, these can be described as follows:
+
+* **Major** - Introduces or removes an entire API or other core functionality
+* **Minor** - Implements major new features but may include breaking changes for API consumers or other integrations
+* **Patch** - A maintenance release which fixes bugs and may introduce backward-compatible enhancements
+
+Minor releases are published in April, August, and December of each calendar year. Patch releases are published as needed to address bugs and fulfill minor feature requests, typically around every one to two weeks.
+
+This page contains a history of all major and minor releases since NetBox v2.0. For more detail on a specific patch release, please see the release notes page for that specific minor release.
 
 #### [Version 3.1](./version-3.1.md) (December 2021)
 

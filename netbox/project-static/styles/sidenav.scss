@@ -223,11 +223,6 @@
     font-weight: $font-weight-bold;
     color: var(--nbx-sidenav-parent-color);
 
-    &.active {
-      color: $accordion-button-active-color;
-      background: $accordion-button-active-bg;
-    }
-
     &:after {
       display: inline-block;
       margin-left: auto;
@@ -284,7 +279,7 @@
         font-size: $font-size-sm;
         color: var(--nbx-sidenav-link-color);
         white-space: nowrap;
-        transition: $transition-100ms-ease-in-out;
+        transition-duration: 0ms;
 
         &.active {
           background-color: var(--nbx-sidebar-link-active-bg);

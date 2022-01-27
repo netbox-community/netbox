@@ -5,11 +5,10 @@ from django.db import models
 from django.urls import reverse
 
 from extras.choices import *
-from netbox.models import BigIDModel
 from utilities.querysets import RestrictedQuerySet
 
 
-class ObjectChange(BigIDModel):
+class ObjectChange(models.Model):
     """
     Record a change to an object and the user account associated with that change. A change record may optionally
     indicate an object related to the one being changed. For example, a change to an interface may also indicate the
@@ -43,7 +42,7 @@ class ObjectChange(BigIDModel):
         on_delete=models.PROTECT,
         related_name='+'
     )
-    changed_object_id = models.PositiveIntegerField()
+    changed_object_id = models.PositiveBigIntegerField()
     changed_object = GenericForeignKey(
         ct_field='changed_object_type',
         fk_field='changed_object_id'
@@ -55,7 +54,7 @@ class ObjectChange(BigIDModel):
         blank=True,
         null=True
     )
-    related_object_id = models.PositiveIntegerField(
+    related_object_id = models.PositiveBigIntegerField(
         blank=True,
         null=True
     )

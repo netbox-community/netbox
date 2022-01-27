@@ -5,9 +5,7 @@ from dcim.models import (
     ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceType, FrontPortTemplate, InterfaceTemplate,
     InventoryItemTemplate, Manufacturer, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
-from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, LinkedCountColumn, MarkdownColumn, TagColumn, ToggleColumn,
-)
+from netbox.tables import NetBoxTable, columns
 from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS
 
 __all__ = (
@@ -30,8 +28,7 @@ __all__ = (
 # Manufacturers
 #
 
-class ManufacturerTable(BaseTable):
-    pk = ToggleColumn()
+class ManufacturerTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -45,19 +42,18 @@ class ManufacturerTable(BaseTable):
         verbose_name='Platforms'
     )
     slug = tables.Column()
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='dcim:manufacturer_list'
     )
-    actions = ButtonsColumn(Manufacturer)
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Manufacturer
         fields = (
             'pk', 'id', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug',
-            'actions',
+            'actions', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug', 'actions',
+            'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug',
         )
 
 
@@ -65,30 +61,29 @@ class ManufacturerTable(BaseTable):
 # Device types
 #
 
-class DeviceTypeTable(BaseTable):
-    pk = ToggleColumn()
+class DeviceTypeTable(NetBoxTable):
     model = tables.Column(
         linkify=True,
         verbose_name='Device Type'
     )
-    is_full_depth = BooleanColumn(
+    is_full_depth = columns.BooleanColumn(
         verbose_name='Full Depth'
     )
-    instance_count = LinkedCountColumn(
+    instance_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'device_type_id': 'pk'},
         verbose_name='Instances'
     )
-    comments = MarkdownColumn()
-    tags = TagColumn(
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn(
         url_name='dcim:devicetype_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = DeviceType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
-            'airflow', 'comments', 'instance_count', 'tags',
+            'airflow', 'comments', 'instance_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count',
@@ -99,8 +94,7 @@ class DeviceTypeTable(BaseTable):
 # Device type components
 #
 
-class ComponentTemplateTable(BaseTable):
-    pk = ToggleColumn()
+class ComponentTemplateTable(NetBoxTable):
     id = tables.Column(
         verbose_name='ID'
     )
@@ -108,15 +102,14 @@ class ComponentTemplateTable(BaseTable):
         order_by=('_name',)
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         exclude = ('id', )
 
 
 class ConsolePortTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=ConsolePortTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    actions = columns.ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -126,10 +119,9 @@ class ConsolePortTemplateTable(ComponentTemplateTable):
 
 
 class ConsoleServerPortTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=ConsoleServerPortTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    actions = columns.ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -139,10 +131,9 @@ class ConsoleServerPortTemplateTable(ComponentTemplateTable):
 
 
 class PowerPortTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=PowerPortTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    actions = columns.ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -152,10 +143,9 @@ class PowerPortTemplateTable(ComponentTemplateTable):
 
 
 class PowerOutletTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=PowerOutletTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    actions = columns.ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -165,13 +155,12 @@ class PowerOutletTemplateTable(ComponentTemplateTable):
 
 
 class InterfaceTemplateTable(ComponentTemplateTable):
-    mgmt_only = BooleanColumn(
+    mgmt_only = columns.BooleanColumn(
         verbose_name='Management Only'
     )
-    actions = ButtonsColumn(
-        model=InterfaceTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    actions = columns.ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -184,11 +173,10 @@ class FrontPortTemplateTable(ComponentTemplateTable):
     rear_port_position = tables.Column(
         verbose_name='Position'
     )
-    color = ColorColumn()
-    actions = ButtonsColumn(
-        model=FrontPortTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    color = columns.ColorColumn()
+    actions = columns.ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -198,11 +186,10 @@ class FrontPortTemplateTable(ComponentTemplateTable):
 
 
 class RearPortTemplateTable(ComponentTemplateTable):
-    color = ColorColumn()
-    actions = ButtonsColumn(
-        model=RearPortTemplate,
-        buttons=('edit', 'delete'),
-        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
+    color = columns.ColorColumn()
+    actions = columns.ActionsColumn(
+        sequence=('edit', 'delete'),
+        extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -212,9 +199,8 @@ class RearPortTemplateTable(ComponentTemplateTable):
 
 
 class ModuleBayTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=ModuleBayTemplate,
-        buttons=('edit', 'delete')
+    actions = columns.ActionsColumn(
+        sequence=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -224,9 +210,8 @@ class ModuleBayTemplateTable(ComponentTemplateTable):
 
 
 class DeviceBayTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=DeviceBayTemplate,
-        buttons=('edit', 'delete')
+    actions = columns.ActionsColumn(
+        sequence=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -236,9 +221,8 @@ class DeviceBayTemplateTable(ComponentTemplateTable):
 
 
 class InventoryItemTemplateTable(ComponentTemplateTable):
-    actions = ButtonsColumn(
-        model=InventoryItemTemplate,
-        buttons=('edit', 'delete')
+    actions = columns.ActionsColumn(
+        sequence=('edit', 'delete')
     )
     role = tables.Column(
         linkify=True

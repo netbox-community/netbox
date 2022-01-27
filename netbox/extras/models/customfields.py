@@ -12,11 +12,13 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from extras.choices import *
-from extras.utils import FeatureQuery, extras_features
+from extras.utils import FeatureQuery
 from netbox.models import ChangeLoggedModel
+from netbox.models.features import ExportTemplatesMixin, WebhooksMixin
 from utilities import filters
 from utilities.forms import (
-    CSVChoiceField, DatePicker, LaxURLField, StaticSelectMultiple, StaticSelect, add_blank_choice,
+    CSVChoiceField, CSVMultipleChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    LaxURLField, StaticSelectMultiple, StaticSelect, add_blank_choice,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
@@ -39,8 +41,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-@extras_features('webhooks', 'export_templates')
-class CustomField(ChangeLoggedModel):
+class CustomField(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
@@ -50,7 +51,15 @@ class CustomField(ChangeLoggedModel):
     type = models.CharField(
         max_length=50,
         choices=CustomFieldTypeChoices,
-        default=CustomFieldTypeChoices.TYPE_TEXT
+        default=CustomFieldTypeChoices.TYPE_TEXT,
+        help_text='The type of data this custom field holds'
+    )
+    object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        help_text='The type of NetBox object this field maps to (for object fields)'
     )
     name = models.CharField(
         max_length=50,
@@ -122,7 +131,6 @@ class CustomField(ChangeLoggedModel):
         null=True,
         help_text='Comma-separated list of available choices (for selection fields)'
     )
-
     objects = CustomFieldManager()
 
     class Meta:
@@ -234,11 +242,48 @@ class CustomField(ChangeLoggedModel):
                 'default': f"The specified default value ({self.default}) is not listed as an available choice."
             })
 
+        # Object fields must define an object_type; other fields must not
+        if self.type in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
+            if not self.object_type:
+                raise ValidationError({
+                    'object_type': "Object fields must define an object type."
+                })
+        elif self.object_type:
+            raise ValidationError({
+                'object_type': f"{self.get_type_display()} fields may not define an object type."
+            })
+
+    def serialize(self, value):
+        """
+        Prepare a value for storage as JSON data.
+        """
+        if value is None:
+            return value
+        if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
+            return value.pk
+        if self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+            return [obj.pk for obj in value] or None
+        return value
+
+    def deserialize(self, value):
+        """
+        Convert JSON data to a Python object suitable for the field type.
+        """
+        if value is None:
+            return value
+        if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
+            model = self.object_type.model_class()
+            return model.objects.filter(pk=value).first()
+        if self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+            model = self.object_type.model_class()
+            return model.objects.filter(pk__in=value)
+        return value
+
     def to_form_field(self, set_initial=True, enforce_required=True, for_csv_import=False):
         """
         Return a form field suitable for setting a CustomField's value for an object.
 
-        set_initial: Set initial date for the field. This should be False when generating a field for bulk editing.
+        set_initial: Set initial data for the field. This should be False when generating a field for bulk editing.
         enforce_required: Honor the value of CustomField.required. Set to False for filtering/bulk editing.
         for_csv_import: Return a form field suitable for bulk import of objects in CSV format.
         """
@@ -287,7 +332,7 @@ class CustomField(ChangeLoggedModel):
                     choices=choices, required=required, initial=initial, widget=StaticSelect()
                 )
             else:
-                field_class = CSVChoiceField if for_csv_import else forms.MultipleChoiceField
+                field_class = CSVMultipleChoiceField if for_csv_import else forms.MultipleChoiceField
                 field = field_class(
                     choices=choices, required=required, initial=initial, widget=StaticSelectMultiple()
                 )
@@ -299,6 +344,24 @@ class CustomField(ChangeLoggedModel):
         # JSON
         elif self.type == CustomFieldTypeChoices.TYPE_JSON:
             field = forms.JSONField(required=required, initial=initial)
+
+        # Object
+        elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
+            model = self.object_type.model_class()
+            field = DynamicModelChoiceField(
+                queryset=model.objects.all(),
+                required=required,
+                initial=initial
+            )
+
+        # Multiple objects
+        elif self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+            model = self.object_type.model_class()
+            field = DynamicModelMultipleChoiceField(
+                queryset=model.objects.all(),
+                required=required,
+                initial=initial
+            )
 
         # Text
         else:

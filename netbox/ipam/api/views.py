@@ -140,7 +140,13 @@ class VLANViewSet(CustomFieldModelViewSet):
     filterset_class = filtersets.VLANFilterSet
 
 
-class ServiceViewSet(ModelViewSet):
+class ServiceTemplateViewSet(CustomFieldModelViewSet):
+    queryset = ServiceTemplate.objects.prefetch_related('tags')
+    serializer_class = serializers.ServiceTemplateSerializer
+    filterset_class = filtersets.ServiceTemplateFilterSet
+
+
+class ServiceViewSet(CustomFieldModelViewSet):
     queryset = Service.objects.prefetch_related(
         'device', 'virtual_machine', 'tags', 'ipaddresses'
     )

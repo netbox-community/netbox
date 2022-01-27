@@ -1,8 +1,8 @@
 import django_tables2 as tables
 
-from tenancy.tables import TenantColumn
-from utilities.tables import BaseTable, BooleanColumn, TagColumn, TemplateColumn, ToggleColumn
 from ipam.models import *
+from netbox.tables import NetBoxTable, columns
+from tenancy.tables import TenantColumn
 
 __all__ = (
     'RouteTargetTable',
@@ -20,8 +20,7 @@ VRF_TARGETS = """
 # VRFs
 #
 
-class VRFTable(BaseTable):
-    pk = ToggleColumn()
+class VRFTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -29,25 +28,26 @@ class VRFTable(BaseTable):
         verbose_name='RD'
     )
     tenant = TenantColumn()
-    enforce_unique = BooleanColumn(
+    enforce_unique = columns.BooleanColumn(
         verbose_name='Unique'
     )
-    import_targets = TemplateColumn(
+    import_targets = columns.TemplateColumn(
         template_code=VRF_TARGETS,
         orderable=False
     )
-    export_targets = TemplateColumn(
+    export_targets = columns.TemplateColumn(
         template_code=VRF_TARGETS,
         orderable=False
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:vrf_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = VRF
         fields = (
-            'pk', 'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'tags',
+            'pk', 'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets', 'export_targets',
+            'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'rd', 'tenant', 'description')
 
@@ -56,17 +56,16 @@ class VRFTable(BaseTable):
 # Route targets
 #
 
-class RouteTargetTable(BaseTable):
-    pk = ToggleColumn()
+class RouteTargetTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
     tenant = TenantColumn()
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:vrf_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = RouteTarget
-        fields = ('pk', 'id', 'name', 'tenant', 'description', 'tags')
+        fields = ('pk', 'id', 'name', 'tenant', 'description', 'tags', 'created', 'last_updated',)
         default_columns = ('pk', 'name', 'tenant', 'description')

@@ -47,6 +47,14 @@
                             <td>{{ object.get_type_display }}</td>
                         </tr>
                         <tr>
+                            <th scope="row">Speed</th>
+                            <td>{{ object.speed|humanize_speed|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Duplex</th>
+                            <td>{{ object.get_duplex_display }}</td>
+                        </tr>
+                        <tr>
                             <th scope="row">Enabled</th>
                             <td>{% checkmark object.enabled %}</td>
                         </tr>
@@ -107,6 +115,16 @@
                         <tr>
                             <th scope="row">802.1Q Mode</th>
                             <td>{{ object.get_mode_display|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">VRF</th>
+                            <td>
+                                {% if object.vrf %}
+                                    <a href="{{ object.vrf.get_absolute_url }}">{{ object.vrf }}</a>
+                                {% else %}
+                                    <span class="text-muted">None</span>
+                                {% endif %}
+                            </td>
                         </tr>
                     </table>
                 </div>

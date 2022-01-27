@@ -11,7 +11,7 @@ from netaddr import EUI
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from ipam.models import ASN, RIR, VLAN
+from ipam.models import ASN, RIR, VLAN, VRF
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags, create_test_device
 from wireless.models import WirelessLAN
@@ -2105,6 +2105,13 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         WirelessLAN.objects.bulk_create(wireless_lans)
 
+        vrfs = (
+            VRF(name='VRF 1'),
+            VRF(name='VRF 2'),
+            VRF(name='VRF 3'),
+        )
+        VRF.objects.bulk_create(vrfs)
+
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
@@ -2117,6 +2124,8 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 65000,
+            'speed': 1000000,
+            'duplex': 'full',
             'mgmt_only': True,
             'description': 'A front port',
             'mode': InterfaceModeChoices.MODE_TAGGED,
@@ -2124,6 +2133,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
+            'vrf': vrfs[0].pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -2137,12 +2147,15 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 2000,
+            'speed': 100000,
+            'duplex': 'half',
             'mgmt_only': True,
             'description': 'A front port',
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
+            'vrf': vrfs[0].pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -2153,19 +2166,22 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 2000,
+            'speed': 1000000,
+            'duplex': 'full',
             'mgmt_only': True,
             'description': 'New description',
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'tx_power': 10,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'vrf': vrfs[1].pk,
         }
 
         cls.csv_data = (
-            "device,name,type",
-            "Device 1,Interface 4,1000base-t",
-            "Device 1,Interface 5,1000base-t",
-            "Device 1,Interface 6,1000base-t",
+            f"device,name,type,vrf.pk",
+            f"Device 1,Interface 4,1000base-t,{vrfs[0].pk}",
+            f"Device 1,Interface 5,1000base-t,{vrfs[0].pk}",
+            f"Device 1,Interface 6,1000base-t,{vrfs[0].pk}",
         )
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])

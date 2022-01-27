@@ -7,8 +7,8 @@ from extras.models import *
 from extras.utils import FeatureQuery
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, CommentField, ContentTypeChoiceField,
-    ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect,
+    add_blank_choice, BootstrapMixin, CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField,
+    DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect,
 )
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -35,12 +35,16 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         model = CustomField
         fields = '__all__'
         fieldsets = (
-            ('Custom Field', ('name', 'label', 'type', 'weight', 'required', 'description')),
+            ('Custom Field', ('name', 'label', 'type', 'object_type', 'weight', 'required', 'description')),
             ('Assigned Models', ('content_types',)),
             ('Behavior', ('filter_logic',)),
             ('Values', ('default', 'choices')),
             ('Validation', ('validation_minimum', 'validation_maximum', 'validation_regex')),
         )
+        widgets = {
+            'type': StaticSelect(),
+            'filter_logic': StaticSelect(),
+        }
 
 
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):
@@ -53,10 +57,11 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
         model = CustomLink
         fields = '__all__'
         fieldsets = (
-            ('Custom Link', ('name', 'content_type', 'weight', 'group_name', 'button_class', 'new_window')),
+            ('Custom Link', ('name', 'content_type', 'weight', 'group_name', 'button_class', 'enabled', 'new_window')),
             ('Templates', ('link_text', 'link_url')),
         )
         widgets = {
+            'button_class': StaticSelect(),
             'link_text': forms.Textarea(attrs={'class': 'font-monospace'}),
             'link_url': forms.Textarea(attrs={'class': 'font-monospace'}),
         }
@@ -77,7 +82,7 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
         model = ExportTemplate
         fields = '__all__'
         fieldsets = (
-            ('Custom Link', ('name', 'content_type', 'description')),
+            ('Export Template', ('name', 'content_type', 'description')),
             ('Template', ('template_code',)),
             ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
         )
@@ -96,8 +101,7 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
         model = Webhook
         fields = '__all__'
         fieldsets = (
-            ('Webhook', ('name', 'enabled')),
-            ('Assigned Models', ('content_types',)),
+            ('Webhook', ('name', 'content_types', 'enabled')),
             ('Events', ('type_create', 'type_update', 'type_delete')),
             ('HTTP Request', (
                 'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
@@ -105,7 +109,13 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
             ('Conditions', ('conditions',)),
             ('SSL', ('ssl_verification', 'ca_file_path')),
         )
+        labels = {
+            'type_create': 'Creations',
+            'type_update': 'Updates',
+            'type_delete': 'Deletions',
+        }
         widgets = {
+            'http_method': StaticSelect(),
             'additional_headers': forms.Textarea(attrs={'class': 'font-monospace'}),
             'body_template': forms.Textarea(attrs={'class': 'font-monospace'}),
         }

@@ -1,0 +1,20 @@
+{% load form_helpers %}
+
+<form action="{{ form_url }}" method="post">
+  {% csrf_token %}
+  <div class="modal-header">
+    <h5 class="modal-title">Confirm Deletion</h5>
+  </div>
+  <div class="modal-body">
+    <p>Are you sure you want to <strong class="text-danger">delete</strong> {{ object_type }} <strong>{{ object }}</strong>?</p>
+    {% render_form form %}
+  </div>
+  <div class="modal-footer">
+    {% if return_url %}
+      <a href="{{ return_url }}" class="btn btn-outline-secondary">Cancel</a>
+    {% else %}
+      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+    {% endif %}
+    <button type="submit" class="btn btn-danger">Delete</button>
+  </div>
+</form>

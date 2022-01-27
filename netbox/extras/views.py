@@ -11,7 +11,7 @@ from rq import Worker
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.htmx import is_htmx
-from utilities.tables import paginate_table
+from netbox.tables import configure_table
 from utilities.utils import copy_safe_request, count_related, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filtersets, forms, tables
@@ -215,7 +215,7 @@ class TagView(generic.ObjectView):
             data=tagged_items,
             orderable=False
         )
-        paginate_table(taggeditem_table, request)
+        configure_table(taggeditem_table, request)
 
         object_types = [
             {
@@ -451,7 +451,7 @@ class ObjectChangeLogView(View):
             data=objectchanges,
             orderable=False
         )
-        paginate_table(objectchanges_table, request)
+        configure_table(objectchanges_table, request)
 
         # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
         # fall back to using base.html.
@@ -571,7 +571,7 @@ class ObjectJournalView(View):
             assigned_object_id=obj.pk
         )
         journalentry_table = tables.ObjectJournalTable(journalentries)
-        paginate_table(journalentry_table, request)
+        configure_table(journalentry_table, request)
 
         if request.user.has_perm('extras.add_journalentry'):
             form = forms.JournalEntryForm(

@@ -2,11 +2,8 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import Rack, RackReservation, RackRole
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
-from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn,
-    TagColumn, ToggleColumn, UtilizationColumn,
-)
 
 __all__ = (
     'RackTable',
@@ -19,28 +16,28 @@ __all__ = (
 # Rack roles
 #
 
-class RackRoleTable(BaseTable):
-    pk = ToggleColumn()
+class RackRoleTable(NetBoxTable):
     name = tables.Column(linkify=True)
     rack_count = tables.Column(verbose_name='Racks')
-    color = ColorColumn()
-    tags = TagColumn(
+    color = columns.ColorColumn()
+    tags = columns.TagColumn(
         url_name='dcim:rackrole_list'
     )
-    actions = ButtonsColumn(RackRole)
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = RackRole
-        fields = ('pk', 'id', 'name', 'rack_count', 'color', 'description', 'slug', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'rack_count', 'color', 'description', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'rack_count', 'color', 'description', 'slug', 'tags', 'actions', 'created',
+            'last_updated',
+        )
+        default_columns = ('pk', 'name', 'rack_count', 'color', 'description')
 
 
 #
 # Racks
 #
 
-class RackTable(BaseTable):
-    pk = ToggleColumn()
+class RackTable(NetBoxTable):
     name = tables.Column(
         order_by=('_name',),
         linkify=True
@@ -52,27 +49,27 @@ class RackTable(BaseTable):
         linkify=True
     )
     tenant = TenantColumn()
-    status = ChoiceFieldColumn()
-    role = ColoredLabelColumn()
+    status = columns.ChoiceFieldColumn()
+    role = columns.ColoredLabelColumn()
     u_height = tables.TemplateColumn(
         template_code="{{ record.u_height }}U",
         verbose_name='Height'
     )
-    comments = MarkdownColumn()
-    device_count = LinkedCountColumn(
+    comments = columns.MarkdownColumn()
+    device_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'rack_id': 'pk'},
         verbose_name='Devices'
     )
-    get_utilization = UtilizationColumn(
+    get_utilization = columns.UtilizationColumn(
         orderable=False,
         verbose_name='Space'
     )
-    get_power_utilization = UtilizationColumn(
+    get_power_utilization = columns.UtilizationColumn(
         orderable=False,
         verbose_name='Power'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='dcim:rack_list'
     )
     outer_width = tables.TemplateColumn(
@@ -84,11 +81,12 @@ class RackTable(BaseTable):
         verbose_name='Outer Depth'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Rack
         fields = (
-            'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag', 'type',
-            'width', 'outer_width', 'outer_depth', 'u_height', 'comments', 'device_count', 'get_utilization', 'get_power_utilization', 'tags',
+            'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag',
+            'type', 'width', 'outer_width', 'outer_depth', 'u_height', 'comments', 'device_count', 'get_utilization',
+            'get_power_utilization', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
@@ -100,8 +98,7 @@ class RackTable(BaseTable):
 # Rack reservations
 #
 
-class RackReservationTable(BaseTable):
-    pk = ToggleColumn()
+class RackReservationTable(NetBoxTable):
     reservation = tables.Column(
         accessor='pk',
         linkify=True
@@ -118,17 +115,14 @@ class RackReservationTable(BaseTable):
         orderable=False,
         verbose_name='Units'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='dcim:rackreservation_list'
     )
-    actions = ButtonsColumn(RackReservation)
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = RackReservation
         fields = (
             'pk', 'id', 'reservation', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'tags',
-            'actions',
+            'actions', 'created', 'last_updated',
         )
-        default_columns = (
-            'pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'description', 'actions',
-        )
+        default_columns = ('pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'description')

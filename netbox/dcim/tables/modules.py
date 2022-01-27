@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from dcim.models import Module, ModuleType
-from utilities.tables import BaseTable, LinkedCountColumn, MarkdownColumn, TagColumn, ToggleColumn
+from netbox.tables import NetBoxTable, columns
 
 __all__ = (
     'ModuleTable',
@@ -9,23 +9,22 @@ __all__ = (
 )
 
 
-class ModuleTypeTable(BaseTable):
-    pk = ToggleColumn()
+class ModuleTypeTable(NetBoxTable):
     model = tables.Column(
         linkify=True,
         verbose_name='Module Type'
     )
-    instance_count = LinkedCountColumn(
+    instance_count = columns.LinkedCountColumn(
         viewname='dcim:module_list',
         url_params={'module_type_id': 'pk'},
         verbose_name='Instances'
     )
-    comments = MarkdownColumn()
-    tags = TagColumn(
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn(
         url_name='dcim:moduletype_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = ModuleType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'part_number', 'comments', 'tags',
@@ -35,8 +34,7 @@ class ModuleTypeTable(BaseTable):
         )
 
 
-class ModuleTable(BaseTable):
-    pk = ToggleColumn()
+class ModuleTable(NetBoxTable):
     device = tables.Column(
         linkify=True
     )
@@ -46,12 +44,12 @@ class ModuleTable(BaseTable):
     module_type = tables.Column(
         linkify=True
     )
-    comments = MarkdownColumn()
-    tags = TagColumn(
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn(
         url_name='dcim:module_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Module
         fields = (
             'pk', 'id', 'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'comments', 'tags',

@@ -16,6 +16,8 @@
         {% endif %}
         {% render_field form.name %}
         {% render_field form.type %}
+        {% render_field form.speed %}
+        {% render_field form.duplex %}
         {% render_field form.label %}
         {% render_field form.description %}
         {% render_field form.tags %}
@@ -25,6 +27,7 @@
         <div class="row mb-2">
           <h5 class="offset-sm-3">Addressing</h5>
         </div>
+        {% render_field form.vrf %}
         {% render_field form.mac_address %}
         {% render_field form.wwn %}
     </div>

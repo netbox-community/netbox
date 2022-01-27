@@ -3,10 +3,10 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from circuits.models import Circuit
-from dcim.models import Site, Rack, Device, RackReservation
+from dcim.models import Site, Rack, Device, RackReservation, Cable
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from netbox.views import generic
-from utilities.tables import paginate_table
+from netbox.tables import configure_table
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, Cluster
 from . import filtersets, forms, tables
@@ -38,7 +38,7 @@ class TenantGroupView(generic.ObjectView):
             group=instance
         )
         tenants_table = tables.TenantTable(tenants, exclude=('group',))
-        paginate_table(tenants_table, request)
+        configure_table(tenants_table, request)
 
         return {
             'tenants_table': tenants_table,
@@ -112,6 +112,7 @@ class TenantView(generic.ObjectView):
             'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'virtualmachine_count': VirtualMachine.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'cluster_count': Cluster.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'cable_count': Cable.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
         }
 
         return {
@@ -184,7 +185,7 @@ class ContactGroupView(generic.ObjectView):
             group=instance
         )
         contacts_table = tables.ContactTable(contacts, exclude=('group',))
-        paginate_table(contacts_table, request)
+        configure_table(contacts_table, request)
 
         return {
             'child_groups_table': child_groups_table,
@@ -251,7 +252,7 @@ class ContactRoleView(generic.ObjectView):
         )
         contacts_table = tables.ContactAssignmentTable(contact_assignments)
         contacts_table.columns.hide('role')
-        paginate_table(contacts_table, request)
+        configure_table(contacts_table, request)
 
         return {
             'contacts_table': contacts_table,
@@ -308,7 +309,7 @@ class ContactView(generic.ObjectView):
         )
         assignments_table = tables.ContactAssignmentTable(contact_assignments)
         assignments_table.columns.hide('contact')
-        paginate_table(assignments_table, request)
+        configure_table(assignments_table, request)
 
         return {
             'assignments_table': assignments_table,

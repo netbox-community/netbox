@@ -65,6 +65,7 @@ FHRP_PROTOCOL_ROLE_MAPPINGS = {
     FHRPGroupProtocolChoices.PROTOCOL_HSRP: IPAddressRoleChoices.ROLE_HSRP,
     FHRPGroupProtocolChoices.PROTOCOL_GLBP: IPAddressRoleChoices.ROLE_GLBP,
     FHRPGroupProtocolChoices.PROTOCOL_CARP: IPAddressRoleChoices.ROLE_CARP,
+    FHRPGroupProtocolChoices.PROTOCOL_OTHER: IPAddressRoleChoices.ROLE_VIP,
 }
 
 
