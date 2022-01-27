@@ -733,6 +733,7 @@ class InterfaceTypeChoices(ChoiceSet):
 
     # Ethernet
     TYPE_100ME_FIXED = '100base-tx'
+    TYPE_100ME_SFP = '100base-x-sfp'
     TYPE_1GE_FIXED = '1000base-t'
     TYPE_1GE_GBIC = '1000base-x-gbic'
     TYPE_1GE_SFP = '1000base-x-sfp'
@@ -852,6 +853,7 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             'Ethernet (modular)',
             (
+                (TYPE_100ME_SFP, 'GBIC (100ME)'),
                 (TYPE_1GE_GBIC, 'GBIC (1GE)'),
                 (TYPE_1GE_SFP, 'SFP (1GE)'),
                 (TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
