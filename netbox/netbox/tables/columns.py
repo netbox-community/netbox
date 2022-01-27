@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
 
 from extras.choices import CustomFieldTypeChoices
-from utilities.utils import content_type_identifier, content_type_name
+from utilities.utils import content_type_identifier, content_type_name, resolve_namespace
 
 __all__ = (
     'ActionsColumn',
@@ -134,7 +134,7 @@ class ActionsColumn(tables.Column):
             return ''
 
         model = table.Meta.model
-        viewname_base = f'{model._meta.app_label}:{model._meta.model_name}'
+        viewname_base = f'{resolve_namespace(model)}:{model._meta.model_name}'
         request = getattr(table, 'context', {}).get('request')
         url_appendix = f'?return_url={request.path}' if request else ''
 

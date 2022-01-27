@@ -13,8 +13,18 @@ from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
 from dcim.choices import CableLengthUnitChoices
+from extras.plugins import PluginConfig
 from extras.utils import is_taggable
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
+
+
+def resolve_namespace(instance):
+    """
+    Get the appropriate namepsace for the app based on whether it is a Plugin or base application
+    """
+    if isinstance(instance._meta.app_config, PluginConfig):
+        return f'plugins:{instance._meta.app_label}'
+    return f'{instance._meta.app_label}'
 
 
 def csv_format(data):
