@@ -104,6 +104,7 @@ nav:
             - Getting Started: 'plugins/development/index.md'
             - Database Models: 'plugins/development/models.md'
             - Views: 'plugins/development/views.md'
+            - Filtersets: 'plugins/development/filtersets.md'
             - REST API: 'plugins/development/rest-api.md'
             - Background Tasks: 'plugins/development/background-tasks.md'
     - Administration:

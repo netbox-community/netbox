@@ -45,7 +45,7 @@ For more background on schema migrations, see the [Django documentation](https:/
 
 ## Enabling NetBox Features
 
-Plugin models can leverage certain NetBox features by inheriting from NetBox's `BaseModel` class. This class extends the plugin model to enable numerous feature, including:
+Plugin models can leverage certain NetBox features by inheriting from NetBox's `NetBoxModel` class. This class extends the plugin model to enable numerous feature, including:
 
 * Change logging
 * Custom fields

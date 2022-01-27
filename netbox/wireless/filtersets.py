@@ -3,7 +3,7 @@ from django.db.models import Q
 
 from dcim.choices import LinkStatusChoices
 from ipam.models import VLAN
-from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
+from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from utilities.filters import MultiValueNumberFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
@@ -30,7 +30,7 @@ class WirelessLANGroupFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class WirelessLANFilterSet(PrimaryModelFilterSet):
+class WirelessLANFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -70,7 +70,7 @@ class WirelessLANFilterSet(PrimaryModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class WirelessLinkFilterSet(PrimaryModelFilterSet):
+class WirelessLinkFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

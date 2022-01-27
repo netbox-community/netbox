@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q
 
-from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
+from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
 from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
 from .models import *
 
@@ -38,7 +38,7 @@ class TenantGroupFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class TenantFilterSet(PrimaryModelFilterSet):
+class TenantFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -129,7 +129,7 @@ class ContactRoleFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class ContactFilterSet(PrimaryModelFilterSet):
+class ContactFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
