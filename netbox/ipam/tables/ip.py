@@ -119,15 +119,20 @@ class ASNTable(BaseTable):
         url_params={'asn_id': 'pk'},
         verbose_name='Sites'
     )
+    tenant = TenantColumn()
+    tags = TagColumn(
+        url_name='ipam:asn_list'
+    )
+
     actions = ButtonsColumn(ASN)
 
     class Meta(BaseTable.Meta):
         model = ASN
         fields = (
             'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'tenant', 'description', 'actions', 'created',
-            'last_updated',
+            'last_updated', 'tags',
         )
-        default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'tenant', 'actions')
+        default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'description', 'tenant', 'actions')
 
 
 #

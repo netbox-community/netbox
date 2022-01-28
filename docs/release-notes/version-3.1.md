@@ -8,6 +8,7 @@
 * [#8367](https://github.com/netbox-community/netbox/issues/8367) - Add ASNs to global search function
 * [#8368](https://github.com/netbox-community/netbox/issues/8368) - Enable controlling the order of custom script form fields with `field_order`
 * [#8381](https://github.com/netbox-community/netbox/issues/8381) - Add contacts to global search function
+* [#8476](https://github.com/netbox-community/netbox/issues/8476) - Bring the ASN Web UI up to the standard set by other objects
 
 ### Bug Fixes
 

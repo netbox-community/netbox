@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from circuits.models import Circuit
 from dcim.models import Site, Rack, Device, RackReservation, Cable
-from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
+from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF, ASN
 from netbox.views import generic
 from utilities.tables import paginate_table
 from utilities.utils import count_related
@@ -113,6 +113,7 @@ class TenantView(generic.ObjectView):
             'virtualmachine_count': VirtualMachine.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'cluster_count': Cluster.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'cable_count': Cable.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'asn_count': ASN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
         }
 
         return {
