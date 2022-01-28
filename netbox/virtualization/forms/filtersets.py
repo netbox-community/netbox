@@ -2,7 +2,8 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
-from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterForm
+from extras.forms import LocalConfigContextFilterForm
+from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
     DynamicModelMultipleChoiceField, StaticSelect, StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
@@ -19,17 +20,17 @@ __all__ = (
 )
 
 
-class ClusterTypeFilterForm(CustomFieldModelFilterForm):
+class ClusterTypeFilterForm(NetBoxModelFilterSetForm):
     model = ClusterType
     tag = TagFilterField(model)
 
 
-class ClusterGroupFilterForm(CustomFieldModelFilterForm):
+class ClusterGroupFilterForm(NetBoxModelFilterSetForm):
     model = ClusterGroup
     tag = TagFilterField(model)
 
 
-class ClusterFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class ClusterFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Cluster
     field_groups = [
         ['q', 'tag'],
@@ -71,7 +72,7 @@ class ClusterFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
+class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = VirtualMachine
     field_groups = [
         ['q', 'tag'],
@@ -151,7 +152,7 @@ class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, 
     tag = TagFilterField(model)
 
 
-class VMInterfaceFilterForm(CustomFieldModelFilterForm):
+class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     model = VMInterface
     field_groups = [
         ['q', 'tag'],

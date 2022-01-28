@@ -6,8 +6,8 @@ from timezone_field import TimeZoneFormField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.models import ASN, VLAN, VRF
+from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, CommentField, DynamicModelChoiceField,
@@ -57,7 +57,7 @@ __all__ = (
 )
 
 
-class RegionBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RegionBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Region.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -75,7 +75,7 @@ class RegionBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class SiteGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class SiteGroupBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -93,7 +93,7 @@ class SiteGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class SiteBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class SiteBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Site.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -137,7 +137,7 @@ class SiteBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class LocationBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class LocationBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Location.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -166,7 +166,7 @@ class LocationBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['parent', 'tenant', 'description']
 
 
-class RackRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RackRoleBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -183,7 +183,7 @@ class RackRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['color', 'description']
 
 
-class RackBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RackBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -283,7 +283,7 @@ class RackBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class RackReservationBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackReservation.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -308,7 +308,7 @@ class RackReservationBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditFor
         nullable_fields = []
 
 
-class ManufacturerBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ManufacturerBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -322,7 +322,7 @@ class ManufacturerBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['description']
 
 
-class DeviceTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceType.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -353,7 +353,7 @@ class DeviceTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['part_number', 'airflow']
 
 
-class ModuleTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ModuleType.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -370,7 +370,7 @@ class ModuleTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['part_number']
 
 
-class DeviceRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -392,7 +392,7 @@ class DeviceRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['color', 'description']
 
 
-class PlatformBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class PlatformBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -415,7 +415,7 @@ class PlatformBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['manufacturer', 'napalm_driver', 'description']
 
 
-class DeviceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class DeviceBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -476,7 +476,7 @@ class DeviceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class ModuleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ModuleBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Module.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -502,7 +502,7 @@ class ModuleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['serial']
 
 
-class CableBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class CableBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cable.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -558,7 +558,7 @@ class CableBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
             })
 
 
-class VirtualChassisBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VirtualChassis.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -572,7 +572,7 @@ class VirtualChassisBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm
         nullable_fields = ['domain']
 
 
-class PowerPanelBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPanel.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -611,7 +611,7 @@ class PowerPanelBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['location']
 
 
-class PowerFeedBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerFeed.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -939,8 +939,7 @@ class InventoryItemTemplateBulkEditForm(BulkEditForm):
 
 class ConsolePortBulkEditForm(
     form_from_model(ConsolePort, ['label', 'type', 'speed', 'mark_connected', 'description']),
-    AddRemoveTagsForm,
-    CustomFieldModelBulkEditForm
+    NetBoxModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsolePort.objects.all(),
@@ -957,8 +956,7 @@ class ConsolePortBulkEditForm(
 
 class ConsoleServerPortBulkEditForm(
     form_from_model(ConsoleServerPort, ['label', 'type', 'speed', 'mark_connected', 'description']),
-    AddRemoveTagsForm,
-    CustomFieldModelBulkEditForm
+    NetBoxModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsoleServerPort.objects.all(),
@@ -975,8 +973,7 @@ class ConsoleServerPortBulkEditForm(
 
 class PowerPortBulkEditForm(
     form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected', 'description']),
-    AddRemoveTagsForm,
-    CustomFieldModelBulkEditForm
+    NetBoxModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPort.objects.all(),
@@ -993,8 +990,7 @@ class PowerPortBulkEditForm(
 
 class PowerOutletBulkEditForm(
     form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'mark_connected', 'description']),
-    AddRemoveTagsForm,
-    CustomFieldModelBulkEditForm
+    NetBoxModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerOutlet.objects.all(),
@@ -1031,8 +1027,7 @@ class InterfaceBulkEditForm(
         'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected',
         'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
     ]),
-    AddRemoveTagsForm,
-    CustomFieldModelBulkEditForm
+    NetBoxModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=Interface.objects.all(),
@@ -1154,8 +1149,7 @@ class InterfaceBulkEditForm(
 
 class FrontPortBulkEditForm(
     form_from_model(FrontPort, ['label', 'type', 'color', 'mark_connected', 'description']),
-    AddRemoveTagsForm,
-    CustomFieldModelBulkEditForm
+    NetBoxModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=FrontPort.objects.all(),
@@ -1168,8 +1162,7 @@ class FrontPortBulkEditForm(
 
 class RearPortBulkEditForm(
     form_from_model(RearPort, ['label', 'type', 'color', 'mark_connected', 'description']),
-    AddRemoveTagsForm,
-    CustomFieldModelBulkEditForm
+    NetBoxModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=RearPort.objects.all(),
@@ -1182,8 +1175,7 @@ class RearPortBulkEditForm(
 
 class ModuleBayBulkEditForm(
     form_from_model(DeviceBay, ['label', 'description']),
-    AddRemoveTagsForm,
-    CustomFieldModelBulkEditForm
+    NetBoxModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=ModuleBay.objects.all(),
@@ -1196,8 +1188,7 @@ class ModuleBayBulkEditForm(
 
 class DeviceBayBulkEditForm(
     form_from_model(DeviceBay, ['label', 'description']),
-    AddRemoveTagsForm,
-    CustomFieldModelBulkEditForm
+    NetBoxModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceBay.objects.all(),
@@ -1210,8 +1201,7 @@ class DeviceBayBulkEditForm(
 
 class InventoryItemBulkEditForm(
     form_from_model(InventoryItem, ['label', 'role', 'manufacturer', 'part_id', 'description']),
-    AddRemoveTagsForm,
-    CustomFieldModelBulkEditForm
+    NetBoxModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=InventoryItem.objects.all(),
@@ -1234,7 +1224,7 @@ class InventoryItemBulkEditForm(
 # Device component roles
 #
 
-class InventoryItemRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class InventoryItemRoleBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=InventoryItemRole.objects.all(),
         widget=forms.MultipleHiddenInput

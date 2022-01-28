@@ -1,6 +1,6 @@
 from django.utils.translation import gettext as _
 
-from extras.forms import CustomFieldModelFilterForm
+from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.models import *
 from utilities.forms import DynamicModelMultipleChoiceField, TagFilterField
 
@@ -17,7 +17,7 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupFilterForm(CustomFieldModelFilterForm):
+class TenantGroupFilterForm(NetBoxModelFilterSetForm):
     model = TenantGroup
     parent_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
@@ -27,7 +27,7 @@ class TenantGroupFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class TenantFilterForm(CustomFieldModelFilterForm):
+class TenantFilterForm(NetBoxModelFilterSetForm):
     model = Tenant
     field_groups = (
         ('q', 'tag'),
@@ -46,7 +46,7 @@ class TenantFilterForm(CustomFieldModelFilterForm):
 # Contacts
 #
 
-class ContactGroupFilterForm(CustomFieldModelFilterForm):
+class ContactGroupFilterForm(NetBoxModelFilterSetForm):
     model = ContactGroup
     parent_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
@@ -56,12 +56,12 @@ class ContactGroupFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ContactRoleFilterForm(CustomFieldModelFilterForm):
+class ContactRoleFilterForm(NetBoxModelFilterSetForm):
     model = ContactRole
     tag = TagFilterField(model)
 
 
-class ContactFilterForm(CustomFieldModelFilterForm):
+class ContactFilterForm(NetBoxModelFilterSetForm):
     model = Contact
     field_groups = (
         ('q', 'tag'),

@@ -2,8 +2,8 @@ from django import forms
 
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
-from extras.forms import CustomFieldModelForm
 from extras.models import Tag
+from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import (
     BootstrapMixin, CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
@@ -19,7 +19,7 @@ __all__ = (
 )
 
 
-class ProviderForm(CustomFieldModelForm):
+class ProviderForm(NetBoxModelForm):
     slug = SlugField()
     comments = CommentField()
     tags = DynamicModelMultipleChoiceField(
@@ -53,7 +53,7 @@ class ProviderForm(CustomFieldModelForm):
         }
 
 
-class ProviderNetworkForm(CustomFieldModelForm):
+class ProviderNetworkForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
         queryset=Provider.objects.all()
     )
@@ -73,7 +73,7 @@ class ProviderNetworkForm(CustomFieldModelForm):
         )
 
 
-class CircuitTypeForm(CustomFieldModelForm):
+class CircuitTypeForm(NetBoxModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -87,7 +87,7 @@ class CircuitTypeForm(CustomFieldModelForm):
         ]
 
 
-class CircuitForm(TenancyForm, CustomFieldModelForm):
+class CircuitForm(TenancyForm, NetBoxModelForm):
     provider = DynamicModelChoiceField(
         queryset=Provider.objects.all()
     )

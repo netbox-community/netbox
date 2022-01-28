@@ -1,7 +1,7 @@
 from dcim.models import Device, Interface, Location, Site
-from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from ipam.models import VLAN
+from netbox.forms import NetBoxModelForm
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, StaticSelect
 from wireless.models import *
 
@@ -12,7 +12,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupForm(CustomFieldModelForm):
+class WirelessLANGroupForm(NetBoxModelForm):
     parent = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
@@ -30,7 +30,7 @@ class WirelessLANGroupForm(CustomFieldModelForm):
         ]
 
 
-class WirelessLANForm(CustomFieldModelForm):
+class WirelessLANForm(NetBoxModelForm):
     group = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
@@ -61,7 +61,7 @@ class WirelessLANForm(CustomFieldModelForm):
         }
 
 
-class WirelessLinkForm(CustomFieldModelForm):
+class WirelessLinkForm(NetBoxModelForm):
     site_a = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,

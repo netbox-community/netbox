@@ -1,6 +1,6 @@
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
-from extras.forms import CustomFieldModelCSVForm
+from netbox.forms import NetBoxModelCSVForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVModelChoiceField, SlugField
 
@@ -12,7 +12,7 @@ __all__ = (
 )
 
 
-class ProviderCSVForm(CustomFieldModelCSVForm):
+class ProviderCSVForm(NetBoxModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -22,7 +22,7 @@ class ProviderCSVForm(CustomFieldModelCSVForm):
         )
 
 
-class ProviderNetworkCSVForm(CustomFieldModelCSVForm):
+class ProviderNetworkCSVForm(NetBoxModelCSVForm):
     provider = CSVModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
@@ -36,7 +36,7 @@ class ProviderNetworkCSVForm(CustomFieldModelCSVForm):
         ]
 
 
-class CircuitTypeCSVForm(CustomFieldModelCSVForm):
+class CircuitTypeCSVForm(NetBoxModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -47,7 +47,7 @@ class CircuitTypeCSVForm(CustomFieldModelCSVForm):
         }
 
 
-class CircuitCSVForm(CustomFieldModelCSVForm):
+class CircuitCSVForm(NetBoxModelCSVForm):
     provider = CSVModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',

@@ -1,6 +1,6 @@
 from django import forms
 
-from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
+from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import *
 from utilities.forms import DynamicModelChoiceField
 
@@ -17,7 +17,7 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class TenantGroupBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -35,7 +35,7 @@ class TenantGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class TenantBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class TenantBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -55,7 +55,7 @@ class TenantBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
 # Contacts
 #
 
-class ContactGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ContactGroupBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -73,7 +73,7 @@ class ContactGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class ContactRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ContactRoleBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ContactRole.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -87,7 +87,7 @@ class ContactRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['description']
 
 
-class ContactBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ContactBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Contact.objects.all(),
         widget=forms.MultipleHiddenInput()

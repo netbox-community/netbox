@@ -2,7 +2,7 @@ from django import forms
 
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
-from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
+from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice, CommentField, DynamicModelChoiceField, SmallTextarea, StaticSelect
 
@@ -14,7 +14,7 @@ __all__ = (
 )
 
 
-class ProviderBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ProviderBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -53,7 +53,7 @@ class ProviderBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class ProviderNetworkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ProviderNetwork.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -81,7 +81,7 @@ class ProviderNetworkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditFor
         ]
 
 
-class CircuitTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -95,7 +95,7 @@ class CircuitTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['description']
 
 
-class CircuitBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class CircuitBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Circuit.objects.all(),
         widget=forms.MultipleHiddenInput

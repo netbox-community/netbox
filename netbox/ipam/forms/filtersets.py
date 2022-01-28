@@ -2,11 +2,11 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from dcim.models import Location, Rack, Region, Site, SiteGroup
-from extras.forms import CustomFieldModelFilterForm
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
 from ipam.models import ASN
+from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
     add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect, StaticSelectMultiple,
@@ -39,7 +39,7 @@ IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([
 ])
 
 
-class VRFFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class VRFFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = VRF
     field_groups = [
         ['q', 'tag'],
@@ -59,7 +59,7 @@ class VRFFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class RouteTargetFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class RouteTargetFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = RouteTarget
     field_groups = [
         ['q', 'tag'],
@@ -79,7 +79,7 @@ class RouteTargetFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class RIRFilterForm(CustomFieldModelFilterForm):
+class RIRFilterForm(NetBoxModelFilterSetForm):
     model = RIR
     is_private = forms.NullBooleanField(
         required=False,
@@ -91,7 +91,7 @@ class RIRFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class AggregateFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class AggregateFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Aggregate
     field_groups = [
         ['q', 'tag'],
@@ -112,7 +112,7 @@ class AggregateFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ASNFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class ASNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = ASN
     field_groups = [
         ['q'],
@@ -132,12 +132,12 @@ class ASNFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     )
 
 
-class RoleFilterForm(CustomFieldModelFilterForm):
+class RoleFilterForm(NetBoxModelFilterSetForm):
     model = Role
     tag = TagFilterField(model)
 
 
-class PrefixFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Prefix
     field_groups = [
         ['q', 'tag'],
@@ -228,7 +228,7 @@ class PrefixFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class IPRangeFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = IPRange
     field_groups = [
         ['q', 'tag'],
@@ -261,7 +261,7 @@ class IPRangeFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class IPAddressFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = IPAddress
     field_groups = [
         ['q', 'tag'],
@@ -321,7 +321,7 @@ class IPAddressFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class FHRPGroupFilterForm(CustomFieldModelFilterForm):
+class FHRPGroupFilterForm(NetBoxModelFilterSetForm):
     model = FHRPGroup
     field_groups = (
         ('q', 'tag'),
@@ -351,7 +351,7 @@ class FHRPGroupFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class VLANGroupFilterForm(CustomFieldModelFilterForm):
+class VLANGroupFilterForm(NetBoxModelFilterSetForm):
     field_groups = [
         ['q', 'tag'],
         ['region', 'sitegroup', 'site', 'location', 'rack'],
@@ -394,7 +394,7 @@ class VLANGroupFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class VLANFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = VLAN
     field_groups = [
         ['q', 'tag'],
@@ -448,7 +448,7 @@ class VLANFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ServiceTemplateFilterForm(CustomFieldModelFilterForm):
+class ServiceTemplateFilterForm(NetBoxModelFilterSetForm):
     model = ServiceTemplate
     field_groups = (
         ('q', 'tag'),

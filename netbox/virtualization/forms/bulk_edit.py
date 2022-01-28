@@ -3,8 +3,8 @@ from django import forms
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
-from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.models import VLAN
+from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, DynamicModelChoiceField,
@@ -23,7 +23,7 @@ __all__ = (
 )
 
 
-class ClusterTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ClusterTypeBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -37,7 +37,7 @@ class ClusterTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['description']
 
 
-class ClusterGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -51,7 +51,7 @@ class ClusterGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['description']
 
 
-class ClusterBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ClusterBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -95,7 +95,7 @@ class ClusterBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class VirtualMachineBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -150,7 +150,7 @@ class VirtualMachineBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm
         ]
 
 
-class VMInterfaceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VMInterface.objects.all(),
         widget=forms.MultipleHiddenInput()

@@ -1,7 +1,7 @@
 from dcim.choices import LinkStatusChoices
 from dcim.models import Interface
-from extras.forms import CustomFieldModelCSVForm
 from ipam.models import VLAN
+from netbox.forms import NetBoxModelCSVForm
 from utilities.forms import CSVChoiceField, CSVModelChoiceField, SlugField
 from wireless.choices import *
 from wireless.models import *
@@ -13,7 +13,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupCSVForm(CustomFieldModelCSVForm):
+class WirelessLANGroupCSVForm(NetBoxModelCSVForm):
     parent = CSVModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False,
@@ -27,7 +27,7 @@ class WirelessLANGroupCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'parent', 'description')
 
 
-class WirelessLANCSVForm(CustomFieldModelCSVForm):
+class WirelessLANCSVForm(NetBoxModelCSVForm):
     group = CSVModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False,
@@ -56,7 +56,7 @@ class WirelessLANCSVForm(CustomFieldModelCSVForm):
         fields = ('ssid', 'group', 'description', 'vlan', 'auth_type', 'auth_cipher', 'auth_psk')
 
 
-class WirelessLinkCSVForm(CustomFieldModelCSVForm):
+class WirelessLinkCSVForm(NetBoxModelCSVForm):
     status = CSVChoiceField(
         choices=LinkStatusChoices,
         help_text='Connection status'

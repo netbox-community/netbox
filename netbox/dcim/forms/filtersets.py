@@ -5,8 +5,9 @@ from django.utils.translation import gettext as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterForm
+from extras.forms import LocalConfigContextFilterForm
 from ipam.models import ASN, VRF
+from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
     APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm, StaticSelect,
@@ -52,7 +53,7 @@ __all__ = (
 )
 
 
-class DeviceComponentFilterForm(CustomFieldModelFilterForm):
+class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
     name = forms.CharField(
         required=False
     )
@@ -103,7 +104,7 @@ class DeviceComponentFilterForm(CustomFieldModelFilterForm):
     )
 
 
-class RegionFilterForm(CustomFieldModelFilterForm):
+class RegionFilterForm(NetBoxModelFilterSetForm):
     model = Region
     parent_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -113,7 +114,7 @@ class RegionFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class SiteGroupFilterForm(CustomFieldModelFilterForm):
+class SiteGroupFilterForm(NetBoxModelFilterSetForm):
     model = SiteGroup
     parent_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
@@ -123,7 +124,7 @@ class SiteGroupFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class SiteFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class SiteFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Site
     field_groups = [
         ['q', 'tag'],
@@ -154,7 +155,7 @@ class SiteFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class LocationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class LocationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Location
     field_groups = [
         ['q', 'tag'],
@@ -192,12 +193,12 @@ class LocationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class RackRoleFilterForm(CustomFieldModelFilterForm):
+class RackRoleFilterForm(NetBoxModelFilterSetForm):
     model = RackRole
     tag = TagFilterField(model)
 
 
-class RackFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class RackFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Rack
     field_groups = [
         ['q', 'tag'],
@@ -270,7 +271,7 @@ class RackElevationFilterForm(RackFilterForm):
     )
 
 
-class RackReservationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = RackReservation
     field_groups = [
         ['q', 'tag'],
@@ -308,12 +309,12 @@ class RackReservationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ManufacturerFilterForm(CustomFieldModelFilterForm):
+class ManufacturerFilterForm(NetBoxModelFilterSetForm):
     model = Manufacturer
     tag = TagFilterField(model)
 
 
-class DeviceTypeFilterForm(CustomFieldModelFilterForm):
+class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     model = DeviceType
     field_groups = [
         ['q', 'tag'],
@@ -383,7 +384,7 @@ class DeviceTypeFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ModuleTypeFilterForm(CustomFieldModelFilterForm):
+class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     model = ModuleType
     field_groups = [
         ['q', 'tag'],
@@ -444,12 +445,12 @@ class ModuleTypeFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class DeviceRoleFilterForm(CustomFieldModelFilterForm):
+class DeviceRoleFilterForm(NetBoxModelFilterSetForm):
     model = DeviceRole
     tag = TagFilterField(model)
 
 
-class PlatformFilterForm(CustomFieldModelFilterForm):
+class PlatformFilterForm(NetBoxModelFilterSetForm):
     model = Platform
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -459,7 +460,7 @@ class PlatformFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
+class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Device
     field_groups = [
         ['q', 'tag'],
@@ -613,7 +614,7 @@ class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFi
     tag = TagFilterField(model)
 
 
-class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
+class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Module
     field_groups = [
         ['q', 'tag'],
@@ -644,7 +645,7 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFi
     tag = TagFilterField(model)
 
 
-class VirtualChassisFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class VirtualChassisFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = VirtualChassis
     field_groups = [
         ['q', 'tag'],
@@ -673,7 +674,7 @@ class VirtualChassisFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Cable
     field_groups = [
         ['q', 'tag'],
@@ -736,7 +737,7 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class PowerPanelFilterForm(CustomFieldModelFilterForm):
+class PowerPanelFilterForm(NetBoxModelFilterSetForm):
     model = PowerPanel
     field_groups = (
         ('q', 'tag'),
@@ -773,7 +774,7 @@ class PowerPanelFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class PowerFeedFilterForm(CustomFieldModelFilterForm):
+class PowerFeedFilterForm(NetBoxModelFilterSetForm):
     model = PowerFeed
     field_groups = [
         ['q', 'tag'],
@@ -1103,7 +1104,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
 # Device component roles
 #
 
-class InventoryItemRoleFilterForm(CustomFieldModelFilterForm):
+class InventoryItemRoleFilterForm(NetBoxModelFilterSetForm):
     model = InventoryItemRole
     tag = TagFilterField(model)
 

@@ -4,7 +4,7 @@ from django.utils.translation import gettext as _
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
-from extras.forms import CustomFieldModelFilterForm
+from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import DynamicModelMultipleChoiceField, StaticSelectMultiple, TagFilterField
 
@@ -16,7 +16,7 @@ __all__ = (
 )
 
 
-class ProviderFilterForm(CustomFieldModelFilterForm):
+class ProviderFilterForm(NetBoxModelFilterSetForm):
     model = Provider
     field_groups = [
         ['q', 'tag'],
@@ -49,7 +49,7 @@ class ProviderFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ProviderNetworkFilterForm(CustomFieldModelFilterForm):
+class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
     model = ProviderNetwork
     field_groups = (
         ('q', 'tag'),
@@ -67,12 +67,12 @@ class ProviderNetworkFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class CircuitTypeFilterForm(CustomFieldModelFilterForm):
+class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
     model = CircuitType
     tag = TagFilterField(model)
 
 
-class CircuitFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class CircuitFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Circuit
     field_groups = [
         ['q', 'tag'],

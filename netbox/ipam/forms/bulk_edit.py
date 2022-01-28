@@ -1,11 +1,11 @@
 from django import forms
 
 from dcim.models import Region, Site, SiteGroup
-from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
 from ipam.models import ASN
+from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BulkEditNullBooleanSelect, DatePicker, DynamicModelChoiceField, NumericArrayField, StaticSelect,
@@ -30,7 +30,7 @@ __all__ = (
 )
 
 
-class VRFBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VRFBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -55,7 +55,7 @@ class VRFBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class RouteTargetBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -75,7 +75,7 @@ class RouteTargetBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class RIRBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RIRBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RIR.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -93,7 +93,7 @@ class RIRBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['is_private', 'description']
 
 
-class ASNBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ASNBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ASN.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -125,7 +125,7 @@ class ASNBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         }
 
 
-class AggregateBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class AggregateBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Aggregate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -156,7 +156,7 @@ class AggregateBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         }
 
 
-class RoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RoleBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Role.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -173,7 +173,7 @@ class RoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['description']
 
 
-class PrefixBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Prefix.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -238,7 +238,7 @@ class PrefixBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class IPRangeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=IPRange.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -272,7 +272,7 @@ class IPRangeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class IPAddressBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -317,7 +317,7 @@ class IPAddressBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class FHRPGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=FHRPGroup.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -352,7 +352,7 @@ class FHRPGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['auth_type', 'auth_key', 'description']
 
 
-class VLANGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VLANGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -382,7 +382,7 @@ class VLANGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = ['site', 'description']
 
 
-class VLANBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VLANBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -434,7 +434,7 @@ class VLANBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class ServiceTemplateBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ServiceTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()

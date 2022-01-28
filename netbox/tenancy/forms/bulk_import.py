@@ -1,4 +1,4 @@
-from extras.forms import CustomFieldModelCSVForm
+from netbox.forms import NetBoxModelCSVForm
 from tenancy.models import *
 from utilities.forms import CSVModelChoiceField, SlugField
 
@@ -15,7 +15,7 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupCSVForm(CustomFieldModelCSVForm):
+class TenantGroupCSVForm(NetBoxModelCSVForm):
     parent = CSVModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
@@ -29,7 +29,7 @@ class TenantGroupCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'parent', 'description')
 
 
-class TenantCSVForm(CustomFieldModelCSVForm):
+class TenantCSVForm(NetBoxModelCSVForm):
     slug = SlugField()
     group = CSVModelChoiceField(
         queryset=TenantGroup.objects.all(),
@@ -47,7 +47,7 @@ class TenantCSVForm(CustomFieldModelCSVForm):
 # Contacts
 #
 
-class ContactGroupCSVForm(CustomFieldModelCSVForm):
+class ContactGroupCSVForm(NetBoxModelCSVForm):
     parent = CSVModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,
@@ -61,7 +61,7 @@ class ContactGroupCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'parent', 'description')
 
 
-class ContactRoleCSVForm(CustomFieldModelCSVForm):
+class ContactRoleCSVForm(NetBoxModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -69,7 +69,7 @@ class ContactRoleCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'description')
 
 
-class ContactCSVForm(CustomFieldModelCSVForm):
+class ContactCSVForm(NetBoxModelCSVForm):
     group = CSVModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,

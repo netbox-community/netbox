@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from dcim.choices import LinkStatusChoices
-from extras.forms import CustomFieldModelFilterForm
+from netbox.forms import NetBoxModelFilterSetForm
 from utilities.forms import add_blank_choice, DynamicModelMultipleChoiceField, StaticSelect, TagFilterField
 from wireless.choices import *
 from wireless.models import *
@@ -14,7 +14,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupFilterForm(CustomFieldModelFilterForm):
+class WirelessLANGroupFilterForm(NetBoxModelFilterSetForm):
     model = WirelessLANGroup
     parent_id = DynamicModelMultipleChoiceField(
         queryset=WirelessLANGroup.objects.all(),
@@ -24,7 +24,7 @@ class WirelessLANGroupFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class WirelessLANFilterForm(CustomFieldModelFilterForm):
+class WirelessLANFilterForm(NetBoxModelFilterSetForm):
     model = WirelessLAN
     field_groups = [
         ('q', 'tag'),
@@ -56,7 +56,7 @@ class WirelessLANFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class WirelessLinkFilterForm(CustomFieldModelFilterForm):
+class WirelessLinkFilterForm(NetBoxModelFilterSetForm):
     model = WirelessLink
     ssid = forms.CharField(
         required=False,

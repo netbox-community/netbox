@@ -13,7 +13,6 @@ from utilities.forms import (
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
-    'AddRemoveTagsForm',
     'ConfigContextForm',
     'CustomFieldForm',
     'CustomLinkForm',
@@ -131,22 +130,6 @@ class TagForm(BootstrapMixin, forms.ModelForm):
         ]
         fieldsets = (
             ('Tag', ('name', 'slug', 'color', 'description')),
-        )
-
-
-class AddRemoveTagsForm(forms.Form):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Add add/remove tags fields
-        self.fields['add_tags'] = DynamicModelMultipleChoiceField(
-            queryset=Tag.objects.all(),
-            required=False
-        )
-        self.fields['remove_tags'] = DynamicModelMultipleChoiceField(
-            queryset=Tag.objects.all(),
-            required=False
         )
 
 
