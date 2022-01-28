@@ -32,7 +32,7 @@ class TenantGroupBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['parent', 'description']
+        nullable_fields = ('parent', 'description')
 
 
 class TenantBulkEditForm(NetBoxModelBulkEditForm):
@@ -46,9 +46,7 @@ class TenantBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = [
-            'group',
-        ]
+        nullable_fields = ('group',)
 
 
 #
@@ -70,7 +68,7 @@ class ContactGroupBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['parent', 'description']
+        nullable_fields = ('parent', 'description')
 
 
 class ContactRoleBulkEditForm(NetBoxModelBulkEditForm):
@@ -84,7 +82,7 @@ class ContactRoleBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['description']
+        nullable_fields = ('description',)
 
 
 class ContactBulkEditForm(NetBoxModelBulkEditForm):
@@ -113,4 +111,4 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['group', 'title', 'phone', 'email', 'address', 'comments']
+        nullable_fields = ('group', 'title', 'phone', 'email', 'address', 'comments')

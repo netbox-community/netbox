@@ -34,7 +34,7 @@ class ClusterTypeBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['description']
+        nullable_fields = ('description',)
 
 
 class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
@@ -48,7 +48,7 @@ class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['description']
+        nullable_fields = ('description',)
 
 
 class ClusterBulkEditForm(NetBoxModelBulkEditForm):
@@ -90,9 +90,9 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = [
+        nullable_fields = (
             'group', 'site', 'comments', 'tenant',
-        ]
+        )
 
 
 class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
@@ -145,9 +145,9 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = [
+        nullable_fields = (
             'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
-        ]
+        )
 
 
 class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
@@ -198,9 +198,9 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = [
+        nullable_fields = (
             'parent', 'bridge', 'mtu', 'description',
-        ]
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

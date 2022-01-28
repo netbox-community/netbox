@@ -5,7 +5,7 @@ from django.db.models import Q
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices
 from extras.forms.customfields import CustomFieldsMixin
 from extras.models import CustomField, Tag
-from utilities.forms import BootstrapMixin, BulkEditBaseForm, CSVModelForm
+from utilities.forms import BootstrapMixin, BulkEditMixin, CSVModelForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 
 __all__ = (
@@ -55,7 +55,7 @@ class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
         return customfield.to_form_field(for_csv_import=True)
 
 
-class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, BulkEditBaseForm):
+class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, BulkEditMixin, forms.Form):
     """
     Base form for modifying multiple NetBox objects (of the same type) in bulk via the UI. Adds support for custom
     fields and adding/removing tags.
@@ -76,15 +76,20 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, BulkEditBaseFor
         """
         Append form fields for all CustomFields assigned to this object type.
         """
+        nullable_custom_fields = []
         for customfield in self._get_custom_fields(self._get_content_type()):
-            # Annotate non-required custom fields as nullable
+            # Record non-required custom fields as nullable
             if not customfield.required:
-                self.nullable_fields.append(customfield.name)
+                nullable_custom_fields.append(customfield.name)
 
             self.fields[customfield.name] = self._get_form_field(customfield)
 
             # Annotate the field in the list of CustomField form fields
             self.custom_fields[customfield.name] = customfield
+
+        # Annotate nullable custom fields (if any) on the form instance
+        if nullable_custom_fields:
+            self.custom_fields = (*self.custom_fields, *nullable_custom_fields)
 
 
 class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, forms.Form):

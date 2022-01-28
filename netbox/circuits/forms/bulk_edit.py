@@ -48,9 +48,9 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = [
+        nullable_fields = (
             'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
-        ]
+        )
 
 
 class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
@@ -76,9 +76,9 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = [
+        nullable_fields = (
             'service_id', 'description', 'comments',
-        ]
+        )
 
 
 class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
@@ -92,7 +92,7 @@ class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['description']
+        nullable_fields = ('description',)
 
 
 class CircuitBulkEditForm(NetBoxModelBulkEditForm):
@@ -132,6 +132,6 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = [
+        nullable_fields = (
             'tenant', 'commit_rate', 'description', 'comments',
-        ]
+        )

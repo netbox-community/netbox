@@ -34,7 +34,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = []
+        nullable_fields = ('description',)
 
 
 class CustomLinkBulkEditForm(BulkEditForm):
@@ -63,9 +63,6 @@ class CustomLinkBulkEditForm(BulkEditForm):
         required=False,
         widget=StaticSelect()
     )
-
-    class Meta:
-        nullable_fields = []
 
 
 class ExportTemplateBulkEditForm(BulkEditForm):
@@ -96,7 +93,7 @@ class ExportTemplateBulkEditForm(BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['description', 'mime_type', 'file_extension']
+        nullable_fields = ('description', 'mime_type', 'file_extension')
 
 
 class WebhookBulkEditForm(BulkEditForm):
@@ -139,7 +136,7 @@ class WebhookBulkEditForm(BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['secret', 'conditions', 'ca_file_path']
+        nullable_fields = ('secret', 'conditions', 'ca_file_path')
 
 
 class TagBulkEditForm(BulkEditForm):
@@ -156,7 +153,7 @@ class TagBulkEditForm(BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['description']
+        nullable_fields = ('description',)
 
 
 class ConfigContextBulkEditForm(BulkEditForm):
@@ -178,9 +175,7 @@ class ConfigContextBulkEditForm(BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = [
-            'description',
-        ]
+        nullable_fields = ('description',)
 
 
 class JournalEntryBulkEditForm(BulkEditForm):
@@ -196,6 +191,3 @@ class JournalEntryBulkEditForm(BulkEditForm):
         required=False,
         widget=forms.Textarea()
     )
-
-    class Meta:
-        nullable_fields = []
