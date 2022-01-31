@@ -69,14 +69,11 @@ class BulkEditMixin:
     """
     Base form for editing multiple objects in bulk
     """
+    nullable_fields = ()
+
     def __init__(self, model, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = model
-        self.nullable_fields = ()
-
-        # Copy any nullable fields defined in Meta
-        if hasattr(self, 'Meta') and hasattr(self.Meta, 'nullable_fields'):
-            self.nullable_fields = self.Meta.nullable_fields
 
 
 #

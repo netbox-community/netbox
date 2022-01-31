@@ -49,10 +49,7 @@ class VRFBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = (
-            'tenant', 'description',
-        )
+    nullable_fields = ('tenant', 'description')
 
 
 class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
@@ -69,10 +66,7 @@ class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = (
-            'tenant', 'description',
-        )
+    nullable_fields = ('tenant', 'description')
 
 
 class RIRBulkEditForm(NetBoxModelBulkEditForm):
@@ -89,8 +83,7 @@ class RIRBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('is_private', 'description')
+    nullable_fields = ('is_private', 'description')
 
 
 class ASNBulkEditForm(NetBoxModelBulkEditForm):
@@ -116,13 +109,7 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = (
-            'date_added', 'description',
-        )
-        widgets = {
-            'date_added': DatePicker(),
-        }
+    nullable_fields = ('date_added', 'description')
 
 
 class AggregateBulkEditForm(NetBoxModelBulkEditForm):
@@ -147,13 +134,7 @@ class AggregateBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = (
-            'date_added', 'description',
-        )
-        widgets = {
-            'date_added': DatePicker(),
-        }
+    nullable_fields = ('date_added', 'description')
 
 
 class RoleBulkEditForm(NetBoxModelBulkEditForm):
@@ -169,8 +150,7 @@ class RoleBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('description',)
+    nullable_fields = ('description',)
 
 
 class PrefixBulkEditForm(NetBoxModelBulkEditForm):
@@ -232,10 +212,9 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = (
-            'site', 'vrf', 'tenant', 'role', 'description',
-        )
+    nullable_fields = (
+        'site', 'vrf', 'tenant', 'role', 'description',
+    )
 
 
 class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
@@ -266,10 +245,9 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = (
-            'vrf', 'tenant', 'role', 'description',
-        )
+    nullable_fields = (
+        'vrf', 'tenant', 'role', 'description',
+    )
 
 
 class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
@@ -311,10 +289,9 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = (
-            'vrf', 'role', 'tenant', 'dns_name', 'description',
-        )
+    nullable_fields = (
+        'vrf', 'role', 'tenant', 'dns_name', 'description',
+    )
 
 
 class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
@@ -348,8 +325,7 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('auth_type', 'auth_key', 'description')
+    nullable_fields = ('auth_type', 'auth_key', 'description')
 
 
 class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
@@ -378,8 +354,7 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('site', 'description')
+    nullable_fields = ('site', 'description')
 
 
 class VLANBulkEditForm(NetBoxModelBulkEditForm):
@@ -428,10 +403,9 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = (
-            'site', 'group', 'tenant', 'role', 'description',
-        )
+    nullable_fields = (
+        'site', 'group', 'tenant', 'role', 'description',
+    )
 
 
 class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
@@ -456,8 +430,7 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('description',)
+    nullable_fields = ('description',)
 
 
 class ServiceBulkEditForm(ServiceTemplateBulkEditForm):

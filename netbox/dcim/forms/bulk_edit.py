@@ -71,8 +71,7 @@ class RegionBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('parent', 'description')
+    nullable_fields = ('parent', 'description')
 
 
 class SiteGroupBulkEditForm(NetBoxModelBulkEditForm):
@@ -89,8 +88,7 @@ class SiteGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('parent', 'description')
+    nullable_fields = ('parent', 'description')
 
 
 class SiteBulkEditForm(NetBoxModelBulkEditForm):
@@ -131,10 +129,9 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
         widget=StaticSelect()
     )
 
-    class Meta:
-        nullable_fields = (
-            'region', 'group', 'tenant', 'asns', 'description', 'time_zone',
-        )
+    nullable_fields = (
+        'region', 'group', 'tenant', 'asns', 'description', 'time_zone',
+    )
 
 
 class LocationBulkEditForm(NetBoxModelBulkEditForm):
@@ -162,8 +159,7 @@ class LocationBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('parent', 'tenant', 'description')
+    nullable_fields = ('parent', 'tenant', 'description')
 
 
 class RackRoleBulkEditForm(NetBoxModelBulkEditForm):
@@ -179,8 +175,7 @@ class RackRoleBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('color', 'description')
+    nullable_fields = ('color', 'description')
 
 
 class RackBulkEditForm(NetBoxModelBulkEditForm):
@@ -277,10 +272,9 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         label='Comments'
     )
 
-    class Meta:
-        nullable_fields = (
-            'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
-        )
+    nullable_fields = (
+        'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
+    )
 
 
 class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
@@ -315,8 +309,7 @@ class ManufacturerBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('description',)
+    nullable_fields = ('description',)
 
 
 class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
@@ -346,8 +339,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         widget=StaticSelect()
     )
 
-    class Meta:
-        nullable_fields = ('part_number', 'airflow')
+    nullable_fields = ('part_number', 'airflow')
 
 
 class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
@@ -363,8 +355,7 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('part_number',)
+    nullable_fields = ('part_number',)
 
 
 class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
@@ -385,8 +376,7 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('color', 'description')
+    nullable_fields = ('color', 'description')
 
 
 class PlatformBulkEditForm(NetBoxModelBulkEditForm):
@@ -408,8 +398,7 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('manufacturer', 'napalm_driver', 'description')
+    nullable_fields = ('manufacturer', 'napalm_driver', 'description')
 
 
 class DeviceBulkEditForm(NetBoxModelBulkEditForm):
@@ -467,10 +456,9 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         label='Serial Number'
     )
 
-    class Meta:
-        nullable_fields = (
-            'tenant', 'platform', 'serial', 'airflow',
-        )
+    nullable_fields = (
+        'tenant', 'platform', 'serial', 'airflow',
+    )
 
 
 class ModuleBulkEditForm(NetBoxModelBulkEditForm):
@@ -495,8 +483,7 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
         label='Serial Number'
     )
 
-    class Meta:
-        nullable_fields = ('serial',)
+    nullable_fields = ('serial',)
 
 
 class CableBulkEditForm(NetBoxModelBulkEditForm):
@@ -538,10 +525,9 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
         widget=StaticSelect()
     )
 
-    class Meta:
-        nullable_fields = (
-            'type', 'status', 'tenant', 'label', 'color', 'length',
-        )
+    nullable_fields = (
+        'type', 'status', 'tenant', 'label', 'color', 'length',
+    )
 
     def clean(self):
         super().clean()
@@ -565,8 +551,7 @@ class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('domain',)
+    nullable_fields = ('domain',)
 
 
 class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
@@ -604,8 +589,7 @@ class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
         }
     )
 
-    class Meta:
-        nullable_fields = ('location',)
+    nullable_fields = ('location',)
 
 
 class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
@@ -663,10 +647,7 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
         label='Comments'
     )
 
-    class Meta:
-        nullable_fields = (
-            'location', 'comments',
-        )
+    nullable_fields = ('location', 'comments')
 
 
 #
@@ -688,8 +669,7 @@ class ConsolePortTemplateBulkEditForm(BulkEditForm):
         widget=StaticSelect()
     )
 
-    class Meta:
-        nullable_fields = ('label', 'type', 'description')
+    nullable_fields = ('label', 'type', 'description')
 
 
 class ConsoleServerPortTemplateBulkEditForm(BulkEditForm):
@@ -710,8 +690,7 @@ class ConsoleServerPortTemplateBulkEditForm(BulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('label', 'type', 'description')
+    nullable_fields = ('label', 'type', 'description')
 
 
 class PowerPortTemplateBulkEditForm(BulkEditForm):
@@ -742,8 +721,7 @@ class PowerPortTemplateBulkEditForm(BulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('label', 'type', 'maximum_draw', 'allocated_draw', 'description')
+    nullable_fields = ('label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
 
 class PowerOutletTemplateBulkEditForm(BulkEditForm):
@@ -779,8 +757,7 @@ class PowerOutletTemplateBulkEditForm(BulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('label', 'type', 'power_port', 'feed_leg', 'description')
+    nullable_fields = ('label', 'type', 'power_port', 'feed_leg', 'description')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -817,8 +794,7 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('label', 'description')
+    nullable_fields = ('label', 'description')
 
 
 class FrontPortTemplateBulkEditForm(BulkEditForm):
@@ -842,8 +818,7 @@ class FrontPortTemplateBulkEditForm(BulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('description',)
+    nullable_fields = ('description',)
 
 
 class RearPortTemplateBulkEditForm(BulkEditForm):
@@ -867,8 +842,7 @@ class RearPortTemplateBulkEditForm(BulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('description',)
+    nullable_fields = ('description',)
 
 
 class ModuleBayTemplateBulkEditForm(BulkEditForm):
@@ -884,8 +858,7 @@ class ModuleBayTemplateBulkEditForm(BulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('label', 'position', 'description')
+    nullable_fields = ('label', 'position', 'description')
 
 
 class DeviceBayTemplateBulkEditForm(BulkEditForm):
@@ -901,8 +874,7 @@ class DeviceBayTemplateBulkEditForm(BulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('label', 'description')
+    nullable_fields = ('label', 'description')
 
 
 class InventoryItemTemplateBulkEditForm(BulkEditForm):
@@ -926,8 +898,7 @@ class InventoryItemTemplateBulkEditForm(BulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('label', 'role', 'manufacturer', 'part_id', 'description')
+    nullable_fields = ('label', 'role', 'manufacturer', 'part_id', 'description')
 
 
 #
@@ -947,8 +918,7 @@ class ConsolePortBulkEditForm(
         widget=BulkEditNullBooleanSelect
     )
 
-    class Meta:
-        nullable_fields = ('label', 'description')
+    nullable_fields = ('label', 'description')
 
 
 class ConsoleServerPortBulkEditForm(
@@ -964,8 +934,7 @@ class ConsoleServerPortBulkEditForm(
         widget=BulkEditNullBooleanSelect
     )
 
-    class Meta:
-        nullable_fields = ('label', 'description')
+    nullable_fields = ('label', 'description')
 
 
 class PowerPortBulkEditForm(
@@ -981,8 +950,7 @@ class PowerPortBulkEditForm(
         widget=BulkEditNullBooleanSelect
     )
 
-    class Meta:
-        nullable_fields = ('label', 'description')
+    nullable_fields = ('label', 'description')
 
 
 class PowerOutletBulkEditForm(
@@ -1004,8 +972,7 @@ class PowerOutletBulkEditForm(
         widget=BulkEditNullBooleanSelect
     )
 
-    class Meta:
-        nullable_fields = ('label', 'type', 'feed_leg', 'power_port', 'description')
+    nullable_fields = ('label', 'type', 'feed_leg', 'power_port', 'description')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1084,12 +1051,10 @@ class InterfaceBulkEditForm(
         label='VRF'
     )
 
-    class Meta:
-        nullable_fields = (
-            'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'description', 'mode',
-            'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans',
-            'vrf',
-        )
+    nullable_fields = (
+        'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'description', 'mode',
+        'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'vrf',
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1154,8 +1119,7 @@ class FrontPortBulkEditForm(
         widget=forms.MultipleHiddenInput()
     )
 
-    class Meta:
-        nullable_fields = ('label', 'description')
+    nullable_fields = ('label', 'description')
 
 
 class RearPortBulkEditForm(
@@ -1167,8 +1131,7 @@ class RearPortBulkEditForm(
         widget=forms.MultipleHiddenInput()
     )
 
-    class Meta:
-        nullable_fields = ('label', 'description')
+    nullable_fields = ('label', 'description')
 
 
 class ModuleBayBulkEditForm(
@@ -1180,8 +1143,7 @@ class ModuleBayBulkEditForm(
         widget=forms.MultipleHiddenInput()
     )
 
-    class Meta:
-        nullable_fields = ('label', 'position', 'description')
+    nullable_fields = ('label', 'position', 'description')
 
 
 class DeviceBayBulkEditForm(
@@ -1193,8 +1155,7 @@ class DeviceBayBulkEditForm(
         widget=forms.MultipleHiddenInput()
     )
 
-    class Meta:
-        nullable_fields = ('label', 'description')
+    nullable_fields = ('label', 'description')
 
 
 class InventoryItemBulkEditForm(
@@ -1214,8 +1175,7 @@ class InventoryItemBulkEditForm(
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('label', 'role', 'manufacturer', 'part_id', 'description')
+    nullable_fields = ('label', 'role', 'manufacturer', 'part_id', 'description')
 
 
 #
@@ -1235,5 +1195,4 @@ class InventoryItemRoleBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ('color', 'description')
+    nullable_fields = ('color', 'description')
