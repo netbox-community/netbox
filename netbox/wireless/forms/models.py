@@ -45,16 +45,17 @@ class WirelessLANForm(NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Wireless LAN', ('ssid', 'group', 'description', 'tags')),
+        ('VLAN', ('vlan',)),
+        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
+    )
+
     class Meta:
         model = WirelessLAN
         fields = [
             'ssid', 'group', 'description', 'vlan', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
         ]
-        fieldsets = (
-            ('Wireless LAN', ('ssid', 'group', 'description', 'tags')),
-            ('VLAN', ('vlan',)),
-            ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
-        )
         widgets = {
             'auth_type': StaticSelect,
             'auth_cipher': StaticSelect,
@@ -141,18 +142,19 @@ class WirelessLinkForm(NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Side A', ('site_a', 'location_a', 'device_a', 'interface_a')),
+        ('Side B', ('site_b', 'location_b', 'device_b', 'interface_b')),
+        ('Link', ('status', 'ssid', 'description', 'tags')),
+        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
+    )
+
     class Meta:
         model = WirelessLink
         fields = [
             'site_a', 'location_a', 'device_a', 'interface_a', 'site_b', 'location_b', 'device_b', 'interface_b',
             'status', 'ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
         ]
-        fieldsets = (
-            ('Side A', ('site_a', 'location_a', 'device_a', 'interface_a')),
-            ('Side B', ('site_b', 'location_b', 'device_b', 'interface_b')),
-            ('Link', ('status', 'ssid', 'description', 'tags')),
-            ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
-        )
         widgets = {
             'status': StaticSelect,
             'auth_type': StaticSelect,

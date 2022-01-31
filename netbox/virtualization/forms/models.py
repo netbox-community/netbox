@@ -90,14 +90,15 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Cluster', ('name', 'type', 'group', 'region', 'site_group', 'site', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = Cluster
         fields = (
             'name', 'type', 'group', 'tenant', 'region', 'site_group', 'site', 'comments', 'tags',
-        )
-        fieldsets = (
-            ('Cluster', ('name', 'type', 'group', 'region', 'site_group', 'site', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
         )
 
 
@@ -206,20 +207,21 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Virtual Machine', ('name', 'role', 'status', 'tags')),
+        ('Cluster', ('cluster_group', 'cluster')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+        ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
+        ('Resources', ('vcpus', 'memory', 'disk')),
+        ('Config Context', ('local_context_data',)),
+    )
+
     class Meta:
         model = VirtualMachine
         fields = [
             'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4',
             'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'tags', 'local_context_data',
         ]
-        fieldsets = (
-            ('Virtual Machine', ('name', 'role', 'status', 'tags')),
-            ('Cluster', ('cluster_group', 'cluster')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-            ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
-            ('Resources', ('vcpus', 'memory', 'disk')),
-            ('Config Context', ('local_context_data',)),
-        )
         help_texts = {
             'local_context_data': "Local config context data overwrites all sources contexts in the final rendered "
                                   "config context",

@@ -52,13 +52,14 @@ class TenantForm(NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Tenant', ('name', 'slug', 'group', 'description', 'tags')),
+    )
+
     class Meta:
         model = Tenant
         fields = (
             'name', 'slug', 'group', 'description', 'comments', 'tags',
-        )
-        fieldsets = (
-            ('Tenant', ('name', 'slug', 'group', 'description', 'tags')),
         )
 
 
@@ -105,13 +106,14 @@ class ContactForm(NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Contact', ('group', 'name', 'title', 'phone', 'email', 'address', 'tags')),
+    )
+
     class Meta:
         model = Contact
         fields = (
             'group', 'name', 'title', 'phone', 'email', 'address', 'comments', 'tags',
-        )
-        fieldsets = (
-            ('Contact', ('group', 'name', 'title', 'phone', 'email', 'address', 'tags')),
         )
         widgets = {
             'address': SmallTextarea(attrs={'rows': 3}),

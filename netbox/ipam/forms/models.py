@@ -53,17 +53,18 @@ class VRFForm(TenancyForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('VRF', ('name', 'rd', 'enforce_unique', 'description', 'tags')),
+        ('Route Targets', ('import_targets', 'export_targets')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = VRF
         fields = [
             'name', 'rd', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'tenant_group', 'tenant',
             'tags',
         ]
-        fieldsets = (
-            ('VRF', ('name', 'rd', 'enforce_unique', 'description', 'tags')),
-            ('Route Targets', ('import_targets', 'export_targets')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         labels = {
             'rd': "RD",
         }
@@ -78,15 +79,16 @@ class RouteTargetForm(TenancyForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Route Target', ('name', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = RouteTarget
         fields = [
             'name', 'description', 'tenant_group', 'tenant', 'tags',
         ]
-        fieldsets = (
-            ('Route Target', ('name', 'description', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
 
 
 class RIRForm(NetBoxModelForm):
@@ -113,15 +115,16 @@ class AggregateForm(TenancyForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Aggregate', ('prefix', 'rir', 'date_added', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = Aggregate
         fields = [
             'prefix', 'rir', 'date_added', 'description', 'tenant_group', 'tenant', 'tags',
         ]
-        fieldsets = (
-            ('Aggregate', ('prefix', 'rir', 'date_added', 'description', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         help_texts = {
             'prefix': "IPv4 or IPv6 network",
             'rir': "Regional Internet Registry responsible for this prefix",
@@ -146,15 +149,16 @@ class ASNForm(TenancyForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('ASN', ('asn', 'rir', 'sites', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = ASN
         fields = [
             'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description', 'tags'
         ]
-        fieldsets = (
-            ('ASN', ('asn', 'rir', 'sites', 'description', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         help_texts = {
             'asn': "AS number",
             'rir': "Regional Internet Registry responsible for this prefix",
@@ -248,17 +252,18 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Prefix', ('prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags')),
+        ('Site/VLAN Assignment', ('region', 'site_group', 'site', 'vlan_group', 'vlan')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = Prefix
         fields = [
             'prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
             'tenant_group', 'tenant', 'tags',
         ]
-        fieldsets = (
-            ('Prefix', ('prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags')),
-            ('Site/VLAN Assignment', ('region', 'site_group', 'site', 'vlan_group', 'vlan')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         widgets = {
             'status': StaticSelect(),
         }
@@ -279,15 +284,16 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('IP Range', ('vrf', 'start_address', 'end_address', 'role', 'status', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = IPRange
         fields = [
             'vrf', 'start_address', 'end_address', 'status', 'role', 'description', 'tenant_group', 'tenant', 'tags',
         ]
-        fieldsets = (
-            ('IP Range', ('vrf', 'start_address', 'end_address', 'role', 'status', 'description', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         widgets = {
             'status': StaticSelect(),
         }
@@ -562,15 +568,16 @@ class FHRPGroupForm(NetBoxModelForm):
         label='Status'
     )
 
+    fieldsets = (
+        ('FHRP Group', ('protocol', 'group_id', 'description', 'tags')),
+        ('Authentication', ('auth_type', 'auth_key')),
+        ('Virtual IP Address', ('ip_vrf', 'ip_address', 'ip_status'))
+    )
+
     class Meta:
         model = FHRPGroup
         fields = (
             'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'ip_vrf', 'ip_address', 'ip_status', 'tags',
-        )
-        fieldsets = (
-            ('FHRP Group', ('protocol', 'group_id', 'description', 'tags')),
-            ('Authentication', ('auth_type', 'auth_key')),
-            ('Virtual IP Address', ('ip_vrf', 'ip_address', 'ip_status'))
         )
 
     def save(self, *args, **kwargs):
@@ -699,17 +706,18 @@ class VLANGroupForm(NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('VLAN Group', ('name', 'slug', 'description', 'tags')),
+        ('Child VLANs', ('min_vid', 'max_vid')),
+        ('Scope', ('scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster')),
+    )
+
     class Meta:
         model = VLANGroup
         fields = [
             'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
             'clustergroup', 'cluster', 'min_vid', 'max_vid', 'tags',
         ]
-        fieldsets = (
-            ('VLAN Group', ('name', 'slug', 'description', 'tags')),
-            ('Child VLANs', ('min_vid', 'max_vid')),
-            ('Scope', ('scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster')),
-        )
         widgets = {
             'scope_type': StaticSelect,
         }

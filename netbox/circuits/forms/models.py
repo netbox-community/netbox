@@ -27,15 +27,16 @@ class ProviderForm(NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Provider', ('name', 'slug', 'asn', 'tags')),
+        ('Support Info', ('account', 'portal_url', 'noc_contact', 'admin_contact')),
+    )
+
     class Meta:
         model = Provider
         fields = [
             'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments', 'tags',
         ]
-        fieldsets = (
-            ('Provider', ('name', 'slug', 'asn', 'tags')),
-            ('Support Info', ('account', 'portal_url', 'noc_contact', 'admin_contact')),
-        )
         widgets = {
             'noc_contact': SmallTextarea(
                 attrs={'rows': 5}
@@ -63,14 +64,15 @@ class ProviderNetworkForm(NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Provider Network', ('provider', 'name', 'service_id', 'description', 'tags')),
+    )
+
     class Meta:
         model = ProviderNetwork
         fields = [
             'provider', 'name', 'service_id', 'description', 'comments', 'tags',
         ]
-        fieldsets = (
-            ('Provider Network', ('provider', 'name', 'service_id', 'description', 'tags')),
-        )
 
 
 class CircuitTypeForm(NetBoxModelForm):
@@ -100,16 +102,17 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Circuit', ('provider', 'cid', 'type', 'status', 'install_date', 'commit_rate', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = Circuit
         fields = [
             'cid', 'type', 'provider', 'status', 'install_date', 'commit_rate', 'description', 'tenant_group', 'tenant',
             'comments', 'tags',
         ]
-        fieldsets = (
-            ('Circuit', ('provider', 'cid', 'type', 'status', 'install_date', 'commit_rate', 'description', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         help_texts = {
             'cid': "Unique circuit ID",
             'commit_rate': "Committed rate",

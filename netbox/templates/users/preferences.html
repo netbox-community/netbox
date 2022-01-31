@@ -8,7 +8,7 @@
   <form method="post" action="" id="preferences-update">
     {% csrf_token %}
 
-    {% for group, fields in form.Meta.fieldsets %}
+    {% for group, fields in form.fieldsets %}
       <div class="field-group my-5">
         <div class="row mb-2">
           <h5 class="offset-sm-3">{{ group }}</h5>

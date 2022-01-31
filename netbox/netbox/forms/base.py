@@ -19,7 +19,13 @@ __all__ = (
 class NetBoxModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
     """
     Base form for creating & editing NetBox models. Adds support for custom fields.
+
+    Attributes:
+        fieldsets: An iterable of two-tuples which define a heading and field set to display per section of
+            the rendered form (optional). If not defined, the all fields will be rendered as a single section.
     """
+    fieldsets = ()
+
     def _get_content_type(self):
         return ContentType.objects.get_for_model(self._meta.model)
 

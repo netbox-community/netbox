@@ -134,18 +134,19 @@ class SiteForm(TenancyForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Site', (
+            'name', 'slug', 'status', 'region', 'group', 'facility', 'asns', 'time_zone', 'description', 'tags',
+        )),
+        ('Tenancy', ('tenant_group', 'tenant')),
+        ('Contact Info', ('physical_address', 'shipping_address', 'latitude', 'longitude')),
+    )
+
     class Meta:
         model = Site
         fields = (
             'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asns', 'time_zone',
             'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments', 'tags',
-        )
-        fieldsets = (
-            ('Site', (
-                'name', 'slug', 'status', 'region', 'group', 'facility', 'asns', 'time_zone', 'description', 'tags',
-            )),
-            ('Tenancy', ('tenant_group', 'tenant')),
-            ('Contact Info', ('physical_address', 'shipping_address', 'latitude', 'longitude')),
         )
         widgets = {
             'physical_address': SmallTextarea(
@@ -208,16 +209,17 @@ class LocationForm(TenancyForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Location', (
+            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tags',
+        )),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = Location
         fields = (
             'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tenant_group', 'tenant', 'tags',
-        )
-        fieldsets = (
-            ('Location', (
-                'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tags',
-            )),
-            ('Tenancy', ('tenant_group', 'tenant')),
         )
 
 
@@ -347,16 +349,17 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Reservation', ('region', 'site', 'location', 'rack', 'units', 'user', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = RackReservation
         fields = [
             'region', 'site_group', 'site', 'location', 'rack', 'units', 'user', 'tenant_group', 'tenant',
             'description', 'tags',
         ]
-        fieldsets = (
-            ('Reservation', ('region', 'site', 'location', 'rack', 'units', 'user', 'description', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
 
 
 class ManufacturerForm(NetBoxModelForm):
@@ -386,21 +389,22 @@ class DeviceTypeForm(NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Device Type', (
+            'manufacturer', 'model', 'slug', 'part_number', 'tags',
+        )),
+        ('Chassis', (
+            'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
+        )),
+        ('Images', ('front_image', 'rear_image')),
+    )
+
     class Meta:
         model = DeviceType
         fields = [
             'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
             'front_image', 'rear_image', 'comments', 'tags',
         ]
-        fieldsets = (
-            ('Device Type', (
-                'manufacturer', 'model', 'slug', 'part_number', 'tags',
-            )),
-            ('Chassis', (
-                'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
-            )),
-            ('Images', ('front_image', 'rear_image')),
-        )
         widgets = {
             'subdevice_role': StaticSelect(),
             'front_image': ClearableFileInput(attrs={
@@ -745,14 +749,15 @@ class PowerPanelForm(NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Power Panel', ('region', 'site_group', 'site', 'location', 'name', 'tags')),
+    )
+
     class Meta:
         model = PowerPanel
         fields = [
             'region', 'site_group', 'site', 'location', 'name', 'tags',
         ]
-        fieldsets = (
-            ('Power Panel', ('region', 'site_group', 'site', 'location', 'name', 'tags')),
-        )
 
 
 class PowerFeedForm(NetBoxModelForm):
@@ -800,17 +805,18 @@ class PowerFeedForm(NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Power Panel', ('region', 'site', 'power_panel')),
+        ('Power Feed', ('rack', 'name', 'status', 'type', 'mark_connected', 'tags')),
+        ('Characteristics', ('supply', 'voltage', 'amperage', 'phase', 'max_utilization')),
+    )
+
     class Meta:
         model = PowerFeed
         fields = [
             'region', 'site_group', 'site', 'power_panel', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply',
             'phase', 'voltage', 'amperage', 'max_utilization', 'comments', 'tags',
         ]
-        fieldsets = (
-            ('Power Panel', ('region', 'site', 'power_panel')),
-            ('Power Feed', ('rack', 'name', 'status', 'type', 'mark_connected', 'tags')),
-            ('Characteristics', ('supply', 'voltage', 'amperage', 'phase', 'max_utilization')),
-        )
         widgets = {
             'status': StaticSelect(),
             'type': StaticSelect(),
@@ -1101,16 +1107,17 @@ class InventoryItemTemplateForm(BootstrapMixin, forms.ModelForm):
         widget=forms.HiddenInput
     )
 
+    fieldsets = (
+        ('Inventory Item', ('device_type', 'parent', 'name', 'label', 'role', 'description')),
+        ('Hardware', ('manufacturer', 'part_id')),
+    )
+
     class Meta:
         model = InventoryItemTemplate
         fields = [
             'device_type', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'description',
             'component_type', 'component_id',
         ]
-        fieldsets = (
-            ('Inventory Item', ('device_type', 'parent', 'name', 'label', 'role', 'description')),
-            ('Hardware', ('manufacturer', 'part_id')),
-        )
         widgets = {
             'device_type': forms.HiddenInput(),
         }
@@ -1271,6 +1278,17 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Interface', ('device', 'name', 'type', 'speed', 'duplex', 'label', 'description', 'tags')),
+        ('Addressing', ('vrf', 'mac_address', 'wwn')),
+        ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
+        ('Related Interfaces', ('parent', 'bridge', 'lag')),
+        ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
+        ('Wireless', (
+            'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group', 'wireless_lans',
+        )),
+    )
+
     class Meta:
         model = Interface
         fields = [
@@ -1278,17 +1296,6 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
             'mgmt_only', 'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
         ]
-        fieldsets = (
-            ('Interface', ('device', 'name', 'type', 'speed', 'duplex', 'label', 'description', 'tags')),
-            ('Addressing', ('vrf', 'mac_address', 'wwn')),
-            ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
-            ('Related Interfaces', ('parent', 'bridge', 'lag')),
-            ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
-            ('Wireless', (
-                'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group',
-                'wireless_lans',
-            )),
-        )
         widgets = {
             'device': forms.HiddenInput(),
             'type': StaticSelect(),
@@ -1432,16 +1439,17 @@ class InventoryItemForm(NetBoxModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Inventory Item', ('device', 'parent', 'name', 'label', 'role', 'description', 'tags')),
+        ('Hardware', ('manufacturer', 'part_id', 'serial', 'asset_tag')),
+    )
+
     class Meta:
         model = InventoryItem
         fields = [
             'device', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
             'description', 'component_type', 'component_id', 'tags',
         ]
-        fieldsets = (
-            ('Inventory Item', ('device', 'parent', 'name', 'label', 'role', 'description', 'tags')),
-            ('Hardware', ('manufacturer', 'part_id', 'serial', 'asset_tag')),
-        )
         widgets = {
             'device': forms.HiddenInput(),
         }
