@@ -18,7 +18,7 @@ __all__ = (
 
 class NetBoxModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
     """
-    Base form for creating & editing NetBox models. Adds support for custom fields.
+    Base form for creating & editing NetBox models. Extends Django's ModelForm to add support for custom fields.
 
     Attributes:
         fieldsets: An iterable of two-tuples which define a heading and field set to display per section of
@@ -65,6 +65,9 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, BulkEditMixin, 
     """
     Base form for modifying multiple NetBox objects (of the same type) in bulk via the UI. Adds support for custom
     fields and adding/removing tags.
+
+    Attributes:
+        nullable_fields: A list of field names indicating which fields support being set to null/empty
     """
     add_tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -100,9 +103,13 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, BulkEditMixin, 
 
 class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
     """
-    Base form for FilerSet forms. These are used to filter object lists in the NetBox UI.
+    Base form for FilerSet forms. These are used to filter object lists in the NetBox UI. Note that the
+    corresponding FilterSet *must* provide a `q` filter.
 
-    The corresponding FilterSet *must* provide a `q` filter.
+    Attributes:
+        model: The model class associated with the form
+        fieldsets: An iterable of two-tuples which define a heading and field set to display per section of
+            the rendered form (optional). If not defined, the all fields will be rendered as a single section.
     """
     q = forms.CharField(
         required=False,
