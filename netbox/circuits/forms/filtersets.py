@@ -18,11 +18,11 @@ __all__ = (
 
 class ProviderFilterForm(NetBoxModelFilterSetForm):
     model = Provider
-    field_groups = [
-        ['q', 'tag'],
-        ['region_id', 'site_group_id', 'site_id'],
-        ['asn'],
-    ]
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Location', ('region_id', 'site_group_id', 'site_id')),
+        ('ASN', ('asn',)),
+    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -51,9 +51,9 @@ class ProviderFilterForm(NetBoxModelFilterSetForm):
 
 class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
     model = ProviderNetwork
-    field_groups = (
-        ('q', 'tag'),
-        ('provider_id',),
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Attributes', ('provider_id', 'service_id')),
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
@@ -74,13 +74,13 @@ class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
 
 class CircuitFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Circuit
-    field_groups = [
-        ['q', 'tag'],
-        ['provider_id', 'provider_network_id'],
-        ['type_id', 'status', 'commit_rate'],
-        ['region_id', 'site_group_id', 'site_id'],
-        ['tenant_group_id', 'tenant_id'],
-    ]
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Provider', ('provider_id', 'provider_network_id')),
+        ('Attributes', ('type_id', 'status', 'commit_rate')),
+        ('Location', ('region_id', 'site_group_id', 'site_id')),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+    )
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         required=False,

@@ -29,10 +29,6 @@ class TenantGroupFilterForm(NetBoxModelFilterSetForm):
 
 class TenantFilterForm(NetBoxModelFilterSetForm):
     model = Tenant
-    field_groups = (
-        ('q', 'tag'),
-        ('group_id',),
-    )
     group_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
@@ -63,10 +59,6 @@ class ContactRoleFilterForm(NetBoxModelFilterSetForm):
 
 class ContactFilterForm(NetBoxModelFilterSetForm):
     model = Contact
-    field_groups = (
-        ('q', 'tag'),
-        ('group_id',),
-    )
     group_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,

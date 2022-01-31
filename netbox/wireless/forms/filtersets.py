@@ -26,10 +26,11 @@ class WirelessLANGroupFilterForm(NetBoxModelFilterSetForm):
 
 class WirelessLANFilterForm(NetBoxModelFilterSetForm):
     model = WirelessLAN
-    field_groups = [
-        ('q', 'tag'),
-        ('group_id',),
-    ]
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Attributes', ('ssid', 'group_id',)),
+        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
+    )
     ssid = forms.CharField(
         required=False,
         label='SSID'

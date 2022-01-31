@@ -32,12 +32,12 @@ class ClusterGroupFilterForm(NetBoxModelFilterSetForm):
 
 class ClusterFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Cluster
-    field_groups = [
-        ['q', 'tag'],
-        ['group_id', 'type_id'],
-        ['region_id', 'site_group_id', 'site_id'],
-        ['tenant_group_id', 'tenant_id'],
-    ]
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Attributes', ('group_id', 'type_id')),
+        ('Location', ('region_id', 'site_group_id', 'site_id')),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+    )
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
@@ -74,13 +74,13 @@ class ClusterFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 
 class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = VirtualMachine
-    field_groups = [
-        ['q', 'tag'],
-        ['cluster_group_id', 'cluster_type_id', 'cluster_id'],
-        ['region_id', 'site_group_id', 'site_id'],
-        ['status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data'],
-        ['tenant_group_id', 'tenant_id'],
-    ]
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Cluster', ('cluster_group_id', 'cluster_type_id', 'cluster_id')),
+        ('Location', ('region_id', 'site_group_id', 'site_id')),
+        ('Attriubtes', ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data')),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+    )
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -154,11 +154,11 @@ class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, 
 
 class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     model = VMInterface
-    field_groups = [
-        ['q', 'tag'],
-        ['cluster_id', 'virtual_machine_id'],
-        ['enabled', 'mac_address'],
-    ]
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Virtual Machine', ('cluster_id', 'virtual_machine_id')),
+        ('Attributes', ('enabled', 'mac_address')),
+    )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
