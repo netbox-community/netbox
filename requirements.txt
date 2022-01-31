@@ -24,7 +24,7 @@ Pillow==8.4.0
 psycopg2-binary==2.9.3
 PyYAML==6.0
 social-auth-app-django==5.0.0
-social-auth-core==4.1.0
+social-auth-core[all]==4.1.0
 svgwrite==1.4.1
 tablib==3.1.0
 
