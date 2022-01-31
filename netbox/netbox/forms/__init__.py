@@ -1,6 +1,7 @@
 from django import forms
 
 from utilities.forms import BootstrapMixin
+from .base import *
 
 OBJ_TYPE_CHOICES = (
     ('', 'All Objects'),

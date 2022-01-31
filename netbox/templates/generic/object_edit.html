@@ -33,7 +33,7 @@
         {% csrf_token %}
 
         {% block form %}
-          {% if form.Meta.fieldsets %}
+          {% if form.fieldsets %}
 
             {# Render hidden fields #}
             {% for field in form.hidden_fields %}
@@ -41,7 +41,7 @@
             {% endfor %}
 
             {# Render grouped fields according to Form #}
-            {% for group, fields in form.Meta.fieldsets %}
+            {% for group, fields in form.fieldsets %}
               <div class="field-group mb-5">
                 <div class="row mb-2">
                   <h5 class="offset-sm-3">{{ group }}</h5>

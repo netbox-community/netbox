@@ -2,13 +2,13 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 
 from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
-from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from ipam.choices import *
 from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
 from ipam.models import *
 from ipam.models import ASN
+from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
@@ -39,7 +39,7 @@ __all__ = (
 )
 
 
-class VRFForm(TenancyForm, CustomFieldModelForm):
+class VRFForm(TenancyForm, NetBoxModelForm):
     import_targets = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         required=False
@@ -53,17 +53,18 @@ class VRFForm(TenancyForm, CustomFieldModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('VRF', ('name', 'rd', 'enforce_unique', 'description', 'tags')),
+        ('Route Targets', ('import_targets', 'export_targets')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = VRF
         fields = [
             'name', 'rd', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'tenant_group', 'tenant',
             'tags',
         ]
-        fieldsets = (
-            ('VRF', ('name', 'rd', 'enforce_unique', 'description', 'tags')),
-            ('Route Targets', ('import_targets', 'export_targets')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         labels = {
             'rd': "RD",
         }
@@ -72,10 +73,15 @@ class VRFForm(TenancyForm, CustomFieldModelForm):
         }
 
 
-class RouteTargetForm(TenancyForm, CustomFieldModelForm):
+class RouteTargetForm(TenancyForm, NetBoxModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
+    )
+
+    fieldsets = (
+        ('Route Target', ('name', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
     )
 
     class Meta:
@@ -83,13 +89,9 @@ class RouteTargetForm(TenancyForm, CustomFieldModelForm):
         fields = [
             'name', 'description', 'tenant_group', 'tenant', 'tags',
         ]
-        fieldsets = (
-            ('Route Target', ('name', 'description', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
 
 
-class RIRForm(CustomFieldModelForm):
+class RIRForm(NetBoxModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -103,7 +105,7 @@ class RIRForm(CustomFieldModelForm):
         ]
 
 
-class AggregateForm(TenancyForm, CustomFieldModelForm):
+class AggregateForm(TenancyForm, NetBoxModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label='RIR'
@@ -113,15 +115,16 @@ class AggregateForm(TenancyForm, CustomFieldModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Aggregate', ('prefix', 'rir', 'date_added', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = Aggregate
         fields = [
             'prefix', 'rir', 'date_added', 'description', 'tenant_group', 'tenant', 'tags',
         ]
-        fieldsets = (
-            ('Aggregate', ('prefix', 'rir', 'date_added', 'description', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         help_texts = {
             'prefix': "IPv4 or IPv6 network",
             'rir': "Regional Internet Registry responsible for this prefix",
@@ -131,7 +134,7 @@ class AggregateForm(TenancyForm, CustomFieldModelForm):
         }
 
 
-class ASNForm(TenancyForm, CustomFieldModelForm):
+class ASNForm(TenancyForm, NetBoxModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label='RIR',
@@ -146,15 +149,16 @@ class ASNForm(TenancyForm, CustomFieldModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('ASN', ('asn', 'rir', 'sites', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = ASN
         fields = [
             'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description', 'tags'
         ]
-        fieldsets = (
-            ('ASN', ('asn', 'rir', 'sites', 'description', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         help_texts = {
             'asn': "AS number",
             'rir': "Regional Internet Registry responsible for this prefix",
@@ -175,7 +179,7 @@ class ASNForm(TenancyForm, CustomFieldModelForm):
         return instance
 
 
-class RoleForm(CustomFieldModelForm):
+class RoleForm(NetBoxModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -189,7 +193,7 @@ class RoleForm(CustomFieldModelForm):
         ]
 
 
-class PrefixForm(TenancyForm, CustomFieldModelForm):
+class PrefixForm(TenancyForm, NetBoxModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -248,23 +252,24 @@ class PrefixForm(TenancyForm, CustomFieldModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Prefix', ('prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags')),
+        ('Site/VLAN Assignment', ('region', 'site_group', 'site', 'vlan_group', 'vlan')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = Prefix
         fields = [
             'prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
             'tenant_group', 'tenant', 'tags',
         ]
-        fieldsets = (
-            ('Prefix', ('prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags')),
-            ('Site/VLAN Assignment', ('region', 'site_group', 'site', 'vlan_group', 'vlan')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         widgets = {
             'status': StaticSelect(),
         }
 
 
-class IPRangeForm(TenancyForm, CustomFieldModelForm):
+class IPRangeForm(TenancyForm, NetBoxModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -279,21 +284,22 @@ class IPRangeForm(TenancyForm, CustomFieldModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('IP Range', ('vrf', 'start_address', 'end_address', 'role', 'status', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = IPRange
         fields = [
             'vrf', 'start_address', 'end_address', 'status', 'role', 'description', 'tenant_group', 'tenant', 'tags',
         ]
-        fieldsets = (
-            ('IP Range', ('vrf', 'start_address', 'end_address', 'role', 'status', 'description', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         widgets = {
             'status': StaticSelect(),
         }
 
 
-class IPAddressForm(TenancyForm, CustomFieldModelForm):
+class IPAddressForm(TenancyForm, NetBoxModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -506,7 +512,7 @@ class IPAddressForm(TenancyForm, CustomFieldModelForm):
         return ipaddress
 
 
-class IPAddressBulkAddForm(TenancyForm, CustomFieldModelForm):
+class IPAddressBulkAddForm(TenancyForm, NetBoxModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -540,7 +546,7 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
     )
 
 
-class FHRPGroupForm(CustomFieldModelForm):
+class FHRPGroupForm(NetBoxModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -562,15 +568,16 @@ class FHRPGroupForm(CustomFieldModelForm):
         label='Status'
     )
 
+    fieldsets = (
+        ('FHRP Group', ('protocol', 'group_id', 'description', 'tags')),
+        ('Authentication', ('auth_type', 'auth_key')),
+        ('Virtual IP Address', ('ip_vrf', 'ip_address', 'ip_status'))
+    )
+
     class Meta:
         model = FHRPGroup
         fields = (
             'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'ip_vrf', 'ip_address', 'ip_status', 'tags',
-        )
-        fieldsets = (
-            ('FHRP Group', ('protocol', 'group_id', 'description', 'tags')),
-            ('Authentication', ('auth_type', 'auth_key')),
-            ('Virtual IP Address', ('ip_vrf', 'ip_address', 'ip_status'))
         )
 
     def save(self, *args, **kwargs):
@@ -629,7 +636,7 @@ class FHRPGroupAssignmentForm(BootstrapMixin, forms.ModelForm):
             self.fields['group'].widget.add_query_param('related_ip', ipaddress.pk)
 
 
-class VLANGroupForm(CustomFieldModelForm):
+class VLANGroupForm(NetBoxModelForm):
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False
@@ -699,17 +706,18 @@ class VLANGroupForm(CustomFieldModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('VLAN Group', ('name', 'slug', 'description', 'tags')),
+        ('Child VLANs', ('min_vid', 'max_vid')),
+        ('Scope', ('scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster')),
+    )
+
     class Meta:
         model = VLANGroup
         fields = [
             'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
             'clustergroup', 'cluster', 'min_vid', 'max_vid', 'tags',
         ]
-        fieldsets = (
-            ('VLAN Group', ('name', 'slug', 'description', 'tags')),
-            ('Child VLANs', ('min_vid', 'max_vid')),
-            ('Scope', ('scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster')),
-        )
         widgets = {
             'scope_type': StaticSelect,
         }
@@ -736,7 +744,7 @@ class VLANGroupForm(CustomFieldModelForm):
             self.instance.scope_id = None
 
 
-class VLANForm(TenancyForm, CustomFieldModelForm):
+class VLANForm(TenancyForm, NetBoxModelForm):
     # VLANGroup assignment fields
     scope_type = forms.ChoiceField(
         choices=(
@@ -817,7 +825,7 @@ class VLANForm(TenancyForm, CustomFieldModelForm):
         }
 
 
-class ServiceTemplateForm(CustomFieldModelForm):
+class ServiceTemplateForm(NetBoxModelForm):
     ports = NumericArrayField(
         base_field=forms.IntegerField(
             min_value=SERVICE_PORT_MIN,
@@ -838,7 +846,7 @@ class ServiceTemplateForm(CustomFieldModelForm):
         }
 
 
-class ServiceForm(CustomFieldModelForm):
+class ServiceForm(NetBoxModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         required=False

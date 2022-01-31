@@ -13,7 +13,6 @@ from utilities.forms import (
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
-    'AddRemoveTagsForm',
     'ConfigContextForm',
     'CustomFieldForm',
     'CustomLinkForm',
@@ -31,16 +30,17 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         limit_choices_to=FeatureQuery('custom_fields')
     )
 
+    fieldsets = (
+        ('Custom Field', ('name', 'label', 'type', 'object_type', 'weight', 'required', 'description')),
+        ('Assigned Models', ('content_types',)),
+        ('Behavior', ('filter_logic',)),
+        ('Values', ('default', 'choices')),
+        ('Validation', ('validation_minimum', 'validation_maximum', 'validation_regex')),
+    )
+
     class Meta:
         model = CustomField
         fields = '__all__'
-        fieldsets = (
-            ('Custom Field', ('name', 'label', 'type', 'object_type', 'weight', 'required', 'description')),
-            ('Assigned Models', ('content_types',)),
-            ('Behavior', ('filter_logic',)),
-            ('Values', ('default', 'choices')),
-            ('Validation', ('validation_minimum', 'validation_maximum', 'validation_regex')),
-        )
         widgets = {
             'type': StaticSelect(),
             'filter_logic': StaticSelect(),
@@ -53,13 +53,14 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
         limit_choices_to=FeatureQuery('custom_links')
     )
 
+    fieldsets = (
+        ('Custom Link', ('name', 'content_type', 'weight', 'group_name', 'button_class', 'enabled', 'new_window')),
+        ('Templates', ('link_text', 'link_url')),
+    )
+
     class Meta:
         model = CustomLink
         fields = '__all__'
-        fieldsets = (
-            ('Custom Link', ('name', 'content_type', 'weight', 'group_name', 'button_class', 'enabled', 'new_window')),
-            ('Templates', ('link_text', 'link_url')),
-        )
         widgets = {
             'button_class': StaticSelect(),
             'link_text': forms.Textarea(attrs={'class': 'font-monospace'}),
@@ -78,14 +79,15 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
         limit_choices_to=FeatureQuery('export_templates')
     )
 
+    fieldsets = (
+        ('Export Template', ('name', 'content_type', 'description')),
+        ('Template', ('template_code',)),
+        ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
+    )
+
     class Meta:
         model = ExportTemplate
         fields = '__all__'
-        fieldsets = (
-            ('Export Template', ('name', 'content_type', 'description')),
-            ('Template', ('template_code',)),
-            ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
-        )
         widgets = {
             'template_code': forms.Textarea(attrs={'class': 'font-monospace'}),
         }
@@ -97,18 +99,19 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
         limit_choices_to=FeatureQuery('webhooks')
     )
 
+    fieldsets = (
+        ('Webhook', ('name', 'content_types', 'enabled')),
+        ('Events', ('type_create', 'type_update', 'type_delete')),
+        ('HTTP Request', (
+            'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
+        )),
+        ('Conditions', ('conditions',)),
+        ('SSL', ('ssl_verification', 'ca_file_path')),
+    )
+
     class Meta:
         model = Webhook
         fields = '__all__'
-        fieldsets = (
-            ('Webhook', ('name', 'content_types', 'enabled')),
-            ('Events', ('type_create', 'type_update', 'type_delete')),
-            ('HTTP Request', (
-                'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
-            )),
-            ('Conditions', ('conditions',)),
-            ('SSL', ('ssl_verification', 'ca_file_path')),
-        )
         labels = {
             'type_create': 'Creations',
             'type_update': 'Updates',
@@ -124,30 +127,15 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
 class TagForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
+    fieldsets = (
+        ('Tag', ('name', 'slug', 'color', 'description')),
+    )
+
     class Meta:
         model = Tag
         fields = [
             'name', 'slug', 'color', 'description'
         ]
-        fieldsets = (
-            ('Tag', ('name', 'slug', 'color', 'description')),
-        )
-
-
-class AddRemoveTagsForm(forms.Form):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Add add/remove tags fields
-        self.fields['add_tags'] = DynamicModelMultipleChoiceField(
-            queryset=Tag.objects.all(),
-            required=False
-        )
-        self.fields['remove_tags'] = DynamicModelMultipleChoiceField(
-            queryset=Tag.objects.all(),
-            required=False
-        )
 
 
 class ConfigContextForm(BootstrapMixin, forms.ModelForm):

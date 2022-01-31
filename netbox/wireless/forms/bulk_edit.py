@@ -1,8 +1,8 @@
 from django import forms
 
 from dcim.choices import LinkStatusChoices
-from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.models import VLAN
+from netbox.forms import NetBoxModelBulkEditForm
 from utilities.forms import add_blank_choice, DynamicModelChoiceField
 from wireless.choices import *
 from wireless.constants import SSID_MAX_LENGTH
@@ -15,7 +15,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class WirelessLANGroupBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -29,11 +29,10 @@ class WirelessLANGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditFo
         required=False
     )
 
-    class Meta:
-        nullable_fields = ['parent', 'description']
+    nullable_fields = ('parent', 'description')
 
 
-class WirelessLANBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=WirelessLAN.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -68,11 +67,12 @@ class WirelessLANBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         label='Pre-shared key'
     )
 
-    class Meta:
-        nullable_fields = ['ssid', 'group', 'vlan', 'description', 'auth_type', 'auth_cipher', 'auth_psk']
+    nullable_fields = (
+        'ssid', 'group', 'vlan', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
+    )
 
 
-class WirelessLinkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=WirelessLink.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -102,5 +102,6 @@ class WirelessLinkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         label='Pre-shared key'
     )
 
-    class Meta:
-        nullable_fields = ['ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk']
+    nullable_fields = (
+        'ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
+    )

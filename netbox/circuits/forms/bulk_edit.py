@@ -2,7 +2,7 @@ from django import forms
 
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
-from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
+from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice, CommentField, DynamicModelChoiceField, SmallTextarea, StaticSelect
 
@@ -14,7 +14,7 @@ __all__ = (
 )
 
 
-class ProviderBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ProviderBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -47,13 +47,12 @@ class ProviderBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         label='Comments'
     )
 
-    class Meta:
-        nullable_fields = [
-            'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
-        ]
+    nullable_fields = (
+        'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
+    )
 
 
-class ProviderNetworkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ProviderNetwork.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -75,13 +74,12 @@ class ProviderNetworkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditFor
         label='Comments'
     )
 
-    class Meta:
-        nullable_fields = [
-            'service_id', 'description', 'comments',
-        ]
+    nullable_fields = (
+        'service_id', 'description', 'comments',
+    )
 
 
-class CircuitTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -91,11 +89,10 @@ class CircuitTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ['description']
+    nullable_fields = ('description',)
 
 
-class CircuitBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class CircuitBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Circuit.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -131,7 +128,6 @@ class CircuitBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         label='Comments'
     )
 
-    class Meta:
-        nullable_fields = [
-            'tenant', 'commit_rate', 'description', 'comments',
-        ]
+    nullable_fields = (
+        'tenant', 'commit_rate', 'description', 'comments',
+    )

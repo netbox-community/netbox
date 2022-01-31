@@ -40,20 +40,20 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
 
 
 class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMetaclass):
+    fieldsets = (
+        ('User Interface', (
+            'pagination.per_page',
+            'pagination.placement',
+            'ui.colormode',
+        )),
+        ('Miscellaneous', (
+            'data_format',
+        )),
+    )
 
     class Meta:
         model = UserConfig
         fields = ()
-        fieldsets = (
-            ('User Interface', (
-                'pagination.per_page',
-                'pagination.placement',
-                'ui.colormode',
-            )),
-            ('Miscellaneous', (
-                'data_format',
-            )),
-        )
 
     def __init__(self, *args, instance=None, **kwargs):
 

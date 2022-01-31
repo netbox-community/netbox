@@ -105,6 +105,7 @@ nav:
             - Models: 'plugins/development/models.md'
             - Views: 'plugins/development/views.md'
             - Tables: 'plugins/development/tables.md'
+            - Forms: 'plugins/development/forms.md'
             - Filter Sets: 'plugins/development/filtersets.md'
             - REST API: 'plugins/development/rest-api.md'
             - Background Tasks: 'plugins/development/background-tasks.md'

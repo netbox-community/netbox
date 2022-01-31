@@ -5,9 +5,9 @@ from django.core.exceptions import ValidationError
 from dcim.forms.common import InterfaceCommonForm
 from dcim.forms.models import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
-from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from ipam.models import IPAddress, VLAN, VLANGroup
+from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import (
     BootstrapMixin, CommentField, ConfirmationForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
@@ -26,7 +26,7 @@ __all__ = (
 )
 
 
-class ClusterTypeForm(CustomFieldModelForm):
+class ClusterTypeForm(NetBoxModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -40,7 +40,7 @@ class ClusterTypeForm(CustomFieldModelForm):
         )
 
 
-class ClusterGroupForm(CustomFieldModelForm):
+class ClusterGroupForm(NetBoxModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -54,7 +54,7 @@ class ClusterGroupForm(CustomFieldModelForm):
         )
 
 
-class ClusterForm(TenancyForm, CustomFieldModelForm):
+class ClusterForm(TenancyForm, NetBoxModelForm):
     type = DynamicModelChoiceField(
         queryset=ClusterType.objects.all()
     )
@@ -90,14 +90,15 @@ class ClusterForm(TenancyForm, CustomFieldModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Cluster', ('name', 'type', 'group', 'region', 'site_group', 'site', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = Cluster
         fields = (
             'name', 'type', 'group', 'tenant', 'region', 'site_group', 'site', 'comments', 'tags',
-        )
-        fieldsets = (
-            ('Cluster', ('name', 'type', 'group', 'region', 'site_group', 'site', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
         )
 
 
@@ -171,7 +172,7 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
     )
 
 
-class VirtualMachineForm(TenancyForm, CustomFieldModelForm):
+class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -206,20 +207,21 @@ class VirtualMachineForm(TenancyForm, CustomFieldModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Virtual Machine', ('name', 'role', 'status', 'tags')),
+        ('Cluster', ('cluster_group', 'cluster')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+        ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
+        ('Resources', ('vcpus', 'memory', 'disk')),
+        ('Config Context', ('local_context_data',)),
+    )
+
     class Meta:
         model = VirtualMachine
         fields = [
             'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4',
             'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'tags', 'local_context_data',
         ]
-        fieldsets = (
-            ('Virtual Machine', ('name', 'role', 'status', 'tags')),
-            ('Cluster', ('cluster_group', 'cluster')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-            ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
-            ('Resources', ('vcpus', 'memory', 'disk')),
-            ('Config Context', ('local_context_data',)),
-        )
         help_texts = {
             'local_context_data': "Local config context data overwrites all sources contexts in the final rendered "
                                   "config context",
@@ -271,7 +273,7 @@ class VirtualMachineForm(TenancyForm, CustomFieldModelForm):
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
 
-class VMInterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
+class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,

@@ -675,14 +675,13 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Delete objects in bulk.
 
-    filterset: FilterSet to apply when deleting by QuerySet
-    table: The table used to display devices being deleted
-    form: The form class used to delete objects in bulk
+    Attributes:
+        filterset: FilterSet to apply when deleting by QuerySet
+        table: The table used to display devices being deleted
     """
     template_name = 'generic/object_bulk_delete.html'
     filterset = None
     table = None
-    form = None
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'delete')
@@ -693,9 +692,6 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         """
         class BulkDeleteForm(ConfirmationForm):
             pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
-
-        if self.form:
-            return self.form
 
         return BulkDeleteForm
 

@@ -28,11 +28,10 @@ __all__ = (
 
 
 class CustomFieldFilterForm(FilterForm):
-    field_groups = [
-        ['q'],
-        ['type', 'content_types'],
-        ['weight', 'required'],
-    ]
+    fieldsets = (
+        (None, ('q',)),
+        ('Attributes', ('type', 'content_types', 'weight', 'required')),
+    )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
@@ -56,10 +55,10 @@ class CustomFieldFilterForm(FilterForm):
 
 
 class CustomLinkFilterForm(FilterForm):
-    field_groups = [
-        ['q'],
-        ['content_type', 'enabled', 'new_window', 'weight'],
-    ]
+    fieldsets = (
+        (None, ('q',)),
+        ('Attributes', ('content_type', 'enabled', 'new_window', 'weight')),
+    )
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
@@ -83,10 +82,10 @@ class CustomLinkFilterForm(FilterForm):
 
 
 class ExportTemplateFilterForm(FilterForm):
-    field_groups = [
-        ['q'],
-        ['content_type', 'mime_type', 'file_extension', 'as_attachment'],
-    ]
+    fieldsets = (
+        (None, ('q',)),
+        ('Attributes', ('content_type', 'mime_type', 'file_extension', 'as_attachment')),
+    )
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
@@ -108,11 +107,11 @@ class ExportTemplateFilterForm(FilterForm):
 
 
 class WebhookFilterForm(FilterForm):
-    field_groups = [
-        ['q'],
-        ['content_types', 'http_method', 'enabled'],
-        ['type_create', 'type_update', 'type_delete'],
-    ]
+    fieldsets = (
+        (None, ('q',)),
+        ('Attributes', ('content_types', 'http_method', 'enabled')),
+        ('Events', ('type_create', 'type_update', 'type_delete')),
+    )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
@@ -160,13 +159,13 @@ class TagFilterForm(FilterForm):
 
 
 class ConfigContextFilterForm(FilterForm):
-    field_groups = [
-        ['q', 'tag'],
-        ['region_id', 'site_group_id', 'site_id'],
-        ['device_type_id', 'platform_id', 'role_id'],
-        ['cluster_type_id', 'cluster_group_id', 'cluster_id'],
-        ['tenant_group_id', 'tenant_id']
-    ]
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Location', ('region_id', 'site_group_id', 'site_id')),
+        ('Device', ('device_type_id', 'platform_id', 'role_id')),
+        ('Cluster', ('cluster_type_id', 'cluster_group_id', 'cluster_id')),
+        ('Tenant', ('tenant_group_id', 'tenant_id'))
+    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -243,11 +242,11 @@ class LocalConfigContextFilterForm(forms.Form):
 
 class JournalEntryFilterForm(FilterForm):
     model = JournalEntry
-    field_groups = [
-        ['q'],
-        ['created_before', 'created_after', 'created_by_id'],
-        ['assigned_object_type_id', 'kind']
-    ]
+    fieldsets = (
+        (None, ('q',)),
+        ('Creation', ('created_before', 'created_after', 'created_by_id')),
+        ('Attributes', ('assigned_object_type_id', 'kind'))
+    )
     created_after = forms.DateTimeField(
         required=False,
         label=_('After'),
@@ -283,11 +282,11 @@ class JournalEntryFilterForm(FilterForm):
 
 class ObjectChangeFilterForm(FilterForm):
     model = ObjectChange
-    field_groups = [
-        ['q'],
-        ['time_before', 'time_after', 'action'],
-        ['user_id', 'changed_object_type_id'],
-    ]
+    fieldsets = (
+        (None, ('q',)),
+        ('Time', ('time_before', 'time_after')),
+        ('Attributes', ('action', 'user_id', 'changed_object_type_id')),
+    )
     time_after = forms.DateTimeField(
         required=False,
         label=_('After'),

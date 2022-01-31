@@ -1,6 +1,6 @@
 from dcim.choices import InterfaceModeChoices
 from dcim.models import DeviceRole, Platform, Site
-from extras.forms import CustomFieldModelCSVForm
+from netbox.forms import NetBoxModelCSVForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVModelChoiceField, SlugField
 from virtualization.choices import *
@@ -15,7 +15,7 @@ __all__ = (
 )
 
 
-class ClusterTypeCSVForm(CustomFieldModelCSVForm):
+class ClusterTypeCSVForm(NetBoxModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -23,7 +23,7 @@ class ClusterTypeCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'description')
 
 
-class ClusterGroupCSVForm(CustomFieldModelCSVForm):
+class ClusterGroupCSVForm(NetBoxModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -31,7 +31,7 @@ class ClusterGroupCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'description')
 
 
-class ClusterCSVForm(CustomFieldModelCSVForm):
+class ClusterCSVForm(NetBoxModelCSVForm):
     type = CSVModelChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='name',
@@ -61,7 +61,7 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'type', 'group', 'site', 'comments')
 
 
-class VirtualMachineCSVForm(CustomFieldModelCSVForm):
+class VirtualMachineCSVForm(NetBoxModelCSVForm):
     status = CSVChoiceField(
         choices=VirtualMachineStatusChoices,
         help_text='Operational status of device'
@@ -99,7 +99,7 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
         )
 
 
-class VMInterfaceCSVForm(CustomFieldModelCSVForm):
+class VMInterfaceCSVForm(NetBoxModelCSVForm):
     virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         to_field_name='name'

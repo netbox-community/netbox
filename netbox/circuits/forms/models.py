@@ -2,8 +2,8 @@ from django import forms
 
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
-from extras.forms import CustomFieldModelForm
 from extras.models import Tag
+from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import (
     BootstrapMixin, CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
@@ -19,7 +19,7 @@ __all__ = (
 )
 
 
-class ProviderForm(CustomFieldModelForm):
+class ProviderForm(NetBoxModelForm):
     slug = SlugField()
     comments = CommentField()
     tags = DynamicModelMultipleChoiceField(
@@ -27,15 +27,16 @@ class ProviderForm(CustomFieldModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Provider', ('name', 'slug', 'asn', 'tags')),
+        ('Support Info', ('account', 'portal_url', 'noc_contact', 'admin_contact')),
+    )
+
     class Meta:
         model = Provider
         fields = [
             'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments', 'tags',
         ]
-        fieldsets = (
-            ('Provider', ('name', 'slug', 'asn', 'tags')),
-            ('Support Info', ('account', 'portal_url', 'noc_contact', 'admin_contact')),
-        )
         widgets = {
             'noc_contact': SmallTextarea(
                 attrs={'rows': 5}
@@ -53,7 +54,7 @@ class ProviderForm(CustomFieldModelForm):
         }
 
 
-class ProviderNetworkForm(CustomFieldModelForm):
+class ProviderNetworkForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
         queryset=Provider.objects.all()
     )
@@ -63,17 +64,18 @@ class ProviderNetworkForm(CustomFieldModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Provider Network', ('provider', 'name', 'service_id', 'description', 'tags')),
+    )
+
     class Meta:
         model = ProviderNetwork
         fields = [
             'provider', 'name', 'service_id', 'description', 'comments', 'tags',
         ]
-        fieldsets = (
-            ('Provider Network', ('provider', 'name', 'service_id', 'description', 'tags')),
-        )
 
 
-class CircuitTypeForm(CustomFieldModelForm):
+class CircuitTypeForm(NetBoxModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -87,7 +89,7 @@ class CircuitTypeForm(CustomFieldModelForm):
         ]
 
 
-class CircuitForm(TenancyForm, CustomFieldModelForm):
+class CircuitForm(TenancyForm, NetBoxModelForm):
     provider = DynamicModelChoiceField(
         queryset=Provider.objects.all()
     )
@@ -100,16 +102,17 @@ class CircuitForm(TenancyForm, CustomFieldModelForm):
         required=False
     )
 
+    fieldsets = (
+        ('Circuit', ('provider', 'cid', 'type', 'status', 'install_date', 'commit_rate', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
     class Meta:
         model = Circuit
         fields = [
             'cid', 'type', 'provider', 'status', 'install_date', 'commit_rate', 'description', 'tenant_group', 'tenant',
             'comments', 'tags',
         ]
-        fieldsets = (
-            ('Circuit', ('provider', 'cid', 'type', 'status', 'install_date', 'commit_rate', 'description', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         help_texts = {
             'cid': "Unique circuit ID",
             'commit_rate': "Committed rate",

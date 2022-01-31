@@ -1,8 +1,8 @@
 from django import forms
 
 from dcim.models import *
-from extras.forms import CustomFieldModelForm
 from extras.models import Tag
+from netbox.forms import NetBoxModelForm
 from utilities.forms import (
     BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField,
 )
@@ -149,7 +149,7 @@ class FrontPortCreateForm(DeviceComponentCreateForm):
         }
 
 
-class VirtualChassisCreateForm(CustomFieldModelForm):
+class VirtualChassisCreateForm(NetBoxModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
