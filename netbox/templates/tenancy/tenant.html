@@ -60,6 +60,10 @@
                     <p>Rack reservations</p>
                 </div>
                 <div class="col col-md-4 text-center">
+                    <h2><a href="{% url 'dcim:location_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.location_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.location_count }}</a></h2>
+                    <p>Locations</p>
+                </div>
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'dcim:device_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.device_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.device_count }}</a></h2>
                     <p>Devices</p>
                 </div>

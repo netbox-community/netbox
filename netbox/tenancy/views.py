@@ -1,9 +1,8 @@
 from django.contrib.contenttypes.models import ContentType
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from circuits.models import Circuit
-from dcim.models import Site, Rack, Device, RackReservation, Cable
+from dcim.models import Cable, Device, Location, Rack, RackReservation, Site
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF, ASN
 from netbox.views import generic
 from utilities.tables import paginate_table
@@ -103,6 +102,7 @@ class TenantView(generic.ObjectView):
             'site_count': Site.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'rack_count': Rack.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'rackreservation_count': RackReservation.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'location_count': Location.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
