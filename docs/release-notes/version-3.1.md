@@ -16,6 +16,7 @@
 * [#8377](https://github.com/netbox-community/netbox/issues/8377) - Fix calculation of absolute cable lengths when specified in fractional units
 * [#8456](https://github.com/netbox-community/netbox/issues/8456) - Fix redundant display of VRF RD in prefix view
 * [#8465](https://github.com/netbox-community/netbox/issues/8465) - Accept empty string values for Interface `rf_channel` in REST API
+* [#8499](https://github.com/netbox-community/netbox/issues/8499) - Content types REST API endpoint should not require model permission
 
 ---
 
