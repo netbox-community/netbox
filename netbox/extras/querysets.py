@@ -82,7 +82,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
                     self._get_config_context_filters()
                 ).annotate(
                     _data=EmptyGroupByJSONBAgg('data', ordering=['weight', 'name'])
-                ).values("_data")
+                ).values("_data").order_by()
             )
         ).distinct()
 
