@@ -1,4 +1,4 @@
-Django==3.2.12
+Django==4.0.2
 django-cors-headers==3.11.0
 django-debug-toolbar==3.2.4
 django-filter==21.1
@@ -9,11 +9,13 @@ django-prometheus==2.2.0
 django-redis==5.2.0
 django-rq==2.5.1
 django-tables2==2.4.1
-django-taggit==2.0.0
+django-taggit==2.1.0
 django-timezone-field==4.2.3
 djangorestframework==3.12.4
 drf-yasg[validation]==1.20.0
-graphene_django==2.15.0
+#graphene_django==2.15.0
+# Installing from PR origin temporarily
+git+git://github.com/MisterGlass/graphene-django.git
 gunicorn==20.1.0
 Jinja2==3.0.3
 Markdown==3.3.6
