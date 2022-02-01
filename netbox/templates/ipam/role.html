@@ -38,6 +38,30 @@
               <a href="{% url 'ipam:prefix_list' %}?role_id={{ object.pk }}">{{ prefixes_table.rows|length }}</a>
             </td>
           </tr>
+          <tr>
+            <th scope="row">IP Ranges</th>
+            <td>
+              {% with ipranges_count=object.ip_ranges.count %}
+                {% if ipranges_count %}
+                  <a href="{% url 'ipam:iprange_list' %}?role_id={{ object.pk }}">{{ ipranges_count }}</a>
+                {% else %}
+                  &mdash;
+                {% endif %}
+              {% endwith %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">VLANs</th>
+            <td>
+              {% with vlans_count=object.vlans.count %}
+                {% if vlans_count %}
+                  <a href="{% url 'ipam:vlan_list' %}?role_id={{ object.pk }}">{{ vlans_count }}</a>
+                {% else %}
+                  &mdash;
+                {% endif %}
+              {% endwith %}
+            </td>
+          </tr>
         </table>
       </div>
     </div>

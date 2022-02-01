@@ -184,6 +184,11 @@ class RoleTable(BaseTable):
         url_params={'role_id': 'pk'},
         verbose_name='Prefixes'
     )
+    iprange_count = LinkedCountColumn(
+        viewname='ipam:iprange_list',
+        url_params={'role_id': 'pk'},
+        verbose_name='IP Ranges'
+    )
     vlan_count = LinkedCountColumn(
         viewname='ipam:vlan_list',
         url_params={'role_id': 'pk'},
@@ -197,10 +202,10 @@ class RoleTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Role
         fields = (
-            'pk', 'id', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'tags', 'actions',
-            'created', 'last_updated',
+            'pk', 'id', 'name', 'slug', 'prefix_count', 'iprange_count', 'vlan_count', 'description', 'weight', 'tags',
+            'actions', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'prefix_count', 'vlan_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'prefix_count', 'iprange_count', 'vlan_count', 'description', 'actions')
 
 
 #
