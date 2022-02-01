@@ -24,10 +24,6 @@ __all__ = (
 
 
 class ClusterTypeBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ClusterType.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     description = forms.CharField(
         max_length=200,
         required=False
@@ -38,10 +34,6 @@ class ClusterTypeBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ClusterGroup.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     description = forms.CharField(
         max_length=200,
         required=False
@@ -52,10 +44,6 @@ class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ClusterBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Cluster.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     type = DynamicModelChoiceField(
         queryset=ClusterType.objects.all(),
         required=False
@@ -96,10 +84,6 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     status = forms.ChoiceField(
         choices=add_blank_choice(VirtualMachineStatusChoices),
         required=False,
@@ -151,10 +135,6 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=VMInterface.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     virtual_machine = forms.ModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,

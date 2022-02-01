@@ -58,10 +58,6 @@ __all__ = (
 
 
 class RegionBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Region.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     parent = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False
@@ -76,10 +72,6 @@ class RegionBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class SiteGroupBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=SiteGroup.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     parent = DynamicModelChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False
@@ -94,10 +86,6 @@ class SiteGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class SiteBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Site.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     status = forms.ChoiceField(
         choices=add_blank_choice(SiteStatusChoices),
         required=False,
@@ -138,10 +126,6 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class LocationBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Location.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False
@@ -167,10 +151,6 @@ class LocationBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class RackRoleBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=RackRole.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     color = ColorField(
         required=False
     )
@@ -184,10 +164,6 @@ class RackRoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class RackBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Rack.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -284,10 +260,6 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=RackReservation.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     user = forms.ModelChoiceField(
         queryset=User.objects.order_by(
             'username'
@@ -308,10 +280,6 @@ class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ManufacturerBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Manufacturer.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     description = forms.CharField(
         max_length=200,
         required=False
@@ -322,10 +290,6 @@ class ManufacturerBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=DeviceType.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False
@@ -353,10 +317,6 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ModuleType.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False
@@ -370,10 +330,6 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=DeviceRole.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     color = ColorField(
         required=False
     )
@@ -392,10 +348,6 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class PlatformBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Platform.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False
@@ -415,10 +367,6 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class DeviceBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Device.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False
@@ -476,10 +424,6 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ModuleBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Module.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False
@@ -502,10 +446,6 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class CableBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Cable.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     type = forms.ChoiceField(
         choices=add_blank_choice(CableTypeChoices),
         required=False,
@@ -558,10 +498,6 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=VirtualChassis.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     domain = forms.CharField(
         max_length=30,
         required=False
@@ -572,10 +508,6 @@ class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=PowerPanel.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -611,10 +543,6 @@ class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=PowerFeed.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     power_panel = DynamicModelChoiceField(
         queryset=PowerPanel.objects.all(),
         required=False
@@ -928,10 +856,6 @@ class ConsolePortBulkEditForm(
     form_from_model(ConsolePort, ['label', 'type', 'speed', 'mark_connected', 'description']),
     NetBoxModelBulkEditForm
 ):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ConsolePort.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     mark_connected = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect
@@ -945,10 +869,6 @@ class ConsoleServerPortBulkEditForm(
     form_from_model(ConsoleServerPort, ['label', 'type', 'speed', 'mark_connected', 'description']),
     NetBoxModelBulkEditForm
 ):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ConsoleServerPort.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     mark_connected = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect
@@ -962,10 +882,6 @@ class PowerPortBulkEditForm(
     form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected', 'description']),
     NetBoxModelBulkEditForm
 ):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=PowerPort.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     mark_connected = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect
@@ -979,10 +895,6 @@ class PowerOutletBulkEditForm(
     form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'mark_connected', 'description']),
     NetBoxModelBulkEditForm
 ):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=PowerOutlet.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -1016,10 +928,6 @@ class InterfaceBulkEditForm(
     ]),
     NetBoxModelBulkEditForm
 ):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Interface.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -1138,11 +1046,6 @@ class FrontPortBulkEditForm(
     form_from_model(FrontPort, ['label', 'type', 'color', 'mark_connected', 'description']),
     NetBoxModelBulkEditForm
 ):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=FrontPort.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-
     model = FrontPort
     nullable_fields = ('label', 'description')
 
@@ -1151,11 +1054,6 @@ class RearPortBulkEditForm(
     form_from_model(RearPort, ['label', 'type', 'color', 'mark_connected', 'description']),
     NetBoxModelBulkEditForm
 ):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=RearPort.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-
     model = RearPort
     nullable_fields = ('label', 'description')
 
@@ -1164,11 +1062,6 @@ class ModuleBayBulkEditForm(
     form_from_model(DeviceBay, ['label', 'description']),
     NetBoxModelBulkEditForm
 ):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ModuleBay.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-
     model = ModuleBay
     nullable_fields = ('label', 'position', 'description')
 
@@ -1177,11 +1070,6 @@ class DeviceBayBulkEditForm(
     form_from_model(DeviceBay, ['label', 'description']),
     NetBoxModelBulkEditForm
 ):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=DeviceBay.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-
     model = DeviceBay
     nullable_fields = ('label', 'description')
 
@@ -1190,10 +1078,6 @@ class InventoryItemBulkEditForm(
     form_from_model(InventoryItem, ['label', 'role', 'manufacturer', 'part_id', 'description']),
     NetBoxModelBulkEditForm
 ):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=InventoryItem.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     role = DynamicModelChoiceField(
         queryset=InventoryItemRole.objects.all(),
         required=False
@@ -1212,10 +1096,6 @@ class InventoryItemBulkEditForm(
 #
 
 class InventoryItemRoleBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=InventoryItemRole.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     color = ColorField(
         required=False
     )

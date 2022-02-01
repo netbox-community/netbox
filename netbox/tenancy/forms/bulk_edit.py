@@ -18,10 +18,6 @@ __all__ = (
 #
 
 class TenantGroupBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=TenantGroup.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     parent = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False
@@ -36,10 +32,6 @@ class TenantGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class TenantBulkEditForm(NetBoxModelBulkEditForm):
-    # pk = forms.ModelMultipleChoiceField(
-    #     queryset=Tenant.objects.all(),
-    #     widget=forms.MultipleHiddenInput()
-    # )
     group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False
@@ -54,10 +46,6 @@ class TenantBulkEditForm(NetBoxModelBulkEditForm):
 #
 
 class ContactGroupBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ContactGroup.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     parent = DynamicModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False
@@ -72,10 +60,6 @@ class ContactGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ContactRoleBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ContactRole.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     description = forms.CharField(
         max_length=200,
         required=False
@@ -86,10 +70,6 @@ class ContactRoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ContactBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Contact.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     group = DynamicModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False

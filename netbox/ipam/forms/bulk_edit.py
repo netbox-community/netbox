@@ -31,10 +31,6 @@ __all__ = (
 
 
 class VRFBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=VRF.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -54,10 +50,6 @@ class VRFBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=RouteTarget.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -72,10 +64,6 @@ class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class RIRBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=RIR.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     is_private = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect
@@ -90,10 +78,6 @@ class RIRBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ASNBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ASN.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     sites = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False
@@ -117,10 +101,6 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class AggregateBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Aggregate.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         required=False,
@@ -143,10 +123,6 @@ class AggregateBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class RoleBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Role.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     weight = forms.IntegerField(
         required=False
     )
@@ -160,10 +136,6 @@ class RoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class PrefixBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Prefix.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False
@@ -225,10 +197,6 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=IPRange.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -259,10 +227,6 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=IPAddress.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -304,10 +268,6 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=FHRPGroup.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     protocol = forms.ChoiceField(
         choices=add_blank_choice(FHRPGroupProtocolChoices),
         required=False,
@@ -339,10 +299,6 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=VLANGroup.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False
@@ -369,10 +325,6 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class VLANBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=VLAN.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False
@@ -421,10 +373,6 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ServiceTemplate.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
     protocol = forms.ChoiceField(
         choices=add_blank_choice(ServiceProtocolChoices),
         required=False,
@@ -447,7 +395,4 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ServiceBulkEditForm(ServiceTemplateBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Service.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
+    model = Service

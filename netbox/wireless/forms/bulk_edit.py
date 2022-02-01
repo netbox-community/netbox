@@ -16,10 +16,6 @@ __all__ = (
 
 
 class WirelessLANGroupBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=WirelessLANGroup.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     parent = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
@@ -34,10 +30,6 @@ class WirelessLANGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=WirelessLAN.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     group = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
@@ -75,10 +67,6 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=WirelessLink.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     ssid = forms.CharField(
         max_length=SSID_MAX_LENGTH,
         required=False,

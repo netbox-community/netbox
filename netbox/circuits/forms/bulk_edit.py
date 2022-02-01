@@ -15,10 +15,6 @@ __all__ = (
 
 
 class ProviderBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Provider.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     asn = forms.IntegerField(
         required=False,
         label='ASN'
@@ -54,10 +50,6 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ProviderNetwork.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     provider = DynamicModelChoiceField(
         queryset=Provider.objects.all(),
         required=False
@@ -82,10 +74,6 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=CircuitType.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     description = forms.CharField(
         max_length=200,
         required=False
@@ -96,10 +84,6 @@ class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class CircuitBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Circuit.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
     type = DynamicModelChoiceField(
         queryset=CircuitType.objects.all(),
         required=False
