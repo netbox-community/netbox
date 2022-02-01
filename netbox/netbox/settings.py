@@ -80,6 +80,7 @@ if BASE_PATH:
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
+CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
 DATE_FORMAT = getattr(configuration, 'DATE_FORMAT', 'N j, Y')
 DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
 DEBUG = getattr(configuration, 'DEBUG', False)
@@ -403,8 +404,6 @@ MESSAGE_TAGS = {
 # Authentication URLs
 LOGIN_URL = f'/{BASE_PATH}login/'
 LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
-
-CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

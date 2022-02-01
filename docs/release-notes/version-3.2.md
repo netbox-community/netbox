@@ -92,6 +92,7 @@ A new REST API endpoint has been added at `/api/ipam/vlan-groups/<pk>/available-
 * [#7748](https://github.com/netbox-community/netbox/issues/7748) - Remove legacy contact fields from site model
 * [#8031](https://github.com/netbox-community/netbox/issues/8031) - Remove automatic redirection of legacy slug-based URLs
 * [#8195](https://github.com/netbox-community/netbox/issues/8195), [#8454](https://github.com/netbox-community/netbox/issues/8454) - Use 64-bit integers for all primary keys
+* [#8509](https://github.com/netbox-community/netbox/issues/8509) - `CSRF_TRUSTED_ORIGINS` is now a discrete configuration parameter (rather than being populated from `ALLOWED_HOSTS`)
 
 ### REST API Changes
 
