@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='configcontext',
             name='cluster_types',
-            field=models.ManyToManyField(blank=True, related_name='_extras_configcontext_cluster_types_+', to='virtualization.ClusterType'),
+            field=models.ManyToManyField(blank=True, related_name='+', to='virtualization.ClusterType'),
         ),
     ]

@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ('tree_id', models.PositiveIntegerField(db_index=True, editable=False)),
                 ('level', models.PositiveIntegerField(editable=False)),
                 ('component_type', models.ForeignKey(blank=True, limit_choices_to=models.Q(('app_label', 'dcim'), ('model__in', ('consoleporttemplate', 'consoleserverporttemplate', 'frontporttemplate', 'interfacetemplate', 'poweroutlettemplate', 'powerporttemplate', 'rearporttemplate'))), null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
-                ('device_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='inventoryitemtemplates', to='dcim.devicetype')),
+                ('device_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype')),
                 ('manufacturer', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='inventory_item_templates', to='dcim.manufacturer')),
                 ('parent', mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='child_items', to='dcim.inventoryitemtemplate')),
                 ('role', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='inventory_item_templates', to='dcim.inventoryitemrole')),
