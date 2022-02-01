@@ -10,7 +10,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.http import is_safe_url
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 from social_core.backends.utils import load_backends
@@ -78,17 +77,17 @@ class LoginView(View):
         })
 
     def redirect_to_next(self, request, logger):
-        if request.method == "POST":
-            redirect_to = request.POST.get('next', settings.LOGIN_REDIRECT_URL)
+        data = request.POST if request.method == "POST" else request.GET
+        redirect_url = data.get('next', settings.LOGIN_REDIRECT_URL)
+
+        if redirect_url and redirect_url.startswith('/'):
+            logger.debug(f"Redirecting user to {redirect_url}")
         else:
-            redirect_to = request.GET.get('next', settings.LOGIN_REDIRECT_URL)
+            if redirect_url:
+                logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_url}")
+            redirect_url = reverse('home')
 
-        if redirect_to and not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
-            logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_to}")
-            redirect_to = reverse('home')
-
-        logger.debug(f"Redirecting user to {redirect_to}")
-        return HttpResponseRedirect(redirect_to)
+        return HttpResponseRedirect(redirect_url)
 
 
 class LogoutView(View):

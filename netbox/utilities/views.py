@@ -1,10 +1,7 @@
 from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import ImproperlyConfigured
-from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
-from django.utils.http import is_safe_url
-from django.views.generic import View
 
 from .permissions import resolve_permission
 
@@ -103,9 +100,9 @@ class GetReturnURLMixin:
 
         # First, see if `return_url` was specified as a query parameter or form data. Use this URL only if it's
         # considered safe.
-        query_param = request.GET.get('return_url') or request.POST.get('return_url')
-        if query_param and is_safe_url(url=query_param, allowed_hosts=request.get_host()):
-            return query_param
+        return_url = request.GET.get('return_url') or request.POST.get('return_url')
+        if return_url and return_url.startswith('/'):
+            return return_url
 
         # Next, check if the object being modified (if any) has an absolute URL.
         if obj is not None and obj.pk and hasattr(obj, 'get_absolute_url'):
