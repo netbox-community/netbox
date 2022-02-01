@@ -481,10 +481,12 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 
             # Update custom fields
             for name in custom_fields:
+                assert name.startswith('cf_')
+                cf_name = name[3:]  # Strip cf_ prefix
                 if name in form.nullable_fields and name in nullified_fields:
-                    obj.custom_field_data[name] = None
+                    obj.custom_field_data[cf_name] = None
                 elif name in form.changed_data:
-                    obj.custom_field_data[name] = form.fields[name].prepare_value(form.cleaned_data[name])
+                    obj.custom_field_data[cf_name] = form.fields[name].prepare_value(form.cleaned_data[name])
 
             obj.full_clean()
             obj.save()

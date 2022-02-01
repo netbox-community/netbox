@@ -36,10 +36,10 @@ class TenantGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class TenantBulkEditForm(NetBoxModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Tenant.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
+    # pk = forms.ModelMultipleChoiceField(
+    #     queryset=Tenant.objects.all(),
+    #     widget=forms.MultipleHiddenInput()
+    # )
     group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False
