@@ -49,6 +49,7 @@ class VRFBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = VRF
     nullable_fields = ('tenant', 'description')
 
 
@@ -66,6 +67,7 @@ class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = RouteTarget
     nullable_fields = ('tenant', 'description')
 
 
@@ -83,6 +85,7 @@ class RIRBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = RIR
     nullable_fields = ('is_private', 'description')
 
 
@@ -109,6 +112,7 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = ASN
     nullable_fields = ('date_added', 'description')
 
 
@@ -134,6 +138,7 @@ class AggregateBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = Aggregate
     nullable_fields = ('date_added', 'description')
 
 
@@ -150,6 +155,7 @@ class RoleBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = Role
     nullable_fields = ('description',)
 
 
@@ -212,6 +218,7 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = Prefix
     nullable_fields = (
         'site', 'vrf', 'tenant', 'role', 'description',
     )
@@ -245,6 +252,7 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = IPRange
     nullable_fields = (
         'vrf', 'tenant', 'role', 'description',
     )
@@ -289,6 +297,7 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = IPAddress
     nullable_fields = (
         'vrf', 'role', 'tenant', 'dns_name', 'description',
     )
@@ -325,6 +334,7 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = FHRPGroup
     nullable_fields = ('auth_type', 'auth_key', 'description')
 
 
@@ -354,6 +364,7 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = VLANGroup
     nullable_fields = ('site', 'description')
 
 
@@ -403,6 +414,7 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = VLAN
     nullable_fields = (
         'site', 'group', 'tenant', 'role', 'description',
     )
@@ -430,6 +442,7 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = ServiceTemplate
     nullable_fields = ('description',)
 
 

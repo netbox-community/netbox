@@ -10,7 +10,12 @@ __all__ = (
 class CustomFieldsMixin:
     """
     Extend a Form to include custom field support.
+
+    Attributes:
+        model: The model class
     """
+    model = None
+
     def __init__(self, *args, **kwargs):
         self.custom_fields = {}
 
@@ -22,7 +27,7 @@ class CustomFieldsMixin:
         """
         Return the ContentType of the form's model.
         """
-        if not hasattr(self, 'model'):
+        if not getattr(self, 'model', None):
             raise NotImplementedError(f"{self.__class__.__name__} must specify a model class.")
         return ContentType.objects.get_for_model(self.model)
 

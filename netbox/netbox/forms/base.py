@@ -5,7 +5,7 @@ from django.db.models import Q
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices
 from extras.forms.customfields import CustomFieldsMixin
 from extras.models import CustomField, Tag
-from utilities.forms import BootstrapMixin, BulkEditMixin, CSVModelForm
+from utilities.forms import BootstrapMixin, CSVModelForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 
 __all__ = (
@@ -61,7 +61,7 @@ class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
         return customfield.to_form_field(for_csv_import=True)
 
 
-class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, BulkEditMixin, forms.Form):
+class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
     """
     Base form for modifying multiple NetBox objects (of the same type) in bulk via the UI. Adds support for custom
     fields and adding/removing tags.
@@ -69,6 +69,8 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, BulkEditMixin, 
     Attributes:
         nullable_fields: A list of field names indicating which fields support being set to null/empty
     """
+    nullable_fields = ()
+
     add_tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False

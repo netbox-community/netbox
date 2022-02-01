@@ -71,6 +71,7 @@ class RegionBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = Region
     nullable_fields = ('parent', 'description')
 
 
@@ -88,6 +89,7 @@ class SiteGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = SiteGroup
     nullable_fields = ('parent', 'description')
 
 
@@ -129,6 +131,7 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
         widget=StaticSelect()
     )
 
+    model = Site
     nullable_fields = (
         'region', 'group', 'tenant', 'asns', 'description', 'time_zone',
     )
@@ -159,6 +162,7 @@ class LocationBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = Location
     nullable_fields = ('parent', 'tenant', 'description')
 
 
@@ -175,6 +179,7 @@ class RackRoleBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = RackRole
     nullable_fields = ('color', 'description')
 
 
@@ -272,6 +277,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         label='Comments'
     )
 
+    model = Rack
     nullable_fields = (
         'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
     )
@@ -298,6 +304,8 @@ class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = RackReservation
+
 
 class ManufacturerBulkEditForm(NetBoxModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
@@ -309,6 +317,7 @@ class ManufacturerBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = Manufacturer
     nullable_fields = ('description',)
 
 
@@ -339,6 +348,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         widget=StaticSelect()
     )
 
+    model = DeviceType
     nullable_fields = ('part_number', 'airflow')
 
 
@@ -355,6 +365,7 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = ModuleType
     nullable_fields = ('part_number',)
 
 
@@ -376,6 +387,7 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = DeviceRole
     nullable_fields = ('color', 'description')
 
 
@@ -398,6 +410,7 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = Platform
     nullable_fields = ('manufacturer', 'napalm_driver', 'description')
 
 
@@ -456,6 +469,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         label='Serial Number'
     )
 
+    model = Device
     nullable_fields = (
         'tenant', 'platform', 'serial', 'airflow',
     )
@@ -483,6 +497,7 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
         label='Serial Number'
     )
 
+    model = Module
     nullable_fields = ('serial',)
 
 
@@ -525,6 +540,7 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
         widget=StaticSelect()
     )
 
+    model = Cable
     nullable_fields = (
         'type', 'status', 'tenant', 'label', 'color', 'length',
     )
@@ -551,6 +567,7 @@ class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = VirtualChassis
     nullable_fields = ('domain',)
 
 
@@ -589,6 +606,7 @@ class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
         }
     )
 
+    model = PowerPanel
     nullable_fields = ('location',)
 
 
@@ -647,6 +665,7 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
         label='Comments'
     )
 
+    model = PowerFeed
     nullable_fields = ('location', 'comments')
 
 
@@ -918,6 +937,7 @@ class ConsolePortBulkEditForm(
         widget=BulkEditNullBooleanSelect
     )
 
+    model = ConsolePort
     nullable_fields = ('label', 'description')
 
 
@@ -934,6 +954,7 @@ class ConsoleServerPortBulkEditForm(
         widget=BulkEditNullBooleanSelect
     )
 
+    model = ConsoleServerPort
     nullable_fields = ('label', 'description')
 
 
@@ -950,6 +971,7 @@ class PowerPortBulkEditForm(
         widget=BulkEditNullBooleanSelect
     )
 
+    model = PowerPort
     nullable_fields = ('label', 'description')
 
 
@@ -972,6 +994,7 @@ class PowerOutletBulkEditForm(
         widget=BulkEditNullBooleanSelect
     )
 
+    model = PowerOutlet
     nullable_fields = ('label', 'type', 'feed_leg', 'power_port', 'description')
 
     def __init__(self, *args, **kwargs):
@@ -1051,6 +1074,7 @@ class InterfaceBulkEditForm(
         label='VRF'
     )
 
+    model = Interface
     nullable_fields = (
         'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'description', 'mode',
         'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'vrf',
@@ -1119,6 +1143,7 @@ class FrontPortBulkEditForm(
         widget=forms.MultipleHiddenInput()
     )
 
+    model = FrontPort
     nullable_fields = ('label', 'description')
 
 
@@ -1131,6 +1156,7 @@ class RearPortBulkEditForm(
         widget=forms.MultipleHiddenInput()
     )
 
+    model = RearPort
     nullable_fields = ('label', 'description')
 
 
@@ -1143,6 +1169,7 @@ class ModuleBayBulkEditForm(
         widget=forms.MultipleHiddenInput()
     )
 
+    model = ModuleBay
     nullable_fields = ('label', 'position', 'description')
 
 
@@ -1155,6 +1182,7 @@ class DeviceBayBulkEditForm(
         widget=forms.MultipleHiddenInput()
     )
 
+    model = DeviceBay
     nullable_fields = ('label', 'description')
 
 
@@ -1175,6 +1203,7 @@ class InventoryItemBulkEditForm(
         required=False
     )
 
+    model = InventoryItem
     nullable_fields = ('label', 'role', 'manufacturer', 'part_id', 'description')
 
 
@@ -1195,4 +1224,5 @@ class InventoryItemRoleBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = InventoryItemRole
     nullable_fields = ('color', 'description')

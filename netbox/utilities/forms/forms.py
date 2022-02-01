@@ -10,7 +10,6 @@ from .widgets import APISelect, APISelectMultiple, ClearableFileInput, StaticSel
 __all__ = (
     'BootstrapMixin',
     'BulkEditForm',
-    'BulkEditMixin',
     'BulkRenameForm',
     'ConfirmationForm',
     'CSVModelForm',
@@ -65,17 +64,6 @@ class BootstrapMixin:
                 field.widget.attrs['class'] = ' '.join((css, 'form-select')).strip()
 
 
-class BulkEditMixin:
-    """
-    Base form for editing multiple objects in bulk
-    """
-    nullable_fields = ()
-
-    def __init__(self, model, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.model = model
-
-
 #
 # Form classes
 #
@@ -94,8 +82,11 @@ class ConfirmationForm(BootstrapMixin, ReturnURLForm):
     confirm = forms.BooleanField(required=True, widget=forms.HiddenInput(), initial=True)
 
 
-class BulkEditForm(BootstrapMixin, BulkEditMixin, forms.Form):
-    pass
+class BulkEditForm(BootstrapMixin, forms.Form):
+    """
+    Provides bulk edit support for objects.
+    """
+    nullable_fields = ()
 
 
 class BulkRenameForm(BootstrapMixin, forms.Form):

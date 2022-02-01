@@ -33,6 +33,7 @@ class ClusterTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = ClusterType
     nullable_fields = ('description',)
 
 
@@ -46,6 +47,7 @@ class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = ClusterGroup
     nullable_fields = ('description',)
 
 
@@ -87,6 +89,7 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
         label='Comments'
     )
 
+    model = Cluster
     nullable_fields = (
         'group', 'site', 'comments', 'tenant',
     )
@@ -141,6 +144,7 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         label='Comments'
     )
 
+    model = VirtualMachine
     nullable_fields = (
         'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
     )
@@ -193,6 +197,7 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = VMInterface
     nullable_fields = (
         'parent', 'bridge', 'mtu', 'description',
     )

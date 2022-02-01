@@ -47,6 +47,7 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
         label='Comments'
     )
 
+    model = Provider
     nullable_fields = (
         'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
     )
@@ -74,6 +75,7 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
         label='Comments'
     )
 
+    model = ProviderNetwork
     nullable_fields = (
         'service_id', 'description', 'comments',
     )
@@ -89,6 +91,7 @@ class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = CircuitType
     nullable_fields = ('description',)
 
 
@@ -128,6 +131,7 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
         label='Comments'
     )
 
+    model = Circuit
     nullable_fields = (
         'tenant', 'commit_rate', 'description', 'comments',
     )

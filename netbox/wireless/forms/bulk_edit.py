@@ -29,6 +29,7 @@ class WirelessLANGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
+    model = WirelessLANGroup
     nullable_fields = ('parent', 'description')
 
 
@@ -67,6 +68,7 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
         label='Pre-shared key'
     )
 
+    model = WirelessLAN
     nullable_fields = (
         'ssid', 'group', 'vlan', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
     )
@@ -102,6 +104,7 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
         label='Pre-shared key'
     )
 
+    model = WirelessLink
     nullable_fields = (
         'ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
     )
