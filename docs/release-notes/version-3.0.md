@@ -367,7 +367,7 @@ More information about IP ranges is available [in the documentation](../models/i
 
 #### Custom Model Validation ([#5963](https://github.com/netbox-community/netbox/issues/5963))
 
-This release introduces the [`CUSTOM_VALIDATORS`](../configuration/optional-settings.md#custom_validators) configuration parameter, which allows administrators to map NetBox models to custom validator classes to enforce custom validation logic. For example, the following configuration requires every site to have a name of at least ten characters and a description:
+This release introduces the [`CUSTOM_VALIDATORS`](../configuration/dynamic-settings.md#custom_validators) configuration parameter, which allows administrators to map NetBox models to custom validator classes to enforce custom validation logic. For example, the following configuration requires every site to have a name of at least ten characters and a description:
 
 ```python
 from extras.validators import CustomValidator
