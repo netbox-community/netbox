@@ -261,7 +261,7 @@ class CableTerminationTable(BaseTable):
         linkify=True
     )
     cable_color = ColorColumn(
-        accessor='cable.color',
+        accessor='cable__color',
         orderable=False,
         verbose_name='Cable Color'
     )
@@ -276,7 +276,7 @@ class CableTerminationTable(BaseTable):
 
 class PathEndpointTable(CableTerminationTable):
     connection = TemplateColumn(
-        accessor='_path.last_node',
+        accessor='_path__last_node',
         template_code=LINKTERMINATION,
         verbose_name='Connection',
         orderable=False

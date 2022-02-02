@@ -46,7 +46,7 @@ class FHRPGroupTable(BaseTable):
 class FHRPGroupAssignmentTable(BaseTable):
     pk = ToggleColumn()
     interface_parent = tables.Column(
-        accessor=tables.A('interface.parent_object'),
+        accessor=tables.A('interface__parent_object'),
         linkify=True,
         orderable=False,
         verbose_name='Parent'
