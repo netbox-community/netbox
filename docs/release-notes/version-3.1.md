@@ -19,6 +19,7 @@
 * [#8425](https://github.com/netbox-community/netbox/issues/8425) - Fix exception when viewing change list/records with removed plugins
 * [#8456](https://github.com/netbox-community/netbox/issues/8456) - Fix redundant display of VRF RD in prefix view
 * [#8465](https://github.com/netbox-community/netbox/issues/8465) - Accept empty string values for Interface `rf_channel` in REST API
+* [#8498](https://github.com/netbox-community/netbox/issues/8498) - Fix display of selected content type filters in object list views
 * [#8499](https://github.com/netbox-community/netbox/issues/8499) - Content types REST API endpoint should not require model permission
 * [#8512](https://github.com/netbox-community/netbox/issues/8512) - Correct file permissions to allow execution of housekeeping script
 
