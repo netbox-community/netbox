@@ -1,6 +1,9 @@
 import collections
 import inspect
+import graphene
 from packaging import version
+
+from graphql.type.definition import GraphQLType
 
 from django.apps import AppConfig
 from django.core.exceptions import ImproperlyConfigured
@@ -15,6 +18,10 @@ from extras.plugins.utils import import_object
 # Initialize plugin registry stores
 registry['plugin_template_extensions'] = collections.defaultdict(list)
 registry['plugin_menu_items'] = {}
+registry['graphql_queries'] = []
+registry['graphql_mutations'] = []
+registry['graphql_subscriptions'] = []
+registry['graphql_types'] = []
 
 
 #
@@ -50,6 +57,12 @@ class PluginConfig(AppConfig):
     # Django-rq queues dedicated to the plugin
     queues = []
 
+    # Graphene GraphQL schema extension points
+    graphql_queries = []
+    graphql_mutations = []
+    graphql_subscriptions = []
+    graphql_types = []
+
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.
     template_extensions = 'template_content.template_extensions'
@@ -66,6 +79,10 @@ class PluginConfig(AppConfig):
         menu_items = import_object(f"{self.__module__}.{self.menu_items}")
         if menu_items is not None:
             register_menu_items(self.verbose_name, menu_items)
+
+        # Register GraphQL schema extensions
+        register_graphql_schema(self.graphql_queries, self.graphql_mutations, self.graphql_subscriptions,
+                                self.graphql_types)
 
     @classmethod
     def validate(cls, user_config, netbox_version):
@@ -242,3 +259,20 @@ def register_menu_items(section_name, class_list):
                 raise TypeError(f"{button} must be an instance of extras.plugins.PluginMenuButton")
 
     registry['plugin_menu_items'][section_name] = class_list
+
+
+def register_graphql_schema(queries, mutations, subscriptions, types):
+    """
+    Register extensions to the GraphQL schema
+    """
+    for object_type in [*queries, *mutations, *subscriptions]:
+        if not issubclass(object_type, graphene.ObjectType):
+            raise TypeError(f"{object_type} must be a subclass of graphene.types.objecttype.ObjectType")
+
+    for graphql_type in types:
+        if not issubclass(graphql_type, GraphQLType):
+            raise TypeError(f"f{graphql_type} must be a subclass of graphql.type.definition.GraphQLType")
+
+    registry['graphql_queries'].extend(queries)
+    registry['graphql_subscriptions'].extend(subscriptions)
+    registry['graphql_types'].extend(types)
