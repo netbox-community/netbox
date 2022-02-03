@@ -23,6 +23,7 @@
 * [#8498](https://github.com/netbox-community/netbox/issues/8498) - Fix display of selected content type filters in object list views
 * [#8499](https://github.com/netbox-community/netbox/issues/8499) - Content types REST API endpoint should not require model permission
 * [#8512](https://github.com/netbox-community/netbox/issues/8512) - Correct file permissions to allow execution of housekeeping script
+* [#8527](https://github.com/netbox-community/netbox/issues/8527) - Fix display of changelog retention period
 
 ---
 
