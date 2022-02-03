@@ -615,7 +615,6 @@ class CreatedUpdatedFilterTest(APITestCase):
 
 class ContentTypeTest(APITestCase):
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['contenttypes.contenttype'])
     def test_list_objects(self):
         contenttype_count = ContentType.objects.count()
 
@@ -623,7 +622,6 @@ class ContentTypeTest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], contenttype_count)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['contenttypes.contenttype'])
     def test_get_object(self):
         contenttype = ContentType.objects.first()
 

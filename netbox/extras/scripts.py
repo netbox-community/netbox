@@ -296,12 +296,21 @@ class BaseScript:
 
     @classmethod
     def _get_vars(cls):
-        vars = OrderedDict()
+        vars = {}
         for name, attr in cls.__dict__.items():
             if name not in vars and issubclass(attr.__class__, ScriptVariable):
                 vars[name] = attr
 
-        return vars
+        # Order variables according to field_order
+        field_order = getattr(cls.Meta, 'field_order', None)
+        if not field_order:
+            return vars
+        ordered_vars = {
+            field: vars.pop(field) for field in field_order if field in vars
+        }
+        ordered_vars.update(vars)
+
+        return ordered_vars
 
     def run(self, data, commit):
         raise NotImplementedError("The script must define a run() method.")

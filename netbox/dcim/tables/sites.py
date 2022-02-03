@@ -79,7 +79,7 @@ class SiteTable(NetBoxTable):
         linkify=True
     )
     asn_count = columns.LinkedCountColumn(
-        accessor=tables.A('asns.count'),
+        accessor=tables.A('asns__count'),
         viewname='ipam:asn_list',
         url_params={'site_id': 'pk'},
         verbose_name='ASNs'

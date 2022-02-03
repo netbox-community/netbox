@@ -66,6 +66,9 @@ class DeviceTypeTable(NetBoxTable):
         linkify=True,
         verbose_name='Device Type'
     )
+    manufacturer = tables.Column(
+        linkify=True
+    )
     is_full_depth = columns.BooleanColumn(
         verbose_name='Full Depth'
     )

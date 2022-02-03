@@ -268,7 +268,7 @@ class CableTerminationTable(NetBoxTable):
         linkify=True
     )
     cable_color = columns.ColorColumn(
-        accessor='cable.color',
+        accessor='cable__color',
         orderable=False,
         verbose_name='Cable Color'
     )
@@ -283,7 +283,7 @@ class CableTerminationTable(NetBoxTable):
 
 class PathEndpointTable(CableTerminationTable):
     connection = columns.TemplateColumn(
-        accessor='_path.last_node',
+        accessor='_path__last_node',
         template_code=LINKTERMINATION,
         verbose_name='Connection',
         orderable=False

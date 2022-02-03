@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0150_interface_speed_duplex'),
+        ('dcim', '0151_interface_speed_duplex'),
     ]
 
     operations = [

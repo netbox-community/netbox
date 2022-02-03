@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0143_remove_primary_for_related_name'),
+        ('dcim', '0144_fix_cable_abs_length'),
     ]
 
     operations = [

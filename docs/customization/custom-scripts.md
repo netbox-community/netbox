@@ -77,6 +77,10 @@ This is the human-friendly names of your script. If omitted, the class name will
 
 A human-friendly description of what your script does.
 
+### `field_order`
+
+By default, script variables will be ordered in the form as they are defined in the script. `field_order` may be defined as an iterable of field names to determine the order in which variables are rendered. Any fields not included in this iterable be listed last.
+
 ### `commit_default`
 
 The checkbox to commit database changes when executing a script is checked by default. Set `commit_default` to False under the script's Meta class to leave this option unchecked by default.

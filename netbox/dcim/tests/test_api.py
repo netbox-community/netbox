@@ -9,6 +9,7 @@ from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from virtualization.models import Cluster, ClusterType
+from wireless.choices import WirelessChannelChoices
 from wireless.models import WirelessLAN
 
 
@@ -1437,13 +1438,11 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'name': 'Interface 4',
                 'type': '1000base-t',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
-                'tx_power': 10,
+                'speed': 1000000,
+                'duplex': 'full',
                 'vrf': vrfs[0].pk,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
-                'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
-                'speed': 1000000,
-                'duplex': 'full'
             },
             {
                 'device': device.pk,
@@ -1451,13 +1450,11 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'type': '1000base-t',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
                 'bridge': interfaces[0].pk,
-                'tx_power': 10,
+                'speed': 100000,
+                'duplex': 'half',
                 'vrf': vrfs[1].pk,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
-                'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
-                'speed': 100000,
-                'duplex': 'half'
             },
             {
                 'device': device.pk,
@@ -1465,11 +1462,25 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'type': 'virtual',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
                 'parent': interfaces[1].pk,
-                'tx_power': 10,
                 'vrf': vrfs[2].pk,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
+            },
+            {
+                'device': device.pk,
+                'name': 'Interface 7',
+                'type': InterfaceTypeChoices.TYPE_80211A,
+                'tx_power': 10,
                 'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
+                'rf_channel': WirelessChannelChoices.CHANNEL_5G_32,
+            },
+            {
+                'device': device.pk,
+                'name': 'Interface 8',
+                'type': InterfaceTypeChoices.TYPE_80211A,
+                'tx_power': 10,
+                'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
+                'rf_channel': "",
             },
         ]
 

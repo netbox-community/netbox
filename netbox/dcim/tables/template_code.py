@@ -9,7 +9,8 @@ LINKTERMINATION = """
 """
 
 CABLE_LENGTH = """
-{% if record.length %}{{ record.length }} {{ record.get_length_unit_display }}{% endif %}
+{% load helpers %}
+{% if record.length %}{{ record.length|simplify_decimal }} {{ record.length_unit }}{% endif %}
 """
 
 CABLE_TERMINATION_PARENT = """

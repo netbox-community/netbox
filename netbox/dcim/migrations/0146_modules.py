@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('extras', '0066_customfield_name_validation'),
-        ('dcim', '0144_site_remove_deprecated_fields'),
+        ('dcim', '0145_site_remove_deprecated_fields'),
     ]
 
     operations = [

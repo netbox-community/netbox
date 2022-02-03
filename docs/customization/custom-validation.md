@@ -50,7 +50,7 @@ The `fail()` method may optionally specify a field with which to associate the s
 
 ## Assigning Custom Validators
 
-Custom validators are associated with specific NetBox models under the [CUSTOM_VALIDATORS](../configuration/optional-settings.md#custom_validators) configuration parameter. There are three manners by which custom validation rules can be defined:
+Custom validators are associated with specific NetBox models under the [CUSTOM_VALIDATORS](../configuration/dynamic-settings.md#custom_validators) configuration parameter. There are three manners by which custom validation rules can be defined:
 
 1. Plain JSON mapping (no custom logic)
 2. Dotted path to a custom validator class

@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('ipam', '0054_vlangroup_min_max_vids'),
-        ('dcim', '0148_inventoryitem_templates'),
+        ('dcim', '0149_inventoryitem_templates'),
     ]
 
     operations = [

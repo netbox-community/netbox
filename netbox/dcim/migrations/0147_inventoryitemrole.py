@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('extras', '0068_configcontext_cluster_types'),
-        ('dcim', '0145_modules'),
+        ('dcim', '0146_modules'),
     ]
 
     operations = [

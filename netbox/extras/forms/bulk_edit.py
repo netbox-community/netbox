@@ -43,7 +43,7 @@ class CustomLinkBulkEditForm(BulkEditForm):
     )
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
+        limit_choices_to=FeatureQuery('custom_links'),
         required=False
     )
     enabled = forms.NullBooleanField(
@@ -71,7 +71,7 @@ class ExportTemplateBulkEditForm(BulkEditForm):
     )
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
+        limit_choices_to=FeatureQuery('export_templates'),
         required=False
     )
     description = forms.CharField(

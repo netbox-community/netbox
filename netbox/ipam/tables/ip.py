@@ -104,17 +104,28 @@ class ASNTable(NetBoxTable):
         accessor=tables.A('asn_asdot'),
         linkify=True
     )
-
+    asn_asdot = tables.Column(
+        accessor=tables.A('asn_asdot'),
+        linkify=True,
+        verbose_name='ASDOT'
+    )
     site_count = columns.LinkedCountColumn(
         viewname='dcim:site_list',
         url_params={'asn_id': 'pk'},
         verbose_name='Sites'
     )
+    tenant = TenantColumn()
+    tags = columns.TagColumn(
+        url_name='ipam:asn_list'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ASN
-        fields = ('pk', 'asn', 'rir', 'site_count', 'tenant', 'description', 'created', 'last_updated', 'actions')
-        default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'tenant')
+        fields = (
+            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'tenant', 'description', 'created', 'last_updated',
+            'actions',
+        )
+        default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'description', 'tenant')
 
 
 #
@@ -164,6 +175,11 @@ class RoleTable(NetBoxTable):
         url_params={'role_id': 'pk'},
         verbose_name='Prefixes'
     )
+    iprange_count = columns.LinkedCountColumn(
+        viewname='ipam:iprange_list',
+        url_params={'role_id': 'pk'},
+        verbose_name='IP Ranges'
+    )
     vlan_count = columns.LinkedCountColumn(
         viewname='ipam:vlan_list',
         url_params={'role_id': 'pk'},
@@ -176,10 +192,10 @@ class RoleTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Role
         fields = (
-            'pk', 'id', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'tags', 'created',
-            'last_updated', 'actions',
+            'pk', 'id', 'name', 'slug', 'prefix_count', 'iprange_count', 'vlan_count', 'description', 'weight', 'tags',
+            'created', 'last_updated', 'actions',
         )
-        default_columns = ('pk', 'name', 'prefix_count', 'vlan_count', 'description')
+        default_columns = ('pk', 'name', 'prefix_count', 'iprange_count', 'vlan_count', 'description')
 
 
 #
@@ -339,7 +355,7 @@ class IPAddressTable(NetBoxTable):
         verbose_name='Interface'
     )
     assigned_object_parent = tables.Column(
-        accessor='assigned_object.parent_object',
+        accessor='assigned_object__parent_object',
         linkify=True,
         orderable=False,
         verbose_name='Device/VM'

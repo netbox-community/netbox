@@ -44,7 +44,7 @@ class CableTable(NetBoxTable):
     tenant = TenantColumn()
     length = columns.TemplateColumn(
         template_code=CABLE_LENGTH,
-        order_by='_abs_length'
+        order_by=('_abs_length', 'length_unit')
     )
     color = columns.ColorColumn()
     tags = columns.TagColumn(

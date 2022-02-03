@@ -81,16 +81,3 @@ If no body template is specified, the request body will be populated with a JSON
     }
 }
 ```
-
-## Conditional Webhooks
-
-A webhook may include a set of conditional logic expressed in JSON used to control whether a webhook triggers for a specific object. For example, you may wish to trigger a webhook for devices only when the `status` field of an object is "active":
-
-```json
-{
-  "attr": "status",
-  "value": "active"
-}
-```
-
-For more detail, see the reference documentation for NetBox's [conditional logic](../reference/conditions.md).

@@ -2,8 +2,9 @@
 
 {% block title %}Change Log{% endblock %}
 
-{% block sidebar %}
-    <div class="text-muted">
-        Change log retention: {% if settings.CHANGELOG_RETENTION %}{{ settings.CHANGELOG_RETENTION }} days{% else %}Indefinite{% endif %}
-    </div>
+{% block content-wrapper %}
+  {{ block.super }}
+  <div class="text-muted px-3">
+    Change log retention: {% if config.CHANGELOG_RETENTION %}{{ config.CHANGELOG_RETENTION }} days{% else %}Indefinite{% endif %}
+  </div>
 {% endblock %}

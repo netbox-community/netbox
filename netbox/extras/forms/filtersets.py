@@ -61,7 +61,7 @@ class CustomLinkFilterForm(FilterForm):
     )
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
+        limit_choices_to=FeatureQuery('custom_links'),
         required=False
     )
     enabled = forms.NullBooleanField(
@@ -88,7 +88,7 @@ class ExportTemplateFilterForm(FilterForm):
     )
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
+        limit_choices_to=FeatureQuery('export_templates'),
         required=False
     )
     mime_type = forms.CharField(
@@ -114,7 +114,7 @@ class WebhookFilterForm(FilterForm):
     )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
+        limit_choices_to=FeatureQuery('webhooks'),
         required=False
     )
     http_method = forms.MultipleChoiceField(

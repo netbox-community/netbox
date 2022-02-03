@@ -340,6 +340,7 @@ class AggregateBulkDeleteView(generic.BulkDeleteView):
 class RoleListView(generic.ObjectListView):
     queryset = Role.objects.annotate(
         prefix_count=count_related(Prefix, 'role'),
+        iprange_count=count_related(IPRange, 'role'),
         vlan_count=count_related(VLAN, 'role')
     )
     filterset = filtersets.RoleFilterSet

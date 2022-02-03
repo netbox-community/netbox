@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0149_interface_vrf'),
+        ('dcim', '0150_interface_vrf'),
     ]
 
     operations = [

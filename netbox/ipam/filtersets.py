@@ -205,6 +205,10 @@ class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
         if not value.strip():
             return queryset
         qs_filter = Q(description__icontains=value)
+        try:
+            qs_filter |= Q(asn=int(value))
+        except ValueError:
+            pass
         return queryset.filter(qs_filter)
 
 
