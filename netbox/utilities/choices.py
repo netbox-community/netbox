@@ -8,12 +8,14 @@ class ChoiceSetMeta(type):
     def __new__(mcs, name, bases, attrs):
 
         # Extend static choices with any configured choices
-        key = attrs.get('key')
-        if key:
-            try:
-                attrs['CHOICES'].extend(settings.FIELD_CHOICES[key])
-            except KeyError:
-                pass
+        replace_key = attrs.get('key')
+        extend_key = f'{replace_key}+' if replace_key else None
+        if replace_key and replace_key in settings.FIELD_CHOICES:
+            # Replace the stock choices
+            attrs['CHOICES'] = settings.FIELD_CHOICES[replace_key]
+        elif extend_key and extend_key in settings.FIELD_CHOICES:
+            # Extend the stock choices
+            attrs['CHOICES'].extend(settings.FIELD_CHOICES[extend_key])
 
         # Define choice tuples and color maps
         attrs['_choices'] = []

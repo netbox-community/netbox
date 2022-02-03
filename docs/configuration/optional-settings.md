@@ -174,11 +174,11 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 ## FIELD_CHOICES
 
-Default: Empty dictionary
+Some static choice fields on models can be configured with custom values. This is done by defining `FIELD_CHOICES` as a dictionary mapping model fields to their choices. Each choice in the list must have a database value and a human-friendly label, and may optionally specify a color. (A list of available colors is provided below.)
 
-Some static choice fields on models can be configured with custom values. This is done by defining `FIELD_CHOICES` as a dictionary mapping model fields to their choices list. Each choice in the list must have a database value and a human-friendly label, and may optionally specify a color. (A list of available colors is provided below.)
+The choices provided can either replace the stock choices provided by NetBox, or append to them. To _replace_ the available choices, specify the app, model, and field name separated by dots. For example, the site model would be referenced as `dcim.Site.status`. To _extend_ the available choices, append a plus sign to the end of this string (e.g. `dcim.Site.status+`).
 
-For example, to specify a custom set of choices for the site status field:
+For example, the following configuration would replace the default site status choices with the options Foo, Bar, and Baz:
 
 ```python
 FIELD_CHOICES = {
@@ -190,7 +190,15 @@ FIELD_CHOICES = {
 }
 ```
 
-These will be appended to the stock choices for the field.
+Appending a plus sign to the field identifier would instead _add_ these choices to the ones already offered:
+
+```python
+FIELD_CHOICES = {
+    'dcim.Site.status+': (
+        ...
+    )
+}
+```
 
 The following model field support configurable choices:
 
