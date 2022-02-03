@@ -100,7 +100,7 @@ PyYAML
 
 # Social authentication framework
 # https://github.com/python-social-auth/social-core
-social-auth-core[all]
+social-auth-core
 
 # Django app for social-auth-core
 # https://github.com/python-social-auth/social-app-django
