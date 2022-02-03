@@ -1,5 +1,34 @@
 # NetBox v3.1
 
+## v3.1.7 (2022-02-03)
+
+### Enhancements
+
+* [#7504](https://github.com/netbox-community/netbox/issues/7504) - Include IP range data under IPAM role views
+* [#8275](https://github.com/netbox-community/netbox/issues/8275) - Introduce alternative ASDOT-formatted column for ASNs
+* [#8367](https://github.com/netbox-community/netbox/issues/8367) - Add ASNs to global search function
+* [#8368](https://github.com/netbox-community/netbox/issues/8368) - Enable controlling the order of custom script form fields with `field_order`
+* [#8381](https://github.com/netbox-community/netbox/issues/8381) - Add contacts to global search function
+* [#8462](https://github.com/netbox-community/netbox/issues/8462) - Linkify manufacturer column in device type table
+* [#8476](https://github.com/netbox-community/netbox/issues/8476) - Bring the ASN Web UI up to the standard set by other objects
+* [#8494](https://github.com/netbox-community/netbox/issues/8494) - Include locations count under tenant view
+* [#8517](https://github.com/netbox-community/netbox/issues/8517) - Render boolean custom fields as icons in object tables
+* [#8530](https://github.com/netbox-community/netbox/issues/8530) - Indicate CSV or YAML as format for "all data" export
+
+### Bug Fixes
+
+* [#8315](https://github.com/netbox-community/netbox/issues/8315) - Fix display of NAT link for primary IPv4 address under device view
+* [#8377](https://github.com/netbox-community/netbox/issues/8377) - Fix calculation of absolute cable lengths when specified in fractional units
+* [#8425](https://github.com/netbox-community/netbox/issues/8425) - Fix exception when viewing change list/records with removed plugins
+* [#8456](https://github.com/netbox-community/netbox/issues/8456) - Fix redundant display of VRF RD in prefix view
+* [#8465](https://github.com/netbox-community/netbox/issues/8465) - Accept empty string values for Interface `rf_channel` in REST API
+* [#8498](https://github.com/netbox-community/netbox/issues/8498) - Fix display of selected content type filters in object list views
+* [#8499](https://github.com/netbox-community/netbox/issues/8499) - Content types REST API endpoint should not require model permission
+* [#8512](https://github.com/netbox-community/netbox/issues/8512) - Correct file permissions to allow execution of housekeeping script
+* [#8527](https://github.com/netbox-community/netbox/issues/8527) - Fix display of changelog retention period
+
+---
+
 ## v3.1.6 (2022-01-17)
 
 ### Enhancements

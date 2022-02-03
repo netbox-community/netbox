@@ -45,7 +45,7 @@ class CableTable(BaseTable):
     tenant = TenantColumn()
     length = TemplateColumn(
         template_code=CABLE_LENGTH,
-        order_by='_abs_length'
+        order_by=('_abs_length', 'length_unit')
     )
     color = ColorColumn()
     tags = TagColumn(

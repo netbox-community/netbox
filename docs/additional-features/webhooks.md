@@ -1,5 +1,22 @@
 {!models/extras/webhook.md!}
 
+## Conditional Webhooks
+
+A webhook may include a set of conditional logic expressed in JSON used to control whether a webhook triggers for a specific object. For example, you may wish to trigger a webhook for devices only when the `status` field of an object is "active":
+
+```json
+{
+  "and": [
+    {
+      "attr": "status.value",
+      "value": "active"
+    }
+  ]
+}
+```
+
+For more detail, see the reference documentation for NetBox's [conditional logic](../reference/conditions.md).
+
 ## Webhook Processing
 
 When a change is detected, any resulting webhooks are placed into a Redis queue for processing. This allows the user's request to complete without needing to wait for the outgoing webhook(s) to be processed. The webhooks are then extracted from the queue by the `rqworker` process and HTTP requests are sent to their respective destinations. The current webhook queue and any failed webhooks can be inspected in the admin UI under System > Background Tasks.

@@ -81,12 +81,15 @@ The following condition will evaluate as true:
 
 ```json
 {
-  "attr": "status",
+  "attr": "status.value",
   "value": ["planned", "staging"],
   "op": "in",
   "negate": true
 }
 ```
+
+!!! note "Evaluating static choice fields"
+    Pay close attention when evaluating static choice fields, such as the `status` field above. These fields typically render as a dictionary specifying both the field's raw value (`value`) and its human-friendly label (`label`). be sure to specify on which of these you want to match.
 
 ## Condition Sets
 
@@ -102,7 +105,7 @@ Multiple conditions can be combined into nested sets using AND or OR logic. This
     {
       "and": [
         {
-          "attr": "status",
+          "attr": "status.value",
           "value": "active"
         },
         {

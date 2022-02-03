@@ -18,7 +18,7 @@
             <th scope="row">VRF</th>
             <td>
               {% if object.vrf %}
-                <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a> ({{ object.vrf.rd }})
+                <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a>
               {% else %}
                 <span>Global</span>
               {% endif %}

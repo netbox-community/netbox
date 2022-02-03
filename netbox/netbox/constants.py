@@ -12,12 +12,14 @@ from dcim.tables import (
     CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, RackReservationTable, LocationTable, SiteTable,
     VirtualChassisTable,
 )
-from ipam.filtersets import AggregateFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet
-from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
-from ipam.tables import AggregateTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
-from tenancy.filtersets import TenantFilterSet
-from tenancy.models import Tenant
-from tenancy.tables import TenantTable
+from ipam.filtersets import (
+    AggregateFilterSet, ASNFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet,
+)
+from ipam.models import Aggregate, ASN, IPAddress, Prefix, VLAN, VRF
+from ipam.tables import AggregateTable, ASNTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
+from tenancy.filtersets import ContactFilterSet, TenantFilterSet
+from tenancy.models import Contact, Tenant
+from tenancy.tables import ContactTable, TenantTable
 from utilities.utils import count_related
 from virtualization.filtersets import ClusterFilterSet, VirtualMachineFilterSet
 from virtualization.models import Cluster, VirtualMachine
@@ -170,11 +172,23 @@ SEARCH_TYPES = OrderedDict((
         'table': VLANTable,
         'url': 'ipam:vlan_list',
     }),
+    ('asn', {
+        'queryset': ASN.objects.prefetch_related('rir', 'tenant'),
+        'filterset': ASNFilterSet,
+        'table': ASNTable,
+        'url': 'ipam:asn_list',
+    }),
     # Tenancy
     ('tenant', {
         'queryset': Tenant.objects.prefetch_related('group'),
         'filterset': TenantFilterSet,
         'table': TenantTable,
         'url': 'tenancy:tenant_list',
+    }),
+    ('contact', {
+        'queryset': Contact.objects.prefetch_related('group', 'assignments'),
+        'filterset': ContactFilterSet,
+        'table': ContactTable,
+        'url': 'tenancy:contact_list',
     }),
 ))

@@ -107,21 +107,32 @@ class RIRTable(BaseTable):
 class ASNTable(BaseTable):
     pk = ToggleColumn()
     asn = tables.Column(
-        accessor=tables.A('asn_asdot'),
         linkify=True
     )
-
+    asn_asdot = tables.Column(
+        accessor=tables.A('asn_asdot'),
+        linkify=True,
+        verbose_name='ASDOT'
+    )
     site_count = LinkedCountColumn(
         viewname='dcim:site_list',
         url_params={'asn_id': 'pk'},
         verbose_name='Sites'
     )
+    tenant = TenantColumn()
+    tags = TagColumn(
+        url_name='ipam:asn_list'
+    )
+
     actions = ButtonsColumn(ASN)
 
     class Meta(BaseTable.Meta):
         model = ASN
-        fields = ('pk', 'asn', 'rir', 'site_count', 'tenant', 'description', 'actions', 'created', 'last_updated',)
-        default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'tenant', 'actions')
+        fields = (
+            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'tenant', 'description', 'actions', 'created',
+            'last_updated', 'tags',
+        )
+        default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'description', 'tenant', 'actions')
 
 
 #
@@ -173,6 +184,11 @@ class RoleTable(BaseTable):
         url_params={'role_id': 'pk'},
         verbose_name='Prefixes'
     )
+    iprange_count = LinkedCountColumn(
+        viewname='ipam:iprange_list',
+        url_params={'role_id': 'pk'},
+        verbose_name='IP Ranges'
+    )
     vlan_count = LinkedCountColumn(
         viewname='ipam:vlan_list',
         url_params={'role_id': 'pk'},
@@ -186,10 +202,10 @@ class RoleTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Role
         fields = (
-            'pk', 'id', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'tags', 'actions',
-            'created', 'last_updated',
+            'pk', 'id', 'name', 'slug', 'prefix_count', 'iprange_count', 'vlan_count', 'description', 'weight', 'tags',
+            'actions', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'prefix_count', 'vlan_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'prefix_count', 'iprange_count', 'vlan_count', 'description', 'actions')
 
 
 #
@@ -352,7 +368,7 @@ class IPAddressTable(BaseTable):
         verbose_name='Interface'
     )
     assigned_object_parent = tables.Column(
-        accessor='assigned_object.parent_object',
+        accessor='assigned_object__parent_object',
         linkify=True,
         orderable=False,
         verbose_name='Device/VM'

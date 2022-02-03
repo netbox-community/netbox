@@ -5,12 +5,14 @@
 
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'extras:objectchange_list' %}">Change Log</a></li>
-  {% if object.related_object.get_absolute_url %}
+  {% if object.related_object and object.related_object.get_absolute_url %}
     <li class="breadcrumb-item"><a href="{{ object.related_object.get_absolute_url }}changelog/">{{ object.related_object }}</a></li>
-  {% elif object.changed_object.get_absolute_url %}
+  {% elif object.changed_object and object.changed_object.get_absolute_url %}
     <li class="breadcrumb-item"><a href="{{ object.changed_object.get_absolute_url }}changelog/">{{ object.changed_object }}</a></li>
-  {% elif object.changed_object %}
+  {% elif object.changed_object and object.changed_object.get_display %}
     <li class="breadcrumb-item">{{ object.changed_object }}</li>
+  {% else %}
+    <li class="breadcrumb-item">{{ object.object_repr }}</li>
   {% endif %}
 {% endblock %}
 
@@ -54,7 +56,7 @@
                     <tr>
                         <th scope="row">Object</th>
                         <td>
-                            {% if object.changed_object.get_absolute_url %}
+                            {% if object.changed_object and object.changed_object.get_absolute_url %}
                                 <a href="{{ object.changed_object.get_absolute_url }}">{{ object.changed_object }}</a>
                             {% else %}
                                 {{ object.object_repr }}

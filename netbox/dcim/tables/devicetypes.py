@@ -67,6 +67,9 @@ class DeviceTypeTable(BaseTable):
         linkify=True,
         verbose_name='Device Type'
     )
+    manufacturer = tables.Column(
+        linkify=True
+    )
     is_full_depth = BooleanColumn(
         verbose_name='Full Depth'
     )

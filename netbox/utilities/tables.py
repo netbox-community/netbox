@@ -414,9 +414,19 @@ class CustomFieldColumn(tables.Column):
     def render(self, value):
         if isinstance(value, list):
             return ', '.join(v for v in value)
+        elif self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is True:
+            return mark_safe('<i class="mdi mdi-check-bold text-success"></i>')
+        elif self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is False:
+            return mark_safe('<i class="mdi mdi-close-thick text-danger"></i>')
         elif self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
-            # Linkify custom URLs
             return mark_safe(f'<a href="{value}">{value}</a>')
+        if value is not None:
+            return value
+        return self.default
+
+    def value(self, value):
+        if isinstance(value, list):
+            return ','.join(v for v in value)
         if value is not None:
             return value
         return self.default

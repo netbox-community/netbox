@@ -30,7 +30,7 @@ CONFIGCONTEXT_ACTIONS = """
 """
 
 OBJECTCHANGE_OBJECT = """
-{% if record.changed_object.get_absolute_url %}
+{% if record.changed_object and record.changed_object.get_absolute_url %}
     <a href="{{ record.changed_object.get_absolute_url }}">{{ record.object_repr }}</a>
 {% else %}
     {{ record.object_repr }}

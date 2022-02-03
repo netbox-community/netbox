@@ -127,12 +127,13 @@ def get_selected_values(form, field_name):
     if not hasattr(field, 'choices'):
         return [str(filter_data)]
 
-    # Get choice labels
+    # Model choice field
     if type(field.choices) is forms.models.ModelChoiceIterator:
-        # Field uses dynamic choices: show all that have been populated on the widget
-        values = [
-            subwidget.choice_label for subwidget in form[field_name].subwidgets
-        ]
+        # If this is a single-choice field, wrap its value in a list
+        if not hasattr(filter_data, '__iter__'):
+            values = [filter_data]
+        else:
+            values = filter_data
 
     else:
         # Static selection field
