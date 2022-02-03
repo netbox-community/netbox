@@ -1,12 +1,11 @@
 # NetBox v3.1
 
-## v3.1.7 (FUTURE)
+## v3.1.7 (2022-02-03)
 
 ### Enhancements
 
 * [#7504](https://github.com/netbox-community/netbox/issues/7504) - Include IP range data under IPAM role views
 * [#8275](https://github.com/netbox-community/netbox/issues/8275) - Introduce alternative ASDOT-formatted column for ASNs
-* [#8315](https://github.com/netbox-community/netbox/issues/8315) - Fix display of NAT link for primary IPv4 address under device view
 * [#8367](https://github.com/netbox-community/netbox/issues/8367) - Add ASNs to global search function
 * [#8368](https://github.com/netbox-community/netbox/issues/8368) - Enable controlling the order of custom script form fields with `field_order`
 * [#8381](https://github.com/netbox-community/netbox/issues/8381) - Add contacts to global search function
@@ -18,6 +17,7 @@
 
 ### Bug Fixes
 
+* [#8315](https://github.com/netbox-community/netbox/issues/8315) - Fix display of NAT link for primary IPv4 address under device view
 * [#8377](https://github.com/netbox-community/netbox/issues/8377) - Fix calculation of absolute cable lengths when specified in fractional units
 * [#8425](https://github.com/netbox-community/netbox/issues/8425) - Fix exception when viewing change list/records with removed plugins
 * [#8456](https://github.com/netbox-community/netbox/issues/8456) - Fix redundant display of VRF RD in prefix view
