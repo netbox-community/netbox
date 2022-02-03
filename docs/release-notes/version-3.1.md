@@ -13,6 +13,7 @@
 * [#8476](https://github.com/netbox-community/netbox/issues/8476) - Bring the ASN Web UI up to the standard set by other objects
 * [#8494](https://github.com/netbox-community/netbox/issues/8494) - Include locations count under tenant view
 * [#8517](https://github.com/netbox-community/netbox/issues/8517) - Render boolean custom fields as icons in object tables
+* [#8530](https://github.com/netbox-community/netbox/issues/8530) - Indicate CSV or YAML as format for "all data" export
 
 ### Bug Fixes
 
