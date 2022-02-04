@@ -230,7 +230,7 @@ class ObjectChangeTable(BaseTable):
     )
 
     class Meta(BaseTable.Meta):
-        model = ObjectChange        
+        model = ObjectChange
         fields = ('id', 'time', 'user', 'action', 'changed_object_type', 'object_repr', 'request_id')
 
 
