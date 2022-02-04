@@ -26,7 +26,25 @@ class MyQuery(graphene.ObjectType):
 schema = MyQuery
 ```
 
+## GraphQL Objects
+
+NetBox provides two object type classes for use by plugins.
+
+::: netbox.graphql.types.BaseObjectType
+    selection:
+      members: false
+    rendering:
+      show_source: false
+
+::: netbox.graphql.types.NetBoxObjectType
+    selection:
+      members: false
+    rendering:
+      show_source: false
+
 ## GraphQL Fields
+
+NetBox provides two field classes for use by plugins.
 
 ::: netbox.graphql.fields.ObjectField
     selection:

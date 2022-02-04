@@ -6,7 +6,7 @@ from extras.graphql.mixins import (
 )
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
-from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
 
 __all__ = (
     'CableType',
@@ -85,7 +85,7 @@ class ComponentTemplateObjectType(
 # Model types
 #
 
-class CableType(PrimaryObjectType):
+class CableType(NetBoxObjectType):
 
     class Meta:
         model = models.Cable
@@ -143,7 +143,7 @@ class ConsoleServerPortTemplateType(ComponentTemplateObjectType):
         return self.type or None
 
 
-class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, PrimaryObjectType):
+class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, NetBoxObjectType):
 
     class Meta:
         model = models.Device
@@ -189,7 +189,7 @@ class DeviceRoleType(OrganizationalObjectType):
         filterset_class = filtersets.DeviceRoleFilterSet
 
 
-class DeviceTypeType(PrimaryObjectType):
+class DeviceTypeType(NetBoxObjectType):
 
     class Meta:
         model = models.DeviceType
@@ -300,7 +300,7 @@ class ModuleBayTemplateType(ComponentTemplateObjectType):
         filterset_class = filtersets.ModuleBayTemplateFilterSet
 
 
-class ModuleTypeType(PrimaryObjectType):
+class ModuleTypeType(NetBoxObjectType):
 
     class Meta:
         model = models.ModuleType
@@ -316,7 +316,7 @@ class PlatformType(OrganizationalObjectType):
         filterset_class = filtersets.PlatformFilterSet
 
 
-class PowerFeedType(PrimaryObjectType):
+class PowerFeedType(NetBoxObjectType):
 
     class Meta:
         model = models.PowerFeed
@@ -352,7 +352,7 @@ class PowerOutletTemplateType(ComponentTemplateObjectType):
         return self.type or None
 
 
-class PowerPanelType(PrimaryObjectType):
+class PowerPanelType(NetBoxObjectType):
 
     class Meta:
         model = models.PowerPanel
@@ -382,7 +382,7 @@ class PowerPortTemplateType(ComponentTemplateObjectType):
         return self.type or None
 
 
-class RackType(VLANGroupsMixin, ImageAttachmentsMixin, PrimaryObjectType):
+class RackType(VLANGroupsMixin, ImageAttachmentsMixin, NetBoxObjectType):
 
     class Meta:
         model = models.Rack
@@ -396,7 +396,7 @@ class RackType(VLANGroupsMixin, ImageAttachmentsMixin, PrimaryObjectType):
         return self.outer_unit or None
 
 
-class RackReservationType(PrimaryObjectType):
+class RackReservationType(NetBoxObjectType):
 
     class Meta:
         model = models.RackReservation
@@ -436,7 +436,7 @@ class RegionType(VLANGroupsMixin, OrganizationalObjectType):
         filterset_class = filtersets.RegionFilterSet
 
 
-class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, PrimaryObjectType):
+class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, NetBoxObjectType):
     asn = graphene.Field(BigInt)
 
     class Meta:
@@ -453,7 +453,7 @@ class SiteGroupType(VLANGroupsMixin, OrganizationalObjectType):
         filterset_class = filtersets.SiteGroupFilterSet
 
 
-class VirtualChassisType(PrimaryObjectType):
+class VirtualChassisType(NetBoxObjectType):
 
     class Meta:
         model = models.VirtualChassis
