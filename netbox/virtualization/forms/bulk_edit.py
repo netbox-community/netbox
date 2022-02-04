@@ -30,6 +30,9 @@ class ClusterTypeBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = ClusterType
+    fieldsets = (
+        (None, ('description',)),
+    )
     nullable_fields = ('description',)
 
 
@@ -40,6 +43,9 @@ class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = ClusterGroup
+    fieldsets = (
+        (None, ('description',)),
+    )
     nullable_fields = ('description',)
 
 
@@ -78,6 +84,10 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Cluster
+    fieldsets = (
+        (None, ('type', 'group', 'tenant',)),
+        ('Site', ('region', 'site_group', 'site',)),
+    )
     nullable_fields = (
         'group', 'site', 'comments', 'tenant',
     )
@@ -129,6 +139,10 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = VirtualMachine
+    fieldsets = (
+        (None, ('cluster', 'status', 'role', 'tenant', 'platform')),
+        ('Resources', ('vcpus', 'memory', 'disk'))
+    )
     nullable_fields = (
         'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
     )
@@ -178,6 +192,11 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = VMInterface
+    fieldsets = (
+        (None, ('mtu', 'enabled', 'description')),
+        ('Related Interfaces', ('parent', 'bridge')),
+        ('802.1Q Switching', ('mode', 'untagged_vlan', 'tagged_vlans')),
+    )
     nullable_fields = (
         'parent', 'bridge', 'mtu', 'description',
     )

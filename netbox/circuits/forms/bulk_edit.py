@@ -44,6 +44,9 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Provider
+    fieldsets = (
+        (None, ('asn', 'account', 'portal_url', 'noc_contact', 'admin_contact')),
+    )
     nullable_fields = (
         'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
     )
@@ -56,7 +59,8 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
     )
     service_id = forms.CharField(
         max_length=100,
-        required=False
+        required=False,
+        label='Service ID'
     )
     description = forms.CharField(
         max_length=200,
@@ -68,6 +72,9 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = ProviderNetwork
+    fieldsets = (
+        (None, ('provider', 'service_id', 'description')),
+    )
     nullable_fields = (
         'service_id', 'description', 'comments',
     )
@@ -80,6 +87,9 @@ class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = CircuitType
+    fieldsets = (
+        (None, ('description',)),
+    )
     nullable_fields = ('description',)
 
 
@@ -116,6 +126,9 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Circuit
+    fieldsets = (
+        (None, ('type', 'provider', 'status', 'tenant', 'commit_rate', 'description')),
+    )
     nullable_fields = (
         'tenant', 'commit_rate', 'description', 'comments',
     )

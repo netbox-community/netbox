@@ -67,6 +67,8 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
     fields and adding/removing tags.
 
     Attributes:
+        fieldsets: An iterable of two-tuples which define a heading and field set to display per section of
+            the rendered form (optional). If not defined, the all fields will be rendered as a single section.
         nullable_fields: A list of field names indicating which fields support being set to null/empty
     """
     nullable_fields = ()

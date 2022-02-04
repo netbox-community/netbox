@@ -38,6 +38,9 @@ class TenantBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Tenant
+    fieldsets = (
+        (None, ('group',)),
+    )
     nullable_fields = ('group',)
 
 
@@ -56,6 +59,9 @@ class ContactGroupBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = ContactGroup
+    fieldsets = (
+        (None, ('parent', 'description')),
+    )
     nullable_fields = ('parent', 'description')
 
 
@@ -66,6 +72,9 @@ class ContactRoleBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = ContactRole
+    fieldsets = (
+        (None, ('description',)),
+    )
     nullable_fields = ('description',)
 
 
@@ -91,4 +100,7 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Contact
+    fieldsets = (
+        (None, ('group', 'title', 'phone', 'email', 'address')),
+    )
     nullable_fields = ('group', 'title', 'phone', 'email', 'address', 'comments')

@@ -68,6 +68,9 @@ class RegionBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Region
+    fieldsets = (
+        (None, ('parent', 'description')),
+    )
     nullable_fields = ('parent', 'description')
 
 
@@ -82,6 +85,9 @@ class SiteGroupBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = SiteGroup
+    fieldsets = (
+        (None, ('parent', 'description')),
+    )
     nullable_fields = ('parent', 'description')
 
 
@@ -120,6 +126,9 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Site
+    fieldsets = (
+        (None, ('status', 'region', 'group', 'tenant', 'asns', 'time_zone', 'description')),
+    )
     nullable_fields = (
         'region', 'group', 'tenant', 'asns', 'description', 'time_zone',
     )
@@ -147,6 +156,9 @@ class LocationBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Location
+    fieldsets = (
+        (None, ('site', 'parent', 'tenant', 'description')),
+    )
     nullable_fields = ('parent', 'tenant', 'description')
 
 
@@ -160,6 +172,9 @@ class RackRoleBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = RackRole
+    fieldsets = (
+        (None, ('color', 'description')),
+    )
     nullable_fields = ('color', 'description')
 
 
@@ -254,6 +269,11 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Rack
+    fieldsets = (
+        ('Rack', ('status', 'role', 'tenant', 'serial', 'asset_tag')),
+        ('Location', ('region', 'site_group', 'site', 'location')),
+        ('Hardware', ('type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit')),
+    )
     nullable_fields = (
         'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
     )
@@ -277,6 +297,9 @@ class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = RackReservation
+    fieldsets = (
+        (None, ('user', 'tenant', 'description')),
+    )
 
 
 class ManufacturerBulkEditForm(NetBoxModelBulkEditForm):
@@ -286,6 +309,9 @@ class ManufacturerBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Manufacturer
+    fieldsets = (
+        (None, ('description',)),
+    )
     nullable_fields = ('description',)
 
 
@@ -313,6 +339,9 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = DeviceType
+    fieldsets = (
+        (None, ('manufacturer', 'part_number', 'u_height', 'is_full_depth', 'airflow')),
+    )
     nullable_fields = ('part_number', 'airflow')
 
 
@@ -326,6 +355,9 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = ModuleType
+    fieldsets = (
+        (None, ('manufacturer', 'part_number')),
+    )
     nullable_fields = ('part_number',)
 
 
@@ -344,6 +376,9 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = DeviceRole
+    fieldsets = (
+        (None, ('color', 'vm_role', 'description')),
+    )
     nullable_fields = ('color', 'description')
 
 
@@ -363,6 +398,9 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Platform
+    fieldsets = (
+        (None, ('manufacturer', 'napalm_driver', 'description')),
+    )
     nullable_fields = ('manufacturer', 'napalm_driver', 'description')
 
 
@@ -418,6 +456,11 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Device
+    fieldsets = (
+        ('Device', ('device_role', 'status', 'tenant', 'platform')),
+        ('Location', ('site', 'location')),
+        ('Hardware', ('manufacturer', 'device_type', 'airflow', 'serial')),
+    )
     nullable_fields = (
         'tenant', 'platform', 'serial', 'airflow',
     )
@@ -442,6 +485,9 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Module
+    fieldsets = (
+        (None, ('manufacturer', 'module_type', 'serial')),
+    )
     nullable_fields = ('serial',)
 
 
@@ -481,6 +527,10 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Cable
+    fieldsets = (
+        (None, ('type', 'status', 'tenant', 'label')),
+        ('Attributes', ('color', 'length', 'length_unit')),
+    )
     nullable_fields = (
         'type', 'status', 'tenant', 'label', 'color', 'length',
     )
@@ -504,6 +554,9 @@ class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = VirtualChassis
+    fieldsets = (
+        (None, ('domain',)),
+    )
     nullable_fields = ('domain',)
 
 
@@ -539,6 +592,9 @@ class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = PowerPanel
+    fieldsets = (
+        (None, ('region', 'site_group', 'site', 'location')),
+    )
     nullable_fields = ('location',)
 
 
@@ -594,6 +650,10 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = PowerFeed
+    fieldsets = (
+        (None, ('power_panel', 'rack', 'status', 'type', 'mark_connected')),
+        ('Power', ('supply', 'phase', 'voltage', 'amperage', 'max_utilization'))
+    )
     nullable_fields = ('location', 'comments')
 
 
@@ -862,6 +922,9 @@ class ConsolePortBulkEditForm(
     )
 
     model = ConsolePort
+    fieldsets = (
+        (None, ('type', 'label', 'speed', 'description', 'mark_connected')),
+    )
     nullable_fields = ('label', 'description')
 
 
@@ -875,6 +938,9 @@ class ConsoleServerPortBulkEditForm(
     )
 
     model = ConsoleServerPort
+    fieldsets = (
+        (None, ('type', 'label', 'speed', 'description', 'mark_connected')),
+    )
     nullable_fields = ('label', 'description')
 
 
@@ -888,6 +954,10 @@ class PowerPortBulkEditForm(
     )
 
     model = PowerPort
+    fieldsets = (
+        (None, ('type', 'label', 'description', 'mark_connected')),
+        ('Power', ('maximum_draw', 'allocated_draw')),
+    )
     nullable_fields = ('label', 'description')
 
 
@@ -907,6 +977,10 @@ class PowerOutletBulkEditForm(
     )
 
     model = PowerOutlet
+    fieldsets = (
+        (None, ('type', 'label', 'description', 'mark_connected')),
+        ('Power', ('feed_leg', 'power_port')),
+    )
     nullable_fields = ('label', 'type', 'feed_leg', 'power_port', 'description')
 
     def __init__(self, *args, **kwargs):
@@ -923,8 +997,9 @@ class PowerOutletBulkEditForm(
 
 class InterfaceBulkEditForm(
     form_from_model(Interface, [
-        'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected',
-        'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
+        'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'mgmt_only',
+        'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
+        'tx_power',
     ]),
     NetBoxModelBulkEditForm
 ):
@@ -956,7 +1031,7 @@ class InterfaceBulkEditForm(
     )
     speed = forms.IntegerField(
         required=False,
-        widget=SelectSpeedWidget(attrs={'readonly': None}),
+        widget=SelectSpeedWidget(),
         label='Speed'
     )
     mgmt_only = forms.NullBooleanField(
@@ -983,6 +1058,14 @@ class InterfaceBulkEditForm(
     )
 
     model = Interface
+    fieldsets = (
+        (None, ('type', 'label', 'speed', 'duplex', 'description')),
+        ('Addressing', ('vrf', 'mac_address', 'wwn')),
+        ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
+        ('Related Interfaces', ('parent', 'bridge', 'lag')),
+        ('802.1Q Switching', ('mode', 'untagged_vlan', 'tagged_vlans')),
+        ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width')),
+    )
     nullable_fields = (
         'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'description', 'mode',
         'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'vrf',
@@ -1047,6 +1130,9 @@ class FrontPortBulkEditForm(
     NetBoxModelBulkEditForm
 ):
     model = FrontPort
+    fieldsets = (
+        (None, ('type', 'label', 'color', 'description', 'mark_connected')),
+    )
     nullable_fields = ('label', 'description')
 
 
@@ -1055,14 +1141,20 @@ class RearPortBulkEditForm(
     NetBoxModelBulkEditForm
 ):
     model = RearPort
+    fieldsets = (
+        (None, ('type', 'label', 'color', 'description', 'mark_connected')),
+    )
     nullable_fields = ('label', 'description')
 
 
 class ModuleBayBulkEditForm(
-    form_from_model(DeviceBay, ['label', 'description']),
+    form_from_model(ModuleBay, ['label', 'position', 'description']),
     NetBoxModelBulkEditForm
 ):
     model = ModuleBay
+    fieldsets = (
+        (None, ('label', 'position', 'description')),
+    )
     nullable_fields = ('label', 'position', 'description')
 
 
@@ -1071,6 +1163,9 @@ class DeviceBayBulkEditForm(
     NetBoxModelBulkEditForm
 ):
     model = DeviceBay
+    fieldsets = (
+        (None, ('label', 'description')),
+    )
     nullable_fields = ('label', 'description')
 
 
@@ -1088,6 +1183,9 @@ class InventoryItemBulkEditForm(
     )
 
     model = InventoryItem
+    fieldsets = (
+        (None, ('label', 'role', 'manufacturer', 'part_id', 'description')),
+    )
     nullable_fields = ('label', 'role', 'manufacturer', 'part_id', 'description')
 
 
@@ -1105,4 +1203,7 @@ class InventoryItemRoleBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = InventoryItemRole
+    fieldsets = (
+        (None, ('color', 'description')),
+    )
     nullable_fields = ('color', 'description')

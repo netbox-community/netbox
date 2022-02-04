@@ -46,6 +46,9 @@ class VRFBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = VRF
+    fieldsets = (
+        (None, ('tenant', 'enforce_unique', 'description')),
+    )
     nullable_fields = ('tenant', 'description')
 
 
@@ -60,6 +63,9 @@ class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = RouteTarget
+    fieldsets = (
+        (None, ('tenant', 'description')),
+    )
     nullable_fields = ('tenant', 'description')
 
 
@@ -74,6 +80,9 @@ class RIRBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = RIR
+    fieldsets = (
+        (None, ('is_private', 'description')),
+    )
     nullable_fields = ('is_private', 'description')
 
 
@@ -97,6 +106,9 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = ASN
+    fieldsets = (
+        (None, ('sites', 'rir', 'tenant', 'description')),
+    )
     nullable_fields = ('date_added', 'description')
 
 
@@ -119,6 +131,9 @@ class AggregateBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Aggregate
+    fieldsets = (
+        (None, ('rir', 'tenant', 'date_added', 'description')),
+    )
     nullable_fields = ('date_added', 'description')
 
 
@@ -132,6 +147,9 @@ class RoleBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Role
+    fieldsets = (
+        (None, ('weight', 'description')),
+    )
     nullable_fields = ('description',)
 
 
@@ -191,6 +209,11 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = Prefix
+    fieldsets = (
+        (None, ('tenant', 'status', 'role', 'description')),
+        ('Site', ('region', 'site_group', 'site')),
+        ('Addressing', ('vrf', 'prefix_length', 'is_pool', 'mark_utilized')),
+    )
     nullable_fields = (
         'site', 'vrf', 'tenant', 'role', 'description',
     )
@@ -221,6 +244,9 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = IPRange
+    fieldsets = (
+        (None, ('status', 'role', 'vrf', 'tenant', 'description')),
+    )
     nullable_fields = (
         'vrf', 'tenant', 'role', 'description',
     )
@@ -262,6 +288,10 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = IPAddress
+    fieldsets = (
+        (None, ('status', 'role', 'tenant', 'description')),
+        ('Addressing', ('vrf', 'mask_length', 'dns_name')),
+    )
     nullable_fields = (
         'vrf', 'role', 'tenant', 'dns_name', 'description',
     )
@@ -295,6 +325,10 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = FHRPGroup
+    fieldsets = (
+        (None, ('protocol', 'group_id', 'description')),
+        ('Authentication', ('auth_type', 'auth_key')),
+    )
     nullable_fields = ('auth_type', 'auth_key', 'description')
 
 
@@ -321,6 +355,9 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = VLANGroup
+    fieldsets = (
+        (None, ('site', 'min_vid', 'max_vid', 'description')),
+    )
     nullable_fields = ('site', 'description')
 
 
@@ -367,6 +404,10 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = VLAN
+    fieldsets = (
+        (None, ('status', 'role', 'tenant', 'description')),
+        ('Site & Group', ('region', 'site_group', 'site', 'group')),
+    )
     nullable_fields = (
         'site', 'group', 'tenant', 'role', 'description',
     )
@@ -391,6 +432,9 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = ServiceTemplate
+    fieldsets = (
+        (None, ('protocol', 'ports', 'description')),
+    )
     nullable_fields = ('description',)
 
 

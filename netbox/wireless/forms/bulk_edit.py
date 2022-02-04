@@ -26,6 +26,9 @@ class WirelessLANGroupBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = WirelessLANGroup
+    fieldsets = (
+        (None, ('parent', 'description')),
+    )
     nullable_fields = ('parent', 'description')
 
 
@@ -61,6 +64,10 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = WirelessLAN
+    fieldsets = (
+        (None, ('group', 'vlan', 'ssid', 'description')),
+        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
+    )
     nullable_fields = (
         'ssid', 'group', 'vlan', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
     )
@@ -93,6 +100,10 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = WirelessLink
+    fieldsets = (
+        (None, ('ssid', 'status', 'description')),
+        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk'))
+    )
     nullable_fields = (
         'ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
     )

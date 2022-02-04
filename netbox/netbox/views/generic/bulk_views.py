@@ -578,9 +578,9 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
+            'model': model,
             'form': form,
             'table': table,
-            'obj_type_plural': model._meta.verbose_name_plural,
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
         })
