@@ -29,6 +29,14 @@ CONFIGCONTEXT_ACTIONS = """
 {% endif %}
 """
 
+OBJECTCHANGE_USER = """
+{% if record.user and record.user.first_name and record.user.last_name %}
+    {{ record.user.first_name }} {{ record.user.last_name }} (@{{ record.user }})
+{% else %}
+    {{ record.user|default:record.user_name }}
+{% endif %}
+"""
+
 OBJECTCHANGE_OBJECT = """
 {% if record.changed_object and record.changed_object.get_absolute_url %}
     <a href="{{ record.changed_object.get_absolute_url }}">{{ record.object_repr }}</a>
@@ -204,6 +212,10 @@ class ObjectChangeTable(BaseTable):
         linkify=True,
         format=settings.SHORT_DATETIME_FORMAT
     )
+    user = tables.TemplateColumn(
+        template_code=OBJECTCHANGE_USER,
+        verbose_name='User name'
+    )
     action = ChoiceFieldColumn()
     changed_object_type = ContentTypeColumn(
         verbose_name='Type'
@@ -218,8 +230,8 @@ class ObjectChangeTable(BaseTable):
     )
 
     class Meta(BaseTable.Meta):
-        model = ObjectChange
-        fields = ('id', 'time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
+        model = ObjectChange        
+        fields = ('id', 'time', 'user', 'action', 'changed_object_type', 'object_repr', 'request_id')
 
 
 class ObjectJournalTable(BaseTable):

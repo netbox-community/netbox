@@ -38,7 +38,11 @@
                     <tr>
                         <th scope="row">User</th>
                         <td>
-                            {{ object.user|default:object.user_name }}
+                            {% if object.user and object.user.first_name and object.user.last_name %}
+                                {{ object.user.first_name }} {{ object.user.last_name }} (@{{ object.user }})
+                            {% else %}
+                                {{ object.user|default:object.user_name }}
+                            {% endif %}
                         </td>
                     </tr>
                     <tr>
