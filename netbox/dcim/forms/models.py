@@ -655,7 +655,6 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
 class ModuleForm(NetBoxModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
-        required=False,
         initial_params={
             'modulebays': '$module_bay'
         }
@@ -670,7 +669,7 @@ class ModuleForm(NetBoxModelForm):
         queryset=Manufacturer.objects.all(),
         required=False,
         initial_params={
-            'device_types': '$device_type'
+            'module_types': '$module_type'
         }
     )
     module_type = DynamicModelChoiceField(
@@ -684,12 +683,33 @@ class ModuleForm(NetBoxModelForm):
         queryset=Tag.objects.all(),
         required=False
     )
+    replicate_components = forms.BooleanField(
+        required=False,
+        initial=True,
+        help_text="Automatically populate components associated with this module type"
+    )
 
     class Meta:
         model = Module
         fields = [
-            'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag', 'tags', 'comments',
+            'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag', 'tags',
+            'replicate_components', 'comments',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.pk:
+            self.fields['replicate_components'].initial = False
+            self.fields['replicate_components'].disabled = True
+
+    def save(self, *args, **kwargs):
+
+        # If replicate_components is False, disable automatic component replication on the instance
+        if self.instance.pk or not self.cleaned_data['replicate_components']:
+            self.instance._disable_replication = True
+
+        return super().save(*args, **kwargs)
 
 
 class CableForm(TenancyForm, NetBoxModelForm):

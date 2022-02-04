@@ -13,7 +13,7 @@ from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
 from tenancy.models import Tenant
-from utilities.testing import ViewTestCases, create_tags, create_test_device
+from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
 
@@ -1770,6 +1770,7 @@ class ModuleTestCase(
     # bulk creation (need to specify module bays)
     ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.CreateObjectViewTestCase,
     ViewTestCases.EditObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.ListObjectsViewTestCase,
@@ -1799,9 +1800,11 @@ class ModuleTestCase(
             ModuleBay(device=devices[0], name='Module Bay 1'),
             ModuleBay(device=devices[0], name='Module Bay 2'),
             ModuleBay(device=devices[0], name='Module Bay 3'),
+            ModuleBay(device=devices[0], name='Module Bay 4'),
             ModuleBay(device=devices[1], name='Module Bay 1'),
             ModuleBay(device=devices[1], name='Module Bay 2'),
             ModuleBay(device=devices[1], name='Module Bay 3'),
+            ModuleBay(device=devices[1], name='Module Bay 4'),
         )
         ModuleBay.objects.bulk_create(module_bays)
 
@@ -1832,6 +1835,39 @@ class ModuleTestCase(
             "Device 2,Module Bay 2,Module Type 2,B,B",
             "Device 2,Module Bay 3,Module Type 3,C,C",
         )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_module_component_replication(self):
+        self.add_permissions('dcim.add_module')
+
+        # Add 5 InterfaceTemplates to a ModuleType
+        module_type = ModuleType.objects.first()
+        interface_templates = [
+            InterfaceTemplate(module_type=module_type, name=f'Interface {i}') for i in range(1, 6)
+        ]
+        InterfaceTemplate.objects.bulk_create(interface_templates)
+
+        form_data = self.form_data.copy()
+        device = Device.objects.get(pk=form_data['device'])
+
+        # Create a module *without* replicating components
+        form_data['replicate_components'] = False
+        request = {
+            'path': self._get_url('add'),
+            'data': post_data(form_data),
+        }
+        self.assertHttpStatus(self.client.post(**request), 302)
+        self.assertEqual(Interface.objects.filter(device=device).count(), 0)
+
+        # Create a second module (in the next bay) with replicated components
+        form_data['module_bay'] += 1
+        form_data['replicate_components'] = True
+        request = {
+            'path': self._get_url('add'),
+            'data': post_data(form_data),
+        }
+        self.assertHttpStatus(self.client.post(**request), 302)
+        self.assertEqual(Interface.objects.filter(device=device).count(), 5)
 
 
 class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):

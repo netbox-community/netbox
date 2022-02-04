@@ -1054,12 +1054,13 @@ class Module(NetBoxModel, ConfigContextModel):
         return reverse('dcim:module', args=[self.pk])
 
     def save(self, *args, **kwargs):
-        is_new = not bool(self.pk)
+        is_new = self.pk is None
 
         super().save(*args, **kwargs)
 
-        # If this is a new Module, instantiate all its related components per the ModuleType definition
-        if is_new:
+        # If this is a new Module and component replication has not been disabled, instantiate all its
+        # related components per the ModuleType definition
+        if is_new and not getattr(self, '_disable_replication', False):
             ConsolePort.objects.bulk_create(
                 [x.instantiate(device=self.device, module=self) for x in self.module_type.consoleporttemplates.all()]
             )

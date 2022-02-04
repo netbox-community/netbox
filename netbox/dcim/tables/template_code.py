@@ -326,11 +326,11 @@ DEVICEBAY_BUTTONS = """
 {% if perms.dcim.change_devicebay %}
     {% if record.installed_device %}
         <a href="{% url 'dcim:devicebay_depopulate' pk=record.pk %}?return_url={% url 'dcim:device_devicebays' pk=object.pk %}" class="btn btn-danger btn-sm">
-            <i class="mdi mdi-minus-thick" aria-hidden="true" title="Remove device"></i>
+            <i class="mdi mdi-server-minus" aria-hidden="true" title="Remove device"></i>
         </a>
     {% else %}
         <a href="{% url 'dcim:devicebay_populate' pk=record.pk %}?return_url={% url 'dcim:device_devicebays' pk=object.pk %}" class="btn btn-success btn-sm">
-            <i class="mdi mdi-plus-thick" aria-hidden="true" title="Install device"></i>
+            <i class="mdi mdi-server-plus" aria-hidden="true" title="Install device"></i>
         </a>
     {% endif %}
 {% endif %}
@@ -340,11 +340,11 @@ MODULEBAY_BUTTONS = """
 {% if perms.dcim.add_module %}
     {% if record.installed_module %}
         <a href="{% url 'dcim:module_delete' pk=record.installed_module.pk %}?return_url={% url 'dcim:device_modulebays' pk=object.pk %}" class="btn btn-danger btn-sm">
-            <i class="mdi mdi-minus-thick" aria-hidden="true" title="Remove module"></i>
+            <i class="mdi mdi-server-minus" aria-hidden="true" title="Remove module"></i>
         </a>
     {% else %}
         <a href="{% url 'dcim:module_add' %}?device={{ record.device.pk }}&module_bay={{ record.pk }}&return_url={% url 'dcim:device_modulebays' pk=object.pk %}" class="btn btn-success btn-sm">
-            <i class="mdi mdi-plus-thick" aria-hidden="true" title="Install module"></i>
+            <i class="mdi mdi-server-plus" aria-hidden="true" title="Install module"></i>
         </a>
     {% endif %}
 {% endif %}

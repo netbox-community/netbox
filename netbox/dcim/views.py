@@ -1063,7 +1063,7 @@ class ModuleTypeBulkDeleteView(generic.BulkDeleteView):
 
 class ConsolePortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsolePortTemplate.objects.all()
-    form = forms.DeviceTypeComponentCreateForm
+    form = forms.ComponentTemplateCreateForm
     model_form = forms.ConsolePortTemplateForm
 
 
@@ -1097,7 +1097,7 @@ class ConsolePortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class ConsoleServerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsoleServerPortTemplate.objects.all()
-    form = forms.DeviceTypeComponentCreateForm
+    form = forms.ComponentTemplateCreateForm
     model_form = forms.ConsoleServerPortTemplateForm
 
 
@@ -1131,7 +1131,7 @@ class ConsoleServerPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class PowerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerPortTemplate.objects.all()
-    form = forms.DeviceTypeComponentCreateForm
+    form = forms.ComponentTemplateCreateForm
     model_form = forms.PowerPortTemplateForm
 
 
@@ -1165,7 +1165,7 @@ class PowerPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class PowerOutletTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerOutletTemplate.objects.all()
-    form = forms.DeviceTypeComponentCreateForm
+    form = forms.ComponentTemplateCreateForm
     model_form = forms.PowerOutletTemplateForm
 
 
@@ -1199,7 +1199,7 @@ class PowerOutletTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class InterfaceTemplateCreateView(generic.ComponentCreateView):
     queryset = InterfaceTemplate.objects.all()
-    form = forms.DeviceTypeComponentCreateForm
+    form = forms.ComponentTemplateCreateForm
     model_form = forms.InterfaceTemplateForm
 
 
@@ -1275,7 +1275,7 @@ class FrontPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class RearPortTemplateCreateView(generic.ComponentCreateView):
     queryset = RearPortTemplate.objects.all()
-    form = forms.DeviceTypeComponentCreateForm
+    form = forms.ComponentTemplateCreateForm
     model_form = forms.RearPortTemplateForm
 
 
@@ -1377,7 +1377,7 @@ class DeviceBayTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class InventoryItemTemplateCreateView(generic.ComponentCreateView):
     queryset = InventoryItemTemplate.objects.all()
-    form = forms.DeviceTypeComponentCreateForm
+    form = forms.ComponentTemplateCreateForm
     model_form = forms.InventoryItemTemplateForm
     template_name = 'dcim/inventoryitem_create.html'
 
