@@ -315,7 +315,7 @@ export function* getRowValues(table: HTMLTableRowElement): Generator<string> {
   for (const element of table.querySelectorAll<HTMLTableCellElement>('td')) {
     if (element !== null) {
       if (isTruthy(element.innerText) && element.innerText !== '—') {
-        yield element.innerText.replaceAll(/[\n\r]/g, '').trim();
+        yield element.innerText.replace(/[\n\r]/g, '').trim();
       }
     }
   }
