@@ -105,9 +105,9 @@ class ButtonState {
    */
   private toggleButton(): void {
     if (this.buttonState === 'show') {
-      this.button.innerText = this.button.innerText.replaceAll('Show', 'Hide');
+      this.button.innerText = this.button.innerText.replace(/Show/g, 'Hide');
     } else if (this.buttonState === 'hide') {
-      this.button.innerText = this.button.innerText.replaceAll('Hide', 'Show');
+      this.button.innerText = this.button.innerText.replace(/Hide/g, 'Show');
     }
   }
 

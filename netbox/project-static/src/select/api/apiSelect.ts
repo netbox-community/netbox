@@ -461,7 +461,7 @@ export class APISelect {
       // Set any primitive k/v pairs as data attributes on each option.
       for (const [k, v] of Object.entries(result)) {
         if (!['id', 'slug'].includes(k) && ['string', 'number', 'boolean'].includes(typeof v)) {
-          const key = k.replaceAll('_', '-');
+          const key = k.replace(/_/g, '-');
           data[key] = String(v);
         }
         // Set option to disabled if the result contains a matching key and is truthy.
@@ -659,7 +659,7 @@ export class APISelect {
     for (const [key, value] of this.pathValues.entries()) {
       for (const result of this.url.matchAll(new RegExp(`({{${key}}})`, 'g'))) {
         if (isTruthy(value)) {
-          url = url.replaceAll(result[1], value.toString());
+          url = url.replace(result[1], value.toString());
         }
       }
     }
@@ -741,7 +741,7 @@ export class APISelect {
    * @param id DOM ID of the other element.
    */
   private updatePathValues(id: string): void {
-    const key = id.replaceAll(/^id_/gi, '');
+    const key = id.replace(/^id_/gi, '');
     const element = getElement<HTMLSelectElement>(`id_${key}`);
     if (element !== null) {
       // If this element's URL contains Django template tags ({{), replace the template tag
@@ -927,7 +927,7 @@ export class APISelect {
     color: ${fg} !important;
   }
               `
-          .replaceAll('\n', '')
+          .replace(/\n/g, '')
           .trim();
 
         // Add the style element to the DOM.
