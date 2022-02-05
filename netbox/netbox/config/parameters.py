@@ -4,13 +4,14 @@ from django.contrib.postgres.forms import SimpleArrayField
 
 class ConfigParam:
 
-    def __init__(self, name, label, default, description='', field=None, field_kwargs=None):
+    def __init__(self, name, label, default, description='', field=None, field_kwargs=None, size=None):
         self.name = name
         self.label = label
         self.default = default
         self.field = field or forms.CharField
         self.description = description
         self.field_kwargs = field_kwargs or {}
+        self.size = size
 
 
 PARAMS = (
@@ -20,19 +21,22 @@ PARAMS = (
         name='BANNER_LOGIN',
         label='Login banner',
         default='',
-        description="Additional content to display on the login page"
+        description="Additional content to display on the login page",
+        size="80",
     ),
     ConfigParam(
         name='BANNER_TOP',
         label='Top banner',
         default='',
-        description="Additional content to display at the top of every page"
+        description="Additional content to display at the top of every page",
+        size="80",
     ),
     ConfigParam(
         name='BANNER_BOTTOM',
         label='Bottom banner',
         default='',
-        description="Additional content to display at the bottom of every page"
+        description="Additional content to display at the bottom of every page",
+        size="80",
     ),
 
     # IPAM
@@ -77,7 +81,8 @@ PARAMS = (
         ),
         description="Permitted schemes for URLs in user-provided content",
         field=SimpleArrayField,
-        field_kwargs={'base_field': forms.CharField()}
+        field_kwargs={'base_field': forms.CharField()},
+        size="80",
     ),
 
     # Pagination
@@ -157,7 +162,8 @@ PARAMS = (
         name='MAPS_URL',
         label='Maps URL',
         default='https://maps.google.com/?q=',
-        description="Base URL for mapping geographic locations"
+        description="Base URL for mapping geographic locations",
+        size="80",
     ),
 
 )
