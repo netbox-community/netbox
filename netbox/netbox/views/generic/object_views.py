@@ -9,7 +9,6 @@ from django.forms.widgets import HiddenInput
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.html import escape
-from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 
 from extras.signals import clear_webhooks
@@ -259,9 +258,7 @@ class ObjectImportView(GetReturnURLMixin, BaseObjectView):
                 if '_addanother' in request.POST:
                     return redirect(request.get_full_path())
 
-                return_url = form.cleaned_data.get('return_url')
-                if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
-                    return redirect(return_url)
+                self.get_return_url(request, obj)
                 return redirect(self.get_return_url(request, obj))
 
             else:
@@ -507,10 +504,9 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             messages.success(request, msg)
 
             return_url = form.cleaned_data.get('return_url')
-            if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
+            if return_url and return_url.startswith('/'):
                 return redirect(return_url)
-            else:
-                return redirect(self.get_return_url(request, obj))
+            return redirect(self.get_return_url(request, obj))
 
         else:
             logger.debug("Form validation failed")
