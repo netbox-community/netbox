@@ -33,7 +33,8 @@
                                 <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
                             </td>
                         </tr>
-                        <th scope="row">Location</th>
+                        <tr>
+                            <th scope="row">Location</th>
                             <td>
                             {% if object.location %}
                                 {% for location in object.location.get_ancestors %}
