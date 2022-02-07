@@ -226,6 +226,9 @@ class Report(object):
         job_result.status = JobResultStatusChoices.STATUS_RUNNING
         job_result.save()
 
+        # Perform any post-run tasks
+        self.pre_run()
+
         try:
 
             for method_name in self.test_methods:
@@ -253,8 +256,14 @@ class Report(object):
         # Perform any post-run tasks
         self.post_run()
 
+    def pre_run(self):
+        """
+        Extend this method to include any tasks which should execute *before* the report is run.
+        """
+        pass
+
     def post_run(self):
         """
-        Extend this method to include any tasks which should execute after the report has been run.
+        Extend this method to include any tasks which should execute *after* the report is run.
         """
         pass

@@ -84,6 +84,7 @@ A new REST API endpoint has been added at `/api/ipam/vlan-groups/<pk>/available-
 * [#8295](https://github.com/netbox-community/netbox/issues/8295) - Webhook URLs can now be templatized
 * [#8296](https://github.com/netbox-community/netbox/issues/8296) - Allow disabling custom links
 * [#8307](https://github.com/netbox-community/netbox/issues/8307) - Add `data_type` indicator to REST API serializer for custom fields
+* [#8572](https://github.com/netbox-community/netbox/issues/8572) - Add a `pre_run()` method for reports
 
 ### Other Changes
 
