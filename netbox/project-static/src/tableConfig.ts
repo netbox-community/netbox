@@ -53,7 +53,10 @@ function removeColumns(event: Event): void {
 /**
  * Submit form configuration to the NetBox API.
  */
-async function submitFormConfig(url: string, formConfig: Dict<Dict>): Promise<APIResponse<APIUserConfig>> {
+async function submitFormConfig(
+  url: string,
+  formConfig: Dict<Dict>,
+): Promise<APIResponse<APIUserConfig>> {
   return await apiPatch<APIUserConfig>(url, formConfig);
 }
 
@@ -70,9 +73,9 @@ function handleSubmit(event: Event): void {
   const url = element.getAttribute('data-url');
   if (url == null) {
     const toast = createToast(
-        'danger',
-        'Error Updating Table Configuration',
-        'No API path defined for configuration form.'
+      'danger',
+      'Error Updating Table Configuration',
+      'No API path defined for configuration form.',
     );
     toast.show();
     return;
