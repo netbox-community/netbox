@@ -29,9 +29,9 @@ CONFIGCONTEXT_ACTIONS = """
 {% endif %}
 """
 
-OBJECTCHANGE_USER = """
-{% if record.user and record.user.first_name and record.user.last_name %}
-    {{ record.user.first_name }} {{ record.user.last_name }} (@{{ record.user }})
+OBJECTCHANGE_FULL_NAME = """
+{% if record.user.first_name or record.user.last_name %}
+    {{ record.user.first_name }} {{ record.user.last_name }}
 {% else %}
     {{ record.user|default:record.user_name }}
 {% endif %}
@@ -212,9 +212,14 @@ class ObjectChangeTable(BaseTable):
         linkify=True,
         format=settings.SHORT_DATETIME_FORMAT
     )
-    user = tables.TemplateColumn(
-        template_code=OBJECTCHANGE_USER,
-        verbose_name='User name'
+    user_name = tables.TemplateColumn(
+        verbose_name='Username',
+        orderable=False
+    )
+    full_name = tables.TemplateColumn(
+        template_code=OBJECTCHANGE_FULL_NAME,
+        verbose_name='Full Name',
+        orderable=False
     )
     action = ChoiceFieldColumn()
     changed_object_type = ContentTypeColumn(
@@ -231,7 +236,7 @@ class ObjectChangeTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ObjectChange
-        fields = ('id', 'time', 'user', 'action', 'changed_object_type', 'object_repr', 'request_id')
+        fields = ('id', 'time', 'user_name', 'full_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
 
 
 class ObjectJournalTable(BaseTable):
