@@ -4,7 +4,7 @@ from netaddr import EUI
 
 from dcim.choices import InterfaceModeChoices
 from dcim.models import DeviceRole, Platform, Site
-from ipam.models import VLAN
+from ipam.models import VLAN, VRF
 from utilities.testing import ViewTestCases, create_tags
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -263,6 +263,13 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         VLAN.objects.bulk_create(vlans)
 
+        vrfs = (
+            VRF(name='VRF 1'),
+            VRF(name='VRF 2'),
+            VRF(name='VRF 3'),
+        )
+        VRF.objects.bulk_create(vrfs)
+
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
@@ -276,6 +283,7 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'vrf': vrfs[0].pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -290,14 +298,15 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'vrf': vrfs[0].pk,
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "virtual_machine,name",
-            "Virtual Machine 2,Interface 4",
-            "Virtual Machine 2,Interface 5",
-            "Virtual Machine 2,Interface 6",
+            f"virtual_machine,name,vrf.pk",
+            f"Virtual Machine 2,Interface 4,{vrfs[0].pk}",
+            f"Virtual Machine 2,Interface 5,{vrfs[0].pk}",
+            f"Virtual Machine 2,Interface 6,{vrfs[0].pk}",
         )
 
         cls.bulk_edit_data = {

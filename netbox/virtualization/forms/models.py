@@ -6,7 +6,7 @@ from dcim.forms.common import InterfaceCommonForm
 from dcim.forms.models import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.models import Tag
-from ipam.models import IPAddress, VLAN, VLANGroup
+from ipam.models import IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import (
@@ -313,6 +313,11 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
             'available_on_virtualmachine': '$virtual_machine',
         }
     )
+    vrf = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
+    )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -322,7 +327,7 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
         model = VMInterface
         fields = [
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
-            'tags', 'untagged_vlan', 'tagged_vlans',
+            'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
         ]
         widgets = {
             'virtual_machine': forms.HiddenInput(),

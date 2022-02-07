@@ -384,6 +384,14 @@ class VMInterface(NetBoxModel, BaseInterface):
         object_id_field='assigned_object_id',
         related_query_name='vminterface'
     )
+    vrf = models.ForeignKey(
+        to='ipam.VRF',
+        on_delete=models.SET_NULL,
+        related_name='vminterfaces',
+        null=True,
+        blank=True,
+        verbose_name='VRF'
+    )
     fhrp_group_assignments = GenericRelation(
         to='ipam.FHRPGroupAssignment',
         content_type_field='interface_type',

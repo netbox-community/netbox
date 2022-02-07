@@ -3,7 +3,7 @@ from django import forms
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
-from ipam.models import VLAN
+from ipam.models import VLAN, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -190,15 +190,20 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
         queryset=VLAN.objects.all(),
         required=False
     )
+    vrf = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
+    )
 
     model = VMInterface
     fieldsets = (
-        (None, ('mtu', 'enabled', 'description')),
+        (None, ('mtu', 'enabled', 'vrf', 'description')),
         ('Related Interfaces', ('parent', 'bridge')),
         ('802.1Q Switching', ('mode', 'untagged_vlan', 'tagged_vlans')),
     )
     nullable_fields = (
-        'parent', 'bridge', 'mtu', 'description',
+        'parent', 'bridge', 'mtu', 'vrf', 'description',
     )
 
     def __init__(self, *args, **kwargs):

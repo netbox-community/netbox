@@ -134,3 +134,5 @@ A new REST API endpoint has been added at `/api/ipam/vlan-groups/<pk>/available-
 * ipam.VLANGroup
     * Added the `/availables-vlans/` endpoint
     * Added the `min_vid` and `max_vid` fields
+* virtualization.VMInterface
+    * Added `vrf` field

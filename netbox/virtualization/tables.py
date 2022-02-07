@@ -168,6 +168,9 @@ class VMInterfaceTable(BaseInterfaceTable):
     name = tables.Column(
         linkify=True
     )
+    vrf = tables.Column(
+        linkify=True
+    )
     tags = columns.TagColumn(
         url_name='virtualization:vminterface_list'
     )
@@ -176,7 +179,7 @@ class VMInterfaceTable(BaseInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
+            'vrf', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 

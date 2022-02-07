@@ -3,6 +3,7 @@ from django.utils.translation import gettext as _
 
 from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from extras.forms import LocalConfigContextFilterForm
+from ipam.models import VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
@@ -157,7 +158,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'tag')),
         ('Virtual Machine', ('cluster_id', 'virtual_machine_id')),
-        ('Attributes', ('enabled', 'mac_address')),
+        ('Attributes', ('enabled', 'mac_address', 'vrf_id')),
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
@@ -181,5 +182,10 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     mac_address = forms.CharField(
         required=False,
         label='MAC address'
+    )
+    vrf_id = DynamicModelMultipleChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
     )
     tag = TagFilterField(model)

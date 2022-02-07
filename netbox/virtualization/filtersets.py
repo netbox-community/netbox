@@ -3,6 +3,7 @@ from django.db.models import Q
 
 from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from extras.filtersets import LocalConfigContextFilterSet
+from ipam.models import VRF
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
@@ -272,6 +273,17 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet):
     )
     mac_address = MultiValueMACAddressFilter(
         label='MAC address',
+    )
+    vrf_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vrf',
+        queryset=VRF.objects.all(),
+        label='VRF',
+    )
+    vrf = django_filters.ModelMultipleChoiceFilter(
+        field_name='vrf__rd',
+        queryset=VRF.objects.all(),
+        to_field_name='rd',
+        label='VRF (RD)',
     )
 
     class Meta:
