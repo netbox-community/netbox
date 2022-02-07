@@ -8,80 +8,126 @@
 ### Breaking Changes
 
 * Automatic redirection of legacy slug-based URL paths has been removed.
-* The `asn` field has been removed from the site model. Please use the ASN model introduced in NetBox v3.1 to track ASN assignments for sites.
-* The `asn` query filter for sites now matches against the AS number of assigned ASNs.
-* The `contact_name`, `contact_phone`, and `contact_email` fields have been removed from the site model. Please use the new contact model introduced in NetBox v3.1 to store contact information for sites.
+* The `asn` field has been removed from the site model. Please replicate any site ASN assignments to the ASN model introduced in NetBox v3.1 prior to upgrading.
+* The `asn` query filter for sites now matches against the AS number of assigned ASN objects.
+* The `contact_name`, `contact_phone`, and `contact_email` fields have been removed from the site model. Please replicate any data remaining in these fields to the contact model introduced in NetBox v3.1 prior to upgrading.
+* A `pre_run()` method has been added to the base Report class. While unlikely to affect most installations, you may need to alter any reports which already use this name for a method. 
 
 ### New Features
 
 #### Plugins Framework Extensions ([#8333](https://github.com/netbox-community/netbox/issues/8333))
 
-NetBox's plugins framework has been extended considerably in this release. Changes include:
+NetBox's plugins framework has been extended considerably in this release. Additions include:
 
-* Seven generic view classes are now officially supported for use by plugins.
-* `NetBoxModel` is available for subclassing to enable various NetBox features, such as custom fields and change logging.
-* `NetBoxModelFilterSet` is available to extend NetBox's dynamic filtering ability to plugin models.
+* Officially-supported generic view classes for common CRUD operations:
+    * `ObjectView`
+    * `ObjectEditView`
+    * `ObjectDeleteView`
+    * `ObjectListView`
+    * `BulkImportView`
+    * `BulkEditView`
+    * `BulkDeleteView`
+* The `NetBoxModel` base class, which enables various NetBox features, including:
+    * Change logging
+    * Custom fields
+    * Custom links
+    * Custom validation
+    * Export templates
+    * Journaling
+    * Tags
+    * Webhooks
+* Four base form classes for manipulating objects via the UI:
+    * `NetBoxModelForm`
+    * `NetBoxModelCSVForm`
+    * `NetBoxModelBulkEditForm`
+    * `NetBoxModelFilterSetForm`
+* The `NetBoxModelFilterSet` base class for plugin filter sets
+* The `NetBoxTable` base class for rendering object tables with `django-tables2`
+* Plugins can now extend NetBox's GraphQL API with their own schema
 
 No breaking changes to previously supported components have been introduced in this release. However, plugin authors are encouraged to audit their code for misuse of unsupported components, as much of NetBox's internal code base has been reorganized.
 
 #### Modules & Module Types ([#7844](https://github.com/netbox-community/netbox/issues/7844))
 
-Several new models have been added to support field-replaceable device modules, such as those within a chassis-based switch or router. Similar to devices, each module is instantiated from a user-defined module type, and can have components associated with it. These components become available to the parent device once the module has been installed within a module bay. This makes it very convenient to replicate the addition and deletion of device components as modules are installed and removed. 
+Several new models have been added to represent field-replaceable device modules, such as line cards installed within a chassis-based switch or router. Similar to devices, each module is instantiated from a user-defined module type, and can have components (interfaces, console ports, etc.) associated with it. These components become available to the parent device once the module has been installed within a module bay. This makes it very convenient to replicate the addition and deletion of device components as modules are installed and removed. 
 
 Automatic renaming of module components is also supported. When a new module is created, any occurrence of the string `{module}` in a component name will be replaced with the position of the module bay into which the module is being installed.
 
 #### Custom Object Fields ([#7006](https://github.com/netbox-community/netbox/issues/7006))
 
-Two new types of custom field have been added: object and multi-object. These can be used to associate objects with other objects in NetBox. For example, you might create a custom field named `primary_site` on the tenant model so that a particular site can be associated with each tenant as its primary. The multi-object custom field type allows for the assignment of one or more objects of the same type.
+Two new types of custom field have been introduced: object and multi-object. These can be used to associate an object in NetBox with some other arbitrary object(s) regardless of its type. For example, you might create a custom field named `primary_site` on the tenant model so that a particular site can be associated with each tenant as its primary. The multi-object custom field type allows for the assignment of one or more objects of the same type.
 
-Custom field object assignment is fully supported in the REST API, and functions similarly to normal foreign key relations. Nested representations are provided for each custom field object.
+Custom field object assignment is fully supported in the REST API, and functions similarly to built-in foreign key relations. Nested representations are provided automatically for each custom field object.
 
 #### Custom Status Choices ([#8054](https://github.com/netbox-community/netbox/issues/8054))
 
-Custom choices can be now added to most status fields in NetBox. This is done by defining the `FIELD_CHOICES` configuration parameter to map field identifiers to an iterable of custom choices. These choices are populated automatically when NetBox initializes. For example, the following will add three custom choices for the site status field:
+Custom choices can be now added to most status fields in NetBox. This is done by defining the `FIELD_CHOICES` configuration parameter to map field identifiers to an iterable of custom choices an (optionally) colors. These choices are populated automatically when NetBox initializes. For example, the following will add three custom choices for the site status field, each with a designated color:
 
 ```python
 FIELD_CHOICES = {
     'dcim.Site.status': (
-        ('foo', 'Foo'),
-        ('bar', 'Bar'),
-        ('baz', 'Baz'),
+        ('foo', 'Foo', 'red'),
+        ('bar', 'Bar', 'green'),
+        ('baz', 'Baz', 'blue'),
     )
+}
+```
+
+This will replace all default choices for this field with those listed. If instead the intent is to _extend_ the current choices, this can be done by adding a plus sign (`+`) to the end of the field identifier. For example, the following will add a single extra choice while retaining the defaults provided by NetBox:
+
+```python
+FIELD_CHOICES = {
+    'dcim.Site.status+': (
+        ('fubar', 'FUBAR', 'red'),
+    )
+}
+```
+
+#### Improved User Preferences ([#7759](https://github.com/netbox-community/netbox/issues/7759))
+
+A robust new mechanism for managing user preferences is included in this release. The user preferences form has been improved for better usability, and administrators can now define default preferences for all users with the [`DEFAULT_USER_PREFERENCES`](../configuration/dynamic-settings.md##default_user_preferences) configuration parameter. For example, this can be used to define the columns which appear by default in a table:
+
+```python
+DEFAULT_USER_PREFERENCES = {
+    'tables': {
+        'IPAddressTable': {
+            'columns': ['address', 'status', 'created', 'description']
+        }
+    }
 }
 ```
 
 #### Inventory Item Roles ([#3087](https://github.com/netbox-community/netbox/issues/3087))
 
-A new model has been introduced to represent function roles for inventory items, similar to device roles. The assignment of roles to inventory items is optional.
+A new model has been introduced to represent functional roles for inventory items, similar to device roles. The assignment of roles to inventory items is optional.
 
 #### Inventory Item Templates ([#8118](https://github.com/netbox-community/netbox/issues/8118))
 
-Inventory items can now be templatized on a device type similar to the other component types. This enables users to better pre-model fixed hardware components.
+Inventory items can now be templatized on a device type similar to other components (such as interfaces or console ports). This enables users to better pre-model fixed hardware components.
 
-Inventory item templates can be arranged hierarchically within a device type, and may be assigned to other components. These relationships will be mirrored when instantiating inventory items on a newly-created device.
+Inventory item templates can be arranged hierarchically within a device type, and may be assigned to other templated components. These relationships will be mirrored when instantiating inventory items on a newly-created device. For example, if defining an optic assigned to an interface template on a device type, the instantiated device will mimic this relationship between the optic and interface.
 
 #### Service Templates ([#1591](https://github.com/netbox-community/netbox/issues/1591))
 
-A new service template model has been introduced to assist in standardizing the definition and application of layer four services to devices and virtual machines. As an alternative to manually defining a name, protocol, and port(s) each time a service is created, a user now has the option of selecting a pre-defined template from which these values will be populated.
+A new service template model has been introduced to assist in standardizing the definition and association of layer four services with devices and virtual machines. As an alternative to manually defining a name, protocol, and port(s) each time a service is created, a user now has the option of selecting a pre-defined template from which these values will be populated.
 
 #### Automatic Provisioning of Next Available VLANs ([#2658](https://github.com/netbox-community/netbox/issues/2658))
 
-A new REST API endpoint has been added at `/api/ipam/vlan-groups/<pk>/available-vlans/`. A GET request to this endpoint will return a list of available VLANs within the group. A POST request can be made to this endpoint specifying the name(s) of one or more VLANs to create within the group, and their VLAN IDs will be assigned automatically.
+A new REST API endpoint has been added at `/api/ipam/vlan-groups/<id>/available-vlans/`. A GET request to this endpoint will return a list of available VLANs within the group. A POST request can be made specifying the name(s) of one or more VLANs to create within the group, and their VLAN IDs will be assigned automatically from the available pool.
 
 ### Enhancements
 
-* [#5429](https://github.com/netbox-community/netbox/issues/5429) - Enable toggling the placement of table paginators
+* [#5429](https://github.com/netbox-community/netbox/issues/5429) - Enable toggling the placement of table pagination controls
 * [#6954](https://github.com/netbox-community/netbox/issues/6954) - Remember users' table ordering preferences
 * [#7650](https://github.com/netbox-community/netbox/issues/7650) - Add support for local account password validation
 * [#7679](https://github.com/netbox-community/netbox/issues/7679) - Add actions menu to all object tables
 * [#7681](https://github.com/netbox-community/netbox/issues/7681) - Add `service_id` field for provider networks
-* [#7759](https://github.com/netbox-community/netbox/issues/7759) - Improved the user preferences form
 * [#7784](https://github.com/netbox-community/netbox/issues/7784) - Support cluster type assignment for config contexts
 * [#7846](https://github.com/netbox-community/netbox/issues/7846) - Enable associating inventory items with device components
-* [#7852](https://github.com/netbox-community/netbox/issues/7852) - Enable assigning interfaces to VRFs
-* [#7853](https://github.com/netbox-community/netbox/issues/7853) - Add `speed` and `duplex` fields to interface model
+* [#7852](https://github.com/netbox-community/netbox/issues/7852) - Enable the assignment of interfaces to VRFs
+* [#7853](https://github.com/netbox-community/netbox/issues/7853) - Add `speed` and `duplex` fields to device interface model
 * [#8168](https://github.com/netbox-community/netbox/issues/8168) - Add `min_vid` and `max_vid` fields to VLAN group
-* [#8295](https://github.com/netbox-community/netbox/issues/8295) - Webhook URLs can now be templatized
+* [#8295](https://github.com/netbox-community/netbox/issues/8295) - Jinja2 rendering is now supported for webhook URLs
 * [#8296](https://github.com/netbox-community/netbox/issues/8296) - Allow disabling custom links
 * [#8307](https://github.com/netbox-community/netbox/issues/8307) - Add `data_type` indicator to REST API serializer for custom fields
 * [#8572](https://github.com/netbox-community/netbox/issues/8572) - Add a `pre_run()` method for reports
@@ -104,7 +150,8 @@ A new REST API endpoint has been added at `/api/ipam/vlan-groups/<pk>/available-
     * `/api/dcim/module-bays/`
     * `/api/dcim/module-bay-templates/`
     * `/api/dcim/module-types/`
-    * `/api/extras/service-templates/`
+    * `/api/ipam/service-templates/`
+    * `/api/ipam/vlan-groups/<id>/available-vlans/`
 * circuits.ProviderNetwork
     * Added `service_id` field
 * dcim.ConsolePort
@@ -117,7 +164,7 @@ A new REST API endpoint has been added at `/api/ipam/vlan-groups/<pk>/available-
     * Added `module`, `speed`, `duplex`, and `vrf` fields
 * dcim.InventoryItem
     * Added `component_type`, `component_id`, and `role` fields
-    * Added read-only `component` field
+    * Added read-only `component` field (GFK)
 * dcim.PowerPort
     * Added `module` field
 * dcim.PowerOutlet
@@ -129,7 +176,7 @@ A new REST API endpoint has been added at `/api/ipam/vlan-groups/<pk>/available-
 * extras.ConfigContext
     * Add `cluster_types` field
 * extras.CustomField
-    * Added `object_type` field
+    * Added `data_type` and `object_type` fields
 * extras.CustomLink
     * Added `enabled` field
 * ipam.VLANGroup
