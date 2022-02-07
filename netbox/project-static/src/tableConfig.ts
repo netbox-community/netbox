@@ -12,15 +12,6 @@ function saveTableConfig(): void {
 }
 
 /**
- * Delete all selected columns, which reverts the user's preferences to the default column set.
- */
-function resetTableConfig(): void {
-  for (const element of getElements<HTMLSelectElement>('select[name="columns"]')) {
-    element.value = '';
-  }
-}
-
-/**
  * Add columns to the table config select element.
  */
 function addColumns(event: Event): void {
@@ -81,6 +72,30 @@ function handleSubmit(event: Event): void {
     return;
   }
 
+  // Determine if the form action is to reset the table config.
+  const reset = document.activeElement?.getAttribute('value') === 'Reset';
+
+  // Create an array from the dot-separated config path. E.g. tables.DevicePowerOutletTable becomes
+  // ['tables', 'DevicePowerOutletTable']
+  const path = element.getAttribute('data-config-root')?.split('.') ?? [];
+
+  if (reset) {
+    // If we're resetting the table config, create an empty object for this table. E.g.
+    // tables.PlatformTable becomes {tables: PlatformTable: {}}
+    const data = path.reduceRight<Dict<Dict>>((value, key) => ({ [key]: value }), {});
+
+    // Submit the reset for configuration to the API.
+    submitFormConfig(url, data).then(res => {
+      if (hasError(res)) {
+        const toast = createToast('danger', 'Error Resetting Table Configuration', res.error);
+        toast.show();
+      } else {
+        location.reload();
+      }
+    });
+    return;
+  }
+
   // Get all the selected options from any select element in the form.
   const options = getSelectedOptions(element, 'select[name=columns]');
 
@@ -89,9 +104,6 @@ function handleSubmit(event: Event): void {
     {},
     ...options.map(opt => ({ [opt.name]: opt.options })),
   );
-  // Create an array from the dot-separated config path. E.g. tables.DevicePowerOutletTable becomes
-  // ['tables', 'DevicePowerOutletTable']
-  const path = element.getAttribute('data-config-root')?.split('.') ?? [];
 
   // Create an object mapping the configuration path to the select element names, which contain the
   // selection options. E.g. {tables: {DevicePowerOutletTable: {columns: ['label', 'type']}}}
@@ -114,9 +126,6 @@ function handleSubmit(event: Event): void {
 export function initTableConfig(): void {
   for (const element of getElements<HTMLButtonElement>('#save_tableconfig')) {
     element.addEventListener('click', saveTableConfig);
-  }
-  for (const element of getElements<HTMLButtonElement>('#reset_tableconfig')) {
-    element.addEventListener('click', resetTableConfig);
   }
   for (const element of getElements<HTMLButtonElement>('#add_columns')) {
     element.addEventListener('click', addColumns);
