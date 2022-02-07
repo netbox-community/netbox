@@ -41,15 +41,14 @@ class ObjectListField(DjangoListField):
     Retrieve a list of objects, optionally filtered by one or more FilterSet filters.
     """
     def __init__(self, _type, *args, **kwargs):
-
-        assert hasattr(_type._meta, 'filterset_class'), "DjangoFilterListField must define filterset_class under Meta"
-        filterset_class = _type._meta.filterset_class
+        filter_kwargs = {}
 
         # Get FilterSet kwargs
-        filter_kwargs = {}
-        for filter_name, filter_field in filterset_class.get_filters().items():
-            field_type = get_graphene_type(type(filter_field))
-            filter_kwargs[filter_name] = graphene.Argument(field_type)
+        filterset_class = getattr(_type._meta, 'filterset_class', None)
+        if filterset_class:
+            for filter_name, filter_field in filterset_class.get_filters().items():
+                field_type = get_graphene_type(type(filter_field))
+                filter_kwargs[filter_name] = graphene.Argument(field_type)
 
         super().__init__(_type, args=filter_kwargs, *args, **kwargs)
 

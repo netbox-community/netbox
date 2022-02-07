@@ -5,8 +5,9 @@ from extras.graphql.mixins import ChangelogMixin, CustomFieldsMixin, JournalEntr
 
 __all__ = (
     'BaseObjectType',
+    'ObjectType',
     'OrganizationalObjectType',
-    'PrimaryObjectType',
+    'NetBoxObjectType',
 )
 
 
@@ -16,7 +17,7 @@ __all__ = (
 
 class BaseObjectType(DjangoObjectType):
     """
-    Base GraphQL object type for all NetBox objects
+    Base GraphQL object type for all NetBox objects. Restricts the model queryset to enforce object permissions.
     """
     class Meta:
         abstract = True
@@ -51,7 +52,7 @@ class OrganizationalObjectType(
         abstract = True
 
 
-class PrimaryObjectType(
+class NetBoxObjectType(
     ChangelogMixin,
     CustomFieldsMixin,
     JournalEntriesMixin,
@@ -59,7 +60,7 @@ class PrimaryObjectType(
     BaseObjectType
 ):
     """
-    Base type for primary models
+    GraphQL type for most NetBox models. Includes support for custom fields, change logging, journaling, and tags.
     """
     class Meta:
         abstract = True

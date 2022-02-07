@@ -12,10 +12,13 @@ from utilities.choices import ButtonColorChoices
 from extras.plugins.utils import import_object
 
 
-# Initialize plugin registry stores
-registry['plugin_template_extensions'] = collections.defaultdict(list)
-registry['plugin_menu_items'] = {}
-registry['plugin_preferences'] = {}
+# Initialize plugin registry
+registry['plugins'] = {
+    'graphql_schemas': [],
+    'menu_items': {},
+    'preferences': {},
+    'template_extensions': collections.defaultdict(list),
+}
 
 
 #
@@ -53,13 +56,15 @@ class PluginConfig(AppConfig):
 
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.
-    template_extensions = 'template_content.template_extensions'
+    graphql_schema = 'graphql.schema'
     menu_items = 'navigation.menu_items'
+    template_extensions = 'template_content.template_extensions'
     user_preferences = 'preferences.preferences'
 
     def ready(self):
+        plugin_name = self.name.rsplit('.', 1)[1]
 
-        # Register template content
+        # Register template content (if defined)
         template_extensions = import_object(f"{self.__module__}.{self.template_extensions}")
         if template_extensions is not None:
             register_template_extensions(template_extensions)
@@ -69,10 +74,14 @@ class PluginConfig(AppConfig):
         if menu_items is not None:
             register_menu_items(self.verbose_name, menu_items)
 
-        # Register user preferences
+        # Register GraphQL schema (if defined)
+        graphql_schema = import_object(f"{self.__module__}.{self.graphql_schema}")
+        if graphql_schema is not None:
+            register_graphql_schema(graphql_schema)
+
+        # Register user preferences (if defined)
         user_preferences = import_object(f"{self.__module__}.{self.user_preferences}")
         if user_preferences is not None:
-            plugin_name = self.name.rsplit('.', 1)[1]
             register_user_preferences(plugin_name, user_preferences)
 
     @classmethod
@@ -178,13 +187,13 @@ def register_template_extensions(class_list):
     # Validation
     for template_extension in class_list:
         if not inspect.isclass(template_extension):
-            raise TypeError(f"PluginTemplateExtension class {template_extension} was passes as an instance!")
+            raise TypeError(f"PluginTemplateExtension class {template_extension} was passed as an instance!")
         if not issubclass(template_extension, PluginTemplateExtension):
             raise TypeError(f"{template_extension} is not a subclass of extras.plugins.PluginTemplateExtension!")
         if template_extension.model is None:
             raise TypeError(f"PluginTemplateExtension class {template_extension} does not define a valid model!")
 
-        registry['plugin_template_extensions'][template_extension.model].append(template_extension)
+        registry['plugins']['template_extensions'][template_extension.model].append(template_extension)
 
 
 #
@@ -249,7 +258,18 @@ def register_menu_items(section_name, class_list):
             if not isinstance(button, PluginMenuButton):
                 raise TypeError(f"{button} must be an instance of extras.plugins.PluginMenuButton")
 
-    registry['plugin_menu_items'][section_name] = class_list
+    registry['plugins']['menu_items'][section_name] = class_list
+
+
+#
+# GraphQL schemas
+#
+
+def register_graphql_schema(graphql_schema):
+    """
+    Register a GraphQL schema class for inclusion in NetBox's GraphQL API.
+    """
+    registry['plugins']['graphql_schemas'].append(graphql_schema)
 
 
 #
@@ -260,4 +280,4 @@ def register_user_preferences(plugin_name, preferences):
     """
     Register a list of user preferences defined by a plugin.
     """
-    registry['plugin_preferences'][plugin_name] = preferences
+    registry['plugins']['preferences'][plugin_name] = preferences

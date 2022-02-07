@@ -1,5 +1,5 @@
 from wireless import filtersets, models
-from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.types import OrganizationalObjectType, NetBoxObjectType
 
 __all__ = (
     'WirelessLANType',
@@ -16,7 +16,7 @@ class WirelessLANGroupType(OrganizationalObjectType):
         filterset_class = filtersets.WirelessLANGroupFilterSet
 
 
-class WirelessLANType(PrimaryObjectType):
+class WirelessLANType(NetBoxObjectType):
 
     class Meta:
         model = models.WirelessLAN
@@ -30,7 +30,7 @@ class WirelessLANType(PrimaryObjectType):
         return self.auth_cipher or None
 
 
-class WirelessLinkType(PrimaryObjectType):
+class WirelessLinkType(NetBoxObjectType):
 
     class Meta:
         model = models.WirelessLink

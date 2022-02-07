@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from extras.registry import registry
 from extras.tests.dummy_plugin import config as dummy_config
+from netbox.graphql.schema import Query
 
 
 @skipIf('extras.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
@@ -61,8 +62,8 @@ class PluginTest(TestCase):
         """
         Check that plugin MenuItems and MenuButtons are registered.
         """
-        self.assertIn('Dummy plugin', registry['plugin_menu_items'])
-        menu_items = registry['plugin_menu_items']['Dummy plugin']
+        self.assertIn('Dummy plugin', registry['plugins']['menu_items'])
+        menu_items = registry['plugins']['menu_items']['Dummy plugin']
         self.assertEqual(len(menu_items), 2)
         self.assertEqual(len(menu_items[0].buttons), 2)
 
@@ -72,14 +73,14 @@ class PluginTest(TestCase):
         """
         from extras.tests.dummy_plugin.template_content import SiteContent
 
-        self.assertIn(SiteContent, registry['plugin_template_extensions']['dcim.site'])
+        self.assertIn(SiteContent, registry['plugins']['template_extensions']['dcim.site'])
 
     def test_user_preferences(self):
         """
         Check that plugin UserPreferences are registered.
         """
-        self.assertIn('dummy_plugin', registry['plugin_preferences'])
-        user_preferences = registry['plugin_preferences']['dummy_plugin']
+        self.assertIn('dummy_plugin', registry['plugins']['preferences'])
+        user_preferences = registry['plugins']['preferences']['dummy_plugin']
         self.assertEqual(type(user_preferences), dict)
         self.assertEqual(list(user_preferences.keys()), ['pref1', 'pref2'])
 
@@ -143,3 +144,12 @@ class PluginTest(TestCase):
         user_config = {'bar': 456}
         DummyConfigWithDefaultSettings.validate(user_config, settings.VERSION)
         self.assertEqual(user_config['bar'], 456)
+
+    def test_graphql(self):
+        """
+        Validate the registration and operation of plugin-provided GraphQL schemas.
+        """
+        from extras.tests.dummy_plugin.graphql import DummyQuery
+
+        self.assertIn(DummyQuery, registry['plugins']['graphql_schemas'])
+        self.assertTrue(issubclass(Query, DummyQuery))
