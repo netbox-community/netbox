@@ -231,11 +231,15 @@ export function scrollTo(element: Element, offset: number = 0): void {
  * Iterate through a select element's options and return an array of options that are selected.
  *
  * @param base Select element.
+ * @param selector Optionally specify a selector. 'select' by default.
  * @returns Array of selected options.
  */
-export function getSelectedOptions<E extends HTMLElement>(base: E): SelectedOption[] {
+export function getSelectedOptions<E extends HTMLElement>(
+  base: E,
+  selector: string = 'select',
+): SelectedOption[] {
   let selected = [] as SelectedOption[];
-  for (const element of base.querySelectorAll<HTMLSelectElement>('select')) {
+  for (const element of base.querySelectorAll<HTMLSelectElement>(selector)) {
     if (element !== null) {
       const select = { name: element.name, options: [] } as SelectedOption;
       for (const option of element.options) {
