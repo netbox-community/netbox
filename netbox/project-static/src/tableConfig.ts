@@ -82,7 +82,7 @@ function handleSubmit(event: Event): void {
   }
 
   // Get all the selected options from any select element in the form.
-  const options = getSelectedOptions(element);
+  const options = getSelectedOptions(element, 'select[name=columns]');
 
   // Create an object mapping the select element's name to all selected options for that element.
   const formData: Dict<Dict<string>> = Object.assign(
