@@ -25,8 +25,6 @@ class FormMetaclass(forms.models.ModelFormMetaclass):
             }
             field_kwargs.update(**param.field_kwargs)
             param_fields[param.name] = param.field(**field_kwargs)
-            if param.size:
-                param_fields[param.name].widget.attrs["size"] = param.size
         attrs.update(param_fields)
 
         return super().__new__(mcs, name, bases, attrs)
