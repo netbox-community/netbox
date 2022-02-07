@@ -1,8 +1,5 @@
 # NetBox v3.1
 
-<<<<<<< HEAD
-## v3.1.7 (FUTURE)
-=======
 ## v3.1.7 (2022-02-03)
 
 ### Enhancements
@@ -29,7 +26,6 @@
 * [#8499](https://github.com/netbox-community/netbox/issues/8499) - Content types REST API endpoint should not require model permission
 * [#8512](https://github.com/netbox-community/netbox/issues/8512) - Correct file permissions to allow execution of housekeeping script
 * [#8527](https://github.com/netbox-community/netbox/issues/8527) - Fix display of changelog retention period
->>>>>>> develop
 
 ---
 
