@@ -803,7 +803,6 @@ class DeviceTypeView(generic.ObjectView):
 
         return {
             'instance_count': instance_count,
-            'active_tab': 'devicetype',
         }
 
 
@@ -953,11 +952,10 @@ class ModuleTypeView(generic.ObjectView):
     queryset = ModuleType.objects.prefetch_related('manufacturer')
 
     def get_extra_context(self, request, instance):
-        # instance_count = Module.objects.restrict(request.user).filter(device_type=instance).count()
+        instance_count = Module.objects.restrict(request.user).filter(module_type=instance).count()
 
         return {
-            # 'instance_count': instance_count,
-            'active_tab': 'moduletype',
+            'instance_count': instance_count,
         }
 
 
@@ -1570,7 +1568,6 @@ class DeviceView(generic.ObjectView):
         return {
             'services': services,
             'vc_members': vc_members,
-            'active_tab': 'device',
         }
 
 

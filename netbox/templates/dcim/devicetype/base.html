@@ -52,13 +52,7 @@
   {% endif %}
 {% endblock %}
 
-{% block tab_items %}
-    <li role="presentation" class="nav-item">
-        <a href="{% url 'dcim:devicetype' pk=object.pk %}" class="nav-link{% if active_tab == 'devicetype' %} active{% endif %}">
-            Device Type
-        </a>
-    </li>
-
+{% block extra_tabs %}
     {% with tab_name='device-bay-templates' devicebay_count=object.devicebaytemplates.count %}
         {% if active_tab == tab_name or devicebay_count %}
             <li role="presentation" class="nav-item">

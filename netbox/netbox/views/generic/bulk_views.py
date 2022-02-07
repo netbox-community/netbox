@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
-from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
+from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2.export import TableExport
@@ -178,7 +178,7 @@ class ObjectListView(BaseMultiObjectView):
             })
 
         context = {
-            'content_type': content_type,
+            'model': model,
             'table': table,
             'permissions': permissions,
             'action_buttons': self.action_buttons,
