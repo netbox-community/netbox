@@ -71,47 +71,7 @@ A URL pattern has three components:
 
 This makes our view accessible at the URL `/plugins/animal-sounds/random/`. (Remember, our `AnimalSoundsConfig` class sets our plugin's base URL to `animal-sounds`.) Viewing this URL should show the base NetBox template with our custom content inside it.
 
-## Templates
-
-### Plugin Views
-
-NetBox provides a base template to ensure a consistent user experience, which plugins can extend with their own content. This template includes four content blocks:
-
-* `title` - The page title
-* `header` - The upper portion of the page
-* `content` - The main page body
-* `javascript` - A section at the end of the page for including Javascript code
-
-For more information on how template blocks work, consult the [Django documentation](https://docs.djangoproject.com/en/stable/ref/templates/builtins/#block).
-
-```jinja2
-{% extends 'base/layout.html' %}
-
-{% block content %}
-    {% with config=settings.PLUGINS_CONFIG.netbox_animal_sounds %}
-        <h2 class="text-center" style="margin-top: 200px">
-            {% if animal %}
-                The {{ animal.name|lower }} says
-                {% if config.loud %}
-                    {{ animal.sound|upper }}!
-                {% else %}
-                    {{ animal.sound }}
-                {% endif %}
-            {% else %}
-                No animals have been created yet!
-            {% endif %}
-        </h2>
-    {% endwith %}
-{% endblock %}
-
-```
-
-The first line of the template instructs Django to extend the NetBox base template and inject our custom content within its `content` block.
-
-!!! note
-    Django renders templates with its own custom [template language](https://docs.djangoproject.com/en/stable/topics/templates/#the-django-template-language). This is very similar to Jinja2, however there are some important differences to be aware of.
-
-### Extending Core Views
+## Extending Core Views
 
 Plugins can inject custom content into certain areas of the detail views of applicable models. This is accomplished by subclassing `PluginTemplateExtension`, designating a particular NetBox model, and defining the desired methods to render custom content. Four methods are available:
 

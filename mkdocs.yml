@@ -104,6 +104,7 @@ nav:
             - Getting Started: 'plugins/development/index.md'
             - Models: 'plugins/development/models.md'
             - Views: 'plugins/development/views.md'
+            - Templates: 'plugins/development/templates.md'
             - Tables: 'plugins/development/tables.md'
             - Forms: 'plugins/development/forms.md'
             - Filter Sets: 'plugins/development/filtersets.md'
