@@ -2,15 +2,26 @@
 {% load form_helpers %}
 {% load helpers %}
 
+{% comment %}
+Blocks:
+  form: Content within the <form> element
+  buttons: Form submission buttons
+
+Context:
+  object: Python instance of the object being edited
+  form: The edit form
+  return_url: The URL to which the user is redirected after submitting the form
+{% endcomment %}
+
 {% block title %}
-  {% if obj.pk %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}
+  {% if object.pk %}Editing {{ object|meta:"verbose_name" }} {{ object }}{% else %}Add a new {{ object|meta:"verbose_name" }}{% endif %}
 {% endblock title %}
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="edit-form-tab" data-bs-toggle="tab" data-bs-target="#edit-form" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
-        {% if obj.pk %}Edit{% else %}Create{% endif %}
+        {% if object.pk %}Edit{% else %}Create{% endif %}
       </button>
     </li>
   </ul>
@@ -21,9 +32,9 @@
     <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
 
       {# Link to model documentation #}
-      {% if obj and settings.DOCS_ROOT %}
+      {% if object and settings.DOCS_ROOT %}
         <div class="float-end">
-          <a href="{{ obj|get_docs_url }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="View model documentation">
+          <a href="{{ object|get_docs_url }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="View model documentation">
             <i class="mdi mdi-help-circle"></i> Help
           </a>
         </div>
@@ -75,7 +86,7 @@
           {% else %}
             {# Render all fields in a single group #}
             <div class="field-group mb-5">
-              {% block form_fields %}{% render_form form %}{% endblock %}
+              {% render_form form %}
             </div>
           {% endif %}
 
@@ -84,7 +95,7 @@
         <div class="text-end my-3">
           {% block buttons %}
             <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
-            {% if obj.pk %}
+            {% if object.pk %}
               <button type="submit" name="_update" class="btn btn-primary">
                 Save
               </button>

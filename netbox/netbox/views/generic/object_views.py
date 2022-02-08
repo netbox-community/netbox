@@ -344,8 +344,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         restrict_form_fields(form, request.user)
 
         return render(request, self.template_name, {
-            'obj': obj,
-            'obj_type': self.queryset.model._meta.verbose_name,
+            'object': obj,
             'form': form,
             'return_url': self.get_return_url(request, obj),
             **self.get_extra_context(request, obj),
@@ -423,8 +422,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
             logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
-            'obj': obj,
-            'obj_type': self.queryset.model._meta.verbose_name,
+            'object': obj,
             'form': form,
             'return_url': self.get_return_url(request, obj),
             **self.get_extra_context(request, obj),
@@ -468,7 +466,6 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
         return render(request, self.template_name, {
             'object': obj,
-            'object_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request, obj),
             **self.get_extra_context(request, obj),
@@ -513,7 +510,6 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
         return render(request, self.template_name, {
             'object': obj,
-            'object_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request, obj),
             **self.get_extra_context(request, obj),
@@ -557,8 +553,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         instance = self.alter_object(self.queryset.model, request)
 
         return render(request, self.template_name, {
-            'obj': instance,
-            'obj_type': self.queryset.model._meta.verbose_name,
+            'object': instance,
             'replication_form': form,
             'form': model_form,
             'return_url': self.get_return_url(request),
@@ -577,8 +572,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                 return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
-            'obj': instance,
-            'obj_type': self.queryset.model._meta.verbose_name,
+            'object': instance,
             'replication_form': form,
             'form': model_form,
             'return_url': self.get_return_url(request),

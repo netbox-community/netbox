@@ -1,16 +1,19 @@
 {% extends 'generic/object_edit.html' %}
 {% load helpers %}
+{% load form_helpers %}
 
-{% block form_fields %}
-  <div class="row mb-3">
-    <label class="col-sm-3 col-form-label text-lg-end required">
-      {{ obj.parent|meta:"verbose_name"|bettertitle }}
-    </label>
-    <div class="col-sm-9">
-      <div class="form-control-plaintext">
-        <a href="{{ obj.parent.get_absolute_url }}" class="">{{ obj.parent }}</a>
+{% block form %}
+  <div class="field-group mb-5">
+    <div class="row mb-3">
+      <label class="col-sm-3 col-form-label text-lg-end required">
+        {{ object.parent|meta:"verbose_name"|bettertitle }}
+      </label>
+      <div class="col-sm-9">
+        <div class="form-control-plaintext">
+          <a href="{{ object.parent.get_absolute_url }}" class="">{{ object.parent }}</a>
+        </div>
       </div>
     </div>
+    {% render_form form %}
   </div>
-  {{ block.super }}
-{% endblock form_fields %}
+{% endblock form %}

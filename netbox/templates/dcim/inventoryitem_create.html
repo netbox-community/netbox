@@ -4,13 +4,13 @@
 
 {% block form %}
   {% render_form replication_form %}
-  {% if obj.component %}
+  {% if object.component %}
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label text-lg-end">
-          {{ obj.component|meta:"verbose_name"|bettertitle }}
+          {{ object.component|meta:"verbose_name"|bettertitle }}
         </label>
         <div class="col">
-            <input class="form-control" value="{{ obj.component }}" disabled />
+            <input class="form-control" value="{{ object.component }}" disabled />
         </div>
     </div>
   {% endif %}
