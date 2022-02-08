@@ -2,7 +2,15 @@
 {% load helpers %}
 {% load form_helpers %}
 
-{% block title %}{{ obj_type|bettertitle }} Bulk Import{% endblock %}
+{% comment %}
+Context:
+  model: The model class being imported
+  form: The bulk import form
+  fields: A dictionary of form fields, to display import options (optional)
+  return_url: The URL to which the user is redirected after submitting the form
+{% endcomment %}
+
+{% block title %}{{ model|meta:"verbose_name"|bettertitle }} Bulk Import{% endblock %}
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
@@ -10,7 +18,7 @@
       <a class ="nav-link active" href="#">Bulk Import</a>
     </li>
   </ul>
-{% endblock %}
+{% endblock tabs %}
 
 {% block content-wrapper %}
   <div class="tab-content">
@@ -145,4 +153,4 @@
         </div>
     {% endblock content %}
   </div>
-{% endblock %}
+{% endblock content-wrapper %}

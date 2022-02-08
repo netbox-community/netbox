@@ -14,6 +14,7 @@ from django_tables2.export import TableExport
 
 from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
+from netbox.tables import configure_table
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
@@ -21,7 +22,6 @@ from utilities.forms import (
 )
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
-from netbox.tables import configure_table
 from utilities.views import GetReturnURLMixin
 from .base import BaseMultiObjectView
 
@@ -369,9 +369,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     def get(self, request):
 
         return render(request, self.template_name, {
+            'model': self.model_form._meta.model,
             'form': self._import_form(),
             'fields': self.model_form().fields,
-            'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
         })
@@ -418,9 +418,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
+            'model': self.model_form._meta.model,
             'form': form,
             'fields': self.model_form().fields,
-            'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
         })
@@ -759,8 +759,8 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
             return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
+            'model': model,
             'form': form,
-            'obj_type_plural': model._meta.verbose_name_plural,
             'table': table,
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
