@@ -43,13 +43,7 @@
   {% endif %}
 {% endblock %}
 
-{% block tab_items %}
-    <li role="presentation" class="nav-item">
-        <a href="{% url 'dcim:moduletype' pk=object.pk %}" class="nav-link{% if active_tab == 'moduletype' %} active{% endif %}">
-            Module Type
-        </a>
-    </li>
-
+{% block extra_tabs %}
     {% with interface_count=object.interfacetemplates.count %}
         {% if interface_count %}
             <li role="presentation" class="nav-item">

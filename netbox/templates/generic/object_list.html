@@ -4,20 +4,37 @@
 {% load render_table from django_tables2 %}
 {% load static %}
 
-{% block title %}{{ content_type.model_class|meta:"verbose_name_plural"|bettertitle }}{% endblock %}
+{% comment %}
+Blocks:
+  extra_controls: Additional action buttons
+  bulk_buttons: Additional bulk action buttons to display beneath the objects
+    list
+
+Context:
+  model: The model class being listed
+  table: The table class used for rendering the list of objects
+  permissions: A mapping of add/change/delete permissions to boolean indicating
+    whether the current user possesses each of them. Controls the display of
+    add/edit/delete buttons.
+  action_buttons: A list of buttons to display. Options are add, import, export.
+  filter_form: The bound filterset form for filtering the objects list (optional)
+  return_url: Return URL to use for bulk actions (optional)
+{% endcomment %}
+
+{% block title %}{{ model|meta:"verbose_name_plural"|bettertitle }}{% endblock %}
 
 {% block controls %}
   <div class="controls">
     <div class="control-group">
       {% block extra_controls %}{% endblock %}
       {% if permissions.add and 'add' in action_buttons %}
-          {% add_button content_type.model_class|validated_viewname:"add" %}
+          {% add_button model|validated_viewname:"add" %}
       {% endif %}
       {% if permissions.add and 'import' in action_buttons %}
-          {% import_button content_type.model_class|validated_viewname:"import" %}
+          {% import_button model|validated_viewname:"import" %}
       {% endif %}
       {% if 'export' in action_buttons %}
-          {% export_button content_type %}
+          {% export_button model|content_type %}
       {% endif %}
     </div>
   </div>
@@ -25,22 +42,20 @@
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
-    {% block tab_items %}
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
+        Records
+        {% badge table.page.paginator.count %}
+      </button>
+    </li>
+    {% if filter_form %}
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
-          Records
-          {% badge table.page.paginator.count %}
+        <button class="nav-link" id="filters-form-tab" data-bs-toggle="tab" data-bs-target="#filters-form" type="button" role="tab" aria-controls="object-list" aria-selected="false">
+          Filters
+          {% if filter_form %}{% badge filter_form.changed_data|length bg_class="primary" %}{% endif %}
         </button>
       </li>
-      {% if filter_form %}
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="filters-form-tab" data-bs-toggle="tab" data-bs-target="#filters-form" type="button" role="tab" aria-controls="object-list" aria-selected="false">
-            Filters
-            {% if filter_form %}{% badge filter_form.changed_data|length bg_class="primary" %}{% endif %}
-          </button>
-        </li>
-      {% endif %}
-    {% endblock tab_items %}
+    {% endif %}
   </ul>
 {% endblock tabs %}
 
@@ -57,7 +72,7 @@
 
       {# "Select all" form #}
       {% if table.paginator.num_pages > 1 %}
-        {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
+        {% with bulk_edit_url=model|validated_viewname:"bulk_edit" bulk_delete_url=model|validated_viewname:"bulk_delete" %}
           <div id="select-all-box" class="d-none card noprint">
             <form method="post" class="form col-md-12">
               {% csrf_token %}
@@ -102,7 +117,7 @@
 
         {# Form buttons #}
         {% if permissions.change or permissions.delete %}
-          {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
+          {% with bulk_edit_url=model|validated_viewname:"bulk_edit" bulk_delete_url=model|validated_viewname:"bulk_delete" %}
             <div class="noprint bulk-buttons">
               <div class="bulk-button-group">
                 {% block bulk_buttons %}{% endblock %}

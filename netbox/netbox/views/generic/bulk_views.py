@@ -7,13 +7,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
-from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
+from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2.export import TableExport
 
 from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
+from netbox.tables import configure_table
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
@@ -21,7 +22,6 @@ from utilities.forms import (
 )
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
-from netbox.tables import configure_table
 from utilities.views import GetReturnURLMixin
 from .base import BaseMultiObjectView
 
@@ -178,7 +178,7 @@ class ObjectListView(BaseMultiObjectView):
             })
 
         context = {
-            'content_type': content_type,
+            'model': model,
             'table': table,
             'permissions': permissions,
             'action_buttons': self.action_buttons,
@@ -304,7 +304,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     Attributes:
         model_form: The form used to create each imported object
     """
-    template_name = 'generic/object_bulk_import.html'
+    template_name = 'generic/bulk_import.html'
     model_form = None
 
     def _import_form(self, *args, **kwargs):
@@ -369,9 +369,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     def get(self, request):
 
         return render(request, self.template_name, {
+            'model': self.model_form._meta.model,
             'form': self._import_form(),
             'fields': self.model_form().fields,
-            'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
         })
@@ -418,9 +418,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
+            'model': self.model_form._meta.model,
             'form': form,
             'fields': self.model_form().fields,
-            'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
         })
@@ -434,7 +434,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         filterset: FilterSet to apply when deleting by QuerySet
         form: The form class used to edit objects in bulk
     """
-    template_name = 'generic/object_bulk_edit.html'
+    template_name = 'generic/bulk_edit.html'
     filterset = None
     form = None
 
@@ -590,7 +590,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     """
     An extendable view for renaming objects in bulk.
     """
-    template_name = 'generic/object_bulk_rename.html'
+    template_name = 'generic/bulk_rename.html'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -681,7 +681,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         filterset: FilterSet to apply when deleting by QuerySet
         table: The table used to display devices being deleted
     """
-    template_name = 'generic/object_bulk_delete.html'
+    template_name = 'generic/bulk_delete.html'
     filterset = None
     table = None
 
@@ -759,8 +759,8 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
             return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
+            'model': model,
             'form': form,
-            'obj_type_plural': model._meta.verbose_name_plural,
             'table': table,
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
@@ -775,7 +775,7 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a set of Devices or VirtualMachines.
     """
-    template_name = 'generic/object_bulk_add_component.html'
+    template_name = 'generic/bulk_add_component.html'
     parent_model = None
     parent_field = None
     form = None

@@ -1,7 +1,16 @@
 {% extends 'base/layout.html' %}
+{% load helpers %}
 {% load form_helpers %}
 
-{% block title %}Delete {{ object_type }}?{% endblock %}
+{% comment %}
+Context:
+  object: Python instance of the object being deleted
+  form: The delete confirmation form
+  form_url: URL for form submission (optional; defaults to current path)
+  return_url: The URL to which the user is redirected after submitting the form
+{% endcomment %}
+
+{% block title %}Delete {{ object|meta:"verbose_name" }}?{% endblock %}
 
 {% block header %}{% endblock %}
 

@@ -3,7 +3,15 @@
 {% load form_helpers %}
 {% load render_table from django_tables2 %}
 
-{% block title %}Editing {{ table.rows|length }} {{ model|meta:"verbose_name_plural" }}{% endblock %}
+{% comment %}
+Context:
+  model: The model class of the objects being modified
+  form: The bulk edit form class
+  table: The table class for rendering list of objects being modified
+  return_url: The URL to which the user is redirected after submitting the form
+{% endcomment %}
+
+{% block title %}Editing {{ table.rows|length }} {{ model|meta:"verbose_name_plural"|bettertitle }}{% endblock %}
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
@@ -19,7 +27,7 @@
       </button>
     </li>
   </ul>
-{% endblock %}
+{% endblock tabs %}
 
 {% block content-wrapper %}
   <div class="tab-content">
@@ -128,6 +136,6 @@
         </div>
       </div>
 
-    {% endblock %}
+    {% endblock content %}
   </div>
-{% endblock %}
+{% endblock content-wrapper %}

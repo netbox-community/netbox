@@ -2,7 +2,7 @@
 {% load static %}
 {% load form_helpers %}
 
-{% block title %}{{ obj.circuit.provider }} {{ obj.circuit }} - Side {{ form.term_side.value }}{% endblock %}
+{% block title %}{{ object.circuit.provider }} {{ object.circuit }} - Side {{ form.term_side.value }}{% endblock %}
 
 {% block form %}
   <div class="field-group my-5">
@@ -12,13 +12,13 @@
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label text-lg-end">Provider</label>
         <div class="col">
-            <input class="form-control" value="{{ obj.circuit.provider }}" disabled />
+            <input class="form-control" value="{{ object.circuit.provider }}" disabled />
         </div>
     </div>
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label text-lg-end">Circuit</label>
         <div class="col">
-            <input class="form-control" value="{{ obj.circuit.cid }}" disabled />
+            <input class="form-control" value="{{ object.circuit.cid }}" disabled />
         </div>
     </div>
     <div class="row mb-3">
@@ -69,7 +69,7 @@
 {# Override buttons block, 'Create & Add Another'/'_addanother' is not needed on a circuit. #}
 {% block buttons %}
     <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
-    {% if obj.pk %}
+    {% if object.pk %}
         <button type="submit" name="_update" class="btn btn-primary">
             Save
         </button>

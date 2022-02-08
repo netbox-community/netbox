@@ -22,12 +22,10 @@
               <td>Part Number</td>
               <td>{{ object.part_number|placeholder }}</td>
             </tr>
-            {% comment %}
             <tr>
               <td>Instances</td>
               <td><a href="{% url 'dcim:module_list' %}?module_type_id={{ object.pk }}">{{ instance_count }}</a></td>
             </tr>
-            {% endcomment %}
           </table>
         </div>
       </div>
