@@ -304,7 +304,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     Attributes:
         model_form: The form used to create each imported object
     """
-    template_name = 'generic/object_bulk_import.html'
+    template_name = 'generic/bulk_import.html'
     model_form = None
 
     def _import_form(self, *args, **kwargs):
@@ -434,7 +434,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         filterset: FilterSet to apply when deleting by QuerySet
         form: The form class used to edit objects in bulk
     """
-    template_name = 'generic/object_bulk_edit.html'
+    template_name = 'generic/bulk_edit.html'
     filterset = None
     form = None
 
@@ -590,7 +590,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     """
     An extendable view for renaming objects in bulk.
     """
-    template_name = 'generic/object_bulk_rename.html'
+    template_name = 'generic/bulk_rename.html'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -681,7 +681,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         filterset: FilterSet to apply when deleting by QuerySet
         table: The table used to display devices being deleted
     """
-    template_name = 'generic/object_bulk_delete.html'
+    template_name = 'generic/bulk_delete.html'
     filterset = None
     table = None
 
@@ -775,7 +775,7 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a set of Devices or VirtualMachines.
     """
-    template_name = 'generic/object_bulk_add_component.html'
+    template_name = 'generic/bulk_add_component.html'
     parent_model = None
     parent_field = None
     form = None
