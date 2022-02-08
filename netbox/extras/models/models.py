@@ -367,10 +367,6 @@ class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
         max_length=50,
         blank=True
     )
-    # ChangeLoggingMixin.created is a DateField
-    created = models.DateTimeField(
-        auto_now_add=True
-    )
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -437,9 +433,6 @@ class JournalEntry(WebhooksMixin, ChangeLoggedModel):
     assigned_object = GenericForeignKey(
         ct_field='assigned_object_type',
         fk_field='assigned_object_id'
-    )
-    created = models.DateTimeField(
-        auto_now_add=True
     )
     created_by = models.ForeignKey(
         to=User,

@@ -33,7 +33,7 @@ class ChangeLoggingMixin(models.Model):
     """
     Provides change logging support for a model. Adds the `created` and `last_updated` fields.
     """
-    created = models.DateField(
+    created = models.DateTimeField(
         auto_now_add=True,
         blank=True,
         null=True

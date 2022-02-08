@@ -197,12 +197,12 @@ class BaseFilterSet(django_filters.FilterSet):
 
 
 class ChangeLoggedModelFilterSet(BaseFilterSet):
-    created = django_filters.DateFilter()
-    created__gte = django_filters.DateFilter(
+    created = django_filters.DateTimeFilter()
+    created__gte = django_filters.DateTimeFilter(
         field_name='created',
         lookup_expr='gte'
     )
-    created__lte = django_filters.DateFilter(
+    created__lte = django_filters.DateTimeFilter(
         field_name='created',
         lookup_expr='lte'
     )

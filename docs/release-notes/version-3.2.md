@@ -11,6 +11,7 @@
 * The `asn` field has been removed from the site model. Please replicate any site ASN assignments to the ASN model introduced in NetBox v3.1 prior to upgrading.
 * The `asn` query filter for sites now matches against the AS number of assigned ASN objects.
 * The `contact_name`, `contact_phone`, and `contact_email` fields have been removed from the site model. Please replicate any data remaining in these fields to the contact model introduced in NetBox v3.1 prior to upgrading.
+* The `created` field of all change-logged models now conveys a full datetime object, rather than only a date. (Previous date-only values will receive a timestamp of 00:00.) While this change is largely innocuous, strictly-typed API consumers may need to be updated.
 * A `pre_run()` method has been added to the base Report class. While unlikely to affect most installations, you may need to alter any reports which already use this name for a method. 
 
 ### New Features
@@ -130,6 +131,7 @@ A new REST API endpoint has been added at `/api/ipam/vlan-groups/<id>/available-
 * [#8295](https://github.com/netbox-community/netbox/issues/8295) - Jinja2 rendering is now supported for webhook URLs
 * [#8296](https://github.com/netbox-community/netbox/issues/8296) - Allow disabling custom links
 * [#8307](https://github.com/netbox-community/netbox/issues/8307) - Add `data_type` indicator to REST API serializer for custom fields
+* [#8463](https://github.com/netbox-community/netbox/issues/8463) - Change the `created` field on all change-logged models from date to datetime
 * [#8572](https://github.com/netbox-community/netbox/issues/8572) - Add a `pre_run()` method for reports
 
 ### Other Changes
