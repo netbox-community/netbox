@@ -16,6 +16,7 @@ __all__ = (
     'DatePicker',
     'DateTimePicker',
     'NumericArrayField',
+    'SelectSpeedWidget',
     'SelectWithDisabled',
     'SelectWithPK',
     'SlugWidget',
@@ -109,6 +110,13 @@ class ContentTypeSelect(StaticSelect2):
     This attribute can be used to reference the relevant API endpoint for a particular ContentType.
     """
     option_template_name = 'widgets/select_contenttype.html'
+
+
+class SelectSpeedWidget(forms.NumberInput):
+    """
+    Speed field with dropdown selections for convenience.
+    """
+    template_name = 'widgets/select_speed.html'
 
 
 class NumericArrayField(SimpleArrayField):

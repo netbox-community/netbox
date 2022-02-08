@@ -9,6 +9,14 @@ class AbortTransaction(Exception):
     pass
 
 
+class PermissionsViolation(Exception):
+    """
+    Raised when an operation was prevented because it would violate the
+    allowed permissions.
+    """
+    pass
+
+
 class RQWorkerNotRunningException(APIException):
     """
     Indicates the temporary inability to enqueue a new task (e.g. custom script execution) because no RQ worker

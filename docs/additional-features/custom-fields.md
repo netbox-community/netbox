@@ -16,6 +16,7 @@ Custom fields must be created through the admin UI under Extras > Custom Fields.
 * Date: A date in ISO 8601 format (YYYY-MM-DD)
 * URL: This will be presented as a link in the web UI
 * Selection: A selection of one of several pre-defined custom choices
+* Multiple selection: A selection field which supports the assignment of multiple values
 
 Each custom field must have a name; this should be a simple database-friendly string, e.g. `tps_report`. You may also assign a corresponding human-friendly label (e.g. "TPS report"); the label will be displayed on web forms. A weight is also required: Higher-weight fields will be ordered lower within a form. (The default weight is 100.) If a description is provided, it will appear beneath the field in a form.
 
@@ -23,7 +24,7 @@ Marking a field as required will force the user to provide a value for the field
 
 The filter logic controls how values are matched when filtering objects by the custom field. Loose filtering (the default) matches on a partial value, whereas exact matching requires a complete match of the given string to a field's value. For example, exact filtering with the string "red" will only match the exact value "red", whereas loose filtering will match on the values "red", "red-orange", or "bored". Setting the filter logic to "disabled" disables filtering by the field entirely.
 
-A custom field must be assigned to one or object types, or models, in NetBox. Once created, custom fields will automatically appear as part of these models in the web UI and REST API. Note that not all models support custom fields.
+A custom field must be assigned to one or more object types, or models, in NetBox. Once created, custom fields will automatically appear as part of these models in the web UI and REST API. Note that not all models support custom fields.
 
 ### Custom Field Validation
 
@@ -37,7 +38,13 @@ NetBox supports limited custom validation for custom field values. Following are
 
 Each custom selection field must have at least two choices. These are specified as a comma-separated list. Choices appear in forms in the order they are listed. Note that choice values are saved exactly as they appear, so it's best to avoid superfluous punctuation or symbols where possible.
 
-If a default value is specified for a selection field, it must exactly match one of the provided choices.
+If a default value is specified for a selection field, it must exactly match one of the provided choices. The value of a multiple selection field will always return a list, even if only one value is selected.
+
+## Custom Fields in Templates
+
+Several features within NetBox, such as export templates and webhooks, utilize Jinja2 templating. For convenience, objects which support custom field assignment expose custom field data through the `cf` property. This is a bit cleaner than accessing custom field data through the actual field (`custom_field_data`).
+
+For example, a custom field named `foo123` on the Site model is accessible on an instance as `{{ site.cf.foo123 }}`.
 
 ## Custom Fields and the REST API
 

@@ -30,7 +30,7 @@ pip3 install django-auth-ldap
 Once installed, add the package to `local_requirements.txt` to ensure it is re-installed during future rebuilds of the virtual environment:
 
 ```no-highlight
-sudo echo django-auth-ldap >> /opt/netbox/local_requirements.txt
+sudo sh -c "echo 'django-auth-ldap' >> /opt/netbox/local_requirements.txt"
 ```
 
 ## Configuration
@@ -74,7 +74,7 @@ STARTTLS can be configured by setting `AUTH_LDAP_START_TLS = True` and using the
 ### User Authentication
 
 !!! info
-    When using Windows Server 2012, `AUTH_LDAP_USER_DN_TEMPLATE` should be set to None.
+    When using Windows Server 2012+, `AUTH_LDAP_USER_DN_TEMPLATE` should be set to None.
 
 ```python
 from django_auth_ldap.config import LDAPSearch
@@ -142,7 +142,7 @@ AUTH_LDAP_CACHE_TIMEOUT = 3600
 
 `systemctl restart netbox` restarts the NetBox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the NetBox process will not spawn an instance, and errors should be logged to `/var/log/messages`.
 
-For troubleshooting LDAP user/group queries, add or merge the following [logging](/configuration/optional-settings.md#logging) configuration to `configuration.py`:
+For troubleshooting LDAP user/group queries, add or merge the following [logging](../configuration/optional-settings.md#logging) configuration to `configuration.py`:
 
 ```python
 LOGGING = {

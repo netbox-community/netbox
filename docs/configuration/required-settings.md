@@ -66,6 +66,7 @@ Redis is configured using a configuration setting similar to `DATABASE` and thes
 * `PASSWORD` - Redis password (if set)
 * `DATABASE` - Numeric database ID
 * `SSL` - Use SSL connection to Redis
+* `INSECURE_SKIP_TLS_VERIFY` - Set to `True` to **disable** TLS certificate verification (not recommended)
 
 An example configuration is provided below:
 

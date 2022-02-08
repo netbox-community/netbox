@@ -2,6 +2,12 @@
 {% load helpers %}
 {% load plugins %}
 
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'dcim:device_devicebays' pk=object.device.pk %}">Device Bays</a></li>
+  <li>{{ object }}</li>
+{% endblock %}
+
 {% block content %}
     <div class="row">
         <div class="col-md-6">
@@ -30,6 +36,7 @@
                     </tr>
                 </table>
             </div>
+            {% include 'inc/custom_fields_panel.html' %}
             {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
             {% plugin_left_page object %}
         </div>

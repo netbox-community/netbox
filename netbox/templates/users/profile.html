@@ -11,7 +11,7 @@
     <small class="text-muted">Email</small>
     <h5>{{ request.user.email }}</h5>
     <small class="text-muted">Registered</small>
-    <h5>{{ request.user.date_joined }}</h5>
+    <h5>{{ request.user.date_joined|annotated_date }}</h5>
     <small class="text-muted">Groups</small>
     <h5>{{ request.user.groups.all|join:', ' }}</h5>
     <small class="text-muted">Admin access</small>

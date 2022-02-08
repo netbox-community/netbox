@@ -7,7 +7,7 @@ from django.db import transaction
 from django.dispatch import receiver
 
 from .choices import CableStatusChoices
-from .models import Cable, CablePath, Device, PathEndpoint, PowerPanel, Rack, RackGroup, VirtualChassis
+from .models import Cable, CablePath, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
 
 
 def create_cablepath(node):
@@ -31,42 +31,37 @@ def rebuild_paths(obj):
 
     with transaction.atomic():
         for cp in cable_paths:
-            invalidate_obj(cp.origin)
             cp.delete()
-            create_cablepath(cp.origin)
+            if cp.origin:
+                invalidate_obj(cp.origin)
+                create_cablepath(cp.origin)
 
 
 #
-# Site/rack/device assignment
+# Location/rack/device assignment
 #
 
-@receiver(post_save, sender=RackGroup)
-def handle_rackgroup_site_change(instance, created, **kwargs):
+@receiver(post_save, sender=Location)
+def handle_location_site_change(instance, created, **kwargs):
     """
-    Update child RackGroups and Racks if Site assignment has changed. We intentionally recurse through each child
+    Update child objects if Site assignment has changed. We intentionally recurse through each child
     object instead of calling update() on the QuerySet to ensure the proper change records get created for each.
     """
     if not created:
-        for rackgroup in instance.get_children():
-            rackgroup.site = instance.site
-            rackgroup.save()
-        for rack in Rack.objects.filter(group=instance).exclude(site=instance.site):
-            rack.site = instance.site
-            rack.save()
-        for powerpanel in PowerPanel.objects.filter(rack_group=instance).exclude(site=instance.site):
-            powerpanel.site = instance.site
-            powerpanel.save()
+        instance.get_descendants().update(site=instance.site)
+        locations = instance.get_descendants(include_self=True).values_list('pk', flat=True)
+        Rack.objects.filter(location__in=locations).update(site=instance.site)
+        Device.objects.filter(location__in=locations).update(site=instance.site)
+        PowerPanel.objects.filter(location__in=locations).update(site=instance.site)
 
 
 @receiver(post_save, sender=Rack)
 def handle_rack_site_change(instance, created, **kwargs):
     """
-    Update child Devices if Site assignment has changed.
+    Update child Devices if Site or Location assignment has changed.
     """
     if not created:
-        for device in Device.objects.filter(rack=instance).exclude(site=instance.site):
-            device.site = instance.site
-            device.save()
+        Device.objects.filter(rack=instance).update(site=instance.site, location=instance.location)
 
 
 #
@@ -151,14 +146,12 @@ def nullify_connected_endpoints(instance, **kwargs):
     # Disassociate the Cable from its termination points
     if instance.termination_a is not None:
         logger.debug(f"Nullifying termination A for cable {instance}")
-        instance.termination_a.cable = None
-        instance.termination_a._cable_peer = None
-        instance.termination_a.save()
+        model = instance.termination_a._meta.model
+        model.objects.filter(pk=instance.termination_a.pk).update(_cable_peer_type=None, _cable_peer_id=None)
     if instance.termination_b is not None:
         logger.debug(f"Nullifying termination B for cable {instance}")
-        instance.termination_b.cable = None
-        instance.termination_b._cable_peer = None
-        instance.termination_b.save()
+        model = instance.termination_b._meta.model
+        model.objects.filter(pk=instance.termination_b.pk).update(_cable_peer_type=None, _cable_peer_id=None)
 
     # Delete and retrace any dependent cable paths
     for cablepath in CablePath.objects.filter(path__contains=instance):

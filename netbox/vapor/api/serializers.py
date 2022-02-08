@@ -1,8 +1,7 @@
 from rest_framework import serializers
-from extras.api.serializers import TaggedObjectSerializer
+from netbox.api.serializers import OrganizationalModelSerializer, PrimaryModelSerializer, WritableNestedSerializer
 from drf_yasg.utils import swagger_serializer_method
 
-from extras.api.customfields import CustomFieldModelSerializer
 from dcim.api.nested_serializers import (
     NestedDeviceSerializer,
     NestedInterfaceSerializer,
@@ -33,7 +32,6 @@ def get_serializer_for_model(model, prefix=''):
     override_serializer_name = 'vapor.api.serializers.{}VLAN{}Serializer'.format(
         prefix, model_name
     )
-
     # To extend Circuit model to support tenant field
     if model_name == 'CircuitTermination':
         override_serializer_name = 'vapor.api.serializers.{}Vapor{}Serializer'.format(
@@ -125,6 +123,7 @@ class NestedVaporCableSerializer(serializers.ModelSerializer):
 class CableTerminationSerializer(serializers.ModelSerializer):
     cable_peer_type = serializers.SerializerMethodField(read_only=True)
     cable_peer = serializers.SerializerMethodField(read_only=True)
+    _occupied = serializers.SerializerMethodField(read_only=True)
 
     def get_cable_peer_type(self, obj):
         if obj._cable_peer is not None:
@@ -141,6 +140,10 @@ class CableTerminationSerializer(serializers.ModelSerializer):
             context = {'request': self.context['request']}
             return serializer(obj._cable_peer, context=context).data
         return None
+
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
+    def get__occupied(self, obj):
+        return obj._occupied
 
 
 class ConnectedEndpointSerializer(ValidatedModelSerializer):
@@ -171,7 +174,7 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
         return None
 
 
-class CustomerSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class CustomerSerializer(PrimaryModelSerializer):
     group = NestedTenantGroupSerializer(required=False)
     devices = NestedDeviceSerializer(required=False, many=True)
 
@@ -189,7 +192,7 @@ class NestedCircuitSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Circuit
-        fields = ['id', 'url', 'cid', 'tenant']
+        fields = ['id', 'url', 'cid', 'tenant', 'status']
 
 
 class NestedVaporCircuitTerminationSerializer(WritableNestedSerializer):
@@ -201,7 +204,7 @@ class NestedVaporCircuitTerminationSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'circuit', 'term_side']
 
 
-class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, ConnectedEndpointSerializer):
+class InterfaceSerializer(PrimaryModelSerializer, CableTerminationSerializer, ConnectedEndpointSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
     device = NestedVaporDeviceSerializer()
     type = ChoiceField(choices=InterfaceTypeChoices)
@@ -221,8 +224,8 @@ class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
         model = Interface
         fields = [
             'id', 'url', 'device', 'name', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only',
-            'description', 'connected_endpoint_type', 'connected_endpoint', 'connected_endpoint_reachable', 'cable',
-            'mode', 'untagged_vlan', 'tagged_vlans', 'tags', 'count_ipaddresses',
+            'description', 'cable', 'cable_peer', 'cable_peer_type', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
+            'count_ipaddresses', '_occupied', 'mark_connected',
         ]
         ref_name = 'VaporInterfaceSerializer'
 

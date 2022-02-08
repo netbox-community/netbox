@@ -1,65 +1,16 @@
-{% extends 'base.html' %}
-{% load buttons %}
+{% extends 'generic/object.html' %}
 {% load static %}
-{% load custom_links %}
 {% load helpers %}
 {% load plugins %}
 
-{% block title %}{{ object }}{% endblock %}
-
-{% block header %}
-    <div class="row noprint">
-        <div class="col-sm-8 col-md-9">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'circuits:provider_list' %}">Providers</a></li>
-                <li>{{ object }}</li>
-            </ol>
-        </div>
-        <div class="col-sm-4 col-md-3">
-            <form action="{% url 'circuits:provider_list' %}" method="get">
-                <div class="input-group">
-                    <input type="text" name="q" class="form-control" />
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary">
-                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
-                        </button>
-                    </span>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="pull-right noprint">
-        {% plugin_buttons object %}
-        {% if perms.circuits.add_provider %}
-            {% clone_button object %}
-        {% endif %}
-        {% if perms.circuits.change_provider %}
-            {% edit_button object %}
-        {% endif %}
-        {% if perms.circuits.delete_provider %}
-            {% delete_button object %}
-        {% endif %}
-    </div>
-    <h1>{{ object }}</h1>
-    {% include 'inc/created_updated.html' %}
-    <div class="pull-right noprint">
-        {% custom_links object %}
-    </div>
-    <ul class="nav nav-tabs">
-        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ object.get_absolute_url }}">Provider</a>
-        </li>
-        {% if perms.extras.view_objectchange %}
-            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'circuits:provider_changelog' slug=object.slug %}">Change Log</a>
-            </li>
-        {% endif %}
-    </ul>
+{% block breadcrumbs %}
+  <li><a href="{% url 'circuits:provider_list' %}">Providers</a></li>
+  <li>{{ object }}</li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
-	<div class="col-md-4">
+	  <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Provider</strong>
@@ -94,11 +45,14 @@
                 <tr>
                     <td>Circuits</td>
                     <td>
-                        <a href="{% url 'circuits:circuit_list' %}?provider={{ object.slug }}">{{ circuits_table.rows|length }}</a>
+                        <a href="{% url 'circuits:circuit_list' %}?provider_id={{ object.pk }}">{{ circuits_table.rows|length }}</a>
                     </td>
                 </tr>
             </table>
         </div>
+        {% plugin_left_page object %}
+    </div>
+    <div class="col-md-6">
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='circuits:provider_list' %}
         <div class="panel panel-default">
@@ -113,9 +67,11 @@
                 {% endif %}
             </div>
         </div>
-        {% plugin_left_page object %}
-	</div>
-	<div class="col-md-8">
+        {% plugin_right_page object %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Circuits</strong>
@@ -129,8 +85,7 @@
                 </div>
             {% endif %}
         </div>
-    {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
-    {% plugin_right_page object %}
+        {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
     </div>
 </div>
 <div class="row">

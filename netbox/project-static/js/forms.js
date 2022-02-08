@@ -103,6 +103,12 @@ $(document).ready(function() {
         return data.text;
     }
 
+    // Speed selector
+    $("a.set_speed").click(function(e) {
+        e.preventDefault();
+        $("#id_" + $(this).attr("target")).val($(this).attr("data"));
+    });
+
     // Color Picker
     $('.netbox-select2-color-picker').select2({
         allowClear: true,
@@ -152,10 +158,8 @@ $(document).ready(function() {
                     q: params.term,
                     limit: 50,
                     offset: offset,
+                    brief: true,
                 };
-
-                // Allow for controlling the brief setting from within APISelect
-                parameters.brief = ( $(element).is('[data-full]') ? undefined : true );
 
                 // Attach any extra query parameters
                 $.each(element.attributes, function(index, attr){
@@ -207,26 +211,7 @@ $(document).ready(function() {
                         // The disabled-indicator equated to true, so we disable this option
                         record.disabled = true;
                     }
-
-                    if( record.group !== undefined && record.group !== null && record.site !== undefined && record.site !== null ) {
-                        results[record.site.name + ":" + record.group.name] = results[record.site.name + ":" + record.group.name] || { text: record.site.name + " / " + record.group.name, children: [] };
-                        results[record.site.name + ":" + record.group.name].children.push(record);
-                    }
-                    else if( record.group !== undefined && record.group !== null ) {
-                        results[record.group.name] = results[record.group.name] || { text: record.group.name, children: [] };
-                        results[record.group.name].children.push(record);
-                    }
-                    else if( record.site !== undefined && record.site !== null ) {
-                        results[record.site.name] = results[record.site.name] || { text: record.site.name, children: [] };
-                        results[record.site.name].children.push(record);
-                    }
-                    else if ( (record.group !== undefined || record.group == null) && (record.site !== undefined || record.site === null) ) {
-                        results['global'] = results['global'] || { text: 'Global', children: [] };
-                        results['global'].children.push(record);
-                    }
-                    else {
-                        results[idx] = record
-                    }
+                    results[idx] = record;
 
                     return results;
                 },Object.create(null));
@@ -352,22 +337,26 @@ $(document).ready(function() {
                 $('select#id_untagged_vlan').trigger('change');
                 $('select#id_tagged_vlans').val([]);
                 $('select#id_tagged_vlans').trigger('change');
+                $('select#id_vlan_group').parent().parent().hide();
                 $('select#id_untagged_vlan').parent().parent().hide();
                 $('select#id_tagged_vlans').parent().parent().hide();
             }
             else if ($(this).val() == 'access') {
                 $('select#id_tagged_vlans').val([]);
                 $('select#id_tagged_vlans').trigger('change');
+                $('select#id_vlan_group').parent().parent().show();
                 $('select#id_untagged_vlan').parent().parent().show();
                 $('select#id_tagged_vlans').parent().parent().hide();
             }
             else if ($(this).val() == 'tagged') {
+                $('select#id_vlan_group').parent().parent().show();
                 $('select#id_untagged_vlan').parent().parent().show();
                 $('select#id_tagged_vlans').parent().parent().show();
             }
             else if ($(this).val() == 'tagged-all') {
                 $('select#id_tagged_vlans').val([]);
                 $('select#id_tagged_vlans').trigger('change');
+                $('select#id_vlan_group').parent().parent().show();
                 $('select#id_untagged_vlan').parent().parent().show();
                 $('select#id_tagged_vlans').parent().parent().hide();
             }

@@ -6,12 +6,19 @@
         <div class="panel-heading"><strong>Rack</strong></div>
         <div class="panel-body">
             {% render_field form.region %}
+            {% render_field form.site_group %}
             {% render_field form.site %}
-            {% render_field form.group %}
+            {% render_field form.location %}
             {% render_field form.name %}
-            {% render_field form.facility_id %}
             {% render_field form.status %}
             {% render_field form.role %}
+            {% render_field form.tags %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Inventory Control</strong></div>
+        <div class="panel-body">
+            {% render_field form.facility_id %}
             {% render_field form.serial %}
             {% render_field form.asset_tag %}
         </div>
@@ -52,12 +59,6 @@
             </div>
         </div>
     {% endif %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tags</strong></div>
-        <div class="panel-body">
-            {% render_field form.tags %}
-        </div>
-    </div>
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Comments</strong></div>
         <div class="panel-body">

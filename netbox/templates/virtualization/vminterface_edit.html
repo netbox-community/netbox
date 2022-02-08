@@ -17,25 +17,30 @@
             {% endif %}
             {% render_field form.name %}
             {% render_field form.enabled %}
+            {% render_field form.parent %}
             {% render_field form.mac_address %}
             {% render_field form.mtu %}
             {% render_field form.description %}
+            {% render_field form.tags %}
         </div>
     </div>
     <div class="panel panel-default">
         <div class="panel-heading"><strong>802.1Q Switching</strong></div>
         <div class="panel-body">
             {% render_field form.mode %}
+            {% render_field form.vlan_group %}
             {% render_field form.untagged_vlan %}
             {% render_field form.tagged_vlans %}
         </div>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tags</strong></div>
+    {% if form.custom_fields %}
+      <div class="panel panel-default">
+        <div class="panel-heading"><strong>Custom Fields</strong></div>
         <div class="panel-body">
-            {% render_field form.tags %}
+          {% render_custom_fields form %}
         </div>
-    </div>
+      </div>
+    {% endif %}
 {% endblock %}
 
 {% block buttons %}

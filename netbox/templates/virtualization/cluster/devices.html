@@ -1,0 +1,25 @@
+{% extends 'virtualization/cluster/base.html' %}
+{% load helpers %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Host Devices</strong>
+      </div>
+      <form action="{% url 'virtualization:cluster_remove_devices' pk=object.pk %}" method="post">
+      {% csrf_token %}
+      {% include 'responsive_table.html' with table=devices_table %}
+        {% if perms.virtualization.change_cluster %}
+          <div class="panel-footer noprint">
+            <button type="submit" name="_remove" class="btn btn-danger primary btn-xs">
+              <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Remove devices
+            </button>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,6 +1,6 @@
 import sys
 
-from dcim.models import Site, RackRole, Rack, RackGroup
+from dcim.models import Site, RackRole, Rack, Location
 from startup_script_utils import *
 from tenancy.models import Tenant
 
@@ -16,7 +16,7 @@ required_assocs = {
 optional_assocs = {
   'role': (RackRole, 'name'),
   'tenant': (Tenant, 'name'),
-  'group': (RackGroup, 'name')
+  'location': (Location, 'name')
 }
 
 for params in racks:

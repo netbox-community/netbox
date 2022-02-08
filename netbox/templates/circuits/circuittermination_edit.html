@@ -1,97 +1,58 @@
-{% extends 'base.html' %}
+{% extends 'generic/object_edit.html' %}
 {% load static %}
 {% load form_helpers %}
 
-{% block content %}
-    <form action="." method="post" class="form form-horizontal">
-        {% csrf_token %}
-        {% for field in form.hidden_fields %}
-            {{ field }}
-        {% endfor %}
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <h3>{% block title %}{{ obj.circuit.provider }} {{ obj.circuit }} - Side {{ form.term_side.value }}{% endblock %}</h3>
-                {% if form.non_field_errors %}
-                    <div class="panel panel-danger">
-                        <div class="panel-heading"><strong>Errors</strong></div>
-                        <div class="panel-body">
-                            {{ form.non_field_errors }}
-                        </div>
-                    </div>
-                {% endif %}
-                <div class="panel panel-default">
-                    <div class="panel-heading"><strong>Location</strong></div>
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">Provider</label>
-                            <div class="col-md-9">
-                                <p class="form-control-static">{{ obj.circuit.provider }}</p>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">Circuit</label>
-                            <div class="col-md-9">
-                                <p class="form-control-static">{{ obj.circuit.cid }}</p>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">Termination</label>
-                            <div class="col-md-9">
-                                <p class="form-control-static">{{ form.term_side.value }}</p>
-                            </div>
-                        </div>
-                        {% render_field form.region %}
-                        {% render_field form.site %}
-                    </div>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading"><strong>Termination Details</strong></div>
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <label class="col-md-3 control-label" for="id_port_speed">{{ form.port_speed.label }}</label>
-                            <div class="col-md-9">
-                                <div class="input-group">
-                                    {{ form.port_speed }}
-                                    {% include 'circuits/inc/speed_widget.html' with target_field='port_speed' %}
-                                </div>
-                                <span class="help-block">{{ form.port_speed.help_text }}</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 control-label" for="id_upstream_speed">{{ form.upstream_speed.label }}</label>
-                            <div class="col-md-9">
-                                <div class="input-group">
-                                    {{ form.upstream_speed }}
-                                    {% include 'circuits/inc/speed_widget.html' with target_field='upstream_speed' %}
-                                </div>
-                                <span class="help-block">{{ form.upstream_speed.help_text }}</span>
-                            </div>
-                        </div>
-                        {% render_field form.xconnect_id %}
-                        {% render_field form.pp_info %}
-                        {% render_field form.description %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3 text-right">
-                {% if obj.pk %}
-                    <button type="submit" name="_update" class="btn btn-primary">Update</button>
-                {% else %}
-                    <button type="submit" name="_create" class="btn btn-primary">Create</button>
-                {% endif %}
-                <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
-            </div>
-        </div>
-    </form>
-{% endblock %}
+{% block title %}{{ obj.circuit.provider }} {{ obj.circuit }} - Side {{ form.term_side.value }}{% endblock %}
 
-{% block javascript %}
-<script type="text/javascript">
-    $("a.set_speed").click(function(e) {
-        e.preventDefault();
-        $("#id_" + $(this).attr("target")).val($(this).attr("data"));
-    });
-</script>
+{% block form %}
+  <div class="panel panel-default">
+      <div class="panel-heading"><strong>Termination</strong></div>
+      <div class="panel-body">
+          <div class="form-group">
+              <label class="col-md-3 control-label">Provider</label>
+              <div class="col-md-9">
+                  <p class="form-control-static">{{ obj.circuit.provider }}</p>
+              </div>
+          </div>
+          <div class="form-group">
+              <label class="col-md-3 control-label">Circuit</label>
+              <div class="col-md-9">
+                  <p class="form-control-static">{{ obj.circuit.cid }}</p>
+              </div>
+          </div>
+          <div class="form-group">
+              <label class="col-md-3 control-label">Termination</label>
+              <div class="col-md-9">
+                  <p class="form-control-static">{{ form.term_side.value }}</p>
+              </div>
+          </div>
+          {% render_field form.mark_connected %}
+          {% with providernetwork_tab_active=form.initial.provider_network %}
+              <ul class="nav nav-tabs" role="tablist">
+                  <li role="presentation"{% if not providernetwork_tab_active %} class="active"{% endif %}><a href="#site" role="tab" data-toggle="tab">Site</a></li>
+                  <li role="presentation"{% if providernetwork_tab_active %} class="active"{% endif %}><a href="#providernetwork" role="tab" data-toggle="tab">Provider Network</a></li>
+              </ul>
+              <div class="tab-content">
+                  <div class="tab-pane{% if not providernetwork_tab_active %} active{% endif %}" id="site">
+                      {% render_field form.region %}
+                      {% render_field form.site_group %}
+                      {% render_field form.site %}
+                  </div>
+                  <div class="tab-pane{% if providernetwork_tab_active %} active{% endif %}" id="providernetwork">
+                      {% render_field form.provider_network %}
+                  </div>
+              </div>
+          {% endwith %}
+      </div>
+  </div>
+  <div class="panel panel-default">
+      <div class="panel-heading"><strong>Termination Details</strong></div>
+      <div class="panel-body">
+          {% render_field form.port_speed %}
+          {% render_field form.upstream_speed %}
+          {% render_field form.xconnect_id %}
+          {% render_field form.pp_info %}
+          {% render_field form.description %}
+      </div>
+  </div>
 {% endblock %}

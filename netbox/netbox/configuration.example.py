@@ -34,6 +34,9 @@ REDIS = {
         'PASSWORD': '',
         'DATABASE': 0,
         'SSL': False,
+        # Set this to True to skip TLS certificate verification
+        # This can expose the connection to attacks, be careful
+        # 'INSECURE_SKIP_TLS_VERIFY': False,
     },
     'caching': {
         'HOST': 'localhost',
@@ -44,6 +47,9 @@ REDIS = {
         'PASSWORD': '',
         'DATABASE': 1,
         'SSL': False,
+        # Set this to True to skip TLS certificate verification
+        # This can expose the connection to attacks, be careful
+        # 'INSECURE_SKIP_TLS_VERIFY': False,
     }
 }
 
@@ -63,7 +69,7 @@ SECRET_KEY = ''
 # Specify one or more name and email address tuples representing NetBox administrators. These people will be notified of
 # application errors (assuming correct email settings are provided).
 ADMINS = [
-    # ['John Doe', 'jdoe@example.com'],
+    # ('John Doe', 'jdoe@example.com'),
 ]
 
 # URL schemes that are allowed within links in NetBox
@@ -83,8 +89,8 @@ BANNER_LOGIN = ''
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''
 
-# Cache timeout in seconds. Set to 0 to dissable caching. Defaults to 900 (15 minutes)
-CACHE_TIMEOUT = 900
+# Cache timeout in seconds. Defaults to zero (disabled).
+CACHE_TIMEOUT = 0
 
 # Maximum number of days to retain logged changes. Set to 0 to retain changes indefinitely. (Default: 90)
 CHANGELOG_RETENTION = 90
@@ -143,6 +149,10 @@ INTERNAL_IPS = ('127.0.0.1', '::1')
 #   https://docs.djangoproject.com/en/stable/topics/logging/
 LOGGING = {}
 
+# Automatically reset the lifetime of a valid session upon each authenticated request. Enables users to remain
+# authenticated to NetBox indefinitely.
+LOGIN_PERSISTENCE = False
+
 # Setting this to True will permit only authenticated users to access any part of NetBox. By default, anonymous users
 # are permitted to access most data in NetBox (excluding secrets) but not make any changes.
 LOGIN_REQUIRED = False
@@ -153,6 +163,9 @@ LOGIN_TIMEOUT = None
 
 # Setting this to True will display a "maintenance mode" banner at the top of every page.
 MAINTENANCE_MODE = False
+
+# The URL to use when mapping physical addresses or GPS coordinates
+MAPS_URL = 'https://maps.google.com/?q='
 
 # An API consumer can request an arbitrary number of objects =by appending the "limit" parameter to the URL (e.g.
 # "?limit=1000"). This setting defines the maximum limit. Setting it to 0 or None will allow an API consumer to request
@@ -236,6 +249,9 @@ RQ_DEFAULT_TIMEOUT = 300
 # The file path where custom scripts will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.
 # SCRIPTS_ROOT = '/opt/netbox/netbox/scripts'
+
+# The name to use for the session cookie.
+SESSION_COOKIE_NAME = 'sessionid'
 
 # By default, NetBox will store session data in the database. Alternatively, a file path can be specified here to use
 # local file storage instead. (This can be useful for enabling authentication on a standby instance with read-only

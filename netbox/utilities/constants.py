@@ -11,7 +11,8 @@ FILTER_CHAR_BASED_LOOKUP_MAP = dict(
     isw='istartswith',
     nisw='istartswith',
     ie='iexact',
-    nie='iexact'
+    nie='iexact',
+    empty='empty',
 )
 
 FILTER_NUMERIC_BASED_LOOKUP_MAP = dict(

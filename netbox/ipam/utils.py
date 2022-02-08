@@ -68,26 +68,102 @@ def add_available_ipaddresses(prefix, ipaddress_list, is_pool=False):
     return output
 
 
-def add_available_vlans(vlan_group, vlans):
+def add_available_vlans(vlans, vlan_group=None):
     """
     Create fake records for all gaps between used VLANs
     """
     if not vlans:
-        return [{'vid': VLAN_VID_MIN, 'available': VLAN_VID_MAX - VLAN_VID_MIN + 1}]
+        return [{
+            'vid': VLAN_VID_MIN,
+            'vlan_group': vlan_group,
+            'available': VLAN_VID_MAX - VLAN_VID_MIN + 1
+        }]
 
     prev_vid = VLAN_VID_MAX
     new_vlans = []
     for vlan in vlans:
         if vlan.vid - prev_vid > 1:
-            new_vlans.append({'vid': prev_vid + 1, 'available': vlan.vid - prev_vid - 1})
+            new_vlans.append({
+                'vid': prev_vid + 1,
+                'vlan_group': vlan_group,
+                'available': vlan.vid - prev_vid - 1,
+            })
         prev_vid = vlan.vid
 
     if vlans[0].vid > VLAN_VID_MIN:
-        new_vlans.append({'vid': VLAN_VID_MIN, 'available': vlans[0].vid - VLAN_VID_MIN})
+        new_vlans.append({
+            'vid': VLAN_VID_MIN,
+            'vlan_group': vlan_group,
+            'available': vlans[0].vid - VLAN_VID_MIN,
+        })
     if prev_vid < VLAN_VID_MAX:
-        new_vlans.append({'vid': prev_vid + 1, 'available': VLAN_VID_MAX - prev_vid})
+        new_vlans.append({
+            'vid': prev_vid + 1,
+            'vlan_group': vlan_group,
+            'available': VLAN_VID_MAX - prev_vid,
+        })
 
     vlans = list(vlans) + new_vlans
     vlans.sort(key=lambda v: v.vid if type(v) == VLAN else v['vid'])
 
     return vlans
+
+
+def rebuild_prefixes(vrf):
+    """
+    Rebuild the prefix hierarchy for all prefixes in the specified VRF (or global table).
+    """
+    def contains(parent, child):
+        return child in parent and child != parent
+
+    def push_to_stack(prefix):
+        # Increment child count on parent nodes
+        for n in stack:
+            n['children'] += 1
+        stack.append({
+            'pk': [prefix['pk']],
+            'prefix': prefix['prefix'],
+            'children': 0,
+        })
+
+    stack = []
+    update_queue = []
+    prefixes = Prefix.objects.filter(vrf=vrf).values('pk', 'prefix')
+
+    # Iterate through all Prefixes in the VRF, growing and shrinking the stack as we go
+    for i, p in enumerate(prefixes):
+
+        # Grow the stack if this is a child of the most recent prefix
+        if not stack or contains(stack[-1]['prefix'], p['prefix']):
+            push_to_stack(p)
+
+        # Handle duplicate prefixes
+        elif stack[-1]['prefix'] == p['prefix']:
+            stack[-1]['pk'].append(p['pk'])
+
+        # If this is a sibling or parent of the most recent prefix, pop nodes from the
+        # stack until we reach a parent prefix (or the root)
+        else:
+            while stack and not contains(stack[-1]['prefix'], p['prefix']):
+                node = stack.pop()
+                for pk in node['pk']:
+                    update_queue.append(
+                        Prefix(pk=pk, _depth=len(stack), _children=node['children'])
+                    )
+            push_to_stack(p)
+
+        # Flush the update queue once it reaches 100 Prefixes
+        if len(update_queue) >= 100:
+            Prefix.objects.bulk_update(update_queue, ['_depth', '_children'])
+            update_queue = []
+
+    # Clear out any prefixes remaining in the stack
+    while stack:
+        node = stack.pop()
+        for pk in node['pk']:
+            update_queue.append(
+                Prefix(pk=pk, _depth=len(stack), _children=node['children'])
+            )
+
+    # Final flush of any remaining Prefixes
+    Prefix.objects.bulk_update(update_queue, ['_depth', '_children'])

@@ -13,6 +13,7 @@ pythonPipeline([
   'pythonVersion': '3.7',
   'skipDocs': true,
   'skipLint': true,
+  'skipUnitTest': true,
   'skipIntegrationTest': true,
   'skipPrivateRepo': true,
   'podTemplate': """

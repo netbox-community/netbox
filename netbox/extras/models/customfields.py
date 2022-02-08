@@ -1,69 +1,21 @@
 import re
-from collections import OrderedDict
 from datetime import datetime, date
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
-from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.utils.safestring import mark_safe
 
 from extras.choices import *
 from extras.utils import FeatureQuery
-from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, add_blank_choice
+from netbox.models import BigIDModel
+from utilities.forms import (
+    CSVChoiceField, DatePicker, LaxURLField, StaticSelect2Multiple, StaticSelect2, add_blank_choice,
+)
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
-
-
-class CustomFieldModel(models.Model):
-    """
-    Abstract class for any model which may have custom fields associated with it.
-    """
-    custom_field_data = models.JSONField(
-        encoder=DjangoJSONEncoder,
-        blank=True,
-        default=dict
-    )
-
-    class Meta:
-        abstract = True
-
-    @property
-    def cf(self):
-        """
-        Convenience wrapper for custom field data.
-        """
-        return self.custom_field_data
-
-    def get_custom_fields(self):
-        """
-        Return a dictionary of custom fields for a single object in the form {<field>: value}.
-        """
-        fields = CustomField.objects.get_for_model(self)
-        return OrderedDict([
-            (field, self.custom_field_data.get(field.name)) for field in fields
-        ])
-
-    def clean(self):
-        super().clean()
-
-        custom_fields = {cf.name: cf for cf in CustomField.objects.get_for_model(self)}
-
-        # Validate all field values
-        for field_name, value in self.custom_field_data.items():
-            if field_name not in custom_fields:
-                raise ValidationError(f"Unknown field name '{field_name}' in custom field data.")
-            try:
-                custom_fields[field_name].validate(value)
-            except ValidationError as e:
-                raise ValidationError(f"Invalid value for custom field '{field_name}': {e.message}")
-
-        # Check for missing required values
-        for cf in custom_fields.values():
-            if cf.required and cf.name not in self.custom_field_data:
-                raise ValidationError(f"Missing required custom field '{cf.name}'.")
 
 
 class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
@@ -77,7 +29,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-class CustomField(models.Model):
+class CustomField(BigIDModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
@@ -162,6 +114,24 @@ class CustomField(models.Model):
     def __str__(self):
         return self.label or self.name.replace('_', ' ').capitalize()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Cache instance's original name so we can check later whether it has changed
+        self._name = self.name
+
+    def populate_initial_data(self, content_types):
+        """
+        Populate initial custom field data upon either a) the creation of a new CustomField, or
+        b) the assignment of an existing CustomField to new object types.
+        """
+        for ct in content_types:
+            model = ct.model_class()
+            instances = model.objects.exclude(**{f'custom_field_data__contains': self.name})
+            for instance in instances:
+                instance.custom_field_data[self.name] = self.default
+            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
+
     def remove_stale_data(self, content_types):
         """
         Delete custom field data which is no longer relevant (either because the CustomField is
@@ -169,9 +139,22 @@ class CustomField(models.Model):
         """
         for ct in content_types:
             model = ct.model_class()
-            for obj in model.objects.filter(**{f'custom_field_data__{self.name}__isnull': False}):
-                del(obj.custom_field_data[self.name])
-                obj.save()
+            instances = model.objects.filter(**{f'custom_field_data__{self.name}__isnull': False})
+            for instance in instances:
+                del(instance.custom_field_data[self.name])
+            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
+
+    def rename_object_data(self, old_name, new_name):
+        """
+        Called when a CustomField has been renamed. Updates all assigned object data.
+        """
+        for ct in self.content_types.all():
+            model = ct.model_class()
+            params = {f'custom_field_data__{old_name}__isnull': False}
+            instances = model.objects.filter(**params)
+            for instance in instances:
+                instance.custom_field_data[new_name] = instance.custom_field_data.pop(old_name)
+            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
 
     def clean(self):
         super().clean()
@@ -179,7 +162,8 @@ class CustomField(models.Model):
         # Validate the field's default value (if any)
         if self.default is not None:
             try:
-                self.validate(self.default)
+                default_value = str(self.default) if self.type == CustomFieldTypeChoices.TYPE_TEXT else self.default
+                self.validate(default_value)
             except ValidationError as err:
                 raise ValidationError({
                     'default': f'Invalid default value "{self.default}": {err.message}'
@@ -203,7 +187,10 @@ class CustomField(models.Model):
             })
 
         # Choices can be set only on selection fields
-        if self.choices and self.type != CustomFieldTypeChoices.TYPE_SELECT:
+        if self.choices and self.type not in (
+                CustomFieldTypeChoices.TYPE_SELECT,
+                CustomFieldTypeChoices.TYPE_MULTISELECT
+        ):
             raise ValidationError({
                 'choices': "Choices may be set only for custom selection fields."
             })
@@ -256,7 +243,7 @@ class CustomField(models.Model):
             field = forms.DateField(required=required, initial=initial, widget=DatePicker())
 
         # Select
-        elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
+        elif self.type in (CustomFieldTypeChoices.TYPE_SELECT, CustomFieldTypeChoices.TYPE_MULTISELECT):
             choices = [(c, c) for c in self.choices]
             default_choice = self.default if self.default in self.choices else None
 
@@ -267,10 +254,16 @@ class CustomField(models.Model):
             if set_initial and default_choice:
                 initial = default_choice
 
-            field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
-            field = field_class(
-                choices=choices, required=required, initial=initial, widget=StaticSelect2()
-            )
+            if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+                field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
+                field = field_class(
+                    choices=choices, required=required, initial=initial, widget=StaticSelect2()
+                )
+            else:
+                field_class = CSVChoiceField if for_csv_import else forms.MultipleChoiceField
+                field = field_class(
+                    choices=choices, required=required, initial=initial, widget=StaticSelect2Multiple()
+                )
 
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
@@ -301,15 +294,15 @@ class CustomField(models.Model):
         if value not in [None, '']:
 
             # Validate text field
-            if self.type == CustomFieldTypeChoices.TYPE_TEXT and self.validation_regex:
-                if not re.match(self.validation_regex, value):
+            if self.type == CustomFieldTypeChoices.TYPE_TEXT:
+                if type(value) is not str:
+                    raise ValidationError(f"Value must be a string.")
+                if self.validation_regex and not re.match(self.validation_regex, value):
                     raise ValidationError(f"Value must match regex '{self.validation_regex}'")
 
             # Validate integer
             if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
-                try:
-                    int(value)
-                except ValueError:
+                if type(value) is not int:
                     raise ValidationError("Value must be an integer.")
                 if self.validation_minimum is not None and value < self.validation_minimum:
                     raise ValidationError(f"Value must be at least {self.validation_minimum}")
@@ -333,6 +326,13 @@ class CustomField(models.Model):
                 if value not in self.choices:
                     raise ValidationError(
                         f"Invalid choice ({value}). Available choices are: {', '.join(self.choices)}"
+                    )
+
+            # Validate all selected choices
+            if self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+                if not set(value).issubset(self.choices):
+                    raise ValidationError(
+                        f"Invalid choice(s) ({', '.join(value)}). Available choices are: {', '.join(self.choices)}"
                     )
 
         elif self.required:

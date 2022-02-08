@@ -165,6 +165,9 @@ table.attr-table td:nth-child(1) {
 td.min-width {
     width: 1%;
 }
+td p:last-child {
+    margin-bottom: 0;
+}
 
 /* Paginator */
 div.paginator {
@@ -359,11 +362,11 @@ table.report th a {
     border-radius: .25em;
     vertical-align: middle;
 }
+h1.title {
+    margin-top: 0;
+}
 .text-nowrap {
     white-space: nowrap;
-}
-.banner-bottom {
-    margin-bottom: 50px;
 }
 .panel table {
     margin-bottom: 0;

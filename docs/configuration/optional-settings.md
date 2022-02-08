@@ -54,9 +54,9 @@ BASE_PATH = 'netbox/'
 
 ## CACHE_TIMEOUT
 
-Default: 900
+Default: 0 (disabled)
 
-The number of seconds that cache entries will be retained before expiring.
+The number of seconds that cached database queries will be retained before expiring.
 
 ---
 
@@ -257,6 +257,16 @@ LOGGING = {
 
 ---
 
+## LOGIN_PERSISTENCE
+
+Default: False
+
+If true, the lifetime of a user's authentication session will be automatically reset upon each valid request. For example, if [`LOGIN_TIMEOUT`](#login_timeout) is configured to 14 days (the default), and a user whose session is due to expire in five days makes a NetBox request (with a valid session cookie), the session's lifetime will be reset to 14 days.
+
+Note that enabling this setting causes NetBox to update a user's session in the database (or file, as configured per [`SESSION_FILE_PATH`](#session_file_path)) with each request, which may introduce significant overhead in very active environments. It also permits an active user to remain authenticated to NetBox indefinitely.
+
+---
+
 ## LOGIN_REQUIRED
 
 Default: False
@@ -281,6 +291,14 @@ Setting this to True will display a "maintenance mode" banner at the top of ever
 
 ---
 
+## MAPS_URL
+
+Default: `https://maps.google.com/?q=` (Google Maps)
+
+This specifies the URL to use when presenting a map of a physical location by street address or GPS coordinates. The URL must accept either a free-form street address or a comma-separated pair of numeric coordinates appended to it.
+
+---
+
 ## MAX_PAGE_SIZE
 
 Default: 1000
@@ -301,7 +319,7 @@ The file path to the location where media files (such as image attachments) are 
 
 Default: False
 
-Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../../additional-features/prometheus-metrics/) documentation for more details.
+Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../additional-features/prometheus-metrics.md) documentation for more details.
 
 ---
 
@@ -504,6 +522,14 @@ The maximum execution time of a background task (such as running a custom script
 Default: `$INSTALL_ROOT/netbox/scripts/`
 
 The file path to the location where custom scripts will be kept. By default, this is the `netbox/scripts/` directory within the base NetBox installation path.
+
+---
+
+## SESSION_COOKIE_NAME
+
+Default: `sessionid`
+
+The name used for the session cookie. See the [Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#session-cookie-name) for more detail.
 
 ---
 

@@ -13,12 +13,12 @@
                 <li><a href="{% url 'extras:script_list' %}">Scripts</a></li>
                 <li><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
                 <li><a href="{% url 'extras:script' module=script.module name=class_name %}">{{ script }}</a></li>
-                <li>{{ result.created }}</li>
+                <li>{{ result.created|annotated_date }}</li>
             </ol>
         </div>
     </div>
-    <h1>{{ script }}</h1>
-    <p>{{ script.Meta.description }}</p>
+    <h1 class="title">{{ script }}</h1>
+    <p>{{ script.Meta.description|render_markdown }}</p>
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active">
             <a href="#log" role="tab" data-toggle="tab" class="active">Log</a>
@@ -32,7 +32,7 @@
     </ul>
     <div class="tab-content">
         <p>
-            Run: <strong>{{ result.created }}</strong>
+            Run: <strong>{{ result.created|annotated_date }}</strong>
             {% if result.completed %}
                 Duration: <strong>{{ result.duration }}</strong>
             {% else %}

@@ -2,6 +2,13 @@
 
 NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to serve a proxy for operational data, fetching live data from network devices and returning it to a requester via its REST API. Note that NetBox does not store any NAPALM data locally.
 
+The NetBox UI will display tabs for status, LLDP neighbors, and configuration under the device view if the following conditions are met:
+
+* Device status is "Active"
+* A primary IP has been assigned to the device
+* A platform with a NAPALM driver has been assigned
+* The authenticated user has the `dcim.napalm_read_device` permission
+
 !!! note
     To enable this integration, the NAPALM library must be installed. See [installation steps](../../installation/3-netbox/#napalm) for more information.
 
@@ -22,7 +29,7 @@ GET /api/dcim/devices/1/napalm/?method=get_environment
 
 ## Authentication
 
-By default, the [`NAPALM_USERNAME`](../../configuration/optional-settings/#napalm_username) and [`NAPALM_PASSWORD`](../../configuration/optional-settings/#napalm_password) configuration parameters are used for NAPALM authentication. They can be overridden for an individual API call by specifying the `X-NAPALM-Username` and `X-NAPALM-Password` headers.
+By default, the [`NAPALM_USERNAME`](../configuration/optional-settings.md#napalm_username) and [`NAPALM_PASSWORD`](../configuration/optional-settings.md#napalm_password) configuration parameters are used for NAPALM authentication. They can be overridden for an individual API call by specifying the `X-NAPALM-Username` and `X-NAPALM-Password` headers.
 
 ```
 $ curl "http://localhost/api/dcim/devices/1/napalm/?method=get_environment" \

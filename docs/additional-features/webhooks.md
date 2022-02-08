@@ -2,6 +2,9 @@
 
 A webhook is a mechanism for conveying to some external system a change that took place in NetBox. For example, you may want to notify a monitoring system whenever the status of a device is updated in NetBox. This can be done by creating a webhook for the device model in NetBox and identifying the webhook receiver. When NetBox detects a change to a device, an HTTP request containing the details of the change and who made it be sent to the specified receiver. Webhooks are configured in the admin UI under Extras > Webhooks.
 
+!!! warning
+    Webhooks support the inclusion of user-submitted code to generate custom headers and payloads, which may pose security risks under certain conditions. Only grant permission to create or modify webhooks to trusted users.
+
 ## Configuration
 
 * **Name** - A unique name for the webhook. The name is not included with outbound messages.
@@ -38,7 +41,8 @@ The following data is available as context for Jinja2 templates:
 * `timestamp` - The time at which the event occurred (in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format).
 * `username` - The name of the user account associated with the change.
 * `request_id` - The unique request ID. This may be used to correlate multiple changes associated with a single request.
-* `data` - A serialized representation of the object _after_ the change was made. This is typically equivalent to the model's representation in NetBox's REST API.
+* `data` - A detailed representation of the object in its current state. This is typically equivalent to the model's representation in NetBox's REST API.
+* `snapshots` - Minimal "snapshots" of the object state both before and after the change was made; provided ass a dictionary with keys named `prechange` and `postchange`. These are not as extensive as the fully serialized representation, but contain enough information to convey what has changed.
 
 ### Default Request Body
 
@@ -47,7 +51,7 @@ If no body template is specified, the request body will be populated with a JSON
 ```no-highlight
 {
     "event": "created",
-    "timestamp": "2020-02-25 15:10:26.010582+00:00",
+    "timestamp": "2021-03-09 17:55:33.968016+00:00",
     "model": "site",
     "username": "jstretch",
     "request_id": "fdbca812-3142-4783-b364-2e2bd5c16c6a",
@@ -62,6 +66,17 @@ If no body template is specified, the request body will be populated with a JSON
         },
         "region": null,
         ...
+    },
+    "snapshots": {
+        "prechange": null,
+        "postchange": {
+            "created": "2021-03-09",
+            "last_updated": "2021-03-09T17:55:33.851Z",
+            "name": "Site 1",
+            "slug": "site-1",
+            "status": "active",
+            ...
+        }
     }
 }
 ```

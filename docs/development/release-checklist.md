@@ -70,7 +70,11 @@ Ensure that continuous integration testing on the `develop` branch is completing
 
 ### Update Version and Changelog
 
-Update the `VERSION` constant in `settings.py` to the new release version and annotate the current data in the release notes for the new version. Commit these changes to the `develop` branch.
+* Update the `VERSION` constant in `settings.py` to the new release version.
+* Update the example version numbers in the feature request and bug report templates under `.github/ISSUE_TEMPLATES/`.
+* Replace the "FUTURE" placeholder in the release notes with the current date.
+
+Commit these changes to the `develop` branch.
 
 ### Submit a Pull Request
 

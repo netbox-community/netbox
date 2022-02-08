@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-md-12">
             <p>
-                Run: <strong>{{ result.created }}</strong>
+                Run: <strong>{{ result.created|annotated_date }}</strong>
                 {% if result.completed %}
                     Duration: <strong>{{ result.duration }}</strong>
                 {% else %}
@@ -66,9 +66,11 @@
                                                 <a href="{{ url }}">{{ obj }}</a>
                                             {% elif obj %}
                                                 {{ obj }}
+                                            {% else %}
+                                                <span class="muted">&mdash;</span>
                                             {% endif %}
                                         </td>
-                                        <td>{{ message }}</td>
+                                        <td class="rendered-markdown">{{ message|render_markdown }}</td>
                                     </tr>
                                 {% endfor %}
                             {% endfor %}

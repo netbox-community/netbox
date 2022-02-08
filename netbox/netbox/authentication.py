@@ -11,7 +11,7 @@ from users.models import ObjectPermission
 from utilities.permissions import permission_is_exempt, resolve_permission, resolve_permission_ct
 
 
-class ObjectPermissionBackend(ModelBackend):
+class ObjectPermissionMixin():
 
     def get_all_permissions(self, user_obj, obj=None):
         if not user_obj.is_active or user_obj.is_anonymous:
@@ -20,13 +20,16 @@ class ObjectPermissionBackend(ModelBackend):
             user_obj._object_perm_cache = self.get_object_permissions(user_obj)
         return user_obj._object_perm_cache
 
+    def get_permission_filter(self, user_obj):
+        return Q(users=user_obj) | Q(groups__user=user_obj)
+
     def get_object_permissions(self, user_obj):
         """
         Return all permissions granted to the user by an ObjectPermission.
         """
         # Retrieve all assigned and enabled ObjectPermissions
         object_permissions = ObjectPermission.objects.filter(
-            Q(users=user_obj) | Q(groups__user=user_obj),
+            self.get_permission_filter(user_obj),
             enabled=True
         ).prefetch_related('object_types')
 
@@ -86,6 +89,10 @@ class ObjectPermissionBackend(ModelBackend):
         return model.objects.filter(constraints, pk=obj.pk).exists()
 
 
+class ObjectPermissionBackend(ObjectPermissionMixin, ModelBackend):
+    pass
+
+
 class RemoteUserBackend(_RemoteUserBackend):
     """
     Custom implementation of Django's RemoteUserBackend which provides configuration hooks for basic customization.
@@ -133,11 +140,27 @@ class RemoteUserBackend(_RemoteUserBackend):
         return False
 
 
+# Create a new instance of django-auth-ldap's LDAPBackend with our own ObjectPermissions
+try:
+    from django_auth_ldap.backend import LDAPBackend as LDAPBackend_
+
+    class NBLDAPBackend(ObjectPermissionMixin, LDAPBackend_):
+        def get_permission_filter(self, user_obj):
+            permission_filter = super().get_permission_filter(user_obj)
+            if (self.settings.FIND_GROUP_PERMS and
+                    hasattr(user_obj, "ldap_user") and
+                    hasattr(user_obj.ldap_user, "group_names")):
+                permission_filter = permission_filter | Q(groups__name__in=user_obj.ldap_user.group_names)
+            return permission_filter
+except ModuleNotFoundError:
+    pass
+
+
 class LDAPBackend:
 
     def __new__(cls, *args, **kwargs):
         try:
-            from django_auth_ldap.backend import LDAPBackend as LDAPBackend_, LDAPSettings
+            from django_auth_ldap.backend import LDAPSettings
             import ldap
         except ModuleNotFoundError as e:
             if getattr(e, 'name') == 'django_auth_ldap':
@@ -163,8 +186,7 @@ class LDAPBackend:
                 "Required parameter AUTH_LDAP_SERVER_URI is missing from ldap_config.py."
             )
 
-        # Create a new instance of django-auth-ldap's LDAPBackend
-        obj = LDAPBackend_()
+        obj = NBLDAPBackend()
 
         # Read LDAP configuration parameters from ldap_config.py instead of settings.py
         settings = LDAPSettings()

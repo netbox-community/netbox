@@ -61,27 +61,48 @@ These lookup expressions can be applied by adding a suffix to the desired field'
 
 Numeric based fields (ASN, VLAN ID, etc) support these lookup expressions:
 
-- `n` - not equal to (negation)
-- `lt` - less than
-- `lte` - less than or equal
-- `gt` - greater than
-- `gte` - greater than or equal
+| Filter | Description |
+|--------|-------------|
+| `n` | Not equal to |
+| `lt` | Less than |
+| `lte` | Less than or equal to |
+| `gt` | Greater than |
+| `gte` | Greater than or equal to |
+
+Here is an example of a numeric field lookup expression that will return all VLANs with a VLAN ID greater than 900:
+
+```no-highlight
+GET /api/ipam/vlans/?vid__gt=900
+```
 
 ### String Fields
 
 String based (char) fields (Name, Address, etc) support these lookup expressions:
 
-- `n` - not equal to (negation)
-- `ic` - case insensitive contains
-- `nic` - negated case insensitive contains
-- `isw` - case insensitive starts with
-- `nisw` - negated case insensitive starts with
-- `iew` - case insensitive ends with
-- `niew` - negated case insensitive ends with
-- `ie` - case insensitive exact match
-- `nie` - negated case insensitive exact match
+| Filter | Description |
+|--------|-------------|
+| `n` | Not equal to |
+| `ic` | Contains (case-insensitive) |
+| `nic` | Does not contain (case-insensitive) |
+| `isw` | Starts with (case-insensitive) |
+| `nisw` | Does not start with (case-insensitive) |
+| `iew` | Ends with (case-insensitive) |
+| `niew` | Does not end with (case-insensitive) |
+| `ie` | Exact match (case-insensitive) |
+| `nie` | Inverse exact match (case-insensitive) |
+| `empty` | Is empty (boolean) |
+
+Here is an example of a lookup expression on a string field that will return all devices with `switch` in the name:
+
+```no-highlight
+GET /api/dcim/devices/?name__ic=switch
+```
 
 ### Foreign Keys & Other Fields
 
 Certain other fields, namely foreign key relationships support just the negation
-expression: `n`.
+expression: `n`. Here is an example of a lookup expression on a foreign key, it would return all the VLANs that don't have a VLAN Group ID of 3203:
+
+```no-highlight
+GET /api/ipam/vlans/?group_id__n=3203
+```

@@ -221,6 +221,29 @@ class ConsolePortTypeChoices(ChoiceSet):
     )
 
 
+class ConsolePortSpeedChoices(ChoiceSet):
+
+    SPEED_1200 = 1200
+    SPEED_2400 = 2400
+    SPEED_4800 = 4800
+    SPEED_9600 = 9600
+    SPEED_19200 = 19200
+    SPEED_38400 = 38400
+    SPEED_57600 = 57600
+    SPEED_115200 = 115200
+
+    CHOICES = (
+        (SPEED_1200, '1200 bps'),
+        (SPEED_2400, '2400 bps'),
+        (SPEED_4800, '4800 bps'),
+        (SPEED_9600, '9600 bps'),
+        (SPEED_19200, '19.2 kbps'),
+        (SPEED_38400, '38.4 kbps'),
+        (SPEED_57600, '57.6 kbps'),
+        (SPEED_115200, '115.2 kbps'),
+    )
+
+
 #
 # PowerPorts
 #
@@ -233,6 +256,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_IEC_C14 = 'iec-60320-c14'
     TYPE_IEC_C16 = 'iec-60320-c16'
     TYPE_IEC_C20 = 'iec-60320-c20'
+    TYPE_IEC_C22 = 'iec-60320-c22'
     # IEC 60309
     TYPE_IEC_PNE4H = 'iec-60309-p-n-e-4h'
     TYPE_IEC_PNE6H = 'iec-60309-p-n-e-6h'
@@ -318,6 +342,12 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_MICRO_B = 'usb-micro-b'
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
+    # Direct current (DC)
+    TYPE_DC = 'dc-terminal'
+    # Proprietary
+    TYPE_SAF_D_GRID = 'saf-d-grid'
+    # Other
+    TYPE_HARDWIRED = 'hardwired'
 
     CHOICES = (
         ('IEC 60320', (
@@ -326,6 +356,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_IEC_C14, 'C14'),
             (TYPE_IEC_C16, 'C16'),
             (TYPE_IEC_C20, 'C20'),
+            (TYPE_IEC_C22, 'C22'),
         )),
         ('IEC 60309', (
             (TYPE_IEC_PNE4H, 'P+N+E 4H'),
@@ -418,6 +449,15 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_USB_3_B, 'USB 3.0 Type B'),
             (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
+        ('DC', (
+            (TYPE_DC, 'DC Terminal'),
+        )),
+        ('Proprietary', (
+            (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
+        )),
+        ('Other', (
+            (TYPE_HARDWIRED, 'Hardwired'),
+        )),
     )
 
 
@@ -433,6 +473,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_IEC_C13 = 'iec-60320-c13'
     TYPE_IEC_C15 = 'iec-60320-c15'
     TYPE_IEC_C19 = 'iec-60320-c19'
+    TYPE_IEC_C21 = 'iec-60320-c21'
     # IEC 60309
     TYPE_IEC_PNE4H = 'iec-60309-p-n-e-4h'
     TYPE_IEC_PNE6H = 'iec-60309-p-n-e-6h'
@@ -511,8 +552,13 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_USB_A = 'usb-a'
     TYPE_USB_MICROB = 'usb-micro-b'
     TYPE_USB_C = 'usb-c'
+    # Direct current (DC)
+    TYPE_DC = 'dc-terminal'
     # Proprietary
     TYPE_HDOT_CX = 'hdot-cx'
+    TYPE_SAF_D_GRID = 'saf-d-grid'
+    # Other
+    TYPE_HARDWIRED = 'hardwired'
 
     CHOICES = (
         ('IEC 60320', (
@@ -521,6 +567,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_IEC_C13, 'C13'),
             (TYPE_IEC_C15, 'C15'),
             (TYPE_IEC_C19, 'C19'),
+            (TYPE_IEC_C21, 'C21'),
         )),
         ('IEC 60309', (
             (TYPE_IEC_PNE4H, 'P+N+E 4H'),
@@ -606,8 +653,15 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_USB_MICROB, 'USB Micro B'),
             (TYPE_USB_C, 'USB Type C'),
         )),
+        ('DC', (
+            (TYPE_DC, 'DC Terminal'),
+        )),
         ('Proprietary', (
             (TYPE_HDOT_CX, 'HDOT Cx'),
+            (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
+        )),
+        ('Other', (
+            (TYPE_HARDWIRED, 'Hardwired'),
         )),
     )
 
@@ -649,6 +703,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_10GE_XENPAK = '10gbase-x-xenpak'
     TYPE_10GE_X2 = '10gbase-x-x2'
     TYPE_25GE_SFP28 = '25gbase-x-sfp28'
+    TYPE_50GE_SFP56 = '50gbase-x-sfp56'
     TYPE_40GE_QSFP_PLUS = '40gbase-x-qsfpp'
     TYPE_50GE_QSFP28 = '50gbase-x-sfp28'
     TYPE_100GE_CFP = '100gbase-x-cfp'
@@ -754,6 +809,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_10GE_XENPAK, 'XENPAK (10GE)'),
                 (TYPE_10GE_X2, 'X2 (10GE)'),
                 (TYPE_25GE_SFP28, 'SFP28 (25GE)'),
+                (TYPE_50GE_SFP56, 'SFP56 (50GE)'),
                 (TYPE_40GE_QSFP_PLUS, 'QSFP+ (40GE)'),
                 (TYPE_50GE_QSFP28, 'QSFP28 (50GE)'),
                 (TYPE_100GE_CFP, 'CFP (100GE)'),
@@ -881,12 +937,19 @@ class PortTypeChoices(ChoiceSet):
     TYPE_8P6C = '8p6c'
     TYPE_8P4C = '8p4c'
     TYPE_8P2C = '8p2c'
+    TYPE_6P6C = '6p6c'
+    TYPE_6P4C = '6p4c'
+    TYPE_6P2C = '6p2c'
+    TYPE_4P4C = '4p4c'
+    TYPE_4P2C = '4p2c'
     TYPE_GG45 = 'gg45'
     TYPE_TERA4P = 'tera-4p'
     TYPE_TERA2P = 'tera-2p'
     TYPE_TERA1P = 'tera-1p'
     TYPE_110_PUNCH = '110-punch'
     TYPE_BNC = 'bnc'
+    TYPE_F = 'f'
+    TYPE_N = 'n'
     TYPE_MRJ21 = 'mrj21'
     TYPE_ST = 'st'
     TYPE_SC = 'sc'
@@ -910,12 +973,19 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_8P6C, '8P6C'),
                 (TYPE_8P4C, '8P4C'),
                 (TYPE_8P2C, '8P2C'),
+                (TYPE_6P6C, '6P6C'),
+                (TYPE_6P4C, '6P4C'),
+                (TYPE_6P2C, '6P2C'),
+                (TYPE_4P4C, '4P4C'),
+                (TYPE_4P2C, '4P2C'),
                 (TYPE_GG45, 'GG45'),
                 (TYPE_TERA4P, 'TERA 4P'),
                 (TYPE_TERA2P, 'TERA 2P'),
                 (TYPE_TERA1P, 'TERA 1P'),
                 (TYPE_110_PUNCH, '110 Punch'),
                 (TYPE_BNC, 'BNC'),
+                (TYPE_F, 'F Connector'),
+                (TYPE_N, 'N Connector'),
                 (TYPE_MRJ21, 'MRJ21'),
             ),
         ),
@@ -963,6 +1033,7 @@ class CableTypeChoices(ChoiceSet):
     TYPE_MMF_OM2 = 'mmf-om2'
     TYPE_MMF_OM3 = 'mmf-om3'
     TYPE_MMF_OM4 = 'mmf-om4'
+    TYPE_MMF_OM5 = 'mmf-om5'
     TYPE_SMF = 'smf'
     TYPE_SMF_OS1 = 'smf-os1'
     TYPE_SMF_OS2 = 'smf-os2'
@@ -993,6 +1064,7 @@ class CableTypeChoices(ChoiceSet):
                 (TYPE_MMF_OM2, 'Multimode Fiber (OM2)'),
                 (TYPE_MMF_OM3, 'Multimode Fiber (OM3)'),
                 (TYPE_MMF_OM4, 'Multimode Fiber (OM4)'),
+                (TYPE_MMF_OM5, 'Multimode Fiber (OM5)'),
                 (TYPE_SMF, 'Singlemode Fiber'),
                 (TYPE_SMF_OS1, 'Singlemode Fiber (OS1)'),
                 (TYPE_SMF_OS2, 'Singlemode Fiber (OS2)'),

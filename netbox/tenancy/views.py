@@ -1,11 +1,10 @@
-from django.shortcuts import get_object_or_404, render
-
 from circuits.models import Circuit
 from dcim.models import Site, Rack, Device, RackReservation
-from ipam.models import IPAddress, Prefix, VLAN, VRF
+from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from netbox.views import generic
+from utilities.tables import paginate_table
 from virtualization.models import VirtualMachine, Cluster
-from . import filters, forms, tables
+from . import filtersets, forms, tables
 from .models import Tenant, TenantGroup
 
 
@@ -24,6 +23,23 @@ class TenantGroupListView(generic.ObjectListView):
     table = tables.TenantGroupTable
 
 
+class TenantGroupView(generic.ObjectView):
+    queryset = TenantGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        tenants = Tenant.objects.restrict(request.user, 'view').filter(
+            group=instance
+        )
+
+        tenants_table = tables.TenantTable(tenants)
+        tenants_table.columns.hide('group')
+        paginate_table(tenants_table, request)
+
+        return {
+            'tenants_table': tenants_table,
+        }
+
+
 class TenantGroupEditView(generic.ObjectEditView):
     queryset = TenantGroup.objects.all()
     model_form = forms.TenantGroupForm
@@ -37,6 +53,19 @@ class TenantGroupBulkImportView(generic.BulkImportView):
     queryset = TenantGroup.objects.all()
     model_form = forms.TenantGroupCSVForm
     table = tables.TenantGroupTable
+
+
+class TenantGroupBulkEditView(generic.BulkEditView):
+    queryset = TenantGroup.objects.add_related_count(
+        TenantGroup.objects.all(),
+        Tenant,
+        'group',
+        'tenant_count',
+        cumulative=True
+    )
+    filterset = filtersets.TenantGroupFilterSet
+    table = tables.TenantGroupTable
+    form = forms.TenantGroupBulkEditForm
 
 
 class TenantGroupBulkDeleteView(generic.BulkDeleteView):
@@ -56,7 +85,7 @@ class TenantGroupBulkDeleteView(generic.BulkDeleteView):
 
 class TenantListView(generic.ObjectListView):
     queryset = Tenant.objects.all()
-    filterset = filters.TenantFilterSet
+    filterset = filtersets.TenantFilterSet
     filterset_form = forms.TenantFilterForm
     table = tables.TenantTable
 
@@ -72,6 +101,7 @@ class TenantView(generic.ObjectView):
             'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'aggregate_count': Aggregate.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'ipaddress_count': IPAddress.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
@@ -87,7 +117,6 @@ class TenantView(generic.ObjectView):
 class TenantEditView(generic.ObjectEditView):
     queryset = Tenant.objects.all()
     model_form = forms.TenantForm
-    template_name = 'tenancy/tenant_edit.html'
 
 
 class TenantDeleteView(generic.ObjectDeleteView):
@@ -102,12 +131,12 @@ class TenantBulkImportView(generic.BulkImportView):
 
 class TenantBulkEditView(generic.BulkEditView):
     queryset = Tenant.objects.prefetch_related('group')
-    filterset = filters.TenantFilterSet
+    filterset = filtersets.TenantFilterSet
     table = tables.TenantTable
     form = forms.TenantBulkEditForm
 
 
 class TenantBulkDeleteView(generic.BulkDeleteView):
     queryset = Tenant.objects.prefetch_related('group')
-    filterset = filters.TenantFilterSet
+    filterset = filtersets.TenantFilterSet
     table = tables.TenantTable

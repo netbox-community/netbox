@@ -10,13 +10,15 @@ from .models import SecretRole, Secret
 
 class SecretRoleTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     secret_count = LinkedCountColumn(
         viewname='secrets:secret_list',
-        url_params={'role': 'slug'},
+        url_params={'role_id': 'pk'},
         verbose_name='Secrets'
     )
-    actions = ButtonsColumn(SecretRole, pk_field='slug')
+    actions = ButtonsColumn(SecretRole)
 
     class Meta(BaseTable.Meta):
         model = SecretRole
@@ -35,6 +37,7 @@ class SecretTable(BaseTable):
     )
     assigned_object = tables.Column(
         linkify=True,
+        orderable=False,
         verbose_name='Assigned object'
     )
     role = tables.Column(

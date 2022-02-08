@@ -55,7 +55,7 @@
         {% block content %}{% endblock %}
         <div class="push"></div>
          {% if settings.BANNER_BOTTOM %}
-            <div class="alert alert-info text-center banner-bottom" role="alert">
+            <div class="alert alert-info text-center" style="margin-bottom: 50px" role="alert">
                  {{ settings.BANNER_BOTTOM|safe }}
             </div>
         {% endif %}
@@ -67,14 +67,14 @@
                     <p class="text-muted">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
                 </div>
                 <div class="col-xs-4 text-center">
-                    <p class="text-muted">{% now 'Y-m-d H:i:s T' %}</p>
+                    <p class="text-muted">{% annotated_now %} {% now 'T' %}</p>
                 </div>
                 <div class="col-xs-4 text-right noprint">
                     <p class="text-muted">
                         <i class="mdi mdi-book-open-page-variant text-primary"></i> <a href="https://netbox.readthedocs.io/">Docs</a> &middot;
                         <i class="mdi mdi-cloud-braces text-primary"></i> <a href="{% url 'api_docs' %}">API</a> &middot;
                         <i class="mdi mdi-xml text-primary"></i> <a href="https://github.com/netbox-community/netbox">Code</a> &middot;
-                        <i class="mdi mdi-lifebuoy text-primary"></i> <a href="https://github.com/netbox-community/netbox/wiki">Help</a>
+                        <i class="mdi mdi-slack text-primary"></i> <a href="https://netdev.chat/">Community</a>
                     </p>
                 </div>
             </div>

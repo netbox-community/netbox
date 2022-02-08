@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from dcim import models
-from netbox.api import WritableNestedSerializer
+from netbox.api.serializers import BaseModelSerializer, WritableNestedSerializer
 
 __all__ = [
     'NestedCableSerializer',
@@ -27,7 +27,7 @@ __all__ = [
     'NestedPowerPanelSerializer',
     'NestedPowerPortSerializer',
     'NestedPowerPortTemplateSerializer',
-    'NestedRackGroupSerializer',
+    'NestedLocationSerializer',
     'NestedRackReservationSerializer',
     'NestedRackRoleSerializer',
     'NestedRackSerializer',
@@ -35,6 +35,7 @@ __all__ = [
     'NestedRearPortTemplateSerializer',
     'NestedRegionSerializer',
     'NestedSiteSerializer',
+    'NestedSiteGroupSerializer',
     'NestedVirtualChassisSerializer',
 ]
 
@@ -50,7 +51,17 @@ class NestedRegionSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Region
-        fields = ['id', 'url', 'name', 'slug', 'site_count', '_depth']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'site_count', '_depth']
+
+
+class NestedSiteGroupSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:sitegroup-detail')
+    site_count = serializers.IntegerField(read_only=True)
+    _depth = serializers.IntegerField(source='level', read_only=True)
+
+    class Meta:
+        model = models.SiteGroup
+        fields = ['id', 'url', 'display', 'name', 'slug', 'site_count', '_depth']
 
 
 class NestedSiteSerializer(WritableNestedSerializer):
@@ -58,21 +69,21 @@ class NestedSiteSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Site
-        fields = ['id', 'url', 'name', 'slug']
+        fields = ['id', 'url', 'display', 'name', 'slug']
 
 
 #
 # Racks
 #
 
-class NestedRackGroupSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackgroup-detail')
+class NestedLocationSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:location-detail')
     rack_count = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
-        model = models.RackGroup
-        fields = ['id', 'url', 'name', 'slug', 'rack_count', '_depth']
+        model = models.Location
+        fields = ['id', 'url', 'display', 'name', 'slug', 'rack_count', '_depth']
 
 
 class NestedRackRoleSerializer(WritableNestedSerializer):
@@ -81,7 +92,7 @@ class NestedRackRoleSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.RackRole
-        fields = ['id', 'url', 'name', 'slug', 'rack_count']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'rack_count']
 
 
 class NestedRackSerializer(WritableNestedSerializer):
@@ -90,7 +101,7 @@ class NestedRackSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Rack
-        fields = ['id', 'url', 'name', 'display_name', 'device_count']
+        fields = ['id', 'url', 'display', 'name', 'display_name', 'device_count']
 
 
 class NestedRackReservationSerializer(WritableNestedSerializer):
@@ -99,7 +110,7 @@ class NestedRackReservationSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.RackReservation
-        fields = ['id', 'url', 'user', 'units']
+        fields = ['id', 'url', 'display', 'user', 'units']
 
     def get_user(self, obj):
         return obj.user.username
@@ -115,7 +126,7 @@ class NestedManufacturerSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Manufacturer
-        fields = ['id', 'url', 'name', 'slug', 'devicetype_count']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'devicetype_count']
 
 
 class NestedDeviceTypeSerializer(WritableNestedSerializer):
@@ -125,7 +136,7 @@ class NestedDeviceTypeSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.DeviceType
-        fields = ['id', 'url', 'manufacturer', 'model', 'slug', 'display_name', 'device_count']
+        fields = ['id', 'url', 'display', 'manufacturer', 'model', 'slug', 'display_name', 'device_count']
 
 
 class NestedConsolePortTemplateSerializer(WritableNestedSerializer):
@@ -133,7 +144,7 @@ class NestedConsolePortTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ConsolePortTemplate
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedConsoleServerPortTemplateSerializer(WritableNestedSerializer):
@@ -141,7 +152,7 @@ class NestedConsoleServerPortTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ConsoleServerPortTemplate
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedPowerPortTemplateSerializer(WritableNestedSerializer):
@@ -149,7 +160,7 @@ class NestedPowerPortTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.PowerPortTemplate
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedPowerOutletTemplateSerializer(WritableNestedSerializer):
@@ -157,7 +168,7 @@ class NestedPowerOutletTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.PowerOutletTemplate
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedInterfaceTemplateSerializer(WritableNestedSerializer):
@@ -165,7 +176,7 @@ class NestedInterfaceTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.InterfaceTemplate
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedRearPortTemplateSerializer(WritableNestedSerializer):
@@ -173,7 +184,7 @@ class NestedRearPortTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.RearPortTemplate
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedFrontPortTemplateSerializer(WritableNestedSerializer):
@@ -181,7 +192,7 @@ class NestedFrontPortTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.FrontPortTemplate
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedDeviceBayTemplateSerializer(WritableNestedSerializer):
@@ -189,7 +200,7 @@ class NestedDeviceBayTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.DeviceBayTemplate
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 #
@@ -203,7 +214,7 @@ class NestedDeviceRoleSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.DeviceRole
-        fields = ['id', 'url', 'name', 'slug', 'device_count', 'virtualmachine_count']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'device_count', 'virtualmachine_count']
 
 
 class NestedPlatformSerializer(WritableNestedSerializer):
@@ -213,7 +224,7 @@ class NestedPlatformSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Platform
-        fields = ['id', 'url', 'name', 'slug', 'device_count', 'virtualmachine_count']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'device_count', 'virtualmachine_count']
 
 
 class NestedDeviceSerializer(WritableNestedSerializer):
@@ -221,7 +232,7 @@ class NestedDeviceSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Device
-        fields = ['id', 'url', 'name', 'display_name']
+        fields = ['id', 'url', 'display', 'name', 'display_name']
 
 
 class NestedConsoleServerPortSerializer(WritableNestedSerializer):
@@ -230,7 +241,7 @@ class NestedConsoleServerPortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ConsoleServerPort
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'display', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedConsolePortSerializer(WritableNestedSerializer):
@@ -239,7 +250,7 @@ class NestedConsolePortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ConsolePort
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'display', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedPowerOutletSerializer(WritableNestedSerializer):
@@ -248,7 +259,7 @@ class NestedPowerOutletSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.PowerOutlet
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'display', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedPowerPortSerializer(WritableNestedSerializer):
@@ -257,7 +268,7 @@ class NestedPowerPortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.PowerPort
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'display', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedInterfaceSerializer(WritableNestedSerializer):
@@ -266,7 +277,7 @@ class NestedInterfaceSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Interface
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'display', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedRearPortSerializer(WritableNestedSerializer):
@@ -275,7 +286,7 @@ class NestedRearPortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.RearPort
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'display', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedFrontPortSerializer(WritableNestedSerializer):
@@ -284,7 +295,7 @@ class NestedFrontPortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.FrontPort
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'display', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedDeviceBaySerializer(WritableNestedSerializer):
@@ -293,7 +304,7 @@ class NestedDeviceBaySerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.DeviceBay
-        fields = ['id', 'url', 'device', 'name']
+        fields = ['id', 'url', 'display', 'device', 'name']
 
 
 class NestedInventoryItemSerializer(WritableNestedSerializer):
@@ -303,19 +314,19 @@ class NestedInventoryItemSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.InventoryItem
-        fields = ['id', 'url', 'device', 'name', '_depth']
+        fields = ['id', 'url', 'display', 'device', 'name', '_depth']
 
 
 #
 # Cables
 #
 
-class NestedCableSerializer(serializers.ModelSerializer):
+class NestedCableSerializer(BaseModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
 
     class Meta:
         model = models.Cable
-        fields = ['id', 'url', 'label']
+        fields = ['id', 'url', 'display', 'label']
 
 
 #
@@ -342,7 +353,7 @@ class NestedPowerPanelSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.PowerPanel
-        fields = ['id', 'url', 'name', 'powerfeed_count']
+        fields = ['id', 'url', 'display', 'name', 'powerfeed_count']
 
 
 class NestedPowerFeedSerializer(WritableNestedSerializer):
@@ -350,4 +361,4 @@ class NestedPowerFeedSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.PowerFeed
-        fields = ['id', 'url', 'name', 'cable']
+        fields = ['id', 'url', 'display', 'name', 'cable', '_occupied']

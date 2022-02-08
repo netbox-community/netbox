@@ -31,7 +31,17 @@
                         <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
                         <h4 class="list-group-item-heading">Sites</h4>
                     {% endif %}
-                    <p class="list-group-item-text text-muted">Geographic locations</p>
+                    <p class="list-group-item-text text-muted">Discrete points of presence</p>
+                </div>
+                <div class="list-group-item">
+                    {% if perms.dcim.view_location %}
+                        <span class="badge pull-right">{{ stats.location_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:location_list' %}">Locations</a></h4>
+                    {% else %}
+                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
+                        <h4 class="list-group-item-heading">Locations</h4>
+                    {% endif %}
+                    <p class="list-group-item-text text-muted">Locations within sites</p>
                 </div>
                 <div class="list-group-item">
                     {% if perms.tenancy.view_tenant %}
@@ -281,7 +291,7 @@
                     {% for result in report_results %}
                         <tr>
                             <td><a href="{% url 'extras:report_result' job_result_pk=result.pk %}">{{ result.name }}</a></td>
-                            <td class="text-right"><span title="{{ result.created }}">{% include 'extras/inc/job_label.html' %}</span></td>
+                            <td class="text-right"><span title="{{ result.created|date:'SHORT_DATETIME_FORMAT' }}">{% include 'extras/inc/job_label.html' %}</span></td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -304,13 +314,7 @@
                     {% for change in changelog %}
                         {% with action=change.get_action_display|lower %}
                             <div class="list-group-item">
-                                {% if action == 'created' %}
-                                    <span class="label label-success">Created</span>
-                                {% elif action == 'updated' %}
-                                    <span class="label label-warning">Modified</span>
-                                {% elif action == 'deleted' %}
-                                    <span class="label label-danger">Deleted</span>
-                                {% endif %}
+                                <span class="label label-{{ change.get_action_class }}">{{ change.get_action_display }}</span>
                                 {{ change.changed_object_type.name|bettertitle }}
                                 {% if change.changed_object.get_absolute_url %}
                                     <a href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>

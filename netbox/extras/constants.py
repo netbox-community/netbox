@@ -7,5 +7,6 @@ EXTRAS_FEATURES = [
     'custom_links',
     'export_templates',
     'job_results',
+    'tags',
     'webhooks'
 ]

@@ -6,18 +6,17 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinLengthValidator
 from django.db import models
-from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from netbox.models import BigIDModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import flatten_dict
+from .constants import *
 
 
 __all__ = (
-    'AdminGroup',
-    'AdminUser',
     'ObjectPermission',
     'Token',
     'UserConfig',
@@ -162,7 +161,6 @@ class UserConfig(models.Model):
 
 
 @receiver(post_save, sender=User)
-@receiver(post_save, sender=AdminUser)
 def create_userconfig(instance, created, **kwargs):
     """
     Automatically create a new UserConfig when a new User is created.
@@ -175,7 +173,7 @@ def create_userconfig(instance, created, **kwargs):
 # REST API
 #
 
-class Token(models.Model):
+class Token(BigIDModel):
     """
     An API token used for user authentication. This extends the stock model to allow each user to have multiple tokens.
     It also supports setting an expiration time and toggling write ability.
@@ -233,7 +231,7 @@ class Token(models.Model):
 # Permissions
 #
 
-class ObjectPermission(models.Model):
+class ObjectPermission(BigIDModel):
     """
     A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects
     identified by ORM query parameters.
@@ -250,11 +248,7 @@ class ObjectPermission(models.Model):
     )
     object_types = models.ManyToManyField(
         to=ContentType,
-        limit_choices_to=Q(
-            ~Q(app_label__in=['admin', 'auth', 'contenttypes', 'sessions', 'taggit', 'users']) |
-            Q(app_label='auth', model__in=['group', 'user']) |
-            Q(app_label='users', model__in=['objectpermission', 'token'])
-        ),
+        limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
         related_name='object_permissions'
     )
     groups = models.ManyToManyField(

@@ -1,5 +1,82 @@
 # NetBox v2.10
 
+## v2.10.10 (2021-04-15)
+
+### Enhancements
+
+* [#5796](https://github.com/netbox-community/netbox/issues/5796) - Add DC terminal power port, outlet types
+* [#5980](https://github.com/netbox-community/netbox/issues/5980) - Add Saf-D-Grid power port, outlet types
+* [#6157](https://github.com/netbox-community/netbox/issues/6157) - Support Markdown rendering for report logs
+* [#6160](https://github.com/netbox-community/netbox/issues/6160) - Add F connector port type
+* [#6168](https://github.com/netbox-community/netbox/issues/6168) - Add SFP56 50GE interface type
+
+### Bug Fixes
+
+* [#5419](https://github.com/netbox-community/netbox/issues/5419) - Update parent device/VM when deleting a primary IP
+* [#5643](https://github.com/netbox-community/netbox/issues/5643) - Fix VLAN assignment when editing VM interfaces in bulk
+* [#5652](https://github.com/netbox-community/netbox/issues/5652) - Update object data when renaming a custom field
+* [#6056](https://github.com/netbox-community/netbox/issues/6056) - Optimize change log cleanup
+* [#6144](https://github.com/netbox-community/netbox/issues/6144) - Fix MAC address field display in VM interfaces search form
+* [#6152](https://github.com/netbox-community/netbox/issues/6152) - Fix custom field filtering for cables, virtual chassis
+* [#6162](https://github.com/netbox-community/netbox/issues/6162) - Fix choice field filters (multiple models)
+
+---
+
+## v2.10.9 (2021-04-12)
+
+### Enhancements
+
+* [#5526](https://github.com/netbox-community/netbox/issues/5526) - Add MAC address search field to VM interfaces list
+* [#5756](https://github.com/netbox-community/netbox/issues/5756) - Omit child devices from non-racked devices list under rack view
+* [#5840](https://github.com/netbox-community/netbox/issues/5840) - Add column to cable termination objects to display cable color
+* [#6054](https://github.com/netbox-community/netbox/issues/6054) - Display NAPALM-enabled device tabs only when relevant
+* [#6083](https://github.com/netbox-community/netbox/issues/6083) - Support disabling TLS certificate validation for Redis
+
+### Bug Fixes
+
+* [#5805](https://github.com/netbox-community/netbox/issues/5805) - Fix missing custom field filters for cables, rack reservations
+* [#6070](https://github.com/netbox-community/netbox/issues/6070) - Add missing `count_ipaddresses` attribute to VMInterface serializer
+* [#6073](https://github.com/netbox-community/netbox/issues/6073) - Permit users to manage their own REST API tokens without needing explicit permission
+* [#6081](https://github.com/netbox-community/netbox/issues/6081) - Fix interface connections REST API endpoint
+* [#6082](https://github.com/netbox-community/netbox/issues/6082) - Support colons in webhook header values
+* [#6108](https://github.com/netbox-community/netbox/issues/6108) - Do not infer tenant assignment from parent objects for prefixes, IP addresses
+* [#6117](https://github.com/netbox-community/netbox/issues/6117) - Handle exception when attempting to assign an MPTT-enabled model as its own parent
+* [#6131](https://github.com/netbox-community/netbox/issues/6131) - Correct handling of boolean fields when cloning objects
+
+---
+
+## v2.10.8 (2021-03-26)
+
+### Bug Fixes
+
+* [#6060](https://github.com/netbox-community/netbox/issues/6060) - Fix exception on cable trace in UI (regression from #5650)
+
+---
+
+## v2.10.7 (2021-03-25)
+
+### Enhancements
+
+* [#5641](https://github.com/netbox-community/netbox/issues/5641) - Allow filtering device components by label
+* [#5723](https://github.com/netbox-community/netbox/issues/5723) - Allow customization of the geographic mapping service via `MAPS_URL` config parameter
+* [#5736](https://github.com/netbox-community/netbox/issues/5736) - Allow changing site assignment when bulk editing devices
+* [#5953](https://github.com/netbox-community/netbox/issues/5953) - Support Markdown rendering for custom script descriptions
+* [#6040](https://github.com/netbox-community/netbox/issues/6040) - Add UI search fields for asset tag for devices and racks
+
+### Bug Fixes
+
+* [#5595](https://github.com/netbox-community/netbox/issues/5595) - Restore ability to delete an uploaded device type image
+* [#5650](https://github.com/netbox-community/netbox/issues/5650) - Denote when the total length of a cable trace may exceed the indicated value
+* [#5962](https://github.com/netbox-community/netbox/issues/5962) - Ensure consistent display of change log action labels
+* [#5966](https://github.com/netbox-community/netbox/issues/5966) - Skip Markdown reference link when tabbing through form fields
+* [#5977](https://github.com/netbox-community/netbox/issues/5977) - Correct validation of `RELEASE_CHECK_URL` config parameter
+* [#6006](https://github.com/netbox-community/netbox/issues/6006) - Fix VLAN group/site association for bulk prefix import
+* [#6010](https://github.com/netbox-community/netbox/issues/6010) - Eliminate duplicate virtual chassis search results
+* [#6012](https://github.com/netbox-community/netbox/issues/6012) - Pre-populate attributes when creating an available child prefix via the UI
+* [#6023](https://github.com/netbox-community/netbox/issues/6023) - Fix display of bottom banner with uBlock Origin enabled
+
+---
+
 ## v2.10.6 (2021-03-09)
 
 ### Enhancements
@@ -18,6 +95,8 @@
 * [#5922](https://github.com/netbox-community/netbox/issues/5922) - Fix options for filtering object permissions in admin UI
 * [#5935](https://github.com/netbox-community/netbox/issues/5935) - Fix filtering prefixes list by multiple prefix values
 * [#5948](https://github.com/netbox-community/netbox/issues/5948) - Invalidate cached queries when running `renaturalize`
+
+---
 
 ## v2.10.5 (2021-02-24)
 
@@ -221,43 +300,43 @@ All end-to-end cable paths are now cached using the new CablePath backend model.
 * Removed the `/extras/_custom_field_choices/` endpoint (replaced by new custom fields endpoint)
 * Added the `/status/` endpoint to convey NetBox's current status
 * circuits.CircuitTermination:
-  * Added the `/trace/` endpoint
-  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-  * Added `cable_peer` and `cable_peer_type`
-  * `port_speed` may now be null
+    * Added the `/trace/` endpoint
+    * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+    * Added `cable_peer` and `cable_peer_type`
+    * `port_speed` may now be null
 * dcim.Cable: Added `custom_fields`
 * dcim.ConsolePort:
-  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-  * Added `cable_peer` and `cable_peer_type`
-  * Removed `connection_status` from nested serializer
+    * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+    * Added `cable_peer` and `cable_peer_type`
+    * Removed `connection_status` from nested serializer
 * dcim.ConsoleServerPort:
-  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-  * Added `cable_peer` and `cable_peer_type`
-  * Removed `connection_status` from nested serializer
+    * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+    * Added `cable_peer` and `cable_peer_type`
+    * Removed `connection_status` from nested serializer
 * dcim.FrontPort:
-  * Replaced the `/trace/` endpoint with `/paths/`, which returns a list of cable paths
-  * Added `cable_peer` and `cable_peer_type`
+    * Replaced the `/trace/` endpoint with `/paths/`, which returns a list of cable paths
+    * Added `cable_peer` and `cable_peer_type`
 * dcim.Interface:
-  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-  * Added `cable_peer` and `cable_peer_type`
-  * Removed `connection_status` from nested serializer
+    * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+    * Added `cable_peer` and `cable_peer_type`
+    * Removed `connection_status` from nested serializer
 * dcim.InventoryItem: The `_depth` field has been added to reflect MPTT positioning
 * dcim.PowerFeed:
-  * Added the `/trace/` endpoint
-  * Added fields `connected_endpoint`, `connected_endpoint_type`, `connected_endpoint_reachable`, `cable_peer`, and `cable_peer_type`
+    * Added the `/trace/` endpoint
+    * Added fields `connected_endpoint`, `connected_endpoint_type`, `connected_endpoint_reachable`, `cable_peer`, and `cable_peer_type`
 * dcim.PowerOutlet:
-  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-  * Added `cable_peer` and `cable_peer_type`
-  * Removed `connection_status` from nested serializer
+    * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+    * Added `cable_peer` and `cable_peer_type`
+    * Removed `connection_status` from nested serializer
 * dcim.PowerPanel: Added `custom_fields`
 * dcim.PowerPort
-  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-  * Added `cable_peer` and `cable_peer_type`
-  * Removed `connection_status` from nested serializer
+    * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+    * Added `cable_peer` and `cable_peer_type`
+    * Removed `connection_status` from nested serializer
 * dcim.RackReservation: Added `custom_fields`
 * dcim.RearPort:
-  * Replaced the `/trace/` endpoint with `/paths/`, which returns a list of cable paths
-  * Added `cable_peer` and `cable_peer_type`
+    * Replaced the `/trace/` endpoint with `/paths/`, which returns a list of cable paths
+    * Added `cable_peer` and `cable_peer_type`
 * dcim.VirtualChassis: Added `custom_fields`
 * extras.ExportTemplate: The `template_language` field has been removed
 * extras.Graph: This API endpoint has been removed (see #4349)

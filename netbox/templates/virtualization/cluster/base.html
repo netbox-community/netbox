@@ -1,0 +1,55 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load custom_links %}
+{% load plugins %}
+
+{% block breadcrumbs %}
+  <li><a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a></li>
+  {% if object.group %}
+    <li><a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a></li>
+  {% endif %}
+  <li>{{ object }}</li>
+{% endblock %}
+
+{% block buttons %}
+  {% if perms.virtualization.change_cluster and perms.virtualization.add_virtualmachine %}
+    <a href="{% url 'virtualization:virtualmachine_add' %}?cluster={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Virtual Machine
+    </a>
+  {% endif %}
+  {% if perms.virtualization.change_cluster %}
+    <a href="{% url 'virtualization:cluster_add_devices' pk=object.pk %}?site={{ object.site.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Device
+    </a>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs">
+    <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+      <a href="{{ object.get_absolute_url }}">Cluster</a>
+    </li>
+    {% with virtualmachine_count=object.virtual_machines.count %}
+      <li role="presentation" {% if active_tab == 'virtual-machines' %} class="active"{% endif %}>
+        <a href="{% url 'virtualization:cluster_virtualmachines' pk=object.pk %}">Virtual Machines {% badge virtualmachine_count %}</a>
+      </li>
+    {% endwith %}
+    {% with device_count=object.devices.count %}
+      <li role="presentation" {% if active_tab == 'devices' %} class="active"{% endif %}>
+        <a href="{% url 'virtualization:cluster_devices' pk=object.pk %}">Devices {% badge device_count %}</a>
+      </li>
+    {% endwith %}
+    {% if perms.extras.view_journalentry %}
+      <li role="presentation"{% if active_tab == 'journal' %} class="active"{% endif %}>
+        <a href="{% url 'virtualization:cluster_journal' pk=object.pk %}">Journal</a>
+      </li>
+    {% endif %}
+    {% if perms.extras.view_objectchange %}
+      <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+        <a href="{% url 'virtualization:cluster_changelog' pk=object.pk %}">Change Log</a>
+      </li>
+    {% endif %}
+  </ul>
+{% endblock %}

@@ -6,7 +6,8 @@ from itertools import count, groupby
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
-from jinja2 import Environment
+from jinja2.sandbox import SandboxedEnvironment
+from mptt.models import MPTTModel
 
 from dcim.choices import CableLengthUnitChoices
 from extras.utils import is_taggable
@@ -83,7 +84,7 @@ def count_related(model, field):
     return Coalesce(subquery, 0)
 
 
-def serialize_object(obj, extra=None, exclude=None):
+def serialize_object(obj, extra=None):
     """
     Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
     change logging, not the REST API.) Optionally include a dictionary to supplement the object data. A list of keys
@@ -93,13 +94,18 @@ def serialize_object(obj, extra=None, exclude=None):
     json_str = serialize('json', [obj])
     data = json.loads(json_str)[0]['fields']
 
+    # Exclude any MPTTModel fields
+    if issubclass(obj.__class__, MPTTModel):
+        for field in ['level', 'lft', 'rght', 'tree_id']:
+            data.pop(field)
+
     # Include custom_field_data as "custom_fields"
     if hasattr(obj, 'custom_field_data'):
         data['custom_fields'] = data.pop('custom_field_data')
 
     # Include any tags. Check for tags cached on the instance; fall back to using the manager.
     if is_taggable(obj):
-        tags = getattr(obj, '_tags', obj.tags.all())
+        tags = getattr(obj, '_tags', None) or obj.tags.all()
         data['tags'] = [tag.name for tag in tags]
 
     # Append any extra data
@@ -110,10 +116,6 @@ def serialize_object(obj, extra=None, exclude=None):
     for key in list(data):
         # Private fields shouldn't be logged in the object change
         if isinstance(key, str) and key.startswith('_'):
-            data.pop(key)
-
-        # Explicitly excluded keys
-        if isinstance(exclude, (list, tuple)) and key in exclude:
             data.pop(key)
 
     return data
@@ -211,7 +213,7 @@ def render_jinja2(template_code, context):
     """
     Render a Jinja2 template with the provided context. Return the rendered content.
     """
-    return Environment().from_string(source=template_code).render(**context)
+    return SandboxedEnvironment().from_string(source=template_code).render(**context)
 
 
 def prepare_cloned_fields(instance):
@@ -224,12 +226,12 @@ def prepare_cloned_fields(instance):
         field = instance._meta.get_field(field_name)
         field_value = field.value_from_object(instance)
 
-        # Swap out False with URL-friendly value
+        # Pass False as null for boolean fields
         if field_value is False:
-            field_value = ''
+            params.append((field_name, ''))
 
         # Omit empty values
-        if field_value not in (None, ''):
+        elif field_value not in (None, ''):
             params.append((field_name, field_value))
 
     # Copy tags
@@ -292,6 +294,14 @@ def array_to_string(array):
     """
     group = (list(x) for _, x in groupby(sorted(array), lambda x, c=count(): next(c) - x))
     return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
+
+
+def content_type_name(contenttype):
+    """
+    Return a proper ContentType name.
+    """
+    meta = contenttype.model_class()._meta
+    return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
 
 
 #

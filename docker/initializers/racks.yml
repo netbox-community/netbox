@@ -1,5 +1,5 @@
 - facility_id: a.r1.c1.emul8r.000
-  group: Emulator C1 R1
+  location: Emulator C1 R1
   name: R1 Zone A
   role: Customer
   site: Local Emulator (EMUL8R.000)
@@ -7,7 +7,7 @@
   u_height: '36'
   width: '19'
 - facility_id: b.r1.c1.emul8r.000
-  group: Emulator C1 R1
+  location: Emulator C1 R1
   name: R1 Zone B
   role: Utility
   site: Local Emulator (EMUL8R.000)
@@ -15,7 +15,7 @@
   u_height: '36'
   width: '19'
 - facility_id: f.r1.c1.emul8r.000
-  group: Emulator C1 R1
+  location: Emulator C1 R1
   name: R1 Facility
   role: Facility
   site: Local Emulator (EMUL8R.000)
@@ -23,7 +23,7 @@
   u_height: '36'
   width: '19'
 - facility_id: a.r2.c1.emul8r.000
-  group: Emulator C1 R2
+  location: Emulator C1 R2
   name: R2 Zone A
   role: Customer
   site: Local Emulator (EMUL8R.000)
@@ -31,7 +31,7 @@
   u_height: '36'
   width: '19'
 - facility_id: b.r2.c1.emul8r.000
-  group: Emulator C1 R2
+  location: Emulator C1 R2
   name: R2 Zone B
   role: Utility
   site: Local Emulator (EMUL8R.000)
@@ -39,7 +39,7 @@
   u_height: '36'
   width: '19'
 - facility_id: f.r2.c1.emul8r.000
-  group: Emulator C1 R2
+  location: Emulator C1 R2
   name: R2 Facility
   role: Facility
   site: Local Emulator (EMUL8R.000)
@@ -47,7 +47,7 @@
   u_height: '36'
   width: '19'
 - facility_id: a.r3.c1.emul8r.000
-  group: Emulator C1 R3
+  location: Emulator C1 R3
   name: R3 Zone A
   role: Customer
   site: Local Emulator (EMUL8R.000)
@@ -55,7 +55,7 @@
   u_height: '36'
   width: '19'
 - facility_id: b.r3.c1.emul8r.000
-  group: Emulator C1 R3
+  location: Emulator C1 R3
   name: R3 Zone B
   role: Utility
   site: Local Emulator (EMUL8R.000)
@@ -63,7 +63,7 @@
   u_height: '36'
   width: '19'
 - facility_id: f.r3.c1.emul8r.000
-  group: Emulator C1 R3
+  location: Emulator C1 R3
   name: R3 Facility
   role: Facility
   site: Local Emulator (EMUL8R.000)
@@ -71,7 +71,7 @@
   u_height: '36'
   width: '19'
 - facility_id: a.r4.c1.emul8r.000
-  group: Emulator C1 R4
+  location: Emulator C1 R4
   name: R4 Zone A
   role: Customer
   site: Local Emulator (EMUL8R.000)
@@ -79,7 +79,7 @@
   u_height: '36'
   width: '19'
 - facility_id: b.r4.c1.emul8r.000
-  group: Emulator C1 R4
+  location: Emulator C1 R4
   name: R4 Zone B
   role: Utility
   site: Local Emulator (EMUL8R.000)
@@ -87,7 +87,7 @@
   u_height: '36'
   width: '19'
 - facility_id: f.r4.c1.emul8r.000
-  group: Emulator C1 R4
+  location: Emulator C1 R4
   name: R4 Facility
   role: Facility
   site: Local Emulator (EMUL8R.000)
@@ -95,7 +95,7 @@
   u_height: '36'
   width: '19'
 - facility_id: a.r5.c1.emul8r.000
-  group: Emulator C1 R5
+  location: Emulator C1 R5
   name: R5 Zone A
   role: Customer
   site: Local Emulator (EMUL8R.000)
@@ -103,7 +103,7 @@
   u_height: '36'
   width: '19'
 - facility_id: b.r5.c1.emul8r.000
-  group: Emulator C1 R5
+  location: Emulator C1 R5
   name: R5 Zone B
   role: Utility
   site: Local Emulator (EMUL8R.000)
@@ -111,7 +111,7 @@
   u_height: '36'
   width: '19'
 - facility_id: f.r5.c1.emul8r.000
-  group: Emulator C1 R5
+  location: Emulator C1 R5
   name: R5 Facility
   role: Facility
   site: Local Emulator (EMUL8R.000)
@@ -119,7 +119,7 @@
   u_height: '36'
   width: '19'
 - facility_id: a.r6.c1.emul8r.000
-  group: Emulator C1 R6
+  location: Emulator C1 R6
   name: R6 Zone A
   role: Customer
   site: Local Emulator (EMUL8R.000)
@@ -127,7 +127,7 @@
   u_height: '36'
   width: '19'
 - facility_id: b.r6.c1.emul8r.000
-  group: Emulator C1 R6
+  location: Emulator C1 R6
   name: R6 Zone B
   role: Utility
   site: Local Emulator (EMUL8R.000)
@@ -135,7 +135,7 @@
   u_height: '36'
   width: '19'
 - facility_id: f.r6.c1.emul8r.000
-  group: Emulator C1 R6
+  location: Emulator C1 R6
   name: R6 Facility
   role: Facility
   site: Local Emulator (EMUL8R.000)
