@@ -4,10 +4,12 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
+from django.db.models import DateField
 from django.db.models.fields.related import RelatedField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django_tables2 import RequestConfig
+from django_tables2.columns import library
 from django_tables2.data import TableQuerysetData
 from django_tables2.utils import Accessor
 
@@ -203,6 +205,23 @@ class TemplateColumn(tables.TemplateColumn):
         if ret == self.PLACEHOLDER:
             return ''
         return ret
+
+
+@library.register
+class DateColumn(tables.DateColumn):
+    """
+    Overrides the default implementation of DateColumn to better handle null values, returning a default value for
+    tables and null when exporting data. It is registered in the tables library to use this class instead of the
+    default, making this behavior consistent in all fields of type DateField.
+    """
+
+    def value(self, value):
+        return value
+
+    @classmethod
+    def from_field(cls, field, **kwargs):
+        if isinstance(field, DateField):
+            return cls(**kwargs)
 
 
 class ButtonsColumn(tables.TemplateColumn):
