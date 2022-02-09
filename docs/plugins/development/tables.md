@@ -35,3 +35,14 @@ class MyModelTable(NetBoxTable):
         fields = ('pk', 'id', 'name', ...)
         default_columns = ('pk', 'name', ...)
 ```
+
+### Table Configuration
+
+The NetBoxTable class supports dynamic configuration to support pagination and to effect user preferences. To configure a table for a specific request, simply call its `configure()` method and pass the current HTTPRequest object. For example:
+
+```python
+table = MyModelTable(data=MyModel.objects.all())
+table.configure(request)
+```
+
+If using a generic view provided by NetBox, table configuration is handled automatically.

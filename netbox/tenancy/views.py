@@ -5,7 +5,6 @@ from circuits.models import Circuit
 from dcim.models import Cable, Device, Location, Rack, RackReservation, Site
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF, ASN
 from netbox.views import generic
-from netbox.tables import configure_table
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, Cluster
 from . import filtersets, forms, tables
@@ -37,7 +36,7 @@ class TenantGroupView(generic.ObjectView):
             group=instance
         )
         tenants_table = tables.TenantTable(tenants, exclude=('group',))
-        configure_table(tenants_table, request)
+        tenants_table.configure(request)
 
         return {
             'tenants_table': tenants_table,
@@ -186,7 +185,7 @@ class ContactGroupView(generic.ObjectView):
             group=instance
         )
         contacts_table = tables.ContactTable(contacts, exclude=('group',))
-        configure_table(contacts_table, request)
+        contacts_table.configure(request)
 
         return {
             'child_groups_table': child_groups_table,
@@ -253,7 +252,7 @@ class ContactRoleView(generic.ObjectView):
         )
         contacts_table = tables.ContactAssignmentTable(contact_assignments)
         contacts_table.columns.hide('role')
-        configure_table(contacts_table, request)
+        contacts_table.configure(request)
 
         return {
             'contacts_table': contacts_table,
@@ -310,7 +309,7 @@ class ContactView(generic.ObjectView):
         )
         assignments_table = tables.ContactAssignmentTable(contact_assignments)
         assignments_table.columns.hide('contact')
-        configure_table(assignments_table, request)
+        assignments_table.configure(request)
 
         return {
             'assignments_table': assignments_table,

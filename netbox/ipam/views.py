@@ -8,7 +8,6 @@ from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from dcim.tables import SiteTable
 from netbox.views import generic
-from netbox.tables import configure_table
 from utilities.utils import count_related
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.models import VMInterface
@@ -161,7 +160,7 @@ class RIRView(generic.ObjectView):
             rir=instance
         )
         aggregates_table = tables.AggregateTable(aggregates, exclude=('rir', 'utilization'))
-        configure_table(aggregates_table, request)
+        aggregates_table.configure(request)
 
         return {
             'aggregates_table': aggregates_table,
@@ -219,7 +218,7 @@ class ASNView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         sites = instance.sites.restrict(request.user, 'view')
         sites_table = SiteTable(sites)
-        configure_table(sites_table, request)
+        sites_table.configure(request)
 
         return {
             'sites_table': sites_table,
@@ -357,7 +356,7 @@ class RoleView(generic.ObjectView):
         )
 
         prefixes_table = tables.PrefixTable(prefixes, exclude=('role', 'utilization'))
-        configure_table(prefixes_table, request)
+        prefixes_table.configure(request)
 
         return {
             'prefixes_table': prefixes_table,
@@ -662,7 +661,7 @@ class IPAddressView(generic.ObjectView):
             vrf=instance.vrf, address__net_contained_or_equal=str(instance.address)
         )
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
-        configure_table(related_ips_table, request)
+        related_ips_table.configure(request)
 
         return {
             'parent_prefixes_table': parent_prefixes_table,
@@ -798,7 +797,7 @@ class VLANGroupView(generic.ObjectView):
         vlans_table = tables.VLANTable(vlans, exclude=('site', 'group', 'prefixes'))
         if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
             vlans_table.columns.show('pk')
-        configure_table(vlans_table, request)
+        vlans_table.configure(request)
 
         # Compile permissions list for rendering the object table
         permissions = {

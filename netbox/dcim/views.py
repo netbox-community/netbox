@@ -20,7 +20,6 @@ from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
-from netbox.tables import configure_table
 from utilities.utils import count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 from virtualization.models import VirtualMachine
@@ -165,7 +164,7 @@ class RegionView(generic.ObjectView):
             region=instance
         )
         sites_table = tables.SiteTable(sites, exclude=('region',))
-        configure_table(sites_table, request)
+        sites_table.configure(request)
 
         return {
             'child_regions_table': child_regions_table,
@@ -250,7 +249,7 @@ class SiteGroupView(generic.ObjectView):
             group=instance
         )
         sites_table = tables.SiteTable(sites, exclude=('group',))
-        configure_table(sites_table, request)
+        sites_table.configure(request)
 
         return {
             'child_groups_table': child_groups_table,
@@ -422,7 +421,7 @@ class LocationView(generic.ObjectView):
             cumulative=True
         ).filter(pk__in=location_ids).exclude(pk=instance.pk)
         child_locations_table = tables.LocationTable(child_locations)
-        configure_table(child_locations_table, request)
+        child_locations_table.configure(request)
 
         return {
             'rack_count': rack_count,
@@ -493,7 +492,7 @@ class RackRoleView(generic.ObjectView):
         )
 
         racks_table = tables.RackTable(racks, exclude=('role', 'get_utilization', 'get_power_utilization'))
-        configure_table(racks_table, request)
+        racks_table.configure(request)
 
         return {
             'racks_table': racks_table,
@@ -743,7 +742,7 @@ class ManufacturerView(generic.ObjectView):
         )
 
         devicetypes_table = tables.DeviceTypeTable(devicetypes, exclude=('manufacturer',))
-        configure_table(devicetypes_table, request)
+        devicetypes_table.configure(request)
 
         return {
             'devicetypes_table': devicetypes_table,
@@ -1437,7 +1436,7 @@ class DeviceRoleView(generic.ObjectView):
             device_role=instance
         )
         devices_table = tables.DeviceTable(devices, exclude=('device_role',))
-        configure_table(devices_table, request)
+        devices_table.configure(request)
 
         return {
             'devices_table': devices_table,
@@ -1501,7 +1500,7 @@ class PlatformView(generic.ObjectView):
             platform=instance
         )
         devices_table = tables.DeviceTable(devices, exclude=('platform',))
-        configure_table(devices_table, request)
+        devices_table.configure(request)
 
         return {
             'devices_table': devices_table,

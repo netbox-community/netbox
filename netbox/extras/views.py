@@ -11,7 +11,6 @@ from rq import Worker
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.htmx import is_htmx
-from netbox.tables import configure_table
 from utilities.utils import copy_safe_request, count_related, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filtersets, forms, tables
@@ -215,7 +214,7 @@ class TagView(generic.ObjectView):
             data=tagged_items,
             orderable=False
         )
-        configure_table(taggeditem_table, request)
+        taggeditem_table.configure(request)
 
         object_types = [
             {
@@ -451,7 +450,7 @@ class ObjectChangeLogView(View):
             data=objectchanges,
             orderable=False
         )
-        configure_table(objectchanges_table, request)
+        objectchanges_table.configure(request)
 
         # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
         # fall back to using base.html.
@@ -571,7 +570,7 @@ class ObjectJournalView(View):
             assigned_object_id=obj.pk
         )
         journalentry_table = tables.ObjectJournalTable(journalentries)
-        configure_table(journalentry_table, request)
+        journalentry_table.configure(request)
 
         if request.user.has_perm('extras.add_journalentry'):
             form = forms.JournalEntryForm(

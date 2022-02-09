@@ -11,7 +11,6 @@ from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress, Service
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
-from netbox.tables import configure_table
 from utilities.utils import count_related
 from . import filtersets, forms, tables
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -41,7 +40,7 @@ class ClusterTypeView(generic.ObjectView):
             vm_count=count_related(VirtualMachine, 'cluster')
         )
         clusters_table = tables.ClusterTable(clusters, exclude=('type',))
-        configure_table(clusters_table, request)
+        clusters_table.configure(request)
 
         return {
             'clusters_table': clusters_table,
@@ -103,7 +102,7 @@ class ClusterGroupView(generic.ObjectView):
             vm_count=count_related(VirtualMachine, 'cluster')
         )
         clusters_table = tables.ClusterTable(clusters, exclude=('group',))
-        configure_table(clusters_table, request)
+        clusters_table.configure(request)
 
         return {
             'clusters_table': clusters_table,

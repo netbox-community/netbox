@@ -1,6 +1,5 @@
 from dcim.models import Interface
 from netbox.views import generic
-from netbox.tables import configure_table
 from utilities.utils import count_related
 from . import filtersets, forms, tables
 from .models import *
@@ -31,7 +30,7 @@ class WirelessLANGroupView(generic.ObjectView):
             group=instance
         )
         wirelesslans_table = tables.WirelessLANTable(wirelesslans, exclude=('group',))
-        configure_table(wirelesslans_table, request)
+        wirelesslans_table.configure(request)
 
         return {
             'wirelesslans_table': wirelesslans_table,
@@ -99,7 +98,7 @@ class WirelessLANView(generic.ObjectView):
             wireless_lans=instance
         )
         interfaces_table = tables.WirelessLANInterfacesTable(attached_interfaces)
-        configure_table(interfaces_table, request)
+        interfaces_table.configure(request)
 
         return {
             'interfaces_table': interfaces_table,

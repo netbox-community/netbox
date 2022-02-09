@@ -6,7 +6,6 @@ from django.urls import reverse
 from dcim.models import Site
 from dcim.tables import SiteTable
 from users.preferences import UserPreference
-from netbox.tables import configure_table
 from utilities.testing import TestCase
 
 
@@ -60,5 +59,5 @@ class UserPreferencesTest(TestCase):
         table = SiteTable(Site.objects.all())
         request = RequestFactory().get(url)
         request.user = self.user
-        configure_table(table, request)
+        table.configure(request)
         self.assertEqual(table.order_by, ('-status',))

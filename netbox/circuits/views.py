@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
-from netbox.tables import configure_table
 from utilities.utils import count_related
 from . import filtersets, forms, tables
 from .models import *
@@ -34,7 +33,7 @@ class ProviderView(generic.ObjectView):
             'type', 'tenant', 'terminations__site'
         )
         circuits_table = tables.CircuitTable(circuits, exclude=('provider',))
-        configure_table(circuits_table, request)
+        circuits_table.configure(request)
 
         return {
             'circuits_table': circuits_table,
@@ -95,7 +94,7 @@ class ProviderNetworkView(generic.ObjectView):
             'type', 'tenant', 'terminations__site'
         )
         circuits_table = tables.CircuitTable(circuits)
-        configure_table(circuits_table, request)
+        circuits_table.configure(request)
 
         return {
             'circuits_table': circuits_table,
@@ -149,7 +148,7 @@ class CircuitTypeView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         circuits = Circuit.objects.restrict(request.user, 'view').filter(type=instance)
         circuits_table = tables.CircuitTable(circuits, exclude=('type',))
-        configure_table(circuits_table, request)
+        circuits_table.configure(request)
 
         return {
             'circuits_table': circuits_table,

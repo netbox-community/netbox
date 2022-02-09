@@ -17,7 +17,6 @@ from utilities.exceptions import AbortTransaction, PermissionsViolation
 from utilities.forms import ConfirmationForm, ImportForm, restrict_form_fields
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
-from netbox.tables import configure_table
 from utilities.utils import normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin
 from .base import BaseObjectView
@@ -124,7 +123,7 @@ class ObjectChildrenView(ObjectView):
         # Determine whether to display bulk action checkboxes
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
-        configure_table(table, request)
+        table.configure(request)
 
         # If this is an HTMX request, return only the rendered table HTML
         if is_htmx(request):

@@ -14,7 +14,6 @@ from django_tables2.export import TableExport
 
 from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
-from netbox.tables import configure_table
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
@@ -169,7 +168,7 @@ class ObjectListView(BaseMultiObjectView):
 
         # Render the objects table
         table = self.get_table(request, permissions)
-        configure_table(table, request)
+        table.configure(request)
 
         # If this is an HTMX request, return only the rendered table HTML
         if is_htmx(request):
