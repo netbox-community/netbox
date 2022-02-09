@@ -46,3 +46,55 @@ table.configure(request)
 ```
 
 If using a generic view provided by NetBox, table configuration is handled automatically.
+
+## Columns
+
+The table column classes listed below are supported for use in plugins. These classes can be imported from `netbox.tables.columns`.
+
+::: netbox.tables.BooleanColumn
+    rendering:
+      show_source: false
+    selection:
+      members: false
+
+::: netbox.tables.ColorColumn
+    rendering:
+      show_source: false
+    selection:
+      members: false
+
+::: netbox.tables.ColoredLabelColumn
+    rendering:
+      show_source: false
+    selection:
+      members: false
+
+::: netbox.tables.ContentTypeColumn
+    rendering:
+      show_source: false
+    selection:
+      members: false
+
+::: netbox.tables.ContentTypesColumn
+    rendering:
+      show_source: false
+    selection:
+      members: false
+
+::: netbox.tables.MarkdownColumn
+    rendering:
+      show_source: false
+    selection:
+      members: false
+
+::: netbox.tables.TagColumn
+    rendering:
+      show_source: false
+    selection:
+      members: false
+
+::: netbox.tables.TemplateColumn
+    rendering:
+      show_source: false
+    selection:
+      members: false

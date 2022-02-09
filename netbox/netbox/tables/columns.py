@@ -75,7 +75,8 @@ class BooleanColumn(tables.Column):
 
 class TemplateColumn(tables.TemplateColumn):
     """
-    Overrides the stock TemplateColumn to render a placeholder if the returned value is an empty string.
+    Overrides django-tables2's stock TemplateColumn class to render a placeholder symbol if the returned value
+    is an empty string.
     """
     PLACEHOLDER = mark_safe('&mdash;')
 
@@ -219,7 +220,7 @@ class ContentTypesColumn(tables.ManyToManyColumn):
 
 class ColorColumn(tables.Column):
     """
-    Display a color (#RRGGBB).
+    Display an arbitrary color value, specified in RRGGBB format.
     """
     def render(self, value):
         return mark_safe(
@@ -232,7 +233,8 @@ class ColorColumn(tables.Column):
 
 class ColoredLabelColumn(tables.TemplateColumn):
     """
-    Render a colored label (e.g. for DeviceRoles).
+    Render a related object as a colored label. The related object must have a `color` attribute (specifying
+    an RRGGBB value) and a `get_absolute_url()` method.
     """
     template_code = """
 {% load helpers %}
@@ -283,7 +285,7 @@ class LinkedCountColumn(tables.Column):
 
 class TagColumn(tables.TemplateColumn):
     """
-    Display a list of tags assigned to the object.
+    Display a list of Tags assigned to the object.
     """
     template_code = """
     {% load helpers %}
@@ -342,7 +344,7 @@ class CustomFieldColumn(tables.Column):
 
 class CustomLinkColumn(tables.Column):
     """
-    Render a custom links as a table column.
+    Render a custom link as a table column.
     """
     def __init__(self, customlink, *args, **kwargs):
         self.customlink = customlink
