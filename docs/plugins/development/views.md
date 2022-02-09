@@ -146,9 +146,9 @@ A `PluginMenuButton` has the following attributes:
 !!! note
     Any buttons associated within a menu item will be shown only if the user has permission to view the link, regardless of what permissions are set on the buttons.
 
-## Object Views Reference
+## Object Views
 
-Below is the class definition for NetBox's BaseObjectView. The attributes and methods defined here are available on all generic views which handle a single object.
+Below are the class definitions for NetBox's object views. These views handle CRUD actions for individual objects. The view, add/edit, and delete views each inherit from `BaseObjectView`, which is not intended to be used directly.
 
 ::: netbox.views.generic.base.BaseObjectView
     rendering:
@@ -177,9 +177,9 @@ Below is the class definition for NetBox's BaseObjectView. The attributes and me
     rendering:
       show_source: false
 
-## Multi-Object Views Reference
+## Multi-Object Views
 
-Below is the class definition for NetBox's BaseMultiObjectView. The attributes and methods defined here are available on all generic views which deal with multiple objects.
+Below are the class definitions for NetBox's multi-object views. These views handle simultaneous actions for sets objects. The list, import, edit, and delete views each inherit from `BaseMultiObjectView`, which is not intended to be used directly.
 
 ::: netbox.views.generic.base.BaseMultiObjectView
     rendering:
@@ -207,6 +207,24 @@ Below is the class definition for NetBox's BaseMultiObjectView. The attributes a
       show_source: false
 
 ::: netbox.views.generic.BulkDeleteView
+    selection:
+      members:
+        - get_form
+    rendering:
+      show_source: false
+
+## Feature Views
+
+These views are provided to enable or enhance certain NetBox model features, such as change logging or journaling. These typically do not need to be subclassed: They can be used directly e.g. in a URL path.
+
+::: netbox.views.generic.ObjectChangeLogView
+    selection:
+      members:
+        - get_form
+    rendering:
+      show_source: false
+
+::: netbox.views.generic.ObjectJournalView
     selection:
       members:
         - get_form

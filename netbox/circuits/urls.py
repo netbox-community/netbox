@@ -1,7 +1,7 @@
 from django.urls import path
 
 from dcim.views import CableCreateView, PathTraceView
-from extras.views import ObjectChangeLogView, ObjectJournalView
+from netbox.views.generic import ObjectChangeLogView, ObjectJournalView
 from . import views
 from .models import *
 
