@@ -4,7 +4,7 @@
 {% block title %}{{ script }}{% endblock %}
 
 {% block subtitle %}
-  {{ script.Meta.description|render_markdown }}
+  {{ script.Meta.description|markdown }}
 {% endblock %}
 
 {% block header %}

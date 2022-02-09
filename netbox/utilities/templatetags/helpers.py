@@ -1,24 +1,17 @@
 import datetime
 import decimal
-import json
 import re
 from typing import Dict, Any
 
-import yaml
 from django import template
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import date
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
-from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
-from markdown import markdown
 
-from netbox.config import get_config
 from utilities.forms import get_selected_values, TableConfigForm
-from utilities.markdown import StrikethroughExtension
-from utilities.utils import foreground_color, get_viewname
+from utilities.utils import get_viewname
 
 register = template.Library()
 
@@ -26,88 +19,6 @@ register = template.Library()
 #
 # Filters
 #
-
-@register.filter()
-def placeholder(value):
-    """
-    Render a muted placeholder if value equates to False.
-    """
-    if value not in ('', None):
-        return value
-    placeholder = '<span class="text-muted">&mdash;</span>'
-    return mark_safe(placeholder)
-
-
-@register.filter(is_safe=True)
-def render_markdown(value):
-    """
-    Render text as Markdown
-    """
-    schemes = '|'.join(get_config().ALLOWED_URL_SCHEMES)
-
-    # Strip HTML tags
-    value = strip_tags(value)
-
-    # Sanitize Markdown links
-    pattern = fr'\[([^\]]+)\]\((?!({schemes})).*:(.+)\)'
-    value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
-
-    # Sanitize Markdown reference links
-    pattern = fr'\[(.+)\]:\s*(?!({schemes}))\w*:(.+)'
-    value = re.sub(pattern, '[\\1]: \\3', value, flags=re.IGNORECASE)
-
-    # Render Markdown
-    html = markdown(value, extensions=['fenced_code', 'tables', StrikethroughExtension()])
-
-    # If the string is not empty wrap it in rendered-markdown to style tables
-    if html:
-        html = f'<div class="rendered-markdown">{html}</div>'
-
-    return mark_safe(html)
-
-
-@register.filter()
-def render_json(value):
-    """
-    Render a dictionary as formatted JSON.
-    """
-    return json.dumps(value, ensure_ascii=False, indent=4, sort_keys=True)
-
-
-@register.filter()
-def render_yaml(value):
-    """
-    Render a dictionary as formatted YAML.
-    """
-    return yaml.dump(json.loads(json.dumps(value)))
-
-
-@register.filter()
-def meta(obj, attr):
-    """
-    Return the specified Meta attribute of a model. This is needed because Django does not permit templates
-    to access attributes which begin with an underscore (e.g. _meta).
-    """
-    return getattr(obj._meta, attr, '')
-
-
-@register.filter()
-def content_type(obj):
-    """
-    Return the ContentType for the given object.
-    """
-    return ContentType.objects.get_for_model(obj)
-
-
-@register.filter()
-def content_type_id(obj):
-    """
-    Return the ContentType ID for the given object.
-    """
-    content_type = ContentType.objects.get_for_model(obj)
-    if content_type:
-        return content_type.pk
-    return None
 
 
 @register.filter()
@@ -131,14 +42,6 @@ def validated_viewname(model, action):
         return viewname
     except NoReverseMatch:
         return None
-
-
-@register.filter()
-def bettertitle(value):
-    """
-    Alternative to the builtin title(); uppercases words without replacing letters that are already uppercase.
-    """
-    return ' '.join([w[0].upper() + w[1:] for w in value.split()])
 
 
 @register.filter()
@@ -191,14 +94,6 @@ def simplify_decimal(value):
     return str(value).rstrip('0').rstrip('.')
 
 
-@register.filter()
-def tzoffset(value):
-    """
-    Returns the hour offset of a given time zone using the current time.
-    """
-    return datetime.datetime.now(value).strftime('%z')
-
-
 @register.filter(expects_localtime=True)
 def annotated_date(date_value):
     """
@@ -227,17 +122,6 @@ def annotated_now():
     """
     tzinfo = timezone.get_current_timezone() if settings.USE_TZ else None
     return annotated_date(datetime.datetime.now(tz=tzinfo))
-
-
-@register.filter()
-def fgcolor(value):
-    """
-    Return black (#000000) or white (#ffffff) given an arbitrary background color in RRGGBB format.
-    """
-    value = value.lower().strip('#')
-    if not re.match('^[0-9a-f]{6}$', value):
-        return ''
-    return f'#{foreground_color(value)}'
 
 
 @register.filter()
@@ -274,14 +158,6 @@ def has_perms(user, permissions_list):
     Return True if the user has *all* permissions in the list.
     """
     return user.has_perms(permissions_list)
-
-
-@register.filter()
-def split(string, sep=','):
-    """
-    Split a string by the given value (default: comma)
-    """
-    return string.split(sep)
 
 
 @register.filter()
@@ -400,46 +276,6 @@ def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
     return {
         'utilization': utilization,
         'bar_class': bar_class,
-    }
-
-
-@register.inclusion_tag('helpers/tag.html')
-def tag(tag, url_name=None):
-    """
-    Display a tag, optionally linked to a filtered list of objects.
-    """
-    return {
-        'tag': tag,
-        'url_name': url_name,
-    }
-
-
-@register.inclusion_tag('helpers/badge.html')
-def badge(value, bg_class='secondary', show_empty=False):
-    """
-    Display the specified number as a badge.
-    """
-    return {
-        'value': value,
-        'bg_class': bg_class,
-        'show_empty': show_empty,
-    }
-
-
-@register.inclusion_tag('helpers/checkmark.html')
-def checkmark(value, show_false=True, true='Yes', false='No'):
-    """
-    Display either a green checkmark or red X to indicate a boolean value.
-
-    :param show_false: Display a red X if the value is False
-    :param true: Text label for true value
-    :param false: Text label for false value
-    """
-    return {
-        'value': bool(value),
-        'show_false': show_false,
-        'true_label': true,
-        'false_label': false,
     }
 
 

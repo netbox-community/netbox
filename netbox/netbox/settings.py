@@ -352,6 +352,10 @@ TEMPLATES = [
         'DIRS': [TEMPLATES_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
+            'builtins': [
+                'utilities.templatetags.builtins.filters',
+                'utilities.templatetags.builtins.tags',
+            ],
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',

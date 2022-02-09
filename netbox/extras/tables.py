@@ -225,7 +225,7 @@ class ObjectJournalTable(NetBoxTable):
     )
     kind = columns.ChoiceFieldColumn()
     comments = tables.TemplateColumn(
-        template_code='{% load helpers %}{{ value|render_markdown|truncatewords_html:50 }}'
+        template_code='{{ value|markdown|truncatewords_html:50 }}'
     )
 
     class Meta(NetBoxTable.Meta):

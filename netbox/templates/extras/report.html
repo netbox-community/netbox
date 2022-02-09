@@ -15,7 +15,7 @@
 {% block subtitle %}
   {% if report.description %}
     <div class="object-subtitle">
-      <div class="text-muted">{{ report.description|render_markdown }}</div>
+      <div class="text-muted">{{ report.description|markdown }}</div>
     </div>
   {% endif %}
 {% endblock subtitle %}

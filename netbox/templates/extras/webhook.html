@@ -108,7 +108,7 @@
       </h5>
       <div class="card-body">
         {% if object.conditions %}
-          <pre>{{ object.conditions|render_json }}</pre>
+          <pre>{{ object.conditions|json }}</pre>
         {% else %}
           <p class="text-muted">None</p>
         {% endif %}

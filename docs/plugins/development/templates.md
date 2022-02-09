@@ -193,3 +193,43 @@ This template is used by the `BulkDeleteView` generic view to delete multiple ob
 | `form`       | Yes      | The bulk delete form class                                      |
 | `table`      | Yes      | The table class used for rendering the list of objects          |
 | `return_url` | Yes      | The URL to which the user is redirect after submitting the form |
+
+## Tags
+
+The following custom template tags are available in NetBox.
+
+!!! info
+    These are loaded automatically by the template backend: You do _not_ need to include a `{% load %}` tag in your template to activate them.
+
+::: utilities.templatetags.builtins.tags.badge
+
+::: utilities.templatetags.builtins.tags.checkmark
+
+::: utilities.templatetags.builtins.tags.tag
+
+## Filters
+
+The following custom template filters are available in NetBox.
+
+!!! info
+    These are loaded automatically by the template backend: You do _not_ need to include a `{% load %}` tag in your template to activate them.
+
+::: utilities.templatetags.builtins.filters.bettertitle
+
+::: utilities.templatetags.builtins.filters.content_type
+
+::: utilities.templatetags.builtins.filters.content_type_id
+
+::: utilities.templatetags.builtins.filters.meta
+
+::: utilities.templatetags.builtins.filters.placeholder
+
+::: utilities.templatetags.builtins.filters.render_json
+
+::: utilities.templatetags.builtins.filters.render_markdown
+
+::: utilities.templatetags.builtins.filters.render_yaml
+
+::: utilities.templatetags.builtins.filters.split
+
+::: utilities.templatetags.builtins.filters.tzoffset

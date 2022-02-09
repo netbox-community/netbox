@@ -290,7 +290,7 @@ class TagColumn(tables.TemplateColumn):
     template_code = """
     {% load helpers %}
     {% for tag in value.all %}
-        {% tag tag url_name=url_name %}
+        {% tag tag url_name %}
     {% empty %}
         <span class="text-muted">&mdash;</span>
     {% endfor %}
@@ -414,9 +414,8 @@ class MarkdownColumn(tables.TemplateColumn):
     Render a Markdown string.
     """
     template_code = """
-    {% load helpers %}
     {% if value %}
-      {{ value|render_markdown }}
+      {{ value|markdown }}
     {% else %}
       &mdash;
     {% endif %}
