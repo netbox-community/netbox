@@ -17,13 +17,24 @@ from extras.utils import is_taggable
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 
 
-def resolve_namespace(instance):
+def get_viewname(model, action=None):
     """
-    Get the appropriate namepsace for the app based on whether it is a Plugin or base application
+    Return the view name for the given model and action, if valid.
+
+    :param model: The model or instance to which the view applies
+    :param action: A string indicating the desired action (if any); e.g. "add" or "list"
     """
-    if isinstance(instance._meta.app_config, PluginConfig):
-        return f'plugins:{instance._meta.app_label}'
-    return f'{instance._meta.app_label}'
+    viewname = f'{model._meta.app_label}:{model._meta.model_name}'
+
+    # Determine whether this is a plugin view and adjust the namespace appropriately
+    if isinstance(model._meta.app_config, PluginConfig):
+        viewname = f'plugins:{viewname}'
+
+    # Append the action, if any
+    if action:
+        viewname = f'{viewname}_{action}'
+
+    return viewname
 
 
 def csv_format(data):

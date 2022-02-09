@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
 
 from extras.choices import CustomFieldTypeChoices
-from utilities.utils import content_type_identifier, content_type_name, resolve_namespace
+from utilities.utils import content_type_identifier, content_type_name, get_viewname
 
 __all__ = (
     'ActionsColumn',
@@ -134,7 +134,6 @@ class ActionsColumn(tables.Column):
             return ''
 
         model = table.Meta.model
-        viewname_base = f'{resolve_namespace(model)}:{model._meta.model_name}'
         request = getattr(table, 'context', {}).get('request')
         url_appendix = f'?return_url={request.path}' if request else ''
 
@@ -143,7 +142,7 @@ class ActionsColumn(tables.Column):
         for action, attrs in self.actions.items():
             permission = f'{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}'
             if attrs.permission is None or user.has_perm(permission):
-                url = reverse(f'{viewname_base}_{action}', kwargs={'pk': record.pk})
+                url = reverse(get_viewname(model, action), kwargs={'pk': record.pk})
                 links.append(f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
                              f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>')
 
