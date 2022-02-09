@@ -62,7 +62,7 @@ class PluginConfig(AppConfig):
     user_preferences = 'preferences.preferences'
 
     def ready(self):
-        plugin_name = self.name.rsplit('.', 1)[1]
+        plugin_name = self.name.rsplit('.', 1)[-1]
 
         # Register template content (if defined)
         template_extensions = import_object(f"{self.__module__}.{self.template_extensions}")
