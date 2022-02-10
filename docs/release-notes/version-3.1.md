@@ -2,6 +2,11 @@
 
 ## v3.1.8 (FUTURE)
 
+### Enhancements
+
+* [#7150](https://github.com/netbox-community/netbox/issues/7150) - Linkify devices on the far side of a rack elevation
+* [#8398](https://github.com/netbox-community/netbox/issues/8398) - Embiggen configuration form fields for banner message content
+
 ### Bug Fixes
 
 * [#8331](https://github.com/netbox-community/netbox/issues/8331) - Implement `replaceAll` string utility function to improve browser compatibility
