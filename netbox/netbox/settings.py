@@ -377,6 +377,7 @@ AUTHENTICATION_BACKENDS = [
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 USE_I18N = True
+USE_L10N = False
 USE_TZ = True
 
 # WSGI
