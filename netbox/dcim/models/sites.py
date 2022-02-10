@@ -309,9 +309,6 @@ class Site(NetBoxModel):
     def get_absolute_url(self):
         return reverse('dcim:site', args=[self.pk])
 
-    def get_status_class(self):
-        return SiteStatusChoices.colors.get(self.status, 'secondary')
-
 
 #
 # Locations

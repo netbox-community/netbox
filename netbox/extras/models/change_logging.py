@@ -102,6 +102,3 @@ class ObjectChange(models.Model):
 
     def get_absolute_url(self):
         return reverse('extras:objectchange', args=[self.pk])
-
-    def get_action_class(self):
-        return ObjectChangeActionChoices.colors.get(self.action)

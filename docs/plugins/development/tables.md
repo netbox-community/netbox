@@ -57,6 +57,12 @@ The table column classes listed below are supported for use in plugins. These cl
     selection:
       members: false
 
+::: netbox.tables.ChoiceFieldColumn
+    rendering:
+      show_source: false
+    selection:
+      members: false
+
 ::: netbox.tables.ColorColumn
     rendering:
       show_source: false

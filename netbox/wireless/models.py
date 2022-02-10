@@ -177,9 +177,6 @@ class WirelessLink(WirelessAuthenticationBase, NetBoxModel):
     def get_absolute_url(self):
         return reverse('wireless:wirelesslink', args=[self.pk])
 
-    def get_status_class(self):
-        return LinkStatusChoices.colors.get(self.status)
-
     def clean(self):
 
         # Validate interface types

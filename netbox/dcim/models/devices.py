@@ -1001,9 +1001,6 @@ class Device(NetBoxModel, ConfigContextModel):
         """
         return Device.objects.filter(parent_bay__device=self.pk)
 
-    def get_status_class(self):
-        return DeviceStatusChoices.colors.get(self.status, 'secondary')
-
 
 class Module(NetBoxModel, ConfigContextModel):
     """

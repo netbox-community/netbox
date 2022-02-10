@@ -167,18 +167,21 @@ class ActionsColumn(tables.Column):
 
 class ChoiceFieldColumn(tables.Column):
     """
-    Render a ChoiceField value inside a <span> indicating a particular CSS class. This is useful for displaying colored
-    choices. The CSS class is derived by calling .get_FOO_class() on the row record.
+    Render a model's static ChoiceField with its value from `get_FOO_display()` as a colored badge. Colors are derived
+    from the ChoiceSet associated with the model field.
     """
     def render(self, record, bound_column, value):
-        if value:
-            name = bound_column.name
-            css_class = getattr(record, f'get_{name}_class')()
-            label = getattr(record, f'get_{name}_display')()
-            return mark_safe(
-                f'<span class="badge bg-{css_class}">{label}</span>'
-            )
-        return self.default
+        if value in self.empty_values:
+            return self.default
+
+        accessor = tables.A(bound_column.accessor)
+        field = accessor.get_field(record)
+        raw_value = accessor.resolve(record)  # `value` is from get_FOO_display()
+
+        # Determine the background color to use
+        bg_color = field.choices.colors.get(raw_value, 'secondary')
+
+        return mark_safe(f'<span class="badge bg-{bg_color}">{value}</span>')
 
     def value(self, value):
         return value

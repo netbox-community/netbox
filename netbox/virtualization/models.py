@@ -322,9 +322,6 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
                         field: f"The specified IP address ({ip}) is not assigned to this VM.",
                     })
 
-    def get_status_class(self):
-        return VirtualMachineStatusChoices.colors.get(self.status, 'secondary')
-
     @property
     def primary_ip(self):
         if get_config().PREFER_IPV4 and self.primary_ip4:

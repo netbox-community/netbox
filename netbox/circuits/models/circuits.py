@@ -132,9 +132,6 @@ class Circuit(NetBoxModel):
     def get_absolute_url(self):
         return reverse('circuits:circuit', args=[self.pk])
 
-    def get_status_class(self):
-        return CircuitStatusChoices.colors.get(self.status, 'secondary')
-
 
 class CircuitTermination(WebhooksMixin, ChangeLoggedModel, LinkTermination):
     circuit = models.ForeignKey(
