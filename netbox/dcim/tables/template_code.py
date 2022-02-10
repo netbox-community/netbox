@@ -311,6 +311,8 @@ REARPORT_BUTTONS = """
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{% url 'dcim:rearport_connect' termination_a_id=record.pk termination_b_type='interface' %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}">Interface</a></li>
+                <li><a class="dropdown-item" href="{% url 'dcim:rearport_connect' termination_a_id=record.pk termination_b_type='console-server-port' %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}">Console Server Port</a></li>
+                <li><a class="dropdown-item" href="{% url 'dcim:rearport_connect' termination_a_id=record.pk termination_b_type='console-port' %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}">Console Port</a></li>
                 <li><a class="dropdown-item" href="{% url 'dcim:rearport_connect' termination_a_id=record.pk termination_b_type='front-port' %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}">Front Port</a></li>
                 <li><a class="dropdown-item" href="{% url 'dcim:rearport_connect' termination_a_id=record.pk termination_b_type='rear-port' %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}">Rear Port</a></li>
                 <li><a class="dropdown-item" href="{% url 'dcim:rearport_connect' termination_a_id=record.pk termination_b_type='circuit-termination' %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}">Circuit Termination</a></li>

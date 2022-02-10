@@ -42,7 +42,8 @@ class ObjectChangeLogView(View):
         )
         objectchanges_table = tables.ObjectChangeTable(
             data=objectchanges,
-            orderable=False
+            orderable=False,
+            user=request.user
         )
         objectchanges_table.configure(request)
 

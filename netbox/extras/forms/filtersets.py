@@ -160,7 +160,7 @@ class TagFilterForm(FilterForm):
 
 class ConfigContextFilterForm(FilterForm):
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'tag_id')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Device', ('device_type_id', 'platform_id', 'role_id')),
         ('Cluster', ('cluster_type_id', 'cluster_group_id', 'cluster_id')),
@@ -222,9 +222,8 @@ class ConfigContextFilterForm(FilterForm):
         required=False,
         label=_('Tenant')
     )
-    tag = DynamicModelMultipleChoiceField(
+    tag_id = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
-        to_field_name='slug',
         required=False,
         label=_('Tags')
     )

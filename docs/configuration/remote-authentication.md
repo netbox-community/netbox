@@ -35,7 +35,7 @@ The list of groups to assign a new user account when created using remote authen
 
 Default: `{}` (Empty dictionary)
 
-A mapping of permissions to assign a new user account when created using remote authentication. Each key in the dictionary should be set to a dictionary of the attributes to be applied to the permission, or `None` to allow all objects. (Requires `REMOTE_AUTH_ENABLED`.)
+A mapping of permissions to assign a new user account when created using remote authentication. Each key in the dictionary should be set to a dictionary of the attributes to be applied to the permission, or `None` to allow all objects. (Requires `REMOTE_AUTH_ENABLED` as True and `REMOTE_AUTH_GROUP_SYNC_ENABLED` as False.)
 
 ---
 
@@ -43,7 +43,7 @@ A mapping of permissions to assign a new user account when created using remote 
 
 Default: `False`
 
-NetBox can be configured to support remote user authentication by inferring user authentication from an HTTP header set by the HTTP reverse proxy (e.g. nginx or Apache). Set this to `True` to enable this functionality. (Local authentication will still take effect as a fallback.)
+NetBox can be configured to support remote user authentication by inferring user authentication from an HTTP header set by the HTTP reverse proxy (e.g. nginx or Apache). Set this to `True` to enable this functionality. (Local authentication will still take effect as a fallback.) (`REMOTE_AUTH_DEFAULT_GROUPS` will not function if `REMOTE_AUTH_ENABLED` is enabled)
 
 ---
 

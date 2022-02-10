@@ -330,6 +330,11 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         to_field_name='slug',
         label='Tenant (slug)',
     )
+    tag_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='tags',
+        queryset=Tag.objects.all(),
+        label='Tag',
+    )
     tag = django_filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         queryset=Tag.objects.all(),

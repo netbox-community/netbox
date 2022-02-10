@@ -12,7 +12,7 @@ from extras.filtersets import *
 from extras.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests
+from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests, create_tags
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
@@ -444,6 +444,8 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Tenant.objects.bulk_create(tenants)
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         for i in range(0, 3):
             is_active = bool(i % 2)
             c = ConfigContext.objects.create(
@@ -462,6 +464,7 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
             c.clusters.set([clusters[i]])
             c.tenant_groups.set([tenant_groups[i]])
             c.tenants.set([tenants[i]])
+            c.tags.set([tags[i]])
 
     def test_name(self):
         params = {'name': ['Config Context 1', 'Config Context 2']}
@@ -539,11 +542,18 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_tenant_(self):
+    def test_tenant(self):
         tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_tags(self):
+        tags = Tag.objects.all()[:2]
+        params = {'tag_id': [tags[0].pk, tags[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'tag': [tags[0].slug, tags[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
