@@ -15,6 +15,7 @@
 * [#8564](https://github.com/netbox-community/netbox/issues/8564) - Fix errant table configuration key `available_columns`
 * [#8578](https://github.com/netbox-community/netbox/issues/8578) - Object change log tables should honor user's configured preferences
 * [#8604](https://github.com/netbox-community/netbox/issues/8604) - Fix tag filter on config context list filter form
+* [#8611](https://github.com/netbox-community/netbox/issues/8611) - Fix bulk editing for certain custom link, webhook, and journal entry fields
 
 ---
 
