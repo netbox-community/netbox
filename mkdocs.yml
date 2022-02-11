@@ -5,7 +5,7 @@ repo_name: netbox-community/netbox
 repo_url: https://github.com/netbox-community/netbox
 python:
   install:
-    requirements: requirements.txt
+  - requirements: docs/requirements.txt
 theme:
   name: material
   icon:
