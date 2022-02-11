@@ -16,6 +16,7 @@ pythonPipeline([
   'skipUnitTest': true,
   'skipIntegrationTest': true,
   'skipPrivateRepo': true,
+  'skipClair': true,
   'podTemplate': """
 apiVersion: v1
 kind: Pod
