@@ -755,9 +755,7 @@ class InventoryItemTable(DeviceComponentTable):
             'args': [Accessor('device_id')],
         }
     )
-    role = tables.Column(
-        linkify=True
-    )
+    role = columns.ColoredLabelColumn()
     manufacturer = tables.Column(
         linkify=True
     )
