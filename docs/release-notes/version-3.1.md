@@ -13,6 +13,7 @@
 * [#8548](https://github.com/netbox-community/netbox/issues/8548) - Fix display of VC members when position is zero
 * [#8561](https://github.com/netbox-community/netbox/issues/8561) - Include option to connect a rear port to a console port
 * [#8564](https://github.com/netbox-community/netbox/issues/8564) - Fix errant table configuration key `available_columns`
+* [#8577](https://github.com/netbox-community/netbox/issues/8577) - Show contact assignment counts in global search results
 * [#8578](https://github.com/netbox-community/netbox/issues/8578) - Object change log tables should honor user's configured preferences
 * [#8604](https://github.com/netbox-community/netbox/issues/8604) - Fix tag filter on config context list filter form
 * [#8611](https://github.com/netbox-community/netbox/issues/8611) - Fix bulk editing for certain custom link, webhook, and journal entry fields
