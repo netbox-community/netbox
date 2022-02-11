@@ -25,6 +25,16 @@
                             </td>
                         </tr>
                         <tr>
+                            <th scope="row">Module</th>
+                            <td>
+                              {% if object.module %}
+                                <a href="{{ object.module.get_absolute_url }}">{{ object.module }}</a>
+                              {% else %}
+                                {{ None|placeholder }}
+                              {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
                             <th scope="row">Name</th>
                             <td>{{ object.name }}</td>
                         </tr>

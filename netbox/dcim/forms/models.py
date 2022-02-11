@@ -1148,6 +1148,13 @@ class InventoryItemTemplateForm(BootstrapMixin, forms.ModelForm):
 #
 
 class ConsolePortForm(NetBoxModelForm):
+    module = DynamicModelChoiceField(
+        queryset=Module.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1156,7 +1163,7 @@ class ConsolePortForm(NetBoxModelForm):
     class Meta:
         model = ConsolePort
         fields = [
-            'device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -1166,6 +1173,13 @@ class ConsolePortForm(NetBoxModelForm):
 
 
 class ConsoleServerPortForm(NetBoxModelForm):
+    module = DynamicModelChoiceField(
+        queryset=Module.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1174,7 +1188,7 @@ class ConsoleServerPortForm(NetBoxModelForm):
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -1184,6 +1198,13 @@ class ConsoleServerPortForm(NetBoxModelForm):
 
 
 class PowerPortForm(NetBoxModelForm):
+    module = DynamicModelChoiceField(
+        queryset=Module.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1192,7 +1213,8 @@ class PowerPortForm(NetBoxModelForm):
     class Meta:
         model = PowerPort
         fields = [
-            'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected', 'description',
+            'device', 'module', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected',
+            'description',
             'tags',
         ]
         widgets = {
@@ -1202,6 +1224,13 @@ class PowerPortForm(NetBoxModelForm):
 
 
 class PowerOutletForm(NetBoxModelForm):
+    module = DynamicModelChoiceField(
+        queryset=Module.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
     power_port = DynamicModelChoiceField(
         queryset=PowerPort.objects.all(),
         required=False,
@@ -1217,7 +1246,8 @@ class PowerOutletForm(NetBoxModelForm):
     class Meta:
         model = PowerOutlet
         fields = [
-            'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'power_port', 'feed_leg', 'mark_connected', 'description',
+            'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -1227,6 +1257,13 @@ class PowerOutletForm(NetBoxModelForm):
 
 
 class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
+    module = DynamicModelChoiceField(
+        queryset=Module.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
     parent = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -1299,7 +1336,7 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
     )
 
     fieldsets = (
-        ('Interface', ('device', 'name', 'type', 'speed', 'duplex', 'label', 'description', 'tags')),
+        ('Interface', ('device', 'module', 'name', 'type', 'speed', 'duplex', 'label', 'description', 'tags')),
         ('Addressing', ('vrf', 'mac_address', 'wwn')),
         ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
         ('Related Interfaces', ('parent', 'bridge', 'lag')),
@@ -1312,9 +1349,10 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu',
-            'mgmt_only', 'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
-            'rf_channel_width', 'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge', 'lag',
+            'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel',
+            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans',
+            'vrf', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -1336,6 +1374,13 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
 
 
 class FrontPortForm(NetBoxModelForm):
+    module = DynamicModelChoiceField(
+        queryset=Module.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
     rear_port = DynamicModelChoiceField(
         queryset=RearPort.objects.all(),
         query_params={
@@ -1350,7 +1395,7 @@ class FrontPortForm(NetBoxModelForm):
     class Meta:
         model = FrontPort
         fields = [
-            'device', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
+            'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
             'description', 'tags',
         ]
         widgets = {
@@ -1360,6 +1405,13 @@ class FrontPortForm(NetBoxModelForm):
 
 
 class RearPortForm(NetBoxModelForm):
+    module = DynamicModelChoiceField(
+        queryset=Module.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1368,7 +1420,7 @@ class RearPortForm(NetBoxModelForm):
     class Meta:
         model = RearPort
         fields = [
-            'device', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
