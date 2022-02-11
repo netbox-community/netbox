@@ -234,7 +234,6 @@ class InventoryItemTemplateTable(ComponentTemplateTable):
         linkify=True
     )
     component = tables.Column(
-        accessor=Accessor('component'),
         orderable=False
     )
 
