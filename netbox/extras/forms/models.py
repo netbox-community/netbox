@@ -27,12 +27,17 @@ __all__ = (
 class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields')
+        limit_choices_to=FeatureQuery('custom_fields'),
+        label='Model(s)'
+    )
+    object_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        required=False,
+        help_text="Type of the related object (for object/multi-object fields only)"
     )
 
     fieldsets = (
-        ('Custom Field', ('name', 'label', 'type', 'object_type', 'weight', 'required', 'description')),
-        ('Assigned Models', ('content_types',)),
+        ('Custom Field', ('content_types', 'name', 'label', 'type', 'object_type', 'weight', 'required', 'description')),
         ('Behavior', ('filter_logic',)),
         ('Values', ('default', 'choices')),
         ('Validation', ('validation_minimum', 'validation_maximum', 'validation_regex')),
