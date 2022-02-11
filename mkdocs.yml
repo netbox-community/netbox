@@ -3,6 +3,9 @@ site_dir: netbox/project-static/docs
 site_url: https://netbox.readthedocs.io/
 repo_name: netbox-community/netbox
 repo_url: https://github.com/netbox-community/netbox
+python:
+  install:
+    requirements: requirements.txt
 theme:
   name: material
   icon:
