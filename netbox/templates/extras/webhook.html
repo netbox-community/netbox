@@ -1,0 +1,149 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block content %}
+<div class="row mb-3">
+	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        Webhook
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Enabled</th>
+            <td>{% checkmark object.enabled %}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h5 class="card-header">
+        Events
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Create</th>
+            <td>{% checkmark object.type_create %}</td>
+          </tr>
+          <tr>
+            <th scope="row">Update</th>
+            <td>{% checkmark object.type_update %}</td>
+          </tr>
+          <tr>
+            <th scope="row">Delete</th>
+            <td>{% checkmark object.type_delete %}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h5 class="card-header">
+        HTTP Request
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">HTTP Method</th>
+            <td>{{ object.get_http_method_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Payload URL</th>
+            <td class="font-monospace">{{ object.payload_url }}</td>
+          </tr>
+          <tr>
+            <th scope="row">HTTP Content Type</th>
+            <td>{{ object.http_content_type }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Secret</th>
+            <td>{{ object.secret|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h5 class="card-header">
+        SSL
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">SSL Verification</th>
+            <td>{% checkmark object.ssl_verification %}</td>
+          </tr>
+          <tr>
+            <th scope="row">CA File Path</th>
+            <td>{{ object.ca_file_path|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% plugin_left_page object %}
+	</div>
+	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        Assigned Models
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          {% for ct in object.content_types.all %}
+            <tr>
+              <td>{{ ct }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h5 class="card-header">
+        Conditions
+      </h5>
+      <div class="card-body">
+        {% if object.conditions %}
+          <pre>{{ object.conditions|render_json }}</pre>
+        {% else %}
+          <p class="text-muted">None</p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card">
+      <h5 class="card-header">
+        Additional Headers
+      </h5>
+      <div class="card-body">
+        {% if object.additional_headers %}
+          <pre>{{ object.additional_headers }}</pre>
+        {% else %}
+          <span class="text-muted">None</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card">
+      <h5 class="card-header">
+        Body Template
+      </h5>
+      <div class="card-body">
+        {% if object.body_template %}
+          <pre>{{ object.body_template }}</pre>
+        {% else %}
+          <span class="text-muted">None</span>
+        {% endif %}
+      </div>
+    </div>
+    {% plugin_right_page object %}
+  </div>
+</div>
+<div class="row">
+    <div class="col col-md-12">
+        {% plugin_full_width_page object %}
+    </div>
+</div>
+{% endblock %}

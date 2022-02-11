@@ -6,7 +6,7 @@ from dcim.choices import InterfaceModeChoices
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import VLAN
 from netbox.api import ChoiceField, SerializedPKRelatedField
-from netbox.api.serializers import OrganizationalModelSerializer, PrimaryModelSerializer
+from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -17,26 +17,26 @@ from .nested_serializers import *
 # Clusters
 #
 
-class ClusterTypeSerializer(OrganizationalModelSerializer):
+class ClusterTypeSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustertype-detail')
     cluster_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ClusterType
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
             'cluster_count',
         ]
 
 
-class ClusterGroupSerializer(OrganizationalModelSerializer):
+class ClusterGroupSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
     cluster_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ClusterGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
             'cluster_count',
         ]
 
@@ -44,9 +44,9 @@ class ClusterGroupSerializer(OrganizationalModelSerializer):
 class ClusterSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
     type = NestedClusterTypeSerializer()
-    group = NestedClusterGroupSerializer(required=False, allow_null=True)
+    group = NestedClusterGroupSerializer(required=False, allow_null=True, default=None)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    site = NestedSiteSerializer(required=False, allow_null=True)
+    site = NestedSiteSerializer(required=False, allow_null=True, default=None)
     device_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
 
@@ -107,6 +107,7 @@ class VMInterfaceSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
     virtual_machine = NestedVirtualMachineSerializer()
     parent = NestedVMInterfaceSerializer(required=False, allow_null=True)
+    bridge = NestedVMInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
@@ -116,13 +117,14 @@ class VMInterfaceSerializer(PrimaryModelSerializer):
         many=True
     )
     count_ipaddresses = serializers.IntegerField(read_only=True)
+    count_fhrp_groups = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VMInterface
         fields = [
-            'id', 'url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'mtu', 'mac_address', 'description',
-            'mode', 'untagged_vlan', 'tagged_vlans', 'tags', 'custom_fields', 'created', 'last_updated',
-            'count_ipaddresses',
+            'id', 'url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'bridge', 'mtu', 'mac_address',
+            'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags', 'custom_fields', 'created', 'last_updated',
+            'count_ipaddresses', 'count_fhrp_groups',
         ]
 
     def validate(self, data):

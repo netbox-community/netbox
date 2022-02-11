@@ -4,10 +4,11 @@ from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
 
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
+from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from ipam.choices import *
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
-from utilities.testing import APITestCase, APIViewTestCases, disable_warnings
+from ipam.models import *
+from tenancy.models import Tenant
+from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_warnings
 
 
 class AppTest(APITestCase):
@@ -20,9 +21,61 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class ASNTest(APIViewTestCases.APIViewTestCase):
+    model = ASN
+    brief_fields = ['asn', 'display', 'id', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        rirs = [
+            RIR.objects.create(name='RFC 6996', slug='rfc-6996', description='Private Use', is_private=True),
+            RIR.objects.create(name='RFC 7300', slug='rfc-7300', description='IANA Use', is_private=True),
+        ]
+        sites = [
+            Site.objects.create(name='Site 1', slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2')
+        ]
+        tenants = [
+            Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
+            Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
+        ]
+
+        asns = (
+            ASN(asn=64513, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=65534, rir=rirs[0], tenant=tenants[1]),
+            ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[1]),
+        )
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.set([sites[0]])
+        asns[1].sites.set([sites[1]])
+        asns[2].sites.set([sites[0]])
+        asns[3].sites.set([sites[1]])
+
+        cls.create_data = [
+            {
+                'asn': 64512,
+                'rir': rirs[0].pk,
+            },
+            {
+                'asn': 65543,
+                'rir': rirs[0].pk,
+            },
+            {
+                'asn': 4294967294,
+                'rir': rirs[0].pk,
+            },
+        ]
+
+
 class VRFTest(APIViewTestCases.APIViewTestCase):
     model = VRF
-    brief_fields = ['display', 'display_name', 'id', 'name', 'prefix_count', 'rd', 'url']
+    brief_fields = ['display', 'id', 'name', 'prefix_count', 'rd', 'url']
     create_data = [
         {
             'name': 'VRF 4',
@@ -216,9 +269,10 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         Test retrieval of all available prefixes within a parent prefix.
         """
-        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/24'))
-        Prefix.objects.create(prefix=IPNetwork('192.0.2.64/26'))
-        Prefix.objects.create(prefix=IPNetwork('192.0.2.192/27'))
+        vrf = VRF.objects.create(name='VRF 1')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/24'), vrf=vrf)
+        Prefix.objects.create(prefix=IPNetwork('192.0.2.64/26'), vrf=vrf)
+        Prefix.objects.create(prefix=IPNetwork('192.0.2.192/27'), vrf=vrf)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix')
 
@@ -232,10 +286,10 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         Test retrieval of the first available prefix within a parent prefix.
         """
-        vrf = VRF.objects.create(name='Test VRF 1', rd='1234')
+        vrf = VRF.objects.create(name='VRF 1')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
-        self.add_permissions('ipam.add_prefix')
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
 
         # Create four available prefixes with individual requests
         prefixes_to_be_created = [
@@ -257,7 +311,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
 
         # Try to create one more prefix
         response = self.client.post(url, {'prefix_length': 30}, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
         # Try to create invalid prefix type
@@ -269,20 +323,21 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         Test the creation of available prefixes within a parent prefix.
         """
-        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), is_pool=True)
+        vrf = VRF.objects.create(name='VRF 1')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
 
         # Try to create five /30s (only four are available)
         data = [
-            {'prefix_length': 30, 'description': 'Test Prefix 1'},
-            {'prefix_length': 30, 'description': 'Test Prefix 2'},
-            {'prefix_length': 30, 'description': 'Test Prefix 3'},
-            {'prefix_length': 30, 'description': 'Test Prefix 4'},
-            {'prefix_length': 30, 'description': 'Test Prefix 5'},
+            {'prefix_length': 30, 'description': 'Prefix 1'},
+            {'prefix_length': 30, 'description': 'Prefix 2'},
+            {'prefix_length': 30, 'description': 'Prefix 3'},
+            {'prefix_length': 30, 'description': 'Prefix 4'},
+            {'prefix_length': 30, 'description': 'Prefix 5'},
         ]
         response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
         # Verify that no prefixes were created (the entire /28 is still available)
@@ -299,12 +354,14 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         Test retrieval of all available IP addresses within a parent prefix.
         """
-        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), is_pool=True)
+        vrf = VRF.objects.create(name='VRF 1')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix', 'ipam.view_ipaddress')
 
         # Retrieve all available IPs
         response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 8)  # 8 because prefix.is_pool = True
 
         # Change the prefix to not be a pool and try again
@@ -317,7 +374,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         Test retrieval of the first available IP address within a parent prefix.
         """
-        vrf = VRF.objects.create(name='Test VRF 1', rd='1234')
+        vrf = VRF.objects.create(name='VRF 1')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/30'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress')
@@ -334,25 +391,125 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
 
         # Try to create one more IP
         response = self.client.post(url, {}, **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
     def test_create_multiple_available_ips(self):
         """
         Test the creation of available IP addresses within a parent prefix.
         """
-        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), is_pool=True)
+        vrf = VRF.objects.create(name='VRF 1')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress')
 
         # Try to create nine IPs (only eight are available)
         data = [{'description': f'Test IP {i}'} for i in range(1, 10)]  # 9 IPs
         response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
         # Create all eight available IPs in a single request
         data = [{'description': 'Test IP {}'.format(i)} for i in range(1, 9)]  # 8 IPs
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.data), 8)
+
+
+class IPRangeTest(APIViewTestCases.APIViewTestCase):
+    model = IPRange
+    brief_fields = ['display', 'end_address', 'family', 'id', 'start_address', 'url']
+    create_data = [
+        {
+            'start_address': '192.168.4.10/24',
+            'end_address': '192.168.4.50/24',
+        },
+        {
+            'start_address': '192.168.5.10/24',
+            'end_address': '192.168.5.50/24',
+        },
+        {
+            'start_address': '192.168.6.10/24',
+            'end_address': '192.168.6.50/24',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        ip_ranges = (
+            IPRange(start_address=IPNetwork('192.168.1.10/24'), end_address=IPNetwork('192.168.1.50/24'), size=51),
+            IPRange(start_address=IPNetwork('192.168.2.10/24'), end_address=IPNetwork('192.168.2.50/24'), size=51),
+            IPRange(start_address=IPNetwork('192.168.3.10/24'), end_address=IPNetwork('192.168.3.50/24'), size=51),
+        )
+        IPRange.objects.bulk_create(ip_ranges)
+
+    def test_list_available_ips(self):
+        """
+        Test retrieval of all available IP addresses within a parent IP range.
+        """
+        iprange = IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.10/24'),
+            end_address=IPNetwork('192.0.2.19/24')
+        )
+        url = reverse('ipam-api:iprange-available-ips', kwargs={'pk': iprange.pk})
+        self.add_permissions('ipam.view_iprange', 'ipam.view_ipaddress')
+
+        # Retrieve all available IPs
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 10)
+
+    def test_create_single_available_ip(self):
+        """
+        Test retrieval of the first available IP address within a parent IP range.
+        """
+        vrf = VRF.objects.create(name='Test VRF 1', rd='1234')
+        iprange = IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.1/24'),
+            end_address=IPNetwork('192.0.2.3/24'),
+            vrf=vrf
+        )
+        url = reverse('ipam-api:iprange-available-ips', kwargs={'pk': iprange.pk})
+        self.add_permissions('ipam.view_iprange', 'ipam.add_ipaddress')
+
+        # Create all three available IPs with individual requests
+        for i in range(1, 4):
+            data = {
+                'description': f'Test IP #{i}'
+            }
+            response = self.client.post(url, data, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            self.assertEqual(response.data['vrf']['id'], vrf.pk)
+            self.assertEqual(response.data['description'], data['description'])
+
+        # Try to create one more IP
+        response = self.client.post(url, {}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+        self.assertIn('detail', response.data)
+
+    def test_create_multiple_available_ips(self):
+        """
+        Test the creation of available IP addresses within a parent IP range.
+        """
+        iprange = IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.1/24'),
+            end_address=IPNetwork('192.0.2.8/24')
+        )
+        url = reverse('ipam-api:iprange-available-ips', kwargs={'pk': iprange.pk})
+        self.add_permissions('ipam.view_iprange', 'ipam.add_ipaddress')
+
+        # Try to create nine IPs (only eight are available)
+        data = [{'description': f'Test IP #{i}'} for i in range(1, 10)]  # 9 IPs
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+        self.assertIn('detail', response.data)
+
+        # Create all eight available IPs in a single request
+        data = [{'description': f'Test IP #{i}'} for i in range(1, 9)]  # 8 IPs
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data), 8)
@@ -385,6 +542,126 @@ class IPAddressTest(APIViewTestCases.APIViewTestCase):
             IPAddress(address=IPNetwork('192.168.0.3/24')),
         )
         IPAddress.objects.bulk_create(ip_addresses)
+
+
+class FHRPGroupTest(APIViewTestCases.APIViewTestCase):
+    model = FHRPGroup
+    brief_fields = ['display', 'group_id', 'id', 'protocol', 'url']
+    bulk_update_data = {
+        'protocol': FHRPGroupProtocolChoices.PROTOCOL_GLBP,
+        'group_id': 200,
+        'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+        'auth_key': 'foobarbaz999',
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        fhrp_groups = (
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP, group_id=30),
+        )
+        FHRPGroup.objects.bulk_create(fhrp_groups)
+
+        cls.create_data = [
+            {
+                'protocol': FHRPGroupProtocolChoices.PROTOCOL_VRRP2,
+                'group_id': 110,
+                'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT,
+                'auth_key': 'foobar123',
+            },
+            {
+                'protocol': FHRPGroupProtocolChoices.PROTOCOL_VRRP3,
+                'group_id': 120,
+                'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+                'auth_key': 'barfoo456',
+            },
+            {
+                'protocol': FHRPGroupProtocolChoices.PROTOCOL_GLBP,
+                'group_id': 130,
+            },
+        ]
+
+
+class FHRPGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
+    model = FHRPGroupAssignment
+    brief_fields = ['display', 'group_id', 'id', 'interface_id', 'interface_type', 'priority', 'url']
+    bulk_update_data = {
+        'priority': 100,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        device1 = create_test_device('device1')
+        device2 = create_test_device('device2')
+        device3 = create_test_device('device3')
+
+        interfaces = (
+            Interface(device=device1, name='eth0', type='other'),
+            Interface(device=device1, name='eth1', type='other'),
+            Interface(device=device1, name='eth2', type='other'),
+            Interface(device=device2, name='eth0', type='other'),
+            Interface(device=device2, name='eth1', type='other'),
+            Interface(device=device2, name='eth2', type='other'),
+            Interface(device=device3, name='eth0', type='other'),
+            Interface(device=device3, name='eth1', type='other'),
+            Interface(device=device3, name='eth2', type='other'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        ip_addresses = (
+            IPAddress(address=IPNetwork('192.168.0.2/24'), assigned_object=interfaces[0]),
+            IPAddress(address=IPNetwork('192.168.1.2/24'), assigned_object=interfaces[1]),
+            IPAddress(address=IPNetwork('192.168.2.2/24'), assigned_object=interfaces[2]),
+            IPAddress(address=IPNetwork('192.168.0.3/24'), assigned_object=interfaces[3]),
+            IPAddress(address=IPNetwork('192.168.1.3/24'), assigned_object=interfaces[4]),
+            IPAddress(address=IPNetwork('192.168.2.3/24'), assigned_object=interfaces[5]),
+            IPAddress(address=IPNetwork('192.168.0.4/24'), assigned_object=interfaces[6]),
+            IPAddress(address=IPNetwork('192.168.1.4/24'), assigned_object=interfaces[7]),
+            IPAddress(address=IPNetwork('192.168.2.4/24'), assigned_object=interfaces[8]),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
+
+        fhrp_groups = (
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=20),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=30),
+        )
+        FHRPGroup.objects.bulk_create(fhrp_groups)
+
+        fhrp_group_assignments = (
+            FHRPGroupAssignment(group=fhrp_groups[0], interface=interfaces[0], priority=10),
+            FHRPGroupAssignment(group=fhrp_groups[1], interface=interfaces[1], priority=10),
+            FHRPGroupAssignment(group=fhrp_groups[2], interface=interfaces[2], priority=10),
+            FHRPGroupAssignment(group=fhrp_groups[0], interface=interfaces[3], priority=20),
+            FHRPGroupAssignment(group=fhrp_groups[1], interface=interfaces[4], priority=20),
+            FHRPGroupAssignment(group=fhrp_groups[2], interface=interfaces[5], priority=20),
+        )
+        FHRPGroupAssignment.objects.bulk_create(fhrp_group_assignments)
+
+        cls.create_data = [
+            {
+                'group': fhrp_groups[0].pk,
+                'interface_type': 'dcim.interface',
+                'interface_id': interfaces[6].pk,
+                'priority': 30,
+            },
+            {
+                'group': fhrp_groups[1].pk,
+                'interface_type': 'dcim.interface',
+                'interface_id': interfaces[7].pk,
+                'priority': 30,
+            },
+            {
+                'group': fhrp_groups[2].pk,
+                'interface_type': 'dcim.interface',
+                'interface_id': interfaces[8].pk,
+                'priority': 30,
+            },
+        ]
 
 
 class VLANGroupTest(APIViewTestCases.APIViewTestCase):
@@ -421,7 +698,7 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
 
 class VLANTest(APIViewTestCases.APIViewTestCase):
     model = VLAN
-    brief_fields = ['display', 'display_name', 'id', 'name', 'url', 'vid']
+    brief_fields = ['display', 'id', 'name', 'url', 'vid']
     bulk_update_data = {
         'description': 'New description',
     }

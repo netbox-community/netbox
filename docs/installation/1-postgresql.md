@@ -2,8 +2,8 @@
 
 This section entails the installation and configuration of a local PostgreSQL database. If you already have a PostgreSQL database service in place, skip to [the next section](2-redis.md).
 
-!!! warning
-    NetBox requires PostgreSQL 9.6 or higher. Please note that MySQL and other relational databases are **not** currently supported.
+!!! warning "PostgreSQL 10 or later required"
+    NetBox requires PostgreSQL 10 or later. Please note that MySQL and other relational databases are **not** supported.
 
 ## Installation
 
@@ -21,9 +21,6 @@ This section entails the installation and configuration of a local PostgreSQL da
     sudo postgresql-setup --initdb
     ```
 
-    !!! info
-        PostgreSQL 9.6 and later are available natively on CentOS 8.2. If using an earlier CentOS release, you may need to [install it from an RPM](https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/).
-
     CentOS configures ident host-based authentication for PostgreSQL by default. Because NetBox will need to authenticate using a username and password, modify `/var/lib/pgsql/data/pg_hba.conf` to support MD5 authentication by changing `ident` to `md5` for the lines below:
 
     ```no-highlight
@@ -38,30 +35,36 @@ sudo systemctl start postgresql
 sudo systemctl enable postgresql
 ```
 
-## Database Creation
-
-At a minimum, we need to create a database for NetBox and assign it a username and password for authentication. This is done with the following commands.
-
-!!! danger
-    **Do not use the password from the example.** Choose a strong, random password to ensure secure database authentication for your NetBox installation.
+Before continuing, verify that you have installed PostgreSQL 10 or later:
 
 ```no-highlight
-$ sudo -u postgres psql
-psql (12.5 (Ubuntu 12.5-0ubuntu0.20.04.1))
-Type "help" for help.
-
-postgres=# CREATE DATABASE netbox;
-CREATE DATABASE
-postgres=# CREATE USER netbox WITH PASSWORD 'J5brHrAXFLQSif0K';
-CREATE ROLE
-postgres=# GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox;
-GRANT
-postgres=# \q
+psql -V
 ```
+
+## Database Creation
+
+At a minimum, we need to create a database for NetBox and assign it a username and password for authentication. Start by invoking the PostgreSQL shell as the system Postgres user.
+
+```no-highlight
+sudo -u postgres psql
+```
+
+Within the shell, enter the following commands to create the database and user (role), substituting your own value for the password:
+
+```postgresql
+CREATE DATABASE netbox;
+CREATE USER netbox WITH PASSWORD 'J5brHrAXFLQSif0K';
+GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox;
+```
+
+!!! danger "Use a strong password"
+    **Do not use the password from the example.** Choose a strong, random password to ensure secure database authentication for your NetBox installation.
+
+Once complete, enter `\q` to exit the PostgreSQL shell.
 
 ## Verify Service Status
 
-You can verify that authentication works issuing the following command and providing the configured password. (Replace `localhost` with your database server if using a remote database.)
+You can verify that authentication works by executing the `psql` command and passing the configured username and password. (Replace `localhost` with your database server if using a remote database.)
 
 ```no-highlight
 $ psql --username netbox --password --host localhost netbox

@@ -1,33 +1,23 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
 
+{% block title %}{{ obj_type|bettertitle }} Import{% endblock %}
+
 {% block content %}
-<h1>{% block title %}{{ obj_type|bettertitle }} Import{% endblock %}</h1>
-{% block tabs %}{% endblock %}
-<div class="row">
-	<div class="col-md-8 col-md-offset-2">
-        {% if form.non_field_errors %}
-            <div class="panel panel-danger">
-                <div class="panel-heading"><strong>Errors</strong></div>
-                <div class="panel-body">
-                    {{ form.non_field_errors }}
-                </div>
-            </div>
-        {% endif %}
+<div class="row mb-3">
+	<div class="col col-md-12 col-xl-8 offset-xl-2">
 		<form action="" method="post" class="form form-horizontal">
 		    {% csrf_token %}
 		    {% render_form form %}
-            <div class="form-group">
-                <div class="col-md-12 text-right">
-                    <button type="submit" name="_create" class="btn btn-primary">Submit</button>
-                    <button type="submit" name="_addanother" class="btn btn-primary">Submit and Import Another</button>
-		            {% if return_url %}
-                        <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
-                    {% endif %}
-                </div>
+            <div class="col col-md-12 text-end">
+                {% if return_url %}
+                    <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+                {% endif %}
+                <button type="submit" name="_addanother" class="btn btn-outline-primary">Submit & Import Another</button>
+                <button type="submit" name="_create" class="btn btn-primary">Submit</button>
             </div>
 		</form>
 	</div>
 </div>
-{% endblock %}
+{% endblock content %}

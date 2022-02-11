@@ -11,7 +11,6 @@ from ipam.choices import *
 from ipam.constants import *
 from ipam.querysets import VLANQuerySet
 from netbox.models import OrganizationalModel, PrimaryModel
-from utilities.querysets import RestrictedQuerySet
 from virtualization.models import VMInterface
 
 
@@ -21,7 +20,7 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class VLANGroup(OrganizationalModel):
     """
     A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
@@ -52,10 +51,6 @@ class VLANGroup(OrganizationalModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['name', 'slug', 'scope_type', 'scope_id', 'description']
-
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique
         unique_together = [
@@ -79,15 +74,6 @@ class VLANGroup(OrganizationalModel):
             raise ValidationError("Cannot set scope_type without scope_id.")
         if self.scope_id and not self.scope_type:
             raise ValidationError("Cannot set scope_id without scope_type.")
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            f'{self.scope_type.app_label}.{self.scope_type.model}',
-            self.scope_id,
-            self.description,
-        )
 
     def get_next_available_vid(self):
         """
@@ -157,7 +143,6 @@ class VLAN(PrimaryModel):
 
     objects = VLANQuerySet.as_manager()
 
-    csv_headers = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
     clone_fields = [
         'site', 'group', 'tenant', 'status', 'role', 'description',
     ]
@@ -172,7 +157,7 @@ class VLAN(PrimaryModel):
         verbose_name_plural = 'VLANs'
 
     def __str__(self):
-        return self.display_name or super().__str__()
+        return f'{self.name} ({self.vid})'
 
     def get_absolute_url(self):
         return reverse('ipam:vlan', args=[self.pk])
@@ -186,22 +171,6 @@ class VLAN(PrimaryModel):
                 'group': f"VLAN is assigned to group {self.group} (scope: {self.group.scope}); cannot also assign to "
                          f"site {self.site}."
             })
-
-    def to_csv(self):
-        return (
-            self.site.name if self.site else None,
-            self.group.name if self.group else None,
-            self.vid,
-            self.name,
-            self.tenant.name if self.tenant else None,
-            self.get_status_display(),
-            self.role.name if self.role else None,
-            self.description,
-        )
-
-    @property
-    def display_name(self):
-        return f'{self.name} ({self.vid})'
 
     def get_status_class(self):
         return VLANStatusChoices.CSS_CLASSES.get(self.status)

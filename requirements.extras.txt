@@ -1,4 +1,9 @@
-django-storages[google]==1.11.1
-netbox-virtual-circuit-plugin==1.7.0
+netbox-virtual-circuit-plugin==2.0.0
 django-allauth==0.42.0
-netbox-bgp==0.3.9
+netbox-bgp==0.5.0
+napalm==3.3.1
+ruamel.yaml==0.17.17
+django-auth-ldap==3.0.0
+google-crc32c==1.3.0
+django-storages[azure,boto3,dropbox,google,libcloud,sftp]==1.12.3
+# -e git+ssh://git@github.com/vapor-ware/netbox-vapor-plugin.git#egg=netbox-vapor-plugin

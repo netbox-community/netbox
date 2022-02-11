@@ -1,11 +1,13 @@
 import datetime
 import json
 from collections import OrderedDict
+from decimal import Decimal
 from itertools import count, groupby
 
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
+from django.http import QueryDict
 from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
@@ -44,16 +46,20 @@ def csv_format(data):
     return ','.join(csv)
 
 
-def foreground_color(bg_color):
+def foreground_color(bg_color, dark='000000', light='ffffff'):
     """
-    Return the ideal foreground color (black or white) for a given background color in hexadecimal RGB format.
+    Return the ideal foreground color (dark or light) for a given background color in hexadecimal RGB format.
+
+    :param dark: RBG color code for dark text
+    :param light: RBG color code for light text
     """
+    THRESHOLD = 150
     bg_color = bg_color.strip('#')
     r, g, b = [int(bg_color[c:c + 2], 16) for c in (0, 2, 4)]
-    if r * 0.299 + g * 0.587 + b * 0.114 > 186:
-        return '000000'
+    if r * 0.299 + g * 0.587 + b * 0.114 > THRESHOLD:
+        return dark
     else:
-        return 'ffffff'
+        return light
 
 
 def dynamic_import(name):
@@ -188,25 +194,29 @@ def to_meters(length, unit):
     """
     Convert the given length to meters.
     """
-    length = int(length)
-    if length < 0:
-        raise ValueError("Length must be a positive integer")
+    try:
+        if length < 0:
+            raise ValueError("Length must be a positive number")
+    except TypeError:
+        raise TypeError(f"Invalid value '{length}' for length (must be a number)")
 
     valid_units = CableLengthUnitChoices.values()
     if unit not in valid_units:
-        raise ValueError(
-            "Unknown unit {}. Must be one of the following: {}".format(unit, ', '.join(valid_units))
-        )
+        raise ValueError(f"Unknown unit {unit}. Must be one of the following: {', '.join(valid_units)}")
 
+    if unit == CableLengthUnitChoices.UNIT_KILOMETER:
+        return length * 1000
     if unit == CableLengthUnitChoices.UNIT_METER:
         return length
     if unit == CableLengthUnitChoices.UNIT_CENTIMETER:
         return length / 100
+    if unit == CableLengthUnitChoices.UNIT_MILE:
+        return length * Decimal(1609.344)
     if unit == CableLengthUnitChoices.UNIT_FOOT:
-        return length * 0.3048
+        return length * Decimal(0.3048)
     if unit == CableLengthUnitChoices.UNIT_INCH:
-        return length * 0.3048 * 12
-    raise ValueError("Unknown unit {}. Must be 'm', 'cm', 'ft', or 'in'.".format(unit))
+        return length * Decimal(0.3048) * 12
+    raise ValueError(f"Unknown unit {unit}. Must be 'km', 'm', 'cm', 'mi', 'ft', or 'in'.")
 
 
 def render_jinja2(template_code, context):
@@ -239,10 +249,8 @@ def prepare_cloned_fields(instance):
         for tag in instance.tags.all():
             params.append(('tags', tag.pk))
 
-    # Concatenate parameters into a URL query string
-    param_string = '&'.join([f'{k}={v}' for k, v in params])
-
-    return param_string
+    # Return a QueryDict with the parameters
+    return QueryDict('&'.join([f'{k}={v}' for k, v in params]), mutable=True)
 
 
 def shallow_compare_dict(source_dict, destination_dict, exclude=None):
@@ -279,13 +287,6 @@ def flatten_dict(d, prefix='', separator='.'):
     return ret
 
 
-# Taken from django.utils.functional (<3.0)
-def curry(_curried_func, *args, **kwargs):
-    def _curried(*moreargs, **morekwargs):
-        return _curried_func(*args, *moreargs, **{**kwargs, **morekwargs})
-    return _curried
-
-
 def array_to_string(array):
     """
     Generate an efficient, human-friendly string from a set of integers. Intended for use with ArrayField.
@@ -296,12 +297,23 @@ def array_to_string(array):
     return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
 
 
-def content_type_name(contenttype):
+def content_type_name(ct):
     """
-    Return a proper ContentType name.
+    Return a human-friendly ContentType name (e.g. "DCIM > Site").
     """
-    meta = contenttype.model_class()._meta
-    return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
+    try:
+        meta = ct.model_class()._meta
+        return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
+    except AttributeError:
+        # Model no longer exists
+        return f'{ct.app_label} > {ct.model}'
+
+
+def content_type_identifier(ct):
+    """
+    Return a "raw" ContentType identifier string suitable for bulk import/export (e.g. "dcim.site").
+    """
+    return f'{ct.app_label}.{ct.model}'
 
 
 #

@@ -2,10 +2,22 @@ from django.urls import path
 
 from extras.views import ObjectChangeLogView, ObjectJournalView
 from . import views
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from .models import *
 
 app_name = 'ipam'
 urlpatterns = [
+
+    # ASNs
+    path('asns/', views.ASNListView.as_view(), name='asn_list'),
+    path('asns/add/', views.ASNEditView.as_view(), name='asn_add'),
+    path('asns/import/', views.ASNBulkImportView.as_view(), name='asn_import'),
+    path('asns/edit/', views.ASNBulkEditView.as_view(), name='asn_bulk_edit'),
+    path('asns/delete/', views.ASNBulkDeleteView.as_view(), name='asn_bulk_delete'),
+    path('asns/<int:pk>/', views.ASNView.as_view(), name='asn'),
+    path('asns/<int:pk>/edit/', views.ASNEditView.as_view(), name='asn_edit'),
+    path('asns/<int:pk>/delete/', views.ASNDeleteView.as_view(), name='asn_delete'),
+    path('asns/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='asn_changelog', kwargs={'model': ASN}),
+    path('asns/<int:pk>/journal/', ObjectJournalView.as_view(), name='asn_journal', kwargs={'model': ASN}),
 
     # VRFs
     path('vrfs/', views.VRFListView.as_view(), name='vrf_list'),
@@ -49,6 +61,7 @@ urlpatterns = [
     path('aggregates/edit/', views.AggregateBulkEditView.as_view(), name='aggregate_bulk_edit'),
     path('aggregates/delete/', views.AggregateBulkDeleteView.as_view(), name='aggregate_bulk_delete'),
     path('aggregates/<int:pk>/', views.AggregateView.as_view(), name='aggregate'),
+    path('aggregates/<int:pk>/prefixes/', views.AggregatePrefixesView.as_view(), name='aggregate_prefixes'),
     path('aggregates/<int:pk>/edit/', views.AggregateEditView.as_view(), name='aggregate_edit'),
     path('aggregates/<int:pk>/delete/', views.AggregateDeleteView.as_view(), name='aggregate_delete'),
     path('aggregates/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='aggregate_changelog', kwargs={'model': Aggregate}),
@@ -77,7 +90,21 @@ urlpatterns = [
     path('prefixes/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='prefix_changelog', kwargs={'model': Prefix}),
     path('prefixes/<int:pk>/journal/', ObjectJournalView.as_view(), name='prefix_journal', kwargs={'model': Prefix}),
     path('prefixes/<int:pk>/prefixes/', views.PrefixPrefixesView.as_view(), name='prefix_prefixes'),
+    path('prefixes/<int:pk>/ip-ranges/', views.PrefixIPRangesView.as_view(), name='prefix_ipranges'),
     path('prefixes/<int:pk>/ip-addresses/', views.PrefixIPAddressesView.as_view(), name='prefix_ipaddresses'),
+
+    # IP ranges
+    path('ip-ranges/', views.IPRangeListView.as_view(), name='iprange_list'),
+    path('ip-ranges/add/', views.IPRangeEditView.as_view(), name='iprange_add'),
+    path('ip-ranges/import/', views.IPRangeBulkImportView.as_view(), name='iprange_import'),
+    path('ip-ranges/edit/', views.IPRangeBulkEditView.as_view(), name='iprange_bulk_edit'),
+    path('ip-ranges/delete/', views.IPRangeBulkDeleteView.as_view(), name='iprange_bulk_delete'),
+    path('ip-ranges/<int:pk>/', views.IPRangeView.as_view(), name='iprange'),
+    path('ip-ranges/<int:pk>/edit/', views.IPRangeEditView.as_view(), name='iprange_edit'),
+    path('ip-ranges/<int:pk>/delete/', views.IPRangeDeleteView.as_view(), name='iprange_delete'),
+    path('ip-ranges/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='iprange_changelog', kwargs={'model': IPRange}),
+    path('ip-ranges/<int:pk>/journal/', ObjectJournalView.as_view(), name='iprange_journal', kwargs={'model': IPRange}),
+    path('ip-ranges/<int:pk>/ip-addresses/', views.IPRangeIPAddressesView.as_view(), name='iprange_ipaddresses'),
 
     # IP addresses
     path('ip-addresses/', views.IPAddressListView.as_view(), name='ipaddress_list'),
@@ -92,6 +119,23 @@ urlpatterns = [
     path('ip-addresses/<int:pk>/', views.IPAddressView.as_view(), name='ipaddress'),
     path('ip-addresses/<int:pk>/edit/', views.IPAddressEditView.as_view(), name='ipaddress_edit'),
     path('ip-addresses/<int:pk>/delete/', views.IPAddressDeleteView.as_view(), name='ipaddress_delete'),
+
+    # FHRP groups
+    path('fhrp-groups/', views.FHRPGroupListView.as_view(), name='fhrpgroup_list'),
+    path('fhrp-groups/add/', views.FHRPGroupEditView.as_view(), name='fhrpgroup_add'),
+    path('fhrp-groups/import/', views.FHRPGroupBulkImportView.as_view(), name='fhrpgroup_import'),
+    path('fhrp-groups/edit/', views.FHRPGroupBulkEditView.as_view(), name='fhrpgroup_bulk_edit'),
+    path('fhrp-groups/delete/', views.FHRPGroupBulkDeleteView.as_view(), name='fhrpgroup_bulk_delete'),
+    path('fhrp-groups/<int:pk>/', views.FHRPGroupView.as_view(), name='fhrpgroup'),
+    path('fhrp-groups/<int:pk>/edit/', views.FHRPGroupEditView.as_view(), name='fhrpgroup_edit'),
+    path('fhrp-groups/<int:pk>/delete/', views.FHRPGroupDeleteView.as_view(), name='fhrpgroup_delete'),
+    path('fhrp-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='fhrpgroup_changelog', kwargs={'model': FHRPGroup}),
+    path('fhrp-groups/<int:pk>/journal/', ObjectJournalView.as_view(), name='fhrpgroup_journal', kwargs={'model': FHRPGroup}),
+
+    # FHRP group assignments
+    path('fhrp-group-assignments/add/', views.FHRPGroupAssignmentEditView.as_view(), name='fhrpgroupassignment_add'),
+    path('fhrp-group-assignments/<int:pk>/edit/', views.FHRPGroupAssignmentEditView.as_view(), name='fhrpgroupassignment_edit'),
+    path('fhrp-group-assignments/<int:pk>/delete/', views.FHRPGroupAssignmentDeleteView.as_view(), name='fhrpgroupassignment_delete'),
 
     # VLAN groups
     path('vlan-groups/', views.VLANGroupListView.as_view(), name='vlangroup_list'),
@@ -120,6 +164,7 @@ urlpatterns = [
 
     # Services
     path('services/', views.ServiceListView.as_view(), name='service_list'),
+    path('services/add/', views.ServiceEditView.as_view(), name='service_add'),
     path('services/import/', views.ServiceBulkImportView.as_view(), name='service_import'),
     path('services/edit/', views.ServiceBulkEditView.as_view(), name='service_bulk_edit'),
     path('services/delete/', views.ServiceBulkDeleteView.as_view(), name='service_bulk_delete'),

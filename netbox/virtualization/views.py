@@ -4,13 +4,13 @@ from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from dcim.filtersets import DeviceFilterSet
 from dcim.models import Device
 from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress, Service
-from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
+from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
-from secrets.models import Secret
 from utilities.tables import paginate_table
 from utilities.utils import count_related
 from . import filtersets, forms, tables
@@ -25,6 +25,8 @@ class ClusterTypeListView(generic.ObjectListView):
     queryset = ClusterType.objects.annotate(
         cluster_count=count_related(Cluster, 'type')
     )
+    filterset = filtersets.ClusterTypeFilterSet
+    filterset_form = forms.ClusterTypeFilterForm
     table = tables.ClusterTypeTable
 
 
@@ -38,9 +40,7 @@ class ClusterTypeView(generic.ObjectView):
             device_count=count_related(Device, 'cluster'),
             vm_count=count_related(VirtualMachine, 'cluster')
         )
-
-        clusters_table = tables.ClusterTable(clusters)
-        clusters_table.columns.hide('type')
+        clusters_table = tables.ClusterTable(clusters, exclude=('type',))
         paginate_table(clusters_table, request)
 
         return {
@@ -87,6 +87,8 @@ class ClusterGroupListView(generic.ObjectListView):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
     )
+    filterset = filtersets.ClusterGroupFilterSet
+    filterset_form = forms.ClusterGroupFilterForm
     table = tables.ClusterGroupTable
 
 
@@ -100,9 +102,7 @@ class ClusterGroupView(generic.ObjectView):
             device_count=count_related(Device, 'cluster'),
             vm_count=count_related(VirtualMachine, 'cluster')
         )
-
-        clusters_table = tables.ClusterTable(clusters)
-        clusters_table.columns.hide('group')
+        clusters_table = tables.ClusterTable(clusters, exclude=('group',))
         paginate_table(clusters_table, request)
 
         return {
@@ -162,34 +162,34 @@ class ClusterView(generic.ObjectView):
     queryset = Cluster.objects.all()
 
 
-class ClusterVirtualMachinesView(generic.ObjectView):
+class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     queryset = Cluster.objects.all()
+    child_model = VirtualMachine
+    table = tables.VirtualMachineTable
+    filterset = filtersets.VirtualMachineFilterSet
     template_name = 'virtualization/cluster/virtual_machines.html'
 
-    def get_extra_context(self, request, instance):
-        virtualmachines = VirtualMachine.objects.restrict(request.user, 'view').filter(cluster=instance)
-        virtualmachines_table = tables.VirtualMachineTable(virtualmachines, orderable=False)
+    def get_children(self, request, parent):
+        return VirtualMachine.objects.restrict(request.user, 'view').filter(cluster=parent)
 
+    def get_extra_context(self, request, instance):
         return {
-            'virtualmachines_table': virtualmachines_table,
             'active_tab': 'virtual-machines',
         }
 
 
-class ClusterDevicesView(generic.ObjectView):
+class ClusterDevicesView(generic.ObjectChildrenView):
     queryset = Cluster.objects.all()
+    child_model = Device
+    table = DeviceTable
+    filterset = DeviceFilterSet
     template_name = 'virtualization/cluster/devices.html'
 
-    def get_extra_context(self, request, instance):
-        devices = Device.objects.restrict(request.user, 'view').filter(cluster=instance).prefetch_related(
-            'site', 'rack', 'tenant', 'device_type__manufacturer'
-        )
-        devices_table = DeviceTable(list(devices), orderable=False)
-        if request.user.has_perm('virtualization.change_cluster'):
-            devices_table.columns.show('pk')
+    def get_children(self, request, parent):
+        return Device.objects.restrict(request.user, 'view').filter(cluster=parent)
 
+    def get_extra_context(self, request, instance):
         return {
-            'devices_table': devices_table,
             'active_tab': 'devices',
         }
 
@@ -312,7 +312,7 @@ class VirtualMachineListView(generic.ObjectListView):
     queryset = VirtualMachine.objects.all()
     filterset = filtersets.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
-    table = tables.VirtualMachineDetailTable
+    table = tables.VirtualMachineTable
     template_name = 'virtualization/virtualmachine_list.html'
 
 
@@ -338,36 +338,27 @@ class VirtualMachineView(generic.ObjectView):
             Prefetch('ipaddresses', queryset=IPAddress.objects.restrict(request.user))
         )
 
-        # Secrets
-        secrets = Secret.objects.restrict(request.user, 'view').filter(virtual_machine=instance)
-
         return {
             'vminterface_table': vminterface_table,
             'services': services,
-            'secrets': secrets,
         }
 
 
-class VirtualMachineInterfacesView(generic.ObjectView):
+class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     queryset = VirtualMachine.objects.all()
+    child_model = VMInterface
+    table = tables.VirtualMachineVMInterfaceTable
+    filterset = filtersets.VMInterfaceFilterSet
     template_name = 'virtualization/virtualmachine/interfaces.html'
 
-    def get_extra_context(self, request, instance):
-        interfaces = instance.interfaces.restrict(request.user, 'view').prefetch_related(
+    def get_children(self, request, parent):
+        return parent.interfaces.restrict(request.user, 'view').prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
             'tags',
         )
-        interface_table = tables.VirtualMachineVMInterfaceTable(
-            data=interfaces,
-            user=request.user,
-            orderable=False
-        )
-        if request.user.has_perm('virtualization.change_vminterface') or \
-                request.user.has_perm('virtualization.delete_vminterface'):
-            interface_table.columns.show('pk')
 
+    def get_extra_context(self, request, instance):
         return {
-            'interface_table': interface_table,
             'active_tab': 'interfaces',
         }
 
@@ -422,7 +413,7 @@ class VMInterfaceView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         # Get assigned IP addresses
-        ipaddress_table = InterfaceIPAddressTable(
+        ipaddress_table = AssignedIPAddressesTable(
             data=instance.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
             orderable=False
         )
@@ -431,9 +422,9 @@ class VMInterfaceView(generic.ObjectView):
         child_interfaces = VMInterface.objects.restrict(request.user, 'view').filter(parent=instance)
         child_interfaces_tables = tables.VMInterfaceTable(
             child_interfaces,
+            exclude=('virtual_machine',),
             orderable=False
         )
-        child_interfaces_tables.columns.hide('virtual_machine')
 
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
@@ -461,7 +452,6 @@ class VMInterfaceCreateView(generic.ComponentCreateView):
     queryset = VMInterface.objects.all()
     form = forms.VMInterfaceCreateForm
     model_form = forms.VMInterfaceForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class VMInterfaceEditView(generic.ObjectEditView):
@@ -508,6 +498,7 @@ class VirtualMachineBulkAddInterfaceView(generic.BulkComponentCreateView):
     model_form = forms.VMInterfaceForm
     filterset = filtersets.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
+    default_return_url = 'virtualization:virtualmachine_list'
 
     def get_required_permission(self):
         return f'virtualization.add_vminterface'

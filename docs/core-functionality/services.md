@@ -1,3 +1,3 @@
 # Service Mapping
 
-{!docs/models/ipam/service.md!}
+{!models/ipam/service.md!}

@@ -1,21 +1,19 @@
+import importlib
 import logging
-import random
-from datetime import timedelta
 
-from cacheops.signals import cache_invalidated, cache_read
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db import DEFAULT_DB_ALIAS
 from django.db.models.signals import m2m_changed, post_save, pre_delete
-from django.dispatch import Signal
-from django.utils import timezone
+from django.dispatch import receiver, Signal
 from django_prometheus.models import model_deletes, model_inserts, model_updates
-from prometheus_client import Counter
 
+from extras.validators import CustomValidator
+from netbox import thread_locals
+from netbox.config import get_config
+from netbox.request_context import get_request
+from netbox.signals import post_clean
 from .choices import ObjectChangeActionChoices
-from .models import CustomField, ObjectChange
+from .models import ConfigRevision, CustomField, ObjectChange
 from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
-
 
 #
 # Change logging/webhooks
@@ -25,21 +23,22 @@ from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 clear_webhooks = Signal()
 
 
-def _handle_changed_object(request, webhook_queue, sender, instance, **kwargs):
+def handle_changed_object(sender, instance, **kwargs):
     """
     Fires when an object is created or updated.
     """
+    if not hasattr(instance, 'to_objectchange'):
+        return
+
+    request = get_request()
+    m2m_changed = False
+
     def is_same_object(instance, webhook_data):
         return (
             ContentType.objects.get_for_model(instance) == webhook_data['content_type'] and
             instance.pk == webhook_data['object_id'] and
             request.id == webhook_data['request_id']
         )
-
-    if not hasattr(instance, 'to_objectchange'):
-        return
-
-    m2m_changed = False
 
     # Determine the type of change being made
     if kwargs.get('created'):
@@ -70,6 +69,7 @@ def _handle_changed_object(request, webhook_queue, sender, instance, **kwargs):
             objectchange.save()
 
     # If this is an M2M change, update the previously queued webhook (from post_save)
+    webhook_queue = thread_locals.webhook_queue
     if m2m_changed and webhook_queue and is_same_object(instance, webhook_queue[-1]):
         instance.refresh_from_db()  # Ensure that we're working with fresh M2M assignments
         webhook_queue[-1]['data'] = serialize_for_webhook(instance)
@@ -83,18 +83,15 @@ def _handle_changed_object(request, webhook_queue, sender, instance, **kwargs):
     elif action == ObjectChangeActionChoices.ACTION_UPDATE:
         model_updates.labels(instance._meta.model_name).inc()
 
-    # Housekeeping: 0.1% chance of clearing out expired ObjectChanges
-    if settings.CHANGELOG_RETENTION and random.randint(1, 1000) == 1:
-        cutoff = timezone.now() - timedelta(days=settings.CHANGELOG_RETENTION)
-        ObjectChange.objects.filter(time__lt=cutoff)._raw_delete(using=DEFAULT_DB_ALIAS)
 
-
-def _handle_deleted_object(request, webhook_queue, sender, instance, **kwargs):
+def handle_deleted_object(sender, instance, **kwargs):
     """
     Fires when an object is deleted.
     """
     if not hasattr(instance, 'to_objectchange'):
         return
+
+    request = get_request()
 
     # Record an ObjectChange if applicable
     if hasattr(instance, 'to_objectchange'):
@@ -104,19 +101,21 @@ def _handle_deleted_object(request, webhook_queue, sender, instance, **kwargs):
         objectchange.save()
 
     # Enqueue webhooks
+    webhook_queue = thread_locals.webhook_queue
     enqueue_object(webhook_queue, instance, request.user, request.id, ObjectChangeActionChoices.ACTION_DELETE)
 
     # Increment metric counters
     model_deletes.labels(instance._meta.model_name).inc()
 
 
-def _clear_webhook_queue(webhook_queue, sender, **kwargs):
+def clear_webhook_queue(sender, **kwargs):
     """
     Delete any queued webhooks (e.g. because of an aborted bulk transaction)
     """
     logger = logging.getLogger('webhooks')
-    logger.info(f"Clearing {len(webhook_queue)} queued webhooks ({sender})")
+    webhook_queue = thread_locals.webhook_queue
 
+    logger.info(f"Clearing {len(webhook_queue)} queued webhooks ({sender})")
     webhook_queue.clear()
 
 
@@ -162,24 +161,36 @@ m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_type
 
 
 #
-# Caching
+# Custom validation
 #
 
-cacheops_cache_hit = Counter('cacheops_cache_hit', 'Number of cache hits')
-cacheops_cache_miss = Counter('cacheops_cache_miss', 'Number of cache misses')
-cacheops_cache_invalidated = Counter('cacheops_cache_invalidated', 'Number of cache invalidations')
+@receiver(post_clean)
+def run_custom_validators(sender, instance, **kwargs):
+    config = get_config()
+    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
+    validators = config.CUSTOM_VALIDATORS.get(model_name, [])
+
+    for validator in validators:
+
+        # Loading a validator class by dotted path
+        if type(validator) is str:
+            module, cls = validator.rsplit('.', 1)
+            validator = getattr(importlib.import_module(module), cls)()
+
+        # Constructing a new instance on the fly from a ruleset
+        elif type(validator) is dict:
+            validator = CustomValidator(validator)
+
+        validator(instance)
 
 
-def cache_read_collector(sender, func, hit, **kwargs):
-    if hit:
-        cacheops_cache_hit.inc()
-    else:
-        cacheops_cache_miss.inc()
+#
+# Dynamic configuration
+#
 
-
-def cache_invalidated_collector(sender, obj_dict, **kwargs):
-    cacheops_cache_invalidated.inc()
-
-
-cache_read.connect(cache_read_collector)
-cache_invalidated.connect(cache_invalidated_collector)
+@receiver(post_save, sender=ConfigRevision)
+def update_config(sender, instance, **kwargs):
+    """
+    Update the cached NetBox configuration when a new ConfigRevision is created.
+    """
+    instance.activate()

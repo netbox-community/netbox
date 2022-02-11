@@ -7,12 +7,10 @@ from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
-from django.core.exceptions import ValidationError
 from dcim.fields import ASNField
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
-from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
     'Location',
@@ -26,7 +24,7 @@ __all__ = (
 # Regions
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Region(NestedGroupModel):
     """
     A region represents a geographic collection of sites. For example, you might create regions representing countries,
@@ -42,30 +40,65 @@ class Region(NestedGroupModel):
         db_index=True
     )
     name = models.CharField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     slug = models.SlugField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     description = models.CharField(
         max_length=200,
         blank=True
     )
 
-    csv_headers = ['name', 'slug', 'parent', 'description']
+    # Generic relations
+    vlan_groups = GenericRelation(
+        to='ipam.VLANGroup',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='region'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('parent', 'name'),
+                name='dcim_region_parent_name'
+            ),
+            models.UniqueConstraint(
+                fields=('name',),
+                name='dcim_region_name',
+                condition=Q(parent=None)
+            ),
+            models.UniqueConstraint(
+                fields=('parent', 'slug'),
+                name='dcim_region_parent_slug'
+            ),
+            models.UniqueConstraint(
+                fields=('slug',),
+                name='dcim_region_slug',
+                condition=Q(parent=None)
+            ),
+        )
+
+    def validate_unique(self, exclude=None):
+        if self.parent is None:
+            regions = Region.objects.exclude(pk=self.pk)
+            if regions.filter(name=self.name, parent__isnull=True).exists():
+                raise ValidationError({
+                    'name': 'A region with this name already exists.'
+                })
+            if regions.filter(slug=self.slug, parent__isnull=True).exists():
+                raise ValidationError({
+                    'name': 'A region with this slug already exists.'
+                })
+
+        super().validate_unique(exclude=exclude)
 
     def get_absolute_url(self):
         return reverse('dcim:region', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.parent.name if self.parent else None,
-            self.description,
-        )
 
     def get_site_count(self):
         return Site.objects.filter(
@@ -78,7 +111,7 @@ class Region(NestedGroupModel):
 # Site groups
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class SiteGroup(NestedGroupModel):
     """
     A site group is an arbitrary grouping of sites. For example, you might have corporate sites and customer sites; and
@@ -94,30 +127,65 @@ class SiteGroup(NestedGroupModel):
         db_index=True
     )
     name = models.CharField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     slug = models.SlugField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     description = models.CharField(
         max_length=200,
         blank=True
     )
 
-    csv_headers = ['name', 'slug', 'parent', 'description']
+    # Generic relations
+    vlan_groups = GenericRelation(
+        to='ipam.VLANGroup',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='site_group'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('parent', 'name'),
+                name='dcim_sitegroup_parent_name'
+            ),
+            models.UniqueConstraint(
+                fields=('name',),
+                name='dcim_sitegroup_name',
+                condition=Q(parent=None)
+            ),
+            models.UniqueConstraint(
+                fields=('parent', 'slug'),
+                name='dcim_sitegroup_parent_slug'
+            ),
+            models.UniqueConstraint(
+                fields=('slug',),
+                name='dcim_sitegroup_slug',
+                condition=Q(parent=None)
+            ),
+        )
+
+    def validate_unique(self, exclude=None):
+        if self.parent is None:
+            site_groups = SiteGroup.objects.exclude(pk=self.pk)
+            if site_groups.filter(name=self.name, parent__isnull=True).exists():
+                raise ValidationError({
+                    'name': 'A site group with this name already exists.'
+                })
+            if site_groups.filter(slug=self.slug, parent__isnull=True).exists():
+                raise ValidationError({
+                    'name': 'A site group with this slug already exists.'
+                })
+
+        super().validate_unique(exclude=exclude)
 
     def get_absolute_url(self):
         return reverse('dcim:sitegroup', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.parent.name if self.parent else None,
-            self.description,
-        )
 
     def get_site_count(self):
         return Site.objects.filter(
@@ -186,6 +254,11 @@ class Site(PrimaryModel):
         verbose_name='ASN',
         help_text='32-bit autonomous system number'
     )
+    asns = models.ManyToManyField(
+        to='ipam.ASN',
+        related_name='sites',
+        blank=True
+    )
     time_zone = TimeZoneField(
         blank=True
     )
@@ -230,17 +303,21 @@ class Site(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
+
+    # Generic relations
+    vlan_groups = GenericRelation(
+        to='ipam.VLANGroup',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='site'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = [
-        'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
-        'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-        'contact_email', 'comments',
-    ]
     clone_fields = [
         'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email',
@@ -255,28 +332,6 @@ class Site(PrimaryModel):
     def get_absolute_url(self):
         return reverse('dcim:site', args=[self.pk])
 
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.get_status_display(),
-            self.region.name if self.region else None,
-            self.group.name if self.group else None,
-            self.tenant.name if self.tenant else None,
-            self.facility,
-            self.asn,
-            self.time_zone,
-            self.description,
-            self.physical_address,
-            self.shipping_address,
-            self.latitude,
-            self.longitude,
-            self.contact_name,
-            self.contact_phone,
-            self.contact_email,
-            self.comments,
-        )
-
     def get_status_class(self):
         return SiteStatusChoices.CSS_CLASSES.get(self.status)
 
@@ -285,7 +340,7 @@ class Site(PrimaryModel):
 # Locations
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Location(NestedGroupModel):
     """
     A Location represents a subgroup of Racks and/or Devices within a Site. A Location may represent a building within a
@@ -310,35 +365,73 @@ class Location(NestedGroupModel):
         null=True,
         db_index=True
     )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='locations',
+        blank=True,
+        null=True
+    )
     description = models.CharField(
         max_length=200,
         blank=True
+    )
+
+    # Generic relations
+    vlan_groups = GenericRelation(
+        to='ipam.VLANGroup',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='location'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
 
-    csv_headers = ['site', 'parent', 'name', 'slug', 'description']
     clone_fields = ['site', 'parent', 'description']
 
     class Meta:
         ordering = ['site', 'name']
-        unique_together = [
-            ['site', 'name'],
-            ['site', 'slug'],
-        ]
+        constraints = (
+            models.UniqueConstraint(
+                fields=('site', 'parent', 'name'),
+                name='dcim_location_parent_name'
+            ),
+            models.UniqueConstraint(
+                fields=('site', 'name'),
+                name='dcim_location_name',
+                condition=Q(parent=None)
+            ),
+            models.UniqueConstraint(
+                fields=('site', 'parent', 'slug'),
+                name='dcim_location_parent_slug'
+            ),
+            models.UniqueConstraint(
+                fields=('site', 'slug'),
+                name='dcim_location_slug',
+                condition=Q(parent=None)
+            ),
+        )
+
+    def validate_unique(self, exclude=None):
+        if self.parent is None:
+            locations = Location.objects.exclude(pk=self.pk)
+            if locations.filter(name=self.name, site=self.site, parent__isnull=True).exists():
+                raise ValidationError({
+                    "name": f"A location with this name in site {self.site} already exists."
+                })
+            if locations.filter(slug=self.slug, site=self.site, parent__isnull=True).exists():
+                raise ValidationError({
+                    "name": f"A location with this slug in site {self.site} already exists."
+                })
+
+        super().validate_unique(exclude=exclude)
 
     def get_absolute_url(self):
         return reverse('dcim:location', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.site,
-            self.parent.name if self.parent else '',
-            self.name,
-            self.slug,
-            self.description,
-        )
 
     def clean(self):
         super().clean()

@@ -2,8 +2,13 @@
 # This script will prepare NetBox to run after the code has been upgraded to
 # its most recent release.
 
+# This script will invoke Python with the value of the PYTHON environment
+# variable (if set), or fall back to "python3". Note that NetBox v3.0+ requires
+# Python 3.7 or later.
+
 cd "$(dirname "$0")"
 VIRTUALENV="$(pwd -P)/venv"
+PYTHON="${PYTHON:-python3}"
 
 # Remove the existing virtual environment (if any)
 if [ -d "$VIRTUALENV" ]; then
@@ -15,7 +20,7 @@ else
 fi
 
 # Create a new virtual environment
-COMMAND="python3 -m venv ${VIRTUALENV}"
+COMMAND="${PYTHON} -m venv ${VIRTUALENV}"
 echo "Creating a new virtual environment at ${VIRTUALENV}..."
 eval $COMMAND || {
   echo "--------------------------------------------------------------------"
@@ -66,6 +71,11 @@ COMMAND="python3 netbox/manage.py trace_paths --no-input"
 echo "Checking for missing cable paths ($COMMAND)..."
 eval $COMMAND || exit 1
 
+# Build the local documentation
+COMMAND="mkdocs build"
+echo "Building documentation ($COMMAND)..."
+eval $COMMAND || exit 1
+
 # Collect static files
 COMMAND="python3 netbox/manage.py collectstatic --no-input"
 echo "Collecting static files ($COMMAND)..."
@@ -79,11 +89,6 @@ eval $COMMAND || exit 1
 # Delete any expired user sessions
 COMMAND="python3 netbox/manage.py clearsessions"
 echo "Removing expired user sessions ($COMMAND)..."
-eval $COMMAND || exit 1
-
-# Clear all cached data
-COMMAND="python3 netbox/manage.py invalidate all"
-echo "Clearing cache data ($COMMAND)..."
 eval $COMMAND || exit 1
 
 if [ -v WARN_MISSING_VENV ]; then

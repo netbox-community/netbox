@@ -1,11 +1,16 @@
 from django.db import models
+from timezone_field import TimeZoneField
 
 
-EXEMPT_ATTRS = [
+SKIP_FIELDS = (
+    TimeZoneField,
+)
+
+EXEMPT_ATTRS = (
     'choices',
     'help_text',
     'verbose_name',
-]
+)
 
 _deconstruct = models.Field.deconstruct
 
@@ -17,12 +22,8 @@ def custom_deconstruct(field):
     name, path, args, kwargs = _deconstruct(field)
 
     # Remove any ignored attributes
-    for attr in EXEMPT_ATTRS:
-        kwargs.pop(attr, None)
-
-    # A hack to accommodate TimeZoneField, which employs a custom deconstructor to check whether the default choices
-    # have changed
-    if hasattr(field, 'CHOICES'):
-        kwargs['choices'] = field.CHOICES
+    if field.__class__ not in SKIP_FIELDS:
+        for attr in EXEMPT_ATTRS:
+            kwargs.pop(attr, None)
 
     return name, path, args, kwargs

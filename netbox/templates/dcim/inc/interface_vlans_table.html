@@ -37,17 +37,17 @@
         {% if not obj.untagged_vlan and not tagged_vlans %}
             <tr>
                 <td colspan="4" class="text-muted text-center">
-                    No VLANs assigned
+                    No VLANs Assigned
                 </td>
             </tr>
         {% else %}
             <tr>
                 <td colspan="2"></td>
                 <td>
-                    <a href="#" id="clear_untagged_vlan" class="btn btn-warning btn-xs">Clear</a>
+                    <a href="#" id="clear_untagged_vlan" class="btn btn-outline-warning btn-sm">Clear</a>
                 </td>
                 <td>
-                    <a href="#" id="clear_tagged_vlans" class="btn btn-warning btn-xs">Clear All</a>
+                    <a href="#" id="clear_tagged_vlans" class="btn btn-warning btn-sm">Clear All</a>
                 </td>
             </tr>
         {% endif %}

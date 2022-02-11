@@ -6,8 +6,7 @@ from dcim.choices import *
 from dcim.constants import *
 from extras.utils import extras_features
 from netbox.models import ChangeLoggedModel
-from utilities.fields import NaturalOrderingField
-from utilities.querysets import RestrictedQuerySet
+from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from .device_components import (
     ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, PowerOutlet, PowerPort, RearPort,
@@ -49,8 +48,6 @@ class ComponentTemplateModel(ChangeLoggedModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True
@@ -267,6 +264,9 @@ class FrontPortTemplate(ComponentTemplateModel):
         max_length=50,
         choices=PortTypeChoices
     )
+    color = ColorField(
+        blank=True
+    )
     rear_port = models.ForeignKey(
         to='dcim.RearPortTemplate',
         on_delete=models.CASCADE,
@@ -319,6 +319,7 @@ class FrontPortTemplate(ComponentTemplateModel):
             name=self.name,
             label=self.label,
             type=self.type,
+            color=self.color,
             rear_port=rear_port,
             rear_port_position=self.rear_port_position
         )
@@ -332,6 +333,9 @@ class RearPortTemplate(ComponentTemplateModel):
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
+    )
+    color = ColorField(
+        blank=True
     )
     positions = models.PositiveSmallIntegerField(
         default=1,
@@ -351,6 +355,7 @@ class RearPortTemplate(ComponentTemplateModel):
             name=self.name,
             label=self.label,
             type=self.type,
+            color=self.color,
             positions=self.positions
         )
 

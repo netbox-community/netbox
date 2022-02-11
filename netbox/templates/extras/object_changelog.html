@@ -1,11 +1,18 @@
 {% extends base_template %}
-
-{% block title %}{{ block.super }} - Change Log{% endblock %}
+{% load render_table from django_tables2 %}
 
 {% block content %}
-    {% include 'panel_table.html' %}
-    {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
-    <div class="text-muted">
-        Change log retention: {% if settings.CHANGELOG_RETENTION %}{{ settings.CHANGELOG_RETENTION }} days{% else %}Indefinite{% endif %}
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <div class="card-body table-responsive">
+          {% render_table table 'inc/table.html' %}
+          {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+        </div>
+      </div>
+      <div class="text-muted">
+        Change log retention: {% if config.CHANGELOG_RETENTION %}{{ config.CHANGELOG_RETENTION }} days{% else %}Indefinite{% endif %}
+      </div>
     </div>
+  </div>
 {% endblock %}

@@ -30,7 +30,7 @@ def clone_button(instance):
     url = reverse(_get_viewname(instance, 'add'))
 
     # Populate cloned field values
-    param_string = prepare_cloned_fields(instance)
+    param_string = prepare_cloned_fields(instance).urlencode()
     if param_string:
         url = f'{url}?{param_string}'
 
@@ -81,19 +81,19 @@ def import_button(url):
 
 
 @register.inclusion_tag('buttons/export.html', takes_context=True)
-def export_button(context, content_type=None):
-    add_exporttemplate_link = None
+def export_button(context, content_type):
+    user = context['request'].user
 
-    if content_type is not None:
-        user = context['request'].user
-        export_templates = ExportTemplate.objects.restrict(user, 'view').filter(content_type=content_type)
-        if user.is_staff and user.has_perm('extras.add_exporttemplate'):
-            add_exporttemplate_link = f"{reverse('admin:extras_exporttemplate_add')}?content_type={content_type.pk}"
-    else:
-        export_templates = []
+    # Determine if the "all data" export returns CSV or YAML
+    data_format = 'YAML' if hasattr(content_type.model_class(), 'to_yaml') else 'CSV'
+
+    # Retrieve all export templates for this model
+    export_templates = ExportTemplate.objects.restrict(user, 'view').filter(content_type=content_type)
 
     return {
-        'url_params': context['request'].GET,
+        'perms': context['perms'],
+        'content_type': content_type,
+        'url_params': context['request'].GET.urlencode() if context['request'].GET else '',
         'export_templates': export_templates,
-        'add_exporttemplate_link': add_exporttemplate_link,
+        'data_format': data_format,
     }

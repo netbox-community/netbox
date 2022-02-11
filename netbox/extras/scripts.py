@@ -3,8 +3,8 @@ import json
 import logging
 import os
 import pkgutil
+import sys
 import traceback
-import warnings
 from collections import OrderedDict
 
 import yaml
@@ -21,7 +21,7 @@ from extras.models import JobResult
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortTransaction
-from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms import add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .context_managers import change_logging
 from .forms import ScriptForm
 
@@ -164,15 +164,21 @@ class ChoiceVar(ScriptVariable):
     def __init__(self, choices, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Set field choices
-        self.field_attrs['choices'] = choices
+        # Set field choices, adding a blank choice to avoid forced selections
+        self.field_attrs['choices'] = add_blank_choice(choices)
 
 
-class MultiChoiceVar(ChoiceVar):
+class MultiChoiceVar(ScriptVariable):
     """
     Like ChoiceVar, but allows for the selection of multiple choices.
     """
     form_field = forms.MultipleChoiceField
+
+    def __init__(self, choices, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set field choices
+        self.field_attrs['choices'] = choices
 
 
 class ObjectVar(ScriptVariable):
@@ -180,27 +186,16 @@ class ObjectVar(ScriptVariable):
     A single object within NetBox.
 
     :param model: The NetBox model being referenced
-    :param display_field: The attribute of the returned object to display in the selection list (DEPRECATED)
     :param query_params: A dictionary of additional query parameters to attach when making REST API requests (optional)
     :param null_option: The label to use as a "null" selection option (optional)
     """
     form_field = DynamicModelChoiceField
 
     def __init__(self, model, query_params=None, null_option=None, *args, **kwargs):
-
-        # TODO: Remove display_field in v3.0
-        if 'display_field' in kwargs:
-            warnings.warn(
-                "The 'display_field' parameter has been deprecated, and will be removed in NetBox v3.0. Object "
-                "variables will now reference the 'display' attribute available on all model serializers by default."
-            )
-        display_field = kwargs.pop('display_field', 'display')
-
         super().__init__(*args, **kwargs)
 
         self.field_attrs.update({
             'queryset': model.objects.all(),
-            'display_field': display_field,
             'query_params': query_params,
             'null_option': null_option,
         })
@@ -301,12 +296,21 @@ class BaseScript:
 
     @classmethod
     def _get_vars(cls):
-        vars = OrderedDict()
+        vars = {}
         for name, attr in cls.__dict__.items():
             if name not in vars and issubclass(attr.__class__, ScriptVariable):
                 vars[name] = attr
 
-        return vars
+        # Order variables according to field_order
+        field_order = getattr(cls.Meta, 'field_order', None)
+        if not field_order:
+            return vars
+        ordered_vars = {
+            field: vars.pop(field) for field in field_order if field in vars
+        }
+        ordered_vars.update(vars)
+
+        return ordered_vars
 
     def run(self, data, commit):
         raise NotImplementedError("The script must define a run() method.")
@@ -356,9 +360,14 @@ class BaseScript:
         """
         Return data from a YAML file
         """
+        try:
+            from yaml import CLoader as Loader
+        except ImportError:
+            from yaml import Loader
+
         file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
         with open(file_path, 'r') as datafile:
-            data = yaml.load(datafile)
+            data = yaml.load(datafile, Loader=Loader)
 
         return data
 
@@ -481,16 +490,22 @@ def get_scripts(use_names=False):
     defined name in place of the actual module name.
     """
     scripts = OrderedDict()
-
     # Iterate through all modules within the reports path. These are the user-created files in which reports are
     # defined.
     for importer, module_name, _ in pkgutil.iter_modules([settings.SCRIPTS_ROOT]):
+        # Remove cached module to ensure consistency with filesystem
+        if module_name in sys.modules:
+            del sys.modules[module_name]
+
         module = importer.find_module(module_name).load_module(module_name)
         if use_names and hasattr(module, 'name'):
             module_name = module.name
         module_scripts = OrderedDict()
-        for name, cls in inspect.getmembers(module, is_script):
-            module_scripts[name] = cls
+        script_order = getattr(module, "script_order", ())
+        ordered_scripts = [cls for cls in script_order if is_script(cls)]
+        unordered_scripts = [cls for _, cls in inspect.getmembers(module, is_script) if cls not in script_order]
+        for cls in [*ordered_scripts, *unordered_scripts]:
+            module_scripts[cls.__name__] = cls
         if module_scripts:
             scripts[module_name] = module_scripts
 

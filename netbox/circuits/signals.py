@@ -11,6 +11,7 @@ def update_circuit(instance, **kwargs):
     When a CircuitTermination has been modified, update its parent Circuit.
     """
     termination_name = f'termination_{instance.term_side.lower()}'
+    instance.circuit.refresh_from_db()
     setattr(instance.circuit, termination_name, instance)
     instance.circuit.save()
 

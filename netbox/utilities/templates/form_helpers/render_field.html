@@ -1,0 +1,127 @@
+{% load form_helpers %}
+{% load helpers %}
+
+{% if field|widget_type == 'checkboxinput' %}
+    <div class="row mb-3">
+        <div class="col-sm-3"></div>
+        <div class="col">
+            <div class="form-check{% if field.errors %} has-error{% endif %}">
+                {{ field }}
+                <label for="{{ field.id_for_label }}" class="form-check-label">
+                    {{ field.label }}
+                </label>
+            </div>
+            {% if field.help_text %}
+                <span class="form-text">{{ field.help_text|safe }}</span>
+            {% endif %}
+            {% if bulk_nullable %}
+                <div class="form-check my-1">
+                    <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
+                    <label class="form-check-label">Set Null</label>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% elif field|widget_type == 'textarea' and not field.label %}
+    <div class="row mb-3">
+        {% if label %}
+        <label class="col-sm-3 col-form-label text-lg-end{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">
+            {{ label }}
+        </label>
+        {% else %}
+        {% endif %}
+        <div class="col">
+            {{ field }}
+            {% if field.help_text %}
+                <span class="form-text">{{ field.help_text|safe }}</span>
+            {% endif %}
+            {% if bulk_nullable %}
+                <div class="form-check my-1">
+                    <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
+                    <label class="form-check-label">Set Null</label>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% elif field|widget_type == 'slugwidget' %}
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label text-lg-end{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">
+            {{ field.label }}
+        </label>
+        <div class="col">
+            <div class="input-group">
+                {{ field }}
+                <button id="reslug" type="button" title="Regenerate Slug" class="btn btn-outline-dark border-input">
+                    <i class="mdi mdi-reload"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+{% elif field|widget_type == 'fileinput' %}
+  <div class="input-group mb-3">
+    <input
+        class="form-control"
+        type="file"
+        name="{{ field.name }}"
+        placeholder="{{ field.placeholder }}"
+        id="id_{{ field.name }}"
+        accept="{{ field.field.widget.attrs.accept }}"
+        {% if field.is_required %}required{% endif %}
+    />
+    <label for="{{ field.id_for_label }}" class="input-group-text">{{ field.label|bettertitle }}</label>
+  </div>
+
+{% elif field|widget_type == 'clearablefileinput' %}
+    <div class="row mb-3">
+        <label for="{{ field.id_for_label }}" class="form-label col col-md-3 text-lg-end{% if field.field.required %} required{% endif %}">
+            {{ field.label }}
+        </label>
+        <div class="col col-md-9">
+            {{ field }}
+        </div>
+    </div>
+
+{% elif field|widget_type == 'selectmultiple' %}
+    <div class="row mb-3">
+        <label for="{{ field.id_for_label }}" class="form-label col col-md-3 text-lg-end{% if field.field.required %} required{% endif %}">
+            {{ field.label }}
+        </label>
+        <div class="col col-md-9">
+            {{ field }}
+            {% if bulk_nullable %}
+                <div class="form-check my-1">
+                    <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
+                    <label class="form-check-label">Set Null</label>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% else %}
+    <div class="row mb-3">
+        <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label text-lg-end{% if field.field.required %} required{% endif %}">
+            {{ field.label }}
+        </label>
+        <div class="col">
+            {{ field }}
+            {% if field.help_text %}
+                <span class="form-text">{{ field.help_text|safe }}</span>
+            {% endif %}
+            <div class="invalid-feedback">
+                {% if field.field.required %}
+                    <strong>{{ field.label }}</strong> field is required.
+                {% endif %}
+            </div>
+            {% if bulk_nullable %}
+                <div class="form-check my-1">
+                    <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
+                    <label class="form-check-label">Set Null</label>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+

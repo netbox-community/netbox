@@ -46,11 +46,6 @@ router.register('rear-ports', views.RearPortViewSet)
 router.register('device-bays', views.DeviceBayViewSet)
 router.register('inventory-items', views.InventoryItemViewSet)
 
-# Connections
-router.register('console-connections', views.ConsoleConnectionViewSet, basename='consoleconnections')
-router.register('power-connections', views.PowerConnectionViewSet, basename='powerconnections')
-router.register('interface-connections', views.InterfaceConnectionViewSet, basename='interfaceconnections')
-
 # Cables
 router.register('cables', views.CableViewSet)
 

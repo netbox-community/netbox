@@ -31,7 +31,7 @@ class PrefixStatusChoices(ChoiceSet):
     )
 
     CSS_CLASSES = {
-        STATUS_CONTAINER: 'default',
+        STATUS_CONTAINER: 'secondary',
         STATUS_ACTIVE: 'primary',
         STATUS_RESERVED: 'info',
         STATUS_DEPRECATED: 'danger',
@@ -39,7 +39,30 @@ class PrefixStatusChoices(ChoiceSet):
 
 
 #
-# IPAddresses
+# IP Ranges
+#
+
+class IPRangeStatusChoices(ChoiceSet):
+
+    STATUS_ACTIVE = 'active'
+    STATUS_RESERVED = 'reserved'
+    STATUS_DEPRECATED = 'deprecated'
+
+    CHOICES = (
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_RESERVED, 'Reserved'),
+        (STATUS_DEPRECATED, 'Deprecated'),
+    )
+
+    CSS_CLASSES = {
+        STATUS_ACTIVE: 'primary',
+        STATUS_RESERVED: 'info',
+        STATUS_DEPRECATED: 'danger',
+    }
+
+
+#
+# IP Addresses
 #
 
 class IPAddressStatusChoices(ChoiceSet):
@@ -90,7 +113,7 @@ class IPAddressRoleChoices(ChoiceSet):
     )
 
     CSS_CLASSES = {
-        ROLE_LOOPBACK: 'default',
+        ROLE_LOOPBACK: 'secondary',
         ROLE_SECONDARY: 'primary',
         ROLE_ANYCAST: 'warning',
         ROLE_VIP: 'success',
@@ -99,6 +122,40 @@ class IPAddressRoleChoices(ChoiceSet):
         ROLE_GLBP: 'success',
         ROLE_CARP: 'success',
     }
+
+
+#
+# FHRP
+#
+
+class FHRPGroupProtocolChoices(ChoiceSet):
+
+    PROTOCOL_VRRP2 = 'vrrp2'
+    PROTOCOL_VRRP3 = 'vrrp3'
+    PROTOCOL_HSRP = 'hsrp'
+    PROTOCOL_GLBP = 'glbp'
+    PROTOCOL_CARP = 'carp'
+    PROTOCOL_OTHER = 'other'
+
+    CHOICES = (
+        (PROTOCOL_VRRP2, 'VRRPv2'),
+        (PROTOCOL_VRRP3, 'VRRPv3'),
+        (PROTOCOL_HSRP, 'HSRP'),
+        (PROTOCOL_GLBP, 'GLBP'),
+        (PROTOCOL_CARP, 'CARP'),
+        (PROTOCOL_OTHER, 'Other'),
+    )
+
+
+class FHRPGroupAuthTypeChoices(ChoiceSet):
+
+    AUTHENTICATION_PLAINTEXT = 'plaintext'
+    AUTHENTICATION_MD5 = 'md5'
+
+    CHOICES = (
+        (AUTHENTICATION_PLAINTEXT, 'Plaintext'),
+        (AUTHENTICATION_MD5, 'MD5'),
+    )
 
 
 #

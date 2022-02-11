@@ -10,7 +10,6 @@ NetBox is an infrastructure resource modeling (IRM) application designed to empo
 * **Connections** - Network, console, and power connections among devices
 * **Virtualization** - Virtual machines and clusters
 * **Data circuits** - Long-haul communications circuits and providers
-* **Secrets** - Encrypted storage of sensitive credentials
 
 ## What NetBox Is Not
 
@@ -49,14 +48,16 @@ NetBox is built on the [Django](https://djangoproject.com/) Python framework and
 | HTTP service       | nginx or Apache   |
 | WSGI service       | gunicorn or uWSGI |
 | Application        | Django/Python     |
-| Database           | PostgreSQL 9.6+   |
+| Database           | PostgreSQL 10+    |
 | Task queuing       | Redis/django-rq   |
-| Live device access | NAPALM            |
+| Live device access | NAPALM (optional) |
 
 ## Supported Python Versions
 
-NetBox supports Python 3.6, 3.7, and 3.8 environments currently. (Support for Python 3.5 was removed in NetBox v2.8.)
+NetBox supports Python 3.7, 3.8, and 3.9 environments currently. (Support for Python 3.6 was removed in NetBox v3.0.)
 
 ## Getting Started
 
-See the [installation guide](installation/index.md) for help getting NetBox up and running quickly.
+Minor NetBox releases (e.g. v3.1) are published three times a year; in April, August, and December. These typically introduce major new features and may contain breaking API changes. Patch releases are published roughly every one to two weeks to resolve bugs and fulfill minor feature requests. These are backward-compatible with previous releases unless otherwise noted. The NetBox maintainers strongly recommend running the latest stable release whenever possible.
+
+Please see the [official installation guide](installation/index.md) for detailed instructions on obtaining and installing NetBox.

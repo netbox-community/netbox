@@ -4,36 +4,61 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
-from django.db.models import F, Prefetch
+from django.db.models import Prefetch
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from circuits.models import Circuit
 from extras.views import ObjectChangeLogView, ObjectConfigContextView, ObjectJournalView
-from ipam.models import IPAddress, Prefix, Service, VLAN
-from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
+from ipam.models import ASN, IPAddress, Prefix, Service, VLAN
+from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
-from secrets.models import Secret
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.tables import paginate_table
-from utilities.utils import csv_format, count_related
+from utilities.utils import count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices
 from .constants import NONCONNECTABLE_IFACE_TYPES
-from .models import (
-    Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, PathEndpoint, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel,
-    PowerPort, PowerPortTemplate, Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    SiteGroup, VirtualChassis,
-)
+from .models import *
+
+
+class DeviceComponentsView(generic.ObjectChildrenView):
+    queryset = Device.objects.all()
+
+    def get_children(self, request, parent):
+        return self.child_model.objects.restrict(request.user, 'view').filter(device=parent)
+
+    def get_extra_context(self, request, instance):
+        return {
+            'active_tab': f"{self.child_model._meta.verbose_name_plural.replace(' ', '-')}",
+        }
+
+
+class DeviceTypeComponentsView(DeviceComponentsView):
+    queryset = DeviceType.objects.all()
+    template_name = 'dcim/devicetype/component_templates.html'
+    viewname = None  # Used for return_url resolution
+
+    def get_children(self, request, parent):
+        return self.child_model.objects.restrict(request.user, 'view').filter(device_type=parent)
+
+    def get_extra_context(self, request, instance):
+        if self.viewname:
+            return_url = reverse(self.viewname, kwargs={'pk': instance.pk})
+        else:
+            return_url = instance.get_absolute_url()
+        return {
+            'active_tab': f"{self.child_model._meta.verbose_name_plural.replace(' ', '-')}",
+            'return_url': return_url,
+        }
 
 
 class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
@@ -126,12 +151,12 @@ class RegionView(generic.ObjectView):
             parent__in=instance.get_descendants(include_self=True)
         )
         child_regions_table = tables.RegionTable(child_regions)
+        child_regions_table.columns.hide('actions')
 
         sites = Site.objects.restrict(request.user, 'view').filter(
             region=instance
         )
-        sites_table = tables.SiteTable(sites)
-        sites_table.columns.hide('region')
+        sites_table = tables.SiteTable(sites, exclude=('region',))
         paginate_table(sites_table, request)
 
         return {
@@ -211,12 +236,12 @@ class SiteGroupView(generic.ObjectView):
             parent__in=instance.get_descendants(include_self=True)
         )
         child_groups_table = tables.SiteGroupTable(child_groups)
+        child_groups_table.columns.hide('actions')
 
         sites = Site.objects.restrict(request.user, 'view').filter(
             group=instance
         )
-        sites_table = tables.SiteTable(sites)
-        sites_table.columns.hide('group')
+        sites_table = tables.SiteTable(sites, exclude=('group',))
         paginate_table(sites_table, request)
 
         return {
@@ -281,6 +306,7 @@ class SiteView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         stats = {
+            'location_count': Location.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'rack_count': Rack.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(site=instance).count(),
@@ -303,9 +329,15 @@ class SiteView(generic.ObjectView):
             cumulative=True
         ).restrict(request.user, 'view').filter(site=instance)
 
+        asns = ASN.objects.restrict(request.user, 'view').filter(sites=instance)
+        asn_count = asns.count()
+
+        stats.update({'asn_count': asn_count})
+
         return {
             'stats': stats,
             'locations': locations,
+            'asns': asns,
         }
 
 
@@ -439,6 +471,8 @@ class RackRoleListView(generic.ObjectListView):
     queryset = RackRole.objects.annotate(
         rack_count=count_related(Rack, 'role')
     )
+    filterset = filtersets.RackRoleFilterSet
+    filterset_form = forms.RackRoleFilterForm
     table = tables.RackRoleTable
 
 
@@ -450,8 +484,7 @@ class RackRoleView(generic.ObjectView):
             role=instance
         )
 
-        racks_table = tables.RackTable(racks)
-        racks_table.columns.hide('role')
+        racks_table = tables.RackTable(racks, exclude=('role', 'get_utilization', 'get_power_utilization'))
         paginate_table(racks_table, request)
 
         return {
@@ -502,7 +535,7 @@ class RackListView(generic.ObjectListView):
     )
     filterset = filtersets.RackFilterSet
     filterset_form = forms.RackFilterForm
-    table = tables.RackDetailTable
+    table = tables.RackTable
 
 
 class RackElevationListView(generic.ObjectListView):
@@ -683,6 +716,8 @@ class ManufacturerListView(generic.ObjectListView):
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
         platform_count=count_related(Platform, 'manufacturer')
     )
+    filterset = filtersets.ManufacturerFilterSet
+    filterset_form = forms.ManufacturerFilterForm
     table = tables.ManufacturerTable
 
 
@@ -699,8 +734,7 @@ class ManufacturerView(generic.ObjectView):
             manufacturer=instance
         )
 
-        devicetypes_table = tables.DeviceTypeTable(devicetypes)
-        devicetypes_table.columns.hide('manufacturer')
+        devicetypes_table = tables.DeviceTypeTable(devicetypes, exclude=('manufacturer',))
         paginate_table(devicetypes_table, request)
 
         return {
@@ -759,60 +793,66 @@ class DeviceTypeView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         instance_count = Device.objects.restrict(request.user).filter(device_type=instance).count()
 
-        # Component tables
-        consoleport_table = tables.ConsolePortTemplateTable(
-            ConsolePortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        consoleserverport_table = tables.ConsoleServerPortTemplateTable(
-            ConsoleServerPortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        powerport_table = tables.PowerPortTemplateTable(
-            PowerPortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        poweroutlet_table = tables.PowerOutletTemplateTable(
-            PowerOutletTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        interface_table = tables.InterfaceTemplateTable(
-            list(InterfaceTemplate.objects.restrict(request.user, 'view').filter(device_type=instance)),
-            orderable=False
-        )
-        front_port_table = tables.FrontPortTemplateTable(
-            FrontPortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        rear_port_table = tables.RearPortTemplateTable(
-            RearPortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        devicebay_table = tables.DeviceBayTemplateTable(
-            DeviceBayTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        if request.user.has_perm('dcim.change_devicetype'):
-            consoleport_table.columns.show('pk')
-            consoleserverport_table.columns.show('pk')
-            powerport_table.columns.show('pk')
-            poweroutlet_table.columns.show('pk')
-            interface_table.columns.show('pk')
-            front_port_table.columns.show('pk')
-            rear_port_table.columns.show('pk')
-            devicebay_table.columns.show('pk')
-
         return {
             'instance_count': instance_count,
-            'consoleport_table': consoleport_table,
-            'consoleserverport_table': consoleserverport_table,
-            'powerport_table': powerport_table,
-            'poweroutlet_table': poweroutlet_table,
-            'interface_table': interface_table,
-            'front_port_table': front_port_table,
-            'rear_port_table': rear_port_table,
-            'devicebay_table': devicebay_table,
+            'active_tab': 'devicetype',
         }
+
+
+class DeviceTypeConsolePortsView(DeviceTypeComponentsView):
+    child_model = ConsolePortTemplate
+    table = tables.ConsolePortTemplateTable
+    filterset = filtersets.ConsolePortTemplateFilterSet
+    viewname = 'dcim:devicetype_consoleports'
+
+
+class DeviceTypeConsoleServerPortsView(DeviceTypeComponentsView):
+    child_model = ConsoleServerPortTemplate
+    table = tables.ConsoleServerPortTemplateTable
+    filterset = filtersets.ConsoleServerPortTemplateFilterSet
+    viewname = 'dcim:devicetype_consoleserverports'
+
+
+class DeviceTypePowerPortsView(DeviceTypeComponentsView):
+    child_model = PowerPortTemplate
+    table = tables.PowerPortTemplateTable
+    filterset = filtersets.PowerPortTemplateFilterSet
+    viewname = 'dcim:devicetype_powerports'
+
+
+class DeviceTypePowerOutletsView(DeviceTypeComponentsView):
+    child_model = PowerOutletTemplate
+    table = tables.PowerOutletTemplateTable
+    filterset = filtersets.PowerOutletTemplateFilterSet
+    viewname = 'dcim:devicetype_poweroutlets'
+
+
+class DeviceTypeInterfacesView(DeviceTypeComponentsView):
+    child_model = InterfaceTemplate
+    table = tables.InterfaceTemplateTable
+    filterset = filtersets.InterfaceTemplateFilterSet
+    viewname = 'dcim:devicetype_interfaces'
+
+
+class DeviceTypeFrontPortsView(DeviceTypeComponentsView):
+    child_model = FrontPortTemplate
+    table = tables.FrontPortTemplateTable
+    filterset = filtersets.FrontPortTemplateFilterSet
+    viewname = 'dcim:devicetype_frontports'
+
+
+class DeviceTypeRearPortsView(DeviceTypeComponentsView):
+    child_model = RearPortTemplate
+    table = tables.RearPortTemplateTable
+    filterset = filtersets.RearPortTemplateFilterSet
+    viewname = 'dcim:devicetype_rearports'
+
+
+class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
+    child_model = DeviceBayTemplate
+    table = tables.DeviceBayTemplateTable
+    filterset = filtersets.DeviceBayTemplateFilterSet
+    viewname = 'dcim:devicetype_devicebays'
 
 
 class DeviceTypeEditView(generic.ObjectEditView):
@@ -875,7 +915,6 @@ class ConsolePortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsolePortTemplate.objects.all()
     form = forms.ConsolePortTemplateCreateForm
     model_form = forms.ConsolePortTemplateForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class ConsolePortTemplateEditView(generic.ObjectEditView):
@@ -910,7 +949,6 @@ class ConsoleServerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsoleServerPortTemplate.objects.all()
     form = forms.ConsoleServerPortTemplateCreateForm
     model_form = forms.ConsoleServerPortTemplateForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class ConsoleServerPortTemplateEditView(generic.ObjectEditView):
@@ -945,7 +983,6 @@ class PowerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerPortTemplate.objects.all()
     form = forms.PowerPortTemplateCreateForm
     model_form = forms.PowerPortTemplateForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class PowerPortTemplateEditView(generic.ObjectEditView):
@@ -980,7 +1017,6 @@ class PowerOutletTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerOutletTemplate.objects.all()
     form = forms.PowerOutletTemplateCreateForm
     model_form = forms.PowerOutletTemplateForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class PowerOutletTemplateEditView(generic.ObjectEditView):
@@ -1015,7 +1051,6 @@ class InterfaceTemplateCreateView(generic.ComponentCreateView):
     queryset = InterfaceTemplate.objects.all()
     form = forms.InterfaceTemplateCreateForm
     model_form = forms.InterfaceTemplateForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class InterfaceTemplateEditView(generic.ObjectEditView):
@@ -1050,7 +1085,6 @@ class FrontPortTemplateCreateView(generic.ComponentCreateView):
     queryset = FrontPortTemplate.objects.all()
     form = forms.FrontPortTemplateCreateForm
     model_form = forms.FrontPortTemplateForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class FrontPortTemplateEditView(generic.ObjectEditView):
@@ -1085,7 +1119,6 @@ class RearPortTemplateCreateView(generic.ComponentCreateView):
     queryset = RearPortTemplate.objects.all()
     form = forms.RearPortTemplateCreateForm
     model_form = forms.RearPortTemplateForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class RearPortTemplateEditView(generic.ObjectEditView):
@@ -1120,7 +1153,6 @@ class DeviceBayTemplateCreateView(generic.ComponentCreateView):
     queryset = DeviceBayTemplate.objects.all()
     form = forms.DeviceBayTemplateCreateForm
     model_form = forms.DeviceBayTemplateForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class DeviceBayTemplateEditView(generic.ObjectEditView):
@@ -1156,6 +1188,8 @@ class DeviceRoleListView(generic.ObjectListView):
         device_count=count_related(Device, 'device_role'),
         vm_count=count_related(VirtualMachine, 'role')
     )
+    filterset = filtersets.DeviceRoleFilterSet
+    filterset_form = forms.DeviceRoleFilterForm
     table = tables.DeviceRoleTable
 
 
@@ -1166,9 +1200,7 @@ class DeviceRoleView(generic.ObjectView):
         devices = Device.objects.restrict(request.user, 'view').filter(
             device_role=instance
         )
-
-        devices_table = tables.DeviceTable(devices)
-        devices_table.columns.hide('device_role')
+        devices_table = tables.DeviceTable(devices, exclude=('device_role',))
         paginate_table(devices_table, request)
 
         return {
@@ -1221,6 +1253,8 @@ class PlatformListView(generic.ObjectListView):
         vm_count=count_related(VirtualMachine, 'platform')
     )
     table = tables.PlatformTable
+    filterset = filtersets.PlatformFilterSet
+    filterset_form = forms.PlatformFilterForm
 
 
 class PlatformView(generic.ObjectView):
@@ -1230,13 +1264,12 @@ class PlatformView(generic.ObjectView):
         devices = Device.objects.restrict(request.user, 'view').filter(
             platform=instance
         )
-
-        devices_table = tables.DeviceTable(devices)
-        devices_table.columns.hide('platform')
+        devices_table = tables.DeviceTable(devices, exclude=('platform',))
         paginate_table(devices_table, request)
 
         return {
             'devices_table': devices_table,
+            'virtualmachine_count': VirtualMachine.objects.filter(platform=instance).count()
         }
 
 
@@ -1296,226 +1329,80 @@ class DeviceView(generic.ObjectView):
         # Services
         services = Service.objects.restrict(request.user, 'view').filter(device=instance)
 
-        # Secrets
-        secrets = Secret.objects.restrict(request.user, 'view').filter(device=instance)
-
-        # Find up to ten devices in the same site with the same functional role for quick reference.
-        related_devices = Device.objects.restrict(request.user, 'view').filter(
-            site=instance.site, device_role=instance.device_role
-        ).exclude(
-            pk=instance.pk
-        ).prefetch_related(
-            'rack', 'device_type__manufacturer'
-        )[:10]
-
         return {
             'services': services,
-            'secrets': secrets,
             'vc_members': vc_members,
-            'related_devices': related_devices,
             'active_tab': 'device',
         }
 
 
-class DeviceConsolePortsView(generic.ObjectView):
-    queryset = Device.objects.all()
+class DeviceConsolePortsView(DeviceComponentsView):
+    child_model = ConsolePort
+    table = tables.DeviceConsolePortTable
+    filterset = filtersets.ConsolePortFilterSet
     template_name = 'dcim/device/consoleports.html'
 
-    def get_extra_context(self, request, instance):
-        consoleports = ConsolePort.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
-            'cable', '_path__destination',
-        )
-        consoleport_table = tables.DeviceConsolePortTable(
-            data=consoleports,
-            user=request.user
-        )
-        if request.user.has_perm('dcim.change_consoleport') or request.user.has_perm('dcim.delete_consoleport'):
-            consoleport_table.columns.show('pk')
-        paginate_table(consoleport_table, request)
 
-        return {
-            'consoleport_table': consoleport_table,
-            'active_tab': 'console-ports',
-        }
-
-
-class DeviceConsoleServerPortsView(generic.ObjectView):
-    queryset = Device.objects.all()
+class DeviceConsoleServerPortsView(DeviceComponentsView):
+    child_model = ConsoleServerPort
+    table = tables.DeviceConsoleServerPortTable
+    filterset = filtersets.ConsoleServerPortFilterSet
     template_name = 'dcim/device/consoleserverports.html'
 
-    def get_extra_context(self, request, instance):
-        consoleserverports = ConsoleServerPort.objects.restrict(request.user, 'view').filter(
-            device=instance
-        ).prefetch_related(
-            'cable', '_path__destination',
-        )
-        consoleserverport_table = tables.DeviceConsoleServerPortTable(
-            data=consoleserverports,
-            user=request.user
-        )
-        if request.user.has_perm('dcim.change_consoleserverport') or \
-                request.user.has_perm('dcim.delete_consoleserverport'):
-            consoleserverport_table.columns.show('pk')
-        paginate_table(consoleserverport_table, request)
 
-        return {
-            'consoleserverport_table': consoleserverport_table,
-            'active_tab': 'console-server-ports',
-        }
-
-
-class DevicePowerPortsView(generic.ObjectView):
-    queryset = Device.objects.all()
+class DevicePowerPortsView(DeviceComponentsView):
+    child_model = PowerPort
+    table = tables.DevicePowerPortTable
+    filterset = filtersets.PowerPortFilterSet
     template_name = 'dcim/device/powerports.html'
 
-    def get_extra_context(self, request, instance):
-        powerports = PowerPort.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
-            'cable', '_path__destination',
-        )
-        powerport_table = tables.DevicePowerPortTable(
-            data=powerports,
-            user=request.user
-        )
-        if request.user.has_perm('dcim.change_powerport') or request.user.has_perm('dcim.delete_powerport'):
-            powerport_table.columns.show('pk')
-        paginate_table(powerport_table, request)
 
-        return {
-            'powerport_table': powerport_table,
-            'active_tab': 'power-ports',
-        }
-
-
-class DevicePowerOutletsView(generic.ObjectView):
-    queryset = Device.objects.all()
+class DevicePowerOutletsView(DeviceComponentsView):
+    child_model = PowerOutlet
+    table = tables.DevicePowerOutletTable
+    filterset = filtersets.PowerOutletFilterSet
     template_name = 'dcim/device/poweroutlets.html'
 
-    def get_extra_context(self, request, instance):
-        poweroutlets = PowerOutlet.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
-            'cable', 'power_port', '_path__destination',
-        )
-        poweroutlet_table = tables.DevicePowerOutletTable(
-            data=poweroutlets,
-            user=request.user
-        )
-        if request.user.has_perm('dcim.change_poweroutlet') or request.user.has_perm('dcim.delete_poweroutlet'):
-            poweroutlet_table.columns.show('pk')
-        paginate_table(poweroutlet_table, request)
 
-        return {
-            'poweroutlet_table': poweroutlet_table,
-            'active_tab': 'power-outlets',
-        }
-
-
-class DeviceInterfacesView(generic.ObjectView):
-    queryset = Device.objects.all()
+class DeviceInterfacesView(DeviceComponentsView):
+    child_model = Interface
+    table = tables.DeviceInterfaceTable
+    filterset = filtersets.InterfaceFilterSet
     template_name = 'dcim/device/interfaces.html'
 
-    def get_extra_context(self, request, instance):
-        interfaces = instance.vc_interfaces().restrict(request.user, 'view').prefetch_related(
+    def get_children(self, request, parent):
+        return parent.vc_interfaces().restrict(request.user, 'view').prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
-            Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user)),
-            'lag', 'cable', '_path__destination', 'tags',
+            Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user))
         )
-        interface_table = tables.DeviceInterfaceTable(
-            data=interfaces,
-            user=request.user
-        )
-        if request.user.has_perm('dcim.change_interface') or request.user.has_perm('dcim.delete_interface'):
-            interface_table.columns.show('pk')
-        paginate_table(interface_table, request)
-
-        return {
-            'interface_table': interface_table,
-            'active_tab': 'interfaces',
-        }
 
 
-class DeviceFrontPortsView(generic.ObjectView):
-    queryset = Device.objects.all()
+class DeviceFrontPortsView(DeviceComponentsView):
+    child_model = FrontPort
+    table = tables.DeviceFrontPortTable
+    filterset = filtersets.FrontPortFilterSet
     template_name = 'dcim/device/frontports.html'
 
-    def get_extra_context(self, request, instance):
-        frontports = FrontPort.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
-            'rear_port', 'cable',
-        )
-        frontport_table = tables.DeviceFrontPortTable(
-            data=frontports,
-            user=request.user
-        )
-        if request.user.has_perm('dcim.change_frontport') or request.user.has_perm('dcim.delete_frontport'):
-            frontport_table.columns.show('pk')
-        paginate_table(frontport_table, request)
 
-        return {
-            'frontport_table': frontport_table,
-            'active_tab': 'front-ports',
-        }
-
-
-class DeviceRearPortsView(generic.ObjectView):
-    queryset = Device.objects.all()
+class DeviceRearPortsView(DeviceComponentsView):
+    child_model = RearPort
+    table = tables.DeviceRearPortTable
+    filterset = filtersets.RearPortFilterSet
     template_name = 'dcim/device/rearports.html'
 
-    def get_extra_context(self, request, instance):
-        rearports = RearPort.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related('cable')
-        rearport_table = tables.DeviceRearPortTable(
-            data=rearports,
-            user=request.user
-        )
-        if request.user.has_perm('dcim.change_rearport') or request.user.has_perm('dcim.delete_rearport'):
-            rearport_table.columns.show('pk')
-        paginate_table(rearport_table, request)
 
-        return {
-            'rearport_table': rearport_table,
-            'active_tab': 'rear-ports',
-        }
-
-
-class DeviceDeviceBaysView(generic.ObjectView):
-    queryset = Device.objects.all()
+class DeviceDeviceBaysView(DeviceComponentsView):
+    child_model = DeviceBay
+    table = tables.DeviceDeviceBayTable
+    filterset = filtersets.DeviceBayFilterSet
     template_name = 'dcim/device/devicebays.html'
 
-    def get_extra_context(self, request, instance):
-        devicebays = DeviceBay.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
-            'installed_device__device_type__manufacturer',
-        )
-        devicebay_table = tables.DeviceDeviceBayTable(
-            data=devicebays,
-            user=request.user
-        )
-        if request.user.has_perm('dcim.change_devicebay') or request.user.has_perm('dcim.delete_devicebay'):
-            devicebay_table.columns.show('pk')
-        paginate_table(devicebay_table, request)
 
-        return {
-            'devicebay_table': devicebay_table,
-            'active_tab': 'device-bays',
-        }
-
-
-class DeviceInventoryView(generic.ObjectView):
-    queryset = Device.objects.all()
+class DeviceInventoryView(DeviceComponentsView):
+    child_model = InventoryItem
+    table = tables.DeviceInventoryItemTable
+    filterset = filtersets.InventoryItemFilterSet
     template_name = 'dcim/device/inventory.html'
-
-    def get_extra_context(self, request, instance):
-        inventoryitems = InventoryItem.objects.restrict(request.user, 'view').filter(
-            device=instance
-        ).prefetch_related('manufacturer')
-        inventoryitem_table = tables.DeviceInventoryItemTable(
-            data=inventoryitems,
-            user=request.user
-        )
-        if request.user.has_perm('dcim.change_inventoryitem') or request.user.has_perm('dcim.delete_inventoryitem'):
-            inventoryitem_table.columns.show('pk')
-        paginate_table(inventoryitem_table, request)
-
-        return {
-            'inventoryitem_table': inventoryitem_table,
-            'active_tab': 'inventory',
-        }
 
 
 class DeviceStatusView(generic.ObjectView):
@@ -1639,7 +1526,6 @@ class ConsolePortCreateView(generic.ComponentCreateView):
     queryset = ConsolePort.objects.all()
     form = forms.ConsolePortCreateForm
     model_form = forms.ConsolePortForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class ConsolePortEditView(generic.ObjectEditView):
@@ -1699,7 +1585,6 @@ class ConsoleServerPortCreateView(generic.ComponentCreateView):
     queryset = ConsoleServerPort.objects.all()
     form = forms.ConsoleServerPortCreateForm
     model_form = forms.ConsoleServerPortForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class ConsoleServerPortEditView(generic.ObjectEditView):
@@ -1759,7 +1644,6 @@ class PowerPortCreateView(generic.ComponentCreateView):
     queryset = PowerPort.objects.all()
     form = forms.PowerPortCreateForm
     model_form = forms.PowerPortForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class PowerPortEditView(generic.ObjectEditView):
@@ -1819,7 +1703,6 @@ class PowerOutletCreateView(generic.ComponentCreateView):
     queryset = PowerOutlet.objects.all()
     form = forms.PowerOutletCreateForm
     model_form = forms.PowerOutletForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class PowerOutletEditView(generic.ObjectEditView):
@@ -1876,7 +1759,7 @@ class InterfaceView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         # Get assigned IP addresses
-        ipaddress_table = InterfaceIPAddressTable(
+        ipaddress_table = AssignedIPAddressesTable(
             data=instance.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
             orderable=False
         )
@@ -1885,9 +1768,9 @@ class InterfaceView(generic.ObjectView):
         child_interfaces = Interface.objects.restrict(request.user, 'view').filter(parent=instance)
         child_interfaces_tables = tables.InterfaceTable(
             child_interfaces,
+            exclude=('device', 'parent'),
             orderable=False
         )
-        child_interfaces_tables.columns.hide('device')
 
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
@@ -1914,7 +1797,33 @@ class InterfaceCreateView(generic.ComponentCreateView):
     queryset = Interface.objects.all()
     form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
-    template_name = 'dcim/device_component_add.html'
+    template_name = 'dcim/interface_create.html'
+
+    def post(self, request):
+        """
+        Override inherited post() method to handle request to assign newly created
+        interface objects (first object) to an IP Address object.
+        """
+        form = self.form(request.POST, initial=request.GET)
+        new_objs = self.validate_form(request, form)
+
+        if form.is_valid() and not form.errors:
+            if '_addanother' in request.POST:
+                return redirect(request.get_full_path())
+            elif new_objs is not None and '_assignip' in request.POST and len(new_objs) >= 1 and \
+                    request.user.has_perm('ipam.add_ipaddress'):
+                first_obj = new_objs[0].pk
+                return redirect(
+                    f'/ipam/ip-addresses/add/?interface={first_obj}&return_url={self.get_return_url(request)}'
+                )
+            else:
+                return redirect(self.get_return_url(request))
+
+        return render(request, self.template_name, {
+            'obj_type': self.queryset.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request),
+        })
 
 
 class InterfaceEditView(generic.ObjectEditView):
@@ -1974,7 +1883,6 @@ class FrontPortCreateView(generic.ComponentCreateView):
     queryset = FrontPort.objects.all()
     form = forms.FrontPortCreateForm
     model_form = forms.FrontPortForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class FrontPortEditView(generic.ObjectEditView):
@@ -2034,7 +1942,6 @@ class RearPortCreateView(generic.ComponentCreateView):
     queryset = RearPort.objects.all()
     form = forms.RearPortCreateForm
     model_form = forms.RearPortForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class RearPortEditView(generic.ObjectEditView):
@@ -2094,7 +2001,6 @@ class DeviceBayCreateView(generic.ComponentCreateView):
     queryset = DeviceBay.objects.all()
     form = forms.DeviceBayCreateForm
     model_form = forms.DeviceBayForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class DeviceBayEditView(generic.ObjectEditView):
@@ -2129,8 +2035,9 @@ class DeviceBayPopulateView(generic.ObjectEditView):
             device_bay.installed_device = form.cleaned_data['installed_device']
             device_bay.save()
             messages.success(request, "Added {} to {}.".format(device_bay.installed_device, device_bay))
+            return_url = self.get_return_url(request)
 
-            return redirect('dcim:device', pk=device_bay.device.pk)
+            return redirect(return_url)
 
         return render(request, 'dcim/devicebay_populate.html', {
             'device_bay': device_bay,
@@ -2161,9 +2068,10 @@ class DeviceBayDepopulateView(generic.ObjectEditView):
             removed_device = device_bay.installed_device
             device_bay.installed_device = None
             device_bay.save()
-            messages.success(request, "{} has been removed from {}.".format(removed_device, device_bay))
+            messages.success(request, f"{removed_device} has been removed from {device_bay}.")
+            return_url = self.get_return_url(request, device_bay.device)
 
-            return redirect('dcim:device', pk=device_bay.device.pk)
+            return redirect(return_url)
 
         return render(request, 'dcim/devicebay_depopulate.html', {
             'device_bay': device_bay,
@@ -2220,7 +2128,6 @@ class InventoryItemCreateView(generic.ComponentCreateView):
     queryset = InventoryItem.objects.all()
     form = forms.InventoryItemCreateForm
     model_form = forms.InventoryItemForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class InventoryItemDeleteView(generic.ObjectDeleteView):
@@ -2402,14 +2309,25 @@ class PathTraceView(generic.ObjectView):
             else:
                 path = related_paths.first()
 
+        # No paths found
+        if path is None:
+            return {
+                'path': None
+            }
+
         # Get the total length of the cable and whether the length is definitive (fully defined)
         total_length, is_definitive = path.get_total_length() if path else (None, False)
+
+        # Determine the path to the SVG trace image
+        api_viewname = f"{path.origin._meta.app_label}-api:{path.origin._meta.model_name}-trace"
+        svg_url = f"{reverse(api_viewname, kwargs={'pk': path.origin.pk})}?render=svg"
 
         return {
             'path': path,
             'related_paths': related_paths,
             'total_length': total_length,
-            'is_definitive': is_definitive
+            'is_definitive': is_definitive,
+            'svg_url': svg_url,
         }
 
 
@@ -2513,23 +2431,7 @@ class ConsoleConnectionsListView(generic.ObjectListView):
     filterset_form = forms.ConsoleConnectionFilterForm
     table = tables.ConsoleConnectionTable
     template_name = 'dcim/connections_list.html'
-
-    def queryset_to_csv(self):
-        csv_data = [
-            # Headers
-            ','.join(['console_server', 'port', 'device', 'console_port', 'reachable'])
-        ]
-        for obj in self.queryset:
-            csv = csv_format([
-                obj._path.destination.device.identifier if obj._path.destination else None,
-                obj._path.destination.name if obj._path.destination else None,
-                obj.device.identifier,
-                obj.name,
-                obj._path.is_active
-            ])
-            csv_data.append(csv)
-
-        return '\n'.join(csv_data)
+    action_buttons = ('export',)
 
     def extra_context(self):
         return {
@@ -2543,23 +2445,7 @@ class PowerConnectionsListView(generic.ObjectListView):
     filterset_form = forms.PowerConnectionFilterForm
     table = tables.PowerConnectionTable
     template_name = 'dcim/connections_list.html'
-
-    def queryset_to_csv(self):
-        csv_data = [
-            # Headers
-            ','.join(['pdu', 'outlet', 'device', 'power_port', 'reachable'])
-        ]
-        for obj in self.queryset:
-            csv = csv_format([
-                obj._path.destination.device.identifier if obj._path.destination else None,
-                obj._path.destination.name if obj._path.destination else None,
-                obj.device.identifier,
-                obj.name,
-                obj._path.is_active
-            ])
-            csv_data.append(csv)
-
-        return '\n'.join(csv_data)
+    action_buttons = ('export',)
 
     def extra_context(self):
         return {
@@ -2573,25 +2459,7 @@ class InterfaceConnectionsListView(generic.ObjectListView):
     filterset_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/connections_list.html'
-
-    def queryset_to_csv(self):
-        csv_data = [
-            # Headers
-            ','.join([
-                'device_a', 'interface_a', 'device_b', 'interface_b', 'reachable'
-            ])
-        ]
-        for obj in self.queryset:
-            csv = csv_format([
-                obj._path.destination.device.identifier if obj._path.destination else None,
-                obj._path.destination.name if obj._path.destination else None,
-                obj.device.identifier,
-                obj.name,
-                obj._path.is_active
-            ])
-            csv_data.append(csv)
-
-        return '\n'.join(csv_data)
+    action_buttons = ('export',)
 
     def extra_context(self):
         return {

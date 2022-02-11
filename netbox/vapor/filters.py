@@ -1,8 +1,8 @@
 import django_filters
 from django.db.models import Q
 
-from extras.filters import TagFilter, CustomFieldFilter
-from utilities.filters import MultiValueNumberFilter, MultiValueMACAddressFilter, MultiValueCharFilter
+from extras.filters import TagFilter
+from utilities.filters import MultiValueNumberFilter, MultiValueMACAddressFilter
 from tenancy.models import Tenant, TenantGroup
 from dcim.models import Site, Device, DeviceRole, Interface, Region
 from dcim.choices import (
@@ -12,7 +12,7 @@ from dcim.choices import (
 from netbox_virtual_circuit_plugin.models import VirtualCircuit
 
 
-class CustomerFilter(CustomFieldFilter):
+class CustomerFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -59,7 +59,7 @@ class InterfaceFilter(django_filters.FilterSet):
         method='search',
         label='Search',
     )
-    device = MultiValueCharFilter(
+    device = django_filters.CharFilter(
         method='filter_device',
         field_name='name',
         label='Device',
@@ -160,10 +160,8 @@ class InterfaceFilter(django_filters.FilterSet):
 
     def filter_device(self, queryset, name, value):
         try:
-            devices = Device.objects.filter(**{'{}__in'.format(name): value})
-            vc_interface_ids = []
-            for device in devices:
-                vc_interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
+            device = Device.objects.get(**{name: value})
+            vc_interface_ids = device.vc_interfaces.values_list('id', flat=True)
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()
@@ -174,7 +172,7 @@ class InterfaceFilter(django_filters.FilterSet):
         try:
             devices = Device.objects.filter(pk__in=id_list)
             for device in devices:
-                vc_interface_ids += device.vc_interfaces().values_list('id', flat=True)
+                vc_interface_ids += device.vc_interfaces.values_list('id', flat=True)
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()

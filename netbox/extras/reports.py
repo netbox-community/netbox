@@ -59,8 +59,10 @@ def get_reports():
     # defined.
     for importer, module_name, _ in pkgutil.iter_modules([settings.REPORTS_ROOT]):
         module = importer.find_module(module_name).load_module(module_name)
-        report_list = [cls() for _, cls in inspect.getmembers(module, is_report)]
-        module_list.append((module_name, report_list))
+        report_order = getattr(module, "report_order", ())
+        ordered_reports = [cls() for cls in report_order if is_report(cls)]
+        unordered_reports = [cls() for _, cls in inspect.getmembers(module, is_report) if cls not in report_order]
+        module_list.append((module_name, [*ordered_reports, *unordered_reports]))
 
     return module_list
 

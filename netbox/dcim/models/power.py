@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -7,9 +8,8 @@ from dcim.choices import *
 from dcim.constants import *
 from extras.utils import extras_features
 from netbox.models import PrimaryModel
-from utilities.querysets import RestrictedQuerySet
 from utilities.validators import ExclusionValidator
-from .device_components import CableTermination, PathEndpoint
+from .device_components import LinkTermination, PathEndpoint
 
 __all__ = (
     'PowerFeed',
@@ -40,9 +40,13 @@ class PowerPanel(PrimaryModel):
         max_length=100
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['site', 'location', 'name']
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
+    images = GenericRelation(
+        to='extras.ImageAttachment'
+    )
 
     class Meta:
         ordering = ['site', 'name']
@@ -53,13 +57,6 @@ class PowerPanel(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('dcim:powerpanel', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.site.name,
-            self.location.name if self.location else None,
-            self.name,
-        )
 
     def clean(self):
         super().clean()
@@ -72,7 +69,7 @@ class PowerPanel(PrimaryModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class PowerFeed(PrimaryModel, PathEndpoint, CableTermination):
+class PowerFeed(PrimaryModel, PathEndpoint, LinkTermination):
     """
     An electrical circuit delivered from a PowerPanel.
     """
@@ -131,12 +128,6 @@ class PowerFeed(PrimaryModel, PathEndpoint, CableTermination):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = [
-        'site', 'power_panel', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase',
-        'voltage', 'amperage', 'max_utilization', 'comments',
-    ]
     clone_fields = [
         'power_panel', 'rack', 'status', 'type', 'mark_connected', 'supply', 'phase', 'voltage', 'amperage',
         'max_utilization', 'available_power',
@@ -151,24 +142,6 @@ class PowerFeed(PrimaryModel, PathEndpoint, CableTermination):
 
     def get_absolute_url(self):
         return reverse('dcim:powerfeed', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.power_panel.site.name,
-            self.power_panel.name,
-            self.rack.location.name if self.rack and self.rack.location else None,
-            self.rack.name if self.rack else None,
-            self.name,
-            self.get_status_display(),
-            self.get_type_display(),
-            self.mark_connected,
-            self.get_supply_display(),
-            self.get_phase_display(),
-            self.voltage,
-            self.amperage,
-            self.max_utilization,
-            self.comments,
-        )
 
     def clean(self):
         super().clean()

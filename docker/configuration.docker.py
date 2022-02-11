@@ -45,6 +45,9 @@ def read_configurations(config_module, config_dir, main_config):
             if not f.name.endswith(".py"):
                 continue
 
+            if f.name == f"{main_config}.py":
+                continue
+
             if f.name == f"{config_dir}.py":
                 continue
 
@@ -79,3 +82,10 @@ def __getattr__(name):
         except:
             pass
     raise AttributeError
+
+
+def __dir__():
+    names = []
+    for config in _loaded_configurations:
+        names.extend(config.__dir__())
+    return names

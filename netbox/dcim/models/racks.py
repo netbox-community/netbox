@@ -1,6 +1,5 @@
 from collections import OrderedDict
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -13,12 +12,12 @@ from django.urls import reverse
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.elevations import RackElevationSVG
+from dcim.svg import RackElevationSVG
 from extras.utils import extras_features
+from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.querysets import RestrictedQuerySet
 from utilities.utils import array_to_string
 from .device_components import PowerOutlet, PowerPort
 from .devices import Device
@@ -35,7 +34,7 @@ __all__ = (
 # Racks
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RackRole(OrganizationalModel):
     """
     Racks can be organized by functional role, similar to Devices.
@@ -56,10 +55,6 @@ class RackRole(OrganizationalModel):
         blank=True,
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['name', 'slug', 'color', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -68,14 +63,6 @@ class RackRole(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('dcim:rackrole', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.color,
-            self.description,
-        )
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -185,16 +172,21 @@ class Rack(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
+
+    # Generic relations
+    vlan_groups = GenericRelation(
+        to='ipam.VLANGroup',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='rack'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = [
-        'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
-        'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
-    ]
     clone_fields = [
         'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
         'outer_depth', 'outer_unit',
@@ -209,7 +201,9 @@ class Rack(PrimaryModel):
         )
 
     def __str__(self):
-        return self.display_name or super().__str__()
+        if self.facility_id:
+            return f'{self.name} ({self.facility_id})'
+        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:rack', args=[self.pk])
@@ -249,39 +243,12 @@ class Rack(PrimaryModel):
                         'location': f"Location must be from the same site, {self.site}."
                     })
 
-    def to_csv(self):
-        return (
-            self.site.name,
-            self.location.name if self.location else None,
-            self.name,
-            self.facility_id,
-            self.tenant.name if self.tenant else None,
-            self.get_status_display(),
-            self.role.name if self.role else None,
-            self.get_type_display() if self.type else None,
-            self.serial,
-            self.asset_tag,
-            self.width,
-            self.u_height,
-            self.desc_units,
-            self.outer_width,
-            self.outer_depth,
-            self.outer_unit,
-            self.comments,
-        )
-
     @property
     def units(self):
         if self.desc_units:
             return range(1, self.u_height + 1)
         else:
             return reversed(range(1, self.u_height + 1))
-
-    @property
-    def display_name(self):
-        if self.facility_id:
-            return f'{self.name} ({self.facility_id})'
-        return self.name
 
     def get_status_class(self):
         return RackStatusChoices.CSS_CLASSES.get(self.status)
@@ -401,8 +368,8 @@ class Rack(PrimaryModel):
             self,
             face=DeviceFaceChoices.FACE_FRONT,
             user=None,
-            unit_width=settings.RACK_ELEVATION_DEFAULT_UNIT_WIDTH,
-            unit_height=settings.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT,
+            unit_width=None,
+            unit_height=None,
             legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT,
             include_images=True,
             base_url=None
@@ -421,6 +388,10 @@ class Rack(PrimaryModel):
         :param base_url: Base URL for links and images. If none, URLs will be relative.
         """
         elevation = RackElevationSVG(self, user=user, include_images=include_images, base_url=base_url)
+        if unit_width is None or unit_height is None:
+            config = get_config()
+            unit_width = unit_width or config.RACK_ELEVATION_DEFAULT_UNIT_WIDTH
+            unit_height = unit_height or config.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
 
         return elevation.render(face, unit_width, unit_height, legend_width)
 
@@ -455,13 +426,13 @@ class Rack(PrimaryModel):
             return 0
 
         pf_powerports = PowerPort.objects.filter(
-            _cable_peer_type=ContentType.objects.get_for_model(PowerFeed),
-            _cable_peer_id__in=powerfeeds.values_list('id', flat=True)
+            _link_peer_type=ContentType.objects.get_for_model(PowerFeed),
+            _link_peer_id__in=powerfeeds.values_list('id', flat=True)
         )
         poweroutlets = PowerOutlet.objects.filter(power_port_id__in=pf_powerports)
         allocated_draw_total = PowerPort.objects.filter(
-            _cable_peer_type=ContentType.objects.get_for_model(PowerOutlet),
-            _cable_peer_id__in=poweroutlets.values_list('id', flat=True)
+            _link_peer_type=ContentType.objects.get_for_model(PowerOutlet),
+            _link_peer_id__in=poweroutlets.values_list('id', flat=True)
         ).aggregate(Sum('allocated_draw'))['allocated_draw__sum'] or 0
 
         return int(allocated_draw_total / available_power_total * 100)
@@ -494,10 +465,6 @@ class RackReservation(PrimaryModel):
     description = models.CharField(
         max_length=200
     )
-
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['site', 'location', 'rack', 'units', 'tenant', 'user', 'description']
 
     class Meta:
         ordering = ['created', 'pk']
@@ -534,17 +501,6 @@ class RackReservation(PrimaryModel):
                         ', '.join([str(u) for u in conflicting_units]),
                     )
                 })
-
-    def to_csv(self):
-        return (
-            self.rack.site.name,
-            self.rack.location if self.rack.location else None,
-            self.rack.name,
-            ','.join([str(u) for u in self.units]),
-            self.tenant.name if self.tenant else None,
-            self.user.username,
-            self.description
-        )
 
     @property
     def unit_list(self):

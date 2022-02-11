@@ -3,19 +3,34 @@ from collections import OrderedDict
 from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerializer
 from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, VLANGROUP_SCOPE_TYPES
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from ipam.models import *
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
-from netbox.api.serializers import OrganizationalModelSerializer
 from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
 from .nested_serializers import *
+
+
+#
+# ASNs
+#
+
+class ASNSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    site_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = ASN
+        fields = [
+            'id', 'url', 'display', 'asn', 'site_count', 'rir', 'tenant', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated',
+        ]
 
 
 #
@@ -44,8 +59,7 @@ class VRFSerializer(PrimaryModelSerializer):
         model = VRF
         fields = [
             'id', 'url', 'display', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets',
-            'export_targets', 'tags', 'display_name', 'custom_fields', 'created', 'last_updated', 'ipaddress_count',
-            'prefix_count',
+            'export_targets', 'tags', 'custom_fields', 'created', 'last_updated', 'ipaddress_count', 'prefix_count',
         ]
 
 
@@ -68,14 +82,14 @@ class RouteTargetSerializer(PrimaryModelSerializer):
 # RIRs/aggregates
 #
 
-class RIRSerializer(OrganizationalModelSerializer):
+class RIRSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
     aggregate_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RIR
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'is_private', 'description', 'custom_fields', 'created',
+            'id', 'url', 'display', 'name', 'slug', 'is_private', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'aggregate_count',
         ]
 
@@ -96,10 +110,50 @@ class AggregateSerializer(PrimaryModelSerializer):
 
 
 #
+# FHRP Groups
+#
+
+class FHRPGroupSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroup-detail')
+    ip_addresses = NestedIPAddressSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = FHRPGroup
+        fields = [
+            'id', 'url', 'display', 'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'ip_addresses',
+            'tags', 'custom_fields', 'created', 'last_updated',
+        ]
+
+
+class FHRPGroupAssignmentSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
+    group = NestedFHRPGroupSerializer()
+    interface_type = ContentTypeField(
+        queryset=ContentType.objects.all()
+    )
+    interface = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = FHRPGroupAssignment
+        fields = [
+            'id', 'url', 'display', 'group', 'interface_type', 'interface_id', 'interface', 'priority', 'created',
+            'last_updated',
+        ]
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_interface(self, obj):
+        if obj.interface is None:
+            return None
+        serializer = get_serializer_for_model(obj.interface, prefix='Nested')
+        context = {'request': self.context['request']}
+        return serializer(obj.interface, context=context).data
+
+
+#
 # VLANs
 #
 
-class RoleSerializer(OrganizationalModelSerializer):
+class RoleSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
     prefix_count = serializers.IntegerField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
@@ -107,42 +161,31 @@ class RoleSerializer(OrganizationalModelSerializer):
     class Meta:
         model = Role
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'weight', 'description', 'custom_fields', 'created', 'last_updated',
-            'prefix_count', 'vlan_count',
+            'id', 'url', 'display', 'name', 'slug', 'weight', 'description', 'tags', 'custom_fields', 'created',
+            'last_updated', 'prefix_count', 'vlan_count',
         ]
 
 
-class VLANGroupSerializer(OrganizationalModelSerializer):
+class VLANGroupSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
     scope_type = ContentTypeField(
         queryset=ContentType.objects.filter(
             model__in=VLANGROUP_SCOPE_TYPES
         ),
-        required=False
+        required=False,
+        default=None
     )
+    scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
     scope = serializers.SerializerMethodField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VLANGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'description', 'custom_fields',
-            'created', 'last_updated', 'vlan_count',
+            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated', 'vlan_count',
         ]
         validators = []
-
-    def validate(self, data):
-
-        # Validate uniqueness of name and slug if a site has been assigned.
-        if data.get('site', None):
-            for field in ['name', 'slug']:
-                validator = UniqueTogetherValidator(queryset=VLANGroup.objects.all(), fields=('site', field))
-                validator(data, self)
-
-        # Enforce model validation
-        super().validate(data)
-
-        return data
 
     def get_scope(self, obj):
         if obj.scope_id is None:
@@ -156,7 +199,7 @@ class VLANGroupSerializer(OrganizationalModelSerializer):
 class VLANSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlan-detail')
     site = NestedSiteSerializer(required=False, allow_null=True)
-    group = NestedVLANGroupSerializer(required=False, allow_null=True)
+    group = NestedVLANGroupSerializer(required=False, allow_null=True, default=None)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=VLANStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
@@ -166,22 +209,8 @@ class VLANSerializer(PrimaryModelSerializer):
         model = VLAN
         fields = [
             'id', 'url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'tags',
-            'display_name', 'custom_fields', 'created', 'last_updated', 'prefix_count',
+            'custom_fields', 'created', 'last_updated', 'prefix_count',
         ]
-        validators = []
-
-    def validate(self, data):
-
-        # Validate uniqueness of vid and name if a group has been assigned.
-        if data.get('group', None):
-            for field in ['vid', 'name']:
-                validator = UniqueTogetherValidator(queryset=VLAN.objects.all(), fields=('group', field))
-                validator(data, self)
-
-        # Enforce model validation
-        super().validate(data)
-
-        return data
 
 
 #
@@ -204,7 +233,7 @@ class PrefixSerializer(PrimaryModelSerializer):
         model = Prefix
         fields = [
             'id', 'url', 'display', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool',
-            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'children', '_depth',
+            'mark_utilized', 'description', 'tags', 'custom_fields', 'created', 'last_updated', 'children', '_depth',
         ]
         read_only_fields = ['family']
 
@@ -254,6 +283,28 @@ class AvailablePrefixSerializer(serializers.Serializer):
             ('prefix', str(instance)),
             ('vrf', vrf),
         ])
+
+
+#
+# IP ranges
+#
+
+class IPRangeSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:iprange-detail')
+    family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
+    vrf = NestedVRFSerializer(required=False, allow_null=True)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    status = ChoiceField(choices=IPRangeStatusChoices, required=False)
+    role = NestedRoleSerializer(required=False, allow_null=True)
+    children = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = IPRange
+        fields = [
+            'id', 'url', 'display', 'family', 'start_address', 'end_address', 'size', 'vrf', 'tenant', 'status', 'role',
+            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'children',
+        ]
+        read_only_fields = ['family']
 
 
 #
@@ -308,8 +359,8 @@ class AvailableIPSerializer(serializers.Serializer):
         else:
             vrf = None
         return OrderedDict([
-            ('family', self.context['prefix'].version),
-            ('address', '{}/{}'.format(instance, self.context['prefix'].prefixlen)),
+            ('family', self.context['parent'].family),
+            ('address', f"{instance}/{self.context['parent'].mask_length}"),
             ('vrf', vrf),
         ])
 

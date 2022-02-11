@@ -1,21 +1,32 @@
 import re
 from datetime import datetime, date
 
+import django_filters
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
+from django.urls import reverse
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from extras.choices import *
-from extras.utils import FeatureQuery
-from netbox.models import BigIDModel
+from extras.utils import FeatureQuery, extras_features
+from netbox.models import ChangeLoggedModel
+from utilities import filters
 from utilities.forms import (
-    CSVChoiceField, DatePicker, LaxURLField, StaticSelect2Multiple, StaticSelect2, add_blank_choice,
+    CSVChoiceField, CSVMultipleChoiceField, DatePicker, LaxURLField, StaticSelectMultiple, StaticSelect,
+    add_blank_choice,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
+
+
+__all__ = (
+    'CustomField',
+    'CustomFieldManager',
+)
 
 
 class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
@@ -29,11 +40,11 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-class CustomField(BigIDModel):
+@extras_features('webhooks', 'export_templates')
+class CustomField(ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
-        verbose_name='Object(s)',
         limit_choices_to=FeatureQuery('custom_fields'),
         help_text='The object(s) to which this field applies.'
     )
@@ -45,7 +56,14 @@ class CustomField(BigIDModel):
     name = models.CharField(
         max_length=50,
         unique=True,
-        help_text='Internal field name'
+        help_text='Internal field name',
+        validators=(
+            RegexValidator(
+                regex=r'^[a-z0-9_]+$',
+                message="Only alphanumeric characters and underscores are allowed.",
+                flags=re.IGNORECASE
+            ),
+        )
     )
     label = models.CharField(
         max_length=50,
@@ -79,13 +97,13 @@ class CustomField(BigIDModel):
         default=100,
         help_text='Fields with higher weights appear lower in a form.'
     )
-    validation_minimum = models.PositiveIntegerField(
+    validation_minimum = models.IntegerField(
         blank=True,
         null=True,
         verbose_name='Minimum value',
         help_text='Minimum allowed value (for numeric fields)'
     )
-    validation_maximum = models.PositiveIntegerField(
+    validation_maximum = models.IntegerField(
         blank=True,
         null=True,
         verbose_name='Maximum value',
@@ -113,6 +131,9 @@ class CustomField(BigIDModel):
 
     def __str__(self):
         return self.label or self.name.replace('_', ' ').capitalize()
+
+    def get_absolute_url(self):
+        return reverse('extras:customfield', args=[self.pk])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -162,7 +183,10 @@ class CustomField(BigIDModel):
         # Validate the field's default value (if any)
         if self.default is not None:
             try:
-                default_value = str(self.default) if self.type == CustomFieldTypeChoices.TYPE_TEXT else self.default
+                if self.type in (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_LONGTEXT):
+                    default_value = str(self.default)
+                else:
+                    default_value = self.default
                 self.validate(default_value)
             except ValidationError as err:
                 raise ValidationError({
@@ -180,7 +204,11 @@ class CustomField(BigIDModel):
             })
 
         # Regex validation can be set only for text fields
-        regex_types = (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_URL)
+        regex_types = (
+            CustomFieldTypeChoices.TYPE_TEXT,
+            CustomFieldTypeChoices.TYPE_LONGTEXT,
+            CustomFieldTypeChoices.TYPE_URL,
+        )
         if self.validation_regex and self.type not in regex_types:
             raise ValidationError({
                 'validation_regex': "Regular expression validation is supported only for text and URL fields"
@@ -211,7 +239,7 @@ class CustomField(BigIDModel):
         """
         Return a form field suitable for setting a CustomField's value for an object.
 
-        set_initial: Set initial date for the field. This should be False when generating a field for bulk editing.
+        set_initial: Set initial data for the field. This should be False when generating a field for bulk editing.
         enforce_required: Honor the value of CustomField.required. Set to False for filtering/bulk editing.
         for_csv_import: Return a form field suitable for bulk import of objects in CSV format.
         """
@@ -235,7 +263,7 @@ class CustomField(BigIDModel):
                 (False, 'False'),
             )
             field = forms.NullBooleanField(
-                required=required, initial=initial, widget=StaticSelect2(choices=choices)
+                required=required, initial=initial, widget=StaticSelect(choices=choices)
             )
 
         # Date
@@ -257,21 +285,31 @@ class CustomField(BigIDModel):
             if self.type == CustomFieldTypeChoices.TYPE_SELECT:
                 field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
                 field = field_class(
-                    choices=choices, required=required, initial=initial, widget=StaticSelect2()
+                    choices=choices, required=required, initial=initial, widget=StaticSelect()
                 )
             else:
-                field_class = CSVChoiceField if for_csv_import else forms.MultipleChoiceField
+                field_class = CSVMultipleChoiceField if for_csv_import else forms.MultipleChoiceField
                 field = field_class(
-                    choices=choices, required=required, initial=initial, widget=StaticSelect2Multiple()
+                    choices=choices, required=required, initial=initial, widget=StaticSelectMultiple()
                 )
 
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
             field = LaxURLField(required=required, initial=initial)
 
+        # JSON
+        elif self.type == CustomFieldTypeChoices.TYPE_JSON:
+            field = forms.JSONField(required=required, initial=initial)
+
         # Text
         else:
-            field = forms.CharField(max_length=255, required=required, initial=initial)
+            if self.type == CustomFieldTypeChoices.TYPE_LONGTEXT:
+                max_length = None
+                widget = forms.Textarea
+            else:
+                max_length = 255
+                widget = None
+            field = forms.CharField(max_length=max_length, required=required, initial=initial, widget=widget)
             if self.validation_regex:
                 field.validators = [
                     RegexValidator(
@@ -283,9 +321,61 @@ class CustomField(BigIDModel):
         field.model = self
         field.label = str(self)
         if self.description:
-            field.help_text = self.description
+            field.help_text = escape(self.description)
 
         return field
+
+    def to_filter(self, lookup_expr=None):
+        """
+        Return a django_filters Filter instance suitable for this field type.
+
+        :param lookup_expr: Custom lookup expression (optional)
+        """
+        kwargs = {
+            'field_name': f'custom_field_data__{self.name}'
+        }
+        if lookup_expr is not None:
+            kwargs['lookup_expr'] = lookup_expr
+
+        # Text/URL
+        if self.type in (
+                CustomFieldTypeChoices.TYPE_TEXT,
+                CustomFieldTypeChoices.TYPE_LONGTEXT,
+                CustomFieldTypeChoices.TYPE_URL,
+        ):
+            filter_class = filters.MultiValueCharFilter
+            if self.filter_logic == CustomFieldFilterLogicChoices.FILTER_LOOSE:
+                kwargs['lookup_expr'] = 'icontains'
+
+        # Integer
+        elif self.type == CustomFieldTypeChoices.TYPE_INTEGER:
+            filter_class = filters.MultiValueNumberFilter
+
+        # Boolean
+        elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
+            filter_class = django_filters.BooleanFilter
+
+        # Date
+        elif self.type == CustomFieldTypeChoices.TYPE_DATE:
+            filter_class = filters.MultiValueDateFilter
+
+        # Select
+        elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
+            filter_class = filters.MultiValueCharFilter
+
+        # Multiselect
+        elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            filter_class = filters.MultiValueCharFilter
+            kwargs['lookup_expr'] = 'has_key'
+
+        # Unsupported custom field type
+        else:
+            return None
+
+        filter_instance = filter_class(**kwargs)
+        filter_instance.custom_field = self
+
+        return filter_instance
 
     def validate(self, value):
         """
@@ -294,7 +384,7 @@ class CustomField(BigIDModel):
         if value not in [None, '']:
 
             # Validate text field
-            if self.type == CustomFieldTypeChoices.TYPE_TEXT:
+            if self.type in (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_LONGTEXT):
                 if type(value) is not str:
                     raise ValidationError(f"Value must be a string.")
                 if self.validation_regex and not re.match(self.validation_regex, value):

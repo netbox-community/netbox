@@ -1,10 +1,13 @@
 import datetime
+import decimal
 import json
 import re
+from typing import Dict, Any
 
 import yaml
 from django import template
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import date
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
@@ -12,7 +15,9 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
-from utilities.forms import TableConfigForm
+from netbox.config import get_config
+from utilities.forms import get_selected_values, TableConfigForm
+from utilities.markdown import StrikethroughExtension
 from utilities.utils import foreground_color
 
 register = template.Library()
@@ -27,7 +32,7 @@ def placeholder(value):
     """
     Render a muted placeholder if value equates to False.
     """
-    if value:
+    if value not in ('', None):
         return value
     placeholder = '<span class="text-muted">&mdash;</span>'
     return mark_safe(placeholder)
@@ -38,16 +43,25 @@ def render_markdown(value):
     """
     Render text as Markdown
     """
+    schemes = '|'.join(get_config().ALLOWED_URL_SCHEMES)
+
     # Strip HTML tags
     value = strip_tags(value)
 
     # Sanitize Markdown links
-    schemes = '|'.join(settings.ALLOWED_URL_SCHEMES)
-    pattern = fr'\[(.+)\]\((?!({schemes})).*:(.+)\)'
+    pattern = fr'\[([^\]]+)\]\((?!({schemes})).*:(.+)\)'
     value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
 
+    # Sanitize Markdown reference links
+    pattern = fr'\[(.+)\]:\s*(?!({schemes}))\w*:(.+)'
+    value = re.sub(pattern, '[\\1]: \\3', value, flags=re.IGNORECASE)
+
     # Render Markdown
-    html = markdown(value, extensions=['fenced_code', 'tables'])
+    html = markdown(value, extensions=['fenced_code', 'tables', StrikethroughExtension()])
+
+    # If the string is not empty wrap it in rendered-markdown to style tables
+    if html:
+        html = f'<div class="rendered-markdown">{html}</div>'
 
     return mark_safe(html)
 
@@ -57,7 +71,7 @@ def render_json(value):
     """
     Render a dictionary as formatted JSON.
     """
-    return json.dumps(value, indent=4, sort_keys=True)
+    return json.dumps(value, ensure_ascii=False, indent=4, sort_keys=True)
 
 
 @register.filter()
@@ -75,6 +89,25 @@ def meta(obj, attr):
     to access attributes which begin with an underscore (e.g. _meta).
     """
     return getattr(obj._meta, attr, '')
+
+
+@register.filter()
+def content_type(obj):
+    """
+    Return the ContentType for the given object.
+    """
+    return ContentType.objects.get_for_model(obj)
+
+
+@register.filter()
+def content_type_id(obj):
+    """
+    Return the ContentType ID for the given object.
+    """
+    content_type = ContentType.objects.get_for_model(obj)
+    if content_type:
+        return content_type.pk
+    return None
 
 
 @register.filter()
@@ -146,6 +179,19 @@ def humanize_megabytes(mb):
 
 
 @register.filter()
+def simplify_decimal(value):
+    """
+    Return the simplest expression of a decimal value. Examples:
+      1.00 => '1'
+      1.20 => '1.2'
+      1.23 => '1.23'
+    """
+    if type(value) is not decimal.Decimal:
+        return value
+    return str(value).rstrip('0').rstrip('.')
+
+
+@register.filter()
 def tzoffset(value):
     """
     Returns the hour offset of a given time zone using the current time.
@@ -191,7 +237,7 @@ def fgcolor(value):
     value = value.lower().strip('#')
     if not re.match('^[0-9a-f]{6}$', value):
         return ''
-    return '#{}'.format(foreground_color(value))
+    return f'#{foreground_color(value)}'
 
 
 @register.filter()
@@ -215,27 +261,11 @@ def percentage(x, y):
 
 
 @register.filter()
-def get_docs(model):
+def get_docs_url(model):
     """
-    Render and return documentation for the specified model.
+    Return the documentation URL for the specified model.
     """
-    path = '{}/models/{}/{}.md'.format(
-        settings.DOCS_ROOT,
-        model._meta.app_label,
-        model._meta.model_name
-    )
-    try:
-        with open(path, encoding='utf-8') as docfile:
-            content = docfile.read()
-    except FileNotFoundError:
-        return "Unable to load documentation, file not found: {}".format(path)
-    except IOError:
-        return "Unable to load documentation, error reading file: {}".format(path)
-
-    # Render Markdown with the admonition extension
-    content = markdown(content, extensions=['admonition', 'fenced_code', 'tables'])
-
-    return mark_safe(content)
+    return f'{settings.STATIC_URL}docs/models/{model._meta.app_label}/{model._meta.model_name}/'
 
 
 @register.filter()
@@ -274,6 +304,64 @@ def meters_to_feet(n):
     return float(n) * 3.28084
 
 
+@register.filter("startswith")
+def startswith(text: str, starts: str) -> bool:
+    """
+    Template implementation of `str.startswith()`.
+    """
+    if isinstance(text, str):
+        return text.startswith(starts)
+    return False
+
+
+@register.filter
+def get_key(value: Dict, arg: str) -> Any:
+    """
+    Template implementation of `dict.get()`, for accessing dict values
+    by key when the key is not able to be used in a template. For
+    example, `{"ui.colormode": "dark"}`.
+    """
+    return value.get(arg, None)
+
+
+@register.filter
+def get_item(value: object, attr: str) -> Any:
+    """
+    Template implementation of `__getitem__`, for accessing the `__getitem__` method
+    of a class from a template.
+    """
+    return value[attr]
+
+
+@register.filter
+def status_from_tag(tag: str = "info") -> str:
+    """
+    Determine Bootstrap theme status/level from Django's Message.level_tag.
+    """
+    status_map = {
+        'warning': 'warning',
+        'success': 'success',
+        'error': 'danger',
+        'debug': 'info',
+        'info': 'info',
+    }
+    return status_map.get(tag.lower(), 'info')
+
+
+@register.filter
+def icon_from_status(status: str = "info") -> str:
+    """
+    Determine icon class name from Bootstrap theme status/level.
+    """
+    icon_map = {
+        'warning': 'alert',
+        'success': 'check-circle',
+        'danger': 'alert',
+        'info': 'information',
+    }
+    return icon_map.get(status.lower(), 'information')
+
+
 #
 # Tags
 #
@@ -296,19 +384,26 @@ def querystring(request, **kwargs):
         return ''
 
 
-@register.inclusion_tag('utilities/templatetags/utilization_graph.html')
+@register.inclusion_tag('helpers/utilization_graph.html')
 def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
     """
     Display a horizontal bar graph indicating a percentage of utilization.
     """
+    if danger_threshold and utilization >= danger_threshold:
+        bar_class = 'bg-danger'
+    elif warning_threshold and utilization >= warning_threshold:
+        bar_class = 'bg-warning'
+    elif warning_threshold or danger_threshold:
+        bar_class = 'bg-success'
+    else:
+        bar_class = 'bg-gray'
     return {
         'utilization': utilization,
-        'warning_threshold': warning_threshold,
-        'danger_threshold': danger_threshold,
+        'bar_class': bar_class,
     }
 
 
-@register.inclusion_tag('utilities/templatetags/tag.html')
+@register.inclusion_tag('helpers/tag.html')
 def tag(tag, url_name=None):
     """
     Display a tag, optionally linked to a filtered list of objects.
@@ -319,20 +414,70 @@ def tag(tag, url_name=None):
     }
 
 
-@register.inclusion_tag('utilities/templatetags/badge.html')
-def badge(value, show_empty=False):
+@register.inclusion_tag('helpers/badge.html')
+def badge(value, bg_class='secondary', show_empty=False):
     """
     Display the specified number as a badge.
     """
     return {
         'value': value,
+        'bg_class': bg_class,
         'show_empty': show_empty,
     }
 
 
-@register.inclusion_tag('utilities/templatetags/table_config_form.html')
+@register.inclusion_tag('helpers/checkmark.html')
+def checkmark(value, show_false=True, true='Yes', false='No'):
+    """
+    Display either a green checkmark or red X to indicate a boolean value.
+
+    :param show_false: Display a red X if the value is False
+    :param true: Text label for true value
+    :param false: Text label for false value
+    """
+    return {
+        'value': bool(value),
+        'show_false': show_false,
+        'true_label': true,
+        'false_label': false,
+    }
+
+
+@register.inclusion_tag('helpers/table_config_form.html')
 def table_config_form(table, table_name=None):
     return {
         'table_name': table_name or table.__class__.__name__,
-        'table_config_form': TableConfigForm(table=table),
+        'form': TableConfigForm(table=table),
+    }
+
+
+@register.inclusion_tag('helpers/applied_filters.html')
+def applied_filters(form, query_params):
+    """
+    Display the active filters for a given filter form.
+    """
+    form.is_valid()
+
+    applied_filters = []
+    for filter_name in form.changed_data:
+        if filter_name not in form.cleaned_data:
+            continue
+
+        querydict = query_params.copy()
+        if filter_name not in querydict:
+            continue
+
+        bound_field = form.fields[filter_name].get_bound_field(form, filter_name)
+        querydict.pop(filter_name)
+        display_value = ', '.join([str(v) for v in get_selected_values(form, filter_name)])
+
+        applied_filters.append({
+            'name': filter_name,
+            'value': form.cleaned_data[filter_name],
+            'link_url': f'?{querydict.urlencode()}',
+            'link_text': f'{bound_field.label}: {display_value}',
+        })
+
+    return {
+        'applied_filters': applied_filters,
     }

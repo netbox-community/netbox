@@ -121,7 +121,7 @@ A new API endpoint has been added at `/api/ipam/prefixes/<pk>/available-ips/`. A
 
 #### NAPALM Integration ([#1348](https://github.com/netbox-community/netbox/issues/1348))
 
-The [NAPALM automation](https://napalm-automation.net/) library provides an abstracted interface for pulling live data (e.g. uptime, software version, running config, LLDP neighbors, etc.) from network devices. The NetBox API has been extended to support executing read-only NAPALM methods on devices defined in NetBox. To enable this functionality, ensure that NAPALM has been installed (`pip install napalm`) and the `NETBOX_USERNAME` and `NETBOX_PASSWORD` [configuration parameters](https://netbox.readthedocs.io/en/stable/configuration/optional-settings/#netbox_username) have been set in configuration.py.
+The [NAPALM automation](https://github.com/napalm-automation/napalm) library provides an abstracted interface for pulling live data (e.g. uptime, software version, running config, LLDP neighbors, etc.) from network devices. The NetBox API has been extended to support executing read-only NAPALM methods on devices defined in NetBox. To enable this functionality, ensure that NAPALM has been installed (`pip install napalm`) and the `NETBOX_USERNAME` and `NETBOX_PASSWORD` [configuration parameters](https://netbox.readthedocs.io/en/stable/configuration/optional-settings/#netbox_username) have been set in configuration.py.
 
 ### Enhancements
 

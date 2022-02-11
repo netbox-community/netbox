@@ -1,12 +1,69 @@
 import datetime
 
+from django.test import override_settings
+from django.urls import reverse
 from netaddr import IPNetwork
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from ipam.models import *
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags
+
+
+class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ASN
+
+    @classmethod
+    def setUpTestData(cls):
+
+        rirs = [
+            RIR.objects.create(name='RFC 6996', slug='rfc-6996', description='Private Use', is_private=True),
+            RIR.objects.create(name='RFC 7300', slug='rfc-7300', description='IANA Use', is_private=True),
+        ]
+        sites = [
+            Site.objects.create(name='Site 1', slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2')
+        ]
+        tenants = [
+            Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
+            Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
+        ]
+
+        asns = (
+            ASN(asn=64513, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=65535, rir=rirs[1], tenant=tenants[1]),
+            ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[1]),
+        )
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.set([sites[0]])
+        asns[1].sites.set([sites[1]])
+        asns[2].sites.set([sites[0]])
+        asns[3].sites.set([sites[1]])
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'asn': 64512,
+            'rir': rirs[0].pk,
+            'tenant': tenants[0].pk,
+            'site': sites[0].pk,
+            'description': 'A new ASN',
+        }
+
+        cls.csv_data = (
+            "asn,rir",
+            "64533,RFC 6996",
+            "64523,RFC 6996",
+            "4200000002,RFC 6996",
+        )
+
+        cls.bulk_edit_data = {
+            'rir': rirs[1].pk,
+            'description': 'Next description',
+        }
 
 
 class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -104,11 +161,14 @@ class RIRTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             RIR(name='RIR 3', slug='rir-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'RIR X',
             'slug': 'rir-x',
             'is_private': True,
             'description': 'A new RIR',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -164,6 +224,21 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_aggregate_prefixes(self):
+        rir = RIR.objects.first()
+        aggregate = Aggregate.objects.create(prefix=IPNetwork('192.168.0.0/16'), rir=rir)
+        prefixes = (
+            Prefix(prefix=IPNetwork('192.168.1.0/24')),
+            Prefix(prefix=IPNetwork('192.168.2.0/24')),
+            Prefix(prefix=IPNetwork('192.168.3.0/24')),
+        )
+        Prefix.objects.bulk_create(prefixes)
+        self.assertEqual(aggregate.get_child_prefixes().count(), 3)
+
+        url = reverse('ipam:aggregate_prefixes', kwargs={'pk': aggregate.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
 
 class RoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Role
@@ -177,11 +252,14 @@ class RoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             Role(name='Role 3', slug='role-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Role X',
             'slug': 'role-x',
             'weight': 200,
             'description': 'A new role',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -258,6 +336,124 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_prefixes(self):
+        prefixes = (
+            Prefix(prefix=IPNetwork('192.168.0.0/16')),
+            Prefix(prefix=IPNetwork('192.168.1.0/24')),
+            Prefix(prefix=IPNetwork('192.168.2.0/24')),
+            Prefix(prefix=IPNetwork('192.168.3.0/24')),
+        )
+        Prefix.objects.bulk_create(prefixes)
+        self.assertEqual(prefixes[0].get_child_prefixes().count(), 3)
+
+        url = reverse('ipam:prefix_prefixes', kwargs={'pk': prefixes[0].pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_ipranges(self):
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
+        ip_ranges = (
+            IPRange(start_address='192.168.0.1/24', end_address='192.168.0.100/24', size=99),
+            IPRange(start_address='192.168.1.1/24', end_address='192.168.1.100/24', size=99),
+            IPRange(start_address='192.168.2.1/24', end_address='192.168.2.100/24', size=99),
+        )
+        IPRange.objects.bulk_create(ip_ranges)
+        self.assertEqual(prefix.get_child_ranges().count(), 3)
+
+        url = reverse('ipam:prefix_ipranges', kwargs={'pk': prefix.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_ipaddresses(self):
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
+        ip_addresses = (
+            IPAddress(address=IPNetwork('192.168.0.1/16')),
+            IPAddress(address=IPNetwork('192.168.0.2/16')),
+            IPAddress(address=IPNetwork('192.168.0.3/16')),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
+        self.assertEqual(prefix.get_child_ips().count(), 3)
+
+        url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+
+class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = IPRange
+
+    @classmethod
+    def setUpTestData(cls):
+
+        vrfs = (
+            VRF(name='VRF 1', rd='65000:1'),
+            VRF(name='VRF 2', rd='65000:2'),
+        )
+        VRF.objects.bulk_create(vrfs)
+
+        roles = (
+            Role(name='Role 1', slug='role-1'),
+            Role(name='Role 2', slug='role-2'),
+        )
+        Role.objects.bulk_create(roles)
+
+        ip_ranges = (
+            IPRange(start_address='192.168.0.10/24', end_address='192.168.0.100/24', size=91),
+            IPRange(start_address='192.168.1.10/24', end_address='192.168.1.100/24', size=91),
+            IPRange(start_address='192.168.2.10/24', end_address='192.168.2.100/24', size=91),
+            IPRange(start_address='192.168.3.10/24', end_address='192.168.3.100/24', size=91),
+            IPRange(start_address='192.168.4.10/24', end_address='192.168.4.100/24', size=91),
+        )
+        IPRange.objects.bulk_create(ip_ranges)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'start_address': IPNetwork('192.0.5.10/24'),
+            'end_address': IPNetwork('192.0.5.100/24'),
+            'vrf': vrfs[1].pk,
+            'tenant': None,
+            'vlan': None,
+            'status': IPRangeStatusChoices.STATUS_RESERVED,
+            'role': roles[1].pk,
+            'is_pool': True,
+            'description': 'A new IP range',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "vrf,start_address,end_address,status",
+            "VRF 1,10.1.0.1/16,10.1.9.254/16,active",
+            "VRF 1,10.2.0.1/16,10.2.9.254/16,active",
+            "VRF 1,10.3.0.1/16,10.3.9.254/16,active",
+        )
+
+        cls.bulk_edit_data = {
+            'vrf': vrfs[1].pk,
+            'tenant': None,
+            'status': IPRangeStatusChoices.STATUS_RESERVED,
+            'role': roles[1].pk,
+            'description': 'New description',
+        }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_iprange_ipaddresses(self):
+        iprange = IPRange.objects.create(
+            start_address=IPNetwork('192.168.0.1/24'),
+            end_address=IPNetwork('192.168.0.100/24'),
+            size=99
+        )
+        ip_addresses = (
+            IPAddress(address=IPNetwork('192.168.0.1/24')),
+            IPAddress(address=IPNetwork('192.168.0.2/24')),
+            IPAddress(address=IPNetwork('192.168.0.3/24')),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
+        self.assertEqual(iprange.get_child_ips().count(), 3)
+
+        url = reverse('ipam:iprange_ipaddresses', kwargs={'pk': iprange.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
 
 class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = IPAddress
@@ -308,6 +504,41 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class FHRPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = FHRPGroup
+
+    @classmethod
+    def setUpTestData(cls):
+
+        FHRPGroup.objects.bulk_create((
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP, group_id=30),
+        ))
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'protocol': FHRPGroupProtocolChoices.PROTOCOL_VRRP2,
+            'group_id': 99,
+            'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+            'auth_key': 'abc123def456',
+            'description': 'Blah blah blah',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "protocol,group_id,auth_type,auth_key,description",
+            "vrrp2,40,plaintext,foobar123,Foo",
+            "vrrp3,50,md5,foobar123,Bar",
+            "hsrp,60,,,",
+        )
+
+        cls.bulk_edit_data = {
+            'protocol': FHRPGroupProtocolChoices.PROTOCOL_CARP,
+        }
+
+
 class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = VLANGroup
 
@@ -326,10 +557,13 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             VLANGroup(name='VLAN Group 3', slug='vlan-group-3', scope=sites[0]),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'VLAN Group X',
             'slug': 'vlan-group-x',
             'description': 'A new VLAN group',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -405,18 +639,7 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-# TODO: Update base class to PrimaryObjectViewTestCase
-# Blocked by absence of standard creation view
-class ServiceTestCase(
-    ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.GetObjectChangelogViewTestCase,
-    ViewTestCases.EditObjectViewTestCase,
-    ViewTestCases.DeleteObjectViewTestCase,
-    ViewTestCases.ListObjectsViewTestCase,
-    ViewTestCases.BulkImportObjectsViewTestCase,
-    ViewTestCases.BulkEditObjectsViewTestCase,
-    ViewTestCases.BulkDeleteObjectsViewTestCase
-):
+class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Service
 
     @classmethod

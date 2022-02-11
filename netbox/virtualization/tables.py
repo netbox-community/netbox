@@ -1,9 +1,9 @@
 import django_tables2 as tables
-from django.conf import settings
 from dcim.tables.devices import BaseInterfaceTable
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn, ToggleColumn,
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn, TagColumn,
+    ToggleColumn,
 )
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -11,7 +11,6 @@ __all__ = (
     'ClusterTable',
     'ClusterGroupTable',
     'ClusterTypeTable',
-    'VirtualMachineDetailTable',
     'VirtualMachineTable',
     'VirtualMachineVMInterfaceTable',
     'VMInterfaceTable',
@@ -19,7 +18,7 @@ __all__ = (
 
 VMINTERFACE_BUTTONS = """
 {% if perms.ipam.add_ipaddress %}
-    <a href="{% url 'ipam:ipaddress_add' %}?vminterface={{ record.pk }}&return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-xs btn-success" title="Add IP address">
+    <a href="{% url 'ipam:ipaddress_add' %}?vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-sm btn-success" title="Add IP Address">
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
     </a>
 {% endif %}
@@ -38,11 +37,16 @@ class ClusterTypeTable(BaseTable):
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
+    tags = TagColumn(
+        url_name='virtualization:clustertype_list'
+    )
     actions = ButtonsColumn(ClusterType)
 
     class Meta(BaseTable.Meta):
         model = ClusterType
-        fields = ('pk', 'name', 'slug', 'cluster_count', 'description', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions', 'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
 
@@ -58,11 +62,16 @@ class ClusterGroupTable(BaseTable):
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
+    tags = TagColumn(
+        url_name='virtualization:clustergroup_list'
+    )
     actions = ButtonsColumn(ClusterGroup)
 
     class Meta(BaseTable.Meta):
         model = ClusterGroup
-        fields = ('pk', 'name', 'slug', 'cluster_count', 'description', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions', 'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
 
@@ -73,6 +82,12 @@ class ClusterGroupTable(BaseTable):
 class ClusterTable(BaseTable):
     pk = ToggleColumn()
     name = tables.Column(
+        linkify=True
+    )
+    type = tables.Column(
+        linkify=True
+    )
+    group = tables.Column(
         linkify=True
     )
     tenant = tables.Column(
@@ -91,13 +106,17 @@ class ClusterTable(BaseTable):
         url_params={'cluster_id': 'pk'},
         verbose_name='VMs'
     )
+    comments = MarkdownColumn()
     tags = TagColumn(
         url_name='virtualization:cluster_list'
     )
 
     class Meta(BaseTable.Meta):
         model = Cluster
-        fields = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'device_count', 'vm_count', 'tags')
+        fields = (
+            'pk', 'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'device_count', 'vm_count', 'tags',
+            'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'device_count', 'vm_count')
 
 
@@ -108,6 +127,7 @@ class ClusterTable(BaseTable):
 class VirtualMachineTable(BaseTable):
     pk = ToggleColumn()
     name = tables.Column(
+        order_by=('_name',),
         linkify=True
     )
     status = ChoiceFieldColumn()
@@ -116,13 +136,7 @@ class VirtualMachineTable(BaseTable):
     )
     role = ColoredLabelColumn()
     tenant = TenantColumn()
-
-    class Meta(BaseTable.Meta):
-        model = VirtualMachine
-        fields = ('pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk')
-
-
-class VirtualMachineDetailTable(VirtualMachineTable):
+    comments = MarkdownColumn()
     primary_ip4 = tables.Column(
         linkify=True,
         verbose_name='IPv4 Address'
@@ -131,18 +145,11 @@ class VirtualMachineDetailTable(VirtualMachineTable):
         linkify=True,
         verbose_name='IPv6 Address'
     )
-    if settings.PREFER_IPV4:
-        primary_ip = tables.Column(
-            linkify=True,
-            order_by=('primary_ip4', 'primary_ip6'),
-            verbose_name='IP Address'
-        )
-    else:
-        primary_ip = tables.Column(
-            linkify=True,
-            order_by=('primary_ip6', 'primary_ip4'),
-            verbose_name='IP Address'
-        )
+    primary_ip = tables.Column(
+        linkify=True,
+        order_by=('primary_ip4', 'primary_ip6'),
+        verbose_name='IP Address'
+    )
     tags = TagColumn(
         url_name='virtualization:virtualmachine_list'
     )
@@ -150,8 +157,8 @@ class VirtualMachineDetailTable(VirtualMachineTable):
     class Meta(BaseTable.Meta):
         model = VirtualMachine
         fields = (
-            'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'primary_ip4',
-            'primary_ip6', 'primary_ip', 'tags',
+            'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
+            'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
@@ -170,9 +177,6 @@ class VMInterfaceTable(BaseInterfaceTable):
     name = tables.Column(
         linkify=True
     )
-    parent = tables.Column(
-        linkify=True
-    )
     tags = TagColumn(
         url_name='virtualization:vminterface_list'
     )
@@ -180,13 +184,19 @@ class VMInterfaceTable(BaseInterfaceTable):
     class Meta(BaseTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'virtual_machine', 'name', 'enabled', 'parent', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
+            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'virtual_machine', 'name', 'enabled', 'parent', 'description')
+        default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 
 
 class VirtualMachineVMInterfaceTable(VMInterfaceTable):
+    parent = tables.Column(
+        linkify=True
+    )
+    bridge = tables.Column(
+        linkify=True
+    )
     actions = ButtonsColumn(
         model=VMInterface,
         buttons=('edit', 'delete'),
@@ -196,8 +206,8 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
     class Meta(BaseTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags', 'ip_addresses',
-            'untagged_vlan', 'tagged_vlans', 'actions',
+            'pk', 'id', 'name', 'enabled', 'parent', 'bridge', 'mac_address', 'mtu', 'mode', 'description', 'tags',
+            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = (
             'pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses', 'actions',

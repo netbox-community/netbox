@@ -2,24 +2,27 @@ import csv
 import json
 import re
 from io import StringIO
+from netaddr import AddrFormatError, EUI
 
 import django_filters
 from django import forms
 from django.conf import settings
-from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.forms import BoundField
+from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.urls import reverse
 
 from utilities.choices import unpack_grouped_choices
-from utilities.utils import content_type_name
+from utilities.utils import content_type_identifier, content_type_name
 from utilities.validators import EnhancedURLValidator
 from . import widgets
 from .constants import *
 from .utils import expand_alphanumeric_pattern, expand_ipaddress_pattern, parse_csv, validate_csv
 
 __all__ = (
+    'ColorField',
     'CommentField',
     'ContentTypeChoiceField',
     'ContentTypeMultipleChoiceField',
@@ -28,6 +31,8 @@ __all__ = (
     'CSVDataField',
     'CSVFileField',
     'CSVModelChoiceField',
+    'CSVMultipleChoiceField',
+    'CSVMultipleContentTypeField',
     'CSVTypedChoiceField',
     'DynamicModelChoiceField',
     'DynamicModelMultipleChoiceField',
@@ -35,6 +40,7 @@ __all__ = (
     'ExpandableNameField',
     'JSONField',
     'LaxURLField',
+    'MACAddressField',
     'SlugField',
     'TagFilterField',
 )
@@ -62,6 +68,7 @@ class SlugField(forms.SlugField):
     """
     Extend the built-in SlugField to automatically populate from a field called `name` unless otherwise specified.
     """
+
     def __init__(self, slug_source='name', *args, **kwargs):
         label = kwargs.pop('label', "Slug")
         help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
@@ -70,13 +77,20 @@ class SlugField(forms.SlugField):
         self.widget.attrs['slug-source'] = slug_source
 
 
+class ColorField(forms.CharField):
+    """
+    A field which represents a color in hexadecimal RRGGBB format.
+    """
+    widget = widgets.ColorSelect
+
+
 class TagFilterField(forms.MultipleChoiceField):
     """
     A filter field for the tags of a model. Only the tags used by a model are displayed.
 
     :param model: The model of the filter
     """
-    widget = widgets.StaticSelect2Multiple
+    widget = widgets.StaticSelectMultiple
 
     def __init__(self, model, *args, **kwargs):
         def get_choices():
@@ -103,6 +117,7 @@ class JSONField(_JSONField):
     """
     Custom wrapper around Django's built-in JSONField to avoid presenting "null" as the default text.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -116,6 +131,28 @@ class JSONField(_JSONField):
             return ''
         return json.dumps(value, sort_keys=True, indent=4)
 
+
+class MACAddressField(forms.Field):
+    widget = forms.CharField
+    default_error_messages = {
+        'invalid': 'MAC address must be in EUI-48 format',
+    }
+
+    def to_python(self, value):
+        value = super().to_python(value)
+
+        # Validate MAC address format
+        try:
+            value = EUI(value.strip())
+        except AddrFormatError:
+            raise forms.ValidationError(self.error_messages['invalid'], code='invalid')
+
+        return value
+
+
+#
+# Content type fields
+#
 
 class ContentTypeChoiceMixin:
 
@@ -132,11 +169,11 @@ class ContentTypeChoiceMixin:
 
 
 class ContentTypeChoiceField(ContentTypeChoiceMixin, forms.ModelChoiceField):
-    pass
+    widget = widgets.StaticSelect
 
 
 class ContentTypeMultipleChoiceField(ContentTypeChoiceMixin, forms.ModelMultipleChoiceField):
-    pass
+    widget = widgets.StaticSelectMultiple
 
 
 #
@@ -212,7 +249,7 @@ class CSVFileField(forms.FileField):
             return None
 
         csv_str = file.read().decode('utf-8').strip()
-        reader = csv.reader(csv_str.splitlines())
+        reader = csv.reader(StringIO(csv_str))
         headers, records = parse_csv(reader)
 
         return headers, records
@@ -227,15 +264,31 @@ class CSVFileField(forms.FileField):
         return value
 
 
-class CSVChoiceField(forms.ChoiceField):
-    """
-    Invert the provided set of choices to take the human-friendly label as input, and return the database value.
-    """
+class CSVChoicesMixin:
     STATIC_CHOICES = True
 
     def __init__(self, *, choices=(), **kwargs):
         super().__init__(choices=choices, **kwargs)
         self.choices = unpack_grouped_choices(choices)
+
+
+class CSVChoiceField(CSVChoicesMixin, forms.ChoiceField):
+    """
+    A CSV field which accepts a single selection value.
+    """
+    pass
+
+
+class CSVMultipleChoiceField(CSVChoicesMixin, forms.MultipleChoiceField):
+    """
+    A CSV field which accepts multiple selection values.
+    """
+    def to_python(self, value):
+        if not value:
+            return []
+        if not isinstance(value, str):
+            raise forms.ValidationError(f"Invalid value for a multiple choice field: {value}")
+        return value.split(',')
 
 
 class CSVTypedChoiceField(forms.TypedChoiceField):
@@ -266,7 +319,7 @@ class CSVContentTypeField(CSVModelChoiceField):
     STATIC_CHOICES = True
 
     def prepare_value(self, value):
-        return f'{value.app_label}.{value.model}'
+        return content_type_identifier(value)
 
     def to_python(self, value):
         if not value:
@@ -281,6 +334,20 @@ class CSVContentTypeField(CSVModelChoiceField):
             raise forms.ValidationError(f'Invalid object type')
 
 
+class CSVMultipleContentTypeField(forms.ModelMultipleChoiceField):
+    STATIC_CHOICES = True
+
+    # TODO: Improve validation of selected ContentTypes
+    def prepare_value(self, value):
+        if type(value) is str:
+            ct_filter = Q()
+            for name in value.split(','):
+                app_label, model = name.split('.')
+                ct_filter |= Q(app_label=app_label, model=model)
+            return list(ContentType.objects.filter(ct_filter).values_list('pk', flat=True))
+        return content_type_identifier(value)
+
+
 #
 # Expansion fields
 #
@@ -290,6 +357,7 @@ class ExpandableNameField(forms.CharField):
     A field which allows for numeric range expansion
       Example: 'Gi0/[1-3]' => ['Gi0/1', 'Gi0/2', 'Gi0/3']
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -315,6 +383,7 @@ class ExpandableIPAddressField(forms.CharField):
     A field which allows for expansion of IP address ranges
       Example: '192.0.2.[1-254]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.3/24' ... '192.0.2.254/24']
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -336,34 +405,35 @@ class ExpandableIPAddressField(forms.CharField):
 
 class DynamicModelChoiceMixin:
     """
-    :param display_field: The name of the attribute of an API response object to display in the selection list
     :param query_params: A dictionary of additional key/value pairs to attach to the API request
     :param initial_params: A dictionary of child field references to use for selecting a parent field's initial value
     :param null_option: The string used to represent a null selection (if any)
     :param disabled_indicator: The name of the field which, if populated, will disable selection of the
         choice (optional)
+    :param str fetch_trigger: The event type which will cause the select element to
+        fetch data from the API. Must be 'load', 'open', or 'collapse'. (optional)
     """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    # TODO: Remove display_field in v3.0
-    def __init__(self, display_field='display', query_params=None, initial_params=None, null_option=None,
-                 disabled_indicator=None, *args, **kwargs):
-        self.display_field = display_field
+    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None,
+                 fetch_trigger=None, empty_label=None, *args, **kwargs):
         self.query_params = query_params or {}
         self.initial_params = initial_params or {}
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
+        self.fetch_trigger = fetch_trigger
 
         # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
         # by widget_attrs()
         self.to_field_name = kwargs.get('to_field_name')
+        self.empty_option = empty_label or ""
 
         super().__init__(*args, **kwargs)
 
     def widget_attrs(self, widget):
         attrs = {
-            'display-field': self.display_field,
+            'data-empty-option': self.empty_option
         }
 
         # Set value-field attribute if the field specifies to_field_name
@@ -378,9 +448,13 @@ class DynamicModelChoiceMixin:
         if self.disabled_indicator is not None:
             attrs['disabled-indicator'] = self.disabled_indicator
 
+        # Set the fetch trigger, if any.
+        if self.fetch_trigger is not None:
+            attrs['data-fetch-trigger'] = self.fetch_trigger
+
         # Attach any static query parameters
-        for key, value in self.query_params.items():
-            widget.add_query_param(key, value)
+        if (len(self.query_params) > 0):
+            widget.add_query_params(self.query_params)
 
         return attrs
 
@@ -405,7 +479,7 @@ class DynamicModelChoiceMixin:
             filter = self.filter(field_name=field_name)
             try:
                 self.queryset = filter.filter(self.queryset, data)
-            except TypeError:
+            except (TypeError, ValueError):
                 # Catch any error caused by invalid initial data passed from the user
                 self.queryset = self.queryset.none()
         else:
@@ -444,3 +518,13 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
     """
     filter = django_filters.ModelMultipleChoiceFilter
     widget = widgets.APISelectMultiple
+
+    def clean(self, value):
+        """
+        When null option is enabled and "None" is sent as part of a form to be submitted, it is sent as the
+        string 'null'.  This will check for that condition and gracefully handle the conversion to a NoneType.
+        """
+        if self.null_option is not None and settings.FILTERS_NULL_CHOICE_VALUE in value:
+            value = [v for v in value if v != settings.FILTERS_NULL_CHOICE_VALUE]
+            return [None, *value]
+        return super().clean(value)

@@ -1,0 +1,44 @@
+// Custom Utility classes.
+
+// Utility class for extra-small text.
+.text-xs {
+  font-size: $font-size-xs !important;
+  line-height: $line-height-sm !important;
+}
+
+// Add a border color that mimics the appearance of a form element.
+.border-input {
+  border: $input-border-width solid $input-border-color !important;
+}
+
+// Force no line wrapping.
+.ws-nowrap {
+  white-space: nowrap !important;
+}
+
+// Vertically align table rows/cells.
+table tr,
+table td {
+  .vertical-align {
+    vertical-align: middle;
+  }
+}
+
+// Hide element when printing.
+.noprint {
+  @media print {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+
+// Only show element when printing, otherwise hide.
+.printonly {
+  display: none !important;
+  visibility: hidden !important;
+
+  @media print {
+    display: block !important;
+    visibility: visible !important;
+  }
+}

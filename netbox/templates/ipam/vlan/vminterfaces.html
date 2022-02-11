@@ -1,9 +1,19 @@
 {% extends 'ipam/vlan/base.html' %}
+{% load helpers %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-md-12">
-      {% include 'utilities/obj_table.html' with table=members_table table_template='panel_table.html' heading='Virtual Machine Interfaces' parent=vlan %}
+  <form method="post">
+    {% csrf_token %}
+    {% include 'inc/table_controls_htmx.html' with table_modal="VLANVirtualMachinesTable_config" %}
+    <div class="card">
+      <div class="card-body" id="object_list">
+        {% include 'htmx/table.html' %}
+      </div>
     </div>
-  </div>
-{% endblock %}
+  </form>
+{% endblock content %}
+
+{% block modals %}
+  {{ block.super }}
+  {% table_config_form table %}
+{% endblock modals %}

@@ -1,8 +1,9 @@
 import re
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import _lazy_re_compile, BaseValidator, URLValidator
+
+from netbox.config import get_config
 
 
 class EnhancedURLValidator(URLValidator):
@@ -19,7 +20,13 @@ class EnhancedURLValidator(URLValidator):
         r'(?::\d{2,5})?'                    # Port number
         r'(?:[/?#][^\s]*)?'                 # Path
         r'\Z', re.IGNORECASE)
-    schemes = settings.ALLOWED_URL_SCHEMES
+    schemes = None
+
+    def __call__(self, value):
+        if self.schemes is None:
+            # We can't load the allowed schemes until the configuration has been initialized
+            self.schemes = get_config().ALLOWED_URL_SCHEMES
+        return super().__call__(value)
 
 
 class ExclusionValidator(BaseValidator):

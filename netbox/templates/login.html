@@ -1,48 +1,78 @@
-{% extends 'base.html' %}
+{# User login page. Extends base.html directly to override normal UI layout. #}
+{% extends 'base/base.html' %}
 {% load form_helpers %}
-{% load account socialaccount %}
+{% load static %}
 
+{% block layout %}
+  <main class="login-container text-center">
 
-{% block content %}
-<div class="row" style="margin-top: {% if settings.BANNER_LOGIN %}100{% else %}150{% endif %}px;">
-    <div class="col-sm-4 col-sm-offset-4">
-        {% if settings.BANNER_LOGIN %}
-            <div style="margin-bottom: 25px">
-                {{ settings.BANNER_LOGIN|safe }}
-            </div>
+    {# Login banner #}
+    {% if config.BANNER_LOGIN %}
+      <div class="mw-90 mw-md-75 mw-lg-80 mw-xl-75 mw-xxl-50">
+        {{ config.BANNER_LOGIN|safe }}
+      </div>
+    {% endif %}
+
+    {# Login form #}
+    <div class="form-login">
+      <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+
+        {# Logo #}
+        <div class="mb-4">
+          <img src="{% static 'netbox_logo.svg' %}" height="80" alt="NetBox logo" />
+        </div>
+
+        {# Set post-login URL #}
+        {% if 'next' in request.GET %}
+        <input type="hidden" name="next" value="{{ request.GET.next }}" />
+        {% endif %} {% if 'next' in request.POST %}
+        <input type="hidden" name="next" value="{{ request.POST.next }}" />
         {% endif %}
-        {% if form.non_field_errors %}
-            <div class="panel panel-danger">
-                <div class="panel-heading"><strong>Errors</strong></div>
-                <div class="panel-body">
-                    {{ form.non_field_errors }}
-                </div>
-            </div>
-        {% endif %}
-        <form action="{% url 'login' %}" method="post" class="form form-horizontal">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Log In</strong>
-                </div>
-                <div class="panel-body">
-                    {% get_providers as socialaccount_providers %}
-                    {% if socialaccount_providers %}
-                        <div class="socialaccount_ballot">
-                            <ul class="socialaccount_providers">
-                                {% include "extras/provider_list.html" with process="login" %}
-                            </ul>
-                        </div>
-                    {% endif %}
-                    {% csrf_token %}
-                    {% if 'next' in request.GET %}<input type="hidden" name="next" value="{{ request.GET.next }}" />{% endif %}
-                    {% if 'next' in request.POST %}<input type="hidden" name="next" value="{{ request.POST.next }}" />{% endif %}
-                    {% render_form form %}
-                </div>
-                <div class="panel-footer text-right">
-                    <button type="submit" class="btn btn-primary">Log In</button>
-                </div>
-            </div>
-        </form>
+
+        {{ form.username }}
+        {{ form.password }}
+
+        <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">
+          Sign In
+        </button>
+      </form>
     </div>
-</div>
-{% endblock %}
+
+    {# TODO: Improve the design & layout #}
+    {% if auth_backends %}
+      <h6 class="mt-4">Or use an SSO provider:</h6>
+      {% for name, backend in auth_backends.items %}
+        <h4><a href="{% url 'social:begin' backend=name %}" class="my-2">{{ name }}</a></h4>
+      {% endfor %}
+    {% endif %}
+
+    {# Login form errors #}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Errors</h4>
+        <p>
+          {{ form.non_field_errors }}
+        </p>
+      </div>
+    {% endif %}
+  </main>
+
+  {# Page footer #}
+  <footer class="footer container-fluid login-footer p-3">
+    <div class="row align-items-center w-100">
+      <div class="col-2 col-md-1 mb-0">
+        <button type="button" class="btn btn-sm color-mode-toggle" title="Toggle Color Mode">
+          <i class="color-mode-icon mdi mdi-lightbulb"></i>&nbsp;
+        </button>
+      </div>
+      <div class="col-1 col-md-auto mb-0"></div>
+      <div class="col text-end mb-0">
+        <small class="text-muted">
+          {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
+        </small>
+      </div>
+    </div>
+  </footer>
+
+{% endblock layout %}

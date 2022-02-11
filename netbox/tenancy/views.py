@@ -1,11 +1,15 @@
+from django.contrib.contenttypes.models import ContentType
+from django.shortcuts import get_object_or_404
+
 from circuits.models import Circuit
-from dcim.models import Site, Rack, Device, RackReservation
-from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
+from dcim.models import Cable, Device, Location, Rack, RackReservation, Site
+from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF, ASN
 from netbox.views import generic
 from utilities.tables import paginate_table
+from utilities.utils import count_related
 from virtualization.models import VirtualMachine, Cluster
 from . import filtersets, forms, tables
-from .models import Tenant, TenantGroup
+from .models import *
 
 
 #
@@ -20,6 +24,8 @@ class TenantGroupListView(generic.ObjectListView):
         'tenant_count',
         cumulative=True
     )
+    filterset = filtersets.TenantGroupFilterSet
+    filterset_form = forms.TenantGroupFilterForm
     table = tables.TenantGroupTable
 
 
@@ -30,9 +36,7 @@ class TenantGroupView(generic.ObjectView):
         tenants = Tenant.objects.restrict(request.user, 'view').filter(
             group=instance
         )
-
-        tenants_table = tables.TenantTable(tenants)
-        tenants_table.columns.hide('group')
+        tenants_table = tables.TenantTable(tenants, exclude=('group',))
         paginate_table(tenants_table, request)
 
         return {
@@ -98,6 +102,7 @@ class TenantView(generic.ObjectView):
             'site_count': Site.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'rack_count': Rack.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'rackreservation_count': RackReservation.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'location_count': Location.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
@@ -107,6 +112,8 @@ class TenantView(generic.ObjectView):
             'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'virtualmachine_count': VirtualMachine.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'cluster_count': Cluster.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'cable_count': Cable.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'asn_count': ASN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
         }
 
         return {
@@ -140,3 +147,221 @@ class TenantBulkDeleteView(generic.BulkDeleteView):
     queryset = Tenant.objects.prefetch_related('group')
     filterset = filtersets.TenantFilterSet
     table = tables.TenantTable
+
+
+#
+# Contact groups
+#
+
+class ContactGroupListView(generic.ObjectListView):
+    queryset = ContactGroup.objects.add_related_count(
+        ContactGroup.objects.all(),
+        Contact,
+        'group',
+        'contact_count',
+        cumulative=True
+    )
+    filterset = filtersets.ContactGroupFilterSet
+    filterset_form = forms.ContactGroupFilterForm
+    table = tables.ContactGroupTable
+
+
+class ContactGroupView(generic.ObjectView):
+    queryset = ContactGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        child_groups = ContactGroup.objects.add_related_count(
+            ContactGroup.objects.all(),
+            Contact,
+            'group',
+            'contact_count',
+            cumulative=True
+        ).restrict(request.user, 'view').filter(
+            parent__in=instance.get_descendants(include_self=True)
+        )
+        child_groups_table = tables.ContactGroupTable(child_groups)
+        child_groups_table.columns.hide('actions')
+
+        contacts = Contact.objects.restrict(request.user, 'view').filter(
+            group=instance
+        )
+        contacts_table = tables.ContactTable(contacts, exclude=('group',))
+        paginate_table(contacts_table, request)
+
+        return {
+            'child_groups_table': child_groups_table,
+            'contacts_table': contacts_table,
+        }
+
+
+class ContactGroupEditView(generic.ObjectEditView):
+    queryset = ContactGroup.objects.all()
+    model_form = forms.ContactGroupForm
+
+
+class ContactGroupDeleteView(generic.ObjectDeleteView):
+    queryset = ContactGroup.objects.all()
+
+
+class ContactGroupBulkImportView(generic.BulkImportView):
+    queryset = ContactGroup.objects.all()
+    model_form = forms.ContactGroupCSVForm
+    table = tables.ContactGroupTable
+
+
+class ContactGroupBulkEditView(generic.BulkEditView):
+    queryset = ContactGroup.objects.add_related_count(
+        ContactGroup.objects.all(),
+        Contact,
+        'group',
+        'contact_count',
+        cumulative=True
+    )
+    filterset = filtersets.ContactGroupFilterSet
+    table = tables.ContactGroupTable
+    form = forms.ContactGroupBulkEditForm
+
+
+class ContactGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = ContactGroup.objects.add_related_count(
+        ContactGroup.objects.all(),
+        Contact,
+        'group',
+        'contact_count',
+        cumulative=True
+    )
+    table = tables.ContactGroupTable
+
+
+#
+# Contact roles
+#
+
+class ContactRoleListView(generic.ObjectListView):
+    queryset = ContactRole.objects.all()
+    filterset = filtersets.ContactRoleFilterSet
+    filterset_form = forms.ContactRoleFilterForm
+    table = tables.ContactRoleTable
+
+
+class ContactRoleView(generic.ObjectView):
+    queryset = ContactRole.objects.all()
+
+    def get_extra_context(self, request, instance):
+        contact_assignments = ContactAssignment.objects.restrict(request.user, 'view').filter(
+            role=instance
+        )
+        contacts_table = tables.ContactAssignmentTable(contact_assignments)
+        contacts_table.columns.hide('role')
+        paginate_table(contacts_table, request)
+
+        return {
+            'contacts_table': contacts_table,
+            'assignment_count': ContactAssignment.objects.filter(role=instance).count(),
+        }
+
+
+class ContactRoleEditView(generic.ObjectEditView):
+    queryset = ContactRole.objects.all()
+    model_form = forms.ContactRoleForm
+
+
+class ContactRoleDeleteView(generic.ObjectDeleteView):
+    queryset = ContactRole.objects.all()
+
+
+class ContactRoleBulkImportView(generic.BulkImportView):
+    queryset = ContactRole.objects.all()
+    model_form = forms.ContactRoleCSVForm
+    table = tables.ContactRoleTable
+
+
+class ContactRoleBulkEditView(generic.BulkEditView):
+    queryset = ContactRole.objects.all()
+    filterset = filtersets.ContactRoleFilterSet
+    table = tables.ContactRoleTable
+    form = forms.ContactRoleBulkEditForm
+
+
+class ContactRoleBulkDeleteView(generic.BulkDeleteView):
+    queryset = ContactRole.objects.all()
+    table = tables.ContactRoleTable
+
+
+#
+# Contacts
+#
+
+class ContactListView(generic.ObjectListView):
+    queryset = Contact.objects.annotate(
+        assignment_count=count_related(ContactAssignment, 'contact')
+    )
+    filterset = filtersets.ContactFilterSet
+    filterset_form = forms.ContactFilterForm
+    table = tables.ContactTable
+
+
+class ContactView(generic.ObjectView):
+    queryset = Contact.objects.all()
+
+    def get_extra_context(self, request, instance):
+        contact_assignments = ContactAssignment.objects.restrict(request.user, 'view').filter(
+            contact=instance
+        )
+        assignments_table = tables.ContactAssignmentTable(contact_assignments)
+        assignments_table.columns.hide('contact')
+        paginate_table(assignments_table, request)
+
+        return {
+            'assignments_table': assignments_table,
+            'assignment_count': ContactAssignment.objects.filter(contact=instance).count(),
+        }
+
+
+class ContactEditView(generic.ObjectEditView):
+    queryset = Contact.objects.all()
+    model_form = forms.ContactForm
+
+
+class ContactDeleteView(generic.ObjectDeleteView):
+    queryset = Contact.objects.all()
+
+
+class ContactBulkImportView(generic.BulkImportView):
+    queryset = Contact.objects.all()
+    model_form = forms.ContactCSVForm
+    table = tables.ContactTable
+
+
+class ContactBulkEditView(generic.BulkEditView):
+    queryset = Contact.objects.prefetch_related('group')
+    filterset = filtersets.ContactFilterSet
+    table = tables.ContactTable
+    form = forms.ContactBulkEditForm
+
+
+class ContactBulkDeleteView(generic.BulkDeleteView):
+    queryset = Contact.objects.prefetch_related('group')
+    filterset = filtersets.ContactFilterSet
+    table = tables.ContactTable
+
+
+#
+# Contact assignments
+#
+
+class ContactAssignmentEditView(generic.ObjectEditView):
+    queryset = ContactAssignment.objects.all()
+    model_form = forms.ContactAssignmentForm
+    template_name = 'tenancy/contactassignment_edit.html'
+
+    def alter_obj(self, instance, request, args, kwargs):
+        if not instance.pk:
+            # Assign the object based on URL kwargs
+            content_type = get_object_or_404(ContentType, pk=request.GET.get('content_type'))
+            instance.object = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
+        return instance
+
+
+class ContactAssignmentDeleteView(generic.ObjectDeleteView):
+    queryset = ContactAssignment.objects.all()

@@ -1,204 +1,131 @@
-from django import forms
 from django.contrib import admin
-from django.contrib.contenttypes.models import ContentType
-from django.utils.safestring import mark_safe
+from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
+from django.utils.html import format_html
 
-from utilities.forms import ContentTypeChoiceField, ContentTypeMultipleChoiceField, LaxURLField
-from utilities.utils import content_type_name
-from .models import CustomField, CustomLink, ExportTemplate, JobResult, Webhook
-from .utils import FeatureQuery
-
-
-#
-# Webhooks
-#
-
-class WebhookForm(forms.ModelForm):
-    content_types = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('webhooks')
-    )
-    payload_url = LaxURLField(
-        label='URL'
-    )
-
-    class Meta:
-        model = Webhook
-        exclude = ()
+from netbox.config import get_config, PARAMS
+from .forms import ConfigRevisionForm
+from .models import ConfigRevision, JobResult
 
 
-@admin.register(Webhook)
-class WebhookAdmin(admin.ModelAdmin):
-    list_display = [
-        'name', 'models', 'payload_url', 'http_content_type', 'enabled', 'type_create', 'type_update', 'type_delete',
-        'ssl_verification',
-    ]
-    list_filter = [
-        'enabled', 'type_create', 'type_update', 'type_delete', 'content_types',
-    ]
-    form = WebhookForm
-    fieldsets = (
-        (None, {
-            'fields': ('name', 'content_types', 'enabled')
+@admin.register(ConfigRevision)
+class ConfigRevisionAdmin(admin.ModelAdmin):
+    fieldsets = [
+        ('Rack Elevations', {
+            'fields': ('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH'),
         }),
-        ('Events', {
-            'fields': ('type_create', 'type_update', 'type_delete')
+        ('IPAM', {
+            'fields': ('ENFORCE_GLOBAL_UNIQUE', 'PREFER_IPV4'),
         }),
-        ('HTTP Request', {
-            'fields': (
-                'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
-            ),
-            'classes': ('monospace',)
+        ('Security', {
+            'fields': ('ALLOWED_URL_SCHEMES',),
         }),
-        ('SSL', {
-            'fields': ('ssl_verification', 'ca_file_path')
+        ('Banners', {
+            'fields': ('BANNER_LOGIN', 'BANNER_TOP', 'BANNER_BOTTOM'),
+        }),
+        ('Pagination', {
+            'fields': ('PAGINATE_COUNT', 'MAX_PAGE_SIZE'),
+        }),
+        ('Validation', {
+            'fields': ('CUSTOM_VALIDATORS',),
+        }),
+        ('NAPALM', {
+            'fields': ('NAPALM_USERNAME', 'NAPALM_PASSWORD', 'NAPALM_TIMEOUT', 'NAPALM_ARGS'),
+        }),
+        ('Miscellaneous', {
+            'fields': ('MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'MAPS_URL'),
+        }),
+        ('Config Revision', {
+            'fields': ('comment',),
         })
-    )
-
-    def models(self, obj):
-        return ', '.join([ct.name for ct in obj.content_types.all()])
-
-
-#
-# Custom fields
-#
-
-class CustomFieldForm(forms.ModelForm):
-    content_types = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields')
-    )
-
-    class Meta:
-        model = CustomField
-        exclude = []
-        widgets = {
-            'default': forms.TextInput(),
-            'validation_regex': forms.Textarea(
-                attrs={
-                    'cols': 80,
-                    'rows': 3,
-                }
-            )
-        }
-
-
-@admin.register(CustomField)
-class CustomFieldAdmin(admin.ModelAdmin):
-    actions = None
-    form = CustomFieldForm
-    list_display = [
-        'name', 'models', 'type', 'required', 'filter_logic', 'default', 'weight', 'description',
     ]
-    list_filter = [
-        'type', 'required', 'content_types',
-    ]
-    fieldsets = (
-        ('Custom Field', {
-            'fields': ('type', 'name', 'weight', 'label', 'description', 'required', 'default', 'filter_logic')
-        }),
-        ('Assignment', {
-            'description': 'A custom field must be assigned to one or more object types.',
-            'fields': ('content_types',)
-        }),
-        ('Validation Rules', {
-            'fields': ('validation_minimum', 'validation_maximum', 'validation_regex'),
-            'classes': ('monospace',)
-        }),
-        ('Choices', {
-            'description': 'A selection field must have two or more choices assigned to it.',
-            'fields': ('choices',)
+    form = ConfigRevisionForm
+    list_display = ('id', 'is_active', 'created', 'comment', 'restore_link')
+    ordering = ('-id',)
+    readonly_fields = ('data',)
+
+    def get_changeform_initial_data(self, request):
+        """
+        Populate initial form data from the most recent ConfigRevision.
+        """
+        latest_revision = ConfigRevision.objects.last()
+        initial = latest_revision.data if latest_revision else {}
+        initial.update(super().get_changeform_initial_data(request))
+
+        return initial
+
+    # Permissions
+
+    def has_add_permission(self, request):
+        # Only superusers may modify the configuration.
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        # ConfigRevisions cannot be modified once created.
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        # Only inactive ConfigRevisions may be deleted (must be superuser).
+        return request.user.is_superuser and (
+            obj is None or not obj.is_active()
+        )
+
+    # List display methods
+
+    def restore_link(self, obj):
+        if obj.is_active():
+            return ''
+        return format_html(
+            '<a href="{url}" class="button">Restore</a>',
+            url=reverse('admin:extras_configrevision_restore', args=(obj.pk,))
+        )
+    restore_link.short_description = "Actions"
+
+    # URLs
+
+    def get_urls(self):
+        urls = [
+            path('<int:pk>/restore/', self.admin_site.admin_view(self.restore), name='extras_configrevision_restore'),
+        ]
+
+        return urls + super().get_urls()
+
+    # Views
+
+    def restore(self, request, pk):
+        # Get the ConfigRevision being restored
+        candidate_config = get_object_or_404(ConfigRevision, pk=pk)
+
+        if request.method == 'POST':
+            candidate_config.activate()
+            self.message_user(request, f"Restored configuration revision #{pk}")
+
+            return redirect(reverse('admin:extras_configrevision_changelist'))
+
+        # Get the current ConfigRevision
+        config_version = get_config().version
+        current_config = ConfigRevision.objects.filter(pk=config_version).first()
+
+        params = []
+        for param in PARAMS:
+            params.append((
+                param.name,
+                current_config.data.get(param.name, None),
+                candidate_config.data.get(param.name, None)
+            ))
+
+        context = self.admin_site.each_context(request)
+        context.update({
+            'object': candidate_config,
+            'params': params,
         })
-    )
 
-    def models(self, obj):
-        ct_names = [content_type_name(ct) for ct in obj.content_types.all()]
-        return mark_safe('<br/>'.join(ct_names))
+        return TemplateResponse(request, 'admin/extras/configrevision/restore.html', context)
 
 
 #
-# Custom links
-#
-
-class CustomLinkForm(forms.ModelForm):
-    content_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_links')
-    )
-
-    class Meta:
-        model = CustomLink
-        exclude = []
-        widgets = {
-            'link_text': forms.Textarea,
-            'link_url': forms.Textarea,
-        }
-        help_texts = {
-            'weight': 'A numeric weight to influence the ordering of this link among its peers. Lower weights appear '
-                      'first in a list.',
-            'link_text': 'Jinja2 template code for the link text. Reference the object as <code>{{ obj }}</code>. '
-                         'Links which render as empty text will not be displayed.',
-            'link_url': 'Jinja2 template code for the link URL. Reference the object as <code>{{ obj }}</code>.',
-        }
-
-
-@admin.register(CustomLink)
-class CustomLinkAdmin(admin.ModelAdmin):
-    fieldsets = (
-        ('Custom Link', {
-            'fields': ('content_type', 'name', 'group_name', 'weight', 'button_class', 'new_window')
-        }),
-        ('Templates', {
-            'fields': ('link_text', 'link_url'),
-            'classes': ('monospace',)
-        })
-    )
-    list_display = [
-        'name', 'content_type', 'group_name', 'weight',
-    ]
-    list_filter = [
-        'content_type',
-    ]
-    form = CustomLinkForm
-
-
-#
-# Export templates
-#
-
-class ExportTemplateForm(forms.ModelForm):
-    content_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_links')
-    )
-
-    class Meta:
-        model = ExportTemplate
-        exclude = []
-
-
-@admin.register(ExportTemplate)
-class ExportTemplateAdmin(admin.ModelAdmin):
-    fieldsets = (
-        ('Export Template', {
-            'fields': ('content_type', 'name', 'description', 'mime_type', 'file_extension', 'as_attachment')
-        }),
-        ('Content', {
-            'fields': ('template_code',),
-            'classes': ('monospace',)
-        })
-    )
-    list_display = [
-        'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
-    ]
-    list_filter = [
-        'content_type',
-    ]
-    form = ExportTemplateForm
-
-
-#
-# Reports
+# Reports & scripts
 #
 
 @admin.register(JobResult)

@@ -1,25 +1,29 @@
 {% extends 'virtualization/cluster/base.html' %}
 {% load helpers %}
+{% load render_table from django_tables2 %}
 
 {% block content %}
-<div class="row">
-  <div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Host Devices</strong>
+  <form action="{% url 'virtualization:cluster_remove_devices' pk=object.pk %}" method="post">
+    {% csrf_token %}
+    {% include 'inc/table_controls_htmx.html' with table_modal="DeviceTable_config" %}
+    <div class="card">
+      <div class="card-body" id="object_list">
+        {% include 'htmx/table.html' %}
       </div>
-      <form action="{% url 'virtualization:cluster_remove_devices' pk=object.pk %}" method="post">
-      {% csrf_token %}
-      {% include 'responsive_table.html' with table=devices_table %}
-        {% if perms.virtualization.change_cluster %}
-          <div class="panel-footer noprint">
-            <button type="submit" name="_remove" class="btn btn-danger primary btn-xs">
-              <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Remove devices
-            </button>
-          </div>
-        {% endif %}
-      </form>
     </div>
-  </div>
-</div>
-{% endblock %}
+    <div class="noprint bulk-buttons">
+      <div class="bulk-button-group">
+        {% if perms.virtualization.change_cluster %}
+          <button type="submit" name="_remove" class="btn btn-danger btn-sm">
+            <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Remove Devices
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+{% endblock content %}
+
+{% block modals %}
+  {{ block.super }}
+  {% table_config_form table %}
+{% endblock modals %}

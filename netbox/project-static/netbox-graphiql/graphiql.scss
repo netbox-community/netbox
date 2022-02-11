@@ -1,0 +1,3 @@
+// Rather than use CDNs to include GraphiQL dependencies, import and bundle the dependencies so
+// they can be locally served.
+@import '../node_modules/graphiql/graphiql.css';

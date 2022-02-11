@@ -6,9 +6,9 @@ Models within each app are stored in either `models.py` or within a submodule un
 
 Each model should define, at a minimum:
 
+* A `Meta` class specifying a deterministic ordering (if ordered by fields other than the primary ID)
 * A `__str__()` method returning a user-friendly string representation of the instance
 * A `get_absolute_url()` method returning an instance's direct URL (using `reverse()`)
-* A `Meta` class specifying a deterministic ordering (if ordered by fields other than the primary ID)
 
 ## 2. Define field choices
 
@@ -16,9 +16,9 @@ If the model has one or more fields with static choices, define those choices in
 
 ## 3. Generate database migrations
 
-Once your model definition is complete, generate database migrations by running `manage.py -n $NAME --no-header`. Always specify a short unique name when generating migrations.
+Once your model definition is complete, generate database migrations by running `manage.py makemigrations -n $NAME --no-header`. Always specify a short unique name when generating migrations.
 
-!!! info
+!!! info "Configuration Required"
     Set `DEVELOPER = True` in your NetBox configuration to enable the creation of new migrations.
 
 ## 4. Add all standard views
@@ -37,25 +37,32 @@ Most models will need view classes created in `views.py` to serve the following 
 
 Add the relevant URL path for each view created in the previous step to `urls.py`.
 
-## 6. Create the FilterSet
+## 6. Add relevant forms
+
+Depending on the type of model being added, you may need to define several types of form classes. These include:
+
+* A base model form (for creating/editing individual objects)
+* A bulk edit form
+* A bulk import form (for CSV-based import)
+* A filterset form (for filtering the object list view)
+
+## 7. Create the FilterSet
 
 Each model should have a corresponding FilterSet class defined. This is used to filter UI and API queries. Subclass the appropriate class from `netbox.filtersets` that matches the model's parent class.
 
-Every model FilterSet should define a `q` filter to support general search queries.
-
-## 7. Create the table
+## 8. Create the table class
 
 Create a table class for the model in `tables.py` by subclassing `utilities.tables.BaseTable`. Under the table's `Meta` class, be sure to list both the fields and default columns.
 
-## 8. Create the object template
+## 9. Create the object template
 
 Create the HTML template for the object view. (The other views each typically employ a generic template.) This template should extend `generic/object.html`.
 
-## 9. Add the model to the navigation menu
+## 10. Add the model to the navigation menu
 
-For NetBox releases prior to v3.0, add the relevant link(s) to the navigation menu template. For later releases, add the relevant items in `netbox/netbox/navigation_menu.py`.
+Add the relevant navigation menu items in `netbox/netbox/navigation_menu.py`.
 
-## 10. REST API components
+## 11. REST API components
 
 Create the following for each model:
 
@@ -64,13 +71,13 @@ Create the following for each model:
 * API view in `api/views.py`
 * Endpoint route in `api/urls.py`
 
-## 11. GraphQL API components (v3.0+)
+## 12. GraphQL API components
 
 Create a Graphene object type for the model in `graphql/types.py` by subclassing the appropriate class from `netbox.graphql.types`.
 
 Also extend the schema class defined in `graphql/schema.py` with the individual object and object list fields per the established convention.
 
-## 12. Add tests
+## 13. Add tests
 
 Add tests for the following:
 
@@ -78,7 +85,7 @@ Add tests for the following:
 * API views
 * Filter sets
 
-## 13. Documentation
+## 14. Documentation
 
 Create a new documentation page for the model in `docs/models/<app_label>/<model_name>.md`. Include this file under the "features" documentation where appropriate.
 

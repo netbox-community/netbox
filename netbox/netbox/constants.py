@@ -12,19 +12,18 @@ from dcim.tables import (
     CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, RackReservationTable, LocationTable, SiteTable,
     VirtualChassisTable,
 )
-from ipam.filtersets import AggregateFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet
-from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
-from ipam.tables import AggregateTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
-from secrets.filtersets import SecretFilterSet
-from secrets.models import Secret
-from secrets.tables import SecretTable
-from tenancy.filtersets import TenantFilterSet
-from tenancy.models import Tenant
-from tenancy.tables import TenantTable
+from ipam.filtersets import (
+    AggregateFilterSet, ASNFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet,
+)
+from ipam.models import Aggregate, ASN, IPAddress, Prefix, VLAN, VRF
+from ipam.tables import AggregateTable, ASNTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
+from tenancy.filtersets import ContactFilterSet, TenantFilterSet
+from tenancy.models import Contact, Tenant
+from tenancy.tables import ContactTable, TenantTable
 from utilities.utils import count_related
 from virtualization.filtersets import ClusterFilterSet, VirtualMachineFilterSet
 from virtualization.models import Cluster, VirtualMachine
-from virtualization.tables import ClusterTable, VirtualMachineDetailTable
+from virtualization.tables import ClusterTable, VirtualMachineTable
 
 SEARCH_MAX_RESULTS = 15
 SEARCH_TYPES = OrderedDict((
@@ -72,7 +71,13 @@ SEARCH_TYPES = OrderedDict((
     }),
     ('location', {
         'queryset': Location.objects.add_related_count(
-            Location.objects.all(),
+            Location.objects.add_related_count(
+                Location.objects.all(),
+                Device,
+                'location',
+                'device_count',
+                cumulative=True
+            ),
             Rack,
             'location',
             'rack_count',
@@ -133,7 +138,7 @@ SEARCH_TYPES = OrderedDict((
             'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
         ),
         'filterset': VirtualMachineFilterSet,
-        'table': VirtualMachineDetailTable,
+        'table': VirtualMachineTable,
         'url': 'virtualization:virtualmachine_list',
     }),
     # IPAM
@@ -167,12 +172,11 @@ SEARCH_TYPES = OrderedDict((
         'table': VLANTable,
         'url': 'ipam:vlan_list',
     }),
-    # Secrets
-    ('secret', {
-        'queryset': Secret.objects.prefetch_related('role', 'device'),
-        'filterset': SecretFilterSet,
-        'table': SecretTable,
-        'url': 'secrets:secret_list',
+    ('asn', {
+        'queryset': ASN.objects.prefetch_related('rir', 'tenant'),
+        'filterset': ASNFilterSet,
+        'table': ASNTable,
+        'url': 'ipam:asn_list',
     }),
     # Tenancy
     ('tenant', {
@@ -180,5 +184,11 @@ SEARCH_TYPES = OrderedDict((
         'filterset': TenantFilterSet,
         'table': TenantTable,
         'url': 'tenancy:tenant_list',
+    }),
+    ('contact', {
+        'queryset': Contact.objects.prefetch_related('group', 'assignments'),
+        'filterset': ContactFilterSet,
+        'table': ContactTable,
+        'url': 'tenancy:contact_list',
     }),
 ))

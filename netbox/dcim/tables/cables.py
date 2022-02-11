@@ -2,7 +2,8 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import Cable
-from utilities.tables import BaseTable, ChoiceFieldColumn, ColorColumn, TagColumn, ToggleColumn
+from tenancy.tables import TenantColumn
+from utilities.tables import BaseTable, ChoiceFieldColumn, ColorColumn, TagColumn, TemplateColumn, ToggleColumn
 from .template_code import CABLE_LENGTH, CABLE_TERMINATION_PARENT
 
 __all__ = (
@@ -16,10 +17,6 @@ __all__ = (
 
 class CableTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name='ID'
-    )
     termination_a_parent = tables.TemplateColumn(
         template_code=CABLE_TERMINATION_PARENT,
         accessor=Accessor('termination_a'),
@@ -45,9 +42,10 @@ class CableTable(BaseTable):
         verbose_name='Termination B'
     )
     status = ChoiceFieldColumn()
-    length = tables.TemplateColumn(
+    tenant = TenantColumn()
+    length = TemplateColumn(
         template_code=CABLE_LENGTH,
-        order_by='_abs_length'
+        order_by=('_abs_length', 'length_unit')
     )
     color = ColorColumn()
     tags = TagColumn(
@@ -58,7 +56,7 @@ class CableTable(BaseTable):
         model = Cable
         fields = (
             'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',
-            'status', 'type', 'color', 'length', 'tags',
+            'status', 'type', 'tenant', 'color', 'length', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',

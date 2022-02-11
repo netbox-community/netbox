@@ -1,4 +1,4 @@
 # Tenancy Assignment
 
-{!docs/models/tenancy/tenant.md!}
-{!docs/models/tenancy/tenantgroup.md!}
+{!models/tenancy/tenant.md!}
+{!models/tenancy/tenantgroup.md!}

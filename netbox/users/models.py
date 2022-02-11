@@ -209,14 +209,15 @@ class Token(BigIDModel):
 
     def __str__(self):
         # Only display the last 24 bits of the token to avoid accidental exposure.
-        return "{} ({})".format(self.key[-6:], self.user)
+        return f"{self.key[-6:]} ({self.user})"
 
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = self.generate_key()
         return super().save(*args, **kwargs)
 
-    def generate_key(self):
+    @staticmethod
+    def generate_key():
         # Generate a random 160-bit key expressed in hexadecimal.
         return binascii.hexlify(os.urandom(20)).decode()
 

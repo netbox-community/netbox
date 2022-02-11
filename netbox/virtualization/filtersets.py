@@ -20,6 +20,7 @@ __all__ = (
 
 
 class ClusterTypeFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = ClusterType
@@ -27,6 +28,7 @@ class ClusterTypeFilterSet(OrganizationalModelFilterSet):
 
 
 class ClusterGroupFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = ClusterGroup
@@ -143,6 +145,12 @@ class VirtualMachineFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConf
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Cluster.objects.all(),
         label='Cluster (ID)',
+    )
+    cluster = django_filters.ModelMultipleChoiceFilter(
+        field_name='cluster__name',
+        queryset=Cluster.objects.all(),
+        to_field_name='name',
+        label='Cluster',
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
@@ -262,6 +270,11 @@ class VMInterfaceFilterSet(PrimaryModelFilterSet):
         queryset=VMInterface.objects.all(),
         label='Parent interface (ID)',
     )
+    bridge_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='bridge',
+        queryset=VMInterface.objects.all(),
+        label='Bridged interface (ID)',
+    )
     mac_address = MultiValueMACAddressFilter(
         label='MAC address',
     )
@@ -275,5 +288,6 @@ class VMInterfaceFilterSet(PrimaryModelFilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(name__icontains=value)
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
         )

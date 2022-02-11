@@ -1,7 +1,6 @@
 from collections import OrderedDict
 
 import yaml
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -15,10 +14,10 @@ from dcim.constants import *
 from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
+from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.querysets import RestrictedQuerySet
 from .device_components import *
 
 
@@ -36,7 +35,7 @@ __all__ = (
 # Device Types
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Manufacturer(OrganizationalModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
@@ -54,9 +53,10 @@ class Manufacturer(OrganizationalModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['name', 'slug', 'description']
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
 
     class Meta:
         ordering = ['name']
@@ -66,13 +66,6 @@ class Manufacturer(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('dcim:manufacturer', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.description
-        )
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -124,6 +117,11 @@ class DeviceType(PrimaryModel):
         help_text='Parent devices house child devices in device bays. Leave blank '
                   'if this device type is neither a parent nor a child.'
     )
+    airflow = models.CharField(
+        max_length=50,
+        choices=DeviceAirflowChoices,
+        blank=True
+    )
     front_image = models.ImageField(
         upload_to='devicetype-images',
         blank=True
@@ -136,10 +134,8 @@ class DeviceType(PrimaryModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     clone_fields = [
-        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role',
+        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
     ]
 
     class Meta:
@@ -174,6 +170,7 @@ class DeviceType(PrimaryModel):
             ('u_height', self.u_height),
             ('is_full_depth', self.is_full_depth),
             ('subdevice_role', self.subdevice_role),
+            ('airflow', self.airflow),
             ('comments', self.comments),
         ))
 
@@ -337,10 +334,6 @@ class DeviceType(PrimaryModel):
             self.rear_image.delete(save=False)
 
     @property
-    def display_name(self):
-        return f'{self.manufacturer.name} {self.model}'
-
-    @property
     def is_parent_device(self):
         return self.subdevice_role == SubdeviceRoleChoices.ROLE_PARENT
 
@@ -353,7 +346,7 @@ class DeviceType(PrimaryModel):
 # Devices
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class DeviceRole(OrganizationalModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
@@ -381,10 +374,6 @@ class DeviceRole(OrganizationalModel):
         blank=True,
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['name', 'slug', 'color', 'vm_role', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -394,17 +383,8 @@ class DeviceRole(OrganizationalModel):
     def get_absolute_url(self):
         return reverse('dcim:devicerole', args=[self.pk])
 
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.color,
-            self.vm_role,
-            self.description,
-        )
 
-
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Platform(OrganizationalModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
@@ -444,10 +424,6 @@ class Platform(OrganizationalModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -456,16 +432,6 @@ class Platform(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('dcim:platform', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.manufacturer.name if self.manufacturer else None,
-            self.napalm_driver,
-            self.napalm_args,
-            self.description,
-        )
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -566,10 +532,15 @@ class Device(PrimaryModel, ConfigContextModel):
         choices=DeviceStatusChoices,
         default=DeviceStatusChoices.STATUS_ACTIVE
     )
+    airflow = models.CharField(
+        max_length=50,
+        choices=DeviceAirflowChoices,
+        blank=True
+    )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',
         on_delete=models.SET_NULL,
-        related_name='primary_ip4_for',
+        related_name='+',
         blank=True,
         null=True,
         verbose_name='Primary IPv4'
@@ -577,7 +548,7 @@ class Device(PrimaryModel, ConfigContextModel):
     primary_ip6 = models.OneToOneField(
         to='ipam.IPAddress',
         on_delete=models.SET_NULL,
-        related_name='primary_ip6_for',
+        related_name='+',
         blank=True,
         null=True,
         verbose_name='Primary IPv6'
@@ -609,24 +580,19 @@ class Device(PrimaryModel, ConfigContextModel):
     comments = models.TextField(
         blank=True
     )
+
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
     images = GenericRelation(
         to='extras.ImageAttachment'
-    )
-    secrets = GenericRelation(
-        to='secrets.Secret',
-        content_type_field='assigned_object_type',
-        object_id_field='assigned_object_id',
-        related_query_name='device'
     )
 
     objects = ConfigContextModelQuerySet.as_manager()
 
-    csv_headers = [
-        'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-        'site', 'location', 'rack_name', 'position', 'face', 'comments',
-    ]
     clone_fields = [
-        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'cluster',
+        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'airflow', 'cluster',
     ]
 
     class Meta:
@@ -638,7 +604,15 @@ class Device(PrimaryModel, ConfigContextModel):
         )
 
     def __str__(self):
-        return self.display_name or super().__str__()
+        if self.name and self.asset_tag:
+            return f'{self.name} ({self.asset_tag})'
+        elif self.name:
+            return self.name
+        elif self.virtual_chassis:
+            return f'{self.virtual_chassis.name}:{self.vc_position} ({self.pk})'
+        elif self.device_type:
+            return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
+        return super().__str__()
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
@@ -781,8 +755,11 @@ class Device(PrimaryModel, ConfigContextModel):
             })
 
     def save(self, *args, **kwargs):
-
         is_new = not bool(self.pk)
+
+        # Inherit airflow attribute from DeviceType if not set
+        if is_new and not self.airflow:
+            self.airflow = self.device_type.airflow
 
         super().save(*args, **kwargs)
 
@@ -820,36 +797,6 @@ class Device(PrimaryModel, ConfigContextModel):
             device.rack = self.rack
             device.save()
 
-    def to_csv(self):
-        return (
-            self.name or '',
-            self.device_role.name,
-            self.tenant.name if self.tenant else None,
-            self.device_type.manufacturer.name,
-            self.device_type.model,
-            self.platform.name if self.platform else None,
-            self.serial,
-            self.asset_tag,
-            self.get_status_display(),
-            self.site.name,
-            self.rack.location.name if self.rack and self.rack.location else None,
-            self.rack.name if self.rack else None,
-            self.position,
-            self.get_face_display(),
-            self.comments,
-        )
-
-    @property
-    def display_name(self):
-        if self.name:
-            return self.name
-        elif self.virtual_chassis:
-            return f'{self.virtual_chassis.name}:{self.vc_position} ({self.pk})'
-        elif self.device_type:
-            return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
-        else:
-            return ''  # Device has not yet been created
-
     @property
     def identifier(self):
         """
@@ -861,7 +808,7 @@ class Device(PrimaryModel, ConfigContextModel):
 
     @property
     def primary_ip(self):
-        if settings.PREFER_IPV4 and self.primary_ip4:
+        if ConfigItem('PREFER_IPV4')() and self.primary_ip4:
             return self.primary_ip4
         elif self.primary_ip6:
             return self.primary_ip6
@@ -942,10 +889,6 @@ class VirtualChassis(PrimaryModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['name', 'domain', 'master']
-
     class Meta:
         ordering = ['name']
         verbose_name_plural = 'virtual chassis'
@@ -982,10 +925,3 @@ class VirtualChassis(PrimaryModel):
             )
 
         return super().delete(*args, **kwargs)
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.domain,
-            self.master.name if self.master else None,
-        )

@@ -2,44 +2,60 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Service</strong></div>
-        <div class="panel-body">
-            {% if obj.device %}
-                <div class="form-group">
-                    <label class="col-md-3 control-label required">Device</label>
-                    <div class="col-md-9">
-                        <p class="form-control-static">{{ obj.device }}</p>
-                    </div>
-                </div>
-            {% else %}
-                <div class="form-group">
-                    <label class="col-md-3 control-label required">Virtual Machine</label>
-                    <div class="col-md-9">
-                        <p class="form-control-static">{{ obj.virtual_machine }}</p>
-                    </div>
-                </div>
-            {% endif %}
-            {% render_field form.name %}
-            <div class="form-group form-inline">
-                <label class="col-md-3 control-label required">Port(s)</label>
-                <div class="col-md-9">
-                    {{ form.protocol }}
-                    {{ form.ports }}
-                    <span class="help-block">{{ form.ports.help_text }}</span>
-                </div>
-            </div>
-            {% render_field form.ipaddresses %}
-            {% render_field form.description %}
-            {% render_field form.tags %}
+  <div class="field-group my-5">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Service</h5>
+    </div>
+
+    <div class="row mb-2">
+      <div class="offset-sm-3">
+        <ul class="nav nav-pills" role="tablist">
+          <li role="presentation" class="nav-item">
+            <button role="tab" type="button" id="device_tab" data-bs-toggle="tab" aria-controls="device" data-bs-target="#device" class="nav-link {% if not form.initial.virtual_machine %}active{% endif %}">
+              Device
+            </button>
+          </li>
+          <li role="presentation" class="nav-item">
+            <button role="tab" type="button" id="vm_tab" data-bs-toggle="tab" aria-controls="vm" data-bs-target="#vm" class="nav-link {% if form.initial.virtual_machine %}active{% endif %}">
+              Virtual Machine
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="tab-content p-0 border-0">
+      <div class="tab-pane {% if not form.initial.virtual_machine %}active{% endif %}" id="device" role="tabpanel" aria-labeled-by="device_tab">
+        {% render_field form.device %}
+      </div>
+      <div class="tab-pane {% if form.initial.virtual_machine %}active{% endif %}" id="vm" role="tabpanel" aria-labeled-by="vm_tab">
+        {% render_field form.virtual_machine %}
+      </div>
+    </div>
+    {% render_field form.name %}
+    <div class="row">
+        <label class="col-sm-3 col-form-label text-lg-end">Port(s)</label>
+        <div class="col-3">
+            {{ form.protocol }}
+        </div>
+        <div class="col-6">
+            {{ form.ports }}
         </div>
     </div>
-    {% if form.custom_fields %}
-        <div class="panel panel-default">
-            <div class="panel-heading"><strong>Custom Fields</strong></div>
-            <div class="panel-body">
-                {% render_custom_fields form %}
-            </div>
+    <div class="row mb-3">
+        <div class="col-3"></div>
+        <div class="col-9">
+            <span class="form-text">{{ form.ports.help_text }}</span>
         </div>
-    {% endif %}
+    </div>
+    {% render_field form.ipaddresses %}
+    {% render_field form.description %}
+    {% render_field form.tags %}
+  </div>
+
+  {% if form.custom_fields %}
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Custom Fields</h5>
+    </div>
+    {% render_custom_fields form %}
+  {% endif %}
 {% endblock %}

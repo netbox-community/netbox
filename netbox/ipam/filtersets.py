@@ -7,19 +7,23 @@ from netaddr.core import AddrFormatError
 
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from extras.filters import TagFilter
-from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
+from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from .models import *
 
 
 __all__ = (
     'AggregateFilterSet',
+    'ASNFilterSet',
+    'FHRPGroupAssignmentFilterSet',
+    'FHRPGroupFilterSet',
     'IPAddressFilterSet',
+    'IPRangeFilterSet',
     'PrefixFilterSet',
     'RIRFilterSet',
     'RoleFilterSet',
@@ -117,6 +121,7 @@ class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
 
 class RIRFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = RIR
@@ -173,11 +178,50 @@ class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
             return queryset.none()
 
 
+class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
+    rir_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=RIR.objects.all(),
+        label='RIR (ID)',
+    )
+    rir = django_filters.ModelMultipleChoiceFilter(
+        field_name='rir__slug',
+        queryset=RIR.objects.all(),
+        to_field_name='slug',
+        label='RIR (slug)',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='sites',
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='sites__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site (slug)',
+    )
+
+    class Meta:
+        model = ASN
+        fields = ['id', 'asn']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(description__icontains=value)
+        try:
+            qs_filter |= Q(asn=int(value))
+        except ValueError:
+            pass
+        return queryset.filter(qs_filter)
+
+
 class RoleFilterSet(OrganizationalModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
     )
+    tag = TagFilter()
 
     class Meta:
         model = Role
@@ -215,7 +259,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     children = MultiValueNumberFilter(
         field_name='_children'
     )
-    mask_length = django_filters.NumberFilter(
+    mask_length = MultiValueNumberFilter(
         field_name='prefix',
         lookup_expr='net_mask_length'
     )
@@ -310,7 +354,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Prefix
-        fields = ['id', 'is_pool']
+        fields = ['id', 'is_pool', 'mark_utilized']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -373,6 +417,73 @@ class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
             Q(vrf=vrf) |
             Q(vrf__export_targets__in=vrf.import_targets.all())
         )
+
+
+class IPRangeFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    family = django_filters.NumberFilter(
+        field_name='start_address',
+        lookup_expr='family'
+    )
+    contains = django_filters.CharFilter(
+        method='search_contains',
+        label='Ranges which contain this prefix or IP',
+    )
+    vrf_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VRF.objects.all(),
+        label='VRF',
+    )
+    vrf = django_filters.ModelMultipleChoiceFilter(
+        field_name='vrf__rd',
+        queryset=VRF.objects.all(),
+        to_field_name='rd',
+        label='VRF (RD)',
+    )
+    role_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Role.objects.all(),
+        label='Role (ID)',
+    )
+    role = django_filters.ModelMultipleChoiceFilter(
+        field_name='role__slug',
+        queryset=Role.objects.all(),
+        to_field_name='slug',
+        label='Role (slug)',
+    )
+    status = django_filters.MultipleChoiceFilter(
+        choices=IPRangeStatusChoices,
+        null_value=None
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = IPRange
+        fields = ['id']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(description__icontains=value)
+        try:
+            ipaddress = str(netaddr.IPNetwork(value.strip()).cidr)
+            qs_filter |= Q(start_address=ipaddress)
+            qs_filter |= Q(end_address=ipaddress)
+        except (AddrFormatError, ValueError):
+            pass
+        return queryset.filter(qs_filter)
+
+    def search_contains(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        try:
+            # Strip mask
+            ipaddress = netaddr.IPNetwork(value)
+            return queryset.filter(start_address__lte=ipaddress, end_address__gte=ipaddress)
+        except (AddrFormatError, ValueError):
+            return queryset.none()
 
 
 class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
@@ -541,6 +652,67 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         return queryset.exclude(assigned_object_id__isnull=value)
 
 
+class FHRPGroupFilterSet(PrimaryModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    protocol = django_filters.MultipleChoiceFilter(
+        choices=FHRPGroupProtocolChoices
+    )
+    auth_type = django_filters.MultipleChoiceFilter(
+        choices=FHRPGroupAuthTypeChoices
+    )
+    related_ip = django_filters.ModelMultipleChoiceFilter(
+        queryset=IPAddress.objects.all(),
+        method='filter_related_ip'
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = FHRPGroup
+        fields = ['id', 'group_id', 'auth_key']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(description__icontains=value)
+        )
+
+    def filter_related_ip(self, queryset, name, value):
+        """
+        Filter by VRF & prefix of assigned IP addresses.
+        """
+        ip_filter = Q()
+        for ipaddress in value:
+            if ipaddress.vrf:
+                q = Q(
+                    ip_addresses__address__net_contained_or_equal=ipaddress.address,
+                    ip_addresses__vrf=ipaddress.vrf
+                )
+            else:
+                q = Q(
+                    ip_addresses__address__net_contained_or_equal=ipaddress.address,
+                    ip_addresses__vrf__isnull=True
+                )
+            ip_filter |= q
+
+        return queryset.filter(ip_filter)
+
+
+class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
+    interface_type = ContentTypeFilter()
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=FHRPGroup.objects.all(),
+        label='Group (ID)',
+    )
+
+    class Meta:
+        model = FHRPGroupAssignment
+        fields = ['id', 'group_id', 'interface_type', 'interface_id', 'priority']
+
+
 class VLANGroupFilterSet(OrganizationalModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -568,6 +740,7 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
     cluster = django_filters.NumberFilter(
         method='filter_scope'
     )
+    tag = TagFilter()
 
     class Meta:
         model = VLANGroup

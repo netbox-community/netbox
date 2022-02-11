@@ -80,11 +80,6 @@ class ObjectChange(BigIDModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = [
-        'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id',
-        'related_object_type', 'related_object_id', 'object_repr', 'prechange_data', 'postchange_data',
-    ]
-
     class Meta:
         ordering = ['-time']
 
@@ -108,22 +103,6 @@ class ObjectChange(BigIDModel):
 
     def get_absolute_url(self):
         return reverse('extras:objectchange', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.time,
-            self.user,
-            self.user_name,
-            self.request_id,
-            self.get_action_display(),
-            self.changed_object_type,
-            self.changed_object_id,
-            self.related_object_type,
-            self.related_object_id,
-            self.object_repr,
-            self.prechange_data,
-            self.postchange_data,
-        )
 
     def get_action_class(self):
         return ObjectChangeActionChoices.CSS_CLASSES.get(self.action)

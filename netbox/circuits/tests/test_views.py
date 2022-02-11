@@ -64,10 +64,13 @@ class CircuitTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             CircuitType(name='Circuit Type 3', slug='circuit-type-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Circuit Type X',
             'slug': 'circuit-type-x',
             'description': 'A new circuit type',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -122,10 +125,10 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "cid,provider,type",
-            "Circuit 4,Provider 1,Circuit Type 1",
-            "Circuit 5,Provider 1,Circuit Type 1",
-            "Circuit 6,Provider 1,Circuit Type 1",
+            "cid,provider,type,status",
+            "Circuit 4,Provider 1,Circuit Type 1,active",
+            "Circuit 5,Provider 1,Circuit Type 1,active",
+            "Circuit 6,Provider 1,Circuit Type 1,active",
         )
 
         cls.bulk_edit_data = {

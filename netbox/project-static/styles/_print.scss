@@ -1,0 +1,18 @@
+// Entry for netbox-print.css. Force light-mode theming when printing.
+
+@media print {
+  // Force black and white background/foreground colors when printing.
+  :root {
+    --nbx-body-bg: #fff !important;
+    --nbx-body-color: #000 !important;
+  }
+
+  html,
+  html[data-netbox-color-mode='dark'],
+  html[data-netbox-color-mode='light'] {
+    @import './theme-light';
+    @import './bootstrap';
+    @import './select';
+    @import './netbox';
+  }
+}

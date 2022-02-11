@@ -1,63 +1,87 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
-{% block breadcrumbs %}
-  <li><a href="{% url 'ipam:role_list' %}">Roles</a></li>
-  <li>{{ object }}</li>
-{% endblock %}
+{% block extra_controls %}
+  {% if perms.ipam.add_prefix %}
+    <a href="{% url 'ipam:prefix_add' %}?role={{ object.pk }}" class="btn btn-sm btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Prefix
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
 
 {% block content %}
-<div class="row">
-	<div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Role</strong>
+<div class="row mb-3">
+	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        Role
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Weight</th>
+            <td>{{ object.weight }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Prefixes</th>
+            <td>
+              <a href="{% url 'ipam:prefix_list' %}?role_id={{ object.pk }}">{{ prefixes_table.rows|length }}</a>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">IP Ranges</th>
+            <td>
+              {% with ipranges_count=object.ip_ranges.count %}
+                {% if ipranges_count %}
+                  <a href="{% url 'ipam:iprange_list' %}?role_id={{ object.pk }}">{{ ipranges_count }}</a>
+                {% else %}
+                  &mdash;
+                {% endif %}
+              {% endwith %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">VLANs</th>
+            <td>
+              {% with vlans_count=object.vlans.count %}
+                {% if vlans_count %}
+                  <a href="{% url 'ipam:vlan_list' %}?role_id={{ object.pk }}">{{ vlans_count }}</a>
+                {% else %}
+                  &mdash;
+                {% endif %}
+              {% endwith %}
+            </td>
+          </tr>
+        </table>
       </div>
-      <table class="table table-hover panel-body attr-table">
-        <tr>
-          <td>Name</td>
-          <td>{{ object.name }}</td>
-        </tr>
-        <tr>
-          <td>Description</td>
-          <td>{{ object.description|placeholder }}</td>
-        </tr>
-        <tr>
-          <td>Weight</td>
-          <td>{{ object.weight }}</td>
-        </tr>
-        <tr>
-          <td>Prefixes</td>
-          <td>
-            <a href="{% url 'ipam:prefix_list' %}?role_id={{ object.pk }}">{{ prefixes_table.rows|length }}</a>
-          </td>
-        </tr>
-      </table>
     </div>
+    {% include 'inc/panels/tags.html' %}
     {% plugin_left_page object %}
 	</div>
-	<div class="col-md-6">
-    {% include 'inc/custom_fields_panel.html' %}
+	<div class="col col-md-6">
+    {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
   </div>
 </div>
-<div class="row">
-	<div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Prefixes</strong>
+<div class="row mb-3">
+	<div class="col col-md-12">
+    <div class="card">
+      <h5 class="card-header">Prefixes</h5>
+      <div class="card-body table-responsive">
+        {% render_table prefixes_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=prefixes_table.paginator page=prefixes_table.page %}
       </div>
-      {% include 'inc/table.html' with table=prefixes_table %}
-      {% if perms.ipam.add_prefix %}
-        <div class="panel-footer text-right noprint">
-          <a href="{% url 'ipam:prefix_add' %}?role={{ object.pk }}" class="btn btn-xs btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add prefix
-          </a>
-        </div>
-      {% endif %}
     </div>
-    {% include 'inc/paginator.html' with paginator=prefixes_table.paginator page=prefixes_table.page %}
     {% plugin_full_width_page object %}
   </div>
 </div>

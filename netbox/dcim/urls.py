@@ -1,7 +1,6 @@
 from django.urls import path
 
-from extras.views import ImageAttachmentEditView, ObjectChangeLogView, ObjectJournalView
-from ipam.views import ServiceEditView
+from extras.views import ObjectChangeLogView, ObjectJournalView
 from utilities.views import SlugRedirectView
 from . import views
 from .models import *
@@ -43,7 +42,6 @@ urlpatterns = [
     path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name='site_delete'),
     path('sites/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),
     path('sites/<int:pk>/journal/', ObjectJournalView.as_view(), name='site_journal', kwargs={'model': Site}),
-    path('sites/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='site_add_image', kwargs={'model': Site}),
 
     # Locations
     path('locations/', views.LocationListView.as_view(), name='location_list'),
@@ -55,7 +53,6 @@ urlpatterns = [
     path('locations/<int:pk>/edit/', views.LocationEditView.as_view(), name='location_edit'),
     path('locations/<int:pk>/delete/', views.LocationDeleteView.as_view(), name='location_delete'),
     path('locations/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='location_changelog', kwargs={'model': Location}),
-    path('locations/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='location_add_image', kwargs={'model': Location}),
 
     # Rack roles
     path('rack-roles/', views.RackRoleListView.as_view(), name='rackrole_list'),
@@ -92,7 +89,6 @@ urlpatterns = [
     path('racks/<int:pk>/delete/', views.RackDeleteView.as_view(), name='rack_delete'),
     path('racks/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rack_changelog', kwargs={'model': Rack}),
     path('racks/<int:pk>/journal/', ObjectJournalView.as_view(), name='rack_journal', kwargs={'model': Rack}),
-    path('racks/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='rack_add_image', kwargs={'model': Rack}),
 
     # Manufacturers
     path('manufacturers/', views.ManufacturerListView.as_view(), name='manufacturer_list'),
@@ -112,6 +108,14 @@ urlpatterns = [
     path('device-types/edit/', views.DeviceTypeBulkEditView.as_view(), name='devicetype_bulk_edit'),
     path('device-types/delete/', views.DeviceTypeBulkDeleteView.as_view(), name='devicetype_bulk_delete'),
     path('device-types/<int:pk>/', views.DeviceTypeView.as_view(), name='devicetype'),
+    path('device-types/<int:pk>/console-ports/', views.DeviceTypeConsolePortsView.as_view(), name='devicetype_consoleports'),
+    path('device-types/<int:pk>/console-server-ports/', views.DeviceTypeConsoleServerPortsView.as_view(), name='devicetype_consoleserverports'),
+    path('device-types/<int:pk>/power-ports/', views.DeviceTypePowerPortsView.as_view(), name='devicetype_powerports'),
+    path('device-types/<int:pk>/power-outlets/', views.DeviceTypePowerOutletsView.as_view(), name='devicetype_poweroutlets'),
+    path('device-types/<int:pk>/interfaces/', views.DeviceTypeInterfacesView.as_view(), name='devicetype_interfaces'),
+    path('device-types/<int:pk>/front-ports/', views.DeviceTypeFrontPortsView.as_view(), name='devicetype_frontports'),
+    path('device-types/<int:pk>/rear-ports/', views.DeviceTypeRearPortsView.as_view(), name='devicetype_rearports'),
+    path('device-types/<int:pk>/device-bays/', views.DeviceTypeDeviceBaysView.as_view(), name='devicetype_devicebays'),
     path('device-types/<int:pk>/edit/', views.DeviceTypeEditView.as_view(), name='devicetype_edit'),
     path('device-types/<int:pk>/delete/', views.DeviceTypeDeleteView.as_view(), name='devicetype_delete'),
     path('device-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='devicetype_changelog', kwargs={'model': DeviceType}),
@@ -228,8 +232,6 @@ urlpatterns = [
     path('devices/<int:pk>/status/', views.DeviceStatusView.as_view(), name='device_status'),
     path('devices/<int:pk>/lldp-neighbors/', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
     path('devices/<int:pk>/config/', views.DeviceConfigView.as_view(), name='device_config'),
-    path('devices/<int:device>/services/assign/', ServiceEditView.as_view(), name='device_service_assign'),
-    path('devices/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='device_add_image', kwargs={'model': Device}),
 
     # Console ports
     path('console-ports/', views.ConsolePortListView.as_view(), name='consoleport_list'),

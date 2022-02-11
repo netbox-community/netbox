@@ -29,7 +29,7 @@ class CircuitStatusChoices(ChoiceSet):
         STATUS_PLANNED: 'info',
         STATUS_PROVISIONING: 'primary',
         STATUS_OFFLINE: 'danger',
-        STATUS_DECOMMISSIONED: 'default',
+        STATUS_DECOMMISSIONED: 'secondary',
     }
 
 

@@ -6,8 +6,8 @@ This section of the documentation discusses installing and configuring the NetBo
 
 Begin by installing all system packages required by NetBox and its dependencies.
 
-!!! note
-    NetBox v2.8.0 and later require Python 3.6, 3.7, or 3.8.
+!!! warning "Python 3.7 or later required"
+    NetBox v3.0 and v3.1 require Python 3.7, 3.8, or 3.9. It is recommended to install at least Python v3.8, as this will become the minimum supported Python version in NetBox v3.2.
 
 === "Ubuntu"
 
@@ -17,14 +17,19 @@ Begin by installing all system packages required by NetBox and its dependencies.
 
 === "CentOS"
 
+    !!! warning
+        CentOS 8 does not provide Python 3.7 or later via its native package manager. You will need to install it via some other means. [Here is an example](https://tecadmin.net/install-python-3-7-on-centos-8/) of installing Python 3.7 from source.
+
+    Once you have Python 3.7 or later installed, install the remaining system packages:
+
     ```no-highlight
-    sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
+    sudo yum install -y gcc libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
     ```
 
-Before continuing with either platform, update pip (Python's package management tool) to its latest release:
+Before continuing, check that your installed Python version is at least 3.7:
 
 ```no-highlight
-sudo pip3 install --upgrade pip
+python3 -V
 ```
 
 ## Download NetBox
@@ -36,23 +41,21 @@ This documentation provides two options for installing NetBox: from a downloadab
 Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox` as the NetBox root.
 
 ```no-highlight
-$ sudo wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
-$ sudo tar -xzf vX.Y.Z.tar.gz -C /opt
-$ sudo ln -s /opt/netbox-X.Y.Z/ /opt/netbox
-$ ls -l /opt | grep netbox
-lrwxrwxrwx  1 root root         13 Jul 20 13:44 netbox -> netbox-2.9.0/
-drwxr-xr-x  2 root root       4096 Jul 20 13:44 netbox-2.9.0
+sudo wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
+sudo tar -xzf vX.Y.Z.tar.gz -C /opt
+sudo ln -s /opt/netbox-X.Y.Z/ /opt/netbox
 ```
 
 !!! note
-    It is recommended to install NetBox in a directory named for its version number. For example, NetBox v2.9.0 would be installed into `/opt/netbox-2.9.0`, and a symlink from `/opt/netbox/` would point to this location. This allows for future releases to be installed in parallel without interrupting the current installation. When changing to the new release, only the symlink needs to be updated.
+    It is recommended to install NetBox in a directory named for its version number. For example, NetBox v3.0.0 would be installed into `/opt/netbox-3.0.0`, and a symlink from `/opt/netbox/` would point to this location. (You can verify this configuration with the command `ls -l /opt | grep netbox`.) This allows for future releases to be installed in parallel without interrupting the current installation. When changing to the new release, only the symlink needs to be updated.
 
 ### Option B: Clone the Git Repository
 
 Create the base directory for the NetBox installation. For this guide, we'll use `/opt/netbox`.
 
 ```no-highlight
-sudo mkdir -p /opt/netbox/ && cd /opt/netbox/
+sudo mkdir -p /opt/netbox/
+cd /opt/netbox/
 ```
 
 If `git` is not already installed, install it:
@@ -72,23 +75,26 @@ If `git` is not already installed, install it:
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory. (This branch always holds the current stable release.)
 
 ```no-highlight
-$ sudo git clone -b master https://github.com/netbox-community/netbox.git .
-```
-
-The screen below should be the result:
-
-```
-Cloning into '.'...
-remote: Counting objects: 1994, done.
-remote: Compressing objects: 100% (150/150), done.
-remote: Total 1994 (delta 80), reused 0 (delta 0), pack-reused 1842
-Receiving objects: 100% (1994/1994), 472.36 KiB | 0 bytes/s, done.
-Resolving deltas: 100% (1495/1495), done.
-Checking connectivity... done.
+sudo git clone -b master --depth 1 https://github.com/netbox-community/netbox.git .
 ```
 
 !!! note
-    Installation via git also allows you to easily try out development versions of NetBox. The `develop` branch contains all work underway for the next minor release, and the `feature` branch tracks progress on the next major release. 
+    The `git clone` command above utilizes a "shallow clone" to retrieve only the most recent commit. If you need to download the entire history, omit the `--depth 1` argument.
+
+The `git clone` command should generate output similar to the following:
+
+```
+Cloning into '.'...
+remote: Enumerating objects: 996, done.
+remote: Counting objects: 100% (996/996), done.
+remote: Compressing objects: 100% (935/935), done.
+remote: Total 996 (delta 148), reused 386 (delta 34), pack-reused 0
+Receiving objects: 100% (996/996), 4.26 MiB | 9.81 MiB/s, done.
+Resolving deltas: 100% (148/148), done.
+```
+
+!!! note
+    Installation via git also allows you to easily try out different versions of NetBox. To check out a [specific NetBox release](https://github.com/netbox-community/netbox/releases), use the `git checkout` command with the desired release tag. For example, `git checkout v3.0.8`.
 
 ## Create the NetBox System User
 
@@ -189,7 +195,7 @@ A simple Python script named `generate_secret_key.py` is provided in the parent 
 python3 ../generate_secret_key.py
 ```
 
-!!! warning
+!!! warning "SECRET_KEY values must match"
     In the case of a highly available installation with multiple web servers, `SECRET_KEY` must be identical among all servers in order to maintain a persistent user session state.
 
 When you have finished modifying the configuration, remember to save the file.
@@ -200,7 +206,7 @@ All Python packages required by NetBox are listed in `requirements.txt` and will
 
 ### NAPALM
 
-The [NAPALM automation](https://napalm-automation.net/) library allows NetBox to fetch live data from devices and return it to a requester via its REST API. The `NAPALM_USERNAME` and `NAPALM_PASSWORD` configuration parameters define the credentials to be used when connecting to a device.
+Integration with the [NAPALM automation](../additional-features/napalm.md) library allows NetBox to fetch live data from devices and return it to a requester via its REST API. The `NAPALM_USERNAME` and `NAPALM_PASSWORD` configuration parameters define the credentials to be used when connecting to a device.
 
 ```no-highlight
 sudo sh -c "echo 'napalm' >> /opt/netbox/local_requirements.txt"
@@ -219,12 +225,19 @@ sudo sh -c "echo 'django-storages' >> /opt/netbox/local_requirements.txt"
 Once NetBox has been configured, we're ready to proceed with the actual installation. We'll run the packaged upgrade script (`upgrade.sh`) to perform the following actions:
 
 * Create a Python virtual environment
-* Install all required Python packages
+* Installs all required Python packages
 * Run database schema migrations
+* Builds the documentation locally (for offline use)
 * Aggregate static resource files on disk
 
 ```no-highlight
 sudo /opt/netbox/upgrade.sh
+```
+
+Note that **Python 3.7 or later is required** for NetBox v3.0 and later releases. If the default Python installation on your server is set to a lesser version,  pass the path to the supported installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
+
+```no-highlight
+sudo PYTHON=/usr/bin/python3.7 /opt/netbox/upgrade.sh
 ```
 
 !!! note
@@ -243,29 +256,44 @@ Once the virtual environment has been activated, you should notice the string `(
 Next, we'll create a superuser account using the `createsuperuser` Django management command (via `manage.py`). Specifying an email address for the user is not required, but be sure to use a very strong password.
 
 ```no-highlight
-(venv) $ cd /opt/netbox/netbox
-(venv) $ python3 manage.py createsuperuser
-Username: admin
-Email address: admin@example.com
-Password:
-Password (again):
-Superuser created successfully.
+cd /opt/netbox/netbox
+python3 manage.py createsuperuser
 ```
+
+## Schedule the Housekeeping Task
+
+NetBox includes a `housekeeping` management command that handles some recurring cleanup tasks, such as clearing out old sessions and expired change records. Although this command may be run manually, it is recommended to configure a scheduled job using the system's `cron` daemon or a similar utility.
+
+A shell script which invokes this command is included at `contrib/netbox-housekeeping.sh`. It can be copied to or linked from your system's daily cron task directory, or included within the crontab directly. (If installing NetBox into a nonstandard path, be sure to update the system paths within this script first.)
+
+```shell
+sudo ln -s /opt/netbox/contrib/netbox-housekeeping.sh /etc/cron.daily/netbox-housekeeping
+```
+
+See the [housekeeping documentation](../administration/housekeeping.md) for further details.
 
 ## Test the Application
 
 At this point, we should be able to run NetBox's development server for testing. We can check by starting a development instance:
 
 ```no-highlight
-(venv) $ python3 manage.py runserver 0.0.0.0:8000 --insecure
+python3 manage.py runserver 0.0.0.0:8000 --insecure
+```
+
+If successful, you should see output similar to the following:
+
+```no-highlight
+Watching for file changes with StatReloader
 Performing system checks...
 
 System check identified no issues (0 silenced).
-November 17, 2020 - 16:08:13
-Django version 3.1.3, using settings 'netbox.settings'
-Starting development server at http://0.0.0.0:8000/
+August 30, 2021 - 18:02:23
+Django version 3.2.6, using settings 'netbox.settings'
+Starting development server at http://127.0.0.1:8000/
 Quit the server with CONTROL-C.
 ```
+
+Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page. Try logging in using the username and password specified when creating a superuser.
 
 !!! note
     By default RHEL based distros will likely block your testing attempts with firewalld. The development server port can be opened with `firewall-cmd` (add `--permanent` if you want the rule to survive server restarts):
@@ -274,20 +302,10 @@ Quit the server with CONTROL-C.
     firewall-cmd --zone=public --add-port=8000/tcp
     ```
 
-Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page.
-
-!!! danger
+!!! danger "Not for production use"
     The development server is for development and testing purposes only. It is neither performant nor secure enough for production use. **Do not use it in production.**
 
 !!! warning
     If the test service does not run, or you cannot reach the NetBox home page, something has gone wrong. Do not proceed with the rest of this guide until the installation has been corrected.
-
-Note that the initial user interface will be locked down for non-authenticated users.
-
-![NetBox UI as seen by a non-authenticated user](../media/installation/netbox_ui_guest.png)
-
-Try logging in using the superuser account we just created. Once authenticated, you'll be able to access all areas of the UI:
-
-![NetBox UI as seen by an administrator](../media/installation/netbox_ui_admin.png)
 
 Type `Ctrl+c` to stop the development server.

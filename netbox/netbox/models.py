@@ -9,7 +9,9 @@ from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 
 from extras.choices import ObjectChangeActionChoices
+from netbox.signals import post_clean
 from utilities.mptt import TreeManager
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
 
 __all__ = (
@@ -60,7 +62,7 @@ class ChangeLoggingMixin(models.Model):
         objectchange = ObjectChange(
             changed_object=self,
             related_object=related_object,
-            object_repr=str(self),
+            object_repr=str(self)[:200],
             action=action
         )
         if hasattr(self, '_prechange_snapshot'):
@@ -123,6 +125,32 @@ class CustomFieldsMixin(models.Model):
                 raise ValidationError(f"Missing required custom field '{cf.name}'.")
 
 
+class CustomValidationMixin(models.Model):
+    """
+    Enables user-configured validation rules for built-in models by extending the clean() method.
+    """
+    class Meta:
+        abstract = True
+
+    def clean(self):
+        super().clean()
+
+        # Send the post_clean signal
+        post_clean.send(sender=self.__class__, instance=self)
+
+
+class TagsMixin(models.Model):
+    """
+    Enable the assignment of Tags.
+    """
+    tags = TaggableManager(
+        through='extras.TaggedItem'
+    )
+
+    class Meta:
+        abstract = True
+
+
 #
 # Base model classes
 
@@ -138,15 +166,17 @@ class BigIDModel(models.Model):
         abstract = True
 
 
-class ChangeLoggedModel(ChangeLoggingMixin, BigIDModel):
+class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, BigIDModel):
     """
     Base model for all objects which support change logging.
     """
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
         abstract = True
 
 
-class PrimaryModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel):
+class PrimaryModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, TagsMixin, BigIDModel):
     """
     Primary models represent real objects within the infrastructure being modeled.
     """
@@ -155,15 +185,14 @@ class PrimaryModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel):
         object_id_field='assigned_object_id',
         content_type_field='assigned_object_type'
     )
-    tags = TaggableManager(
-        through='extras.TaggedItem'
-    )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True
 
 
-class NestedGroupModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel, MPTTModel):
+class NestedGroupModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, TagsMixin, BigIDModel, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.
@@ -205,7 +234,7 @@ class NestedGroupModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel, MPTTMo
             })
 
 
-class OrganizationalModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel):
+class OrganizationalModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, TagsMixin, BigIDModel):
     """
     Organizational models are those which are used solely to categorize and qualify other objects, and do not convey
     any real information about the infrastructure being modeled (for example, functional device roles). Organizational
@@ -226,6 +255,8 @@ class OrganizationalModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel):
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True

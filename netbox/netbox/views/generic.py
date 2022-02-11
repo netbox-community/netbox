@@ -10,23 +10,24 @@ from django.db.models import ManyToManyField, ProtectedError
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2.export import TableExport
 
-from extras.models import CustomField, ExportTemplate
+from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortTransaction, PermissionsViolation
 from utilities.forms import (
-    BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, CSVFileField, ImportForm, TableConfigForm,
-    restrict_form_fields,
+    BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, CSVFileField, ImportForm, restrict_form_fields,
 )
+from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.tables import paginate_table
-from utilities.utils import csv_format, normalize_querydict, prepare_cloned_fields
+from utilities.utils import normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 
 
@@ -73,6 +74,75 @@ class ObjectView(ObjectPermissionRequiredMixin, View):
         })
 
 
+class ObjectChildrenView(ObjectView):
+    """
+    Display a table of child objects associated with the parent object.
+
+    queryset: The base queryset for retrieving the *parent* object
+    table: Table class used to render child objects list
+    template_name: Name of the template to use
+    """
+    queryset = None
+    child_model = None
+    table = None
+    filterset = None
+    template_name = None
+
+    def get_children(self, request, parent):
+        """
+        Return a QuerySet of child objects.
+
+        request: The current request
+        parent: The parent object
+        """
+        raise NotImplementedError(f'{self.__class__.__name__} must implement get_children()')
+
+    def prep_table_data(self, request, queryset, parent):
+        """
+        Provides a hook for subclassed views to modify data before initializing the table.
+
+        :param request: The current request
+        :param queryset: The filtered queryset of child objects
+        :param parent: The parent object
+        """
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        """
+        GET handler for rendering child objects.
+        """
+        instance = get_object_or_404(self.queryset, **kwargs)
+        child_objects = self.get_children(request, instance)
+
+        if self.filterset:
+            child_objects = self.filterset(request.GET, child_objects).qs
+
+        permissions = {}
+        for action in ('change', 'delete'):
+            perm_name = get_permission_for_model(self.child_model, action)
+            permissions[action] = request.user.has_perm(perm_name)
+
+        table = self.table(self.prep_table_data(request, child_objects, instance), user=request.user)
+        # Determine whether to display bulk action checkboxes
+        if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
+            table.columns.show('pk')
+        paginate_table(table, request)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if is_htmx(request):
+            return render(request, 'htmx/table.html', {
+                'object': instance,
+                'table': table,
+            })
+
+        return render(request, self.get_template_name(), {
+            'object': instance,
+            'table': table,
+            'permissions': permissions,
+            **self.get_extra_context(request, instance),
+        })
+
+
 class ObjectListView(ObjectPermissionRequiredMixin, View):
     """
     List a series of objects.
@@ -94,7 +164,14 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
 
-    def queryset_to_yaml(self):
+    def get_table(self, request, permissions):
+        table = self.table(self.queryset, user=request.user)
+        if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
+            table.columns.show('pk')
+
+        return table
+
+    def export_yaml(self):
         """
         Export the queryset of objects as concatenated YAML documents.
         """
@@ -102,72 +179,47 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
 
         return '---\n'.join(yaml_data)
 
-    def queryset_to_csv(self):
+    def export_table(self, table, columns=None):
         """
-        Export the queryset of objects as comma-separated value (CSV), using the model's to_csv() method.
+        Export all table data in CSV format.
+
+        :param table: The Table instance to export
+        :param columns: A list of specific columns to include. If not specified, all columns will be exported.
         """
-        csv_data = []
-        custom_fields = []
+        exclude_columns = {'pk'}
+        if columns:
+            all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
+            exclude_columns.update({
+                col for col in all_columns if col not in columns
+            })
+        exporter = TableExport(
+            export_format=TableExport.CSV,
+            table=table,
+            exclude_columns=exclude_columns
+        )
+        return exporter.response(
+            filename=f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
+        )
 
-        # Start with the column headers
-        headers = self.queryset.model.csv_headers.copy()
+    def export_template(self, template, request):
+        """
+        Render an ExportTemplate using the current queryset.
 
-        # Add custom field headers, if any
-        if hasattr(self.queryset.model, 'custom_field_data'):
-            for custom_field in CustomField.objects.get_for_model(self.queryset.model):
-                headers.append(custom_field.name)
-                custom_fields.append(custom_field.name)
-
-        csv_data.append(','.join(headers))
-
-        # Iterate through the queryset appending each object
-        for obj in self.queryset:
-            data = obj.to_csv()
-
-            for custom_field in custom_fields:
-                data += (obj.cf.get(custom_field, ''),)
-
-            csv_data.append(csv_format(data))
-
-        return '\n'.join(csv_data)
+        :param template: ExportTemplate instance
+        :param request: The current request
+        """
+        try:
+            return template.render_to_response(self.queryset)
+        except Exception as e:
+            messages.error(request, f"There was an error rendering the selected export template ({template.name}): {e}")
+            return redirect(request.path)
 
     def get(self, request):
-
         model = self.queryset.model
         content_type = ContentType.objects.get_for_model(model)
 
         if self.filterset:
             self.queryset = self.filterset(request.GET, self.queryset).qs
-
-        # Check for export rendering (except for table-based)
-        if 'export' in request.GET and request.GET['export'] != 'table':
-
-            # An export template has been specified
-            if request.GET['export']:
-                et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
-                try:
-                    return et.render_to_response(self.queryset)
-                except Exception as e:
-                    messages.error(
-                        request,
-                        "There was an error rendering the selected export template ({}): {}".format(
-                            et.name, e
-                        )
-                    )
-
-            # Check for YAML export support
-            elif hasattr(model, 'to_yaml'):
-                response = HttpResponse(self.queryset_to_yaml(), content_type='text/yaml')
-                filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
-                response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-                return response
-
-            # Fall back to built-in CSV formatting if export requested but no template specified
-            elif 'export' in request.GET and hasattr(model, 'to_csv'):
-                response = HttpResponse(self.queryset_to_csv(), content_type='text/csv')
-                filename = 'netbox_{}.csv'.format(self.queryset.model._meta.verbose_name_plural)
-                response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-                return response
 
         # Compile a dictionary indicating which permissions are available to the current user for this model
         permissions = {}
@@ -175,36 +227,46 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
             perm_name = get_permission_for_model(model, action)
             permissions[action] = request.user.has_perm(perm_name)
 
-        # Construct the objects table
-        table = self.table(self.queryset, user=request.user)
-        if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
-            table.columns.show('pk')
+        if 'export' in request.GET:
 
-        # Handle table-based export
-        if request.GET.get('export') == 'table':
-            exclude_columns = {'pk'}
-            exclude_columns.update({
-                name for name, _ in table.available_columns
-            })
-            exporter = TableExport(
-                export_format=TableExport.CSV,
-                table=table,
-                exclude_columns=exclude_columns,
-                dataset_kwargs={},
-            )
-            return exporter.response(
-                filename=f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
-            )
+            # Export the current table view
+            if request.GET['export'] == 'table':
+                table = self.get_table(request, permissions)
+                columns = [name for name, _ in table.selected_columns]
+                return self.export_table(table, columns)
 
-        # Paginate the objects table
+            # Render an ExportTemplate
+            elif request.GET['export']:
+                template = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
+                return self.export_template(template, request)
+
+            # Check for YAML export support on the model
+            elif hasattr(model, 'to_yaml'):
+                response = HttpResponse(self.export_yaml(), content_type='text/yaml')
+                filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
+                response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+                return response
+
+            # Fall back to default table/YAML export
+            else:
+                table = self.get_table(request, permissions)
+                return self.export_table(table)
+
+        # Render the objects table
+        table = self.get_table(request, permissions)
         paginate_table(table, request)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if is_htmx(request):
+            return render(request, 'htmx/table.html', {
+                'table': table,
+            })
 
         context = {
             'content_type': content_type,
             'table': table,
             'permissions': permissions,
             'action_buttons': self.action_buttons,
-            'table_config_form': TableConfigForm(table=table),
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
         }
         context.update(self.extra_context())
@@ -308,13 +370,13 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
                 if '_addanother' in request.POST:
                     redirect_url = request.path
-                    return_url = request.GET.get('return_url')
-                    if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
-                        redirect_url = f'{redirect_url}?return_url={return_url}'
 
                     # If the object has clone_fields, pre-populate a new instance of the form
-                    if hasattr(obj, 'clone_fields'):
-                        redirect_url += f"{'&' if return_url else '?'}{prepare_cloned_fields(obj)}"
+                    params = prepare_cloned_fields(obj)
+                    if 'return_url' in request.GET:
+                        params['return_url'] = request.GET.get('return_url')
+                    if params:
+                        redirect_url += f"?{params.urlencode()}"
 
                     return redirect(redirect_url)
 
@@ -369,10 +431,21 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         obj = self.get_object(kwargs)
         form = ConfirmationForm(initial=request.GET)
 
+        # If this is an HTMX request, return only the rendered deletion form as modal content
+        if is_htmx(request):
+            viewname = f'{self.queryset.model._meta.app_label}:{self.queryset.model._meta.model_name}_delete'
+            form_url = reverse(viewname, kwargs={'pk': obj.pk})
+            return render(request, 'htmx/delete_form.html', {
+                'object': obj,
+                'object_type': self.queryset.model._meta.verbose_name,
+                'form': form,
+                'form_url': form_url,
+            })
+
         return render(request, self.template_name, {
-            'obj': obj,
+            'object': obj,
+            'object_type': self.queryset.model._meta.verbose_name,
             'form': form,
-            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request, obj),
         })
 
@@ -405,9 +478,9 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
-            'obj': obj,
+            'object': obj,
+            'object_type': self.queryset.model._meta.verbose_name,
             'form': form,
-            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request, obj),
         })
 
@@ -805,8 +878,21 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         else:
             pk_list = request.POST.getlist('pk')
 
+        # Include the PK list as initial data for the form
+        initial_data = {'pk': pk_list}
+
+        # Check for other contextual data needed for the form. We avoid passing all of request.GET because the
+        # filter values will conflict with the bulk edit form fields.
+        # TODO: Find a better way to accomplish this
+        if 'device' in request.GET:
+            initial_data['device'] = request.GET.get('device')
+        elif 'device_type' in request.GET:
+            initial_data['device_type'] = request.GET.get('device_type')
+        elif 'virtual_machine' in request.GET:
+            initial_data['virtual_machine'] = request.GET.get('virtual_machine')
+
         if '_apply' in request.POST:
-            form = self.form(model, request.POST)
+            form = self.form(model, request.POST, initial=initial_data)
             restrict_form_fields(form, request.user)
 
             if form.is_valid():
@@ -849,14 +935,14 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                                     if form.cleaned_data[name]:
                                         getattr(obj, name).set(form.cleaned_data[name])
                                 # Normal fields
-                                elif form.cleaned_data[name] not in (None, '', []):
+                                elif name in form.changed_data:
                                     setattr(obj, name, form.cleaned_data[name])
 
                             # Update custom fields
                             for name in custom_fields:
                                 if name in form.nullable_fields and name in nullified_fields:
                                     obj.custom_field_data[name] = None
-                                elif form.cleaned_data.get(name) not in (None, ''):
+                                elif name in form.changed_data:
                                     obj.custom_field_data[name] = form.cleaned_data[name]
 
                             obj.full_clean()
@@ -882,7 +968,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                     return redirect(self.get_return_url(request))
 
                 except ValidationError as e:
-                    messages.error(self.request, "{} failed validation: {}".format(obj, e))
+                    messages.error(self.request, "{} failed validation: {}".format(obj, ", ".join(e.messages)))
                     clear_webhooks.send(sender=self)
 
                 except PermissionsViolation:
@@ -895,16 +981,6 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 logger.debug("Form validation failed")
 
         else:
-            # Include the PK list as initial data for the form
-            initial_data = {'pk': pk_list}
-
-            # Check for other contextual data needed for the form. We avoid passing all of request.GET because the
-            # filter values will conflict with the bulk edit form fields.
-            # TODO: Find a better way to accomplish this
-            if 'device' in request.GET:
-                initial_data['device'] = request.GET.get('device')
-            elif 'device_type' in request.GET:
-                initial_data['device_type'] = request.GET.get('device_type')
 
             form = self.form(model, initial=initial_data)
             restrict_form_fields(form, request.user)
@@ -1035,10 +1111,10 @@ class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
+            qs = model.objects.all()
             if self.filterset is not None:
-                pk_list = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
-            else:
-                pk_list = model.objects.values_list('pk', flat=True)
+                qs = self.filterset(request.GET, qs).qs
+            pk_list = qs.only('pk').values_list('pk', flat=True)
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
@@ -1115,7 +1191,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
     queryset = None
     form = None
     model_form = None
-    template_name = None
+    template_name = 'generic/object_edit.html'
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -1125,7 +1201,8 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
         form = self.form(initial=request.GET)
 
         return render(request, self.template_name, {
-            'component_type': self.queryset.model._meta.verbose_name,
+            'obj': self.queryset.model(),
+            'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request),
         })
@@ -1133,25 +1210,47 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
     def post(self, request):
         logger = logging.getLogger('netbox.views.ComponentCreateView')
         form = self.form(request.POST, initial=request.GET)
+        self.validate_form(request, form)
 
+        if form.is_valid() and not form.errors:
+            if '_addanother' in request.POST:
+                return redirect(request.get_full_path())
+            else:
+                return redirect(self.get_return_url(request))
+
+        return render(request, self.template_name, {
+            'obj_type': self.queryset.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request),
+        })
+
+    def validate_form(self, request, form):
+        """
+        Validate form values and set errors on the form object as they are detected. If
+        no errors are found, signal success messages.
+        """
+
+        logger = logging.getLogger('netbox.views.ComponentCreateView')
         if form.is_valid():
-
             new_components = []
             data = deepcopy(request.POST)
-
             names = form.cleaned_data['name_pattern']
             labels = form.cleaned_data.get('label_pattern')
+
             for i, name in enumerate(names):
                 label = labels[i] if labels else None
                 # Initialize the individual component form
                 data['name'] = name
                 data['label'] = label
+
                 if hasattr(form, 'get_iterative_data'):
                     data.update(form.get_iterative_data(i))
+
                 component_form = self.model_form(data)
 
                 if component_form.is_valid():
                     new_components.append(component_form)
+
                 else:
                     for field, errors in component_form.errors.as_data().items():
                         # Assign errors on the child form's name/label field to name_pattern/label_pattern on the parent form
@@ -1163,11 +1262,8 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                             form.add_error(field, '{}: {}'.format(name, ', '.join(e)))
 
             if not form.errors:
-
                 try:
-
                     with transaction.atomic():
-
                         # Create the new components
                         new_objs = []
                         for component_form in new_components:
@@ -1178,13 +1274,11 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                         if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
                             raise PermissionsViolation
 
-                    messages.success(request, "Added {} {}".format(
-                        len(new_components), self.queryset.model._meta.verbose_name_plural
-                    ))
-                    if '_addanother' in request.POST:
-                        return redirect(request.get_full_path())
-                    else:
-                        return redirect(self.get_return_url(request))
+                        messages.success(request, "Added {} {}".format(
+                            len(new_components), self.queryset.model._meta.verbose_name_plural
+                        ))
+                        # Return the newly created objects so overridden post methods can use the data as needed.
+                        return new_objs
 
                 except PermissionsViolation:
                     msg = "Component creation failed due to object-level permissions violation"
@@ -1192,11 +1286,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                     form.add_error(None, msg)
                     clear_webhooks.send(sender=self)
 
-        return render(request, self.template_name, {
-            'component_type': self.queryset.model._meta.verbose_name,
-            'form': form,
-            'return_url': self.get_return_url(request),
-        })
+        return None
 
 
 class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
@@ -1230,7 +1320,7 @@ class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, 
         if not selected_objects:
             messages.warning(request, "No {} were selected.".format(self.parent_model._meta.verbose_name_plural))
             return redirect(self.get_return_url(request))
-        table = self.table(selected_objects)
+        table = self.table(selected_objects, orderable=False)
 
         if '_create' in request.POST:
             form = self.form(request.POST)

@@ -10,6 +10,7 @@ from taggit.managers import TaggableManager
 
 from users.models import ObjectPermission
 from utilities.permissions import resolve_permission_ct
+from utilities.utils import content_type_identifier
 from .utils import extract_form_failures
 
 __all__ = (
@@ -109,17 +110,17 @@ class ModelTestCase(TestCase):
             # Handle ManyToManyFields
             if value and type(field) in (ManyToManyField, TaggableManager):
 
-                if field.related_model is ContentType:
-                    model_dict[key] = sorted([f'{ct.app_label}.{ct.model}' for ct in value])
+                if field.related_model is ContentType and api:
+                    model_dict[key] = sorted([content_type_identifier(ct) for ct in value])
                 else:
                     model_dict[key] = sorted([obj.pk for obj in value])
 
-            if api:
+            elif api:
 
                 # Replace ContentType numeric IDs with <app_label>.<model>
                 if type(getattr(instance, key)) is ContentType:
                     ct = ContentType.objects.get(pk=value)
-                    model_dict[key] = f'{ct.app_label}.{ct.model}'
+                    model_dict[key] = content_type_identifier(ct)
 
                 # Convert IPNetwork instances to strings
                 elif type(value) is IPNetwork:

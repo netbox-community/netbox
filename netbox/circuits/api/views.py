@@ -34,7 +34,7 @@ class ProviderViewSet(CustomFieldModelViewSet):
 #
 
 class CircuitTypeViewSet(CustomFieldModelViewSet):
-    queryset = CircuitType.objects.annotate(
+    queryset = CircuitType.objects.prefetch_related('tags').annotate(
         circuit_count=count_related(Circuit, 'type')
     )
     serializer_class = serializers.CircuitTypeSerializer

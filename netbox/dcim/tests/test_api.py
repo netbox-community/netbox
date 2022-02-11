@@ -1,13 +1,16 @@
 from django.contrib.auth.models import User
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from ipam.models import VLAN
+from ipam.models import ASN, RIR, VLAN
 from utilities.testing import APITestCase, APIViewTestCases
 from virtualization.models import Cluster, ClusterType
+from wireless.choices import WirelessChannelChoices
+from wireless.models import WirelessLAN
 
 
 class AppTest(APITestCase):
@@ -142,6 +145,13 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
         )
         Site.objects.bulk_create(sites)
 
+        rir = RIR.objects.create(name='RFC 6996', is_private=True)
+
+        asns = [
+            ASN(asn=65000 + i, rir=rir) for i in range(8)
+        ]
+        ASN.objects.bulk_create(asns)
+
         cls.create_data = [
             {
                 'name': 'Site 4',
@@ -149,6 +159,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
                 'region': regions[1].pk,
                 'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
+                'asns': [asns[0].pk, asns[1].pk],
             },
             {
                 'name': 'Site 5',
@@ -156,6 +167,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
                 'region': regions[1].pk,
                 'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
+                'asns': [asns[2].pk, asns[3].pk],
             },
             {
                 'name': 'Site 6',
@@ -163,6 +175,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
                 'region': regions[1].pk,
                 'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
+                'asns': [asns[4].pk, asns[5].pk],
             },
         ]
 
@@ -251,7 +264,7 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
 
 class RackTest(APIViewTestCases.APIViewTestCase):
     model = Rack
-    brief_fields = ['device_count', 'display', 'display_name', 'id', 'name', 'url']
+    brief_fields = ['device_count', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
@@ -418,7 +431,7 @@ class ManufacturerTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
     model = DeviceType
-    brief_fields = ['device_count', 'display', 'display_name', 'id', 'manufacturer', 'model', 'slug', 'url']
+    brief_fields = ['device_count', 'display', 'id', 'manufacturer', 'model', 'slug', 'url']
     bulk_update_data = {
         'part_number': 'ABC123',
     }
@@ -583,6 +596,12 @@ class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
             manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
         )
 
+        power_port_templates = (
+            PowerPortTemplate(device_type=devicetype, name='Power Port Template 1'),
+            PowerPortTemplate(device_type=devicetype, name='Power Port Template 2'),
+        )
+        PowerPortTemplate.objects.bulk_create(power_port_templates)
+
         power_outlet_templates = (
             PowerOutletTemplate(device_type=devicetype, name='Power Outlet Template 1'),
             PowerOutletTemplate(device_type=devicetype, name='Power Outlet Template 2'),
@@ -594,14 +613,17 @@ class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
             {
                 'device_type': devicetype.pk,
                 'name': 'Power Outlet Template 4',
+                'power_port': power_port_templates[0].pk,
             },
             {
                 'device_type': devicetype.pk,
                 'name': 'Power Outlet Template 5',
+                'power_port': power_port_templates[1].pk,
             },
             {
                 'device_type': devicetype.pk,
                 'name': 'Power Outlet Template 6',
+                'power_port': None,
             },
         ]
 
@@ -866,7 +888,7 @@ class PlatformTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceTest(APIViewTestCases.APIViewTestCase):
     model = Device
-    brief_fields = ['display', 'display_name', 'id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'failed',
     }
@@ -1032,14 +1054,17 @@ class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
             {
                 'device': device.pk,
                 'name': 'Console Port 4',
+                'speed': 9600,
             },
             {
                 'device': device.pk,
                 'name': 'Console Port 5',
+                'speed': 115200,
             },
             {
                 'device': device.pk,
                 'name': 'Console Port 6',
+                'speed': None,
             },
         ]
 
@@ -1071,14 +1096,17 @@ class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIView
             {
                 'device': device.pk,
                 'name': 'Console Server Port 4',
+                'speed': 9600,
             },
             {
                 'device': device.pk,
                 'name': 'Console Server Port 5',
+                'speed': 115200,
             },
             {
                 'device': device.pk,
                 'name': 'Console Server Port 6',
+                'speed': None,
             },
         ]
 
@@ -1138,6 +1166,12 @@ class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
         devicerole = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
         device = Device.objects.create(device_type=devicetype, device_role=devicerole, name='Device 1', site=site)
 
+        power_ports = (
+            PowerPort(device=device, name='Power Port 1'),
+            PowerPort(device=device, name='Power Port 2'),
+        )
+        PowerPort.objects.bulk_create(power_ports)
+
         power_outlets = (
             PowerOutlet(device=device, name='Power Outlet 1'),
             PowerOutlet(device=device, name='Power Outlet 2'),
@@ -1149,14 +1183,17 @@ class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
             {
                 'device': device.pk,
                 'name': 'Power Outlet 4',
+                'power_port': power_ports[0].pk,
             },
             {
                 'device': device.pk,
                 'name': 'Power Outlet 5',
+                'power_port': power_ports[1].pk,
             },
             {
                 'device': device.pk,
                 'name': 'Power Outlet 6',
+                'power_port': None,
             },
         ]
 
@@ -1191,6 +1228,12 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         )
         VLAN.objects.bulk_create(vlans)
 
+        wireless_lans = (
+            WirelessLAN(ssid='WLAN1'),
+            WirelessLAN(ssid='WLAN2'),
+        )
+        WirelessLAN.objects.bulk_create(wireless_lans)
+
         cls.create_data = [
             {
                 'device': device.pk,
@@ -1205,6 +1248,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'name': 'Interface 5',
                 'type': '1000base-t',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
+                'bridge': interfaces[0].pk,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
             },
@@ -1213,9 +1257,25 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'name': 'Interface 6',
                 'type': 'virtual',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
-                'parent': interfaces[0].pk,
+                'parent': interfaces[1].pk,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
+            },
+            {
+                'device': device.pk,
+                'name': 'Interface 7',
+                'type': InterfaceTypeChoices.TYPE_80211A,
+                'tx_power': 10,
+                'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
+                'rf_channel': WirelessChannelChoices.CHANNEL_5G_32,
+            },
+            {
+                'device': device.pk,
+                'name': 'Interface 8',
+                'type': InterfaceTypeChoices.TYPE_80211A,
+                'tx_power': 10,
+                'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
+                'rf_channel': "",
             },
         ]
 
@@ -1490,45 +1550,40 @@ class ConnectedDeviceTest(APITestCase):
 
         super().setUp()
 
-        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
-        self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
-        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
-        self.devicetype1 = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
-        )
-        self.devicetype2 = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Test Device Type 2', slug='test-device-type-2'
-        )
-        self.devicerole1 = DeviceRole.objects.create(
-            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
-        )
-        self.devicerole2 = DeviceRole.objects.create(
-            name='Test Device Role 2', slug='test-device-role-2', color='00ff00'
-        )
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1', color='ff0000')
         self.device1 = Device.objects.create(
-            device_type=self.devicetype1, device_role=self.devicerole1, name='TestDevice1', site=self.site1
+            device_type=devicetype, device_role=devicerole, name='TestDevice1', site=site
         )
         self.device2 = Device.objects.create(
-            device_type=self.devicetype1, device_role=self.devicerole1, name='TestDevice2', site=self.site1
+            device_type=devicetype, device_role=devicerole, name='TestDevice2', site=site
         )
         self.interface1 = Interface.objects.create(device=self.device1, name='eth0')
         self.interface2 = Interface.objects.create(device=self.device2, name='eth0')
+        self.interface3 = Interface.objects.create(device=self.device1, name='eth1')  # Not connected
 
         cable = Cable(termination_a=self.interface1, termination_b=self.interface2)
         cable.save()
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_get_connected_device(self):
-
         url = reverse('dcim-api:connected-device-list')
-        response = self.client.get(url + '?peer_device=TestDevice2&peer_interface=eth0', **self.header)
 
+        url_params = f'?peer_device={self.device1.name}&peer_interface={self.interface1.name}'
+        response = self.client.get(url + url_params, **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data['name'], self.device1.name)
+        self.assertEqual(response.data['name'], self.device2.name)
+
+        url_params = f'?peer_device={self.device1.name}&peer_interface={self.interface3.name}'
+        response = self.client.get(url + url_params, **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
 
 
 class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
     model = VirtualChassis
-    brief_fields = ['id', 'master', 'member_count', 'name', 'url']
+    brief_fields = ['display', 'id', 'master', 'member_count', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):

@@ -5,7 +5,11 @@ from netbox.api import WritableNestedSerializer
 
 __all__ = [
     'NestedAggregateSerializer',
+    'NestedASNSerializer',
+    'NestedFHRPGroupSerializer',
+    'NestedFHRPGroupAssignmentSerializer',
     'NestedIPAddressSerializer',
+    'NestedIPRangeSerializer',
     'NestedPrefixSerializer',
     'NestedRIRSerializer',
     'NestedRoleSerializer',
@@ -18,6 +22,18 @@ __all__ = [
 
 
 #
+# ASNs
+#
+
+class NestedASNSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
+
+    class Meta:
+        model = models.ASN
+        fields = ['id', 'url', 'display', 'asn']
+
+
+#
 # VRFs
 #
 
@@ -27,7 +43,7 @@ class NestedVRFSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.VRF
-        fields = ['id', 'url', 'display', 'name', 'rd', 'display_name', 'prefix_count']
+        fields = ['id', 'url', 'display', 'name', 'rd', 'prefix_count']
 
 
 #
@@ -65,6 +81,26 @@ class NestedAggregateSerializer(WritableNestedSerializer):
 
 
 #
+# FHRP groups
+#
+
+class NestedFHRPGroupSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroup-detail')
+
+    class Meta:
+        model = models.FHRPGroup
+        fields = ['id', 'url', 'display', 'protocol', 'group_id']
+
+
+class NestedFHRPGroupAssignmentSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroupassignment-detail')
+
+    class Meta:
+        model = models.FHRPGroupAssignment
+        fields = ['id', 'url', 'display', 'interface_type', 'interface_id', 'group_id', 'priority']
+
+
+#
 # VLANs
 #
 
@@ -92,7 +128,7 @@ class NestedVLANSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.VLAN
-        fields = ['id', 'url', 'display', 'vid', 'name', 'display_name']
+        fields = ['id', 'url', 'display', 'vid', 'name']
 
 
 #
@@ -107,6 +143,19 @@ class NestedPrefixSerializer(WritableNestedSerializer):
     class Meta:
         model = models.Prefix
         fields = ['id', 'url', 'display', 'family', 'prefix', '_depth']
+
+
+#
+# IP ranges
+#
+
+class NestedIPRangeSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:iprange-detail')
+    family = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = models.IPRange
+        fields = ['id', 'url', 'display', 'family', 'start_address', 'end_address']
 
 
 #

@@ -4,16 +4,16 @@ Below is a list of tasks to consider when adding a new field to a core model.
 
 ## 1. Generate and run database migrations
 
-Django migrations are used to express changes to the database schema. In most cases, Django can generate these automatically, however very complex changes may require manual intervention. Always remember to specify a short but descriptive name when generating a new migration.
+[Django migrations](https://docs.djangoproject.com/en/stable/topics/migrations/) are used to express changes to the database schema. In most cases, Django can generate these automatically, however very complex changes may require manual intervention. Always remember to specify a short but descriptive name when generating a new migration.
 
 ```
 ./manage.py makemigrations <app> -n <name>
 ./manage.py migrate
 ```
 
-Where possible, try to merge related changes into a single migration. For example, if three new fields are being added to different models within an app, these can be expressed in the same migration. You can merge a new migration with an existing one by combining their `operations` lists.
+Where possible, try to merge related changes into a single migration. For example, if three new fields are being added to different models within an app, these can be expressed in a single migration. You can merge a newly generated migration with an existing one by combining their `operations` lists.
 
-!!! note
+!!! warning "Do not alter existing migrations"
     Migrations can only be merged within a release. Once a new release has been published, its migrations cannot be altered (other than for the purpose of correcting a bug).
 
 ## 2. Add validation logic to `clean()`
@@ -24,7 +24,6 @@ If the new field introduces additional validation requirements (beyond what's in
 class Foo(models.Model):
 
     def clean(self):
-
         super().clean()
 
         # Custom validation goes here
@@ -32,40 +31,36 @@ class Foo(models.Model):
             raise ValidationError()
 ```
 
-## 3. Add CSV helpers
+## 3. Update relevant querysets
 
-Add the name of the new field to `csv_headers` and included a CSV-friendly representation of its data in the model's `to_csv()` method. These will be used when exporting objects in CSV format.
+If you're adding a relational field (e.g. `ForeignKey`) and intend to include the data when retrieving a list of objects, be sure to include the field using `prefetch_related()` as appropriate. This will optimize the view and avoid extraneous database queries.
 
-## 4. Update relevant querysets
+## 4. Update API serializer
 
-If you're adding a relational field (e.g. `ForeignKey`) and intend to include the data when retreiving a list of objects, be sure to include the field using `prefetch_related()` as appropriate. This will optimize the view and avoid extraneous database queries.
+Extend the model's API serializer in `<app>.api.serializers` to include the new field. In most cases, it will not be necessary to also extend the nested serializer, which produces a minimal representation of the model.
 
-## 5. Update API serializer
+## 5. Add fields to forms
 
-Extend the model's API serializer in `<app>.api.serializers` to include the new field. In most cases, it will not be necessary to also extend the nested serializer, which produces a minimal represenation of the model.
-
-## 6. Add field to forms
-
-Extend any forms to include the new field as appropriate. Common forms include:
+Extend any forms to include the new field(s) as appropriate. These are found under the `forms/` directory within each app. Common forms include:
 
 * **Credit/edit** - Manipulating a single object
 * **Bulk edit** - Performing a change on many objects at once
 * **CSV import** - The form used when bulk importing objects in CSV format
 * **Filter** - Displays the options available for filtering a list of objects (both UI and API)
 
-## 7. Extend object filter set
+## 6. Extend object filter set
 
-If the new field should be filterable, add it to the `FilterSet` for the model. If the field should be searchable, remember to reference it in the FilterSet's `search()` method.
+If the new field should be filterable, add it to the `FilterSet` for the model. If the field should be searchable, remember to query it in the FilterSet's `search()` method.
 
-## 8. Add column to object table
+## 7. Add column to object table
 
-If the new field will be included in the object list view, add a column to the model's table. For simple fields, adding the field name to `Meta.fields` will be sufficient. More complex fields may require declaring a custom column.
+If the new field will be included in the object list view, add a column to the model's table. For simple fields, adding the field name to `Meta.fields` will be sufficient. More complex fields may require declaring a custom column. Also add the field name to `default_columns` if the column should be present in the table by default.
 
-## 9. Update the UI templates
+## 8. Update the UI templates
 
 Edit the object's view template to display the new field. There may also be a custom add/edit form template that needs to be updated.
 
-## 10. Create/extend test cases
+## 9. Create/extend test cases
 
 Create or extend the relevant test cases to verify that the new field and any accompanying validation logic perform as expected. This is especially important for relational fields. NetBox incorporates various test suites, including:
 
@@ -77,6 +72,6 @@ Create or extend the relevant test cases to verify that the new field and any ac
 
 Be diligent to ensure all of the relevant test suites are adapted or extended as necessary to test any new functionality.
 
-## 11. Update the model's documentation
+## 10. Update the model's documentation
 
 Each model has a dedicated page in the documentation, at `models/<app>/<model>.md`. Update this file to include any relevant information about the new field.

@@ -11,7 +11,7 @@ User=netbox
 Group=netbox
 WorkingDirectory=/opt/netbox
 
-ExecStart=/opt/netbox/venv/bin/python3 /opt/netbox/netbox/manage.py rqworker
+ExecStart=/opt/netbox/venv/bin/python3 /opt/netbox/netbox/manage.py rqworker high default low
 
 Restart=on-failure
 RestartSec=30

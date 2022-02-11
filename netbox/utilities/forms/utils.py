@@ -1,8 +1,10 @@
 import re
 
 from django import forms
+from django.conf import settings
 from django.forms.models import fields_for_model
 
+from utilities.choices import unpack_grouped_choices
 from utilities.querysets import RestrictedQuerySet
 from .constants import *
 
@@ -11,6 +13,7 @@ __all__ = (
     'expand_alphanumeric_pattern',
     'expand_ipaddress_pattern',
     'form_from_model',
+    'get_selected_values',
     'parse_alphanumeric_range',
     'parse_numeric_range',
     'restrict_form_fields',
@@ -109,6 +112,45 @@ def expand_ipaddress_pattern(string, family):
                 yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), string])
         else:
             yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), remnant])
+
+
+def get_selected_values(form, field_name):
+    """
+    Return the list of selected human-friendly values for a form field
+    """
+    if not hasattr(form, 'cleaned_data'):
+        form.is_valid()
+    filter_data = form.cleaned_data.get(field_name)
+    field = form.fields[field_name]
+
+    # Non-selection field
+    if not hasattr(field, 'choices'):
+        return [str(filter_data)]
+
+    # Model choice field
+    if type(field.choices) is forms.models.ModelChoiceIterator:
+        # If this is a single-choice field, wrap its value in a list
+        if not hasattr(filter_data, '__iter__'):
+            values = [filter_data]
+        else:
+            values = filter_data
+
+    else:
+        # Static selection field
+        choices = unpack_grouped_choices(field.choices)
+        if type(filter_data) not in (list, tuple):
+            filter_data = [filter_data]  # Ensure filter data is iterable
+        values = [
+            label for value, label in choices if str(value) in filter_data or None in filter_data
+        ]
+
+    if hasattr(field, 'null_option'):
+        # If the field has a `null_option` attribute set and it is selected,
+        # add it to the field's grouped choices.
+        if field.null_option is not None and None in filter_data:
+            values.append(field.null_option)
+
+    return values
 
 
 def add_blank_choice(choices):

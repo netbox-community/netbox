@@ -106,9 +106,6 @@ BANNER_LOGIN = environ.get('BANNER_LOGIN', '')
 # BASE_PATH = 'netbox/'
 BASE_PATH = environ.get('BASE_PATH', '')
 
-# Cache timeout in seconds. Set to 0 to dissable caching. Defaults to 900 (15 minutes)
-CACHE_TIMEOUT = int(environ.get('CACHE_TIMEOUT', 900))
-
 # Maximum number of days to retain logged changes. Set to 0 to retain changes indefinitely. (Default: 90)
 CHANGELOG_RETENTION = int(environ.get('CHANGELOG_RETENTION', 90))
 
@@ -212,9 +209,6 @@ REMOTE_AUTH_BACKEND = environ.get('REMOTE_AUTH_BACKEND', 'netbox.authentication.
 REMOTE_AUTH_HEADER = environ.get('REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER')
 REMOTE_AUTH_AUTO_CREATE_USER = environ.get('REMOTE_AUTH_AUTO_CREATE_USER', 'True').lower() == 'true'
 REMOTE_AUTH_DEFAULT_GROUPS = list(filter(None, environ.get('REMOTE_AUTH_DEFAULT_GROUPS', '').split(' ')))
-
-# This determines how often the GitHub API is called to check the latest release of NetBox. Must be at least 1 hour.
-RELEASE_CHECK_TIMEOUT = int(environ.get('RELEASE_CHECK_TIMEOUT', 24 * 3600))
 
 # This repository is used to check whether there is a new release of NetBox available. Set to None to disable the
 # version check or use the URL below to check for release in the official NetBox repository.

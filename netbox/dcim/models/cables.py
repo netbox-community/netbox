@@ -14,7 +14,6 @@ from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_ob
 from extras.utils import extras_features
 from netbox.models import BigIDModel, PrimaryModel
 from utilities.fields import ColorField
-from utilities.querysets import RestrictedQuerySet
 from utilities.utils import to_meters
 from .devices import Device
 from .device_components import FrontPort, RearPort
@@ -64,8 +63,15 @@ class Cable(PrimaryModel):
     )
     status = models.CharField(
         max_length=50,
-        choices=CableStatusChoices,
-        default=CableStatusChoices.STATUS_CONNECTED
+        choices=LinkStatusChoices,
+        default=LinkStatusChoices.STATUS_CONNECTED
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='cables',
+        blank=True,
+        null=True
     )
     label = models.CharField(
         max_length=100,
@@ -74,7 +80,9 @@ class Cable(PrimaryModel):
     color = ColorField(
         blank=True
     )
-    length = models.PositiveSmallIntegerField(
+    length = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
         blank=True,
         null=True
     )
@@ -106,13 +114,6 @@ class Cable(PrimaryModel):
         blank=True,
         null=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = [
-        'termination_a_type', 'termination_a_id', 'termination_b_type', 'termination_b_id', 'type', 'status', 'label',
-        'color', 'length', 'length_unit',
-    ]
 
     class Meta:
         ordering = ['pk']
@@ -287,22 +288,8 @@ class Cable(PrimaryModel):
         # Update the private pk used in __str__ in case this is a new object (i.e. just got its pk)
         self._pk = self.pk
 
-    def to_csv(self):
-        return (
-            '{}.{}'.format(self.termination_a_type.app_label, self.termination_a_type.model),
-            self.termination_a_id,
-            '{}.{}'.format(self.termination_b_type.app_label, self.termination_b_type.model),
-            self.termination_b_id,
-            self.get_type_display(),
-            self.get_status_display(),
-            self.label,
-            self.color,
-            self.length,
-            self.length_unit,
-        )
-
     def get_status_class(self):
-        return CableStatusChoices.CSS_CLASSES.get(self.status)
+        return LinkStatusChoices.CSS_CLASSES.get(self.status)
 
     def get_compatible_types(self):
         """
@@ -396,7 +383,7 @@ class CablePath(BigIDModel):
         """
         from circuits.models import CircuitTermination
 
-        if origin is None or origin.cable is None:
+        if origin is None or origin.link is None:
             return None
 
         destination = None
@@ -406,13 +393,13 @@ class CablePath(BigIDModel):
         is_split = False
 
         node = origin
-        while node.cable is not None:
-            if node.cable.status != CableStatusChoices.STATUS_CONNECTED:
+        while node.link is not None:
+            if hasattr(node.link, 'status') and node.link.status != LinkStatusChoices.STATUS_CONNECTED:
                 is_active = False
 
-            # Follow the cable to its far-end termination
-            path.append(object_to_path_node(node.cable))
-            peer_termination = node.get_cable_peer()
+            # Follow the link to its far-end termination
+            path.append(object_to_path_node(node.link))
+            peer_termination = node.get_link_peer()
 
             # Follow a FrontPort to its corresponding RearPort
             if isinstance(peer_termination, FrontPort):

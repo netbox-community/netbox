@@ -1,47 +1,73 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
+{% load helpers %}
 {% load form_helpers %}
+{% load render_table from django_tables2 %}
 
-{% block content %}
-<h1>{% block title %}Add {{ model_name|title }}{% endblock %}</h1>
-<p>{{ table.rows|length }} {{ parent_model_name }} selected</p>
-<form action="." method="post" class="form form-horizontal">
-    {% csrf_token %}
-    {% if request.POST.return_url %}
-        <input type="hidden" name="return_url" value="{{ request.POST.return_url }}" />
-    {% endif %}
-    {% for field in form.hidden_fields %}
-        {{ field }}
-    {% endfor %}
-    <div class="row">
-        <div class="col-md-7">
-            <div class="panel panel-default">
-                {% include 'inc/table.html' %}
+{% block title %}Add {{ model_name|title }}{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="component-form-tab" data-bs-toggle="tab" data-bs-target="#component-form" type="button" role="tab" aria-controls="component-form" aria-selected="true">
+        Bulk Creation
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="object-list" aria-selected="false">
+        Selected Objects
+        {% badge table.rows|length %}
+      </button>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block content-wrapper %}
+  <div class="tab-content">
+    {% block content %}
+
+      {# Component creation form #}
+      <div class="tab-pane show active" id="component-form" role="tabpanel" aria-labelledby="component-form-tab">
+        <form action="" method="post" class="form form-horizontal">
+
+          {% csrf_token %}
+          {% if request.POST.return_url %}
+            <input type="hidden" name="return_url" value="{{ request.POST.return_url }}" />
+          {% endif %}
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+
+          <div class="row">
+            <div class="col col-md-12 col-lg-10 offset-lg-1">
+              <div class="card">
+                  <h5 class="card-header">{{ model_name|title }} to Add</h5>
+                  <div class="card-body">
+                      {% for field in form.visible_fields %}
+                          {% render_field field %}
+                      {% endfor %}
+                  </div>
+              </div>
+              <div class="form-group text-end">
+                  <div class="col col-md-12">
+                      <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+                      <button type="submit" name="_create" class="btn btn-primary">Create</button>
+                  </div>
+              </div>
             </div>
+          </div>
+
+        </form>
+      </div>
+
+      {# Selected objects list #}
+      <div class="tab-pane" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
+        <div class="card">
+          <div class="card-body table-responsive">
+            {% render_table table 'inc/table.html' %}
+          </div>
         </div>
-        <div class="col-md-5">
-            {% if form.non_field_errors %}
-                <div class="panel panel-danger">
-                    <div class="panel-heading"><strong>Errors</strong></div>
-                    <div class="panel-body">
-                        {{ form.non_field_errors }}
-                    </div>
-                </div>
-            {% endif %}
-            <div class="panel panel-default">
-                <div class="panel-heading"><strong>{{ model_name|title }} to Add</strong></div>
-                <div class="panel-body">
-                    {% for field in form.visible_fields %}
-                        {% render_field field %}
-                    {% endfor %}
-                </div>
-            </div>
-		    <div class="form-group text-right">
-                <div class="col-md-12">
-                    <button type="submit" name="_create" class="btn btn-primary">Create</button>
-                    <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
-                </div>
-		    </div>
-        </div>
-    </div>
-</form>
+      </div>
+
+    {% endblock %}
+  </div>
 {% endblock %}

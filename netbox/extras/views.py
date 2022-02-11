@@ -10,14 +10,187 @@ from rq import Worker
 
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
+from utilities.htmx import is_htmx
 from utilities.tables import paginate_table
-from utilities.utils import copy_safe_request, count_related, shallow_compare_dict
+from utilities.utils import copy_safe_request, count_related, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
-from .models import ConfigContext, ImageAttachment, JournalEntry, ObjectChange, JobResult, Tag, TaggedItem
+from .models import *
 from .reports import get_report, get_reports, run_report
 from .scripts import get_scripts, run_script
+
+
+#
+# Custom fields
+#
+
+class CustomFieldListView(generic.ObjectListView):
+    queryset = CustomField.objects.all()
+    filterset = filtersets.CustomFieldFilterSet
+    filterset_form = forms.CustomFieldFilterForm
+    table = tables.CustomFieldTable
+
+
+class CustomFieldView(generic.ObjectView):
+    queryset = CustomField.objects.all()
+
+
+class CustomFieldEditView(generic.ObjectEditView):
+    queryset = CustomField.objects.all()
+    model_form = forms.CustomFieldForm
+
+
+class CustomFieldDeleteView(generic.ObjectDeleteView):
+    queryset = CustomField.objects.all()
+
+
+class CustomFieldBulkImportView(generic.BulkImportView):
+    queryset = CustomField.objects.all()
+    model_form = forms.CustomFieldCSVForm
+    table = tables.CustomFieldTable
+
+
+class CustomFieldBulkEditView(generic.BulkEditView):
+    queryset = CustomField.objects.all()
+    filterset = filtersets.CustomFieldFilterSet
+    table = tables.CustomFieldTable
+    form = forms.CustomFieldBulkEditForm
+
+
+class CustomFieldBulkDeleteView(generic.BulkDeleteView):
+    queryset = CustomField.objects.all()
+    filterset = filtersets.CustomFieldFilterSet
+    table = tables.CustomFieldTable
+
+
+#
+# Custom links
+#
+
+class CustomLinkListView(generic.ObjectListView):
+    queryset = CustomLink.objects.all()
+    filterset = filtersets.CustomLinkFilterSet
+    filterset_form = forms.CustomLinkFilterForm
+    table = tables.CustomLinkTable
+
+
+class CustomLinkView(generic.ObjectView):
+    queryset = CustomLink.objects.all()
+
+
+class CustomLinkEditView(generic.ObjectEditView):
+    queryset = CustomLink.objects.all()
+    model_form = forms.CustomLinkForm
+
+
+class CustomLinkDeleteView(generic.ObjectDeleteView):
+    queryset = CustomLink.objects.all()
+
+
+class CustomLinkBulkImportView(generic.BulkImportView):
+    queryset = CustomLink.objects.all()
+    model_form = forms.CustomLinkCSVForm
+    table = tables.CustomLinkTable
+
+
+class CustomLinkBulkEditView(generic.BulkEditView):
+    queryset = CustomLink.objects.all()
+    filterset = filtersets.CustomLinkFilterSet
+    table = tables.CustomLinkTable
+    form = forms.CustomLinkBulkEditForm
+
+
+class CustomLinkBulkDeleteView(generic.BulkDeleteView):
+    queryset = CustomLink.objects.all()
+    filterset = filtersets.CustomLinkFilterSet
+    table = tables.CustomLinkTable
+
+
+#
+# Export templates
+#
+
+class ExportTemplateListView(generic.ObjectListView):
+    queryset = ExportTemplate.objects.all()
+    filterset = filtersets.ExportTemplateFilterSet
+    filterset_form = forms.ExportTemplateFilterForm
+    table = tables.ExportTemplateTable
+
+
+class ExportTemplateView(generic.ObjectView):
+    queryset = ExportTemplate.objects.all()
+
+
+class ExportTemplateEditView(generic.ObjectEditView):
+    queryset = ExportTemplate.objects.all()
+    model_form = forms.ExportTemplateForm
+
+
+class ExportTemplateDeleteView(generic.ObjectDeleteView):
+    queryset = ExportTemplate.objects.all()
+
+
+class ExportTemplateBulkImportView(generic.BulkImportView):
+    queryset = ExportTemplate.objects.all()
+    model_form = forms.ExportTemplateCSVForm
+    table = tables.ExportTemplateTable
+
+
+class ExportTemplateBulkEditView(generic.BulkEditView):
+    queryset = ExportTemplate.objects.all()
+    filterset = filtersets.ExportTemplateFilterSet
+    table = tables.ExportTemplateTable
+    form = forms.ExportTemplateBulkEditForm
+
+
+class ExportTemplateBulkDeleteView(generic.BulkDeleteView):
+    queryset = ExportTemplate.objects.all()
+    filterset = filtersets.ExportTemplateFilterSet
+    table = tables.ExportTemplateTable
+
+
+#
+# Webhooks
+#
+
+class WebhookListView(generic.ObjectListView):
+    queryset = Webhook.objects.all()
+    filterset = filtersets.WebhookFilterSet
+    filterset_form = forms.WebhookFilterForm
+    table = tables.WebhookTable
+
+
+class WebhookView(generic.ObjectView):
+    queryset = Webhook.objects.all()
+
+
+class WebhookEditView(generic.ObjectEditView):
+    queryset = Webhook.objects.all()
+    model_form = forms.WebhookForm
+
+
+class WebhookDeleteView(generic.ObjectDeleteView):
+    queryset = Webhook.objects.all()
+
+
+class WebhookBulkImportView(generic.BulkImportView):
+    queryset = Webhook.objects.all()
+    model_form = forms.WebhookCSVForm
+    table = tables.WebhookTable
+
+
+class WebhookBulkEditView(generic.BulkEditView):
+    queryset = Webhook.objects.all()
+    filterset = filtersets.WebhookFilterSet
+    table = tables.WebhookTable
+    form = forms.WebhookBulkEditForm
+
+
+class WebhookBulkDeleteView(generic.BulkDeleteView):
+    queryset = Webhook.objects.all()
+    filterset = filtersets.WebhookFilterSet
+    table = tables.WebhookTable
 
 
 #
@@ -104,6 +277,21 @@ class ConfigContextView(generic.ObjectView):
     queryset = ConfigContext.objects.all()
 
     def get_extra_context(self, request, instance):
+        # Gather assigned objects for parsing in the template
+        assigned_objects = (
+            ('Regions', instance.regions.all),
+            ('Site Groups', instance.site_groups.all),
+            ('Sites', instance.sites.all),
+            ('Device Types', instance.device_types.all),
+            ('Roles', instance.roles.all),
+            ('Platforms', instance.platforms.all),
+            ('Cluster Groups', instance.cluster_groups.all),
+            ('Clusters', instance.clusters.all),
+            ('Tenant Groups', instance.tenant_groups.all),
+            ('Tenants', instance.tenants.all),
+            ('Tags', instance.tags.all),
+        )
+
         # Determine user's preferred output format
         if request.GET.get('format') in ['json', 'yaml']:
             format = request.GET.get('format')
@@ -115,6 +303,7 @@ class ConfigContextView(generic.ObjectView):
             format = 'json'
 
         return {
+            'assigned_objects': assigned_objects,
             'format': format,
         }
 
@@ -283,23 +472,24 @@ class ObjectChangeLogView(View):
 class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()
     model_form = forms.ImageAttachmentForm
+    template_name = 'extras/imageattachment_edit.html'
 
-    def alter_obj(self, imageattachment, request, args, kwargs):
-        if not imageattachment.pk:
+    def alter_obj(self, instance, request, args, kwargs):
+        if not instance.pk:
             # Assign the parent object based on URL kwargs
-            model = kwargs.get('model')
-            imageattachment.parent = get_object_or_404(model, pk=kwargs['object_id'])
-        return imageattachment
+            content_type = get_object_or_404(ContentType, pk=request.GET.get('content_type'))
+            instance.parent = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
+        return instance
 
-    def get_return_url(self, request, imageattachment):
-        return imageattachment.parent.get_absolute_url()
+    def get_return_url(self, request, obj=None):
+        return obj.parent.get_absolute_url() if obj else super().get_return_url(request)
 
 
 class ImageAttachmentDeleteView(generic.ObjectDeleteView):
     queryset = ImageAttachment.objects.all()
 
-    def get_return_url(self, request, imageattachment):
-        return imageattachment.parent.get_absolute_url()
+    def get_return_url(self, request, obj=None):
+        return obj.parent.get_absolute_url() if obj else super().get_return_url(request)
 
 
 #
@@ -505,16 +695,26 @@ class ReportResultView(ContentTypePermissionRequiredMixin, View):
 
     def get(self, request, job_result_pk):
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        jobresult = get_object_or_404(JobResult.objects.all(), pk=job_result_pk, obj_type=report_content_type)
+        result = get_object_or_404(JobResult.objects.all(), pk=job_result_pk, obj_type=report_content_type)
 
         # Retrieve the Report and attach the JobResult to it
-        module, report_name = jobresult.name.split('.')
+        module, report_name = result.name.split('.')
         report = get_report(module, report_name)
-        report.result = jobresult
+        report.result = result
+
+        # If this is an HTMX request, return only the result HTML
+        if is_htmx(request):
+            response = render(request, 'extras/htmx/report_result.html', {
+                'report': report,
+                'result': result,
+            })
+            if result.completed:
+                response.status_code = 286
+            return response
 
         return render(request, 'extras/report_result.html', {
             'report': report,
-            'result': jobresult,
+            'result': result,
         })
 
 
@@ -566,7 +766,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
 
     def get(self, request, module, name):
         script = self._get_script(name, module)
-        form = script.as_form(initial=request.GET)
+        form = script.as_form(initial=normalize_querydict(request.GET))
 
         # Look for a pending JobResult (use the latest one by creation timestamp)
         script_content_type = ContentType.objects.get(app_label='extras', model='script')
@@ -631,6 +831,16 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, GetScriptMixin, View)
             raise Http404
 
         script = self._get_script(result.name)
+
+        # If this is an HTMX request, return only the result HTML
+        if is_htmx(request):
+            response = render(request, 'extras/htmx/script_result.html', {
+                'script': script,
+                'result': result,
+            })
+            if result.completed:
+                response.status_code = 286
+            return response
 
         return render(request, 'extras/script_result.html', {
             'script': script,

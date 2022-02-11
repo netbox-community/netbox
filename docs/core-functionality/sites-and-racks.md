@@ -1,12 +1,12 @@
 # Sites and Racks
 
-{!docs/models/dcim/region.md!}
-{!docs/models/dcim/sitegroup.md!}
-{!docs/models/dcim/site.md!}
-{!docs/models/dcim/location.md!}
+{!models/dcim/region.md!}
+{!models/dcim/sitegroup.md!}
+{!models/dcim/site.md!}
+{!models/dcim/location.md!}
 
 ---
 
-{!docs/models/dcim/rack.md!}
-{!docs/models/dcim/rackrole.md!}
-{!docs/models/dcim/rackreservation.md!}
+{!models/dcim/rack.md!}
+{!models/dcim/rackrole.md!}
+{!models/dcim/rackreservation.md!}

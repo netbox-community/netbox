@@ -5,9 +5,11 @@ from collections import OrderedDict
 from django import __version__ as DJANGO_VERSION
 from django.apps import apps
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.db.models import ProtectedError
+from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
 from rest_framework import status
 from rest_framework.response import Response
@@ -16,6 +18,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet as ModelViewSet_
 from rq.worker import Worker
 
+from extras.models import ExportTemplate
 from netbox.api import BulkOperationSerializer
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import SerializerNotFound
@@ -120,11 +123,28 @@ class BulkDestroyModelMixin:
                 self.perform_destroy(obj)
 
 
+class ObjectValidationMixin:
+
+    def _validate_objects(self, instance):
+        """
+        Check that the provided instance or list of instances are matched by the current queryset. This confirms that
+        any newly created or modified objects abide by the attributes granted by any applicable ObjectPermissions.
+        """
+        if type(instance) is list:
+            # Check that all instances are still included in the view's queryset
+            conforming_count = self.queryset.filter(pk__in=[obj.pk for obj in instance]).count()
+            if conforming_count != len(instance):
+                raise ObjectDoesNotExist
+        else:
+            # Check that the instance is matched by the view's queryset
+            self.queryset.get(pk=instance.pk)
+
+
 #
 # Viewsets
 #
 
-class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ModelViewSet_):
+class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ObjectValidationMixin, ModelViewSet_):
     """
     Extend DRF's ModelViewSet to support bulk update and delete functions.
     """
@@ -208,19 +228,17 @@ class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ModelViewSet_):
                 **kwargs
             )
 
-    def _validate_objects(self, instance):
+    def list(self, request, *args, **kwargs):
         """
-        Check that the provided instance or list of instances are matched by the current queryset. This confirms that
-        any newly created or modified objects abide by the attributes granted by any applicable ObjectPermissions.
+        Overrides ListModelMixin to allow processing ExportTemplates.
         """
-        if type(instance) is list:
-            # Check that all instances are still included in the view's queryset
-            conforming_count = self.queryset.filter(pk__in=[obj.pk for obj in instance]).count()
-            if conforming_count != len(instance):
-                raise ObjectDoesNotExist
-        else:
-            # Check that the instance is matched by the view's queryset
-            self.queryset.get(pk=instance.pk)
+        if 'export' in request.GET:
+            content_type = ContentType.objects.get_for_model(self.get_serializer_class().Meta.model)
+            et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
+            queryset = self.filter_queryset(self.get_queryset())
+            return et.render_to_response(queryset)
+
+        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         model = self.queryset.model
@@ -289,11 +307,11 @@ class APIRootView(APIView):
             ('extras', reverse('extras-api:api-root', request=request, format=format)),
             ('ipam', reverse('ipam-api:api-root', request=request, format=format)),
             ('plugins', reverse('plugins-api:api-root', request=request, format=format)),
-            ('secrets', reverse('secrets-api:api-root', request=request, format=format)),
             ('status', reverse('api-status', request=request, format=format)),
             ('tenancy', reverse('tenancy-api:api-root', request=request, format=format)),
             ('users', reverse('users-api:api-root', request=request, format=format)),
             ('virtualization', reverse('virtualization-api:api-root', request=request, format=format)),
+            ('wireless', reverse('wireless-api:api-root', request=request, format=format)),
         )))
 
 

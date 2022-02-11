@@ -173,9 +173,28 @@ class DeviceStatusChoices(ChoiceSet):
         STATUS_PLANNED: 'info',
         STATUS_STAGED: 'primary',
         STATUS_FAILED: 'danger',
-        STATUS_INVENTORY: 'default',
+        STATUS_INVENTORY: 'secondary',
         STATUS_DECOMMISSIONING: 'warning',
     }
+
+
+class DeviceAirflowChoices(ChoiceSet):
+
+    AIRFLOW_FRONT_TO_REAR = 'front-to-rear'
+    AIRFLOW_REAR_TO_FRONT = 'rear-to-front'
+    AIRFLOW_LEFT_TO_RIGHT = 'left-to-right'
+    AIRFLOW_RIGHT_TO_LEFT = 'right-to-left'
+    AIRFLOW_SIDE_TO_REAR = 'side-to-rear'
+    AIRFLOW_PASSIVE = 'passive'
+
+    CHOICES = (
+        (AIRFLOW_FRONT_TO_REAR, 'Front to rear'),
+        (AIRFLOW_REAR_TO_FRONT, 'Rear to front'),
+        (AIRFLOW_LEFT_TO_RIGHT, 'Left to right'),
+        (AIRFLOW_RIGHT_TO_LEFT, 'Right to left'),
+        (AIRFLOW_SIDE_TO_REAR, 'Side to rear'),
+        (AIRFLOW_PASSIVE, 'Passive'),
+    )
 
 
 #
@@ -189,6 +208,7 @@ class ConsolePortTypeChoices(ChoiceSet):
     TYPE_RJ11 = 'rj-11'
     TYPE_RJ12 = 'rj-12'
     TYPE_RJ45 = 'rj-45'
+    TYPE_MINI_DIN_8 = 'mini-din-8'
     TYPE_USB_A = 'usb-a'
     TYPE_USB_B = 'usb-b'
     TYPE_USB_C = 'usb-c'
@@ -196,6 +216,7 @@ class ConsolePortTypeChoices(ChoiceSet):
     TYPE_USB_MINI_B = 'usb-mini-b'
     TYPE_USB_MICRO_A = 'usb-micro-a'
     TYPE_USB_MICRO_B = 'usb-micro-b'
+    TYPE_USB_MICRO_AB = 'usb-micro-ab'
     TYPE_OTHER = 'other'
 
     CHOICES = (
@@ -205,6 +226,7 @@ class ConsolePortTypeChoices(ChoiceSet):
             (TYPE_RJ11, 'RJ-11'),
             (TYPE_RJ12, 'RJ-12'),
             (TYPE_RJ45, 'RJ-45'),
+            (TYPE_MINI_DIN_8, 'Mini-DIN 8'),
         )),
         ('USB', (
             (TYPE_USB_A, 'USB Type A'),
@@ -214,6 +236,7 @@ class ConsolePortTypeChoices(ChoiceSet):
             (TYPE_USB_MINI_B, 'USB Mini B'),
             (TYPE_USB_MICRO_A, 'USB Micro A'),
             (TYPE_USB_MICRO_B, 'USB Micro B'),
+            (TYPE_USB_MICRO_AB, 'USB Micro AB'),
         )),
         ('Other', (
             (TYPE_OTHER, 'Other'),
@@ -312,6 +335,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_NEMA_L1560P = 'nema-l15-60p'
     TYPE_NEMA_L2120P = 'nema-l21-20p'
     TYPE_NEMA_L2130P = 'nema-l21-30p'
+    TYPE_NEMA_L2230P = 'nema-l22-30p'
     # California style
     TYPE_CS6361C = 'cs6361c'
     TYPE_CS6365C = 'cs6365c'
@@ -320,6 +344,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_CS8365C = 'cs8365c'
     TYPE_CS8465C = 'cs8465c'
     # ITA/international
+    TYPE_ITA_C = 'ita-c'
     TYPE_ITA_E = 'ita-e'
     TYPE_ITA_F = 'ita-f'
     TYPE_ITA_EF = 'ita-ef'
@@ -340,6 +365,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_MINI_B = 'usb-mini-b'
     TYPE_USB_MICRO_A = 'usb-micro-a'
     TYPE_USB_MICRO_B = 'usb-micro-b'
+    TYPE_USB_MICRO_AB = 'usb-micro-ab'
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
     # Direct current (DC)
@@ -415,6 +441,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_NEMA_L1560P, 'NEMA L15-60P'),
             (TYPE_NEMA_L2120P, 'NEMA L21-20P'),
             (TYPE_NEMA_L2130P, 'NEMA L21-30P'),
+            (TYPE_NEMA_L2230P, 'NEMA L22-30P'),
         )),
         ('California Style', (
             (TYPE_CS6361C, 'CS6361C'),
@@ -425,7 +452,8 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_CS8465C, 'CS8465C'),
         )),
         ('International/ITA', (
-            (TYPE_ITA_E, 'ITA Type E (CEE 7/5)'),
+            (TYPE_ITA_C, 'ITA Type C (CEE 7/16)'),
+            (TYPE_ITA_E, 'ITA Type E (CEE 7/6)'),
             (TYPE_ITA_F, 'ITA Type F (CEE 7/4)'),
             (TYPE_ITA_EF, 'ITA Type E/F (CEE 7/7)'),
             (TYPE_ITA_G, 'ITA Type G (BS 1363)'),
@@ -446,6 +474,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_USB_MINI_B, 'USB Mini B'),
             (TYPE_USB_MICRO_A, 'USB Micro A'),
             (TYPE_USB_MICRO_B, 'USB Micro B'),
+            (TYPE_USB_MICRO_AB, 'USB Micro AB'),
             (TYPE_USB_3_B, 'USB 3.0 Type B'),
             (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
@@ -529,6 +558,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEMA_L1560R = 'nema-l15-60r'
     TYPE_NEMA_L2120R = 'nema-l21-20r'
     TYPE_NEMA_L2130R = 'nema-l21-30r'
+    TYPE_NEMA_L2230R = 'nema-l22-30r'
     # California style
     TYPE_CS6360C = 'CS6360C'
     TYPE_CS6364C = 'CS6364C'
@@ -548,6 +578,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_ITA_M = 'ita-m'
     TYPE_ITA_N = 'ita-n'
     TYPE_ITA_O = 'ita-o'
+    TYPE_ITA_MULTISTANDARD = 'ita-multistandard'
     # USB
     TYPE_USB_A = 'usb-a'
     TYPE_USB_MICROB = 'usb-micro-b'
@@ -626,6 +657,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEMA_L1560R, 'NEMA L15-60R'),
             (TYPE_NEMA_L2120R, 'NEMA L21-20R'),
             (TYPE_NEMA_L2130R, 'NEMA L21-30R'),
+            (TYPE_NEMA_L2230R, 'NEMA L22-30R'),
         )),
         ('California Style', (
             (TYPE_CS6360C, 'CS6360C'),
@@ -636,8 +668,8 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_CS8464C, 'CS8464C'),
         )),
         ('ITA/International', (
-            (TYPE_ITA_E, 'ITA Type E (CEE7/5)'),
-            (TYPE_ITA_F, 'ITA Type F (CEE7/3)'),
+            (TYPE_ITA_E, 'ITA Type E (CEE 7/5)'),
+            (TYPE_ITA_F, 'ITA Type F (CEE 7/3)'),
             (TYPE_ITA_G, 'ITA Type G (BS 1363)'),
             (TYPE_ITA_H, 'ITA Type H'),
             (TYPE_ITA_I, 'ITA Type I'),
@@ -647,6 +679,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_ITA_M, 'ITA Type M (BS 546)'),
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
+            (TYPE_ITA_MULTISTANDARD, 'ITA Multistandard'),
         )),
         ('USB', (
             (TYPE_USB_A, 'USB Type A'),
@@ -683,10 +716,23 @@ class PowerOutletFeedLegChoices(ChoiceSet):
 # Interfaces
 #
 
+class InterfaceKindChoices(ChoiceSet):
+    KIND_PHYSICAL = 'physical'
+    KIND_VIRTUAL = 'virtual'
+    KIND_WIRELESS = 'wireless'
+
+    CHOICES = (
+        (KIND_PHYSICAL, 'Physical'),
+        (KIND_VIRTUAL, 'Virtual'),
+        (KIND_WIRELESS, 'Wireless'),
+    )
+
+
 class InterfaceTypeChoices(ChoiceSet):
 
     # Virtual
     TYPE_VIRTUAL = 'virtual'
+    TYPE_BRIDGE = 'bridge'
     TYPE_LAG = 'lag'
 
     # Ethernet
@@ -723,6 +769,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_80211AC = 'ieee802.11ac'
     TYPE_80211AD = 'ieee802.11ad'
     TYPE_80211AX = 'ieee802.11ax'
+    TYPE_802151 = 'ieee802.15.1'
 
     # Cellular
     TYPE_GSM = 'gsm'
@@ -746,7 +793,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_16GFC_SFP_PLUS = '16gfc-sfpp'
     TYPE_32GFC_SFP28 = '32gfc-sfp28'
     TYPE_64GFC_QSFP_PLUS = '64gfc-qsfpp'
-    TYPE_128GFC_QSFP28 = '128gfc-sfp28'
+    TYPE_128GFC_QSFP28 = '128gfc-qsfp28'
 
     # InfiniBand
     TYPE_INFINIBAND_SDR = 'infiniband-sdr'
@@ -765,11 +812,18 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_T3 = 't3'
     TYPE_E3 = 'e3'
 
+    # ATM/DSL
+    TYPE_XDSL = 'xdsl'
+
     # Stacking
     TYPE_STACKWISE = 'cisco-stackwise'
     TYPE_STACKWISE_PLUS = 'cisco-stackwise-plus'
     TYPE_FLEXSTACK = 'cisco-flexstack'
     TYPE_FLEXSTACK_PLUS = 'cisco-flexstack-plus'
+    TYPE_STACKWISE80 = 'cisco-stackwise-80'
+    TYPE_STACKWISE160 = 'cisco-stackwise-160'
+    TYPE_STACKWISE320 = 'cisco-stackwise-320'
+    TYPE_STACKWISE480 = 'cisco-stackwise-480'
     TYPE_JUNIPER_VCP = 'juniper-vcp'
     TYPE_SUMMITSTACK = 'extreme-summitstack'
     TYPE_SUMMITSTACK128 = 'extreme-summitstack-128'
@@ -785,6 +839,7 @@ class InterfaceTypeChoices(ChoiceSet):
             'Virtual interfaces',
             (
                 (TYPE_VIRTUAL, 'Virtual'),
+                (TYPE_BRIDGE, 'Bridge'),
                 (TYPE_LAG, 'Link Aggregation Group (LAG)'),
             ),
         ),
@@ -832,6 +887,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_80211AC, 'IEEE 802.11ac'),
                 (TYPE_80211AD, 'IEEE 802.11ad'),
                 (TYPE_80211AX, 'IEEE 802.11ax'),
+                (TYPE_802151, 'IEEE 802.15.1 (Bluetooth)'),
             )
         ),
         (
@@ -891,12 +947,22 @@ class InterfaceTypeChoices(ChoiceSet):
             )
         ),
         (
+            'ATM',
+            (
+                (TYPE_XDSL, 'xDSL'),
+            )
+        ),
+        (
             'Stacking',
             (
                 (TYPE_STACKWISE, 'Cisco StackWise'),
                 (TYPE_STACKWISE_PLUS, 'Cisco StackWise Plus'),
                 (TYPE_FLEXSTACK, 'Cisco FlexStack'),
                 (TYPE_FLEXSTACK_PLUS, 'Cisco FlexStack Plus'),
+                (TYPE_STACKWISE80, 'Cisco StackWise-80'),
+                (TYPE_STACKWISE160, 'Cisco StackWise-160'),
+                (TYPE_STACKWISE320, 'Cisco StackWise-320'),
+                (TYPE_STACKWISE480, 'Cisco StackWise-480'),
                 (TYPE_JUNIPER_VCP, 'Juniper VCP'),
                 (TYPE_SUMMITSTACK, 'Extreme SummitStack'),
                 (TYPE_SUMMITSTACK128, 'Extreme SummitStack-128'),
@@ -964,6 +1030,11 @@ class PortTypeChoices(ChoiceSet):
     TYPE_SPLICE = 'splice'
     TYPE_CS = 'cs'
     TYPE_SN = 'sn'
+    TYPE_SMA_905 = 'sma-905'
+    TYPE_SMA_906 = 'sma-906'
+    TYPE_URM_P2 = 'urm-p2'
+    TYPE_URM_P4 = 'urm-p4'
+    TYPE_URM_P8 = 'urm-p8'
 
     CHOICES = (
         (
@@ -1004,6 +1075,11 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_ST, 'ST'),
                 (TYPE_CS, 'CS'),
                 (TYPE_SN, 'SN'),
+                (TYPE_SMA_905, 'SMA 905'),
+                (TYPE_SMA_906, 'SMA 906'),
+                (TYPE_URM_P2, 'URM-P2'),
+                (TYPE_URM_P4, 'URM-P4'),
+                (TYPE_URM_P8, 'URM-P8'),
                 (TYPE_SPLICE, 'Splice'),
             )
         )
@@ -1011,7 +1087,7 @@ class PortTypeChoices(ChoiceSet):
 
 
 #
-# Cables
+# Cables/links
 #
 
 class CableTypeChoices(ChoiceSet):
@@ -1075,7 +1151,7 @@ class CableTypeChoices(ChoiceSet):
     )
 
 
-class CableStatusChoices(ChoiceSet):
+class LinkStatusChoices(ChoiceSet):
 
     STATUS_CONNECTED = 'connected'
     STATUS_PLANNED = 'planned'
@@ -1096,14 +1172,21 @@ class CableStatusChoices(ChoiceSet):
 
 class CableLengthUnitChoices(ChoiceSet):
 
+    # Metric
+    UNIT_KILOMETER = 'km'
     UNIT_METER = 'm'
     UNIT_CENTIMETER = 'cm'
+
+    # Imperial
+    UNIT_MILE = 'mi'
     UNIT_FOOT = 'ft'
     UNIT_INCH = 'in'
 
     CHOICES = (
+        (UNIT_KILOMETER, 'Kilometers'),
         (UNIT_METER, 'Meters'),
         (UNIT_CENTIMETER, 'Centimeters'),
+        (UNIT_MILE, 'Miles'),
         (UNIT_FOOT, 'Feet'),
         (UNIT_INCH, 'Inches'),
     )

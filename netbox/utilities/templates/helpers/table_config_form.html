@@ -1,0 +1,44 @@
+{% load form_helpers %}
+
+<div class="modal fade" tabindex="-1" id="{{ table_name }}_config">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Table Configuration</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form class="form-horizontal userconfigform" data-url="{% url 'users-api:userconfig-list' %}" data-config-root="tables.{{ form.table_name }}">
+        <div class="modal-body row">
+          <div class="col-5 text-center">
+            {{ form.available_columns.label }}
+            {{ form.available_columns }}
+          </div>
+          <div class="col-2 d-flex align-items-center">
+            <div>
+              <a class="btn btn-success btn-sm w-100 my-2" id="add_columns">
+                <i class="mdi mdi-arrow-right-bold"></i> Add
+              </a>
+              <a class="btn btn-danger btn-sm w-100 my-2" id="remove_columns">
+                <i class="mdi mdi-arrow-left-bold"></i> Remove
+              </a>
+            </div>
+          </div>
+          <div class="col-5 text-center">
+            {{ form.columns.label }}
+            {{ form.columns }}
+            <a class="btn btn-primary btn-sm mt-2" id="move-option-up" data-target="id_columns">
+                <i class="mdi mdi-arrow-up-bold"></i> Move Up
+            </a>
+            <a class="btn btn-primary btn-sm mt-2" id="move-option-down" data-target="id_columns">
+                <i class="mdi mdi-arrow-down-bold"></i> Move Down
+            </a>
+          </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-outline-danger" id="reset_tableconfig" value="Reset">Reset</button>
+            <button type="submit" class="btn btn-primary" id="save_tableconfig" value="Save">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

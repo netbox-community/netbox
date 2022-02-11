@@ -1,13 +1,14 @@
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 from dcim.api.nested_serializers import (
-    NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedPlatformSerializer,
-    NestedRackSerializer, NestedRegionSerializer, NestedSiteSerializer, NestedSiteGroupSerializer,
+    NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedPlatformSerializer, NestedRegionSerializer,
+    NestedSiteSerializer, NestedSiteGroupSerializer,
 )
-from dcim.models import Device, DeviceRole, DeviceType, Platform, Rack, Region, Site, SiteGroup
+from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
@@ -30,6 +31,7 @@ __all__ = (
     'ExportTemplateSerializer',
     'ImageAttachmentSerializer',
     'JobResultSerializer',
+    'JournalEntrySerializer',
     'ObjectChangeSerializer',
     'ReportDetailSerializer',
     'ReportSerializer',
@@ -59,7 +61,7 @@ class WebhookSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url',
             'enabled', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
-            'ssl_verification', 'ca_file_path',
+            'conditions', 'ssl_verification', 'ca_file_path', 'created', 'last_updated',
         ]
 
 
@@ -80,7 +82,8 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         model = CustomField
         fields = [
             'id', 'url', 'display', 'content_types', 'type', 'name', 'label', 'description', 'required', 'filter_logic',
-            'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices',
+            'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'created',
+            'last_updated',
         ]
 
 
@@ -98,7 +101,7 @@ class CustomLinkSerializer(ValidatedModelSerializer):
         model = CustomLink
         fields = [
             'id', 'url', 'display', 'content_type', 'name', 'link_text', 'link_url', 'weight', 'group_name',
-            'button_class', 'new_window',
+            'button_class', 'new_window', 'created', 'last_updated',
         ]
 
 
@@ -116,7 +119,7 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
         model = ExportTemplate
         fields = [
             'id', 'url', 'display', 'content_type', 'name', 'description', 'template_code', 'mime_type',
-            'file_extension', 'as_attachment',
+            'file_extension', 'as_attachment', 'created', 'last_updated',
         ]
 
 
@@ -130,7 +133,9 @@ class TagSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ['id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tagged_items']
+        fields = [
+            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tagged_items', 'created', 'last_updated',
+        ]
 
 
 #
@@ -148,7 +153,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
         model = ImageAttachment
         fields = [
             'id', 'url', 'display', 'content_type', 'object_id', 'parent', 'name', 'image', 'image_height',
-            'image_width', 'created',
+            'image_width', 'created', 'last_updated',
         ]
 
     def validate(self, data):
@@ -168,17 +173,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_parent(self, obj):
-
-        # Static mapping of models to their nested serializers
-        if isinstance(obj.parent, Device):
-            serializer = NestedDeviceSerializer
-        elif isinstance(obj.parent, Rack):
-            serializer = NestedRackSerializer
-        elif isinstance(obj.parent, Site):
-            serializer = NestedSiteSerializer
-        else:
-            raise Exception("Unexpected type of parent object for ImageAttachment")
-
+        serializer = get_serializer_for_model(obj.parent, prefix='Nested')
         return serializer(obj.parent, context={'request': self.context['request']}).data
 
 
@@ -192,6 +187,12 @@ class JournalEntrySerializer(ValidatedModelSerializer):
         queryset=ContentType.objects.all()
     )
     assigned_object = serializers.SerializerMethodField(read_only=True)
+    created_by = serializers.PrimaryKeyRelatedField(
+        allow_null=True,
+        queryset=User.objects.all(),
+        required=False,
+        default=serializers.CurrentUserDefault()
+    )
     kind = ChoiceField(
         choices=JournalEntryKindChoices,
         required=False
@@ -453,12 +454,7 @@ class ObjectChangeSerializer(BaseModelSerializer):
 
 class ContentTypeSerializer(BaseModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:contenttype-detail')
-    display_name = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentType
-        fields = ['id', 'url', 'display', 'app_label', 'model', 'display_name']
-
-    @swagger_serializer_method(serializer_or_field=serializers.CharField)
-    def get_display_name(self, obj):
-        return obj.app_labeled_name
+        fields = ['id', 'url', 'display', 'app_label', 'model']
