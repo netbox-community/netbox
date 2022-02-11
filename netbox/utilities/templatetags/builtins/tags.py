@@ -19,18 +19,18 @@ def tag(value, viewname=None):
 
 
 @register.inclusion_tag('builtins/badge.html')
-def badge(value, bg_class='secondary', show_empty=False):
+def badge(value, bg_color='secondary', show_empty=False):
     """
     Display the specified number as a badge.
 
     Args:
         value: The value to be displayed within the badge
-        bg_class: Bootstrap 5 background CSS name
+        bg_color: Background color CSS name
         show_empty: If true, display the badge even if value is None or zero
     """
     return {
         'value': value,
-        'bg_class': bg_class,
+        'bg_color': bg_color,
         'show_empty': show_empty,
     }
 

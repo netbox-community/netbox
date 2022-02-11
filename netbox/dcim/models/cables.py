@@ -286,6 +286,9 @@ class Cable(NetBoxModel):
         # Update the private pk used in __str__ in case this is a new object (i.e. just got its pk)
         self._pk = self.pk
 
+    def get_status_color(self):
+        return LinkStatusChoices.colors.get(self.status)
+
     def get_compatible_types(self):
         """
         Return all termination types compatible with termination A.

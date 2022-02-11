@@ -36,9 +36,7 @@
                         </tr>
                         <tr>
                             <th scope="row">Kind</th>
-                            <td>
-                                <span class="badge bg-{{ object.get_kind_class }}">{{ object.get_kind_display }}</span>
-                            </td>
+                            <td>{% badge object.get_kind_display bg_color=object.get_kind_color %}</td>
                         </tr>
                     </table>
                 </div>

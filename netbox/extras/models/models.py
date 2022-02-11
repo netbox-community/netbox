@@ -458,6 +458,9 @@ class JournalEntry(WebhooksMixin, ChangeLoggedModel):
     def get_absolute_url(self):
         return reverse('extras:journalentry', args=[self.pk])
 
+    def get_kind_color(self):
+        return JournalEntryKindChoices.colors.get(self.kind)
+
 
 class JobResult(models.Model):
     """

@@ -211,6 +211,9 @@ class VLAN(NetBoxModel):
                        f"{self.group}"
             })
 
+    def get_status_color(self):
+        return VLANStatusChoices.colors.get(self.status)
+
     def get_interfaces(self):
         # Return all device interfaces assigned to this VLAN
         return Interface.objects.filter(

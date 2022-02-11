@@ -31,7 +31,7 @@ DEVICE_LINK = """
 
 DEVICEBAY_STATUS = """
 {% if record.installed_device_id %}
-    <span class="badge bg-{{ record.installed_device.get_status_class }}">
+    <span class="badge bg-{{ record.installed_device.get_status_color }}">
         {{ record.installed_device.get_status_display }}
     </span>
 {% else %}
@@ -43,7 +43,7 @@ INTERFACE_IPADDRESSES = """
 <div class="table-badge-group">
   {% for ip in record.ip_addresses.all %}
     {% if ip.status != 'active' %}
-      <a href="{{ ip.get_absolute_url }}" class="table-badge badge bg-{{ ip.get_status_class }}" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ ip.get_status_display }}">{{ ip }}</a>
+      <a href="{{ ip.get_absolute_url }}" class="table-badge badge bg-{{ ip.get_status_color }}" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ ip.get_status_display }}">{{ ip }}</a>
     {% else %}
       <a href="{{ ip.get_absolute_url }}" class="table-badge">{{ ip }}</a>
     {% endif %}

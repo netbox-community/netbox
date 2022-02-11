@@ -437,6 +437,9 @@ class Prefix(GetAvailablePrefixesMixin, NetBoxModel):
             self.prefix.prefixlen = value
     prefix_length = property(fset=_set_prefix_length)
 
+    def get_status_color(self):
+        return PrefixStatusChoices.colors.get(self.status)
+
     def get_parents(self, include_self=False):
         """
         Return all containing Prefixes in the hierarchy.
@@ -703,6 +706,9 @@ class IPRange(NetBoxModel):
         self.end_address.prefixlen = value
     prefix_length = property(fset=_set_prefix_length)
 
+    def get_status_color(self):
+        return IPRangeStatusChoices.colors.get(self.status)
+
     def get_child_ips(self):
         """
         Return all IPAddresses within this IPRange and VRF.
@@ -916,3 +922,9 @@ class IPAddress(NetBoxModel):
         if self.address is not None:
             self.address.prefixlen = value
     mask_length = property(fset=_set_mask_length)
+
+    def get_status_color(self):
+        return IPAddressStatusChoices.colors.get(self.status)
+
+    def get_role_color(self):
+        return IPAddressRoleChoices.colors.get(self.role)

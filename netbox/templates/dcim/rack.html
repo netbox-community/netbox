@@ -76,9 +76,7 @@
                     </tr>
                      <tr>
                         <th scope="row">Status</th>
-                        <td>
-                            <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                        </td>
+                        <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
                     </tr>
                     <tr>
                         <th scope="row">Role</th>
@@ -188,10 +186,10 @@
                                     <a href="{{ powerfeed.get_absolute_url }}">{{ powerfeed.name }}</a>
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{ powerfeed.get_status_class }}">{{ powerfeed.get_status_display }}</span>
+                                    {% badge powerfeed.get_status_display bg_color=powerfeed.get_status_color %}
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{ powerfeed.get_type_class }}">{{ powerfeed.get_type_display }}</span>
+                                    {% badge powerfeed.get_type_display bg_color=powerfeed.get_type_color %}
                                 </td>
                                 {% with power_port=powerfeed.connected_endpoint %}
                                     {% if power_port %}

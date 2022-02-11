@@ -58,9 +58,7 @@
                         </tr>
                         <tr>
                             <th scope="row">Status</th>
-                            <td>
-                              <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                            </td>
+                            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
                         </tr>
                         <tr>
                             <th scope="row">Role</th>

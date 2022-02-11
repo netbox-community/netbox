@@ -169,3 +169,9 @@ class PowerFeed(NetBoxModel, PathEndpoint, LinkTermination):
     @property
     def parent_object(self):
         return self.power_panel
+
+    def get_type_color(self):
+        return PowerFeedTypeChoices.colors.get(self.type)
+
+    def get_status_color(self):
+        return PowerFeedStatusChoices.colors.get(self.status)

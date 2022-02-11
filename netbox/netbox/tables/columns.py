@@ -167,19 +167,20 @@ class ActionsColumn(tables.Column):
 
 class ChoiceFieldColumn(tables.Column):
     """
-    Render a model's static ChoiceField with its value from `get_FOO_display()` as a colored badge. Colors are derived
-    from the ChoiceSet associated with the model field.
+    Render a model's static ChoiceField with its value from `get_FOO_display()` as a colored badge. Background color is
+    set by the instance's get_FOO_color() method, if defined.
     """
+    DEFAULT_BG_COLOR = 'secondary'
+
     def render(self, record, bound_column, value):
         if value in self.empty_values:
             return self.default
 
-        accessor = tables.A(bound_column.accessor)
-        field = accessor.get_field(record)
-        raw_value = accessor.resolve(record)  # `value` is from get_FOO_display()
-
-        # Determine the background color to use
-        bg_color = field.choices.colors.get(raw_value, 'secondary')
+        # Determine the background color to use (try calling object.get_FOO_color())
+        try:
+            bg_color = getattr(record, f'get_{bound_column.name}_color')()
+        except AttributeError:
+            bg_color = self.DEFAULT_BG_COLOR
 
         return mark_safe(f'<span class="badge bg-{bg_color}">{value}</span>')
 

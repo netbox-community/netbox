@@ -247,6 +247,9 @@ class Rack(NetBoxModel):
         else:
             return reversed(range(1, self.u_height + 1))
 
+    def get_status_color(self):
+        return RackStatusChoices.colors.get(self.status)
+
     def get_rack_units(self, user=None, face=DeviceFaceChoices.FACE_FRONT, exclude=None, expand_devices=True):
         """
         Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
