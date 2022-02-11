@@ -218,8 +218,7 @@ class TokenEditView(LoginRequiredMixin, View):
         form = TokenForm(instance=token)
 
         return render(request, 'generic/object_edit.html', {
-            'obj': token,
-            'obj_type': token._meta.verbose_name,
+            'object': token,
             'form': form,
             'return_url': reverse('user:token_list'),
         })
@@ -247,8 +246,7 @@ class TokenEditView(LoginRequiredMixin, View):
                 return redirect('user:token_list')
 
         return render(request, 'generic/object_edit.html', {
-            'obj': token,
-            'obj_type': token._meta.verbose_name,
+            'object': token,
             'form': form,
             'return_url': reverse('user:token_list'),
         })
@@ -265,8 +263,7 @@ class TokenDeleteView(LoginRequiredMixin, View):
         form = ConfirmationForm(initial=initial_data)
 
         return render(request, 'generic/object_delete.html', {
-            'obj': token,
-            'obj_type': token._meta.verbose_name,
+            'object': token,
             'form': form,
             'return_url': reverse('user:token_list'),
         })
@@ -281,8 +278,7 @@ class TokenDeleteView(LoginRequiredMixin, View):
             return redirect('user:token_list')
 
         return render(request, 'generic/object_delete.html', {
-            'obj': token,
-            'obj_type': token._meta.verbose_name,
+            'object': token,
             'form': form,
             'return_url': reverse('user:token_list'),
         })
