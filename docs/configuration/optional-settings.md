@@ -200,7 +200,7 @@ FIELD_CHOICES = {
 }
 ```
 
-The following model field support configurable choices:
+The following model fields support configurable choices:
 
 * `circuits.Circuit.status`
 * `dcim.Device.status`
