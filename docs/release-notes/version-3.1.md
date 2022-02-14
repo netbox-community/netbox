@@ -12,6 +12,7 @@
 ### Bug Fixes
 
 * [#8331](https://github.com/netbox-community/netbox/issues/8331) - Implement `replaceAll` string utility function to improve browser compatibility
+* [#8391](https://github.com/netbox-community/netbox/issues/8391) - Null date columns should return empty strings during CSV export
 * [#8548](https://github.com/netbox-community/netbox/issues/8548) - Fix display of VC members when position is zero
 * [#8561](https://github.com/netbox-community/netbox/issues/8561) - Include option to connect a rear port to a console port
 * [#8564](https://github.com/netbox-community/netbox/issues/8564) - Fix errant table configuration key `available_columns`
