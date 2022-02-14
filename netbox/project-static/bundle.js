@@ -14,9 +14,11 @@ const options = {
 // Get CLI arguments for optional overrides.
 const ARGS = process.argv.slice(2);
 
+const watch = ARGS.includes('--watch');
+
 async function bundleGraphIQL() {
   try {
-    const result = await esbuild.build({
+    const esbuildSettings = {
       ...options,
       entryPoints: {
         graphiql: 'netbox-graphiql/index.ts',
@@ -25,7 +27,16 @@ async function bundleGraphIQL() {
       define: {
         global: 'window',
       },
-    });
+    };
+    if (watch) {
+      esbuildSettings.watch = {
+        onRebuild(error) {
+          if (error) console.error('❌ Rebuild graphiql failed -', error);
+          else console.log('✅ Rebuilt graphiql files');
+        },
+      };
+    }
+    const result = await esbuild.build(esbuildSettings);
     if (result.errors.length === 0) {
       console.log(`✅ Bundled source file 'netbox-graphiql/index.ts' to 'graphiql.js'`);
     }
@@ -45,11 +56,20 @@ async function bundleNetBox() {
     status: 'src/device/status.ts',
   };
   try {
-    const result = await esbuild.build({
+    const esbuildSettings = {
       ...options,
       entryPoints,
       target: 'es2016',
-    });
+    };
+    if (watch) {
+      esbuildSettings.watch = {
+        onRebuild(error) {
+          if (error) console.error('❌ Rebuild source failed -', error);
+          else console.log('✅ Rebuilt source files');
+        },
+      };
+    }
+    const result = await esbuild.build(esbuildSettings);
     if (result.errors.length === 0) {
       for (const [targetName, sourceName] of Object.entries(entryPoints)) {
         const source = sourceName.split('/')[1];
@@ -89,7 +109,7 @@ async function bundleStyles() {
     if (ARGS.includes('--no-cache')) {
       pluginOptions.cache = false;
     }
-    let result = await esbuild.build({
+    const esbuildSettings = {
       ...options,
       // Disable sourcemaps for CSS/SCSS files, see #7068
       sourcemap: false,
@@ -102,7 +122,16 @@ async function bundleStyles() {
         '.svg': 'file',
         '.ttf': 'file',
       },
-    });
+    };
+    if (watch) {
+      esbuildSettings.watch = {
+        onRebuild(error) {
+          if (error) console.error('❌ Rebuild styles failed -', error);
+          else console.log('✅ Rebuilt style files');
+        },
+      };
+    }
+    let result = await esbuild.build(esbuildSettings);
     if (result.errors.length === 0) {
       for (const [targetName, sourceName] of Object.entries(entryPoints)) {
         const source = sourceName.split('/')[1];
@@ -130,3 +159,5 @@ async function bundleAll() {
 }
 
 bundleAll();
+
+module.exports = { bundleStyles, bundleScripts };

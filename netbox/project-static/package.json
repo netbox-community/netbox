@@ -4,11 +4,9 @@
   "main": "dist/netbox.js",
   "license": "Apache-2.0",
   "private": true,
-  "workspaces": [
-    "netbox-graphiql"
-  ],
+  "workspaces": ["netbox-graphiql"],
   "scripts": {
-    "dev": "node develop.js",
+    "dev": "node bundle.js --watch",
     "bundle": "node bundle.js",
     "bundle:styles": "node bundle.js --styles",
     "bundle:scripts": "node bundle.js --scripts",
