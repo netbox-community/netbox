@@ -4,10 +4,11 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import DateField
+from django.db.models import DateField, DateTimeField
 from django.db.models.fields.related import RelatedField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.utils.formats import date_format
 from django_tables2 import RequestConfig
 from django_tables2.columns import library
 from django_tables2.data import TableQuerysetData
@@ -221,6 +222,25 @@ class DateColumn(tables.DateColumn):
     @classmethod
     def from_field(cls, field, **kwargs):
         if isinstance(field, DateField):
+            return cls(**kwargs)
+
+
+@library.register
+class DateTimeColumn(tables.DateTimeColumn):
+    """
+    Overrides the default implementation of DateTimeColumn to better handle null values, returning a default value for
+    tables and null when exporting data. It is registered in the tables library to use this class instead of the
+    default, making this behavior consistent in all fields of type DateTimeField.
+    """
+
+    def value(self, value):
+        if value:
+            return date_format(value, format="SHORT_DATETIME_FORMAT")
+        return None
+
+    @classmethod
+    def from_field(cls, field, **kwargs):
+        if isinstance(field, DateTimeField):
             return cls(**kwargs)
 
 
