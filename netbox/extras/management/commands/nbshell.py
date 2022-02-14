@@ -70,10 +70,23 @@ class Command(BaseCommand):
         return namespace
 
     def handle(self, **options):
+        namespace = self.get_namespace()
+
         # If Python code has been passed, execute it and exit.
         if options['command']:
-            exec(options['command'], self.get_namespace())
+            exec(options['command'], namespace)
             return
 
-        shell = code.interact(banner=BANNER_TEXT, local=self.get_namespace())
+        # Try to enable tab-complete
+        try:
+            import readline
+            import rlcompleter
+        except ModuleNotFoundError:
+            pass
+        else:
+            readline.set_completer(rlcompleter.Completer(namespace).complete)
+            readline.parse_and_bind('tab: complete')
+
+        # Run interactive shell
+        shell = code.interact(banner=BANNER_TEXT, local=namespace)
         return shell
