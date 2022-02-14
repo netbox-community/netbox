@@ -7,8 +7,8 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db.models import DateField, DateTimeField
 from django.db.models.fields.related import RelatedField
 from django.urls import reverse
-from django.utils.safestring import mark_safe
 from django.utils.formats import date_format
+from django.utils.safestring import mark_safe
 from django_tables2 import RequestConfig
 from django_tables2.columns import library
 from django_tables2.data import TableQuerysetData
