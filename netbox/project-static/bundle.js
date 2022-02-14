@@ -159,5 +159,3 @@ async function bundleAll() {
 }
 
 bundleAll();
-
-module.exports = { bundleStyles, bundleScripts };
