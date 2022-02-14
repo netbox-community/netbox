@@ -30,11 +30,8 @@ CONFIGCONTEXT_ACTIONS = """
 """
 
 OBJECTCHANGE_FULL_NAME = """
-{% if record.user.first_name or record.user.last_name %}
-    {{ record.user.first_name }} {{ record.user.last_name }}
-{% else %}
-    {{ record.user|default:record.user_name }}
-{% endif %}
+{% load helpers %}
+{{ record.user.get_full_name|placeholder }}
 """
 
 OBJECTCHANGE_OBJECT = """

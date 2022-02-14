@@ -6,6 +6,8 @@
 
 * [#7150](https://github.com/netbox-community/netbox/issues/7150) - Linkify devices on the far side of a rack elevation
 * [#8398](https://github.com/netbox-community/netbox/issues/8398) - Embiggen configuration form fields for banner message content
+* [#8556](https://github.com/netbox-community/netbox/issues/8556) - Add full username column to changelog table
+* [#8620](https://github.com/netbox-community/netbox/issues/8620) - Enable tab completion for `nbshell`
 
 ### Bug Fixes
 

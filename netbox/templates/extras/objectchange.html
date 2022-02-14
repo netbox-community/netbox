@@ -36,19 +36,13 @@
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Full Name</th>
+                        <th scope="row">User</th>
                         <td>
-                            {% if object.user.first_name or object.user.last_name %}
-                                {{ object.user.first_name }} {{ object.user.last_name }}
+                            {% if object.user.get_full_name %}
+                              {{ object.user.get_full_name }} ({{ object.user_name }})
                             {% else %}
-                                {{ object.user|default:object.user_name }}
+                              {{ object.user_name }}
                             {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Username</th>
-                        <td>
-                            {{ object.user|default:object.user_name }}
                         </td>
                     </tr>
                     <tr>
