@@ -19,7 +19,7 @@ from netbox.config import PARAMS
 # Environment setup
 #
 
-VERSION = '3.2.0-dev'
+VERSION = '3.2.0-beta1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -49,16 +49,6 @@ except ModuleNotFoundError as e:
             f"per the documentation, or specify an alternate module in the NETBOX_CONFIGURATION environment variable."
         )
     raise
-
-# Warn on removed config parameters
-if hasattr(configuration, 'CACHE_TIMEOUT'):
-    warnings.warn(
-        "The CACHE_TIMEOUT configuration parameter was removed in v3.0.0 and no longer has any effect."
-    )
-if hasattr(configuration, 'RELEASE_CHECK_TIMEOUT'):
-    warnings.warn(
-        "The RELEASE_CHECK_TIMEOUT configuration parameter was removed in v3.0.0 and no longer has any effect."
-    )
 
 # Enforce required configuration parameters
 for parameter in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS']:
@@ -379,6 +369,7 @@ LANGUAGE_CODE = 'en-us'
 USE_I18N = True
 USE_L10N = False
 USE_TZ = True
+USE_DEPRECATED_PYTZ = True
 
 # WSGI
 WSGI_APPLICATION = 'netbox.wsgi.application'
