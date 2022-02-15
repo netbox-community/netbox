@@ -1114,8 +1114,14 @@ class InterfaceBulkEditForm(
     def clean(self):
         super().clean()
 
+        if not self.cleaned_data['mode']:
+            if self.cleaned_data['untagged_vlan']:
+                raise forms.ValidationError({'untagged_vlan': "Interface mode must be specified to assign VLANs"})
+            elif self.cleaned_data['tagged_vlans']:
+                raise forms.ValidationError({'tagged_vlans': "Interface mode must be specified to assign VLANs"})
+
         # Untagged interfaces cannot be assigned tagged VLANs
-        if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and self.cleaned_data['tagged_vlans']:
+        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and self.cleaned_data['tagged_vlans']:
             raise forms.ValidationError({
                 'mode': "An access interface cannot have tagged VLANs assigned."
             })

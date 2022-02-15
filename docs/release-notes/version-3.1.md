@@ -1,20 +1,30 @@
 # NetBox v3.1
 
-## v3.1.8 (FUTURE)
+## v3.1.9 (FUTURE)
+
+---
+
+## v3.1.8 (2022-02-15)
 
 ### Enhancements
 
 * [#7150](https://github.com/netbox-community/netbox/issues/7150) - Linkify devices on the far side of a rack elevation
 * [#8398](https://github.com/netbox-community/netbox/issues/8398) - Embiggen configuration form fields for banner message content
+* [#8556](https://github.com/netbox-community/netbox/issues/8556) - Add full username column to changelog table
+* [#8620](https://github.com/netbox-community/netbox/issues/8620) - Enable tab completion for `nbshell`
 
 ### Bug Fixes
 
 * [#8331](https://github.com/netbox-community/netbox/issues/8331) - Implement `replaceAll` string utility function to improve browser compatibility
+* [#8391](https://github.com/netbox-community/netbox/issues/8391) - Null date columns should return empty strings during CSV export
 * [#8548](https://github.com/netbox-community/netbox/issues/8548) - Fix display of VC members when position is zero
 * [#8561](https://github.com/netbox-community/netbox/issues/8561) - Include option to connect a rear port to a console port
 * [#8564](https://github.com/netbox-community/netbox/issues/8564) - Fix errant table configuration key `available_columns`
+* [#8577](https://github.com/netbox-community/netbox/issues/8577) - Show contact assignment counts in global search results
 * [#8578](https://github.com/netbox-community/netbox/issues/8578) - Object change log tables should honor user's configured preferences
 * [#8604](https://github.com/netbox-community/netbox/issues/8604) - Fix tag filter on config context list filter form
+* [#8609](https://github.com/netbox-community/netbox/issues/8609) - Display validation error when attempting to assign VLANs to interface with no mode during bulk edit
+* [#8611](https://github.com/netbox-community/netbox/issues/8611) - Fix bulk editing for certain custom link, webhook, and journal entry fields
 
 ---
 

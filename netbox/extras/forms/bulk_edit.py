@@ -4,7 +4,9 @@ from django.contrib.contenttypes.models import ContentType
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
-from utilities.forms import BulkEditForm, BulkEditNullBooleanSelect, ColorField, ContentTypeChoiceField, StaticSelect
+from utilities.forms import (
+    add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, ContentTypeChoiceField, StaticSelect,
+)
 
 __all__ = (
     'ConfigContextBulkEditForm',
@@ -58,7 +60,7 @@ class CustomLinkBulkEditForm(BulkEditForm):
         required=False
     )
     button_class = forms.ChoiceField(
-        choices=CustomLinkButtonClassChoices,
+        choices=add_blank_choice(CustomLinkButtonClassChoices),
         required=False,
         widget=StaticSelect()
     )
@@ -116,21 +118,25 @@ class WebhookBulkEditForm(BulkEditForm):
         widget=BulkEditNullBooleanSelect()
     )
     http_method = forms.ChoiceField(
-        choices=WebhookHttpMethodChoices,
-        required=False
+        choices=add_blank_choice(WebhookHttpMethodChoices),
+        required=False,
+        label='HTTP method'
     )
     payload_url = forms.CharField(
-        required=False
+        required=False,
+        label='Payload URL'
     )
     ssl_verification = forms.NullBooleanField(
         required=False,
-        widget=BulkEditNullBooleanSelect()
+        widget=BulkEditNullBooleanSelect(),
+        label='SSL verification'
     )
     secret = forms.CharField(
         required=False
     )
     ca_file_path = forms.CharField(
-        required=False
+        required=False,
+        label='CA file path'
     )
 
     nullable_fields = ('secret', 'conditions', 'ca_file_path')
@@ -179,7 +185,7 @@ class JournalEntryBulkEditForm(BulkEditForm):
         widget=forms.MultipleHiddenInput
     )
     kind = forms.ChoiceField(
-        choices=JournalEntryKindChoices,
+        choices=add_blank_choice(JournalEntryKindChoices),
         required=False
     )
     comments = forms.CharField(

@@ -65,7 +65,7 @@ class ClusterCSVForm(NetBoxModelCSVForm):
 class VirtualMachineCSVForm(NetBoxModelCSVForm):
     status = CSVChoiceField(
         choices=VirtualMachineStatusChoices,
-        help_text='Operational status of device'
+        help_text='Operational status'
     )
     cluster = CSVModelChoiceField(
         queryset=Cluster.objects.all(),
