@@ -2,6 +2,10 @@
 
 ## v3.1.9 (FUTURE)
 
+### Bug Fixes
+
+* [#8546](https://github.com/netbox-community/netbox/issues/8546) - Fix import  to restrict bridge, parent, lag to device interfaces
+
 ---
 
 ## v3.1.8 (2022-02-15)
