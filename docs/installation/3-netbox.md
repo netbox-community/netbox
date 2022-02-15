@@ -112,11 +112,11 @@ Create a system user account named `netbox`. We'll configure the WSGI and HTTP s
 
 ## Configuration
 
-Move into the NetBox configuration directory and make a copy of `configuration.example.py` named `configuration.py`. This file will hold all of your local configuration parameters.
+Move into the NetBox configuration directory and make a copy of `configuration_example.py` named `configuration.py`. This file will hold all of your local configuration parameters.
 
 ```no-highlight
 cd /opt/netbox/netbox/netbox/
-sudo cp configuration.example.py configuration.py
+sudo cp configuration_example.py configuration.py
 ```
 
 Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](../configuration/index.md), but only the following four are required for new installations:

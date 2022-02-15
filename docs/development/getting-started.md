@@ -85,7 +85,7 @@ Collecting Django==3.1 (from -r requirements.txt (line 1))
 
 ### Configure NetBox
 
-Within the `netbox/netbox/` directory, copy `configuration.example.py` to `configuration.py` and update the following parameters:
+Within the `netbox/netbox/` directory, copy `configuration_example.py` to `configuration.py` and update the following parameters:
 
 * `ALLOWED_HOSTS`: This can be set to `['*']` for development purposes
 * `DATABASE`: PostgreSQL database connection parameters
