@@ -19,6 +19,7 @@
 * [#8577](https://github.com/netbox-community/netbox/issues/8577) - Show contact assignment counts in global search results
 * [#8578](https://github.com/netbox-community/netbox/issues/8578) - Object change log tables should honor user's configured preferences
 * [#8604](https://github.com/netbox-community/netbox/issues/8604) - Fix tag filter on config context list filter form
+* [#8609](https://github.com/netbox-community/netbox/issues/8609) - Display validation error when attempting to assign VLANs to interface with no mode during bulk edit
 * [#8611](https://github.com/netbox-community/netbox/issues/8611) - Fix bulk editing for certain custom link, webhook, and journal entry fields
 
 ---
