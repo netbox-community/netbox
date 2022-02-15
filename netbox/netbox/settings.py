@@ -39,12 +39,14 @@ if sys.version_info < (3, 8):
 #
 
 # Import configuration parameters
+config_path = os.getenv('NETBOX_CONFIGURATION', 'netbox.configuration')
 try:
-    from netbox import configuration
+    configuration = importlib.import_module(config_path)
 except ModuleNotFoundError as e:
-    if getattr(e, 'name') == 'configuration':
+    if getattr(e, 'name') == config_path:
         raise ImproperlyConfigured(
-            "Configuration file is not present. Please define netbox/netbox/configuration.py per the documentation."
+            f"Specified configuration module ({config_path}) not found. Please define netbox/netbox/configuration.py "
+            f"per the documentation, or specify an alternate module in the NETBOX_CONFIGURATION environment variable."
         )
     raise
 
@@ -61,9 +63,7 @@ if hasattr(configuration, 'RELEASE_CHECK_TIMEOUT'):
 # Enforce required configuration parameters
 for parameter in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS']:
     if not hasattr(configuration, parameter):
-        raise ImproperlyConfigured(
-            "Required parameter {} is missing from configuration.py.".format(parameter)
-        )
+        raise ImproperlyConfigured(f"Required parameter {parameter} is missing from configuration.")
 
 # Set required parameters
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')
