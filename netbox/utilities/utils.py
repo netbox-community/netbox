@@ -183,7 +183,7 @@ def deepmerge(original, new):
     """
     merged = OrderedDict(original)
     for key, val in new.items():
-        if key in original and isinstance(original[key], dict) and isinstance(val, dict):
+        if key in original and isinstance(original[key], dict) and val and isinstance(val, dict):
             merged[key] = deepmerge(original[key], val)
         else:
             merged[key] = val

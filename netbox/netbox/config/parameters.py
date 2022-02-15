@@ -20,19 +20,28 @@ PARAMS = (
         name='BANNER_LOGIN',
         label='Login banner',
         default='',
-        description="Additional content to display on the login page"
+        description="Additional content to display on the login page",
+        field_kwargs={
+            'widget': forms.Textarea(),
+        },
     ),
     ConfigParam(
         name='BANNER_TOP',
         label='Top banner',
         default='',
-        description="Additional content to display at the top of every page"
+        description="Additional content to display at the top of every page",
+        field_kwargs={
+            'widget': forms.Textarea(),
+        },
     ),
     ConfigParam(
         name='BANNER_BOTTOM',
         label='Bottom banner',
         default='',
-        description="Additional content to display at the bottom of every page"
+        description="Additional content to display at the bottom of every page",
+        field_kwargs={
+            'widget': forms.Textarea(),
+        },
     ),
 
     # IPAM

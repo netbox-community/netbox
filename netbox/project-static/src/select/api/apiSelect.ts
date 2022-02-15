@@ -8,11 +8,12 @@ import { DynamicParamsMap } from './dynamicParams';
 import { isStaticParams, isOption } from './types';
 import {
   hasMore,
-  isTruthy,
   hasError,
-  getElement,
+  isTruthy,
   getApiData,
+  getElement,
   isApiError,
+  replaceAll,
   createElement,
   uniqueByProperty,
   findFirstAdjacent,
@@ -461,7 +462,7 @@ export class APISelect {
       // Set any primitive k/v pairs as data attributes on each option.
       for (const [k, v] of Object.entries(result)) {
         if (!['id', 'slug'].includes(k) && ['string', 'number', 'boolean'].includes(typeof v)) {
-          const key = k.replaceAll('_', '-');
+          const key = replaceAll(k, '_', '-');
           data[key] = String(v);
         }
         // Set option to disabled if the result contains a matching key and is truthy.
@@ -659,7 +660,7 @@ export class APISelect {
     for (const [key, value] of this.pathValues.entries()) {
       for (const result of this.url.matchAll(new RegExp(`({{${key}}})`, 'g'))) {
         if (isTruthy(value)) {
-          url = url.replaceAll(result[1], value.toString());
+          url = replaceAll(url, result[1], value.toString());
         }
       }
     }
@@ -741,7 +742,7 @@ export class APISelect {
    * @param id DOM ID of the other element.
    */
   private updatePathValues(id: string): void {
-    const key = id.replaceAll(/^id_/gi, '');
+    const key = replaceAll(id, /^id_/i, '');
     const element = getElement<HTMLSelectElement>(`id_${key}`);
     if (element !== null) {
       // If this element's URL contains Django template tags ({{), replace the template tag
@@ -919,16 +920,18 @@ export class APISelect {
         style.setAttribute('data-netbox', id);
 
         // Scope the CSS to apply both the list item and the selected item.
-        style.innerHTML = `
+        style.innerHTML = replaceAll(
+          `
   div.ss-values div.ss-value[data-id="${id}"],
   div.ss-list div.ss-option:not(.ss-disabled)[data-id="${id}"]
    {
     background-color: ${bg} !important;
     color: ${fg} !important;
   }
-              `
-          .replaceAll('\n', '')
-          .trim();
+              `,
+          '\n',
+          '',
+        ).trim();
 
         // Add the style element to the DOM.
         document.head.appendChild(style);

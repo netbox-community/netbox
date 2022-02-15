@@ -133,7 +133,7 @@ class HomeView(View):
         changelog = ObjectChange.objects.restrict(request.user, 'view').prefetch_related(
             'user', 'changed_object_type'
         )[:10]
-        changelog_table = ObjectChangeTable(changelog)
+        changelog_table = ObjectChangeTable(changelog, user=request.user)
 
         # Check whether a new release is available. (Only for staff/superusers.)
         new_release = None
