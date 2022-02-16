@@ -4,7 +4,8 @@
 
 ### Bug Fixes
 
-* [#8546](https://github.com/netbox-community/netbox/issues/8546) - Fix import  to restrict bridge, parent, lag to device interfaces
+* [#8546](https://github.com/netbox-community/netbox/issues/8546) - Fix bulk import to restrict bridge, parent, and LAG to device interfaces
+* [#8674](https://github.com/netbox-community/netbox/issues/8674) - Fix rendering of tabbed content in documentation
 
 ---
 
