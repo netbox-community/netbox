@@ -45,7 +45,7 @@ def get_cabletermination_row_class(record):
     if record.mark_connected:
         return 'success'
     elif record.cable:
-        return record.cable.get_status_class()
+        return record.cable.get_status_color()
     return ''
 
 

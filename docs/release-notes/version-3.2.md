@@ -144,6 +144,10 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * [#8572](https://github.com/netbox-community/netbox/issues/8572) - Add a `pre_run()` method for reports
 * [#8649](https://github.com/netbox-community/netbox/issues/8649) - Enable customization of configuration module using `NETBOX_CONFIGURATION` environment variable
 
+### Bug Fixes (From Beta)
+
+* [#8655](https://github.com/netbox-community/netbox/issues/8655) - Fix AttributeError when viewing cabled interfaces
+
 ### Other Changes
 
 * [#7731](https://github.com/netbox-community/netbox/issues/7731) - Require Python 3.8 or later
