@@ -12,7 +12,9 @@
                               <span title="{{ field.description|escape }}">{{ field }}</span>
                             </td>
                             <td>
-                                {% if field.type == 'longtext' and value %}
+                                {% if field.type == 'integer' and value is not None %}
+                                    {{ value }}
+                                {% elif field.type == 'longtext' and value %}
                                     {{ value|markdown }}
                                 {% elif field.type == 'boolean' and value == True %}
                                     {% checkmark value true="True" %}
@@ -27,14 +29,12 @@
                                 {% elif field.type == 'object' and value %}
                                     <a href="{{ value.get_absolute_url }}">{{ value }}</a>
                                 {% elif field.type == 'multiobject' and value %}
-                                    {% if value %}
-                                      <ul>
-                                        {% for obj in value %}
-                                          <li><a href="{{ obj.get_absolute_url }}">{{ obj }}</a></li>
-                                        {% endfor %}
-                                      </ul>
-                                    {% endif %}
-                                {% elif value is not None %}
+                                    <ul>
+                                      {% for obj in value %}
+                                        <li><a href="{{ obj.get_absolute_url }}">{{ obj }}</a></li>
+                                      {% endfor %}
+                                    </ul>
+                                {% elif value %}
                                     {{ value }}
                                 {% elif field.required %}
                                     <span class="text-warning">Not defined</span>

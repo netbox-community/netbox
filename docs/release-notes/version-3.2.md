@@ -147,6 +147,7 @@ Where it is desired to limit the range of available VLANs within a group, users 
 ### Bug Fixes (From Beta)
 
 * [#8655](https://github.com/netbox-community/netbox/issues/8655) - Fix AttributeError when viewing cabled interfaces
+* [#8659](https://github.com/netbox-community/netbox/issues/8659) - Fix display of multi-object custom fields after deleting related object
 
 ### Other Changes
 
