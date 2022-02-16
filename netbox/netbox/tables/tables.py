@@ -127,6 +127,30 @@ class BaseTable(tables.Table):
             self._objects_count = sum(1 for obj in self.data if hasattr(obj, 'pk'))
         return self._objects_count
 
+    def configure(self, request):
+        """
+        Configure the table for a specific request context. This performs pagination and records
+        the user's preferred ordering logic.
+        """
+        # Save ordering preference
+        if request.user.is_authenticated:
+            table_name = self.__class__.__name__
+            if self.prefixed_order_by_field in request.GET:
+                # If an ordering has been specified as a query parameter, save it as the
+                # user's preferred ordering for this table.
+                ordering = request.GET.getlist(self.prefixed_order_by_field)
+                request.user.config.set(f'tables.{table_name}.ordering', ordering, commit=True)
+            elif ordering := request.user.config.get(f'tables.{table_name}.ordering'):
+                # If no ordering has been specified, set the preferred ordering (if any).
+                self.order_by = ordering
+
+        # Paginate the table results
+        paginate = {
+            'paginator_class': EnhancedPaginator,
+            'per_page': get_paginate_count(request)
+        }
+        tables.RequestConfig(request, paginate).configure(self)
+
 
 class NetBoxTable(BaseTable):
     """
@@ -167,27 +191,3 @@ class NetBoxTable(BaseTable):
         ])
 
         super().__init__(*args, extra_columns=extra_columns, **kwargs)
-
-    def configure(self, request):
-        """
-        Configure the table for a specific request context. This performs pagination and records
-        the user's preferred ordering logic.
-        """
-        # Save ordering preference
-        if request.user.is_authenticated:
-            table_name = self.__class__.__name__
-            if self.prefixed_order_by_field in request.GET:
-                # If an ordering has been specified as a query parameter, save it as the
-                # user's preferred ordering for this table.
-                ordering = request.GET.getlist(self.prefixed_order_by_field)
-                request.user.config.set(f'tables.{table_name}.ordering', ordering, commit=True)
-            elif ordering := request.user.config.get(f'tables.{table_name}.ordering'):
-                # If no ordering has been specified, set the preferred ordering (if any).
-                self.order_by = ordering
-
-        # Paginate the table results
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        tables.RequestConfig(request, paginate).configure(self)
