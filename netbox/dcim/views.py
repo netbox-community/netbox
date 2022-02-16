@@ -2768,6 +2768,10 @@ class CableCreateView(generic.ObjectEditView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_object(self, **kwargs):
+        # Always return a new instance
+        return self.queryset.model()
+
     def alter_object(self, obj, request, url_args, url_kwargs):
         termination_a_type = url_kwargs.get('termination_a_type')
         termination_a_id = url_kwargs.get('termination_a_id')
