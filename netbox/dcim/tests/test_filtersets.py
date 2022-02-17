@@ -1831,7 +1831,8 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         locations = (
@@ -1850,6 +1851,20 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Device.objects.bulk_create(devices)
 
+        module_bays = (
+            ModuleBay(device=devices[0], name='Module Bay 1'),
+            ModuleBay(device=devices[1], name='Module Bay 2'),
+            ModuleBay(device=devices[2], name='Module Bay 3'),
+        )
+        ModuleBay.objects.bulk_create(module_bays)
+
+        modules = (
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
+            Module(device=devices[1], module_bay=module_bays[1], module_type=module_type),
+            Module(device=devices[2], module_bay=module_bays[2], module_type=module_type),
+        )
+        Module.objects.bulk_create(modules)
+
         console_server_ports = (
             ConsoleServerPort(device=devices[3], name='Console Server Port 1'),
             ConsoleServerPort(device=devices[3], name='Console Server Port 2'),
@@ -1857,9 +1872,9 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
         ConsoleServerPort.objects.bulk_create(console_server_ports)
 
         console_ports = (
-            ConsolePort(device=devices[0], name='Console Port 1', label='A', description='First'),
-            ConsolePort(device=devices[1], name='Console Port 2', label='B', description='Second'),
-            ConsolePort(device=devices[2], name='Console Port 3', label='C', description='Third'),
+            ConsolePort(device=devices[0], module=modules[0], name='Console Port 1', label='A', description='First'),
+            ConsolePort(device=devices[1], module=modules[1], name='Console Port 2', label='B', description='Second'),
+            ConsolePort(device=devices[2], module=modules[2], name='Console Port 3', label='C', description='Third'),
         )
         ConsolePort.objects.bulk_create(console_ports)
 
@@ -1914,6 +1929,11 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_module(self):
+        modules = Module.objects.all()[:2]
+        params = {'module_id': [modules[0].pk, modules[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_location(self):
         locations = Location.objects.all()[:2]
         params = {'location_id': [locations[0].pk, locations[1].pk]}
@@ -1958,7 +1978,8 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         locations = (
@@ -1977,6 +1998,20 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Device.objects.bulk_create(devices)
 
+        module_bays = (
+            ModuleBay(device=devices[0], name='Module Bay 1'),
+            ModuleBay(device=devices[1], name='Module Bay 2'),
+            ModuleBay(device=devices[2], name='Module Bay 3'),
+        )
+        ModuleBay.objects.bulk_create(module_bays)
+
+        modules = (
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
+            Module(device=devices[1], module_bay=module_bays[1], module_type=module_type),
+            Module(device=devices[2], module_bay=module_bays[2], module_type=module_type),
+        )
+        Module.objects.bulk_create(modules)
+
         console_ports = (
             ConsolePort(device=devices[3], name='Console Server Port 1'),
             ConsolePort(device=devices[3], name='Console Server Port 2'),
@@ -1984,9 +2019,9 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         ConsolePort.objects.bulk_create(console_ports)
 
         console_server_ports = (
-            ConsoleServerPort(device=devices[0], name='Console Server Port 1', label='A', description='First'),
-            ConsoleServerPort(device=devices[1], name='Console Server Port 2', label='B', description='Second'),
-            ConsoleServerPort(device=devices[2], name='Console Server Port 3', label='C', description='Third'),
+            ConsoleServerPort(device=devices[0], module=modules[0], name='Console Server Port 1', label='A', description='First'),
+            ConsoleServerPort(device=devices[1], module=modules[1], name='Console Server Port 2', label='B', description='Second'),
+            ConsoleServerPort(device=devices[2], module=modules[2], name='Console Server Port 3', label='C', description='Third'),
         )
         ConsoleServerPort.objects.bulk_create(console_server_ports)
 
@@ -2048,6 +2083,11 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_module(self):
+        modules = Module.objects.all()[:2]
+        params = {'module_id': [modules[0].pk, modules[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_cabled(self):
         params = {'cabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -2085,7 +2125,8 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         locations = (
@@ -2104,6 +2145,20 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Device.objects.bulk_create(devices)
 
+        module_bays = (
+            ModuleBay(device=devices[0], name='Module Bay 1'),
+            ModuleBay(device=devices[1], name='Module Bay 2'),
+            ModuleBay(device=devices[2], name='Module Bay 3'),
+        )
+        ModuleBay.objects.bulk_create(module_bays)
+
+        modules = (
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
+            Module(device=devices[1], module_bay=module_bays[1], module_type=module_type),
+            Module(device=devices[2], module_bay=module_bays[2], module_type=module_type),
+        )
+        Module.objects.bulk_create(modules)
+
         power_outlets = (
             PowerOutlet(device=devices[3], name='Power Outlet 1'),
             PowerOutlet(device=devices[3], name='Power Outlet 2'),
@@ -2111,9 +2166,9 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         PowerOutlet.objects.bulk_create(power_outlets)
 
         power_ports = (
-            PowerPort(device=devices[0], name='Power Port 1', label='A', maximum_draw=100, allocated_draw=50, description='First'),
-            PowerPort(device=devices[1], name='Power Port 2', label='B', maximum_draw=200, allocated_draw=100, description='Second'),
-            PowerPort(device=devices[2], name='Power Port 3', label='C', maximum_draw=300, allocated_draw=150, description='Third'),
+            PowerPort(device=devices[0], module=modules[0], name='Power Port 1', label='A', maximum_draw=100, allocated_draw=50, description='First'),
+            PowerPort(device=devices[1], module=modules[1], name='Power Port 2', label='B', maximum_draw=200, allocated_draw=100, description='Second'),
+            PowerPort(device=devices[2], module=modules[2], name='Power Port 3', label='C', maximum_draw=300, allocated_draw=150, description='Third'),
         )
         PowerPort.objects.bulk_create(power_ports)
 
@@ -2183,6 +2238,11 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_module(self):
+        modules = Module.objects.all()[:2]
+        params = {'module_id': [modules[0].pk, modules[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_cabled(self):
         params = {'cabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -2220,7 +2280,8 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         locations = (
@@ -2239,6 +2300,20 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Device.objects.bulk_create(devices)
 
+        module_bays = (
+            ModuleBay(device=devices[0], name='Module Bay 1'),
+            ModuleBay(device=devices[1], name='Module Bay 2'),
+            ModuleBay(device=devices[2], name='Module Bay 3'),
+        )
+        ModuleBay.objects.bulk_create(module_bays)
+
+        modules = (
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
+            Module(device=devices[1], module_bay=module_bays[1], module_type=module_type),
+            Module(device=devices[2], module_bay=module_bays[2], module_type=module_type),
+        )
+        Module.objects.bulk_create(modules)
+
         power_ports = (
             PowerPort(device=devices[3], name='Power Outlet 1'),
             PowerPort(device=devices[3], name='Power Outlet 2'),
@@ -2246,9 +2321,9 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
         PowerPort.objects.bulk_create(power_ports)
 
         power_outlets = (
-            PowerOutlet(device=devices[0], name='Power Outlet 1', label='A', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A, description='First'),
-            PowerOutlet(device=devices[1], name='Power Outlet 2', label='B', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B, description='Second'),
-            PowerOutlet(device=devices[2], name='Power Outlet 3', label='C', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C, description='Third'),
+            PowerOutlet(device=devices[0], module=modules[0], name='Power Outlet 1', label='A', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A, description='First'),
+            PowerOutlet(device=devices[1], module=modules[1], name='Power Outlet 2', label='B', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B, description='Second'),
+            PowerOutlet(device=devices[2], module=modules[2], name='Power Outlet 3', label='C', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C, description='Third'),
         )
         PowerOutlet.objects.bulk_create(power_outlets)
 
@@ -2314,6 +2389,11 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_module(self):
+        modules = Module.objects.all()[:2]
+        params = {'module_id': [modules[0].pk, modules[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_cabled(self):
         params = {'cabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -2351,7 +2431,8 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         locations = (
@@ -2370,6 +2451,20 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Device.objects.bulk_create(devices)
 
+        module_bays = (
+            ModuleBay(device=devices[0], name='Module Bay 1'),
+            ModuleBay(device=devices[1], name='Module Bay 2'),
+            ModuleBay(device=devices[2], name='Module Bay 3'),
+        )
+        ModuleBay.objects.bulk_create(module_bays)
+
+        modules = (
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
+            Module(device=devices[1], module_bay=module_bays[1], module_type=module_type),
+            Module(device=devices[2], module_bay=module_bays[2], module_type=module_type),
+        )
+        Module.objects.bulk_create(modules)
+
         vrfs = (
             VRF(name='VRF 1', rd='65000:1'),
             VRF(name='VRF 2', rd='65000:2'),
@@ -2383,9 +2478,9 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis, vc_position=2, vc_priority=2)
 
         interfaces = (
-            Interface(device=devices[0], name='Interface 1', label='A', type=InterfaceTypeChoices.TYPE_1GE_SFP, enabled=True, mgmt_only=True, mtu=100, mode=InterfaceModeChoices.MODE_ACCESS, mac_address='00-00-00-00-00-01', description='First', vrf=vrfs[0], speed=1000000, duplex='half'),
-            Interface(device=devices[1], name='Interface 2', label='B', type=InterfaceTypeChoices.TYPE_1GE_GBIC, enabled=True, mgmt_only=True, mtu=200, mode=InterfaceModeChoices.MODE_TAGGED, mac_address='00-00-00-00-00-02', description='Second', vrf=vrfs[1], speed=1000000, duplex='full'),
-            Interface(device=devices[2], name='Interface 3', label='C', type=InterfaceTypeChoices.TYPE_1GE_FIXED, enabled=False, mgmt_only=False, mtu=300, mode=InterfaceModeChoices.MODE_TAGGED_ALL, mac_address='00-00-00-00-00-03', description='Third', vrf=vrfs[2], speed=100000, duplex='half'),
+            Interface(device=devices[0], module=modules[0], name='Interface 1', label='A', type=InterfaceTypeChoices.TYPE_1GE_SFP, enabled=True, mgmt_only=True, mtu=100, mode=InterfaceModeChoices.MODE_ACCESS, mac_address='00-00-00-00-00-01', description='First', vrf=vrfs[0], speed=1000000, duplex='half'),
+            Interface(device=devices[1], module=modules[1], name='Interface 2', label='B', type=InterfaceTypeChoices.TYPE_1GE_GBIC, enabled=True, mgmt_only=True, mtu=200, mode=InterfaceModeChoices.MODE_TAGGED, mac_address='00-00-00-00-00-02', description='Second', vrf=vrfs[1], speed=1000000, duplex='full'),
+            Interface(device=devices[2], module=modules[2], name='Interface 3', label='C', type=InterfaceTypeChoices.TYPE_1GE_FIXED, enabled=False, mgmt_only=False, mtu=300, mode=InterfaceModeChoices.MODE_TAGGED_ALL, mac_address='00-00-00-00-00-03', description='Third', vrf=vrfs[2], speed=100000, duplex='half'),
             Interface(device=devices[3], name='Interface 4', label='D', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True, tx_power=40, speed=100000, duplex='full'),
             Interface(device=devices[3], name='Interface 5', label='E', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True, tx_power=40),
             Interface(device=devices[3], name='Interface 6', label='F', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False, mgmt_only=False, tx_power=40),
@@ -2525,6 +2620,11 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_module(self):
+        modules = Module.objects.all()[:2]
+        params = {'module_id': [modules[0].pk, modules[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_cabled(self):
         params = {'cabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
@@ -2603,7 +2703,8 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         locations = (
@@ -2622,6 +2723,20 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Device.objects.bulk_create(devices)
 
+        module_bays = (
+            ModuleBay(device=devices[0], name='Module Bay 1'),
+            ModuleBay(device=devices[1], name='Module Bay 2'),
+            ModuleBay(device=devices[2], name='Module Bay 3'),
+        )
+        ModuleBay.objects.bulk_create(module_bays)
+
+        modules = (
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
+            Module(device=devices[1], module_bay=module_bays[1], module_type=module_type),
+            Module(device=devices[2], module_bay=module_bays[2], module_type=module_type),
+        )
+        Module.objects.bulk_create(modules)
+
         rear_ports = (
             RearPort(device=devices[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, positions=6),
             RearPort(device=devices[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C, positions=6),
@@ -2633,9 +2748,9 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         RearPort.objects.bulk_create(rear_ports)
 
         front_ports = (
-            FrontPort(device=devices[0], name='Front Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED, rear_port=rear_ports[0], rear_port_position=1, description='First'),
-            FrontPort(device=devices[1], name='Front Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
-            FrontPort(device=devices[2], name='Front Port 3', label='C', type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
+            FrontPort(device=devices[0], module=modules[0], name='Front Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED, rear_port=rear_ports[0], rear_port_position=1, description='First'),
+            FrontPort(device=devices[1], module=modules[1], name='Front Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
+            FrontPort(device=devices[2], module=modules[2], name='Front Port 3', label='C', type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
             FrontPort(device=devices[3], name='Front Port 4', label='D', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[3], rear_port_position=1),
             FrontPort(device=devices[3], name='Front Port 5', label='E', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[4], rear_port_position=1),
             FrontPort(device=devices[3], name='Front Port 6', label='F', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[5], rear_port_position=1),
@@ -2702,6 +2817,11 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_module(self):
+        modules = Module.objects.all()[:2]
+        params = {'module_id': [modules[0].pk, modules[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_cabled(self):
         params = {'cabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
@@ -2739,7 +2859,8 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         locations = (
@@ -2758,10 +2879,24 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Device.objects.bulk_create(devices)
 
+        module_bays = (
+            ModuleBay(device=devices[0], name='Module Bay 1'),
+            ModuleBay(device=devices[1], name='Module Bay 2'),
+            ModuleBay(device=devices[2], name='Module Bay 3'),
+        )
+        ModuleBay.objects.bulk_create(module_bays)
+
+        modules = (
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
+            Module(device=devices[1], module_bay=module_bays[1], module_type=module_type),
+            Module(device=devices[2], module_bay=module_bays[2], module_type=module_type),
+        )
+        Module.objects.bulk_create(modules)
+
         rear_ports = (
-            RearPort(device=devices[0], name='Rear Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED, positions=1, description='First'),
-            RearPort(device=devices[1], name='Rear Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN, positions=2, description='Second'),
-            RearPort(device=devices[2], name='Rear Port 3', label='C', type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE, positions=3, description='Third'),
+            RearPort(device=devices[0], module=modules[0], name='Rear Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED, positions=1, description='First'),
+            RearPort(device=devices[1], module=modules[1], name='Rear Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN, positions=2, description='Second'),
+            RearPort(device=devices[2], module=modules[2], name='Rear Port 3', label='C', type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE, positions=3, description='Third'),
             RearPort(device=devices[3], name='Rear Port 4', label='D', type=PortTypeChoices.TYPE_FC, positions=4),
             RearPort(device=devices[3], name='Rear Port 5', label='E', type=PortTypeChoices.TYPE_FC, positions=5),
             RearPort(device=devices[3], name='Rear Port 6', label='F', type=PortTypeChoices.TYPE_FC, positions=6),
@@ -2830,6 +2965,11 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device_id': [devices[0].pk, devices[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_module(self):
+        modules = Module.objects.all()[:2]
+        params = {'module_id': [modules[0].pk, modules[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):

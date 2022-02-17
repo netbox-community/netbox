@@ -61,7 +61,7 @@
               <td>
                 {% with component_count=object.interfaces.count %}
                   {% if component_count %}
-                    <a href="{% url 'dcim:interface_list' %}?module={{ object.pk }}">{{ component_count }}</a>
+                    <a href="{% url 'dcim:interface_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
                     None
                   {% endif %}
@@ -73,7 +73,7 @@
               <td>
                 {% with component_count=object.consoleports.count %}
                   {% if component_count %}
-                    <a href="{% url 'dcim:consoleport_list' %}?module={{ object.pk }}">{{ component_count }}</a>
+                    <a href="{% url 'dcim:consoleport_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
                     None
                   {% endif %}
@@ -85,7 +85,7 @@
               <td>
                 {% with component_count=object.consoleserverports.count %}
                   {% if component_count %}
-                    <a href="{% url 'dcim:consoleserverport_list' %}?module={{ object.pk }}">{{ component_count }}</a>
+                    <a href="{% url 'dcim:consoleserverport_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
                     None
                   {% endif %}
@@ -97,7 +97,7 @@
               <td>
                 {% with component_count=object.powerports.count %}
                   {% if component_count %}
-                    <a href="{% url 'dcim:powerport_list' %}?module={{ object.pk }}">{{ component_count }}</a>
+                    <a href="{% url 'dcim:powerport_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
                     None
                   {% endif %}
@@ -109,7 +109,7 @@
               <td>
                 {% with component_count=object.poweroutlets.count %}
                   {% if component_count %}
-                    <a href="{% url 'dcim:poweroutlet_list' %}?module={{ object.pk }}">{{ component_count }}</a>
+                    <a href="{% url 'dcim:poweroutlet_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
                     None
                   {% endif %}
@@ -121,7 +121,7 @@
               <td>
                 {% with component_count=object.frontports.count %}
                   {% if component_count %}
-                    <a href="{% url 'dcim:frontport_list' %}?module={{ object.pk }}">{{ component_count }}</a>
+                    <a href="{% url 'dcim:frontport_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
                     None
                   {% endif %}
@@ -133,7 +133,7 @@
               <td>
                 {% with component_count=object.rearports.count %}
                   {% if component_count %}
-                    <a href="{% url 'dcim:rearport_list' %}?module={{ object.pk }}">{{ component_count }}</a>
+                    <a href="{% url 'dcim:rearport_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
                     None
                   {% endif %}

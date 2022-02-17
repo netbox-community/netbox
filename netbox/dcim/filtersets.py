@@ -1076,6 +1076,17 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         )
 
 
+class ModularDeviceComponentFilterSet(DeviceComponentFilterSet):
+    """
+    Extends DeviceComponentFilterSet to add a module_id filter for components
+    which can be associated with a particular module within a device.
+    """
+    module_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Module.objects.all(),
+        label='Module (ID)',
+    )
+
+
 class CableTerminationFilterSet(django_filters.FilterSet):
     cabled = django_filters.BooleanFilter(
         field_name='cable',
@@ -1096,7 +1107,12 @@ class PathEndpointFilterSet(django_filters.FilterSet):
             return queryset.filter(Q(_path__isnull=True) | Q(_path__is_active=False))
 
 
-class ConsolePortFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+class ConsolePortFilterSet(
+    NetBoxModelFilterSet,
+    ModularDeviceComponentFilterSet,
+    CableTerminationFilterSet,
+    PathEndpointFilterSet
+):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
         null_value=None
@@ -1107,7 +1123,12 @@ class ConsolePortFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet, Cable
         fields = ['id', 'name', 'label', 'description']
 
 
-class ConsoleServerPortFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+class ConsoleServerPortFilterSet(
+    NetBoxModelFilterSet,
+    ModularDeviceComponentFilterSet,
+    CableTerminationFilterSet,
+    PathEndpointFilterSet
+):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
         null_value=None
@@ -1118,7 +1139,12 @@ class ConsoleServerPortFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet,
         fields = ['id', 'name', 'label', 'description']
 
 
-class PowerPortFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+class PowerPortFilterSet(
+    NetBoxModelFilterSet,
+    ModularDeviceComponentFilterSet,
+    CableTerminationFilterSet,
+    PathEndpointFilterSet
+):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerPortTypeChoices,
         null_value=None
@@ -1129,7 +1155,12 @@ class PowerPortFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet, CableTe
         fields = ['id', 'name', 'label', 'maximum_draw', 'allocated_draw', 'description']
 
 
-class PowerOutletFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+class PowerOutletFilterSet(
+    NetBoxModelFilterSet,
+    ModularDeviceComponentFilterSet,
+    CableTerminationFilterSet,
+    PathEndpointFilterSet
+):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerOutletTypeChoices,
         null_value=None
@@ -1144,7 +1175,12 @@ class PowerOutletFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet, Cable
         fields = ['id', 'name', 'label', 'feed_leg', 'description']
 
 
-class InterfaceFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+class InterfaceFilterSet(
+    NetBoxModelFilterSet,
+    ModularDeviceComponentFilterSet,
+    CableTerminationFilterSet,
+    PathEndpointFilterSet
+):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1271,7 +1307,11 @@ class InterfaceFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet, CableTe
         }.get(value, queryset.none())
 
 
-class FrontPortFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
+class FrontPortFilterSet(
+    NetBoxModelFilterSet,
+    ModularDeviceComponentFilterSet,
+    CableTerminationFilterSet
+):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
@@ -1282,7 +1322,11 @@ class FrontPortFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet, CableTe
         fields = ['id', 'name', 'label', 'type', 'color', 'description']
 
 
-class RearPortFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
+class RearPortFilterSet(
+    NetBoxModelFilterSet,
+    ModularDeviceComponentFilterSet,
+    CableTerminationFilterSet
+):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
