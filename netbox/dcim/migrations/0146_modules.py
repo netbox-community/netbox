@@ -14,6 +14,31 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Rename any indexes left over from the old Module model (now InventoryItem) (#8656)
+        migrations.RunSQL(
+            """
+            DO $$
+            DECLARE
+                idx record;
+            BEGIN
+                FOR idx IN
+                    SELECT indexname AS old_name,
+                           replace(indexname, 'module', 'inventoryitem') AS new_name
+                    FROM pg_indexes
+                    WHERE schemaname = 'public' AND
+                          tablename = 'dcim_inventoryitem' AND
+                          indexname LIKE 'dcim_module_%'
+                LOOP
+                    EXECUTE format(
+                        'ALTER INDEX %I RENAME TO %I;',
+                        idx.old_name,
+                        idx.new_name
+                    );
+                END LOOP;
+            END$$;
+            """
+        ),
+
         migrations.AlterModelOptions(
             name='consoleporttemplate',
             options={'ordering': ('device_type', 'module_type', '_name')},
