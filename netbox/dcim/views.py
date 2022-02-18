@@ -50,22 +50,25 @@ class DeviceTypeComponentsView(DeviceComponentsView):
         return self.child_model.objects.restrict(request.user, 'view').filter(device_type=parent)
 
     def get_extra_context(self, request, instance):
-        if self.viewname:
-            return_url = reverse(self.viewname, kwargs={'pk': instance.pk})
-        else:
-            return_url = instance.get_absolute_url()
-        return {
-            'active_tab': f"{self.child_model._meta.verbose_name_plural.replace(' ', '-')}",
-            'return_url': return_url,
-        }
+        context = super().get_extra_context(request, instance)
+        context['return_url'] = reverse(self.viewname, kwargs={'pk': instance.pk})
+
+        return context
 
 
 class ModuleTypeComponentsView(DeviceComponentsView):
     queryset = ModuleType.objects.all()
     template_name = 'dcim/moduletype/component_templates.html'
+    viewname = None  # Used for return_url resolution
 
     def get_children(self, request, parent):
         return self.child_model.objects.restrict(request.user, 'view').filter(module_type=parent)
+
+    def get_extra_context(self, request, instance):
+        context = super().get_extra_context(request, instance)
+        context['return_url'] = reverse(self.viewname, kwargs={'pk': instance.pk})
+
+        return context
 
 
 class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
@@ -858,6 +861,7 @@ class DeviceTypeModuleBaysView(DeviceTypeComponentsView):
     child_model = ModuleBayTemplate
     table = tables.ModuleBayTemplateTable
     filterset = filtersets.ModuleBayTemplateFilterSet
+    viewname = 'dcim:devicetype_modulebays'
 
 
 class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
@@ -962,42 +966,49 @@ class ModuleTypeConsolePortsView(ModuleTypeComponentsView):
     child_model = ConsolePortTemplate
     table = tables.ConsolePortTemplateTable
     filterset = filtersets.ConsolePortTemplateFilterSet
+    viewname = 'dcim:moduletype_consoleports'
 
 
 class ModuleTypeConsoleServerPortsView(ModuleTypeComponentsView):
     child_model = ConsoleServerPortTemplate
     table = tables.ConsoleServerPortTemplateTable
     filterset = filtersets.ConsoleServerPortTemplateFilterSet
+    viewname = 'dcim:moduletype_consoleserverports'
 
 
 class ModuleTypePowerPortsView(ModuleTypeComponentsView):
     child_model = PowerPortTemplate
     table = tables.PowerPortTemplateTable
     filterset = filtersets.PowerPortTemplateFilterSet
+    viewname = 'dcim:moduletype_powerports'
 
 
 class ModuleTypePowerOutletsView(ModuleTypeComponentsView):
     child_model = PowerOutletTemplate
     table = tables.PowerOutletTemplateTable
     filterset = filtersets.PowerOutletTemplateFilterSet
+    viewname = 'dcim:moduletype_poweroutlets'
 
 
 class ModuleTypeInterfacesView(ModuleTypeComponentsView):
     child_model = InterfaceTemplate
     table = tables.InterfaceTemplateTable
     filterset = filtersets.InterfaceTemplateFilterSet
+    viewname = 'dcim:moduletype_interfaces'
 
 
 class ModuleTypeFrontPortsView(ModuleTypeComponentsView):
     child_model = FrontPortTemplate
     table = tables.FrontPortTemplateTable
     filterset = filtersets.FrontPortTemplateFilterSet
+    viewname = 'dcim:moduletype_frontports'
 
 
 class ModuleTypeRearPortsView(ModuleTypeComponentsView):
     child_model = RearPortTemplate
     table = tables.RearPortTemplateTable
     filterset = filtersets.RearPortTemplateFilterSet
+    viewname = 'dcim:moduletype_rearports'
 
 
 class ModuleTypeEditView(generic.ObjectEditView):
@@ -1060,8 +1071,9 @@ class ModuleTypeBulkDeleteView(generic.BulkDeleteView):
 
 class ConsolePortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsolePortTemplate.objects.all()
-    form = forms.ComponentTemplateCreateForm
+    form = forms.ModularComponentTemplateCreateForm
     model_form = forms.ConsolePortTemplateForm
+    template_name = 'dcim/component_template_create.html'
 
 
 class ConsolePortTemplateEditView(generic.ObjectEditView):
@@ -1094,8 +1106,9 @@ class ConsolePortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class ConsoleServerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsoleServerPortTemplate.objects.all()
-    form = forms.ComponentTemplateCreateForm
+    form = forms.ModularComponentTemplateCreateForm
     model_form = forms.ConsoleServerPortTemplateForm
+    template_name = 'dcim/component_template_create.html'
 
 
 class ConsoleServerPortTemplateEditView(generic.ObjectEditView):
@@ -1128,8 +1141,9 @@ class ConsoleServerPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class PowerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerPortTemplate.objects.all()
-    form = forms.ComponentTemplateCreateForm
+    form = forms.ModularComponentTemplateCreateForm
     model_form = forms.PowerPortTemplateForm
+    template_name = 'dcim/component_template_create.html'
 
 
 class PowerPortTemplateEditView(generic.ObjectEditView):
@@ -1162,8 +1176,9 @@ class PowerPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class PowerOutletTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerOutletTemplate.objects.all()
-    form = forms.ComponentTemplateCreateForm
+    form = forms.ModularComponentTemplateCreateForm
     model_form = forms.PowerOutletTemplateForm
+    template_name = 'dcim/component_template_create.html'
 
 
 class PowerOutletTemplateEditView(generic.ObjectEditView):
@@ -1196,8 +1211,9 @@ class PowerOutletTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class InterfaceTemplateCreateView(generic.ComponentCreateView):
     queryset = InterfaceTemplate.objects.all()
-    form = forms.ComponentTemplateCreateForm
+    form = forms.ModularComponentTemplateCreateForm
     model_form = forms.InterfaceTemplateForm
+    template_name = 'dcim/component_template_create.html'
 
 
 class InterfaceTemplateEditView(generic.ObjectEditView):
@@ -1232,6 +1248,7 @@ class FrontPortTemplateCreateView(generic.ComponentCreateView):
     queryset = FrontPortTemplate.objects.all()
     form = forms.FrontPortTemplateCreateForm
     model_form = forms.FrontPortTemplateForm
+    template_name = 'dcim/frontporttemplate_create.html'
 
     def initialize_forms(self, request):
         form, model_form = super().initialize_forms(request)
@@ -1272,8 +1289,9 @@ class FrontPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class RearPortTemplateCreateView(generic.ComponentCreateView):
     queryset = RearPortTemplate.objects.all()
-    form = forms.ComponentTemplateCreateForm
+    form = forms.ModularComponentTemplateCreateForm
     model_form = forms.RearPortTemplateForm
+    template_name = 'dcim/component_template_create.html'
 
 
 class RearPortTemplateEditView(generic.ObjectEditView):
@@ -1306,8 +1324,9 @@ class RearPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class ModuleBayTemplateCreateView(generic.ComponentCreateView):
     queryset = ModuleBayTemplate.objects.all()
-    form = forms.DeviceTypeComponentCreateForm
+    form = forms.ComponentTemplateCreateForm
     model_form = forms.ModuleBayTemplateForm
+    template_name = 'dcim/component_template_create.html'
 
 
 class ModuleBayTemplateEditView(generic.ObjectEditView):
@@ -1340,8 +1359,9 @@ class ModuleBayTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class DeviceBayTemplateCreateView(generic.ComponentCreateView):
     queryset = DeviceBayTemplate.objects.all()
-    form = forms.DeviceTypeComponentCreateForm
+    form = forms.ComponentTemplateCreateForm
     model_form = forms.DeviceBayTemplateForm
+    template_name = 'dcim/component_template_create.html'
 
 
 class DeviceBayTemplateEditView(generic.ObjectEditView):
@@ -1374,7 +1394,7 @@ class DeviceBayTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class InventoryItemTemplateCreateView(generic.ComponentCreateView):
     queryset = InventoryItemTemplate.objects.all()
-    form = forms.ComponentTemplateCreateForm
+    form = forms.ModularComponentTemplateCreateForm
     model_form = forms.InventoryItemTemplateForm
     template_name = 'dcim/inventoryitem_create.html'
 

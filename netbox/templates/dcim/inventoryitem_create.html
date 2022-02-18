@@ -1,9 +1,9 @@
-{% extends 'generic/object_edit.html' %}
+{% extends 'dcim/component_template_create.html' %}
 {% load helpers %}
 {% load form_helpers %}
 
-{% block form %}
-  {% render_form replication_form %}
+{% block replication_fields %}
+  {{ block.super }}
   {% if object.component %}
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label text-lg-end">
@@ -14,5 +14,4 @@
         </div>
     </div>
   {% endif %}
-  {{ block.super }}
-{% endblock %}
+{% endblock replication_fields %}

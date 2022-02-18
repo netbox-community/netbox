@@ -8,9 +8,9 @@ from utilities.forms import (
 )
 
 __all__ = (
-    'ComponentTemplateCreateForm',
+    'ModularComponentTemplateCreateForm',
     'DeviceComponentCreateForm',
-    'DeviceTypeComponentCreateForm',
+    'ComponentTemplateCreateForm',
     'FrontPortCreateForm',
     'FrontPortTemplateCreateForm',
     'VirtualChassisCreateForm',
@@ -45,14 +45,20 @@ class ComponentCreateForm(BootstrapMixin, forms.Form):
                 }, code='label_pattern_mismatch')
 
 
-class DeviceTypeComponentCreateForm(ComponentCreateForm):
+class ComponentTemplateCreateForm(ComponentCreateForm):
+    """
+    Creation form for component templates that can be assigned only to a DeviceType.
+    """
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
     )
     field_order = ('device_type', 'name_pattern', 'label_pattern')
 
 
-class ComponentTemplateCreateForm(ComponentCreateForm):
+class ModularComponentTemplateCreateForm(ComponentCreateForm):
+    """
+    Creation form for component templates that can be assigned to either a DeviceType *or* a ModuleType.
+    """
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
         required=False
@@ -71,7 +77,7 @@ class DeviceComponentCreateForm(ComponentCreateForm):
     field_order = ('device', 'name_pattern', 'label_pattern')
 
 
-class FrontPortTemplateCreateForm(DeviceTypeComponentCreateForm):
+class FrontPortTemplateCreateForm(ModularComponentTemplateCreateForm):
     rear_port_set = forms.MultipleChoiceField(
         choices=[],
         label='Rear ports',
@@ -84,19 +90,27 @@ class FrontPortTemplateCreateForm(DeviceTypeComponentCreateForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        device_type = DeviceType.objects.get(
-            pk=self.initial.get('device_type') or self.data.get('device_type')
-        )
+        # TODO: This needs better validation
+        if 'device_type' in self.initial or self.data.get('device_type'):
+            parent = DeviceType.objects.get(
+                pk=self.initial.get('device_type') or self.data.get('device_type')
+            )
+        elif 'module_type' in self.initial or self.data.get('module_type'):
+            parent = ModuleType.objects.get(
+                pk=self.initial.get('module_type') or self.data.get('module_type')
+            )
+        else:
+            return
 
         # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
         occupied_port_positions = [
             (front_port.rear_port_id, front_port.rear_port_position)
-            for front_port in device_type.frontporttemplates.all()
+            for front_port in parent.frontporttemplates.all()
         ]
 
         # Populate rear port choices
         choices = []
-        rear_ports = RearPortTemplate.objects.filter(device_type=device_type)
+        rear_ports = parent.rearporttemplates.all()
         for rear_port in rear_ports:
             for i in range(1, rear_port.positions + 1):
                 if (rear_port.pk, i) not in occupied_port_positions:
