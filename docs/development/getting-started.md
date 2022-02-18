@@ -11,17 +11,25 @@ Getting started with NetBox development is pretty straightforward, and should fe
 
 ### Fork the Repo
 
-Assuming you'll be working on your own fork, your first step will be to fork the [official git repository](https://github.com/netbox-community/netbox). (If you're a maintainer who's going to be working directly with the official repo, skip this step.) You can then clone your GitHub fork locally for development:
+Assuming you'll be working on your own fork, your first step will be to fork the [official git repository](https://github.com/netbox-community/netbox). (If you're a maintainer who's going to be working directly with the official repo, skip this step.) Click the "fork" button at top right (be sure that you've logged into GitHub first).
+
+![GitHub fork button](../media/development/github_fork_button.png)
+
+Copy the URL provided in the dialog box.
+
+![GitHub fork dialog](../media/development/github_fork_dialog.png)
+
+You can then clone your GitHub fork locally for development:
 
 ```no-highlight
-$ git clone https://github.com/youruseraccount/netbox.git
+$ git clone https://github.com/$username/netbox.git
 Cloning into 'netbox'...
-remote: Enumerating objects: 231, done.
-remote: Counting objects: 100% (231/231), done.
-remote: Compressing objects: 100% (147/147), done.
-remote: Total 56705 (delta 134), reused 145 (delta 84), pack-reused 56474
-Receiving objects: 100% (56705/56705), 27.96 MiB | 34.92 MiB/s, done.
-Resolving deltas: 100% (44177/44177), done.
+remote: Enumerating objects: 85949, done.
+remote: Counting objects: 100% (4672/4672), done.
+remote: Compressing objects: 100% (1224/1224), done.
+remote: Total 85949 (delta 3538), reused 4332 (delta 3438), pack-reused 81277
+Receiving objects: 100% (85949/85949), 55.16 MiB | 44.90 MiB/s, done.
+Resolving deltas: 100% (68008/68008), done.
 $ ls netbox/
 base_requirements.txt  contrib          docs         mkdocs.yml  NOTICE     requirements.txt  upgrade.sh
 CHANGELOG.md           CONTRIBUTING.md  LICENSE.txt  netbox      README.md  scripts
@@ -33,7 +41,7 @@ The NetBox project utilizes three persistent git branches to track work:
 * `develop` - All development on the upcoming stable release occurs here
 * `feature` - Tracks work on an upcoming major release
 
-Typically, you'll base pull requests off of the `develop` branch, or off of `feature` if you're working on a new major release. **Never** merge pull requests into the `master` branch, which receives merged only from the `develop` branch.
+Typically, you'll base pull requests off of the `develop` branch, or off of `feature` if you're working on a new major release. **Never** merge pull requests into the `master` branch: This branch only ever merges pull requests from the `develop` branch, to effect a new release.
 
 For example, assume that the current NetBox release is v3.1.1. Work applied to the `develop` branch will appear in v3.1.2, and work done under the `feature` branch will be included in the next minor release (v3.2.0).
 
@@ -60,7 +68,7 @@ $ python3 -m venv ~/.venv/netbox
 This will create a directory named `.venv/netbox/` in your home directory, which houses a virtual copy of the Python executable and its related libraries and tooling. When running NetBox for development, it will be run using the Python binary at `~/.venv/netbox/bin/python`.
 
 !!! info "Where to Create Your Virtual Environments"
-    Keeping virtual environments in `~/.venv/` is a common convention but entirely optional: Virtual environments can be created almost wherever you please.
+    Keeping virtual environments in `~/.venv/` is a common convention but entirely optional: Virtual environments can be created almost wherever you please. Also consider using [`virtualenvwrapper`](https://virtualenvwrapper.readthedocs.io/en/stable/) to simplify the management of multiple venvs.
 
 Once created, activate the virtual environment:
 
@@ -99,12 +107,13 @@ Within the `netbox/netbox/` directory, copy `configuration_example.py` to `confi
 Django provides a lightweight, auto-updating HTTP/WSGI server for development use. It is started with the `runserver` management command:
 
 ```no-highlight
-$ python netbox/manage.py runserver
+$ ./manage.py runserver
+Watching for file changes with StatReloader
 Performing system checks...
 
 System check identified no issues (0 silenced).
-November 18, 2020 - 15:52:31
-Django version 3.1, using settings 'netbox.settings'
+February 18, 2022 - 20:29:57
+Django version 4.0.2, using settings 'netbox.settings'
 Starting development server at http://127.0.0.1:8000/
 Quit the server with CONTROL-C.
 ```
@@ -122,23 +131,35 @@ The demo data is provided in JSON format and loaded into an empty database using
 
 ## Running Tests
 
-Prior to committing any substantial changes to the code base, be sure to run NetBox's test suite to catch any potential errors. Tests are run using the `test` management command. Remember to ensure the Python virtual environment is active before running this command. Also keep in mind that these commands are executed in the `/netbox/` directory, not the root directory of the repository.
+Prior to committing any substantial changes to the code base, be sure to run NetBox's test suite to catch any potential errors. Tests are run using the `test` management command, which employs Python's [`unittest`](https://docs.python.org/3/library/unittest.html#module-unittest) library. Remember to ensure the Python virtual environment is active before running this command. Also keep in mind that these commands are executed in the `netbox/` directory, not the root directory of the repository.
+
+To avoid potential issues with your local configuration file, set the `NETBOX_CONFIGURATION` to point to the packaged test configuration at `netbox/configuration_testing.py`. This will handle things like ensuring that the dummy plugin is enabled for comprehensive testing.
 
 ```no-highlight
+$ export NETBOX_CONFIGURATION=netbox.configuration_testing
+$ cd netbox/
 $ python manage.py test
 ```
 
-In cases where you haven't made any changes to the database (which is most of the time), you can append the `--keepdb` argument to this command to reuse the test database between runs. This cuts down on the time it takes to run the test suite since the database doesn't have to be rebuilt each time. (Note that this argument will cause errors if you've modified any model fields since the previous test run.)
+In cases where you haven't made any changes to the database schema (which is typical), you can append the `--keepdb` argument to this command to reuse the test database between runs. This cuts down on the time it takes to run the test suite since the database doesn't have to be rebuilt each time. (Note that this argument will cause errors if you've modified any model fields since the previous test run.)
 
 ```no-highlight
 $ python manage.py test --keepdb
 ```
 
-You can also limit the command to running only a specific subset of tests. For example, to run only IPAM and DCIM view tests:
+You can also reduce testing time by enabling parallel test execution with the `--parallel` flag. (By default, this will run as many parallel tests as you have processors. To avoid sluggishness, it's a good idea to specify a lower number of parallel tests.) This flag can be combined with `--keepdb`, although if you encounter any strange errors, try running the test suite again with parallelization disabled.
+
+```no-highlight
+$ python manage.py test --parallel <n>
+```
+
+Finally, it's possible to limit the run to a specific set of tests, specified by their Python path. For example, to run only IPAM and DCIM view tests:
 
 ```no-highlight
 $ python manage.py test dcim.tests.test_views ipam.tests.test_views
 ```
+
+This is handy for instances where just a few tests are failing and you want to re-run them individually.
 
 ## Submitting Pull Requests
 
