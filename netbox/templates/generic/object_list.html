@@ -44,8 +44,7 @@ Context:
   <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
-        Records
-        {% badge table.page.paginator.count %}
+        Results {% badge table.page.paginator.count %}
       </button>
     </li>
     {% if filter_form %}
