@@ -399,7 +399,10 @@ class CustomLinkColumn(tables.Column):
 
     def render(self, record):
         try:
-            rendered = self.customlink.render({'obj': record})
+            rendered = self.customlink.render({
+                'object': record,
+                'obj': record,  # TODO: Remove in NetBox v3.5
+            })
             if rendered:
                 return mark_safe(f'<a href="{rendered["link"]}"{rendered["link_target"]}>{rendered["text"]}</a>')
         except Exception as e:
@@ -408,7 +411,10 @@ class CustomLinkColumn(tables.Column):
 
     def value(self, record):
         try:
-            rendered = self.customlink.render({'obj': record})
+            rendered = self.customlink.render({
+                'object': record,
+                'obj': record,  # TODO: Remove in NetBox v3.5
+            })
             if rendered:
                 return rendered['link']
         except Exception:

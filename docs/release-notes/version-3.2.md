@@ -161,6 +161,7 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * [#8031](https://github.com/netbox-community/netbox/issues/8031) - Remove automatic redirection of legacy slug-based URLs
 * [#8195](https://github.com/netbox-community/netbox/issues/8195), [#8454](https://github.com/netbox-community/netbox/issues/8454) - Use 64-bit integers for all primary keys
 * [#8509](https://github.com/netbox-community/netbox/issues/8509) - `CSRF_TRUSTED_ORIGINS` is now a discrete configuration parameter (rather than being populated from `ALLOWED_HOSTS`)
+* [#8684](https://github.com/netbox-community/netbox/issues/8684) - Change custom link template context variable `obj` to `object` (backward-compatible)
 
 ### REST API Changes
 

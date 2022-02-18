@@ -72,9 +72,9 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
             'link_url': forms.Textarea(attrs={'class': 'font-monospace'}),
         }
         help_texts = {
-            'link_text': 'Jinja2 template code for the link text. Reference the object as <code>{{ obj }}</code>. '
+            'link_text': 'Jinja2 template code for the link text. Reference the object as <code>{{ object }}</code>. '
                          'Links which render as empty text will not be displayed.',
-            'link_url': 'Jinja2 template code for the link URL. Reference the object as <code>{{ obj }}</code>.',
+            'link_url': 'Jinja2 template code for the link URL. Reference the object as <code>{{ object }}</code>.',
         }
 
 
