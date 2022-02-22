@@ -25,12 +25,12 @@
     <div class="noprint bulk-buttons">
       <div class="bulk-button-group">
         {% if perms.ipam.change_prefix %}
-          <button type="submit" name="_edit" formaction="{% url 'ipam:prefix_bulk_edit' %}?return_url={% url 'ipam:prefix_prefixes' pk=object.pk %}" class="btn btn-warning btn-sm">
+          <button type="submit" name="_edit" formaction="{% url 'ipam:prefix_bulk_edit' %}?return_url={% url 'ipam:aggregate_prefixes' pk=object.pk %}" class="btn btn-warning btn-sm">
             <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
           </button>
         {% endif %}
         {% if perms.ipam.delete_prefix %}
-          <button type="submit" name="_delete" formaction="{% url 'ipam:prefix_bulk_delete' %}?return_url={% url 'ipam:prefix_prefixes' pk=object.pk %}" class="btn btn-danger btn-sm">
+          <button type="submit" name="_delete" formaction="{% url 'ipam:prefix_bulk_delete' %}?return_url={% url 'ipam:aggregate_prefixes' pk=object.pk %}" class="btn btn-danger btn-sm">
             <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
           </button>
         {% endif %}
