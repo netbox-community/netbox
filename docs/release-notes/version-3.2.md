@@ -152,6 +152,7 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * [#8661](https://github.com/netbox-community/netbox/issues/8661) - Fix ValueError exception when trying to connect a cable
 * [#8670](https://github.com/netbox-community/netbox/issues/8670) - Fix filtering device components by installed module
 * [#8671](https://github.com/netbox-community/netbox/issues/8671) - Fix AttributeError when viewing console/power/interface connection lists
+* [#8682](https://github.com/netbox-community/netbox/issues/8682) - Limit available VLANs by group min/max VIDs
 
 ### Other Changes
 
