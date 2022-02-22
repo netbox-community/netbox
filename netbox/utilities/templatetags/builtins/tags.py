@@ -19,7 +19,7 @@ def tag(value, viewname=None):
 
 
 @register.inclusion_tag('builtins/badge.html')
-def badge(value, bg_color='secondary', show_empty=False):
+def badge(value, bg_color=None, show_empty=False):
     """
     Display the specified number as a badge.
 
@@ -30,7 +30,7 @@ def badge(value, bg_color='secondary', show_empty=False):
     """
     return {
         'value': value,
-        'bg_color': bg_color,
+        'bg_color': bg_color or 'secondary',
         'show_empty': show_empty,
     }
 

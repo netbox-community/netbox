@@ -217,7 +217,7 @@ class ChoiceFieldColumn(tables.Column):
 
         # Determine the background color to use (try calling object.get_FOO_color())
         try:
-            bg_color = getattr(record, f'get_{bound_column.name}_color')()
+            bg_color = getattr(record, f'get_{bound_column.name}_color')() or self.DEFAULT_BG_COLOR
         except AttributeError:
             bg_color = self.DEFAULT_BG_COLOR
 
