@@ -6,7 +6,16 @@ type ShowHideMap = {
    *
    * @example vlangroup_edit
    */
-  [view: string]: {
+  [view: string]: string;
+};
+
+type ShowHideLayout = {
+  /**
+   * Name of layout config
+   *
+   * @example vlangroup
+   */
+  [config: string]: {
     /**
      * Default layout.
      */
@@ -19,15 +28,15 @@ type ShowHideMap = {
 };
 
 /**
- * Mapping of scope names to arrays of object types whose fields should be hidden or shown when
+ * Mapping of layout names to arrays of object types whose fields should be hidden or shown when
  * the scope type (key) is selected.
  *
  * For example, if `region` is the scope type, the fields with IDs listed in
  * showHideMap.region.hide should be hidden, and the fields with IDs listed in
  * showHideMap.region.show should be shown.
  */
-const showHideMap: ShowHideMap = {
-  vlangroup_edit: {
+const showHideLayout: ShowHideLayout = {
+  vlangroup: {
     region: {
       hide: ['id_sitegroup', 'id_site', 'id_location', 'id_rack', 'id_clustergroup', 'id_cluster'],
       show: ['id_region'],
@@ -70,6 +79,19 @@ const showHideMap: ShowHideMap = {
     },
   },
 };
+
+/**
+ * Mapping of view names to layout configurations
+ *
+ * For example, if `region` is the scope type, the fields with IDs listed in
+ * showHideMap.region.hide should be hidden, and the fields with IDs listed in
+ * showHideMap.region.show should be shown.
+ */
+const showHideMap: ShowHideMap = {
+  vlangroup_add: 'vlangroup',
+  vlangroup_edit: 'vlangroup',
+};
+
 /**
  * Toggle visibility of a given element's parent.
  * @param query CSS Query.
@@ -94,8 +116,9 @@ function toggleParentVisibility(query: string, action: 'show' | 'hide') {
 function handleScopeChange<P extends keyof ShowHideMap>(view: P, element: HTMLSelectElement) {
   // Scope type's innerText looks something like `DCIM > region`.
   const scopeType = element.options[element.selectedIndex].innerText.toLowerCase();
+  const layoutConfig = showHideMap[view];
 
-  for (const [scope, fields] of Object.entries(showHideMap[view])) {
+  for (const [scope, fields] of Object.entries(showHideLayout[layoutConfig])) {
     // If the scope type ends with the specified scope, toggle its field visibility according to
     // the show/hide values.
     if (scopeType.endsWith(scope)) {
@@ -109,7 +132,7 @@ function handleScopeChange<P extends keyof ShowHideMap>(view: P, element: HTMLSe
       break;
     } else {
       // Otherwise, hide all fields.
-      for (const field of showHideMap[view].default.hide) {
+      for (const field of showHideLayout[layoutConfig].default.hide) {
         toggleParentVisibility(`#${field}`, 'hide');
       }
     }
