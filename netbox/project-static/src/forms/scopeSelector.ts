@@ -83,9 +83,7 @@ const showHideLayout: ShowHideLayout = {
 /**
  * Mapping of view names to layout configurations
  *
- * For example, if `region` is the scope type, the fields with IDs listed in
- * showHideMap.region.hide should be hidden, and the fields with IDs listed in
- * showHideMap.region.show should be shown.
+ * For example, if `vlangroup_add` is the view, use the layout configuration `vlangroup`.
  */
 const showHideMap: ShowHideMap = {
   vlangroup_add: 'vlangroup',
