@@ -6,6 +6,7 @@
 
 * [#8546](https://github.com/netbox-community/netbox/issues/8546) - Fix bulk import to restrict bridge, parent, and LAG to device interfaces
 * [#8674](https://github.com/netbox-community/netbox/issues/8674) - Fix rendering of tabbed content in documentation
+* [#8713](https://github.com/netbox-community/netbox/issues/8713) - Restore missing "add" button on services list view
 * [#8717](https://github.com/netbox-community/netbox/issues/8717) - Fix redirection after bulk edit/delete of prefixes from aggregate view
 
 ---
