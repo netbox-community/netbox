@@ -16,10 +16,7 @@
   {% endif %}
 {% endblock %}
 
-{% block tab_items %}
-  <li class="nav-item" role="presentation">
-    <a class="nav-link{% if not active_tab %} active{% endif %}" href="{{ object.get_absolute_url }}">Virtual Machine</a>
-  </li>
+{% block extra_tabs %}
   {% with interface_count=object.interfaces.count %}
       {% if interface_count %}
           <li class="nav-item" role="presentation">

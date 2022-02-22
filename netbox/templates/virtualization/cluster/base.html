@@ -25,11 +25,7 @@
   {% endif %}
 {% endblock %}
 
-{% block tab_items %}
-  <li role="presentation" class="nav-item">
-    <a href="{{ object.get_absolute_url }}" class="nav-link{% if not active_tab %} active{% endif %}">Cluster</a>
-  </li>
-
+{% block extra_tabs %}
   {% with virtualmachine_count=object.virtual_machines.count %}
     <li role="presentation" class="nav-item">
       <a href="{% url 'virtualization:cluster_virtualmachines' pk=object.pk %}" class="nav-link{% if active_tab == 'virtual-machines' %} active{% endif %}">
@@ -37,7 +33,6 @@
       </a>
     </li>
   {% endwith %}
-
   {% with device_count=object.devices.count %}
     <li role="presentation" class="nav-item">
       <a href="{% url 'virtualization:cluster_devices' pk=object.pk %}" class="nav-link{% if active_tab == 'devices' %} active{% endif %}">
