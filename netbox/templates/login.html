@@ -15,7 +15,7 @@
 
     {# Login form #}
     <div class="form-login">
-      <form action="{% url 'login' %}" method="post">
+      <form action="{% url 'login' %}" method="post" autocomplete="off">
         {% csrf_token %}
 
         {# Logo #}
