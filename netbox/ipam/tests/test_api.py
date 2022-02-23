@@ -379,8 +379,8 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress')
 
-        # Create all four available IPs with individual requests
-        for i in range(1, 5):
+        # Create three available IPs with individual requests
+        for i in range(1, 4):
             data = {
                 'description': 'Test IP {}'.format(i)
             }
@@ -388,6 +388,18 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(response.data['vrf']['id'], vrf.pk)
             self.assertEqual(response.data['description'], data['description'])
+            self.assertEqual(IPNetwork(response.data['address']).prefixlen, 30)
+
+        # Create one more IP with a specified mask length
+        data = {
+            'description': 'Test IP 4',
+            'mask_length': 32
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['vrf']['id'], vrf.pk)
+        self.assertEqual(response.data['description'], data['description'])
+        self.assertEqual(IPNetwork(response.data['address']).prefixlen, 32)
 
         # Try to create one more IP
         response = self.client.post(url, {}, **self.header)

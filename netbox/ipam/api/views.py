@@ -294,7 +294,8 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
         # Assign addresses from the list of available IPs and copy VRF assignment from the parent
         available_ips = iter(available_ips)
         for requested_ip in requested_ips:
-            requested_ip['address'] = f'{next(available_ips)}/{parent.mask_length}'
+            mask_length = requested_ip.get('mask_length') or parent.mask_length
+            requested_ip['address'] = f'{next(available_ips)}/{mask_length}'
             requested_ip['vrf'] = parent.vrf.pk if parent.vrf else None
 
         # Initialize the serializer with a list or a single object depending on what was requested

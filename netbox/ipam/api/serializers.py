@@ -352,15 +352,17 @@ class AvailableIPSerializer(serializers.Serializer):
     family = serializers.IntegerField(read_only=True)
     address = serializers.CharField(read_only=True)
     vrf = NestedVRFSerializer(read_only=True)
+    mask_length = serializers.IntegerField(read_only=True, allow_null=True)
 
     def to_representation(self, instance):
         if self.context.get('vrf'):
             vrf = NestedVRFSerializer(self.context['vrf'], context={'request': self.context['request']}).data
         else:
             vrf = None
+        mask_length = self.context.get('mask_length') or self.context['parent'].mask_length
         return OrderedDict([
             ('family', self.context['parent'].family),
-            ('address', f"{instance}/{self.context['parent'].mask_length}"),
+            ('address', f"{instance}/{mask_length}"),
             ('vrf', vrf),
         ])
 
