@@ -117,3 +117,7 @@ svgwrite
 # Tabular dataset library (for table-based exports)
 # https://github.com/jazzband/tablib
 tablib
+
+# Timezone data (required by django-timezone-field on Python 3.9+)
+# https://github.com/python/tzdata
+tzdata
