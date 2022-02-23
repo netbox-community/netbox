@@ -8,11 +8,13 @@ from utilities.forms import (
 )
 
 __all__ = (
-    'ModularComponentTemplateCreateForm',
-    'DeviceComponentCreateForm',
     'ComponentTemplateCreateForm',
+    'DeviceComponentCreateForm',
     'FrontPortCreateForm',
     'FrontPortTemplateCreateForm',
+    'ModularComponentTemplateCreateForm',
+    'ModuleBayCreateForm',
+    'ModuleBayTemplateCreateForm',
     'VirtualChassisCreateForm',
 )
 
@@ -34,14 +36,17 @@ class ComponentCreateForm(BootstrapMixin, forms.Form):
     def clean(self):
         super().clean()
 
-        # Validate that the number of components being created from both the name_pattern and label_pattern are equal
-        if self.cleaned_data['label_pattern']:
-            name_pattern_count = len(self.cleaned_data['name_pattern'])
-            label_pattern_count = len(self.cleaned_data['label_pattern'])
-            if name_pattern_count != label_pattern_count:
+        # Validate that all patterned fields generate an equal number of values
+        patterned_fields = [
+            field_name for field_name in self.fields if field_name.endswith('_pattern')
+        ]
+        pattern_count = len(self.cleaned_data['name_pattern'])
+        for field_name in patterned_fields:
+            value_count = len(self.cleaned_data[field_name])
+            if self.cleaned_data[field_name] and value_count != pattern_count:
                 raise forms.ValidationError({
-                    'label_pattern': f'The provided name pattern will create {name_pattern_count} components, however '
-                                     f'{label_pattern_count} labels will be generated. These counts must match.'
+                    field_name: f'The provided pattern specifies {value_count} values, but {pattern_count} are '
+                                f'expected.'
                 }, code='label_pattern_mismatch')
 
 
@@ -174,6 +179,24 @@ class FrontPortCreateForm(DeviceComponentCreateForm):
             'rear_port': int(rear_port),
             'rear_port_position': int(position),
         }
+
+
+class ModuleBayTemplateCreateForm(ComponentTemplateCreateForm):
+    position_pattern = ExpandableNameField(
+        label='Position',
+        required=False,
+        help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
+    )
+    field_order = ('device_type', 'name_pattern', 'label_pattern', 'position_pattern')
+
+
+class ModuleBayCreateForm(DeviceComponentCreateForm):
+    position_pattern = ExpandableNameField(
+        label='Position',
+        required=False,
+        help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
+    )
+    field_order = ('device', 'name_pattern', 'label_pattern', 'position_pattern')
 
 
 class VirtualChassisCreateForm(NetBoxModelForm):

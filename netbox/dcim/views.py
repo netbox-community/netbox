@@ -1324,9 +1324,10 @@ class RearPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class ModuleBayTemplateCreateView(generic.ComponentCreateView):
     queryset = ModuleBayTemplate.objects.all()
-    form = forms.ComponentTemplateCreateForm
+    form = forms.ModuleBayTemplateCreateForm
     model_form = forms.ModuleBayTemplateForm
-    template_name = 'dcim/component_template_create.html'
+    template_name = 'dcim/modulebaytemplate_create.html'
+    patterned_fields = ('name', 'label', 'position')
 
 
 class ModuleBayTemplateEditView(generic.ObjectEditView):
@@ -2304,8 +2305,9 @@ class ModuleBayView(generic.ObjectView):
 
 class ModuleBayCreateView(generic.ComponentCreateView):
     queryset = ModuleBay.objects.all()
-    form = forms.DeviceComponentCreateForm
+    form = forms.ModuleBayCreateForm
     model_form = forms.ModuleBayForm
+    patterned_fields = ('name', 'label', 'position')
 
 
 class ModuleBayEditView(generic.ObjectEditView):

@@ -587,14 +587,12 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         if form.is_valid():
             new_components = []
             data = deepcopy(request.POST)
-            names = form.cleaned_data['name_pattern']
-            labels = form.cleaned_data.get('label_pattern')
+            pattern_count = len(form.cleaned_data[f'{self.patterned_fields[0]}_pattern'])
 
-            for i, name in enumerate(names):
-                label = labels[i] if labels else None
-                # Initialize the individual component form
-                data['name'] = name
-                data['label'] = label
+            for i in range(pattern_count):
+                for field_name in self.patterned_fields:
+                    if form.cleaned_data.get(f'{field_name}_pattern'):
+                        data[field_name] = form.cleaned_data[f'{field_name}_pattern'][i]
 
                 if hasattr(form, 'get_iterative_data'):
                     data.update(form.get_iterative_data(i))

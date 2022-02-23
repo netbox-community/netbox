@@ -1,0 +1,7 @@
+{% extends 'dcim/component_template_create.html' %}
+{% load form_helpers %}
+
+{% block replication_fields %}
+  {{ block.super }}
+  {% render_field replication_form.position_pattern %}
+{% endblock replication_fields %}

@@ -744,8 +744,8 @@ class DeviceModuleBayTable(ModuleBayTable):
 
     class Meta(DeviceComponentTable.Meta):
         model = ModuleBay
-        fields = ('pk', 'id', 'name', 'label', 'description', 'installed_module', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'label', 'description', 'installed_module')
+        fields = ('pk', 'id', 'name', 'label', 'position', 'installed_module', 'description', 'tags', 'actions')
+        default_columns = ('pk', 'name', 'label', 'installed_module', 'description')
 
 
 class InventoryItemTable(DeviceComponentTable):
