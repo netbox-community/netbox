@@ -369,13 +369,14 @@ class RequestAvailableIPSerializer(IPAddressSerializer):
     """
     Representation of a request for new available IP
     """
+    mask_length = serializers.IntegerField(required=False)
 
     class Meta:
         model = IPAddress
         fields = [
             'tenant', 'status', 'role', 'assigned_object_type',
             'assigned_object', 'nat_inside', 'dns_name', 'description', 'tags',
-            'custom_fields'
+            'custom_fields', 'mask_length'
         ]
 
 
