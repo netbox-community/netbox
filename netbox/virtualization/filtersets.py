@@ -282,7 +282,7 @@ class VMInterfaceFilterSet(PrimaryModelFilterSet):
 
     class Meta:
         model = VMInterface
-        fields = ['id', 'name', 'enabled', 'mtu']
+        fields = ['id', 'name', 'enabled', 'mtu', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():

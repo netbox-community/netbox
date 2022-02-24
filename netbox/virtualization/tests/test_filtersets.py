@@ -422,8 +422,8 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         VirtualMachine.objects.bulk_create(vms)
 
         interfaces = (
-            VMInterface(virtual_machine=vms[0], name='Interface 1', enabled=True, mtu=100, mac_address='00-00-00-00-00-01'),
-            VMInterface(virtual_machine=vms[1], name='Interface 2', enabled=True, mtu=200, mac_address='00-00-00-00-00-02'),
+            VMInterface(virtual_machine=vms[0], name='Interface 1', enabled=True, mtu=100, mac_address='00-00-00-00-00-01', description='foobar1'),
+            VMInterface(virtual_machine=vms[1], name='Interface 2', enabled=True, mtu=200, mac_address='00-00-00-00-00-02', description='foobar2'),
             VMInterface(virtual_machine=vms[2], name='Interface 3', enabled=False, mtu=300, mac_address='00-00-00-00-00-03'),
         )
         VMInterface.objects.bulk_create(interfaces)
@@ -477,4 +477,8 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
