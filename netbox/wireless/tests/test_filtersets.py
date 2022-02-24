@@ -25,8 +25,8 @@ class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
             group.save()
 
         child_groups = (
-            WirelessLANGroup(name='Wireless LAN Group 1A', slug='wireless-lan-group-1a', parent=groups[0]),
-            WirelessLANGroup(name='Wireless LAN Group 1B', slug='wireless-lan-group-1b', parent=groups[0]),
+            WirelessLANGroup(name='Wireless LAN Group 1A', slug='wireless-lan-group-1a', parent=groups[0], description='foobar1'),
+            WirelessLANGroup(name='Wireless LAN Group 1B', slug='wireless-lan-group-1b', parent=groups[0], description='foobar2'),
             WirelessLANGroup(name='Wireless LAN Group 2A', slug='wireless-lan-group-2a', parent=groups[1]),
             WirelessLANGroup(name='Wireless LAN Group 2B', slug='wireless-lan-group-2b', parent=groups[1]),
             WirelessLANGroup(name='Wireless LAN Group 3A', slug='wireless-lan-group-3a', parent=groups[2]),
@@ -53,6 +53,10 @@ class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'parent': [parent_groups[0].slug, parent_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -147,7 +151,8 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
             status=LinkStatusChoices.STATUS_CONNECTED,
             auth_type=WirelessAuthTypeChoices.TYPE_OPEN,
             auth_cipher=WirelessAuthCipherChoices.CIPHER_AUTO,
-            auth_psk='PSK1'
+            auth_psk='PSK1',
+            description='foobar1'
         ).save()
         WirelessLink(
             interface_a=interfaces[1],
@@ -156,7 +161,8 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
             status=LinkStatusChoices.STATUS_PLANNED,
             auth_type=WirelessAuthTypeChoices.TYPE_WEP,
             auth_cipher=WirelessAuthCipherChoices.CIPHER_TKIP,
-            auth_psk='PSK2'
+            auth_psk='PSK2',
+            description='foobar2'
         ).save()
         WirelessLink(
             interface_a=interfaces[4],
@@ -191,4 +197,8 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_auth_psk(self):
         params = {'auth_psk': ['PSK1', 'PSK2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
