@@ -126,14 +126,14 @@ This template is used by the `ObjectListView` generic view to display a filterab
 
 #### Context
 
-| Name             | Required | Description                                                           |
-|------------------|----------|-----------------------------------------------------------------------|
-| `model`          | Yes      | The object class                                                      |
-| `table`          | Yes      | The table class used for rendering the list of objects                |
-| `permissions`    | Yes      | A mapping of add, change, and delete permissions for the current user |
-| `action_buttons` | Yes      | A list of buttons to display (options are `add`, `import`, `export`)  |
-| `filter_form`    | -        | The bound filterset form for filtering the objects list               |
-| `return_url`     | -        | The return URL to pass when submitting a bulk operation form          |
+| Name          | Required | Description                                                                                 |
+|---------------|----------|---------------------------------------------------------------------------------------------|
+| `model`       | Yes      | The object class                                                                            |
+| `table`       | Yes      | The table class used for rendering the list of objects                                      |
+| `permissions` | Yes      | A mapping of add, change, and delete permissions for the current user                       |
+| `actions`     | Yes      | A list of buttons to display (`add`, `import`, `export`, `bulk_edit`, and/or `bulk_delete`) |
+| `filter_form` | -        | The bound filterset form for filtering the objects list                                     |
+| `return_url`  | -        | The return URL to pass when submitting a bulk operation form                                |
 
 ### bulk_import.html
 

@@ -269,7 +269,7 @@ class ConfigContextListView(generic.ObjectListView):
     filterset = filtersets.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
     table = tables.ConfigContextTable
-    action_buttons = ('add',)
+    actions = ('add', 'bulk_edit', 'bulk_delete')
 
 
 class ConfigContextView(generic.ObjectView):
@@ -366,7 +366,7 @@ class ObjectChangeListView(generic.ObjectListView):
     filterset_form = forms.ObjectChangeFilterForm
     table = tables.ObjectChangeTable
     template_name = 'extras/objectchange_list.html'
-    action_buttons = ('export',)
+    actions = ('export',)
 
 
 class ObjectChangeView(generic.ObjectView):
@@ -458,7 +458,7 @@ class JournalEntryListView(generic.ObjectListView):
     filterset = filtersets.JournalEntryFilterSet
     filterset_form = forms.JournalEntryFilterForm
     table = tables.JournalEntryTable
-    action_buttons = ('export',)
+    actions = ('export', 'bulk_edit', 'bulk_delete')
 
 
 class JournalEntryView(generic.ObjectView):

@@ -42,12 +42,12 @@ class ObjectListView(BaseMultiObjectView):
     Attributes:
         filterset: A django-filter FilterSet that is applied to the queryset
         filterset_form: The form class used to render filter options
-        action_buttons: A list of buttons to include at the top of the page
+        actions: Supported actions for the model. Default options are add, import, export, bulk_edit, and bulk_delete
     """
     template_name = 'generic/object_list.html'
     filterset = None
     filterset_form = None
-    action_buttons = ('add', 'import', 'export')
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete')
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
@@ -180,7 +180,7 @@ class ObjectListView(BaseMultiObjectView):
             'model': model,
             'table': table,
             'permissions': permissions,
-            'action_buttons': self.action_buttons,
+            'actions': self.actions,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
             **self.get_extra_context(request),
         }

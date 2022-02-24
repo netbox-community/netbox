@@ -1812,7 +1812,7 @@ class ConsolePortListView(generic.ObjectListView):
     filterset = filtersets.ConsolePortFilterSet
     filterset_form = forms.ConsolePortFilterForm
     table = tables.ConsolePortTable
-    action_buttons = ('import', 'export')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class ConsolePortView(generic.ObjectView):
@@ -1871,7 +1871,7 @@ class ConsoleServerPortListView(generic.ObjectListView):
     filterset = filtersets.ConsoleServerPortFilterSet
     filterset_form = forms.ConsoleServerPortFilterForm
     table = tables.ConsoleServerPortTable
-    action_buttons = ('import', 'export')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class ConsoleServerPortView(generic.ObjectView):
@@ -1930,7 +1930,7 @@ class PowerPortListView(generic.ObjectListView):
     filterset = filtersets.PowerPortFilterSet
     filterset_form = forms.PowerPortFilterForm
     table = tables.PowerPortTable
-    action_buttons = ('import', 'export')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class PowerPortView(generic.ObjectView):
@@ -1989,7 +1989,7 @@ class PowerOutletListView(generic.ObjectListView):
     filterset = filtersets.PowerOutletFilterSet
     filterset_form = forms.PowerOutletFilterForm
     table = tables.PowerOutletTable
-    action_buttons = ('import', 'export')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class PowerOutletView(generic.ObjectView):
@@ -2048,7 +2048,7 @@ class InterfaceListView(generic.ObjectListView):
     filterset = filtersets.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
     table = tables.InterfaceTable
-    action_buttons = ('import', 'export')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class InterfaceView(generic.ObjectView):
@@ -2170,7 +2170,7 @@ class FrontPortListView(generic.ObjectListView):
     filterset = filtersets.FrontPortFilterSet
     filterset_form = forms.FrontPortFilterForm
     table = tables.FrontPortTable
-    action_buttons = ('import', 'export')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class FrontPortView(generic.ObjectView):
@@ -2237,7 +2237,7 @@ class RearPortListView(generic.ObjectListView):
     filterset = filtersets.RearPortFilterSet
     filterset_form = forms.RearPortFilterForm
     table = tables.RearPortTable
-    action_buttons = ('import', 'export')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class RearPortView(generic.ObjectView):
@@ -2296,7 +2296,7 @@ class ModuleBayListView(generic.ObjectListView):
     filterset = filtersets.ModuleBayFilterSet
     filterset_form = forms.ModuleBayFilterForm
     table = tables.ModuleBayTable
-    action_buttons = ('import', 'export')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class ModuleBayView(generic.ObjectView):
@@ -2352,7 +2352,7 @@ class DeviceBayListView(generic.ObjectListView):
     filterset = filtersets.DeviceBayFilterSet
     filterset_form = forms.DeviceBayFilterForm
     table = tables.DeviceBayTable
-    action_buttons = ('import', 'export')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class DeviceBayView(generic.ObjectView):
@@ -2474,7 +2474,7 @@ class InventoryItemListView(generic.ObjectListView):
     filterset = filtersets.InventoryItemFilterSet
     filterset_form = forms.InventoryItemFilterForm
     table = tables.InventoryItemTable
-    action_buttons = ('import', 'export')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class InventoryItemView(generic.ObjectView):
@@ -2707,7 +2707,7 @@ class CableListView(generic.ObjectListView):
     filterset = filtersets.CableFilterSet
     filterset_form = forms.CableFilterForm
     table = tables.CableTable
-    action_buttons = ('import', 'export')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class CableView(generic.ObjectView):
@@ -2874,7 +2874,7 @@ class ConsoleConnectionsListView(generic.ObjectListView):
     filterset_form = forms.ConsoleConnectionFilterForm
     table = tables.ConsoleConnectionTable
     template_name = 'dcim/connections_list.html'
-    action_buttons = ('export',)
+    actions = ('export',)
 
     def get_extra_context(self, request):
         return {
@@ -2888,7 +2888,7 @@ class PowerConnectionsListView(generic.ObjectListView):
     filterset_form = forms.PowerConnectionFilterForm
     table = tables.PowerConnectionTable
     template_name = 'dcim/connections_list.html'
-    action_buttons = ('export',)
+    actions = ('export',)
 
     def get_extra_context(self, request):
         return {
@@ -2902,7 +2902,7 @@ class InterfaceConnectionsListView(generic.ObjectListView):
     filterset_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/connections_list.html'
-    action_buttons = ('export',)
+    actions = ('export',)
 
     def get_extra_context(self, request):
         return {

@@ -16,7 +16,8 @@ Context:
   permissions: A mapping of add/change/delete permissions to boolean indicating
     whether the current user possesses each of them. Controls the display of
     add/edit/delete buttons.
-  action_buttons: A list of buttons to display. Options are add, import, export.
+  actions: A list of buttons to display. This template checks for add, import,
+    export, bulk_edit, and bulk_delete.
   filter_form: The bound filterset form for filtering the objects list (optional)
   return_url: Return URL to use for bulk actions (optional)
 {% endcomment %}
@@ -27,13 +28,13 @@ Context:
   <div class="controls">
     <div class="control-group">
       {% block extra_controls %}{% endblock %}
-      {% if permissions.add and 'add' in action_buttons %}
+      {% if permissions.add and 'add' in actions %}
           {% add_button model|validated_viewname:"add" %}
       {% endif %}
-      {% if permissions.add and 'import' in action_buttons %}
+      {% if permissions.add and 'import' in actions %}
           {% import_button model|validated_viewname:"import" %}
       {% endif %}
-      {% if 'export' in action_buttons %}
+      {% if 'export' in actions %}
           {% export_button model|content_type %}
       {% endif %}
     </div>
@@ -115,25 +116,21 @@ Context:
         </div>
 
         {# Form buttons #}
-        {% if permissions.change or permissions.delete %}
-          {% with bulk_edit_url=model|validated_viewname:"bulk_edit" bulk_delete_url=model|validated_viewname:"bulk_delete" %}
-            <div class="noprint bulk-buttons">
-              <div class="bulk-button-group">
-                {% block bulk_buttons %}{% endblock %}
-                {% if bulk_edit_url and permissions.change %}
-                  <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
-                    <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
-                  </button>
-                {% endif %}
-                {% if bulk_delete_url and permissions.delete %}
-                  <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
-                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete Selected
-                  </button>
-                {% endif %}
-              </div>
-            </div>
-          {% endwith %}
-        {% endif %}
+        <div class="noprint bulk-buttons">
+          <div class="bulk-button-group">
+            {% block bulk_buttons %}{% endblock %}
+            {% if 'bulk_edit' in actions and permissions.change %}
+              <button type="submit" name="_edit" formaction="{% url model|viewname:"bulk_edit" %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
+                <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
+              </button>
+            {% endif %}
+            {% if 'bulk_delete' in actions and permissions.delete %}
+              <button type="submit" name="_delete" formaction="{% url model|viewname:"bulk_delete" %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
+                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete Selected
+              </button>
+            {% endif %}
+          </div>
+        </div>
 
       </form>
 

@@ -404,7 +404,7 @@ class VMInterfaceListView(generic.ObjectListView):
     filterset = filtersets.VMInterfaceFilterSet
     filterset_form = forms.VMInterfaceFilterForm
     table = tables.VMInterfaceTable
-    action_buttons = ('import', 'export')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class VMInterfaceView(generic.ObjectView):
