@@ -2,6 +2,10 @@
 
 ## v3.1.9 (FUTURE)
 
+### Enhancements
+
+* [#8629](https://github.com/netbox-community/netbox/issues/8629) - Add description to tag table search function
+
 ### Bug Fixes
 
 * [#8546](https://github.com/netbox-community/netbox/issues/8546) - Fix bulk import to restrict bridge, parent, and LAG to device interfaces
