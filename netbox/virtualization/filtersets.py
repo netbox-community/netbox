@@ -5,7 +5,7 @@ from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from extras.filters import TagFilter
 from extras.filtersets import LocalConfigContextFilterSet
 from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
-from tenancy.filtersets import TenancyFilterSet
+from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from utilities.filters import MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -27,7 +27,7 @@ class ClusterTypeFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class ClusterGroupFilterSet(OrganizationalModelFilterSet):
+class ClusterGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
     tag = TagFilter()
 
     class Meta:
@@ -35,7 +35,7 @@ class ClusterGroupFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class ClusterFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
+class ClusterFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -111,7 +111,7 @@ class ClusterFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         )
 
 
-class VirtualMachineFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContextFilterSet):
+class VirtualMachineFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet, LocalConfigContextFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

@@ -7,7 +7,7 @@ from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSer
 from ipam.models import VLAN
 from netbox.api import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import PrimaryModelSerializer
-from tenancy.api.nested_serializers import NestedTenantSerializer
+from tenancy.api.nested_serializers import NestedTenantSerializer, NestedContactAssignmentSerializer
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from .nested_serializers import *
@@ -32,11 +32,16 @@ class ClusterTypeSerializer(PrimaryModelSerializer):
 class ClusterGroupSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
     cluster_count = serializers.IntegerField(read_only=True)
+    contacts = NestedContactAssignmentSerializer(
+        required=False, 
+        allow_null=True,
+        many=True
+    )
 
     class Meta:
         model = ClusterGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'slug', 'description', 'contacts', 'tags', 'custom_fields', 'created', 'last_updated',
             'cluster_count',
         ]
 
@@ -49,11 +54,16 @@ class ClusterSerializer(PrimaryModelSerializer):
     site = NestedSiteSerializer(required=False, allow_null=True, default=None)
     device_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
+    contacts = NestedContactAssignmentSerializer(
+        required=False, 
+        allow_null=True,
+        many=True
+    )
 
     class Meta:
         model = Cluster
         fields = [
-            'id', 'url', 'display', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags', 'custom_fields',
+            'id', 'url', 'display', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'contacts', 'tags', 'custom_fields',
             'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
 
@@ -73,12 +83,17 @@ class VirtualMachineSerializer(PrimaryModelSerializer):
     primary_ip = NestedIPAddressSerializer(read_only=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
+    contacts = NestedContactAssignmentSerializer(
+        required=False, 
+        allow_null=True,
+        many=True
+    )
 
     class Meta:
         model = VirtualMachine
         fields = [
             'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip',
-            'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'tags',
+            'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'contacts', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
         validators = []
@@ -86,11 +101,16 @@ class VirtualMachineSerializer(PrimaryModelSerializer):
 
 class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
     config_context = serializers.SerializerMethodField()
+    contacts = NestedContactAssignmentSerializer(
+        required=False, 
+        allow_null=True,
+        many=True
+    )
 
     class Meta(VirtualMachineSerializer.Meta):
         fields = [
             'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip',
-            'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'tags',
+            'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'contacts', 'tags',
             'custom_fields', 'config_context', 'created', 'last_updated',
         ]
 

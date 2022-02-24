@@ -7,8 +7,8 @@ from ipam.models import ASN
 from netbox.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
 )
-from tenancy.filtersets import TenancyFilterSet
-from tenancy.models import Tenant
+from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
+from tenancy.models import *
 from utilities.choices import ColorChoices
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
@@ -62,7 +62,7 @@ __all__ = (
 )
 
 
-class RegionFilterSet(OrganizationalModelFilterSet):
+class RegionFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
         label='Parent region (ID)',
@@ -80,7 +80,7 @@ class RegionFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class SiteGroupFilterSet(OrganizationalModelFilterSet):
+class SiteGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         label='Parent site group (ID)',
@@ -98,7 +98,7 @@ class SiteGroupFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
+class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -167,7 +167,7 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         return queryset.filter(qs_filter)
 
 
-class LocationFilterSet(TenancyFilterSet, OrganizationalModelFilterSet):
+class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, OrganizationalModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -240,7 +240,7 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'color']
 
 
-class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
+class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -398,7 +398,7 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         )
 
 
-class ManufacturerFilterSet(OrganizationalModelFilterSet):
+class ManufacturerFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
     tag = TagFilter()
 
     class Meta:
@@ -608,7 +608,7 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'napalm_driver', 'description']
 
 
-class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContextFilterSet):
+class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet, LocalConfigContextFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1289,7 +1289,7 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         return queryset
 
 
-class PowerPanelFilterSet(PrimaryModelFilterSet):
+class PowerPanelFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

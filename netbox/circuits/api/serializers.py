@@ -6,7 +6,7 @@ from dcim.api.nested_serializers import NestedCableSerializer, NestedSiteSeriali
 from dcim.api.serializers import LinkTerminationSerializer
 from netbox.api import ChoiceField
 from netbox.api.serializers import PrimaryModelSerializer, ValidatedModelSerializer, WritableNestedSerializer
-from tenancy.api.nested_serializers import NestedTenantSerializer
+from tenancy.api.nested_serializers import NestedTenantSerializer, NestedContactAssignmentSerializer
 from .nested_serializers import *
 
 
@@ -17,12 +17,17 @@ from .nested_serializers import *
 class ProviderSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
     circuit_count = serializers.IntegerField(read_only=True)
+    contacts = NestedContactAssignmentSerializer(
+        required=False, 
+        allow_null=True,
+        many=True
+    )
 
     class Meta:
         model = Provider
         fields = [
             'id', 'url', 'display', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count',
+            'comments', 'contacts', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count',
         ]
 
 
@@ -78,12 +83,17 @@ class CircuitSerializer(PrimaryModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     termination_a = CircuitCircuitTerminationSerializer(read_only=True)
     termination_z = CircuitCircuitTerminationSerializer(read_only=True)
+    contacts = NestedContactAssignmentSerializer(
+        required=False, 
+        allow_null=True,
+        many=True
+    )
 
     class Meta:
         model = Circuit
         fields = [
             'id', 'url', 'display', 'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate',
-            'description', 'termination_a', 'termination_z', 'comments', 'tags', 'custom_fields', 'created',
+            'description', 'termination_a', 'termination_z', 'comments', 'contacts', 'tags', 'custom_fields', 'created',
             'last_updated',
         ]
 

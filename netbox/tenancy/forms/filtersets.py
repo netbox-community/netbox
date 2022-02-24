@@ -2,6 +2,7 @@ from django.utils.translation import gettext as _
 
 from extras.forms import CustomFieldModelFilterForm
 from tenancy.models import *
+from tenancy.forms import ContactModelFilterForm
 from utilities.forms import DynamicModelMultipleChoiceField, TagFilterField
 
 __all__ = (
@@ -27,11 +28,12 @@ class TenantGroupFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class TenantFilterForm(CustomFieldModelFilterForm):
+class TenantFilterForm(ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Tenant
     field_groups = (
         ('q', 'tag'),
         ('group_id',),
+        ('contact', 'contact_role')
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
