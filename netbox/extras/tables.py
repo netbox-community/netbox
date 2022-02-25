@@ -189,9 +189,8 @@ class ConfigContextTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ConfigContext
         fields = (
-            'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'roles',
-            'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'created',
-            'last_updated',
+            'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'roles', 'platforms',
+            'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'weight', 'is_active', 'description')
 
@@ -225,7 +224,10 @@ class ObjectChangeTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = ObjectChange
-        fields = ('id', 'time', 'user_name', 'full_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
+        fields = (
+            'pk', 'id', 'time', 'user_name', 'full_name', 'action', 'changed_object_type', 'object_repr', 'request_id',
+            'actions',
+        )
 
 
 class ObjectJournalTable(NetBoxTable):
@@ -260,8 +262,8 @@ class JournalEntryTable(ObjectJournalTable):
     class Meta(NetBoxTable.Meta):
         model = JournalEntry
         fields = (
-            'pk', 'id', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind',
-            'comments', 'actions'
+            'pk', 'id', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind', 'comments',
+            'actions',
         )
         default_columns = (
             'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind', 'comments'
