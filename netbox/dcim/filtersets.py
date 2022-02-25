@@ -142,7 +142,7 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         model = Site
         fields = [
             'id', 'name', 'slug', 'facility', 'asn', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-            'contact_email',
+            'contact_email', 'description'
         ]
 
     def search(self, queryset, name, value):
@@ -237,7 +237,7 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = RackRole
-        fields = ['id', 'name', 'slug', 'color']
+        fields = ['id', 'name', 'slug', 'color', 'description']
 
 
 class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
@@ -385,7 +385,7 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = RackReservation
-        fields = ['id', 'created']
+        fields = ['id', 'created', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -586,7 +586,7 @@ class DeviceRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = DeviceRole
-        fields = ['id', 'name', 'slug', 'color', 'vm_role']
+        fields = ['id', 'name', 'slug', 'color', 'vm_role', 'description']
 
 
 class PlatformFilterSet(OrganizationalModelFilterSet):

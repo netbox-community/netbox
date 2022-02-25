@@ -142,8 +142,8 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
         )
 
         permissions = (
-            ObjectPermission(name='Permission 1', actions=['view', 'add', 'change', 'delete']),
-            ObjectPermission(name='Permission 2', actions=['view', 'add', 'change', 'delete']),
+            ObjectPermission(name='Permission 1', actions=['view', 'add', 'change', 'delete'], description='foobar1'),
+            ObjectPermission(name='Permission 2', actions=['view', 'add', 'change', 'delete'], description='foobar2'),
             ObjectPermission(name='Permission 3', actions=['view', 'add', 'change', 'delete']),
             ObjectPermission(name='Permission 4', actions=['view'], enabled=False),
             ObjectPermission(name='Permission 5', actions=['add'], enabled=False),
@@ -183,6 +183,10 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
         params = {'object_types': [object_types[0].pk, object_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class TokenTestCase(TestCase, BaseFilterSetTests):
     queryset = Token.objects.all()
@@ -201,8 +205,8 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         future_date = make_aware(datetime.datetime(3000, 1, 1))
         past_date = make_aware(datetime.datetime(2000, 1, 1))
         tokens = (
-            Token(user=users[0], key=Token.generate_key(), expires=future_date, write_enabled=True),
-            Token(user=users[1], key=Token.generate_key(), expires=future_date, write_enabled=True),
+            Token(user=users[0], key=Token.generate_key(), expires=future_date, write_enabled=True, description='foobar1'),
+            Token(user=users[1], key=Token.generate_key(), expires=future_date, write_enabled=True, description='foobar2'),
             Token(user=users[2], key=Token.generate_key(), expires=past_date, write_enabled=False),
         )
         Token.objects.bulk_create(tokens)
@@ -232,3 +236,7 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'write_enabled': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
