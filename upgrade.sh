@@ -10,6 +10,23 @@ cd "$(dirname "$0")"
 VIRTUALENV="$(pwd -P)/venv"
 PYTHON="${PYTHON:-python3}"
 
+# Validate the minimum required Python version
+COMMAND="${PYTHON} -c 'import sys; exit(1 if sys.version_info < (3, 7) else 0)'"
+PYTHON_VERSION=$(eval "${PYTHON} -V")
+eval $COMMAND || {
+  echo "--------------------------------------------------------------------"
+  echo "ERROR: Unsupported Python version: ${PYTHON_VERSION}. NetBox requires"
+  echo "Python 3.7 or later. To specify an alternate Python executable, set"
+  echo "the PYTHON environment variable. For example:"
+  echo ""
+  echo "  sudo PYTHON=/usr/bin/python3.7 ./upgrade.sh"
+  echo ""
+  echo "To show your current Python version: ${PYTHON} -V"
+  echo "--------------------------------------------------------------------"
+  exit 1
+}
+echo "Using ${PYTHON_VERSION}"
+
 # Remove the existing virtual environment (if any)
 if [ -d "$VIRTUALENV" ]; then
   COMMAND="rm -rf ${VIRTUALENV}"

@@ -62,7 +62,7 @@ class CustomFieldFilterSet(BaseFilterSet):
 
     class Meta:
         model = CustomField
-        fields = ['id', 'content_types', 'name', 'required', 'filter_logic', 'weight']
+        fields = ['id', 'content_types', 'name', 'required', 'filter_logic', 'weight', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -105,7 +105,7 @@ class ExportTemplateFilterSet(BaseFilterSet):
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'content_type', 'name']
+        fields = ['id', 'content_type', 'name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -179,14 +179,15 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug', 'color']
+        fields = ['id', 'name', 'slug', 'color', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(slug__icontains=value)
+            Q(slug__icontains=value) |
+            Q(description__icontains=value)
         )
 
     def _content_type(self, queryset, name, values):

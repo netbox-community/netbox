@@ -149,7 +149,7 @@ class SiteFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     class Meta:
         model = Site
         fields = (
-            'id', 'name', 'slug', 'facility', 'latitude', 'longitude',
+            'id', 'name', 'slug', 'facility', 'latitude', 'longitude', 'description'
         )
 
     def search(self, queryset, name, value):
@@ -239,7 +239,7 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = RackRole
-        fields = ['id', 'name', 'slug', 'color']
+        fields = ['id', 'name', 'slug', 'color', 'description']
 
 
 class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
@@ -385,7 +385,7 @@ class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = RackReservation
-        fields = ['id', 'created']
+        fields = ['id', 'created', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -724,7 +724,7 @@ class DeviceRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = DeviceRole
-        fields = ['id', 'name', 'slug', 'color', 'vm_role']
+        fields = ['id', 'name', 'slug', 'color', 'vm_role', 'description']
 
 
 class PlatformFilterSet(OrganizationalModelFilterSet):

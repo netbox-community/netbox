@@ -1080,7 +1080,6 @@ class ServiceListView(generic.ObjectListView):
     filterset = filtersets.ServiceFilterSet
     filterset_form = forms.ServiceFilterForm
     table = tables.ServiceTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 class ServiceView(generic.ObjectView):

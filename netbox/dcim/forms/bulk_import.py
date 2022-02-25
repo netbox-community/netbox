@@ -647,6 +647,19 @@ class InterfaceCSVForm(NetBoxModelCSVForm):
             'rf_channel_width', 'tx_power',
         )
 
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+            # Limit interface choices for parent, bridge and lag to device only
+            params = {}
+            if data.get('device'):
+                params[f"device__{self.fields['device'].to_field_name}"] = data.get('device')
+            if params:
+                self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
+                self.fields['bridge'].queryset = self.fields['bridge'].queryset.filter(**params)
+                self.fields['lag'].queryset = self.fields['lag'].queryset.filter(**params)
+
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data
         if 'enabled' not in self.data:

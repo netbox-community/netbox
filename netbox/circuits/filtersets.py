@@ -95,7 +95,7 @@ class ProviderNetworkFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ProviderNetwork
-        fields = ['id', 'name', 'service_id']
+        fields = ['id', 'name', 'service_id', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -112,7 +112,7 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = CircuitType
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
@@ -189,7 +189,7 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Circuit
-        fields = ['id', 'cid', 'install_date', 'commit_rate']
+        fields = ['id', 'cid', 'description', 'install_date', 'commit_rate']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -230,7 +230,7 @@ class CircuitTerminationFilterSet(ChangeLoggedModelFilterSet, CableTerminationFi
 
     class Meta:
         model = CircuitTermination
-        fields = ['id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id']
+        fields = ['id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
