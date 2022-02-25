@@ -184,7 +184,8 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(slug__icontains=value)
+            Q(slug__icontains=value) |
+            Q(description__icontains=value)
         )
 
     def _content_type(self, queryset, name, values):
