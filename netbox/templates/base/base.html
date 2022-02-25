@@ -139,7 +139,7 @@
 
   <body>
     <script type="text/javascript">
-      (function() {
+      function checkSideNav() {
         // Check localStorage to see if the sidebar should be pinned.
         var sideNavRaw = localStorage.getItem('netbox-sidenav');
         // Determine if the device has a small screeen. This media query is equivalent to
@@ -154,11 +154,15 @@
             // jumpy/glitchy behavior on page reloads.
             document.body.setAttribute('data-sidenav-pinned', '');
             document.body.setAttribute('data-sidenav-show', '');
+            document.body.removeAttribute('data-sidenav-hidden');
           } else {
+            document.body.removeAttribute('data-sidenav-pinned');
             document.body.setAttribute('data-sidenav-hidden', '');
           }
         }
-      })();
+      }
+      window.addEventListener('resize', function(){ checkSideNav() });
+      checkSideNav();
     </script>
 
     {# Page layout #}
