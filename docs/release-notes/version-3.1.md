@@ -4,12 +4,15 @@
 
 ### Enhancements
 
+* [#8594](https://github.com/netbox-community/netbox/issues/8594) - Enable filtering by exact description match for all applicable models
 * [#8629](https://github.com/netbox-community/netbox/issues/8629) - Add description to tag table search function
 
 ### Bug Fixes
 
 * [#8546](https://github.com/netbox-community/netbox/issues/8546) - Fix bulk import to restrict bridge, parent, and LAG to device interfaces
+* [#8633](https://github.com/netbox-community/netbox/issues/8633) - Prevent navigation sidebar pin from disappearing at certain breakpoints
 * [#8674](https://github.com/netbox-community/netbox/issues/8674) - Fix rendering of tabbed content in documentation
+* [#8710](https://github.com/netbox-community/netbox/issues/8710) - Fix dynamic scope selection form fields when creating a VLAN group
 * [#8713](https://github.com/netbox-community/netbox/issues/8713) - Restore missing "add" button on services list view
 * [#8717](https://github.com/netbox-community/netbox/issues/8717) - Fix redirection after bulk edit/delete of prefixes from aggregate view
 
