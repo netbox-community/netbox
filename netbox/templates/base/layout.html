@@ -108,55 +108,54 @@
 
         {# Page footer #}
         <footer class="footer container-fluid">
-          {# Plugin Custom Footer #}
-          {% block pluginfooter %}{% endblock %}
-
-          <div class="row align-items-center justify-content-between mx-0">
-
-            {# Docs & Community Links #}
-            <div class="col-sm-12 col-md-auto fs-4 noprint">
-              <nav class="nav justify-content-center justify-content-lg-start">
-                {# Documentation #}
-                <a type="button" class="nav-link" href="{% static 'docs/' %}" target="_blank">
-                  <i title="Docs" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                </a>
-
-                {# REST API #}
-                <a type="button" class="nav-link" href="{% url 'api-root' %}" target="_blank">
-                  <i title="REST API" class="mdi mdi-cloud-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                </a>
-
-                {# API docs #}
-                <a type="button" class="nav-link" href="{% url 'api_docs' %}" target="_blank">
-                  <i title="REST API documentation" class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                </a>
-
-                {# GraphQL API #}
-                {% if config.GRAPHQL_ENABLED %}
-                  <a type="button" class="nav-link" href="{% url 'graphql' %}" target="_blank">
-                    <i title="GraphQL API" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                  </a>
-                {% endif %}
-
-                {# GitHub #}
-                <a type="button" class="nav-link" href="https://github.com/netbox-community/netbox" target="_blank">
-                  <i title="Source Code" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                </a>
-
-                {# NetDev Slack #}
-                <a type="button" class="nav-link" href="https://netdev.chat/" target="_blank">
-                  <i title="Community" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                </a>
-              </nav>
+          {% block footer %}
+            <div class="row align-items-center justify-content-between mx-0">
+                  
+              <div class="col-sm-12 col-md-auto fs-4 noprint">
+                <nav class="nav justify-content-center justify-content-lg-start">
+                  {% block footer_links %}
+                    {# Documentation #}
+                    <a type="button" class="nav-link" href="{% static 'docs/' %}" target="_blank">
+                      <i title="Docs" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+    
+                    {# REST API #}
+                    <a type="button" class="nav-link" href="{% url 'api-root' %}" target="_blank">
+                      <i title="REST API" class="mdi mdi-cloud-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+    
+                    {# API docs #}
+                    <a type="button" class="nav-link" href="{% url 'api_docs' %}" target="_blank">
+                      <i title="REST API documentation" class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+    
+                    {# GraphQL API #}
+                    {% if config.GRAPHQL_ENABLED %}
+                    <a type="button" class="nav-link" href="{% url 'graphql' %}" target="_blank">
+                      <i title="GraphQL API" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+                    {% endif %}
+    
+                    {# GitHub #}
+                    <a type="button" class="nav-link" href="https://github.com/netbox-community/netbox" target="_blank">
+                      <i title="Source Code" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+    
+                    {# NetDev Slack #}
+                    <a type="button" class="nav-link" href="https://netdev.chat/" target="_blank">
+                      <i title="Community" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+                  {% endblock footer_links %}
+                </nav>
+              </div>
+    
+              <div class="col-sm-12 col-md-auto text-center text-lg-end text-muted">
+                <span class="d-block d-md-inline">{% annotated_now %} {% now 'T' %}</span>
+                <span class="ms-md-3 d-block d-md-inline">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</span>
+              </div>
+                  
             </div>
-
-            {# System Info #}
-            <div class="col-sm-12 col-md-auto text-center text-lg-end text-muted">
-              <span class="d-block d-md-inline">{% annotated_now %} {% now 'T' %}</span>
-              <span class="ms-md-3 d-block d-md-inline">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</span>
-            </div>
-
-          </div>
+          {% endblock footer %}
         </footer>
 
       </div>
