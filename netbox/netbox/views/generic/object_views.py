@@ -17,7 +17,7 @@ from utilities.exceptions import AbortTransaction, PermissionsViolation
 from utilities.forms import ConfirmationForm, ImportForm, restrict_form_fields
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
-from utilities.utils import normalize_querydict, prepare_cloned_fields
+from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin
 from .base import BaseObjectView
 
@@ -453,7 +453,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
         if is_htmx(request):
-            viewname = f'{self.queryset.model._meta.app_label}:{self.queryset.model._meta.model_name}_delete'
+            viewname = get_viewname(self.queryset.model, action='delete')
             form_url = reverse(viewname, kwargs={'pk': obj.pk})
             return render(request, 'htmx/delete_form.html', {
                 'object': obj,
