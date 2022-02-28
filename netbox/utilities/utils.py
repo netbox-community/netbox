@@ -17,22 +17,35 @@ from extras.utils import is_taggable
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 
 
-def get_viewname(model, action=None):
+def get_viewname(model, action=None, rest_api=False):
     """
     Return the view name for the given model and action, if valid.
 
     :param model: The model or instance to which the view applies
     :param action: A string indicating the desired action (if any); e.g. "add" or "list"
+    :param rest_api: A boolean indicating whether this is a REST API view
     """
-    viewname = f'{model._meta.app_label}:{model._meta.model_name}'
+    is_plugin = isinstance(model._meta.app_config, PluginConfig)
+    app_label = model._meta.app_label
+    model_name = model._meta.model_name
 
-    # Determine whether this is a plugin view and adjust the namespace appropriately
-    if isinstance(model._meta.app_config, PluginConfig):
-        viewname = f'plugins:{viewname}'
+    if rest_api:
+        if is_plugin:
+            viewname = f'plugins-api:{app_label}:{model_name}'
+        else:
+            viewname = f'{app_label}-api:{model_name}'
+        # Append the action, if any
+        if action:
+            viewname = f'{viewname}-{action}'
 
-    # Append the action, if any
-    if action:
-        viewname = f'{viewname}_{action}'
+    else:
+        viewname = f'{app_label}:{model_name}'
+        # Prepend the plugins namespace if this is a plugin model
+        if is_plugin:
+            viewname = f'plugins:{viewname}'
+        # Append the action, if any
+        if action:
+            viewname = f'{viewname}_{action}'
 
     return viewname
 

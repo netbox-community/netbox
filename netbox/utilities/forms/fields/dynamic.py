@@ -5,6 +5,7 @@ from django.forms import BoundField
 from django.urls import reverse
 
 from utilities.forms import widgets
+from utilities.utils import get_viewname
 
 __all__ = (
     'DynamicModelChoiceField',
@@ -101,10 +102,8 @@ class DynamicModelChoiceMixin:
         # Set the data URL on the APISelect widget (if not already set)
         widget = bound_field.field.widget
         if not widget.attrs.get('data-url'):
-            app_label = self.queryset.model._meta.app_label
-            model_name = self.queryset.model._meta.model_name
-            data_url = reverse('{}-api:{}-list'.format(app_label, model_name))
-            widget.attrs['data-url'] = data_url
+            viewname = get_viewname(self.queryset.model, action='list', rest_api=True)
+            widget.attrs['data-url'] = reverse(viewname)
 
         return bound_field
 

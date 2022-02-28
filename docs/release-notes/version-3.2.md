@@ -155,6 +155,7 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * [#8682](https://github.com/netbox-community/netbox/issues/8682) - Limit available VLANs by group min/max VIDs
 * [#8683](https://github.com/netbox-community/netbox/issues/8683) - Fix `ZoneInfoNotFoundError` exception under Python 3.9+
 * [#8761](https://github.com/netbox-community/netbox/issues/8761) - Correct view name resolution under journal entry views
+* [#8764](https://github.com/netbox-community/netbox/issues/8764) - Correct view name resolution for dynamic form fields
 
 ### Other Changes
 
