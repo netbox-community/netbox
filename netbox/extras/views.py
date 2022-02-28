@@ -11,7 +11,7 @@ from rq import Worker
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.htmx import is_htmx
-from utilities.utils import copy_safe_request, count_related, normalize_querydict, shallow_compare_dict
+from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
@@ -478,7 +478,7 @@ class JournalEntryEditView(generic.ObjectEditView):
         if not instance.assigned_object:
             return reverse('extras:journalentry_list')
         obj = instance.assigned_object
-        viewname = f'{obj._meta.app_label}:{obj._meta.model_name}_journal'
+        viewname = get_viewname(obj, 'journal')
         return reverse(viewname, kwargs={'pk': obj.pk})
 
 
@@ -487,7 +487,7 @@ class JournalEntryDeleteView(generic.ObjectDeleteView):
 
     def get_return_url(self, request, instance):
         obj = instance.assigned_object
-        viewname = f'{obj._meta.app_label}:{obj._meta.model_name}_journal'
+        viewname = get_viewname(obj, 'journal')
         return reverse(viewname, kwargs={'pk': obj.pk})
 
 
