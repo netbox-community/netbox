@@ -6,6 +6,7 @@
 
 * [#8594](https://github.com/netbox-community/netbox/issues/8594) - Enable filtering by exact description match for all applicable models
 * [#8629](https://github.com/netbox-community/netbox/issues/8629) - Add description to tag table search function
+* [#8766](https://github.com/netbox-community/netbox/issues/8766) - Add SCTP to service protocols list
 
 ### Bug Fixes
 
