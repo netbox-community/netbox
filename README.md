@@ -2,6 +2,8 @@
   <img src="https://raw.githubusercontent.com/netbox-community/netbox/develop/docs/netbox_logo.svg" width="400" alt="NetBox logo" />
 </div>
 
+:loudspeaker: The **[2022 NetBox community survey](https://forms.gle/KR8YbR8GiJ9EYXM28)** is now open! We collect this feedback and demographic data from NetBox users around the world to help shape the project's long-term development goals. Please take a few minutes to share your responses!
+
 ![Master branch build status](https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master)
 
 NetBox is an infrastructure resource modeling (IRM) tool designed to empower
