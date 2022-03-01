@@ -6,6 +6,7 @@
 
 * [#8594](https://github.com/netbox-community/netbox/issues/8594) - Enable filtering by exact description match for all applicable models
 * [#8629](https://github.com/netbox-community/netbox/issues/8629) - Add description to tag table search function
+* [#8736](https://github.com/netbox-community/netbox/issues/8736) - Add PC and UPC fiber end faces for LC/SC/LSH port types
 * [#8762](https://github.com/netbox-community/netbox/issues/8762) - Link to rack elevations list from site view
 * [#8766](https://github.com/netbox-community/netbox/issues/8766) - Add SCTP to service protocols list
 
