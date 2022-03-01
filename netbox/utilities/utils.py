@@ -31,7 +31,7 @@ def get_viewname(model, action=None, rest_api=False):
 
     if rest_api:
         if is_plugin:
-            viewname = f'plugins-api:{app_label}:{model_name}'
+            viewname = f'plugins-api:{app_label}-api:{model_name}'
         else:
             viewname = f'{app_label}-api:{model_name}'
         # Append the action, if any
