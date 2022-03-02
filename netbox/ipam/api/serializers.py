@@ -365,6 +365,20 @@ class AvailableIPSerializer(serializers.Serializer):
         ])
 
 
+class RequestAvailableIPSerializer(IPAddressSerializer):
+    """
+    Representation of a request for new available IP
+    """
+
+    class Meta:
+        model = IPAddress
+        fields = [
+            'tenant', 'status', 'role', 'assigned_object_type',
+            'assigned_object', 'nat_inside', 'dns_name', 'description', 'tags',
+            'custom_fields'
+        ]
+
+
 #
 # Services
 #

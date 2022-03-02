@@ -269,7 +269,7 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
         return Response(serializer.data)
 
     @swagger_auto_schema(
-        request_body=serializers.AvailableIPSerializer,
+        request_body=serializers.RequestAvailableIPSerializer,
         responses={201: serializers.IPAddressSerializer(many=True)}
     )
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
