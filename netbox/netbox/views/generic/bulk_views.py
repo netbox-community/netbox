@@ -1,5 +1,6 @@
 import logging
 import re
+from collections import defaultdict
 from copy import deepcopy
 
 from django.contrib import messages
@@ -42,27 +43,34 @@ class ObjectListView(BaseMultiObjectView):
     Attributes:
         filterset: A django-filter FilterSet that is applied to the queryset
         filterset_form: The form class used to render filter options
-        actions: Supported actions for the model. Default options are add, import, export, bulk_edit, and bulk_delete
+        actions: Supported actions for the model. When adding custom actions, bulk action names must
+         be prefixed with `bulk_`. Default actions: add, import, export, bulk_edit, bulk_delete
+        action_perms: A dictionary mapping supported actions to a set of permissions required for each
     """
     template_name = 'generic/object_list.html'
     filterset = None
     filterset_form = None
     actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+    })
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
 
-    def get_table(self, request, permissions):
+    def get_table(self, request, bulk_actions=True):
         """
         Return the django-tables2 Table instance to be used for rendering the objects list.
 
         Args:
             request: The current request
-            permissions: A dictionary mapping of the view, add, change, and delete permissions to booleans indicating
-                whether the user has each
+            bulk_actions: Show checkboxes for object selection
         """
         table = self.table(self.queryset, user=request.user)
-        if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
+        if 'pk' in table.base_columns and bulk_actions:
             table.columns.show('pk')
 
         return table
@@ -135,17 +143,20 @@ class ObjectListView(BaseMultiObjectView):
         if self.filterset:
             self.queryset = self.filterset(request.GET, self.queryset).qs
 
-        # Compile a dictionary indicating which permissions are available to the current user for this model
-        permissions = {}
-        for action in ('add', 'change', 'delete', 'view'):
-            perm_name = get_permission_for_model(model, action)
-            permissions[action] = request.user.has_perm(perm_name)
+        # Determine the available actions
+        actions = []
+        for action in self.actions:
+            if request.user.has_perms([
+                get_permission_for_model(model, name) for name in self.action_perms[action]
+            ]):
+                actions.append(action)
+        has_bulk_actions = any([a.startswith('bulk_') for a in actions])
 
         if 'export' in request.GET:
 
             # Export the current table view
             if request.GET['export'] == 'table':
-                table = self.get_table(request, permissions)
+                table = self.get_table(request, has_bulk_actions)
                 columns = [name for name, _ in table.selected_columns]
                 return self.export_table(table, columns)
 
@@ -163,11 +174,11 @@ class ObjectListView(BaseMultiObjectView):
 
             # Fall back to default table/YAML export
             else:
-                table = self.get_table(request, permissions)
+                table = self.get_table(request, has_bulk_actions)
                 return self.export_table(table)
 
         # Render the objects table
-        table = self.get_table(request, permissions)
+        table = self.get_table(request, has_bulk_actions)
         table.configure(request)
 
         # If this is an HTMX request, return only the rendered table HTML
@@ -179,8 +190,7 @@ class ObjectListView(BaseMultiObjectView):
         context = {
             'model': model,
             'table': table,
-            'permissions': permissions,
-            'actions': self.actions,
+            'actions': actions,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
             **self.get_extra_context(request),
         }

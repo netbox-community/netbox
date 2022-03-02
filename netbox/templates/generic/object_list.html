@@ -13,9 +13,6 @@ Blocks:
 Context:
   model: The model class being listed
   table: The table class used for rendering the list of objects
-  permissions: A mapping of add/change/delete permissions to boolean indicating
-    whether the current user possesses each of them. Controls the display of
-    add/edit/delete buttons.
   actions: A list of buttons to display. This template checks for add, import,
     export, bulk_edit, and bulk_delete.
   filter_form: The bound filterset form for filtering the objects list (optional)
@@ -28,10 +25,10 @@ Context:
   <div class="controls">
     <div class="control-group">
       {% block extra_controls %}{% endblock %}
-      {% if permissions.add and 'add' in actions %}
+      {% if 'add' in actions %}
           {% add_button model|validated_viewname:"add" %}
       {% endif %}
-      {% if permissions.add and 'import' in actions %}
+      {% if 'import' in actions %}
           {% import_button model|validated_viewname:"import" %}
       {% endif %}
       {% if 'export' in actions %}
@@ -72,33 +69,31 @@ Context:
 
       {# "Select all" form #}
       {% if table.paginator.num_pages > 1 %}
-        {% with bulk_edit_url=model|validated_viewname:"bulk_edit" bulk_delete_url=model|validated_viewname:"bulk_delete" %}
-          <div id="select-all-box" class="d-none card noprint">
-            <form method="post" class="form col-md-12">
-              {% csrf_token %}
-              <div class="card-body">
-                <div class="float-end">
-                  {% if bulk_edit_url and permissions.change %}
-                    <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm" disabled>
-                      <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit All
-                    </button>
-                  {% endif %}
-                  {% if bulk_delete_url and permissions.delete %}
-                    <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm" disabled>
-                      <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete All
-                    </button>
-                  {% endif %}
-                </div>
-                <div class="form-check">
-                  <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
-                  <label for="select-all" class="form-check-label">
-                    Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query
-                  </label>
-                </div>
+        <div id="select-all-box" class="d-none card noprint">
+          <form method="post" class="form col-md-12">
+            {% csrf_token %}
+            <div class="card-body">
+              <div class="float-end">
+                {% if 'bulk_edit' in actions %}
+                  <button type="submit" name="_edit" formaction="{% url model|viewname:"bulk_edit" %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm" disabled>
+                    <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit All
+                  </button>
+                {% endif %}
+                {% if 'bulk_delete' in actions %}
+                  <button type="submit" name="_delete" formaction="{% url model|viewname:"bulk_delete" %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm" disabled>
+                    <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete All
+                  </button>
+                {% endif %}
               </div>
-            </form>
-          </div>
-        {% endwith %}
+              <div class="form-check">
+                <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
+                <label for="select-all" class="form-check-label">
+                  Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
       {% endif %}
 
       {# Object table controls #}
@@ -118,17 +113,18 @@ Context:
         {# Form buttons #}
         <div class="noprint bulk-buttons">
           <div class="bulk-button-group">
-            {% block bulk_buttons %}{% endblock %}
-            {% if 'bulk_edit' in actions and permissions.change %}
-              <button type="submit" name="_edit" formaction="{% url model|viewname:"bulk_edit" %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
-                <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
-              </button>
-            {% endif %}
-            {% if 'bulk_delete' in actions and permissions.delete %}
-              <button type="submit" name="_delete" formaction="{% url model|viewname:"bulk_delete" %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
-                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete Selected
-              </button>
-            {% endif %}
+            {% block bulk_buttons %}
+              {% if 'bulk_edit' in actions %}
+                <button type="submit" name="_edit" formaction="{% url model|viewname:"bulk_edit" %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
+                  <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
+                </button>
+              {% endif %}
+              {% if 'bulk_delete' in actions %}
+                <button type="submit" name="_delete" formaction="{% url model|viewname:"bulk_delete" %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
+                  <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete Selected
+                </button>
+              {% endif %}
+            {% endblock %}
           </div>
         </div>
 
