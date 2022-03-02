@@ -8,11 +8,13 @@ theme:
   icon:
     repo: fontawesome/brands/github
   palette:
-    - scheme: default
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
       toggle:
         icon: material/lightbulb-outline
         name: Switch to Dark Mode
-    - scheme: slate
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       toggle:
         icon: material/lightbulb
         name: Switch to Light Mode
