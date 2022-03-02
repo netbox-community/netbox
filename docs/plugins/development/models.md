@@ -109,3 +109,70 @@ The example above will enable export templates and tags, but no other NetBox fea
 ::: netbox.models.features.TagsMixin
 
 ::: netbox.models.features.WebhooksMixin
+
+## Choice Sets
+
+For model fields which support the selection of one or more values from a predefined list of choices, NetBox provides the `ChoiceSet` utility class. This can be used in place of a regular choices tuple to provide enhanced functionality, namely dynamic configuration and colorization.
+
+To define choices for a model field, subclass `ChoiceSet` and define a tuple named `CHOICES`, of which each member is a two- or three-element tuple. These elements are:
+
+* The database value
+* The corresponding human-friendly label
+* The assigned color (optional)
+
+!!! note
+    Authors may find it useful to declare each of the database values as constants on the class, and reference them within `CHOICES` members. This convention allows the values to be referenced from outside the class, however it is not strictly required.
+
+### Dynamic Configuration
+
+To enable dynamic configuration for a ChoiceSet subclass, define its `key` as a string specifying the model and field name to which it applies. For example:
+
+```python
+from utilities.choices import ChoiceSet
+
+class StatusChoices(ChoiceSet):
+    key = 'MyModel.status'
+```
+
+To extend or replace the default values for this choice set, a NetBox administrator can then reference it under the [`FIELD_CHOICES`](../../configuration/optional-settings.md#field_choices) configuration parameter. For example, the `status` field on `MyModel` in `my_plugin` would be referenced as:
+
+```python
+FIELD_CHOICES = {
+    'my_plugin.MyModel.status': (
+        # Custom choices
+    )
+}
+```
+
+### Example
+
+```python
+# choices.py
+from utilities.choices import ChoiceSet
+
+class StatusChoices(ChoiceSet):
+    key = 'MyModel.status'
+
+    STATUS_FOO = 'foo'
+    STATUS_BAR = 'bar'
+    STATUS_BAZ = 'baz'
+
+    CHOICES = (
+        (STATUS_FOO, 'Foo', 'red'),
+        (STATUS_BAR, 'Bar', 'green'),
+        (STATUS_BAZ, 'Baz', 'blue'),
+    )
+```
+
+```python
+# models.py
+from django.db import models
+from .choices import StatusChoices
+
+class MyModel(models.Model):
+    status = models.CharField(
+        max_length=50,
+        choices=StatusChoices,
+        default=StatusChoices.STATUS_FOO
+    )
+```

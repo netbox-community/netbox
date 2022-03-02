@@ -17,7 +17,7 @@ class IPAddressFamilyChoices(ChoiceSet):
 #
 
 class PrefixStatusChoices(ChoiceSet):
-    key = 'ipam.Prefix.status'
+    key = 'Prefix.status'
 
     STATUS_CONTAINER = 'container'
     STATUS_ACTIVE = 'active'
@@ -37,7 +37,7 @@ class PrefixStatusChoices(ChoiceSet):
 #
 
 class IPRangeStatusChoices(ChoiceSet):
-    key = 'ipam.IPRange.status'
+    key = 'IPRange.status'
 
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
@@ -55,7 +55,7 @@ class IPRangeStatusChoices(ChoiceSet):
 #
 
 class IPAddressStatusChoices(ChoiceSet):
-    key = 'ipam.IPAddress.status'
+    key = 'IPAddress.status'
 
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
@@ -134,7 +134,7 @@ class FHRPGroupAuthTypeChoices(ChoiceSet):
 #
 
 class VLANStatusChoices(ChoiceSet):
-    key = 'ipam.VLAN.status'
+    key = 'VLAN.status'
 
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'

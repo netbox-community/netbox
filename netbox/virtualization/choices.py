@@ -6,7 +6,7 @@ from utilities.choices import ChoiceSet
 #
 
 class VirtualMachineStatusChoices(ChoiceSet):
-    key = 'virtualization.VirtualMachine.status'
+    key = 'VirtualMachine.status'
 
     STATUS_OFFLINE = 'offline'
     STATUS_ACTIVE = 'active'

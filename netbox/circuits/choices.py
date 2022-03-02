@@ -6,7 +6,7 @@ from utilities.choices import ChoiceSet
 #
 
 class CircuitStatusChoices(ChoiceSet):
-    key = 'circuits.Circuit.status'
+    key = 'Circuit.status'
 
     STATUS_DEPROVISIONING = 'deprovisioning'
     STATUS_ACTIVE = 'active'

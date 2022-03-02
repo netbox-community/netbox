@@ -6,7 +6,7 @@ from utilities.choices import ChoiceSet
 #
 
 class SiteStatusChoices(ChoiceSet):
-    key = 'dcim.Site.status'
+    key = 'Site.status'
 
     STATUS_PLANNED = 'planned'
     STATUS_STAGING = 'staging'
@@ -60,7 +60,7 @@ class RackWidthChoices(ChoiceSet):
 
 
 class RackStatusChoices(ChoiceSet):
-    key = 'dcim.Rack.status'
+    key = 'Rack.status'
 
     STATUS_RESERVED = 'reserved'
     STATUS_AVAILABLE = 'available'
@@ -130,7 +130,7 @@ class DeviceFaceChoices(ChoiceSet):
 
 
 class DeviceStatusChoices(ChoiceSet):
-    key = 'dcim.Device.status'
+    key = 'Device.status'
 
     STATUS_OFFLINE = 'offline'
     STATUS_ACTIVE = 'active'
@@ -1175,7 +1175,7 @@ class CableLengthUnitChoices(ChoiceSet):
 #
 
 class PowerFeedStatusChoices(ChoiceSet):
-    key = 'dcim.PowerFeed.status'
+    key = 'PowerFeed.status'
 
     STATUS_OFFLINE = 'offline'
     STATUS_ACTIVE = 'active'
