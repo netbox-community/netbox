@@ -1,4 +1,4 @@
-# Filter Sets
+# Filters & Filter Sets
 
 Filter sets define the mechanisms available for filtering or searching through a set of objects in NetBox. For instance, sites can be filtered by their parent region or group, status, facility ID, and so on. The same filter set is used consistently for a model whether the request is made via the UI, REST API, or GraphQL API. NetBox employs the [django-filters2](https://django-tables2.readthedocs.io/en/latest/) library to define filter sets.
 
@@ -27,7 +27,7 @@ class MyFilterSet(NetBoxModelFilterSet):
         fields = ('some', 'other', 'fields')
 ```
 
-## Declaring Filter Sets
+### Declaring Filter Sets
 
 To utilize a filter set in the subclass of a generic view, such as `ObjectListView` or `BulkEditView`, set it as the `filterset` attribute on the view class:
 
@@ -53,4 +53,18 @@ class MyModelViewSet(...):
     queryset = models.MyModel.objects.all()
     serializer_class = serializers.MyModelSerializer
     filterset_class = filtersets.MyModelFilterSet
+```
+
+## Filter Classes
+
+### TagFilter
+
+The `TagFilter` class is available for all models which support tag assignment; that is, those which inherit from `NetBoxModel` or `TagsMixin`. This class subclasses django-filter's `ModelMultipleChoiceFilter` to work with NetBox's `TaggedItem` class.
+
+```python
+from django_filters import FilterSet
+from extras.filters import TagFilter
+
+class MyModelFilterSet(FilterSet):
+    tag = TagFilter()
 ```
