@@ -70,8 +70,11 @@ class ObjectListView(BaseMultiObjectView):
             bulk_actions: Show checkboxes for object selection
         """
         table = self.table(self.queryset, user=request.user)
-        if 'pk' in table.base_columns and bulk_actions:
-            table.columns.show('pk')
+        if 'pk' in table.base_columns:
+            if bulk_actions:
+                table.columns.show('pk')
+            else:
+                table.columns.hide('pk')
 
         return table
 
