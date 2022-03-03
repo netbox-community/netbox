@@ -1,15 +1,13 @@
 import django_tables2 as tables
-from django_tables2.utils import Accessor
 
+from circuits.models import *
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
-from .models import *
+from .columns import CommitRateColumn
 
 __all__ = (
     'CircuitTable',
     'CircuitTypeTable',
-    'ProviderTable',
-    'ProviderNetworkTable',
 )
 
 
@@ -21,81 +19,6 @@ CIRCUITTERMINATION_LINK = """
 {% endif %}
 """
 
-
-#
-# Table columns
-#
-
-class CommitRateColumn(tables.TemplateColumn):
-    """
-    Humanize the commit rate in the column view
-    """
-
-    template_code = """
-        {% load helpers %}
-        {{ record.commit_rate|humanize_speed }}
-        """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(template_code=self.template_code, *args, **kwargs)
-
-    def value(self, value):
-        return str(value) if value else None
-
-
-#
-# Providers
-#
-
-class ProviderTable(NetBoxTable):
-    name = tables.Column(
-        linkify=True
-    )
-    circuit_count = tables.Column(
-        accessor=Accessor('count_circuits'),
-        verbose_name='Circuits'
-    )
-    comments = columns.MarkdownColumn()
-    tags = columns.TagColumn(
-        url_name='circuits:provider_list'
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = Provider
-        fields = (
-            'pk', 'id', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count',
-            'comments', 'tags', 'created', 'last_updated',
-        )
-        default_columns = ('pk', 'name', 'asn', 'account', 'circuit_count')
-
-
-#
-# Provider networks
-#
-
-class ProviderNetworkTable(NetBoxTable):
-    name = tables.Column(
-        linkify=True
-    )
-    provider = tables.Column(
-        linkify=True
-    )
-    comments = columns.MarkdownColumn()
-    tags = columns.TagColumn(
-        url_name='circuits:providernetwork_list'
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = ProviderNetwork
-        fields = (
-            'pk', 'id', 'name', 'provider', 'service_id', 'description', 'comments', 'created', 'last_updated', 'tags',
-        )
-        default_columns = ('pk', 'name', 'provider', 'service_id', 'description')
-
-
-#
-# Circuit types
-#
 
 class CircuitTypeTable(NetBoxTable):
     name = tables.Column(
@@ -115,10 +38,6 @@ class CircuitTypeTable(NetBoxTable):
         )
         default_columns = ('pk', 'name', 'circuit_count', 'description', 'slug')
 
-
-#
-# Circuits
-#
 
 class CircuitTable(NetBoxTable):
     cid = tables.Column(
