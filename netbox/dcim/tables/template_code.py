@@ -113,7 +113,7 @@ MODULAR_COMPONENT_TEMPLATE_BUTTONS = """
 
 CONSOLEPORT_BUTTONS = """
 {% if perms.dcim.add_inventoryitem %}
-  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ object.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_consoleports' pk=object.pk %}" class="btn btn-sm btn-success" title="Add inventory item">
+  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_consoleports' pk=object.pk %}" class="btn btn-sm btn-success" title="Add inventory item">
     <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
   </a>
 {% endif %}
@@ -145,7 +145,7 @@ CONSOLEPORT_BUTTONS = """
 
 CONSOLESERVERPORT_BUTTONS = """
 {% if perms.dcim.add_inventoryitem %}
-  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ object.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-sm btn-success" title="Add inventory item">
+  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-sm btn-success" title="Add inventory item">
     <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
   </a>
 {% endif %}
@@ -177,7 +177,7 @@ CONSOLESERVERPORT_BUTTONS = """
 
 POWERPORT_BUTTONS = """
 {% if perms.dcim.add_inventoryitem %}
-  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ object.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_powerports' pk=object.pk %}" class="btn btn-sm btn-success" title="Add inventory item">
+  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_powerports' pk=object.pk %}" class="btn btn-sm btn-primary" title="Add inventory item">
     <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
   </a>
 {% endif %}
@@ -208,7 +208,7 @@ POWERPORT_BUTTONS = """
 
 POWEROUTLET_BUTTONS = """
 {% if perms.dcim.add_inventoryitem %}
-  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ object.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-sm btn-success" title="Add inventory item">
+  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-sm btn-primary" title="Add inventory item">
     <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
   </a>
 {% endif %}
@@ -236,7 +236,7 @@ POWEROUTLET_BUTTONS = """
 INTERFACE_BUTTONS = """
 {% if perms.ipam.add_ipaddress or perms.dcim.add_inventoryitem %}
   <span class="dropdown">
-    <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Add">
+    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Add">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
     </button>
     <ul class="dropdown-menu dropdown-menu-end">
@@ -244,7 +244,7 @@ INTERFACE_BUTTONS = """
         <li><a class="dropdown-item" href="{% url 'ipam:ipaddress_add' %}?interface={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">IP Address</a></li>
       {% endif %}
       {% if perms.dcim.add_inventoryitem %}
-        <li><a class="dropdown-item" href="{% url 'dcim:inventoryitem_add' %}?device={{ object.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Inventory Item</a></li>
+        <li><a class="dropdown-item" href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Inventory Item</a></li>
       {% endif %}
     </ul>
   </span>
@@ -292,7 +292,7 @@ INTERFACE_BUTTONS = """
 
 FRONTPORT_BUTTONS = """
 {% if perms.dcim.add_inventoryitem %}
-  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ object.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-sm btn-success" title="Add inventory item">
+  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-sm btn-primary" title="Add inventory item">
     <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
   </a>
 {% endif %}
@@ -329,7 +329,7 @@ FRONTPORT_BUTTONS = """
 
 REARPORT_BUTTONS = """
 {% if perms.dcim.add_inventoryitem %}
-  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ object.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-sm btn-success" title="Add inventory item">
+  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-sm btn-primary" title="Add inventory item">
     <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
   </a>
 {% endif %}
