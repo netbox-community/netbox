@@ -41,40 +41,37 @@ class BaseTable(tables.Table):
         if self.empty_text is None:
             self.empty_text = f"No {self._meta.model._meta.verbose_name_plural} found"
 
-        # Hide non-default columns
-        default_columns = [*getattr(self.Meta, 'default_columns', self.Meta.fields), *self.exempt_columns]
-        for column in self.columns:
-            if column.name not in default_columns:
-                self.columns.hide(column.name)
-
-        # Apply custom column ordering for user
+        # Determine the table columns to display by checking the following:
+        #   1. User's configuration for the table
+        #   2. Meta.default_columns
+        #   3. Meta.fields
+        selected_columns = None
         if user is not None and not isinstance(user, AnonymousUser):
             selected_columns = user.config.get(f"tables.{self.__class__.__name__}.columns")
-            if selected_columns:
+        if not selected_columns:
+            selected_columns = getattr(self.Meta, 'default_columns', self.Meta.fields)
 
-                # Show only persistent or selected columns
-                for name, column in self.columns.items():
-                    if name in [*self.exempt_columns, *selected_columns]:
-                        self.columns.show(name)
-                    else:
-                        self.columns.hide(name)
+        # Hide non-selected columns which are not exempt
+        for column in self.columns:
+            if column.name not in [*selected_columns, *self.exempt_columns]:
+                self.columns.hide(column.name)
 
-                # Rearrange the sequence to list selected columns first, followed by all remaining columns
-                # TODO: There's probably a more clever way to accomplish this
-                self.sequence = [
-                    *[c for c in selected_columns if c in self.columns.names()],
-                    *[c for c in self.columns.names() if c not in selected_columns]
-                ]
+        # Rearrange the sequence to list selected columns first, followed by all remaining columns
+        # TODO: There's probably a more clever way to accomplish this
+        self.sequence = [
+            *[c for c in selected_columns if c in self.columns.names()],
+            *[c for c in self.columns.names() if c not in selected_columns]
+        ]
 
-                # PK column should always come first
-                if 'pk' in self.sequence:
-                    self.sequence.remove('pk')
-                    self.sequence.insert(0, 'pk')
+        # PK column should always come first
+        if 'pk' in self.sequence:
+            self.sequence.remove('pk')
+            self.sequence.insert(0, 'pk')
 
-                # Actions column should always come last
-                if 'actions' in self.sequence:
-                    self.sequence.remove('actions')
-                    self.sequence.append('actions')
+        # Actions column should always come last
+        if 'actions' in self.sequence:
+            self.sequence.remove('actions')
+            self.sequence.append('actions')
 
         # Dynamically update the table's QuerySet to ensure related fields are pre-fetched
         if isinstance(self.data, TableQuerysetData):
