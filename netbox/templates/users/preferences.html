@@ -8,6 +8,7 @@
   <form method="post" action="" id="preferences-update">
     {% csrf_token %}
 
+    {# Built-in preferences #}
     {% for group, fields in form.fieldsets %}
       <div class="field-group my-5">
         <div class="row mb-2">
@@ -19,6 +20,7 @@
       </div>
     {% endfor %}
 
+    {# Plugin preferences #}
     {% with plugin_fields=form.plugin_fields %}
       {% if plugin_fields %}
         <div class="field-group my-5">
@@ -31,6 +33,50 @@
         </div>
       {% endif %}
     {% endwith %}
+
+    {# Table configurations #}
+    <div class="field-group my-5">
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">Table Configurations</h5>
+      </div>
+      <div class="row">
+        {% if request.user.config.data.tables %}
+          <label class="col-sm-3 col-form-label text-lg-end">
+            Clear table preferences
+          </label>
+          <div class="col-sm-9">
+            <table class="table table-hover object-list">
+              <thead>
+                <tr>
+                  <th>
+                    <input type="checkbox" class="toggle form-check-input" title="Toggle All">
+                  </th>
+                  <th>Table</th>
+                  <th>Ordering</th>
+                  <th>Columns</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for table, prefs in request.user.config.data.tables.items %}
+                  <tr>
+                    <td>
+                      <input type="checkbox" name="pk" value="tables.{{ table }}" class="form-check-input" />
+                    </td>
+                    <td>{{ table }}</td>
+                    <td>{{ prefs.ordering|join:", "|placeholder }}</td>
+                    <td>{{ prefs.columns|join:", "|placeholder }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="offset-sm-3">
+            <p class="text-muted">None found</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
 
     <div class="text-end my-3">
       <a class="btn btn-outline-secondary" href="{% url 'user:preferences' %}">Cancel</a>

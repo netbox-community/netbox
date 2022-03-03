@@ -50,6 +50,11 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
             'data_format',
         )),
     )
+    # List of clearable preferences
+    pk = forms.MultipleChoiceField(
+        choices=[],
+        required=False
+    )
 
     class Meta:
         model = UserConfig
@@ -63,11 +68,22 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
 
         super().__init__(*args, instance=instance, **kwargs)
 
+        # Compile clearable preference choices
+        self.fields['pk'].choices = (
+            (f'tables.{table_name}', '') for table_name in instance.data.get('tables', [])
+        )
+
     def save(self, *args, **kwargs):
 
         # Set UserConfig data
         for pref_name, value in self.cleaned_data.items():
+            if pref_name == 'pk':
+                continue
             self.instance.set(pref_name, value, commit=False)
+
+        # Clear selected preferences
+        for preference in self.cleaned_data['pk']:
+            self.instance.clear(preference)
 
         return super().save(*args, **kwargs)
 
