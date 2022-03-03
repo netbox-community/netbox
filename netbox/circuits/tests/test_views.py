@@ -218,6 +218,7 @@ class CircuitTerminationTestCase(
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
         cls.form_data = {
+            'circuit': circuits[2].pk,
             'term_side': 'A',
             'site': sites[2].pk,
             'description': 'New description',

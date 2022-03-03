@@ -5,7 +5,7 @@
         <strong class="d-block d-md-inline mb-3 mb-md-0">Termination - {{ side }} Side</strong>
         <div class="float-md-end">
             {% if not termination and perms.circuits.add_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_add' circuit=object.pk %}?term_side={{ side }}" class="btn btn-sm btn-success lh-1">
+                <a href="{% url 'circuits:circuittermination_add' %}?circuit={{ object.pk }}&term_side={{ side }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-success lh-1">
                     <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add
                 </a>
             {% endif %}

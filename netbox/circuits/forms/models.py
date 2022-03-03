@@ -125,6 +125,19 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
 
 
 class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
+    provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all(),
+        required=False,
+        initial_params={
+            'circuits': '$circuit'
+        }
+    )
+    circuit = DynamicModelChoiceField(
+        queryset=Circuit.objects.all(),
+        query_params={
+            'provider_id': '$provider',
+        },
+    )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -155,8 +168,8 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = CircuitTermination
         fields = [
-            'term_side', 'region', 'site_group', 'site', 'provider_network', 'mark_connected', 'port_speed',
-            'upstream_speed', 'xconnect_id', 'pp_info', 'description',
+            'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'provider_network', 'mark_connected',
+            'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description',
         ]
         help_texts = {
             'port_speed': "Physical circuit speed",
@@ -164,12 +177,7 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
             'pp_info': "Patch panel ID and port number(s)"
         }
         widgets = {
-            'term_side': forms.HiddenInput(),
+            'term_side': StaticSelect(),
             'port_speed': SelectSpeedWidget(),
             'upstream_speed': SelectSpeedWidget(),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['provider_network'].widget.add_query_param('provider_id', self.instance.circuit.provider_id)

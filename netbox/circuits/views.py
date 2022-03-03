@@ -318,14 +318,6 @@ class CircuitTerminationEditView(generic.ObjectEditView):
     model_form = forms.CircuitTerminationForm
     template_name = 'circuits/circuittermination_edit.html'
 
-    def alter_object(self, obj, request, url_args, url_kwargs):
-        if 'circuit' in url_kwargs:
-            obj.circuit = get_object_or_404(Circuit, pk=url_kwargs['circuit'])
-        return obj
-
-    def get_return_url(self, request, obj):
-        return obj.circuit.get_absolute_url()
-
 
 class CircuitTerminationDeleteView(generic.ObjectDeleteView):
     queryset = CircuitTermination.objects.all()
