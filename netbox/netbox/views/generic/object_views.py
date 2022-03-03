@@ -559,31 +559,10 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         })
 
     def post(self, request):
+        logger = logging.getLogger('netbox.views.ComponentCreateView')
         form, model_form = self.initialize_forms(request)
         instance = self.alter_object(self.queryset.model, request)
 
-        self.validate_form(request, form)
-
-        if form.is_valid() and not form.errors:
-            if '_addanother' in request.POST:
-                return redirect(request.get_full_path())
-            else:
-                return redirect(self.get_return_url(request))
-
-        return render(request, self.template_name, {
-            'object': instance,
-            'replication_form': form,
-            'form': model_form,
-            'return_url': self.get_return_url(request),
-        })
-
-    # TODO: Refactor this method for clarity & better error reporting
-    def validate_form(self, request, form):
-        """
-        Validate form values and set errors on the form object as they are detected. If
-        no errors are found, signal success messages.
-        """
-        logger = logging.getLogger('netbox.views.ComponentCreateView')
         if form.is_valid():
             new_components = []
             data = deepcopy(request.POST)
@@ -618,8 +597,12 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                         messages.success(request, "Added {} {}".format(
                             len(new_components), self.queryset.model._meta.verbose_name_plural
                         ))
-                        # Return the newly created objects so overridden post methods can use the data as needed.
-                        return new_objs
+
+                        # Redirect user on success
+                        if '_addanother' in request.POST:
+                            return redirect(request.get_full_path())
+                        else:
+                            return redirect(self.get_return_url(request))
 
                 except PermissionsViolation:
                     msg = "Component creation failed due to object-level permissions violation"
@@ -627,4 +610,9 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                     form.add_error(None, msg)
                     clear_webhooks.send(sender=self)
 
-        return None
+        return render(request, self.template_name, {
+            'object': instance,
+            'replication_form': form,
+            'form': model_form,
+            'return_url': self.get_return_url(request),
+        })

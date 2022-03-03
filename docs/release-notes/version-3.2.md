@@ -157,6 +157,7 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * [#8761](https://github.com/netbox-community/netbox/issues/8761) - Correct view name resolution under journal entry views
 * [#8763](https://github.com/netbox-community/netbox/issues/8763) - Fix inventory item component assignment
 * [#8764](https://github.com/netbox-community/netbox/issues/8764) - Correct view name resolution for dynamic form fields
+* [#8791](https://github.com/netbox-community/netbox/issues/8791) - Fix display of form validation failures during device component creation
 
 ### Other Changes
 
