@@ -85,6 +85,10 @@ class SiteTable(BaseTable):
         accessor=tables.A('asns__count'),
         viewname='ipam:asn_list',
         url_params={'site_id': 'pk'},
+        verbose_name='ASN Count'
+    )
+    asns = tables.ManyToManyColumn(
+        linkify_item=True,
         verbose_name='ASNs'
     )
     tenant = TenantColumn()
@@ -96,8 +100,8 @@ class SiteTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Site
         fields = (
-            'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asn_count', 'time_zone',
-            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
+            'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asns', 'asn_count',
+            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
             'contact_phone', 'contact_email', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'description')
