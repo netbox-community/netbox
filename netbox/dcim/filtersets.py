@@ -972,6 +972,17 @@ class ModuleFilterSet(NetBoxModelFilterSet):
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
+    module_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_type',
+        queryset=ModuleType.objects.all(),
+        label='Module type (ID)',
+    )
+    module_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_type__model',
+        queryset=ModuleType.objects.all(),
+        to_field_name='model',
+        label='Module type (model)',
+    )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label='Device (ID)',

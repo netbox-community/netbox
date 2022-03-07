@@ -1803,6 +1803,13 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
+    def test_module_type(self):
+        module_types = ModuleType.objects.all()[:2]
+        params = {'module_type_id': [module_types[0].pk, module_types[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'module_type': [module_types[0].model, module_types[1].model]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
     def test_device(self):
         device_types = Device.objects.all()[:2]
         params = {'device_id': [device_types[0].pk, device_types[1].pk]}
