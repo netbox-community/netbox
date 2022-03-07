@@ -159,6 +159,7 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * [#8764](https://github.com/netbox-community/netbox/issues/8764) - Correct view name resolution for dynamic form fields
 * [#8791](https://github.com/netbox-community/netbox/issues/8791) - Fix display of form validation failures during device component creation
 * [#8792](https://github.com/netbox-community/netbox/issues/8792) - Fix creation of circuit terminations via UI
+* [#8815](https://github.com/netbox-community/netbox/issues/8815) - Fix display of custom object fields in table columns
 
 ### Other Changes
 

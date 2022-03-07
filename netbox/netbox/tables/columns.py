@@ -361,27 +361,35 @@ class CustomFieldColumn(tables.Column):
 
         super().__init__(*args, **kwargs)
 
+    @staticmethod
+    def _likify_item(item):
+        if hasattr(item, 'get_absolute_url'):
+            return f'<a href="{item.get_absolute_url()}">{item}</a>'
+        return item
+
     def render(self, value):
-        if isinstance(value, list):
-            return ', '.join(v for v in value)
-        elif self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is True:
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is True:
             return mark_safe('<i class="mdi mdi-check-bold text-success"></i>')
-        elif self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is False:
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is False:
             return mark_safe('<i class="mdi mdi-close-thick text-danger"></i>')
-        elif self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
             return mark_safe(f'<a href="{value}">{value}</a>')
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            return ', '.join(v for v in value)
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+            return mark_safe(', '.join([
+                self._likify_item(obj) for obj in self.customfield.deserialize(value)
+            ]))
         if value is not None:
             obj = self.customfield.deserialize(value)
-            if hasattr(obj, 'get_absolute_url'):
-                return mark_safe(f'<a href="{obj.get_absolute_url}">{obj}</a>')
-            return obj
+            return mark_safe(self._likify_item(obj))
         return self.default
 
     def value(self, value):
         if isinstance(value, list):
-            return ','.join(v for v in value)
+            return ','.join(str(v) for v in self.customfield.deserialize(value))
         if value is not None:
-            return value
+            return self.customfield.deserialize(value)
         return self.default
 
 
