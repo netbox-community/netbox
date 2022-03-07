@@ -21,6 +21,7 @@
 * [#8713](https://github.com/netbox-community/netbox/issues/8713) - Restore missing "add" button on services list view
 * [#8717](https://github.com/netbox-community/netbox/issues/8717) - Fix redirection after bulk edit/delete of prefixes from aggregate view
 * [#8724](https://github.com/netbox-community/netbox/issues/8724) - Fix exception during device import with invalid device type
+* [#8808](https://github.com/netbox-community/netbox/issues/8808) - Fix members count under FHRP group list
 
 ---
 
