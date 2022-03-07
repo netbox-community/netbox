@@ -735,21 +735,25 @@ class ManufacturerView(generic.ObjectView):
     queryset = Manufacturer.objects.all()
 
     def get_extra_context(self, request, instance):
-        devicetypes = DeviceType.objects.restrict(request.user, 'view').filter(
+        device_types = DeviceType.objects.restrict(request.user, 'view').filter(
             manufacturer=instance
         ).annotate(
             instance_count=count_related(Device, 'device_type')
+        )
+        module_types = ModuleType.objects.restrict(request.user, 'view').filter(
+            manufacturer=instance
         )
         inventory_items = InventoryItem.objects.restrict(request.user, 'view').filter(
             manufacturer=instance
         )
 
-        devicetypes_table = tables.DeviceTypeTable(devicetypes, exclude=('manufacturer',))
+        devicetypes_table = tables.DeviceTypeTable(device_types, exclude=('manufacturer',))
         devicetypes_table.configure(request)
 
         return {
             'devicetypes_table': devicetypes_table,
             'inventory_item_count': inventory_items.count(),
+            'module_type_count': module_types.count(),
         }
 
 

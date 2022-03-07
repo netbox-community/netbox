@@ -35,6 +35,12 @@
             </td>
           </tr>
           <tr>
+            <th scope="row">Module types</th>
+            <td>
+              <a href="{% url 'dcim:moduletype_list' %}?manufacturer_id={{ object.pk }}">{{ module_type_count }}</a>
+            </td>
+          </tr>
+          <tr>
             <th scope="row">Inventory Items</th>
             <td>
               <a href="{% url 'dcim:inventoryitem_list' %}?manufacturer_id={{ object.pk }}">{{ inventory_item_count }}</a>
