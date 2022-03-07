@@ -1,5 +1,7 @@
 ![NetBox](netbox_logo.svg "NetBox logo"){style="height: 100px; margin-bottom: 3em"}
 
+:loudspeaker: The **[2022 NetBox community survey](https://forms.gle/KR8YbR8GiJ9EYXM28)** is now open! We collect this feedback and demographic data from NetBox users around the world to help shape the project's long-term development goals. Please take a few minutes to share your responses!
+
 # What is NetBox?
 
 NetBox is an infrastructure resource modeling (IRM) application designed to empower network automation. Initially conceived by the network engineering team at [DigitalOcean](https://www.digitalocean.com/), NetBox was developed specifically to address the needs of network and infrastructure engineers. NetBox is made available as open source under the Apache 2 license. It encompasses the following aspects of network management:

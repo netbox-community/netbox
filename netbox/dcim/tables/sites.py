@@ -82,6 +82,10 @@ class SiteTable(NetBoxTable):
         accessor=tables.A('asns__count'),
         viewname='ipam:asn_list',
         url_params={'site_id': 'pk'},
+        verbose_name='ASN Count'
+    )
+    asns = tables.ManyToManyColumn(
+        linkify_item=True,
         verbose_name='ASNs'
     )
     tenant = TenantColumn()
@@ -93,9 +97,9 @@ class SiteTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Site
         fields = (
-            'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asn_count', 'time_zone',
-            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments', 'tags',
-            'created', 'last_updated', 'actions',
+            'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asns', 'asn_count',
+            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments',
+            'tags', 'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'description')
 
