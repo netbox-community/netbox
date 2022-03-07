@@ -62,7 +62,7 @@ class TenantFilterSet(PrimaryModelFilterSet):
 
     class Meta:
         model = Tenant
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -131,7 +131,7 @@ class ContactRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = ContactRole
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class ContactFilterSet(PrimaryModelFilterSet):

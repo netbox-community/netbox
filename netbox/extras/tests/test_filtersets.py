@@ -153,8 +153,8 @@ class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
         content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
 
         export_templates = (
-            ExportTemplate(name='Export Template 1', content_type=content_types[0], template_code='TESTING'),
-            ExportTemplate(name='Export Template 2', content_type=content_types[1], template_code='TESTING'),
+            ExportTemplate(name='Export Template 1', content_type=content_types[0], template_code='TESTING', description='foobar1'),
+            ExportTemplate(name='Export Template 2', content_type=content_types[1], template_code='TESTING', description='foobar2'),
             ExportTemplate(name='Export Template 3', content_type=content_types[2], template_code='TESTING'),
         )
         ExportTemplate.objects.bulk_create(export_templates)
@@ -166,6 +166,10 @@ class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
     def test_content_type(self):
         params = {'content_type': ContentType.objects.get(model='site').pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ImageAttachmentTestCase(TestCase, BaseFilterSetTests):
@@ -542,8 +546,8 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         tags = (
-            Tag(name='Tag 1', slug='tag-1', color='ff0000'),
-            Tag(name='Tag 2', slug='tag-2', color='00ff00'),
+            Tag(name='Tag 1', slug='tag-1', color='ff0000', description='foobar1'),
+            Tag(name='Tag 2', slug='tag-2', color='00ff00', description='foobar2'),
             Tag(name='Tag 3', slug='tag-3', color='0000ff'),
         )
         Tag.objects.bulk_create(tags)
@@ -565,6 +569,10 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_color(self):
         params = {'color': ['ff0000', '00ff00']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_content_type(self):

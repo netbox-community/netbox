@@ -39,6 +39,12 @@ class RestrictedQuerySet(QuerySet):
                     # Any permission with null constraints grants access to _all_ instances
                     attrs = Q()
                     break
+            else:
+                # for else, when no break
+                # avoid duplicates when JOIN on many-to-many fields without using DISTINCT.
+                # DISTINCT acts globally on the entire request, which may not be desirable.
+                allowed_objects = self.model.objects.filter(attrs)
+                attrs = Q(pk__in=allowed_objects)
             qs = self.filter(attrs)
 
         return qs

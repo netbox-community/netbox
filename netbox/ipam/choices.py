@@ -189,8 +189,10 @@ class ServiceProtocolChoices(ChoiceSet):
 
     PROTOCOL_TCP = 'tcp'
     PROTOCOL_UDP = 'udp'
+    PROTOCOL_SCTP = 'sctp'
 
     CHOICES = (
         (PROTOCOL_TCP, 'TCP'),
         (PROTOCOL_UDP, 'UDP'),
+        (PROTOCOL_SCTP, 'SCTP'),
     )

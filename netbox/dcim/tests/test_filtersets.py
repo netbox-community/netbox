@@ -151,8 +151,8 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
         ASN.objects.bulk_create(asns)
 
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0], tenant=tenants[0], status=SiteStatusChoices.STATUS_ACTIVE, facility='Facility 1', asn=65001, latitude=10, longitude=10, contact_name='Contact 1', contact_phone='123-555-0001', contact_email='contact1@example.com'),
-            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1], tenant=tenants[1], status=SiteStatusChoices.STATUS_PLANNED, facility='Facility 2', asn=65002, latitude=20, longitude=20, contact_name='Contact 2', contact_phone='123-555-0002', contact_email='contact2@example.com'),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0], tenant=tenants[0], status=SiteStatusChoices.STATUS_ACTIVE, facility='Facility 1', asn=65001, latitude=10, longitude=10, contact_name='Contact 1', contact_phone='123-555-0001', contact_email='contact1@example.com', description='foobar1'),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1], tenant=tenants[1], status=SiteStatusChoices.STATUS_PLANNED, facility='Facility 2', asn=65002, latitude=20, longitude=20, contact_name='Contact 2', contact_phone='123-555-0002', contact_email='contact2@example.com', description='foobar2'),
             Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2], tenant=tenants[2], status=SiteStatusChoices.STATUS_RETIRED, facility='Facility 3', asn=65003, latitude=30, longitude=30, contact_name='Contact 3', contact_phone='123-555-0003', contact_email='contact3@example.com'),
         )
         Site.objects.bulk_create(sites)
@@ -199,6 +199,10 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_contact_email(self):
         params = {'contact_email': ['contact1@example.com', 'contact2@example.com']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
@@ -329,8 +333,8 @@ class RackRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         rack_roles = (
-            RackRole(name='Rack Role 1', slug='rack-role-1', color='ff0000'),
-            RackRole(name='Rack Role 2', slug='rack-role-2', color='00ff00'),
+            RackRole(name='Rack Role 1', slug='rack-role-1', color='ff0000', description='foobar1'),
+            RackRole(name='Rack Role 2', slug='rack-role-2', color='00ff00', description='foobar2'),
             RackRole(name='Rack Role 3', slug='rack-role-3', color='0000ff'),
         )
         RackRole.objects.bulk_create(rack_roles)
@@ -345,6 +349,10 @@ class RackRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_color(self):
         params = {'color': ['ff0000', '00ff00']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -570,8 +578,8 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         reservations = (
-            RackReservation(rack=racks[0], units=[1, 2, 3], user=users[0], tenant=tenants[0]),
-            RackReservation(rack=racks[1], units=[4, 5, 6], user=users[1], tenant=tenants[1]),
+            RackReservation(rack=racks[0], units=[1, 2, 3], user=users[0], tenant=tenants[0], description='foobar1'),
+            RackReservation(rack=racks[1], units=[4, 5, 6], user=users[1], tenant=tenants[1], description='foobar2'),
             RackReservation(rack=racks[2], units=[7, 8, 9], user=users[2], tenant=tenants[2]),
         )
         RackReservation.objects.bulk_create(reservations)
@@ -602,6 +610,10 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant_group(self):
@@ -1088,8 +1100,8 @@ class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         device_roles = (
-            DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000', vm_role=True),
-            DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00', vm_role=True),
+            DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000', vm_role=True, description='foobar1'),
+            DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00', vm_role=True, description='foobar2'),
             DeviceRole(name='Device Role 3', slug='device-role-3', color='0000ff', vm_role=False),
         )
         DeviceRole.objects.bulk_create(device_roles)
@@ -1111,6 +1123,10 @@ class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vm_role': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):

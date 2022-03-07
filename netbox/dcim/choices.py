@@ -1013,13 +1013,19 @@ class PortTypeChoices(ChoiceSet):
     TYPE_MRJ21 = 'mrj21'
     TYPE_ST = 'st'
     TYPE_SC = 'sc'
+    TYPE_SC_PC = 'sc-pc'
+    TYPE_SC_UPC = 'sc-upc'
     TYPE_SC_APC = 'sc-apc'
     TYPE_FC = 'fc'
     TYPE_LC = 'lc'
+    TYPE_LC_PC = 'lc-pc'
+    TYPE_LC_UPC = 'lc-upc'
     TYPE_LC_APC = 'lc-apc'
     TYPE_MTRJ = 'mtrj'
     TYPE_MPO = 'mpo'
     TYPE_LSH = 'lsh'
+    TYPE_LSH_PC = 'lsh-pc'
+    TYPE_LSH_UPC = 'lsh-upc'
     TYPE_LSH_APC = 'lsh-apc'
     TYPE_SPLICE = 'splice'
     TYPE_CS = 'cs'
@@ -1059,12 +1065,18 @@ class PortTypeChoices(ChoiceSet):
             (
                 (TYPE_FC, 'FC'),
                 (TYPE_LC, 'LC'),
+                (TYPE_LC_PC, 'LC/PC'),
+                (TYPE_LC_UPC, 'LC/UPC'),
                 (TYPE_LC_APC, 'LC/APC'),
                 (TYPE_LSH, 'LSH'),
+                (TYPE_LSH_PC, 'LSH/PC'),
+                (TYPE_LSH_UPC, 'LSH/UPC'),
                 (TYPE_LSH_APC, 'LSH/APC'),
                 (TYPE_MPO, 'MPO'),
                 (TYPE_MTRJ, 'MTRJ'),
                 (TYPE_SC, 'SC'),
+                (TYPE_SC_PC, 'SC/PC'),
+                (TYPE_SC_UPC, 'SC/UPC'),
                 (TYPE_SC_APC, 'SC/APC'),
                 (TYPE_ST, 'ST'),
                 (TYPE_CS, 'CS'),
