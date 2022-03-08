@@ -2,6 +2,8 @@
 
 ## v3.1.10 (FUTURE)
 
+* [#8820](https://github.com/netbox-community/netbox/issues/8820) - Fix navbar background color in dark mode
+
 ---
 
 ## v3.1.9 (2022-03-07)
