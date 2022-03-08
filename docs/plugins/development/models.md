@@ -2,50 +2,26 @@
 
 ## Creating Models
 
-If your plugin introduces a new type of object in NetBox, you'll probably want to create a [Django model](https://docs.djangoproject.com/en/stable/topics/db/models/) for it. A model is essentially a Python representation of a database table, with attributes that represent individual columns. Model instances can be created, manipulated, and deleted using [queries](https://docs.djangoproject.com/en/stable/topics/db/queries/). Models must be defined within a file named `models.py`.
+If your plugin introduces a new type of object in NetBox, you'll probably want to create a [Django model](https://docs.djangoproject.com/en/stable/topics/db/models/) for it. A model is essentially a Python representation of a database table, with attributes that represent individual columns. Instances of a model (objects) can be created, manipulated, and deleted using [queries](https://docs.djangoproject.com/en/stable/topics/db/queries/). Models must be defined within a file named `models.py`.
 
-Below is an example `models.py` file containing a model with two character fields:
+Below is an example `models.py` file containing a model with two character (text) fields:
 
 ```python
 from django.db import models
 
-class Animal(models.Model):
-    name = models.CharField(max_length=50)
-    sound = models.CharField(max_length=50)
+class MyModel(models.Model):
+    foo = models.CharField(max_length=50)
+    bar = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.name
+        return f'{self.foo} {self.bar}'
 ```
 
-### Migrations
-
-Once you have defined the model(s) for your plugin, you'll need to create the database schema migrations. A migration file is essentially a set of instructions for manipulating the PostgreSQL database to support your new model, or to alter existing models. Creating migrations can usually be done automatically using Django's `makemigrations` management command.
-
-!!! note
-    A plugin must be installed before it can be used with Django management commands. If you skipped this step above, run `python setup.py develop` from the plugin's root directory.
-
-```no-highlight
-$ ./manage.py makemigrations netbox_animal_sounds 
-Migrations for 'netbox_animal_sounds':
-  /home/jstretch/animal_sounds/netbox_animal_sounds/migrations/0001_initial.py
-    - Create model Animal
-```
-
-Next, we can apply the migration to the database with the `migrate` command:
-
-```no-highlight
-$ ./manage.py migrate netbox_animal_sounds
-Operations to perform:
-  Apply all migrations: netbox_animal_sounds
-Running migrations:
-  Applying netbox_animal_sounds.0001_initial... OK
-```
-
-For more background on schema migrations, see the [Django documentation](https://docs.djangoproject.com/en/stable/topics/migrations/).
+Every model includes by default a numeric primary key. This value is generated automatically by the database, and can be referenced as `pk` or `id`.
 
 ## Enabling NetBox Features
 
-Plugin models can leverage certain NetBox features by inheriting from NetBox's `NetBoxModel` class. This class extends the plugin model to enable numerous feature, including:
+Plugin models can leverage certain NetBox features by inheriting from NetBox's `NetBoxModel` class. This class extends the plugin model to enable features unique to NetBox, including:
 
 * Change logging
 * Custom fields
@@ -58,8 +34,8 @@ Plugin models can leverage certain NetBox features by inheriting from NetBox's `
 
 This class performs two crucial functions:
 
-1. Apply any fields, methods, or attributes necessary to the operation of these features
-2. Register the model with NetBox as utilizing these feature
+1. Apply any fields, methods, and/or attributes necessary to the operation of these features
+2. Register the model with NetBox as utilizing these features
 
 Simply subclass BaseModel when defining a model in your plugin:
 
@@ -75,7 +51,9 @@ class MyModel(NetBoxModel):
 
 ### Enabling Features Individually
 
-If you prefer instead to enable only a subset of these features for a plugin model, NetBox provides a discrete "mix-in" class for each feature. You can subclass each of these individually when defining your model. (You will also need to inherit from Django's built-in `Model` class.)
+If you prefer instead to enable only a subset of these features for a plugin model, NetBox provides a discrete "mix-in" class for each feature. You can subclass each of these individually when defining your model. (Your model will also need to inherit from Django's built-in `Model` class.)
+
+For example, if we wanted to support only tags and export templates, we would inherit from NetBox's `ExportTemplatesMixin` and `TagsMixin` classes, and from Django's `Model` class. (Inheriting _all_ the available mixins is essentially the same as subclassing `NetBoxModel`.)
 
 ```python
 # models.py
@@ -87,11 +65,35 @@ class MyModel(ExportTemplatesMixin, TagsMixin, models.Model):
     ...
 ```
 
-The example above will enable export templates and tags, but no other NetBox features. A complete list of available feature mixins is included below. (Inheriting all the available mixins is essentially the same as subclassing `BaseModel`.)
+## Database Migrations
+
+Once you have completed defining the model(s) for your plugin, you'll need to create the database schema migrations. A migration file is essentially a set of instructions for manipulating the PostgreSQL database to support your new model, or to alter existing models. Creating migrations can usually be done automatically using Django's `makemigrations` management command. (Ensure that your plugin has been installed and enabled first, otherwise it won't be found.)
+
+!!! note Enable Developer Mode
+    NetBox enforces a safeguard around the `makemigrations` command to protect regular users from inadvertently creating erroneous schema migrations. To enable this command for plugin development, set `DEVELOPER=True` in `configuration.py`.
+
+```no-highlight
+$ ./manage.py makemigrations my_plugin 
+Migrations for 'my_plugin':
+  /home/jstretch/animal_sounds/my_plugin/migrations/0001_initial.py
+    - Create model MyModel
+```
+
+Next, we can apply the migration to the database with the `migrate` command:
+
+```no-highlight
+$ ./manage.py migrate my_plugin
+Operations to perform:
+  Apply all migrations: my_plugin
+Running migrations:
+  Applying my_plugin.0001_initial... OK
+```
+
+For more information about database migrations, see the [Django documentation](https://docs.djangoproject.com/en/stable/topics/migrations/).
 
 ## Feature Mixins Reference
 
-!!! note
+!!! warning
     Please note that only the classes which appear in this documentation are currently supported. Although other classes may be present within the `features` module, they are not yet supported for use by plugins.
 
 ::: netbox.models.features.ChangeLoggingMixin
@@ -112,7 +114,7 @@ The example above will enable export templates and tags, but no other NetBox fea
 
 ## Choice Sets
 
-For model fields which support the selection of one or more values from a predefined list of choices, NetBox provides the `ChoiceSet` utility class. This can be used in place of a regular choices tuple to provide enhanced functionality, namely dynamic configuration and colorization.
+For model fields which support the selection of one or more values from a predefined list of choices, NetBox provides the `ChoiceSet` utility class. This can be used in place of a regular choices tuple to provide enhanced functionality, namely dynamic configuration and colorization. (See [Django's documentation](https://docs.djangoproject.com/en/stable/ref/models/fields/#choices) on the `choices` parameter for supported model fields.)
 
 To define choices for a model field, subclass `ChoiceSet` and define a tuple named `CHOICES`, of which each member is a two- or three-element tuple. These elements are:
 
@@ -120,12 +122,14 @@ To define choices for a model field, subclass `ChoiceSet` and define a tuple nam
 * The corresponding human-friendly label
 * The assigned color (optional)
 
+A complete example is provided below.
+
 !!! note
     Authors may find it useful to declare each of the database values as constants on the class, and reference them within `CHOICES` members. This convention allows the values to be referenced from outside the class, however it is not strictly required.
 
 ### Dynamic Configuration
 
-To enable dynamic configuration for a ChoiceSet subclass, define its `key` as a string specifying the model and field name to which it applies. For example:
+Some model field choices in NetBox can be configured by an administrator. For example, the default values for the Site model's `status` field can be replaced or supplemented with custom choices. To enable dynamic configuration for a ChoiceSet subclass, define its `key` as a string specifying the model and field name to which it applies. For example:
 
 ```python
 from utilities.choices import ChoiceSet

@@ -1,18 +1,24 @@
 # Templates
 
-## Base Templates
+Templates are used to render HTML content generated from a set of context data. NetBox provides a set of built-in templates suitable for use in plugin views. Plugin authors can extend these templates to minimize the work needed to create custom templates while ensuring that the content they produce matches NetBox's layout and style. These templates are all written in the [Django Template Language (DTL)](https://docs.djangoproject.com/en/stable/ref/templates/language/).
+
+## Standard Blocks
 
 The following template blocks are available on all templates.
 
-| Name         | Required | Description                                                         |
-|--------------|----------|---------------------------------------------------------------------|
-| `title`      | Yes      | Page title                                                          |
-| `content`    | Yes      | Page content                                                        |
-| `head`       | -        | Content to include in the HTML `<head>` element                     |
-| `javascript` | -        | Javascript content included at the end of the HTML `<body>` element |
+| Name           | Required | Description                                                         |
+|----------------|----------|---------------------------------------------------------------------|
+| `title`        | Yes      | Page title                                                          |
+| `content`      | Yes      | Page content                                                        |
+| `head`         | -        | Content to include in the HTML `<head>` element                     |
+| `footer`       | -        | Page footer content                                                 |
+| `footer_links` | -        | Links section of the page footer                                    |
+| `javascript`   | -        | Javascript content included at the end of the HTML `<body>` element |
 
 !!! note
     For more information on how template blocks work, consult the [Django documentation](https://docs.djangoproject.com/en/stable/ref/templates/builtins/#block).
+
+## Base Templates
 
 ### layout.html
 
@@ -44,7 +50,7 @@ An example of a plugin template which extends `layout.html` is included below.
 {% endblock content %}
 ```
 
-The first line of the template instructs Django to extend the NetBox base template and inject our custom content within its `content` block.
+The first line of the template instructs Django to extend the NetBox base template, and the `block` sections inject our custom content within its `header` and `content` blocks.
 
 !!! note
     Django renders templates with its own custom [template language](https://docs.djangoproject.com/en/stable/topics/templates/#the-django-template-language). This is very similar to Jinja2, however there are some important distinctions of which authors should be aware. Be sure to familiarize yourself with Django's template language before attempting to create new templates.

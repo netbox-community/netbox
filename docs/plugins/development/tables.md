@@ -12,9 +12,9 @@ To provide additional functionality beyond what is supported by the stock `Table
 
 It also includes several default columns:
 
-* `pk` - A checkbox for selecting the object associated with each table row
-* `id` - The object's numeric database ID, as a hyperlink to the object's view
-* `actions` - A dropdown menu presenting object-specific actions available to the user.
+* `pk` - A checkbox for selecting the object associated with each table row (where applicable)
+* `id` - The object's numeric database ID, as a hyperlink to the object's view (hidden by default)
+* `actions` - A dropdown menu presenting object-specific actions available to the user
 
 ### Example
 
@@ -38,69 +38,51 @@ class MyModelTable(NetBoxTable):
 
 ### Table Configuration
 
-The NetBoxTable class supports dynamic configuration to support pagination and to effect user preferences. To configure a table for a specific request, simply call its `configure()` method and pass the current HTTPRequest object. For example:
+The NetBoxTable class features dynamic configuration to allow users to change their column display and ordering preferences. To configure a table for a specific request, simply call its `configure()` method and pass the current HTTPRequest object. For example:
 
 ```python
 table = MyModelTable(data=MyModel.objects.all())
 table.configure(request)
 ```
 
-If using a generic view provided by NetBox, table configuration is handled automatically.
+This will automatically apply any user-specific preferences for the table. (If using a generic view provided by NetBox, table configuration is handled automatically.)
 
 ## Columns
 
 The table column classes listed below are supported for use in plugins. These classes can be imported from `netbox.tables.columns`.
 
 ::: netbox.tables.BooleanColumn
-    rendering:
-      show_source: false
     selection:
       members: false
 
 ::: netbox.tables.ChoiceFieldColumn
-    rendering:
-      show_source: false
     selection:
       members: false
 
 ::: netbox.tables.ColorColumn
-    rendering:
-      show_source: false
     selection:
       members: false
 
 ::: netbox.tables.ColoredLabelColumn
-    rendering:
-      show_source: false
     selection:
       members: false
 
 ::: netbox.tables.ContentTypeColumn
-    rendering:
-      show_source: false
     selection:
       members: false
 
 ::: netbox.tables.ContentTypesColumn
-    rendering:
-      show_source: false
     selection:
       members: false
 
 ::: netbox.tables.MarkdownColumn
-    rendering:
-      show_source: false
     selection:
       members: false
 
 ::: netbox.tables.TagColumn
-    rendering:
-      show_source: false
     selection:
       members: false
 
 ::: netbox.tables.TemplateColumn
-    rendering:
-      show_source: false
     selection:
       members: false

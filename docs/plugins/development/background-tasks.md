@@ -1,27 +1,30 @@
 # Background Tasks
 
-By default, Netbox provides 3 differents [RQ](https://python-rq.org/) queues to run background jobs : *high*, *default* and *low*.
-These 3 core queues can be used out-of-the-box by plugins to define background tasks.
+NetBox supports the queuing of tasks that need to be performed in the background, decoupled from the request-response cycle, using the [Python RQ](https://python-rq.org/) library. Three task queues of differing priority are defined by default:
 
-Plugins can also define dedicated queues. These queues can be configured under the PluginConfig class `queues` attribute. An example configuration
-is below:
+* High
+* Default
+* Low
+
+Any tasks in the "high" queue are completed before the default queue is checked, and any tasks in the default queue are completed before those in the "low" queue.
+
+Plugins can also add custom queues for their own needs by setting the `queues` attribute under the PluginConfig class. An example is included below:
 
 ```python
 class MyPluginConfig(PluginConfig):
     name = 'myplugin'
     ...
     queues = [
-        'queue1',
-        'queue2',
-        'queue-whatever-the-name'
+        'foo',
+        'bar',
     ]
 ```
 
-The PluginConfig above creates 3 queues with the following names: *myplugin.queue1*, *myplugin.queue2*, *myplugin.queue-whatever-the-name*.
-As you can see, the queue's name is always preprended with the plugin's name, to avoid any name clashes between different plugins.
+The PluginConfig above creates two custom queues with the following names `my_plugin.foo` and `my_plugin.bar`. (The plugin's name is prepended to each queue to avoid conflicts between plugins.)
 
-In case you create dedicated queues for your plugin, it is strongly advised to also create a dedicated RQ worker instance. This instance should only listen to the queues defined in your plugin - to avoid impact between your background tasks and netbox internal tasks.
-
-```
-python manage.py rqworker myplugin.queue1 myplugin.queue2 myplugin.queue-whatever-the-name
-```
+!!! warning "Configuring the RQ worker process"
+    By default, NetBox's RQ worker process only services the high, default, and low queues. Plugins which introduce custom queues should advise users to either reconfigure the default worker, or run a dedicated worker specifying the necessary queues. For example:
+    
+    ```
+    python manage.py rqworker my_plugin.foo my_plugin.bar
+    ```

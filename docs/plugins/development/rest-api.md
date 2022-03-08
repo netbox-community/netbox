@@ -1,46 +1,52 @@
 # REST API
 
-Plugins can declare custom endpoints on NetBox's REST API to retrieve or manipulate models or other data. These behave very similarly to views, except that instead of rendering arbitrary content using a template, data is returned in JSON format using a serializer. NetBox uses the [Django REST Framework](https://www.django-rest-framework.org/), which makes writing API serializers and views very simple.
+Plugins can declare custom endpoints on NetBox's REST API to retrieve or manipulate models or other data. These behave very similarly to views, except that instead of rendering arbitrary content using a template, data is returned in JSON format using a serializer.
 
-First, we'll create a serializer for our `Animal` model, in `api/serializers.py`:
+Generally speaking, there aren't many NetBox-specific components to implementing REST API functionality in a plugin. NetBox employs the [Django REST Framework](https://www.django-rest-framework.org/) (DRF) for its REST API, and plugin authors will find that they can largely replicate the same patterns found in NetBox's implementation. Some brief examples are included here for reference.
+
+## Serializers
+
+First, create a serializer for the plugin model, in `api/serializers.py`. Specify its model class and the fields to include within the serializer's `Meta` class.
 
 ```python
 from rest_framework.serializers import ModelSerializer
-from netbox_animal_sounds.models import Animal
+from my_plugin.models import MyModel
 
-class AnimalSerializer(ModelSerializer):
+class MyModelSerializer(ModelSerializer):
 
     class Meta:
-        model = Animal
-        fields = ('id', 'name', 'sound')
+        model = MyModel
+        fields = ('id', 'foo', 'bar')
 ```
 
-Next, we'll create a generic API view set that allows basic CRUD (create, read, update, and delete) operations for Animal instances. This is defined in `api/views.py`:
+## Views
+
+Next, create a generic API view set that allows basic CRUD (create, read, update, and delete) operations for objects. This is defined in `api/views.py`. Specify the `queryset` and `serializer_class` attributes under the view set.
 
 ```python
 from rest_framework.viewsets import ModelViewSet
-from netbox_animal_sounds.models import Animal
-from .serializers import AnimalSerializer
+from my_plugin.models import MyModel
+from .serializers import MyModelSerializer
 
-class AnimalViewSet(ModelViewSet):
-    queryset = Animal.objects.all()
-    serializer_class = AnimalSerializer
+class MyModelViewSet(ModelViewSet):
+    queryset = MyModel.objects.all()
+    serializer_class = MyModelSerializer
 ```
+
+## URLs
 
 Finally, we'll register a URL for our endpoint in `api/urls.py`. This file **must** define a variable named `urlpatterns`.
 
 ```python
 from rest_framework import routers
-from .views import AnimalViewSet
+from .views import MyModelViewSet
 
 router = routers.DefaultRouter()
-router.register('animals', AnimalViewSet)
+router.register('my-model', MyModelViewSet)
 urlpatterns = router.urls
 ```
 
-With these three components in place, we can request `/api/plugins/animal-sounds/animals/` to retrieve a list of all Animal objects defined.
-
-![NetBox REST API plugin endpoint](../../media/plugins/plugin_rest_api_endpoint.png)
+With these three components in place, we can request `/api/plugins/my-plugin/my-model/` to retrieve a list of all MyModel instances.
 
 !!! warning
-    This example is provided as a minimal reference implementation only. It does not address authentication, performance, or myriad other concerns that plugin authors should have.
+    This example is provided as a minimal reference implementation only. It does not address authentication, performance, or myriad other concerns that plugin authors may need to address.

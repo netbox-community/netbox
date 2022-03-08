@@ -29,7 +29,7 @@ class MyFilterSet(NetBoxModelFilterSet):
 
 ### Declaring Filter Sets
 
-To utilize a filter set in the subclass of a generic view, such as `ObjectListView` or `BulkEditView`, set it as the `filterset` attribute on the view class:
+To utilize a filter set in a subclass of one of NetBox's generic views (such as `ObjectListView` or `BulkEditView`), define the `filterset` attribute on the view class:
 
 ```python
 # views.py
@@ -42,7 +42,7 @@ class MyModelListView(ObjectListView):
     filterset = MyModelFitlerSet
 ```
 
-To enable a filter on a  REST API endpoint, set it as the `filterset_class` attribute on the API view:
+To enable a filter set on a  REST API endpoint, set the `filterset_class` attribute on the API view:
 
 ```python
 # api/views.py
@@ -59,7 +59,7 @@ class MyModelViewSet(...):
 
 ### TagFilter
 
-The `TagFilter` class is available for all models which support tag assignment; that is, those which inherit from `NetBoxModel` or `TagsMixin`. This class subclasses django-filter's `ModelMultipleChoiceFilter` to work with NetBox's `TaggedItem` class.
+The `TagFilter` class is available for all models which support tag assignment (those which inherit from `NetBoxModel` or `TagsMixin`). This filter subclasses django-filter's `ModelMultipleChoiceFilter` to work with NetBox's `TaggedItem` class.
 
 ```python
 from django_filters import FilterSet
