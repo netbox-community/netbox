@@ -1,12 +1,13 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from tenancy.models import Tenant, TenantGroup
+from tenancy.models import *
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 
 __all__ = (
     'TenancyForm',
     'TenancyFilterForm',
+    'ContactModelFilterForm'
 )
 
 
@@ -43,4 +44,17 @@ class TenancyFilterForm(forms.Form):
             'group_id': '$tenant_group_id'
         },
         label=_('Tenant')
+    )
+
+
+class ContactModelFilterForm(forms.Form):
+    contact = DynamicModelMultipleChoiceField(
+        queryset=Contact.objects.all(),
+        required=False,
+        label=_('Contact')
+    )
+    contact_role = DynamicModelMultipleChoiceField(
+        queryset=ContactRole.objects.all(),
+        required=False,
+        label=_('Contact Role')
     )

@@ -5,7 +5,7 @@ from dcim.filtersets import CableTerminationFilterSet
 from dcim.models import Region, Site, SiteGroup
 from extras.filters import TagFilter
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
-from tenancy.filtersets import TenancyFilterSet
+from tenancy.filtersets import (TenancyFilterSet, ContactModelFilterSet)
 from utilities.filters import TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
@@ -19,7 +19,7 @@ __all__ = (
 )
 
 
-class ProviderFilterSet(PrimaryModelFilterSet):
+class ProviderFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -118,7 +118,7 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
+class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
