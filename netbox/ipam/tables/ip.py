@@ -117,6 +117,10 @@ class ASNTable(BaseTable):
     site_count = LinkedCountColumn(
         viewname='dcim:site_list',
         url_params={'asn_id': 'pk'},
+        verbose_name='Site Count'
+    )
+    sites = tables.ManyToManyColumn(
+        linkify_item=True,
         verbose_name='Sites'
     )
     tenant = TenantColumn()
@@ -129,7 +133,7 @@ class ASNTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = ASN
         fields = (
-            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'tenant', 'description', 'actions', 'created',
+            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'tenant', 'description', 'sites', 'actions', 'created',
             'last_updated', 'tags',
         )
         default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'description', 'tenant', 'actions')

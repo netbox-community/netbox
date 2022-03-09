@@ -27,8 +27,8 @@ class FHRPGroupTable(BaseTable):
         orderable=False,
         verbose_name='IP Addresses'
     )
-    interface_count = tables.Column(
-        verbose_name='Interfaces'
+    member_count = tables.Column(
+        verbose_name='Members'
     )
     tags = TagColumn(
         url_name='ipam:fhrpgroup_list'
@@ -37,10 +37,10 @@ class FHRPGroupTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = FHRPGroup
         fields = (
-            'pk', 'group_id', 'protocol', 'auth_type', 'auth_key', 'description', 'ip_addresses', 'interface_count',
+            'pk', 'group_id', 'protocol', 'auth_type', 'auth_key', 'description', 'ip_addresses', 'member_count',
             'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'group_id', 'protocol', 'auth_type', 'description', 'ip_addresses', 'interface_count')
+        default_columns = ('pk', 'group_id', 'protocol', 'auth_type', 'description', 'ip_addresses', 'member_count')
 
 
 class FHRPGroupAssignmentTable(BaseTable):

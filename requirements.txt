@@ -10,7 +10,7 @@ django-redis==5.2.0
 django-rq==2.5.1
 django-tables2==2.4.1
 django-taggit==2.1.0
-django-timezone-field==4.2.3
+django-timezone-field==5.0
 djangorestframework==3.12.4
 drf-yasg[validation]==1.20.0
 graphene_django==2.15.0
@@ -18,7 +18,7 @@ gunicorn==20.1.0
 Jinja2==3.0.3
 Markdown==3.3.6
 markdown-include==0.6.0
-mkdocs-material==8.1.11
+mkdocs-material==8.2.5
 netaddr==0.8.0
 Pillow==9.0.1
 psycopg2-binary==2.9.3
@@ -27,6 +27,7 @@ social-auth-app-django==5.0.0
 social-auth-core==4.2.0
 svgwrite==1.4.1
 tablib==3.2.0
+tzdata==2021.5
 
 # Workaround for #7401
 jsonschema==3.2.0

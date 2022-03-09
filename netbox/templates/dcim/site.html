@@ -183,42 +183,98 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">Stats</h5>
+        <h5 class="card-header">Related Objects</h5>
         <div class="card-body">
-          <div class="row">
-            <div class="col col-md-4 text-center">
-              <h2><a href="{% url 'dcim:location_list' %}?site_id={{ object.pk }}" class="btn {% if stats.location_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.location_count }}</a></h2>
-              <p>Locations</p>
-            </div>
-            <div class="col col-md-4 text-center">
-              <h2><a href="{% url 'dcim:rack_list' %}?site_id={{ object.pk }}" class="btn {% if stats.rack_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.rack_count }}</a></h2>
-              <p>Racks</p>
-            </div>
-            <div class="col col-md-4 text-center">
-              <h2><a href="{% url 'dcim:device_list' %}?site_id={{ object.pk }}" class="btn {% if stats.device_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.device_count }}</a></h2>
-              <p>Devices</p>
-            </div>
-            <div class="col col-md-4 text-center">
-              <h2><a href="{% url 'ipam:prefix_list' %}?site_id={{ object.pk }}" class="btn {% if stats.prefix_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.prefix_count }}</a></h2>
-              <p>Prefixes</p>
-            </div>
-            <div class="col col-md-4 text-center">
-              <h2><a href="{% url 'ipam:vlan_list' %}?site_id={{ object.pk }}" class="btn {% if stats.vlan_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.vlan_count }}</a></h2>
-              <p>VLANs</p>
-            </div>
-            <div class="col col-md-4 text-center">
-              <h2><a href="{% url 'circuits:circuit_list' %}?site_id={{ object.pk }}" class="btn {% if stats.circuit_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.circuit_count }}</a></h2>
-              <p>Circuits</p>
-            </div>
-            <div class="col col-md-4 text-center">
-              <h2><a href="{% url 'virtualization:virtualmachine_list' %}?site_id={{ object.pk }}" class="btn {% if stats.vm_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.vm_count }}</a></h2>
-              <p>Virtual Machines</p>
-            </div>
-            <div class="col col-md-4 text-center">
-              <h2><a href="{% url 'ipam:asn_list' %}?site_id={{ object.pk }}" class="btn {% if stats.asn_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.asn_count }}</a></h2>
-              <p>ASNs</p>
-            </div>
-          </div>
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Locations</th>
+              <td class="text-end">
+                {% if stats.location_count %}
+                  <a href="{% url 'dcim:location_list' %}?site_id={{ object.pk }}">{{ stats.location_count }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Racks</th>
+              <td class="text-end">
+                {% if stats.rack_count %}
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      {{ stats.rack_count }}
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="{% url 'dcim:rack_list' %}?site_id={{ object.pk }}">View Racks</a></li>
+                      <li><a class="dropdown-item" href="{% url 'dcim:rack_elevation_list' %}?site_id={{ object.pk }}">View Elevations</a></li>
+                    </ul>
+                  </div>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Devices</th>
+              <td class="text-end">
+                {% if stats.device_count %}
+                  <a href="{% url 'dcim:device_list' %}?site_id={{ object.pk }}">{{ stats.device_count }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Virtual Machines</th>
+              <td class="text-end">
+                {% if stats.vm_count %}
+                  <a href="{% url 'virtualization:virtualmachine_list' %}?site_id={{ object.pk }}">{{ stats.vm_count }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Prefixes</th>
+              <td class="text-end">
+                {% if stats.prefix_count %}
+                  <a href="{% url 'ipam:prefix_list' %}?site_id={{ object.pk }}">{{ stats.prefix_count }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">VLANs</th>
+              <td class="text-end">
+                {% if stats.vlan_count %}
+                  <a href="{% url 'ipam:vlan_list' %}?site_id={{ object.pk }}">{{ stats.vlan_count }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">ASNs</th>
+              <td class="text-end">
+                {% if stats.asn_count %}
+                  <a href="{% url 'ipam:asn_list' %}?site_id={{ object.pk }}">{{ stats.asn_count }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Circuits</th>
+              <td class="text-end">
+                {% if stats.circuit_count %}
+                <a href="{% url 'circuits:circuit_list' %}?site_id={{ object.pk }}">{{ stats.circuit_count }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
       {% include 'inc/panels/contacts.html' %}

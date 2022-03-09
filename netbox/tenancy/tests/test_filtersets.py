@@ -64,8 +64,8 @@ class TenantTestCase(TestCase, ChangeLoggedFilterSetTests):
             tenantgroup.save()
 
         tenants = (
-            Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
-            Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[1]),
+            Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0], description='foobar1'),
+            Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[1], description='foobar2'),
             Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
         )
         Tenant.objects.bulk_create(tenants)
@@ -83,6 +83,10 @@ class TenantTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'group_id': [group[0].pk, group[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'group': [group[0].slug, group[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -137,8 +141,8 @@ class ContactRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         contact_roles = (
-            ContactRole(name='Contact Role 1', slug='contact-role-1'),
-            ContactRole(name='Contact Role 2', slug='contact-role-2'),
+            ContactRole(name='Contact Role 1', slug='contact-role-1', description='foobar1'),
+            ContactRole(name='Contact Role 2', slug='contact-role-2', description='foobar2'),
             ContactRole(name='Contact Role 3', slug='contact-role-3'),
         )
         ContactRole.objects.bulk_create(contact_roles)
@@ -149,6 +153,10 @@ class ContactRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_slug(self):
         params = {'slug': ['contact-role-1', 'contact-role-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

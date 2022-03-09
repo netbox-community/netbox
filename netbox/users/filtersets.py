@@ -97,7 +97,7 @@ class TokenFilterSet(BaseFilterSet):
 
     class Meta:
         model = Token
-        fields = ['id', 'key', 'write_enabled']
+        fields = ['id', 'key', 'write_enabled', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -138,7 +138,7 @@ class ObjectPermissionFilterSet(BaseFilterSet):
 
     class Meta:
         model = ObjectPermission
-        fields = ['id', 'name', 'enabled', 'object_types']
+        fields = ['id', 'name', 'enabled', 'object_types', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():

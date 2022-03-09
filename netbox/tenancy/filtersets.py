@@ -46,7 +46,7 @@ class ContactRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = ContactRole
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class ContactFilterSet(PrimaryModelFilterSet):
