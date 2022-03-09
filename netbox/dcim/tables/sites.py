@@ -153,7 +153,7 @@ class LocationTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Location
         fields = (
-            'pk', 'id', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'contacts', 
+            'pk', 'id', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'contacts',
             'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'actions')

@@ -152,6 +152,7 @@ class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, CustomFieldModel
     )
     tag = TagFilterField(model)
 
+
 class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Location
     field_groups = [
