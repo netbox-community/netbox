@@ -8,7 +8,7 @@ Check `base_requirements.txt` for any dependencies pinned to a specific version,
 
 ### Link to the Release Notes Page
 
-Add the release notes (`/docs/release-notes/X.Y.md`) to the table of contents within `mkdocs.yml`, and point `index.md` to the new file.
+Add the release notes (`/docs/release-notes/X.Y.md`) to the table of contents within `mkdocs.yml`, and add a summary of the major changes to `index.md`.
 
 ### Manually Perform a New Install
 

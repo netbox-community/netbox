@@ -1,4 +1,4 @@
-Django==4.0.2
+Django==4.0.3
 django-cors-headers==3.11.0
 django-debug-toolbar==3.2.4
 django-filter==21.1
@@ -13,7 +13,6 @@ django-taggit==2.1.0
 django-timezone-field==5.0
 djangorestframework==3.13.1
 drf-yasg[validation]==1.20.0
-#graphene_django==2.15.0
 # Installing from branch pending v2.16 release
 git+git://github.com/graphql-python/graphene-django.git@v2
 gunicorn==20.1.0

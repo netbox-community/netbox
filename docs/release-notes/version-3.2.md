@@ -47,6 +47,7 @@ NetBox's plugins framework has been extended considerably in this release. Addit
 * The `NetBoxTable` base class for rendering object tables with `django-tables2`, as well as various custom column classes
 * Function-specific templates (for generic views)
 * Various custom template tags and filters
+* `NetBoxModelViewSet` and several base serializer classes now provide enhanced REST API functionality
 * Plugins can now extend NetBox's GraphQL API with their own schema
 
 No breaking changes to previously supported components have been introduced in this release. However, plugin authors are encouraged to audit their existing code for misuse of unsupported components, as much of NetBox's internal code base has been reorganized.
@@ -144,7 +145,7 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * [#8572](https://github.com/netbox-community/netbox/issues/8572) - Add a `pre_run()` method for reports
 * [#8649](https://github.com/netbox-community/netbox/issues/8649) - Enable customization of configuration module using `NETBOX_CONFIGURATION` environment variable
 
-### Bug Fixes (From Beta)
+### Bug Fixes (From Beta1)
 
 * [#8655](https://github.com/netbox-community/netbox/issues/8655) - Fix AttributeError when viewing cabled interfaces
 * [#8656](https://github.com/netbox-community/netbox/issues/8656) - Fix migration error when upgrading from a v2.11 database
