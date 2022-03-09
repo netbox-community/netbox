@@ -4,7 +4,7 @@ from circuits import filtersets
 from circuits.models import *
 from dcim.api.views import PassThroughPortMixin
 from extras.api.views import CustomFieldModelViewSet
-from netbox.api.views import ModelViewSet
+from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.utils import count_related
 from . import serializers
 
@@ -57,7 +57,7 @@ class CircuitViewSet(CustomFieldModelViewSet):
 # Circuit Terminations
 #
 
-class CircuitTerminationViewSet(PassThroughPortMixin, ModelViewSet):
+class CircuitTerminationViewSet(PassThroughPortMixin, NetBoxModelViewSet):
     queryset = CircuitTermination.objects.prefetch_related(
         'circuit', 'site', 'provider_network', 'cable'
     )

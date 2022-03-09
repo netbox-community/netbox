@@ -8,7 +8,7 @@ from .nested import NestedTagSerializer
 
 __all__ = (
     'CustomFieldModelSerializer',
-    'TaggableObjectSerializer',
+    'TaggableModelSerializer',
 )
 
 
@@ -44,7 +44,7 @@ class CustomFieldModelSerializer(serializers.Serializer):
             instance.custom_fields[field.name] = instance.cf.get(field.name)
 
 
-class TaggableObjectSerializer(serializers.Serializer):
+class TaggableModelSerializer(serializers.Serializer):
     """
     Introduces support for Tag assignment. Adds `tags` serialization, and handles tag assignment
     on create() and update().

@@ -9,7 +9,7 @@ from .nested import *
 # Base model serializers
 #
 
-class NetBoxModelSerializer(TaggableObjectSerializer, CustomFieldModelSerializer, ValidatedModelSerializer):
+class NetBoxModelSerializer(TaggableModelSerializer, CustomFieldModelSerializer, ValidatedModelSerializer):
     """
     Adds support for custom fields and tags.
     """

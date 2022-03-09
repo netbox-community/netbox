@@ -18,7 +18,7 @@ from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
-from netbox.api.views import ModelViewSet
+from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.utils import copy_safe_request, count_related
 from . import serializers
@@ -58,7 +58,7 @@ class ConfigContextQuerySetMixin:
 # Webhooks
 #
 
-class WebhookViewSet(ModelViewSet):
+class WebhookViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = Webhook.objects.all()
     serializer_class = serializers.WebhookSerializer
@@ -69,14 +69,14 @@ class WebhookViewSet(ModelViewSet):
 # Custom fields
 #
 
-class CustomFieldViewSet(ModelViewSet):
+class CustomFieldViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = CustomField.objects.all()
     serializer_class = serializers.CustomFieldSerializer
     filterset_class = filtersets.CustomFieldFilterSet
 
 
-class CustomFieldModelViewSet(ModelViewSet):
+class CustomFieldModelViewSet(NetBoxModelViewSet):
     """
     Include the applicable set of CustomFields in the ModelViewSet context.
     """
@@ -98,7 +98,7 @@ class CustomFieldModelViewSet(ModelViewSet):
 # Custom links
 #
 
-class CustomLinkViewSet(ModelViewSet):
+class CustomLinkViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = CustomLink.objects.all()
     serializer_class = serializers.CustomLinkSerializer
@@ -109,7 +109,7 @@ class CustomLinkViewSet(ModelViewSet):
 # Export templates
 #
 
-class ExportTemplateViewSet(ModelViewSet):
+class ExportTemplateViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
@@ -120,7 +120,7 @@ class ExportTemplateViewSet(ModelViewSet):
 # Tags
 #
 
-class TagViewSet(ModelViewSet):
+class TagViewSet(NetBoxModelViewSet):
     queryset = Tag.objects.annotate(
         tagged_items=count_related(TaggedItem, 'tag')
     )
@@ -132,7 +132,7 @@ class TagViewSet(ModelViewSet):
 # Image attachments
 #
 
-class ImageAttachmentViewSet(ModelViewSet):
+class ImageAttachmentViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
@@ -143,7 +143,7 @@ class ImageAttachmentViewSet(ModelViewSet):
 # Journal entries
 #
 
-class JournalEntryViewSet(ModelViewSet):
+class JournalEntryViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = JournalEntry.objects.all()
     serializer_class = serializers.JournalEntrySerializer
@@ -154,7 +154,7 @@ class JournalEntryViewSet(ModelViewSet):
 # Config contexts
 #
 
-class ConfigContextViewSet(ModelViewSet):
+class ConfigContextViewSet(NetBoxModelViewSet):
     queryset = ConfigContext.objects.prefetch_related(
         'regions', 'site_groups', 'sites', 'roles', 'platforms', 'tenant_groups', 'tenants',
     )

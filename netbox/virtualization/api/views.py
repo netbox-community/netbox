@@ -1,7 +1,7 @@
 from rest_framework.routers import APIRootView
 
 from dcim.models import Device
-from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet, ModelViewSet
+from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet, NetBoxModelViewSet
 from utilities.utils import count_related
 from virtualization import filtersets
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -78,7 +78,7 @@ class VirtualMachineViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet)
         return serializers.VirtualMachineWithConfigContextSerializer
 
 
-class VMInterfaceViewSet(ModelViewSet):
+class VMInterfaceViewSet(NetBoxModelViewSet):
     queryset = VMInterface.objects.prefetch_related(
         'virtual_machine', 'parent', 'tags', 'untagged_vlan', 'tagged_vlans', 'vrf', 'ip_addresses',
         'fhrp_group_assignments',

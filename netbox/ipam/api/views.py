@@ -13,7 +13,7 @@ from dcim.models import Site
 from extras.api.views import CustomFieldModelViewSet
 from ipam import filtersets
 from ipam.models import *
-from netbox.api.views import ModelViewSet, ObjectValidationMixin
+from netbox.api.viewsets.mixins import ObjectValidationMixin
 from netbox.config import get_config
 from utilities.constants import ADVISORY_LOCK_KEYS
 from utilities.utils import count_related
