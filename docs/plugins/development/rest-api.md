@@ -6,25 +6,37 @@ Generally speaking, there aren't many NetBox-specific components to implementing
 
 ## Serializers
 
-First, create a serializer for the plugin model, in `api/serializers.py`. Specify its model class and the fields to include within the serializer's `Meta` class.
+Serializers are responsible for converting Python objects to JSON data suitable for conveying to consumers, and vice versa. NetBox provides the `NetBoxModelSerializer` class for use by plugins to handle the assignment of tags and custom field data. (These features can also be included ad hoc via the `CustomFieldModelSerializer` and `TaggableModelSerializer` classes.)
+
+### Example
+
+To create a serializer for a plugin model, subclass `NetBoxModelSerializer` in `api/serializers.py`. Specify the model class and the fields to include within the serializer's `Meta` class.
 
 ```python
-from rest_framework.serializers import ModelSerializer
+# api/serializers.py
+from netbox.api.serializers import NetBoxModelSerializer
 from my_plugin.models import MyModel
 
-class MyModelSerializer(ModelSerializer):
+class MyModelSerializer(NetBoxModelSerializer):
 
     class Meta:
         model = MyModel
         fields = ('id', 'foo', 'bar')
 ```
 
-## Views
+## Viewsets
 
-Next, create a generic API view set that allows basic CRUD (create, read, update, and delete) operations for objects. This is defined in `api/views.py`. Specify the `queryset` and `serializer_class` attributes under the view set.
+Just as in the user interface, a REST API view handles the business logic of displaying and interacting with NetBox objects. NetBox provides the `NetBoxModelViewSet` class, which extends DRF's built-in `ModelViewSet` to handle bulk operations and object validation.
+
+Unlike the user interface, typically only a single view set is required per model: This view set handles all request types (`GET`, `POST`, `DELETE`, etc.).
+
+### Example
+
+To create a viewset for a plugin model, subclass `NetBoxModelViewSet` in `api/views.py`, and define the `queryset` and `serializer_class` attributes.
 
 ```python
-from rest_framework.viewsets import ModelViewSet
+# api/views.py
+from netbox.api.viewsets import ModelViewSet
 from my_plugin.models import MyModel
 from .serializers import MyModelSerializer
 
@@ -33,11 +45,16 @@ class MyModelViewSet(ModelViewSet):
     serializer_class = MyModelSerializer
 ```
 
-## URLs
+## Routers
 
-Finally, we'll register a URL for our endpoint in `api/urls.py`. This file **must** define a variable named `urlpatterns`.
+Routers map URLs to REST API views (endpoints). NetBox does not provide any custom components for this; the [`DefaultRouter`](https://www.django-rest-framework.org/api-guide/routers/#defaultrouter) class provided by DRF should suffice for most use cases.
+
+Routers should be exposed in `api/urls.py`. This file **must** define a variable named `urlpatterns`.
+
+### Example
 
 ```python
+# api/urls.py
 from rest_framework import routers
 from .views import MyModelViewSet
 
@@ -46,7 +63,7 @@ router.register('my-model', MyModelViewSet)
 urlpatterns = router.urls
 ```
 
-With these three components in place, we can request `/api/plugins/my-plugin/my-model/` to retrieve a list of all MyModel instances.
+This will make the plugin's view accessible at `/api/plugins/my-plugin/my-model/`.
 
 !!! warning
-    This example is provided as a minimal reference implementation only. It does not address authentication, performance, or myriad other concerns that plugin authors may need to address.
+    The examples provided here are intended to serve as a minimal reference implementation only. This documentation does not address authentication, performance, or myriad other concerns that plugin authors may need to address.
