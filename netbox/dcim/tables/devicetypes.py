@@ -41,6 +41,9 @@ class ManufacturerTable(BaseTable):
         verbose_name='Platforms'
     )
     slug = tables.Column()
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = TagColumn(
         url_name='dcim:manufacturer_list'
     )
@@ -50,7 +53,7 @@ class ManufacturerTable(BaseTable):
         model = Manufacturer
         fields = (
             'pk', 'id', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug',
-            'actions', 'created', 'last_updated',
+            'contacts', 'actions', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug', 'actions',

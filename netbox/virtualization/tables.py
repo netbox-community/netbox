@@ -62,6 +62,9 @@ class ClusterGroupTable(BaseTable):
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = TagColumn(
         url_name='virtualization:clustergroup_list'
     )
@@ -70,7 +73,7 @@ class ClusterGroupTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = ClusterGroup
         fields = (
-            'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'contacts', 'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
@@ -106,6 +109,9 @@ class ClusterTable(BaseTable):
         url_params={'cluster_id': 'pk'},
         verbose_name='VMs'
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     comments = MarkdownColumn()
     tags = TagColumn(
         url_name='virtualization:cluster_list'
@@ -114,7 +120,7 @@ class ClusterTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Cluster
         fields = (
-            'pk', 'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'device_count', 'vm_count', 'tags',
+            'pk', 'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'device_count', 'vm_count', 'contacts', 'tags',
             'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'device_count', 'vm_count')
@@ -150,6 +156,9 @@ class VirtualMachineTable(BaseTable):
         order_by=('primary_ip4', 'primary_ip6'),
         verbose_name='IP Address'
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = TagColumn(
         url_name='virtualization:virtualmachine_list'
     )
@@ -158,7 +167,7 @@ class VirtualMachineTable(BaseTable):
         model = VirtualMachine
         fields = (
             'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'tags', 'created', 'last_updated',
+            'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',

@@ -29,6 +29,9 @@ class RegionTable(BaseTable):
         url_params={'region_id': 'pk'},
         verbose_name='Sites'
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = TagColumn(
         url_name='dcim:region_list'
     )
@@ -36,7 +39,7 @@ class RegionTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Region
-        fields = ('pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'actions', 'created', 'last_updated')
+        fields = ('pk', 'id', 'name', 'slug', 'site_count', 'description', 'contacts', 'tags', 'actions', 'created', 'last_updated')
         default_columns = ('pk', 'name', 'site_count', 'description', 'actions')
 
 
@@ -54,6 +57,9 @@ class SiteGroupTable(BaseTable):
         url_params={'group_id': 'pk'},
         verbose_name='Sites'
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = TagColumn(
         url_name='dcim:sitegroup_list'
     )
@@ -61,7 +67,7 @@ class SiteGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = SiteGroup
-        fields = ('pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'actions', 'created', 'last_updated')
+        fields = ('pk', 'id', 'name', 'slug', 'site_count', 'description', 'contacts', 'tags', 'actions', 'created', 'last_updated')
         default_columns = ('pk', 'name', 'site_count', 'description', 'actions')
 
 
@@ -88,6 +94,9 @@ class SiteTable(BaseTable):
         verbose_name='ASNs'
     )
     tenant = TenantColumn()
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     comments = MarkdownColumn()
     tags = TagColumn(
         url_name='dcim:site_list'
@@ -98,7 +107,7 @@ class SiteTable(BaseTable):
         fields = (
             'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asn_count', 'time_zone',
             'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
-            'contact_phone', 'contact_email', 'comments', 'tags', 'created', 'last_updated',
+            'contact_phone', 'contact_email', 'contacts', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'description')
 
@@ -126,6 +135,9 @@ class LocationTable(BaseTable):
         url_params={'location_id': 'pk'},
         verbose_name='Devices'
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = TagColumn(
         url_name='dcim:location_list'
     )
@@ -137,7 +149,7 @@ class LocationTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Location
         fields = (
-            'pk', 'id', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'tags',
-            'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'contacts', 
+            'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'actions')
