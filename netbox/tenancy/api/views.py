@@ -1,9 +1,9 @@
 from rest_framework.routers import APIRootView
 
 from circuits.models import Circuit
-from dcim.models import Device, Rack, Site, Cable
-from extras.api.views import CustomFieldModelViewSet
+from dcim.models import Device, Rack, Site
 from ipam.models import IPAddress, Prefix, VLAN, VRF
+from netbox.api.viewsets import NetBoxModelViewSet
 from tenancy import filtersets
 from tenancy.models import *
 from utilities.utils import count_related
@@ -23,7 +23,7 @@ class TenancyRootView(APIRootView):
 # Tenants
 #
 
-class TenantGroupViewSet(CustomFieldModelViewSet):
+class TenantGroupViewSet(NetBoxModelViewSet):
     queryset = TenantGroup.objects.add_related_count(
         TenantGroup.objects.all(),
         Tenant,
@@ -35,7 +35,7 @@ class TenantGroupViewSet(CustomFieldModelViewSet):
     filterset_class = filtersets.TenantGroupFilterSet
 
 
-class TenantViewSet(CustomFieldModelViewSet):
+class TenantViewSet(NetBoxModelViewSet):
     queryset = Tenant.objects.prefetch_related(
         'group', 'tags'
     ).annotate(
@@ -58,7 +58,7 @@ class TenantViewSet(CustomFieldModelViewSet):
 # Contacts
 #
 
-class ContactGroupViewSet(CustomFieldModelViewSet):
+class ContactGroupViewSet(NetBoxModelViewSet):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
         Contact,
@@ -70,19 +70,19 @@ class ContactGroupViewSet(CustomFieldModelViewSet):
     filterset_class = filtersets.ContactGroupFilterSet
 
 
-class ContactRoleViewSet(CustomFieldModelViewSet):
+class ContactRoleViewSet(NetBoxModelViewSet):
     queryset = ContactRole.objects.prefetch_related('tags')
     serializer_class = serializers.ContactRoleSerializer
     filterset_class = filtersets.ContactRoleFilterSet
 
 
-class ContactViewSet(CustomFieldModelViewSet):
+class ContactViewSet(NetBoxModelViewSet):
     queryset = Contact.objects.prefetch_related('group', 'tags')
     serializer_class = serializers.ContactSerializer
     filterset_class = filtersets.ContactFilterSet
 
 
-class ContactAssignmentViewSet(CustomFieldModelViewSet):
+class ContactAssignmentViewSet(NetBoxModelViewSet):
     queryset = ContactAssignment.objects.prefetch_related('object', 'contact', 'role')
     serializer_class = serializers.ContactAssignmentSerializer
     filterset_class = filtersets.ContactAssignmentFilterSet

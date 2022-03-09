@@ -1,19 +1,18 @@
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
-from django_pglocks import advisory_lock
 from django.shortcuts import get_object_or_404
+from django_pglocks import advisory_lock
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.views import APIView
 
-
 from dcim.models import Site
-from extras.api.views import CustomFieldModelViewSet
 from ipam import filtersets
 from ipam.models import *
-from netbox.api.views import ModelViewSet, ObjectValidationMixin
+from netbox.api.viewsets import NetBoxModelViewSet
+from netbox.api.viewsets.mixins import ObjectValidationMixin
 from netbox.config import get_config
 from utilities.constants import ADVISORY_LOCK_KEYS
 from utilities.utils import count_related
@@ -32,13 +31,13 @@ class IPAMRootView(APIRootView):
 # Viewsets
 #
 
-class ASNViewSet(CustomFieldModelViewSet):
+class ASNViewSet(NetBoxModelViewSet):
     queryset = ASN.objects.prefetch_related('tenant', 'rir').annotate(site_count=count_related(Site, 'asns'))
     serializer_class = serializers.ASNSerializer
     filterset_class = filtersets.ASNFilterSet
 
 
-class VRFViewSet(CustomFieldModelViewSet):
+class VRFViewSet(NetBoxModelViewSet):
     queryset = VRF.objects.prefetch_related('tenant').prefetch_related(
         'import_targets', 'export_targets', 'tags'
     ).annotate(
@@ -49,13 +48,13 @@ class VRFViewSet(CustomFieldModelViewSet):
     filterset_class = filtersets.VRFFilterSet
 
 
-class RouteTargetViewSet(CustomFieldModelViewSet):
+class RouteTargetViewSet(NetBoxModelViewSet):
     queryset = RouteTarget.objects.prefetch_related('tenant').prefetch_related('tags')
     serializer_class = serializers.RouteTargetSerializer
     filterset_class = filtersets.RouteTargetFilterSet
 
 
-class RIRViewSet(CustomFieldModelViewSet):
+class RIRViewSet(NetBoxModelViewSet):
     queryset = RIR.objects.annotate(
         aggregate_count=count_related(Aggregate, 'rir')
     ).prefetch_related('tags')
@@ -63,13 +62,13 @@ class RIRViewSet(CustomFieldModelViewSet):
     filterset_class = filtersets.RIRFilterSet
 
 
-class AggregateViewSet(CustomFieldModelViewSet):
+class AggregateViewSet(NetBoxModelViewSet):
     queryset = Aggregate.objects.prefetch_related('rir').prefetch_related('tags')
     serializer_class = serializers.AggregateSerializer
     filterset_class = filtersets.AggregateFilterSet
 
 
-class RoleViewSet(CustomFieldModelViewSet):
+class RoleViewSet(NetBoxModelViewSet):
     queryset = Role.objects.annotate(
         prefix_count=count_related(Prefix, 'role'),
         vlan_count=count_related(VLAN, 'role')
@@ -78,7 +77,7 @@ class RoleViewSet(CustomFieldModelViewSet):
     filterset_class = filtersets.RoleFilterSet
 
 
-class PrefixViewSet(CustomFieldModelViewSet):
+class PrefixViewSet(NetBoxModelViewSet):
     queryset = Prefix.objects.prefetch_related(
         'site', 'vrf__tenant', 'tenant', 'vlan', 'role', 'tags'
     )
@@ -93,7 +92,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
         return super().get_serializer_class()
 
 
-class IPRangeViewSet(CustomFieldModelViewSet):
+class IPRangeViewSet(NetBoxModelViewSet):
     queryset = IPRange.objects.prefetch_related('vrf', 'role', 'tenant', 'tags')
     serializer_class = serializers.IPRangeSerializer
     filterset_class = filtersets.IPRangeFilterSet
@@ -101,7 +100,7 @@ class IPRangeViewSet(CustomFieldModelViewSet):
     parent_model = IPRange  # AvailableIPsMixin
 
 
-class IPAddressViewSet(CustomFieldModelViewSet):
+class IPAddressViewSet(NetBoxModelViewSet):
     queryset = IPAddress.objects.prefetch_related(
         'vrf__tenant', 'tenant', 'nat_inside', 'nat_outside', 'tags', 'assigned_object'
     )
@@ -109,20 +108,20 @@ class IPAddressViewSet(CustomFieldModelViewSet):
     filterset_class = filtersets.IPAddressFilterSet
 
 
-class FHRPGroupViewSet(CustomFieldModelViewSet):
+class FHRPGroupViewSet(NetBoxModelViewSet):
     queryset = FHRPGroup.objects.prefetch_related('ip_addresses', 'tags')
     serializer_class = serializers.FHRPGroupSerializer
     filterset_class = filtersets.FHRPGroupFilterSet
     brief_prefetch_fields = ('ip_addresses',)
 
 
-class FHRPGroupAssignmentViewSet(CustomFieldModelViewSet):
+class FHRPGroupAssignmentViewSet(NetBoxModelViewSet):
     queryset = FHRPGroupAssignment.objects.prefetch_related('group', 'interface')
     serializer_class = serializers.FHRPGroupAssignmentSerializer
     filterset_class = filtersets.FHRPGroupAssignmentFilterSet
 
 
-class VLANGroupViewSet(CustomFieldModelViewSet):
+class VLANGroupViewSet(NetBoxModelViewSet):
     queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     ).prefetch_related('tags')
@@ -130,7 +129,7 @@ class VLANGroupViewSet(CustomFieldModelViewSet):
     filterset_class = filtersets.VLANGroupFilterSet
 
 
-class VLANViewSet(CustomFieldModelViewSet):
+class VLANViewSet(NetBoxModelViewSet):
     queryset = VLAN.objects.prefetch_related(
         'site', 'group', 'tenant', 'role', 'tags'
     ).annotate(
@@ -140,13 +139,13 @@ class VLANViewSet(CustomFieldModelViewSet):
     filterset_class = filtersets.VLANFilterSet
 
 
-class ServiceTemplateViewSet(CustomFieldModelViewSet):
+class ServiceTemplateViewSet(NetBoxModelViewSet):
     queryset = ServiceTemplate.objects.prefetch_related('tags')
     serializer_class = serializers.ServiceTemplateSerializer
     filterset_class = filtersets.ServiceTemplateFilterSet
 
 
-class ServiceViewSet(CustomFieldModelViewSet):
+class ServiceViewSet(NetBoxModelViewSet):
     queryset = Service.objects.prefetch_related(
         'device', 'virtual_machine', 'tags', 'ipaddresses'
     )
