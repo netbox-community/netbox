@@ -76,24 +76,6 @@ class CustomFieldViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.CustomFieldFilterSet
 
 
-class CustomFieldModelViewSet(NetBoxModelViewSet):
-    """
-    Include the applicable set of CustomFields in the ModelViewSet context.
-    """
-
-    def get_serializer_context(self):
-
-        # Gather all custom fields for the model
-        content_type = ContentType.objects.get_for_model(self.queryset.model)
-        custom_fields = content_type.custom_fields.all()
-
-        context = super().get_serializer_context()
-        context.update({
-            'custom_fields': custom_fields,
-        })
-        return context
-
-
 #
 # Custom links
 #

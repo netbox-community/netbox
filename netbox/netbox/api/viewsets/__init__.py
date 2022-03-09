@@ -70,6 +70,20 @@ class NetBoxModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ObjectVali
         logger.debug(f"Using serializer {self.serializer_class}")
         return self.serializer_class
 
+    def get_serializer_context(self):
+        """
+        For models which support custom fields, populate the `custom_fields` context.
+        """
+        context = super().get_serializer_context()
+
+        if hasattr(self.queryset.model, 'custom_fields'):
+            content_type = ContentType.objects.get_for_model(self.queryset.model)
+            context.update({
+                'custom_fields': content_type.custom_fields.all(),
+            })
+
+        return context
+
     def get_queryset(self):
         # If using brief mode, clear all prefetches from the queryset and append only brief_prefetch_fields (if any)
         if self.brief:

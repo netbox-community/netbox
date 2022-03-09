@@ -14,7 +14,7 @@ from rest_framework.viewsets import ViewSet
 from circuits.models import Circuit
 from dcim import filtersets
 from dcim.models import *
-from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
+from extras.api.views import ConfigContextQuerySetMixin
 from ipam.models import Prefix, VLAN
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import ServiceUnavailable
@@ -103,7 +103,7 @@ class PassThroughPortMixin(object):
 # Regions
 #
 
-class RegionViewSet(CustomFieldModelViewSet):
+class RegionViewSet(NetBoxModelViewSet):
     queryset = Region.objects.add_related_count(
         Region.objects.all(),
         Site,
@@ -119,7 +119,7 @@ class RegionViewSet(CustomFieldModelViewSet):
 # Site groups
 #
 
-class SiteGroupViewSet(CustomFieldModelViewSet):
+class SiteGroupViewSet(NetBoxModelViewSet):
     queryset = SiteGroup.objects.add_related_count(
         SiteGroup.objects.all(),
         Site,
@@ -135,7 +135,7 @@ class SiteGroupViewSet(CustomFieldModelViewSet):
 # Sites
 #
 
-class SiteViewSet(CustomFieldModelViewSet):
+class SiteViewSet(NetBoxModelViewSet):
     queryset = Site.objects.prefetch_related(
         'region', 'tenant', 'asns', 'tags'
     ).annotate(
@@ -154,7 +154,7 @@ class SiteViewSet(CustomFieldModelViewSet):
 # Locations
 #
 
-class LocationViewSet(CustomFieldModelViewSet):
+class LocationViewSet(NetBoxModelViewSet):
     queryset = Location.objects.add_related_count(
         Location.objects.add_related_count(
             Location.objects.all(),
@@ -176,7 +176,7 @@ class LocationViewSet(CustomFieldModelViewSet):
 # Rack roles
 #
 
-class RackRoleViewSet(CustomFieldModelViewSet):
+class RackRoleViewSet(NetBoxModelViewSet):
     queryset = RackRole.objects.prefetch_related('tags').annotate(
         rack_count=count_related(Rack, 'role')
     )
@@ -188,7 +188,7 @@ class RackRoleViewSet(CustomFieldModelViewSet):
 # Racks
 #
 
-class RackViewSet(CustomFieldModelViewSet):
+class RackViewSet(NetBoxModelViewSet):
     queryset = Rack.objects.prefetch_related(
         'site', 'location', 'role', 'tenant', 'tags'
     ).annotate(
@@ -260,7 +260,7 @@ class RackReservationViewSet(NetBoxModelViewSet):
 # Manufacturers
 #
 
-class ManufacturerViewSet(CustomFieldModelViewSet):
+class ManufacturerViewSet(NetBoxModelViewSet):
     queryset = Manufacturer.objects.prefetch_related('tags').annotate(
         devicetype_count=count_related(DeviceType, 'manufacturer'),
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
@@ -274,7 +274,7 @@ class ManufacturerViewSet(CustomFieldModelViewSet):
 # Device/module types
 #
 
-class DeviceTypeViewSet(CustomFieldModelViewSet):
+class DeviceTypeViewSet(NetBoxModelViewSet):
     queryset = DeviceType.objects.prefetch_related('manufacturer', 'tags').annotate(
         device_count=count_related(Device, 'device_type')
     )
@@ -283,7 +283,7 @@ class DeviceTypeViewSet(CustomFieldModelViewSet):
     brief_prefetch_fields = ['manufacturer']
 
 
-class ModuleTypeViewSet(CustomFieldModelViewSet):
+class ModuleTypeViewSet(NetBoxModelViewSet):
     queryset = ModuleType.objects.prefetch_related('manufacturer', 'tags').annotate(
         # module_count=count_related(Module, 'module_type')
     )
@@ -360,7 +360,7 @@ class InventoryItemTemplateViewSet(NetBoxModelViewSet):
 # Device roles
 #
 
-class DeviceRoleViewSet(CustomFieldModelViewSet):
+class DeviceRoleViewSet(NetBoxModelViewSet):
     queryset = DeviceRole.objects.prefetch_related('tags').annotate(
         device_count=count_related(Device, 'device_role'),
         virtualmachine_count=count_related(VirtualMachine, 'role')
@@ -373,7 +373,7 @@ class DeviceRoleViewSet(CustomFieldModelViewSet):
 # Platforms
 #
 
-class PlatformViewSet(CustomFieldModelViewSet):
+class PlatformViewSet(NetBoxModelViewSet):
     queryset = Platform.objects.prefetch_related('tags').annotate(
         device_count=count_related(Device, 'platform'),
         virtualmachine_count=count_related(VirtualMachine, 'platform')
@@ -386,7 +386,7 @@ class PlatformViewSet(CustomFieldModelViewSet):
 # Devices/modules
 #
 
-class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
+class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'parent_bay',
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',
@@ -532,7 +532,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
         return Response(response)
 
 
-class ModuleViewSet(CustomFieldModelViewSet):
+class ModuleViewSet(NetBoxModelViewSet):
     queryset = Module.objects.prefetch_related(
         'device', 'module_bay', 'module_type__manufacturer', 'tags',
     )
@@ -633,7 +633,7 @@ class InventoryItemViewSet(NetBoxModelViewSet):
 # Device component roles
 #
 
-class InventoryItemRoleViewSet(CustomFieldModelViewSet):
+class InventoryItemRoleViewSet(NetBoxModelViewSet):
     queryset = InventoryItemRole.objects.prefetch_related('tags').annotate(
         inventoryitem_count=count_related(InventoryItem, 'role')
     )
@@ -685,7 +685,7 @@ class PowerPanelViewSet(NetBoxModelViewSet):
 # Power feeds
 #
 
-class PowerFeedViewSet(PathEndpointMixin, CustomFieldModelViewSet):
+class PowerFeedViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = PowerFeed.objects.prefetch_related(
         'power_panel', 'rack', '_path__destination', 'cable', '_link_peer', 'tags'
     )
