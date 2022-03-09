@@ -3,7 +3,7 @@ from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 from netbox.api import ChoiceField, ContentTypeField
-from netbox.api.serializers import NestedGroupModelSerializer, PrimaryModelSerializer
+from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
 from tenancy.choices import ContactPriorityChoices
 from tenancy.models import *
 from utilities.api import get_serializer_for_model
@@ -27,7 +27,7 @@ class TenantGroupSerializer(NestedGroupModelSerializer):
         ]
 
 
-class TenantSerializer(PrimaryModelSerializer):
+class TenantSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenant-detail')
     group = NestedTenantGroupSerializer(required=False, allow_null=True)
     circuit_count = serializers.IntegerField(read_only=True)
@@ -67,7 +67,7 @@ class ContactGroupSerializer(NestedGroupModelSerializer):
         ]
 
 
-class ContactRoleSerializer(PrimaryModelSerializer):
+class ContactRoleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactrole-detail')
 
     class Meta:
@@ -77,7 +77,7 @@ class ContactRoleSerializer(PrimaryModelSerializer):
         ]
 
 
-class ContactSerializer(PrimaryModelSerializer):
+class ContactSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contact-detail')
     group = NestedContactGroupSerializer(required=False, allow_null=True, default=None)
 
@@ -89,7 +89,7 @@ class ContactSerializer(PrimaryModelSerializer):
         ]
 
 
-class ContactAssignmentSerializer(PrimaryModelSerializer):
+class ContactAssignmentSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
     content_type = ContentTypeField(
         queryset=ContentType.objects.all()
