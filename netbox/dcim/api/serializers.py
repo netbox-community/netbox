@@ -6,7 +6,6 @@ from timezone_field.rest_framework import TimeZoneSerializerField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from tenancy.models import ContactAssignment
 from ipam.api.nested_serializers import NestedASNSerializer, NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import ASN, VLAN
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
@@ -14,7 +13,7 @@ from netbox.api.serializers import (
     NestedGroupModelSerializer, PrimaryModelSerializer, ValidatedModelSerializer, WritableNestedSerializer,
 )
 from netbox.config import ConfigItem
-from tenancy.api.nested_serializers import NestedTenantSerializer, NestedContactAssignmentSerializer
+from tenancy.api.nested_serializers import NestedTenantSerializer
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedClusterSerializer
@@ -86,16 +85,11 @@ class RegionSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:region-detail')
     parent = NestedRegionSerializer(required=False, allow_null=True, default=None)
     site_count = serializers.IntegerField(read_only=True)
-    contacts = NestedContactAssignmentSerializer(
-        required=False, 
-        allow_null=True,
-        many=True
-    )
 
     class Meta:
         model = Region
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'contacts', 'tags', 'custom_fields', 'created',
+            'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'site_count', '_depth',
         ]
 
@@ -104,16 +98,11 @@ class SiteGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:sitegroup-detail')
     parent = NestedSiteGroupSerializer(required=False, allow_null=True, default=None)
     site_count = serializers.IntegerField(read_only=True)
-    contacts = NestedContactAssignmentSerializer(
-        required=False, 
-        allow_null=True,
-        many=True
-    )
 
     class Meta:
         model = SiteGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'contacts', 'tags', 'custom_fields', 'created',
+            'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'site_count', '_depth',
         ]
 
@@ -124,13 +113,6 @@ class SiteSerializer(PrimaryModelSerializer):
     region = NestedRegionSerializer(required=False, allow_null=True)
     group = NestedSiteGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    contacts = SerializedPKRelatedField(
-        queryset=ContactAssignment.objects.all(),
-        serializer=NestedContactAssignmentSerializer,
-        required=False, 
-        allow_null=True,
-        many=True
-    )
     time_zone = TimeZoneSerializerField(required=False)
     asns = SerializedPKRelatedField(
         queryset=ASN.objects.all(),
@@ -144,7 +126,7 @@ class SiteSerializer(PrimaryModelSerializer):
     device_count = serializers.IntegerField(read_only=True)
     prefix_count = serializers.IntegerField(read_only=True)
     rack_count = serializers.IntegerField(read_only=True)
-    virtualmachine_count = serializers.IntegerField(read_only=True,)
+    virtualmachine_count = serializers.IntegerField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -152,7 +134,7 @@ class SiteSerializer(PrimaryModelSerializer):
         fields = [
             'id', 'url', 'display', 'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'asns',
             'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
-            'contact_phone', 'contact_email', 'comments', 'contacts', 'tags', 'custom_fields', 'created', 'last_updated',
+            'contact_phone', 'contact_email', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'circuit_count', 'device_count', 'prefix_count', 'rack_count', 'virtualmachine_count', 'vlan_count',
         ]
 
@@ -168,16 +150,11 @@ class LocationSerializer(NestedGroupModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     rack_count = serializers.IntegerField(read_only=True)
     device_count = serializers.IntegerField(read_only=True)
-    contacts = NestedContactAssignmentSerializer(
-        required=False, 
-        allow_null=True,
-        many=True
-    )
 
     class Meta:
         model = Location
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'site', 'parent', 'tenant', 'description', 'contacts', 'tags', 'custom_fields',
+            'id', 'url', 'display', 'name', 'slug', 'site', 'parent', 'tenant', 'description', 'tags', 'custom_fields',
             'created', 'last_updated', 'rack_count', 'device_count', '_depth',
         ]
 
@@ -208,18 +185,13 @@ class RackSerializer(PrimaryModelSerializer):
     outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False)
     device_count = serializers.IntegerField(read_only=True)
     powerfeed_count = serializers.IntegerField(read_only=True)
-    contacts = NestedContactAssignmentSerializer(
-        required=False, 
-        allow_null=True,
-        many=True
-    )
 
     class Meta:
         model = Rack
         fields = [
             'id', 'url', 'display', 'name', 'facility_id', 'site', 'location', 'tenant', 'status', 'role', 'serial',
             'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-            'comments', 'contacts', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
         ]
 
 
@@ -297,17 +269,11 @@ class ManufacturerSerializer(PrimaryModelSerializer):
     devicetype_count = serializers.IntegerField(read_only=True)
     inventoryitem_count = serializers.IntegerField(read_only=True)
     platform_count = serializers.IntegerField(read_only=True)
-    contacts = NestedContactAssignmentSerializer(
-        required=False, 
-        allow_null=True,
-        many=True
-    )
-    
 
     class Meta:
         model = Manufacturer
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'description', 'contacts', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
             'devicetype_count', 'inventoryitem_count', 'platform_count',
         ]
 
@@ -503,11 +469,6 @@ class DeviceSerializer(PrimaryModelSerializer):
     cluster = NestedClusterSerializer(required=False, allow_null=True)
     virtual_chassis = NestedVirtualChassisSerializer(required=False, allow_null=True, default=None)
     vc_position = serializers.IntegerField(allow_null=True, max_value=255, min_value=0, default=None)
-    contacts = NestedContactAssignmentSerializer(
-        required=False, 
-        allow_null=True,
-        many=True
-    )
 
     class Meta:
         model = Device
@@ -515,7 +476,7 @@ class DeviceSerializer(PrimaryModelSerializer):
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
             'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments',
-            'local_context_data', 'contacts', 'tags', 'custom_fields', 'created', 'last_updated',
+            'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
     @swagger_serializer_method(serializer_or_field=NestedDeviceSerializer)
@@ -537,7 +498,7 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
         fields = [
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4',
-            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'local_context_data', 'contacts',
+            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'local_context_data',
             'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
         ]
 
@@ -914,16 +875,11 @@ class PowerPanelSerializer(PrimaryModelSerializer):
         default=None
     )
     powerfeed_count = serializers.IntegerField(read_only=True)
-    contacts = NestedContactAssignmentSerializer(
-        required=False, 
-        allow_null=True,
-        many=True
-    )
 
     class Meta:
         model = PowerPanel
         fields = [
-            'id', 'url', 'display', 'site', 'location', 'name', 'contacts', 'tags', 'custom_fields', 'powerfeed_count',
+            'id', 'url', 'display', 'site', 'location', 'name', 'tags', 'custom_fields', 'powerfeed_count',
             'created', 'last_updated',
         ]
 
