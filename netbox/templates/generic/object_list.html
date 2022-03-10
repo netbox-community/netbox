@@ -75,14 +75,10 @@ Context:
             <div class="card-body">
               <div class="float-end">
                 {% if 'bulk_edit' in actions %}
-                  <button type="submit" name="_edit" formaction="{% url model|viewname:"bulk_edit" %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm" disabled>
-                    <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit All
-                  </button>
+                  {% bulk_edit_button model query_params=request.GET %}
                 {% endif %}
                 {% if 'bulk_delete' in actions %}
-                  <button type="submit" name="_delete" formaction="{% url model|viewname:"bulk_delete" %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm" disabled>
-                    <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete All
-                  </button>
+                  {% bulk_delete_button model query_params=request.GET %}
                 {% endif %}
               </div>
               <div class="form-check">
@@ -115,14 +111,10 @@ Context:
           <div class="bulk-button-group">
             {% block bulk_buttons %}
               {% if 'bulk_edit' in actions %}
-                <button type="submit" name="_edit" formaction="{% url model|viewname:"bulk_edit" %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
-                  <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
-                </button>
+                {% bulk_edit_button model query_params=request.GET %}
               {% endif %}
               {% if 'bulk_delete' in actions %}
-                <button type="submit" name="_delete" formaction="{% url model|viewname:"bulk_delete" %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
-                  <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete Selected
-                </button>
+                {% bulk_delete_button model query_params=request.GET %}
               {% endif %}
             {% endblock %}
           </div>

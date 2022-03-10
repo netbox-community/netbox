@@ -92,3 +92,31 @@ def export_button(context, model):
         'export_templates': export_templates,
         'data_format': data_format,
     }
+
+
+@register.inclusion_tag('buttons/bulk_edit.html')
+def bulk_edit_button(model, action='bulk_edit', query_params=None):
+    try:
+        url = reverse(get_viewname(model, action))
+        if query_params:
+            url = f'{url}?{query_params.urlencode()}'
+    except NoReverseMatch:
+        url = None
+
+    return {
+        'url': url,
+    }
+
+
+@register.inclusion_tag('buttons/bulk_delete.html')
+def bulk_delete_button(model, action='bulk_delete', query_params=None):
+    try:
+        url = reverse(get_viewname(model, action))
+        if query_params:
+            url = f'{url}?{query_params.urlencode()}'
+    except NoReverseMatch:
+        url = None
+
+    return {
+        'url': url,
+    }
