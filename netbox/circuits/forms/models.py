@@ -22,10 +22,6 @@ __all__ = (
 class ProviderForm(NetBoxModelForm):
     slug = SlugField()
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Provider', ('name', 'slug', 'asn', 'tags')),
@@ -59,10 +55,6 @@ class ProviderNetworkForm(NetBoxModelForm):
         queryset=Provider.objects.all()
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Provider Network', ('provider', 'name', 'service_id', 'description', 'tags')),
@@ -77,10 +69,6 @@ class ProviderNetworkForm(NetBoxModelForm):
 
 class CircuitTypeForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = CircuitType
@@ -97,10 +85,6 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
         queryset=CircuitType.objects.all()
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Circuit', ('provider', 'cid', 'type', 'status', 'install_date', 'commit_rate', 'description', 'tags')),

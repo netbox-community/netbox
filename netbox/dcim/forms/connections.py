@@ -70,10 +70,6 @@ class ConnectCableToDeviceForm(TenancyForm, NetBoxModelForm):
             'rack_id': '$termination_b_rack',
         }
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = Cable
@@ -212,10 +208,6 @@ class ConnectCableToCircuitTerminationForm(TenancyForm, NetBoxModelForm):
             'circuit_id': '$termination_b_circuit'
         }
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta(ConnectCableToDeviceForm.Meta):
         fields = [
@@ -273,10 +265,6 @@ class ConnectCableToPowerFeedForm(TenancyForm, NetBoxModelForm):
         query_params={
             'power_panel_id': '$termination_b_powerpanel'
         }
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     class Meta(ConnectCableToDeviceForm.Meta):

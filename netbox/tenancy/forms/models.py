@@ -28,10 +28,6 @@ class TenantGroupForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = TenantGroup
@@ -47,10 +43,6 @@ class TenantForm(NetBoxModelForm):
         required=False
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Tenant', ('name', 'slug', 'group', 'description', 'tags')),
@@ -73,10 +65,6 @@ class ContactGroupForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = ContactGroup
@@ -85,10 +73,6 @@ class ContactGroupForm(NetBoxModelForm):
 
 class ContactRoleForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = ContactRole
@@ -101,10 +85,6 @@ class ContactForm(NetBoxModelForm):
         required=False
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Contact', ('group', 'name', 'title', 'phone', 'email', 'address', 'tags')),

@@ -18,10 +18,6 @@ class WirelessLANGroupForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = WirelessLANGroup
@@ -39,10 +35,6 @@ class WirelessLANForm(NetBoxModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         label='VLAN'
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     fieldsets = (
@@ -136,10 +128,6 @@ class WirelessLinkForm(NetBoxModelForm):
         },
         disabled_indicator='_occupied',
         label='Interface'
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     fieldsets = (

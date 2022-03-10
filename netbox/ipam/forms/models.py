@@ -48,10 +48,6 @@ class VRFForm(TenancyForm, NetBoxModelForm):
         queryset=RouteTarget.objects.all(),
         required=False
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('VRF', ('name', 'rd', 'enforce_unique', 'description', 'tags')),
@@ -74,11 +70,6 @@ class VRFForm(TenancyForm, NetBoxModelForm):
 
 
 class RouteTargetForm(TenancyForm, NetBoxModelForm):
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
-
     fieldsets = (
         ('Route Target', ('name', 'description', 'tags')),
         ('Tenancy', ('tenant_group', 'tenant')),
@@ -93,10 +84,6 @@ class RouteTargetForm(TenancyForm, NetBoxModelForm):
 
 class RIRForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = RIR
@@ -109,10 +96,6 @@ class AggregateForm(TenancyForm, NetBoxModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label='RIR'
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     fieldsets = (
@@ -142,10 +125,6 @@ class ASNForm(TenancyForm, NetBoxModelForm):
     sites = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         label='Sites',
-        required=False
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -181,10 +160,6 @@ class ASNForm(TenancyForm, NetBoxModelForm):
 
 class RoleForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = Role
@@ -247,10 +222,6 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         queryset=Role.objects.all(),
         required=False
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Prefix', ('prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags')),
@@ -277,10 +248,6 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
-        required=False
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -414,10 +381,6 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         required=False,
         label='Make this the primary IP for the device/VM'
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = IPAddress
@@ -518,10 +481,6 @@ class IPAddressBulkAddForm(TenancyForm, NetBoxModelForm):
         required=False,
         label='VRF'
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = IPAddress
@@ -547,10 +506,6 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
 
 
 class FHRPGroupForm(NetBoxModelForm):
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     # Optionally create a new IPAddress along with the FHRPGroup
     ip_vrf = DynamicModelChoiceField(
@@ -701,10 +656,6 @@ class VLANGroupForm(NetBoxModelForm):
         }
     )
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('VLAN Group', ('name', 'slug', 'description', 'tags')),
@@ -802,10 +753,6 @@ class VLANForm(TenancyForm, NetBoxModelForm):
         queryset=Role.objects.all(),
         required=False
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = VLAN
@@ -832,10 +779,6 @@ class ServiceTemplateForm(NetBoxModelForm):
             max_value=SERVICE_PORT_MAX
         ),
         help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen."
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     class Meta:
@@ -870,10 +813,6 @@ class ServiceForm(NetBoxModelForm):
             'device_id': '$device',
             'virtual_machine_id': '$virtual_machine',
         }
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     class Meta:

@@ -28,10 +28,6 @@ __all__ = (
 
 class ClusterTypeForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = ClusterType
@@ -42,10 +38,6 @@ class ClusterTypeForm(NetBoxModelForm):
 
 class ClusterGroupForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = ClusterGroup
@@ -85,10 +77,6 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
         }
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Cluster', ('name', 'type', 'group', 'region', 'site_group', 'site', 'tags')),
@@ -202,10 +190,6 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         required=False,
         label=''
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Virtual Machine', ('name', 'role', 'status', 'tags')),
@@ -317,10 +301,6 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
         queryset=VRF.objects.all(),
         required=False,
         label='VRF'
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     class Meta:

@@ -25,6 +25,10 @@ class NetBoxModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
             the rendered form (optional). If not defined, the all fields will be rendered as a single section.
     """
     fieldsets = ()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     def _get_content_type(self):
         return ContentType.objects.get_for_model(self._meta.model)

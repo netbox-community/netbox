@@ -78,10 +78,6 @@ class RegionForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = Region
@@ -96,10 +92,6 @@ class SiteGroupForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = SiteGroup
@@ -129,10 +121,6 @@ class SiteForm(TenancyForm, NetBoxModelForm):
         widget=StaticSelect()
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Site', (
@@ -204,10 +192,6 @@ class LocationForm(TenancyForm, NetBoxModelForm):
         }
     )
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Location', (
@@ -225,10 +209,6 @@ class LocationForm(TenancyForm, NetBoxModelForm):
 
 class RackRoleForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = RackRole
@@ -271,10 +251,6 @@ class RackForm(TenancyForm, NetBoxModelForm):
         required=False
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = Rack
@@ -344,10 +320,6 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
         ),
         widget=StaticSelect()
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Reservation', ('region', 'site', 'location', 'rack', 'units', 'user', 'description', 'tags')),
@@ -364,10 +336,6 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
 
 class ManufacturerForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = Manufacturer
@@ -384,10 +352,6 @@ class DeviceTypeForm(NetBoxModelForm):
         slug_source='model'
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Device Type', (
@@ -421,10 +385,6 @@ class ModuleTypeForm(NetBoxModelForm):
         queryset=Manufacturer.objects.all()
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = ModuleType
@@ -435,10 +395,6 @@ class ModuleTypeForm(NetBoxModelForm):
 
 class DeviceRoleForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = DeviceRole
@@ -454,10 +410,6 @@ class PlatformForm(NetBoxModelForm):
     )
     slug = SlugField(
         max_length=64
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     class Meta:
@@ -563,10 +515,6 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     local_context_data = JSONField(
         required=False,
         label=''
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     class Meta:
@@ -679,10 +627,6 @@ class ModuleForm(NetBoxModelForm):
         }
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
     replicate_components = forms.BooleanField(
         required=False,
         initial=True,
@@ -713,10 +657,6 @@ class ModuleForm(NetBoxModelForm):
 
 
 class CableForm(TenancyForm, NetBoxModelForm):
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = Cable
@@ -763,10 +703,6 @@ class PowerPanelForm(NetBoxModelForm):
         query_params={
             'site_id': '$site'
         }
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     fieldsets = (
@@ -820,10 +756,6 @@ class PowerFeedForm(NetBoxModelForm):
         }
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Power Panel', ('region', 'site', 'power_panel')),
@@ -853,10 +785,6 @@ class VirtualChassisForm(NetBoxModelForm):
     master = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     class Meta:
@@ -1155,10 +1083,6 @@ class ConsolePortForm(NetBoxModelForm):
             'device_id': '$device',
         }
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = ConsolePort
@@ -1180,10 +1104,6 @@ class ConsoleServerPortForm(NetBoxModelForm):
             'device_id': '$device',
         }
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = ConsoleServerPort
@@ -1204,10 +1124,6 @@ class PowerPortForm(NetBoxModelForm):
         query_params={
             'device_id': '$device',
         }
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     class Meta:
@@ -1237,10 +1153,6 @@ class PowerOutletForm(NetBoxModelForm):
         query_params={
             'device_id': '$device',
         }
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     class Meta:
@@ -1330,10 +1242,6 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
         required=False,
         label='VRF'
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Interface', ('device', 'module', 'name', 'type', 'speed', 'duplex', 'label', 'description', 'tags')),
@@ -1387,10 +1295,6 @@ class FrontPortForm(NetBoxModelForm):
             'device_id': '$device',
         }
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = FrontPort
@@ -1412,10 +1316,6 @@ class RearPortForm(NetBoxModelForm):
             'device_id': '$device',
         }
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = RearPort
@@ -1429,10 +1329,6 @@ class RearPortForm(NetBoxModelForm):
 
 
 class ModuleBayForm(NetBoxModelForm):
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = ModuleBay
@@ -1445,10 +1341,6 @@ class ModuleBayForm(NetBoxModelForm):
 
 
 class DeviceBayForm(NetBoxModelForm):
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = DeviceBay
@@ -1506,10 +1398,6 @@ class InventoryItemForm(NetBoxModelForm):
         required=False,
         widget=forms.HiddenInput
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         ('Inventory Item', ('device', 'parent', 'name', 'label', 'role', 'description', 'tags')),
@@ -1533,10 +1421,6 @@ class InventoryItemForm(NetBoxModelForm):
 
 class InventoryItemRoleForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = InventoryItemRole

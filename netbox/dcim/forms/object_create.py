@@ -243,10 +243,6 @@ class VirtualChassisCreateForm(NetBoxModelForm):
         required=False,
         help_text='Position of the first member device. Increases by one for each additional member.'
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = VirtualChassis
