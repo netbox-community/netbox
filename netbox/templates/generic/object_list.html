@@ -26,13 +26,13 @@ Context:
     <div class="control-group">
       {% block extra_controls %}{% endblock %}
       {% if 'add' in actions %}
-          {% add_button model|validated_viewname:"add" %}
+          {% add_button model %}
       {% endif %}
       {% if 'import' in actions %}
-          {% import_button model|validated_viewname:"import" %}
+          {% import_button model %}
       {% endif %}
       {% if 'export' in actions %}
-          {% export_button model|content_type %}
+          {% export_button model %}
       {% endif %}
     </div>
   </div>

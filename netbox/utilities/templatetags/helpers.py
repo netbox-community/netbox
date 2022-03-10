@@ -1,6 +1,5 @@
 import datetime
 import decimal
-import re
 from typing import Dict, Any
 
 from django import template

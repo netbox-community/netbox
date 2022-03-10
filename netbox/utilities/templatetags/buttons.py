@@ -1,5 +1,6 @@
 from django import template
-from django.urls import reverse
+from django.contrib.contenttypes.models import ContentType
+from django.urls import NoReverseMatch, reverse
 
 from extras.models import ExportTemplate
 from utilities.utils import get_viewname, prepare_cloned_fields
@@ -50,24 +51,32 @@ def delete_button(instance):
 #
 
 @register.inclusion_tag('buttons/add.html')
-def add_button(url):
-    url = reverse(url)
+def add_button(model, action='add'):
+    try:
+        url = reverse(get_viewname(model, action))
+    except NoReverseMatch:
+        url = None
 
     return {
-        'add_url': url,
+        'url': url,
     }
 
 
 @register.inclusion_tag('buttons/import.html')
-def import_button(url):
+def import_button(model, action='import'):
+    try:
+        url = reverse(get_viewname(model, action))
+    except NoReverseMatch:
+        url = None
 
     return {
-        'import_url': url,
+        'url': url,
     }
 
 
 @register.inclusion_tag('buttons/export.html', takes_context=True)
-def export_button(context, content_type):
+def export_button(context, model):
+    content_type = ContentType.objects.get_for_model(model)
     user = context['request'].user
 
     # Determine if the "all data" export returns CSV or YAML
