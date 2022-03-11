@@ -102,10 +102,6 @@ class SiteGroupFilterSet(OrganizationalModelFilterSet):
 
 
 class SiteFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     status = django_filters.MultipleChoiceFilter(
         choices=SiteStatusChoices,
         null_value=None
@@ -243,10 +239,6 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
 
 
 class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -340,10 +332,6 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
 
 class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     rack_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Rack.objects.all(),
         label='Rack (ID)',
@@ -406,10 +394,6 @@ class ManufacturerFilterSet(OrganizationalModelFilterSet):
 
 
 class DeviceTypeFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
         label='Manufacturer (ID)',
@@ -498,10 +482,6 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
 
 
 class ModuleTypeFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
         label='Manufacturer (ID)',
@@ -746,10 +726,6 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
 
 
 class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, LocalConfigContextFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device_type__manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -957,10 +933,6 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, LocalConfigContext
 
 
 class ModuleFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='module_type__manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -1192,10 +1164,6 @@ class InterfaceFilterSet(
     CableTerminationFilterSet,
     PathEndpointFilterSet
 ):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     # Override device and device_id filters from DeviceComponentFilterSet to match against any peer virtual chassis
     # members
     device = MultiValueCharFilter(
@@ -1363,10 +1331,6 @@ class DeviceBayFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet):
 
 
 class InventoryItemFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItem.objects.all(),
         label='Parent inventory item (ID)',
@@ -1422,10 +1386,6 @@ class InventoryItemRoleFilterSet(OrganizationalModelFilterSet):
 
 
 class VirtualChassisFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     master_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label='Master (ID)',
@@ -1501,10 +1461,6 @@ class VirtualChassisFilterSet(NetBoxModelFilterSet):
 
 
 class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     termination_a_type = ContentTypeFilter()
     termination_a_id = MultiValueNumberFilter()
     termination_b_type = ContentTypeFilter()
@@ -1560,10 +1516,6 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
 
 
 class PowerPanelFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -1621,10 +1573,6 @@ class PowerPanelFilterSet(NetBoxModelFilterSet):
 
 
 class PowerFeedFilterSet(NetBoxModelFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='power_panel__site__region',

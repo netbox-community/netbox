@@ -34,10 +34,6 @@ class ClusterGroupFilterSet(OrganizationalModelFilterSet):
 
 
 class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -109,10 +105,6 @@ class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
 
 class VirtualMachineFilterSet(NetBoxModelFilterSet, TenancyFilterSet, LocalConfigContextFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     status = django_filters.MultipleChoiceFilter(
         choices=VirtualMachineStatusChoices,
         null_value=None
@@ -235,10 +227,6 @@ class VirtualMachineFilterSet(NetBoxModelFilterSet, TenancyFilterSet, LocalConfi
 
 
 class VMInterfaceFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine__cluster',
         queryset=Cluster.objects.all(),

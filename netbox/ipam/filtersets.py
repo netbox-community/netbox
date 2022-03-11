@@ -36,10 +36,6 @@ __all__ = (
 
 
 class VRFFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     import_target_id = django_filters.ModelMultipleChoiceFilter(
         field_name='import_targets',
         queryset=RouteTarget.objects.all(),
@@ -78,10 +74,6 @@ class VRFFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
 
 class RouteTargetFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     importing_vrf_id = django_filters.ModelMultipleChoiceFilter(
         field_name='importing_vrfs',
         queryset=VRF.objects.all(),
@@ -126,10 +118,6 @@ class RIRFilterSet(OrganizationalModelFilterSet):
 
 
 class AggregateFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     family = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='family'
@@ -213,10 +201,6 @@ class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
 
 
 class RoleFilterSet(OrganizationalModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
 
     class Meta:
         model = Role
@@ -224,10 +208,6 @@ class RoleFilterSet(OrganizationalModelFilterSet):
 
 
 class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     family = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='family'
@@ -414,10 +394,6 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
 
 class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     family = django_filters.NumberFilter(
         field_name='start_address',
         lookup_expr='family'
@@ -480,10 +456,6 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
 
 
 class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     family = django_filters.NumberFilter(
         field_name='address',
         lookup_expr='family'
@@ -645,10 +617,6 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
 
 class FHRPGroupFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     protocol = django_filters.MultipleChoiceFilter(
         choices=FHRPGroupProtocolChoices
     )
@@ -705,10 +673,6 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
 
 
 class VLANGroupFilterSet(OrganizationalModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     scope_type = ContentTypeFilter()
     region = django_filters.NumberFilter(
         method='filter_scope'
@@ -753,10 +717,6 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
 
 
 class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -848,10 +808,6 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
 
 class ServiceTemplateFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     port = NumericArrayFilter(
         field_name='ports',
         lookup_expr='contains'
@@ -869,10 +825,6 @@ class ServiceTemplateFilterSet(NetBoxModelFilterSet):
 
 
 class ServiceFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label='Device (ID)',

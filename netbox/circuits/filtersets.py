@@ -19,10 +19,6 @@ __all__ = (
 
 
 class ProviderFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='circuits__terminations__site__region',
@@ -78,10 +74,6 @@ class ProviderFilterSet(NetBoxModelFilterSet):
 
 
 class ProviderNetworkFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
         label='Provider (ID)',
@@ -116,10 +108,6 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
 
 
 class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
         label='Provider (ID)',

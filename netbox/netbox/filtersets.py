@@ -221,6 +221,10 @@ class NetBoxModelFilterSet(ChangeLoggedModelFilterSet):
     """
     Provides additional filtering functionality (e.g. tags, custom fields) for core NetBox models.
     """
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     tag = TagFilter()
 
     def __init__(self, *args, **kwargs):
@@ -246,16 +250,17 @@ class NetBoxModelFilterSet(ChangeLoggedModelFilterSet):
 
         self.filters.update(custom_field_filters)
 
+    def search(self, queryset, name, value):
+        """
+        Override this method to apply a general-purpose search logic.
+        """
+        return queryset
+
 
 class OrganizationalModelFilterSet(NetBoxModelFilterSet):
     """
     A base class for adding the search method to models which only expose the `name` and `slug` fields
     """
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
-
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset

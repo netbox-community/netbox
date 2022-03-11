@@ -31,10 +31,6 @@ class WirelessLANGroupFilterSet(OrganizationalModelFilterSet):
 
 
 class WirelessLANFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=WirelessLANGroup.objects.all(),
         field_name='group',
@@ -71,10 +67,6 @@ class WirelessLANFilterSet(NetBoxModelFilterSet):
 
 
 class WirelessLinkFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     interface_a_id = MultiValueNumberFilter()
     interface_b_id = MultiValueNumberFilter()
     status = django_filters.MultipleChoiceFilter(

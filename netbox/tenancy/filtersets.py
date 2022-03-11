@@ -39,10 +39,6 @@ class TenantGroupFilterSet(OrganizationalModelFilterSet):
 
 
 class TenantFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
         field_name='group',
@@ -130,10 +126,6 @@ class ContactRoleFilterSet(OrganizationalModelFilterSet):
 
 
 class ContactFilterSet(NetBoxModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
         field_name='group',
