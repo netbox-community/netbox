@@ -1,11 +1,11 @@
 from django.urls import path
 
-from netbox.api import OrderedDefaultRouter
+from netbox.api import NetBoxRouter
 from ipam.models import IPRange, Prefix
 from . import views
 
 
-router = OrderedDefaultRouter()
+router = NetBoxRouter()
 router.APIRootView = views.IPAMRootView
 
 # ASNs

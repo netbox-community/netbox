@@ -70,10 +70,10 @@ Routers should be exposed in `api/urls.py`. This file **must** define a variable
 
 ```python
 # api/urls.py
-from rest_framework import routers
+from netbox.api.routers import NetBoxRouter
 from .views import MyModelViewSet
 
-router = routers.DefaultRouter()
+router = NetBoxRouter()
 router.register('my-model', MyModelViewSet)
 urlpatterns = router.urls
 ```
