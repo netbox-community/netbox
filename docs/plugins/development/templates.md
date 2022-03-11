@@ -2,6 +2,10 @@
 
 Templates are used to render HTML content generated from a set of context data. NetBox provides a set of built-in templates suitable for use in plugin views. Plugin authors can extend these templates to minimize the work needed to create custom templates while ensuring that the content they produce matches NetBox's layout and style. These templates are all written in the [Django Template Language (DTL)](https://docs.djangoproject.com/en/stable/ref/templates/language/).
 
+## Template File Structure
+
+Plugin templates should live in the `templates/<plugin-name>/` path within the plugin root. For example if your plugin's name is `my_plugin` and you create a template named `foo.html`, it should be saved to `templates/my_plugin/foo.html`. (You can of course use subdirectories below this point as well.) This ensures that Django's template engine can locate the template for rendering.
+
 ## Standard Blocks
 
 The following template blocks are available on all templates.

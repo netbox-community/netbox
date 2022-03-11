@@ -4,6 +4,21 @@ Plugins can declare custom endpoints on NetBox's REST API to retrieve or manipul
 
 Generally speaking, there aren't many NetBox-specific components to implementing REST API functionality in a plugin. NetBox employs the [Django REST Framework](https://www.django-rest-framework.org/) (DRF) for its REST API, and plugin authors will find that they can largely replicate the same patterns found in NetBox's implementation. Some brief examples are included here for reference.
 
+## Code Layout
+
+The recommended approach is to separate API serializers, views, and URLs into separate modules under the `api/` directory to keep things tidy, particularly for larger projects. The file at `api/__init__.py` can import the relevant components from each submodule to allow import all API components directly from elsewhere. However, this is merely a convention and not strictly required.
+
+```no-highlight
+project-name/
+  - plugin_name/
+    - api/
+      - __init__.py
+      - serializers.py
+      - urls.py
+      - views.py
+    ...
+```
+
 ## Serializers
 
 Serializers are responsible for converting Python objects to JSON data suitable for conveying to consumers, and vice versa. NetBox provides the `NetBoxModelSerializer` class for use by plugins to handle the assignment of tags and custom field data. (These features can also be included ad hoc via the `CustomFieldModelSerializer` and `TaggableModelSerializer` classes.)

@@ -9,10 +9,11 @@ A plugin can extend NetBox's GraphQL API by registering its own schema class. By
 ```python
 # graphql.py
 import graphene
+from netbox.graphql.types import NetBoxObjectType
 from netbox.graphql.fields import ObjectField, ObjectListField
 from . import filtersets, models
 
-class MyModelType(graphene.ObjectType):
+class MyModelType(NetBoxObjectType):
 
     class Meta:
         model = models.MyModel
