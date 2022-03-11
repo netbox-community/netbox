@@ -57,8 +57,10 @@ class ObjectListField(DjangoListField):
         # Get the QuerySet from the object type
         queryset = django_object_type.get_queryset(default_manager, info)
 
-        # Instantiate and apply the FilterSet
+        # Instantiate and apply the FilterSet, if defined
         filterset_class = django_object_type._meta.filterset_class
-        filterset = filterset_class(data=args, queryset=queryset, request=info.context)
+        if filterset_class:
+            filterset = filterset_class(data=args, queryset=queryset, request=info.context)
+            return filterset.qs
 
-        return filterset.qs
+        return queryset
