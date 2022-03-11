@@ -277,6 +277,15 @@ Note that a plugin must be listed in `PLUGINS` for its configuration to take eff
 
 ---
 
+## PROXY_HEADER_REALIP
+
+Default: HTTP_X_REAL_IP
+
+This parameters sets the HTTP Header that contains the REAL IP of a client that connects through a PROXY. The Real IP is required to validate an API token's Allowed IPRanges.
+Other common values are HTTP_X_FORWARDED_FOR, HTTP_X_CLIENT_IP
+
+---
+
 ## RELEASE_CHECK_URL
 
 Default: None (disabled)

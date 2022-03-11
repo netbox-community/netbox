@@ -58,7 +58,7 @@ class UserAdmin(UserAdmin_):
 class TokenAdmin(admin.ModelAdmin):
     form = forms.TokenAdminForm
     list_display = [
-        'key', 'user', 'created', 'expires', 'write_enabled', 'description'
+        'key', 'user', 'created', 'expires', 'write_enabled', 'description', 'allowed_ipranges'
     ]
 
 

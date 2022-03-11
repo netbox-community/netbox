@@ -11,12 +11,48 @@ class TokenAuthentication(authentication.TokenAuthentication):
     """
     model = Token
 
-    def authenticate_credentials(self, key):
+    def authenticate(self, request):
+        auth = authentication.get_authorization_header(request).split()
+
+        if not auth or auth[0].lower() != self.keyword.lower().encode():
+            return None
+
+        if len(auth) == 1:
+            msg = 'Invalid token header. No credentials provided.'
+            raise exceptions.AuthenticationFailed(msg)
+        elif len(auth) > 2:
+            msg = 'Invalid token header. Token string should not contain spaces.'
+            raise exceptions.AuthenticationFailed(msg)
+
+        try:
+            token = auth[1].decode()
+        except UnicodeError:
+            msg = 'Invalid token header. Token string should not contain invalid characters.'
+            raise exceptions.AuthenticationFailed(msg)
+
+        return self.authenticate_credentials(request,token)
+
+
+    def authenticate_credentials(self, request, key):
         model = self.get_model()
         try:
             token = model.objects.prefetch_related('user').get(key=key)
         except model.DoesNotExist:
             raise exceptions.AuthenticationFailed("Invalid token")
+
+        # Verify source IP is allowed
+        if len(token.allowed_ipranges) > 0:
+
+            if settings.PROXY_HEADER_REALIP in request.META:
+                clientip = request.META[settings.PROXY_HEADER_REALIP].split(",")[0].strip()
+            elif 'REMOTE_ADDR' in request.META:
+                clientip = request.META['REMOTE_ADDR']
+            else:
+                raise exceptions.AuthenticationFailed(f"The request headers ({settings.PROXY_HEADER_REALIP}, REMOTE_ADDR) are missing or do not contain a valid source IP.")
+
+            if not token.validateclientip(clientip):
+                raise exceptions.AuthenticationFailed(f"Source IP {clientip} is not allowed to use this token.")
+
 
         # Enforce the Token's expiration time, if one has been set.
         if token.is_expired:

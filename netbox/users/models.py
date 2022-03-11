@@ -4,6 +4,7 @@ import os
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save
@@ -14,6 +15,7 @@ from netbox.models import BigIDModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import flatten_dict
 from .constants import *
+import ipaddress
 
 
 __all__ = (
@@ -203,6 +205,11 @@ class Token(BigIDModel):
         max_length=200,
         blank=True
     )
+    allowed_ipranges = models.CharField(
+        max_length=250,
+        blank=True,
+        help_text='Allowed ip addresses/ranges from where the token can be used (comma separated). Leave blank for no restrictions. Ex: "10.1.1.0/24, 192.168.10.16, 2001:DB8:1::/64"',
+    )
 
     class Meta:
         pass
@@ -214,6 +221,9 @@ class Token(BigIDModel):
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = self.generate_key()
+        if not self.validateipranges(self.allowed_ipranges):
+            raise TypeError(f"{self.allowed_ipranges} contains an invalid ip address, range or prefix")
+
         return super().save(*args, **kwargs)
 
     @staticmethod
@@ -227,6 +237,59 @@ class Token(BigIDModel):
             return False
         return True
 
+    @staticmethod
+    def validateipranges(ip_addresses):
+        """
+        Checks that the value is a comma separated list of IPv4 and/or IPv6 addresses, ranges or subnets.
+        """
+        if len(ip_addresses)==0:
+            return True
+
+        for ip in ip_addresses.split(','):
+            try:
+                if '/' in ip:
+                    iptest=ipaddress.ip_network(ip)
+                elif '-' in ip:
+                    ips=ip.split('-')
+                    ip1=ipaddress.ip_address(ips[0])
+                    ip2=ipaddress.ip_address(ips[1])
+                    if ip1>ip2:
+                        raise ValidationError()
+                else:
+                    iptest=ipaddress.ip_address(ip)
+            except:
+                raise ValidationError(f"{ip} is an invalid value in the Allowed IP Ranges ({ip_addresses})")
+
+        return True
+
+    def validateclientip(self,raw_ip_address):
+        """
+        Checks that an ip address falls within the allowed ip ranges.
+        """
+        if len(self.allowed_ipranges)==0:
+            return True
+
+        try:
+            ip_address=ipaddress.ip_address(raw_ip_address)
+        except:
+            raise ValidationError(f"{raw_ip_address} is an invalid IP address")
+
+        for ip in self.allowed_ipranges.split(','):
+            if '/' in ip:
+                ipnet=ipaddress.ip_network(ip)
+                if ip_address in ipnet:
+                    return True
+            elif '-' in ip:
+                ips=ip.split('-')
+                ip1=ipaddress.ip_address(ips[0])
+                ip2=ipaddress.ip_address(ips[1])
+                if ip_address >= ip1 and ip_address <= ip2:
+                    return True
+            else:
+                ipaddr=ipaddress.ip_address(ip)
+                if ip_address==ipaddr:
+                    return True
+        return False
 
 #
 # Permissions
