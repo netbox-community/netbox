@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.postgres.forms import SimpleArrayField
 
 from utilities.choices import ColorChoices
+from virtualization.choices import MemoryUnitChoices
 from .utils import add_blank_choice, parse_numeric_range
 
 __all__ = (
@@ -16,6 +17,7 @@ __all__ = (
     'ColorSelect',
     'DatePicker',
     'DateTimePicker',
+    'MemoryWidget',
     'NumericArrayField',
     'SelectSpeedWidget',
     'SelectWithDisabled',
@@ -310,3 +312,21 @@ class TimePicker(forms.TextInput):
         super().__init__(*args, **kwargs)
         self.attrs['class'] = 'time-picker'
         self.attrs['placeholder'] = 'hh:mm:ss'
+
+
+class MemoryWidget(forms.MultiWidget):
+    """
+    Memory Widget.
+    """
+    def __init__(self, attrs=None):
+        widget = (
+            forms.NumberInput(),
+            StaticSelect(choices=MemoryUnitChoices.choices)
+        )
+        super(MemoryWidget, self).__init__(widget, attrs)
+
+    def decompress(self, value):
+        if value:
+            return [value, '']
+        else:
+            return ['', '']

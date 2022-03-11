@@ -11,7 +11,7 @@ from ipam.models import IPAddress, VLAN, VLANGroup
 from tenancy.forms import TenancyForm
 from utilities.forms import (
     BootstrapMixin, CommentField, ConfirmationForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    JSONField, SlugField, StaticSelect,
+    JSONField, SlugField, StaticSelect, MemoryField
 )
 from virtualization.models import *
 
@@ -205,6 +205,7 @@ class VirtualMachineForm(TenancyForm, CustomFieldModelForm):
         queryset=Tag.objects.all(),
         required=False
     )
+    memory = MemoryField()
 
     class Meta:
         model = VirtualMachine

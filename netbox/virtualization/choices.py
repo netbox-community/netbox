@@ -5,6 +5,17 @@ from utilities.choices import ChoiceSet
 # VirtualMachines
 #
 
+class MemoryUnitChoices(ChoiceSet):
+    UNIT_MB = 'mb'
+    UNIT_GB = 'gb'
+    UNIT_TB = 'tb'
+
+    choices = (
+        (UNIT_MB, 'MB'),
+        (UNIT_GB, 'GB'),
+        (UNIT_TB, 'TB'),
+    )
+
 class VirtualMachineStatusChoices(ChoiceSet):
 
     STATUS_OFFLINE = 'offline'

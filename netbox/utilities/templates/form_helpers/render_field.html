@@ -84,6 +84,25 @@
         </div>
     </div>
 
+{% elif field|widget_type == 'memorywidget'%}
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label text-lg-end{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">
+            {{ field.label }}
+        </label>
+        <div class="col">
+            <div class="input-group">
+                {{ field }}
+            </div>
+            {% if bulk_nullable %}
+                <div class="form-check my-1">
+                    <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
+                    <label class="form-check-label">Set Null</label>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+
 {% elif field|widget_type == 'selectmultiple' %}
     <div class="row mb-3">
         <label for="{{ field.id_for_label }}" class="form-label col col-md-3 text-lg-end{% if field.field.required %} required{% endif %}">
@@ -93,7 +112,7 @@
             {{ field }}
             {% if bulk_nullable %}
                 <div class="form-check my-1">
-                    <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
+                    <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}_0" />
                     <label class="form-check-label">Set Null</label>
                 </div>
             {% endif %}

@@ -17,6 +17,7 @@ from django.urls import reverse
 from utilities.choices import unpack_grouped_choices
 from utilities.utils import content_type_identifier, content_type_name
 from utilities.validators import EnhancedURLValidator
+from virtualization.choices import MemoryUnitChoices
 from . import widgets
 from .constants import *
 from .utils import expand_alphanumeric_pattern, expand_ipaddress_pattern, parse_csv, validate_csv
@@ -41,6 +42,7 @@ __all__ = (
     'JSONField',
     'LaxURLField',
     'MACAddressField',
+    'MemoryField',
     'SlugField',
     'TagFilterField',
 )
@@ -148,6 +150,40 @@ class MACAddressField(forms.Field):
             raise forms.ValidationError(self.error_messages['invalid'], code='invalid')
 
         return value
+
+
+class MemoryField(forms.MultiValueField):
+    widget = widgets.MemoryWidget
+    empty_values = ['', 'gb', 'mb', 'tb']
+
+    def __init__(self, **kwargs):
+        fields = (
+            forms.IntegerField(required=False),
+            forms.CharField(required=False),
+        )
+        super(MemoryField, self).__init__(
+            fields=fields, required=False,
+            require_all_fields=False, **kwargs
+        )
+    
+    def compress(self, data):
+        if data:
+            value = data[0]
+            unit = data[1]
+
+            defs = {
+                'gb': 1024**1,
+                'tb': 1024**2,
+            }
+            if value:
+                if unit != MemoryUnitChoices.UNIT_MB:
+                    return value * defs[unit]
+                else:
+                    return value
+    
+
+        
+
 
 
 #
