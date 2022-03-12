@@ -248,9 +248,9 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
         """
         queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(self.prefix))
         child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
-        utilization = int(float(child_prefixes.size) / self.prefix.size * 100)
+        utilization = float(child_prefixes.size) / self.prefix.size * 100
 
-        return min(utilization, 100)
+        return utilization
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -548,7 +548,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
                 vrf=self.vrf
             )
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
-            utilization = int(float(child_prefixes.size) / self.prefix.size * 100)
+            utilization = float(child_prefixes.size) / self.prefix.size * 100
         else:
             # Compile an IPSet to avoid counting duplicate IPs
             child_ips = netaddr.IPSet(
@@ -558,9 +558,9 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
             prefix_size = self.prefix.size
             if self.prefix.version == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
                 prefix_size -= 2
-            utilization = int(float(child_ips.size) / prefix_size * 100)
+            utilization = float(child_ips.size) / prefix_size * 100
 
-        return min(utilization, 100)
+        return utilization
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')

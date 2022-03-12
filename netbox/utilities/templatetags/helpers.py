@@ -389,9 +389,6 @@ def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
     """
     Display a horizontal bar graph indicating a percentage of utilization.
     """
-    is_full_danger = False
-    if utilization == 100:
-        is_full_danger = True
     if danger_threshold and utilization >= danger_threshold:
         bar_class = 'bg-danger'
     elif warning_threshold and utilization >= warning_threshold:
@@ -400,11 +397,9 @@ def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
         bar_class = 'bg-success'
     else:
         bar_class = 'bg-gray'
-        is_full_danger = False
     return {
         'utilization': utilization,
         'bar_class': bar_class,
-        'is_full_danger': is_full_danger,
     }
 
 
