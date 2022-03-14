@@ -327,6 +327,6 @@ class MemoryWidget(forms.MultiWidget):
 
     def decompress(self, value):
         if value:
-            return [value, '']
+            return [value, MemoryUnitChoices.UNIT_MB]
         else:
             return ['', '']
