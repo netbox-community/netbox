@@ -2,7 +2,10 @@
 
 ## v3.1.10 (FUTURE)
 
+### Bug Fixes
+
 * [#8820](https://github.com/netbox-community/netbox/issues/8820) - Fix navbar background color in dark mode
+* [#8850](https://github.com/netbox-community/netbox/issues/8850) - Show airflow field on device REST API serializer when config context data is included
 
 ---
 
