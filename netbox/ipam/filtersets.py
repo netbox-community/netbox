@@ -75,7 +75,7 @@ class VRFFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = VRF
-        fields = ['id', 'name', 'rd', 'enforce_unique']
+        fields = ['id', 'name', 'rd', 'enforce_unique', 'description']
 
 
 class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
@@ -117,7 +117,7 @@ class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = RouteTarget
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'description']
 
 
 class RIRFilterSet(OrganizationalModelFilterSet):
@@ -155,7 +155,7 @@ class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Aggregate
-        fields = ['id', 'date_added']
+        fields = ['id', 'date_added', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -203,7 +203,7 @@ class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = ASN
-        fields = ['id', 'asn']
+        fields = ['id', 'asn', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -225,7 +225,7 @@ class RoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = Role
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
@@ -354,7 +354,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Prefix
-        fields = ['id', 'is_pool', 'mark_utilized']
+        fields = ['id', 'is_pool', 'mark_utilized', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -460,7 +460,7 @@ class IPRangeFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
 
     class Meta:
         model = IPRange
-        fields = ['id']
+        fields = ['id', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -839,7 +839,7 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = VLAN
-        fields = ['id', 'vid', 'name']
+        fields = ['id', 'vid', 'name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -891,7 +891,7 @@ class ServiceFilterSet(PrimaryModelFilterSet):
 
     class Meta:
         model = Service
-        fields = ['id', 'name', 'protocol']
+        fields = ['id', 'name', 'protocol', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():

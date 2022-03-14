@@ -18,7 +18,7 @@ from ipam.filtersets import (
 from ipam.models import Aggregate, ASN, IPAddress, Prefix, VLAN, VRF
 from ipam.tables import AggregateTable, ASNTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
 from tenancy.filtersets import ContactFilterSet, TenantFilterSet
-from tenancy.models import Contact, Tenant
+from tenancy.models import Contact, Tenant, ContactAssignment
 from tenancy.tables import ContactTable, TenantTable
 from utilities.utils import count_related
 from virtualization.filtersets import ClusterFilterSet, VirtualMachineFilterSet
@@ -186,7 +186,7 @@ SEARCH_TYPES = OrderedDict((
         'url': 'tenancy:tenant_list',
     }),
     ('contact', {
-        'queryset': Contact.objects.prefetch_related('group', 'assignments'),
+        'queryset': Contact.objects.prefetch_related('group', 'assignments').annotate(assignment_count=count_related(ContactAssignment, 'contact')),
         'filterset': ContactFilterSet,
         'table': ContactTable,
         'url': 'tenancy:contact_list',

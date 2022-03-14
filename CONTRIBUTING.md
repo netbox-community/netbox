@@ -16,13 +16,6 @@ categories for discussions:
   feature request
 * **Q&A** - Request help with installing or using NetBox
 
-### Mailing List
-
-We also have a Google Groups [mailing list](https://groups.google.com/g/netbox-discuss)
-for general discussion, however we're encouraging people to use GitHub
-discussions where possible, as it's much easier for newcomers to review past
-discussions.
-
 ### Slack
 
 For real-time chat, you can join the **#netbox** Slack channel on [NetDev Community](https://netdev.chat/).

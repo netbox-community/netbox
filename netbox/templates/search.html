@@ -5,7 +5,18 @@
 
 {% block title %}Search{% endblock %}
 
-{% block content %}
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" type="button" role="tab">
+        Results
+      </button>
+    </li>
+  </ul>
+{% endblock tabs %}
+
+{% block content-wrapper %}
+  <div class="tab-content">
     {% if request.GET.q %}
         {% if results %}
             <div class="row">
@@ -73,4 +84,5 @@
             </div>
         </div>
     {% endif %}
-{% endblock content %}
+  </div>
+{% endblock content-wrapper %}

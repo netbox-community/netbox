@@ -448,7 +448,8 @@ class ObjectChangeLogView(View):
         )
         objectchanges_table = tables.ObjectChangeTable(
             data=objectchanges,
-            orderable=False
+            orderable=False,
+            user=request.user
         )
         paginate_table(objectchanges_table, request)
 
