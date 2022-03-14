@@ -250,7 +250,7 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
         child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
         utilization = float(child_prefixes.size) / self.prefix.size * 100
 
-        return utilization
+        return min(utilization, 100)
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -560,7 +560,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
                 prefix_size -= 2
             utilization = float(child_ips.size) / prefix_size * 100
 
-        return utilization
+        return min(utilization, 100)
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
