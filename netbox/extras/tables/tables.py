@@ -147,6 +147,9 @@ class TaggedItemTable(NetBoxTable):
         orderable=False,
         verbose_name='Object'
     )
+    actions = columns.ActionsColumn(
+        actions=()
+    )
 
     class Meta(NetBoxTable.Meta):
         model = TaggedItem

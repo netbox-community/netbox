@@ -145,23 +145,9 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * [#8572](https://github.com/netbox-community/netbox/issues/8572) - Add a `pre_run()` method for reports
 * [#8649](https://github.com/netbox-community/netbox/issues/8649) - Enable customization of configuration module using `NETBOX_CONFIGURATION` environment variable
 
-### Bug Fixes (From Beta1)
+### Bug Fixes (From Beta2)
 
-* [#8655](https://github.com/netbox-community/netbox/issues/8655) - Fix AttributeError when viewing cabled interfaces
-* [#8656](https://github.com/netbox-community/netbox/issues/8656) - Fix migration error when upgrading from a v2.11 database
-* [#8659](https://github.com/netbox-community/netbox/issues/8659) - Fix display of multi-object custom fields after deleting related object
-* [#8661](https://github.com/netbox-community/netbox/issues/8661) - Fix ValueError exception when trying to connect a cable
-* [#8670](https://github.com/netbox-community/netbox/issues/8670) - Fix filtering device components by installed module
-* [#8671](https://github.com/netbox-community/netbox/issues/8671) - Fix AttributeError when viewing console/power/interface connection lists
-* [#8682](https://github.com/netbox-community/netbox/issues/8682) - Limit available VLANs by group min/max VIDs
-* [#8683](https://github.com/netbox-community/netbox/issues/8683) - Fix `ZoneInfoNotFoundError` exception under Python 3.9+
-* [#8761](https://github.com/netbox-community/netbox/issues/8761) - Correct view name resolution under journal entry views
-* [#8763](https://github.com/netbox-community/netbox/issues/8763) - Fix inventory item component assignment
-* [#8764](https://github.com/netbox-community/netbox/issues/8764) - Correct view name resolution for dynamic form fields
-* [#8791](https://github.com/netbox-community/netbox/issues/8791) - Fix display of form validation failures during device component creation
-* [#8792](https://github.com/netbox-community/netbox/issues/8792) - Fix creation of circuit terminations via UI
-* [#8810](https://github.com/netbox-community/netbox/issues/8810) - Enable filtering modules by type
-* [#8815](https://github.com/netbox-community/netbox/issues/8815) - Fix display of custom object fields in table columns
+* [#8869](https://github.com/netbox-community/netbox/issues/8869) - Fix NoReverseMatch exception when displaying tag w/assignments
 
 ### Other Changes
 
