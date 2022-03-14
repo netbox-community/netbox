@@ -253,7 +253,7 @@ class Token(BigIDModel):
                     ips = ip.split('-')
                     ip1 = ipaddress.ip_address(ips[0])
                     ip2 = ipaddress.ip_address(ips[1])
-                    if ip1>ip2:
+                    if ip1 > ip2:
                         raise ValidationError()
                 else:
                     iptest = ipaddress.ip_address(ip)
