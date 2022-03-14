@@ -1,5 +1,56 @@
 # NetBox v3.1
 
+## v3.1.9 (2022-03-07)
+
+### Enhancements
+
+* [#8594](https://github.com/netbox-community/netbox/issues/8594) - Enable filtering by exact description match for all applicable models
+* [#8629](https://github.com/netbox-community/netbox/issues/8629) - Add description to tag table search function
+* [#8664](https://github.com/netbox-community/netbox/issues/8664) - Show assigned ASNs/sites under list views
+* [#8736](https://github.com/netbox-community/netbox/issues/8736) - Add PC and UPC fiber end faces for LC/SC/LSH port types
+* [#8758](https://github.com/netbox-community/netbox/issues/8758) - Allow empty string substitution when renaming objects in bulk
+* [#8762](https://github.com/netbox-community/netbox/issues/8762) - Link to rack elevations list from site view
+* [#8766](https://github.com/netbox-community/netbox/issues/8766) - Add SCTP to service protocols list
+
+### Bug Fixes
+
+* [#8546](https://github.com/netbox-community/netbox/issues/8546) - Fix bulk import to restrict bridge, parent, and LAG to device interfaces
+* [#8633](https://github.com/netbox-community/netbox/issues/8633) - Prevent navigation sidebar pin from disappearing at certain breakpoints
+* [#8674](https://github.com/netbox-community/netbox/issues/8674) - Fix rendering of tabbed content in documentation
+* [#8710](https://github.com/netbox-community/netbox/issues/8710) - Fix dynamic scope selection form fields when creating a VLAN group
+* [#8713](https://github.com/netbox-community/netbox/issues/8713) - Restore missing "add" button on services list view
+* [#8715](https://github.com/netbox-community/netbox/issues/8715) - Avoid returning multiple objects when restricting querysets using multiple tags in permissions
+* [#8717](https://github.com/netbox-community/netbox/issues/8717) - Fix redirection after bulk edit/delete of prefixes from aggregate view
+* [#8724](https://github.com/netbox-community/netbox/issues/8724) - Fix exception during device import with invalid device type
+* [#8807](https://github.com/netbox-community/netbox/issues/8807) - Correct REST API URL for FHRP group assignments
+* [#8808](https://github.com/netbox-community/netbox/issues/8808) - Fix members count under FHRP group list
+
+---
+
+## v3.1.8 (2022-02-15)
+
+### Enhancements
+
+* [#7150](https://github.com/netbox-community/netbox/issues/7150) - Linkify devices on the far side of a rack elevation
+* [#8398](https://github.com/netbox-community/netbox/issues/8398) - Embiggen configuration form fields for banner message content
+* [#8556](https://github.com/netbox-community/netbox/issues/8556) - Add full username column to changelog table
+* [#8620](https://github.com/netbox-community/netbox/issues/8620) - Enable tab completion for `nbshell`
+
+### Bug Fixes
+
+* [#8331](https://github.com/netbox-community/netbox/issues/8331) - Implement `replaceAll` string utility function to improve browser compatibility
+* [#8391](https://github.com/netbox-community/netbox/issues/8391) - Null date columns should return empty strings during CSV export
+* [#8548](https://github.com/netbox-community/netbox/issues/8548) - Fix display of VC members when position is zero
+* [#8561](https://github.com/netbox-community/netbox/issues/8561) - Include option to connect a rear port to a console port
+* [#8564](https://github.com/netbox-community/netbox/issues/8564) - Fix errant table configuration key `available_columns`
+* [#8577](https://github.com/netbox-community/netbox/issues/8577) - Show contact assignment counts in global search results
+* [#8578](https://github.com/netbox-community/netbox/issues/8578) - Object change log tables should honor user's configured preferences
+* [#8604](https://github.com/netbox-community/netbox/issues/8604) - Fix tag filter on config context list filter form
+* [#8609](https://github.com/netbox-community/netbox/issues/8609) - Display validation error when attempting to assign VLANs to interface with no mode during bulk edit
+* [#8611](https://github.com/netbox-community/netbox/issues/8611) - Fix bulk editing for certain custom link, webhook, and journal entry fields
+
+---
+
 ## v3.1.7 (2022-02-03)
 
 ### Enhancements

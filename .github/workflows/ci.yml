@@ -38,6 +38,19 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
+    
+    - name: Install Yarn Package Manager
+      run: npm install -g yarn
+    
+    - name: Setup Node.js with Yarn Caching
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: yarn
+        cache-dependency-path: netbox/project-static/yarn.lock
+    
+    - name: Install Frontend Dependencies
+      run: yarn --cwd netbox/project-static
 
     - name: Install dependencies & set up configuration
       run: |
@@ -45,7 +58,6 @@ jobs:
         pip install -r requirements.txt
         pip install pycodestyle coverage
         ln -s configuration.testing.py netbox/netbox/configuration.py
-        yarn --cwd netbox/project-static
 
     - name: Build documentation
       run: mkdocs build
@@ -63,7 +75,7 @@ jobs:
       run: scripts/verify-bundles.sh
 
     - name: Run tests
-      run: coverage run --source="netbox/" netbox/manage.py test netbox/
+      run: coverage run --source="netbox/" netbox/manage.py test netbox/ --parallel
 
     - name: Show coverage report
       run: coverage report --skip-covered --omit *migrations*

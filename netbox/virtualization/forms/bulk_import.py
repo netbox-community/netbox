@@ -64,7 +64,7 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
 class VirtualMachineCSVForm(CustomFieldModelCSVForm):
     status = CSVChoiceField(
         choices=VirtualMachineStatusChoices,
-        help_text='Operational status of device'
+        help_text='Operational status'
     )
     cluster = CSVModelChoiceField(
         queryset=Cluster.objects.all(),

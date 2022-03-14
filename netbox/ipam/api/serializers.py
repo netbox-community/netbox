@@ -126,7 +126,7 @@ class FHRPGroupSerializer(PrimaryModelSerializer):
 
 
 class FHRPGroupAssignmentSerializer(PrimaryModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroupassignment-detail')
     group = NestedFHRPGroupSerializer()
     interface_type = ContentTypeField(
         queryset=ContentType.objects.all()

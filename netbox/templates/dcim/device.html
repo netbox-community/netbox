@@ -33,7 +33,8 @@
                                 <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
                             </td>
                         </tr>
-                        <th scope="row">Location</th>
+                        <tr>
+                            <th scope="row">Location</th>
                             <td>
                             {% if object.location %}
                                 {% for location in object.location.get_ancestors %}
@@ -129,7 +130,7 @@
                                         <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
                                     </td>
                                     <td>
-                                      {% badge vc_member.vc_position %}
+                                      {% badge vc_member.vc_position show_empty=True %}
                                     </td>
                                     <td>
                                       {% if object.virtual_chassis.master == vc_member %}<i class="mdi mdi-check-bold"></i>{% endif %}

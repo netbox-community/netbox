@@ -1,4 +1,4 @@
-import { getElements, findFirstAdjacent } from '../util';
+import { getElements, replaceAll, findFirstAdjacent } from '../util';
 
 type InterfaceState = 'enabled' | 'disabled';
 type ShowHide = 'show' | 'hide';
@@ -105,9 +105,9 @@ class ButtonState {
    */
   private toggleButton(): void {
     if (this.buttonState === 'show') {
-      this.button.innerText = this.button.innerText.replaceAll('Show', 'Hide');
+      this.button.innerText = replaceAll(this.button.innerText, 'Show', 'Hide');
     } else if (this.buttonState === 'hide') {
-      this.button.innerText = this.button.innerText.replaceAll('Hide', 'Show');
+      this.button.innerText = replaceAll(this.button.innerHTML, 'Hide', 'Show');
     }
   }
 

@@ -670,10 +670,11 @@ class Device(PrimaryModel, ConfigContextModel):
             })
 
         # Prevent 0U devices from being assigned to a specific position
-        if self.position and self.device_type.u_height == 0:
-            raise ValidationError({
-                'position': f"A U0 device type ({self.device_type}) cannot be assigned to a rack position."
-            })
+        if hasattr(self, 'device_type'):
+            if self.position and self.device_type.u_height == 0:
+                raise ValidationError({
+                    'position': f"A U0 device type ({self.device_type}) cannot be assigned to a rack position."
+                })
 
         if self.rack:
 
