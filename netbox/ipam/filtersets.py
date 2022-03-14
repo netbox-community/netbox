@@ -334,7 +334,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     vlan_vid = django_filters.NumberFilter(
         field_name='vlan__vid',
-        label='VLAN number (1-4095)',
+        label='VLAN number (1-4094)',
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Role.objects.all(),
