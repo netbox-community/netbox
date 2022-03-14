@@ -86,7 +86,7 @@ class ContactAssignmentTable(NetBoxTable):
         linkify=True
     )
     actions = columns.ActionsColumn(
-        sequence=('edit', 'delete')
+        actions=('edit', 'delete')
     )
 
     class Meta(NetBoxTable.Meta):

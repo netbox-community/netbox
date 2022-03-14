@@ -110,7 +110,7 @@ class ComponentTemplateTable(NetBoxTable):
 
 class ConsolePortTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        sequence=('edit', 'delete'),
+        actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
@@ -122,7 +122,7 @@ class ConsolePortTemplateTable(ComponentTemplateTable):
 
 class ConsoleServerPortTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        sequence=('edit', 'delete'),
+        actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
@@ -134,7 +134,7 @@ class ConsoleServerPortTemplateTable(ComponentTemplateTable):
 
 class PowerPortTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        sequence=('edit', 'delete'),
+        actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
@@ -146,7 +146,7 @@ class PowerPortTemplateTable(ComponentTemplateTable):
 
 class PowerOutletTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        sequence=('edit', 'delete'),
+        actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
@@ -161,7 +161,7 @@ class InterfaceTemplateTable(ComponentTemplateTable):
         verbose_name='Management Only'
     )
     actions = columns.ActionsColumn(
-        sequence=('edit', 'delete'),
+        actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
@@ -177,7 +177,7 @@ class FrontPortTemplateTable(ComponentTemplateTable):
     )
     color = columns.ColorColumn()
     actions = columns.ActionsColumn(
-        sequence=('edit', 'delete'),
+        actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
@@ -190,7 +190,7 @@ class FrontPortTemplateTable(ComponentTemplateTable):
 class RearPortTemplateTable(ComponentTemplateTable):
     color = columns.ColorColumn()
     actions = columns.ActionsColumn(
-        sequence=('edit', 'delete'),
+        actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
@@ -202,7 +202,7 @@ class RearPortTemplateTable(ComponentTemplateTable):
 
 class ModuleBayTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        sequence=('edit', 'delete')
+        actions=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -213,7 +213,7 @@ class ModuleBayTemplateTable(ComponentTemplateTable):
 
 class DeviceBayTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        sequence=('edit', 'delete')
+        actions=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -224,7 +224,7 @@ class DeviceBayTemplateTable(ComponentTemplateTable):
 
 class InventoryItemTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        sequence=('edit', 'delete')
+        actions=('edit', 'delete')
     )
     role = tables.Column(
         linkify=True

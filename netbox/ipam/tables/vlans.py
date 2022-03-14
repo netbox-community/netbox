@@ -151,7 +151,7 @@ class VLANDevicesTable(VLANMembersTable):
         linkify=True
     )
     actions = columns.ActionsColumn(
-        sequence=('edit',)
+        actions=('edit',)
     )
 
     class Meta(NetBoxTable.Meta):
@@ -165,7 +165,7 @@ class VLANVirtualMachinesTable(VLANMembersTable):
         linkify=True
     )
     actions = columns.ActionsColumn(
-        sequence=('edit',)
+        actions=('edit',)
     )
 
     class Meta(NetBoxTable.Meta):

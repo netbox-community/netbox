@@ -788,7 +788,6 @@ class DeviceInventoryItemTable(InventoryItemTable):
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = columns.ActionsColumn()
 
     class Meta(NetBoxTable.Meta):
         model = InventoryItem

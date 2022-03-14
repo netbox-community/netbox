@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
 from django_tables2.columns import library
@@ -144,7 +144,7 @@ class ActionsColumn(tables.Column):
     A dropdown menu which provides edit, delete, and changelog links for an object. Can optionally include
     additional buttons rendered from a template string.
 
-    :param sequence: The ordered list of dropdown menu items to include
+    :param actions: The ordered list of dropdown menu items to include
     :param extra_buttons: A Django template string which renders additional buttons preceding the actions dropdown
     """
     attrs = {'td': {'class': 'text-end text-nowrap noprint'}}
@@ -155,14 +155,14 @@ class ActionsColumn(tables.Column):
         'changelog': ActionsItem('Changelog', 'history'),
     }
 
-    def __init__(self, *args, sequence=('edit', 'delete', 'changelog'), extra_buttons='', **kwargs):
+    def __init__(self, *args, actions=('edit', 'delete', 'changelog'), extra_buttons='', **kwargs):
         super().__init__(*args, **kwargs)
 
         self.extra_buttons = extra_buttons
 
         # Determine which actions to enable
         self.actions = {
-            name: self.actions[name] for name in sequence
+            name: self.actions[name] for name in actions
         }
 
     def header(self):
