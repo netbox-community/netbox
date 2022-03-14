@@ -13,7 +13,7 @@ class TokenAuthentication(authentication.TokenAuthentication):
     __request = False
 
     def authenticate(self, request):
-        self.request=request
+        self.request = request
         return super().authenticate(request)
 
     def authenticate_credentials(self, key):
@@ -24,7 +24,7 @@ class TokenAuthentication(authentication.TokenAuthentication):
             raise exceptions.AuthenticationFailed("Invalid token")
 
         # Verify source IP is allowed
-        request=self.request
+        request = self.request
         if len(token.allowed_ipranges) > 0 and request:
 
             if settings.PROXY_HEADER_REALIP in request.META:
@@ -36,7 +36,6 @@ class TokenAuthentication(authentication.TokenAuthentication):
 
             if not token.validateclientip(clientip):
                 raise exceptions.AuthenticationFailed(f"Source IP {clientip} is not allowed to use this token.")
-
 
         # Enforce the Token's expiration time, if one has been set.
         if token.is_expired:

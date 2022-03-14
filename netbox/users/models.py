@@ -242,54 +242,55 @@ class Token(BigIDModel):
         """
         Checks that the value is a comma separated list of IPv4 and/or IPv6 addresses, ranges or subnets.
         """
-        if len(ip_addresses)==0:
+        if len(ip_addresses) == 0:
             return True
 
         for ip in ip_addresses.split(','):
             try:
                 if '/' in ip:
-                    iptest=ipaddress.ip_network(ip)
+                    iptest = ipaddress.ip_network(ip)
                 elif '-' in ip:
-                    ips=ip.split('-')
-                    ip1=ipaddress.ip_address(ips[0])
-                    ip2=ipaddress.ip_address(ips[1])
+                    ips = ip.split('-')
+                    ip1 = ipaddress.ip_address(ips[0])
+                    ip2 = ipaddress.ip_address(ips[1])
                     if ip1>ip2:
                         raise ValidationError()
                 else:
-                    iptest=ipaddress.ip_address(ip)
-            except:
+                    iptest = ipaddress.ip_address(ip)
+            except ValueError:
                 raise ValidationError(f"{ip} is an invalid value in the Allowed IP Ranges ({ip_addresses})")
 
         return True
 
-    def validateclientip(self,raw_ip_address):
+    def validateclientip(self, raw_ip_address):
         """
         Checks that an ip address falls within the allowed ip ranges.
         """
-        if len(self.allowed_ipranges)==0:
+        if len(self.allowed_ipranges) == 0:
             return True
 
         try:
-            ip_address=ipaddress.ip_address(raw_ip_address)
-        except:
+            ip_address = ipaddress.ip_address(raw_ip_address)
+        except ValueError:
             raise ValidationError(f"{raw_ip_address} is an invalid IP address")
 
         for ip in self.allowed_ipranges.split(','):
             if '/' in ip:
-                ipnet=ipaddress.ip_network(ip)
+                ipnet = ipaddress.ip_network(ip)
                 if ip_address in ipnet:
                     return True
             elif '-' in ip:
-                ips=ip.split('-')
-                ip1=ipaddress.ip_address(ips[0])
-                ip2=ipaddress.ip_address(ips[1])
+                ips = ip.split('-')
+                ip1 = ipaddress.ip_address(ips[0])
+                ip2 = ipaddress.ip_address(ips[1])
                 if ip_address >= ip1 and ip_address <= ip2:
                     return True
             else:
-                ipaddr=ipaddress.ip_address(ip)
-                if ip_address==ipaddr:
+                ipaddr = ipaddress.ip_address(ip)
+                if ip_address == ipaddr:
                     return True
         return False
+
 
 #
 # Permissions
