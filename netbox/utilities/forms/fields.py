@@ -177,8 +177,12 @@ class MemoryField(forms.MultiValueField):
     def compress(cls, data):
         if data:
             size, unit = data
-            if size:
+            if size and not unit:
+                raise forms.ValidationError("Memory unit cannot be blank.")
+            elif size and unit:
                 return size * cls.MULTIPLIERS[unit]
+            elif not size and unit:
+                raise forms.ValidationError("Please enter a memory value when unit is selected.")
 
 
 #
