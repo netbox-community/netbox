@@ -10,30 +10,13 @@ class TokenAuthentication(authentication.TokenAuthentication):
     A custom authentication scheme which enforces Token expiration times.
     """
     model = Token
+    __request = False
 
     def authenticate(self, request):
-        auth = authentication.get_authorization_header(request).split()
+        self.request=request
+        return super().authenticate(request)
 
-        if not auth or auth[0].lower() != self.keyword.lower().encode():
-            return None
-
-        if len(auth) == 1:
-            msg = 'Invalid token header. No credentials provided.'
-            raise exceptions.AuthenticationFailed(msg)
-        elif len(auth) > 2:
-            msg = 'Invalid token header. Token string should not contain spaces.'
-            raise exceptions.AuthenticationFailed(msg)
-
-        try:
-            token = auth[1].decode()
-        except UnicodeError:
-            msg = 'Invalid token header. Token string should not contain invalid characters.'
-            raise exceptions.AuthenticationFailed(msg)
-
-        return self.authenticate_credentials(request,token)
-
-
-    def authenticate_credentials(self, request, key):
+    def authenticate_credentials(self, key):
         model = self.get_model()
         try:
             token = model.objects.prefetch_related('user').get(key=key)
@@ -41,7 +24,8 @@ class TokenAuthentication(authentication.TokenAuthentication):
             raise exceptions.AuthenticationFailed("Invalid token")
 
         # Verify source IP is allowed
-        if len(token.allowed_ipranges) > 0:
+        request=self.request
+        if len(token.allowed_ipranges) > 0 and request:
 
             if settings.PROXY_HEADER_REALIP in request.META:
                 clientip = request.META[settings.PROXY_HEADER_REALIP].split(",")[0].strip()
