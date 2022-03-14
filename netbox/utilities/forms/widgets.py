@@ -319,11 +319,11 @@ class MemoryWidget(forms.MultiWidget):
     Memory Widget.
     """
     def __init__(self, attrs=None):
-        widget = (
+        widgets = (
             forms.NumberInput(),
-            StaticSelect(choices=MemoryUnitChoices.choices)
+            StaticSelect(choices=add_blank_choice(MemoryUnitChoices.CHOICES))
         )
-        super(MemoryWidget, self).__init__(widget, attrs)
+        super(MemoryWidget, self).__init__(widgets, attrs)
 
     def decompress(self, value):
         if value:

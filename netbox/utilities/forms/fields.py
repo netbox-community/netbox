@@ -154,36 +154,31 @@ class MACAddressField(forms.Field):
 
 class MemoryField(forms.MultiValueField):
     widget = widgets.MemoryWidget
-    empty_values = ['', 'gb', 'mb', 'tb']
+    MULTIPLIERS = {
+        MemoryUnitChoices.UNIT_MB: 1024**0,
+        MemoryUnitChoices.UNIT_GB: 1024**1,
+        MemoryUnitChoices.UNIT_TB: 1024**2,
+    }
 
     def __init__(self, **kwargs):
         fields = (
             forms.IntegerField(required=False),
-            forms.CharField(required=False),
+            forms.ChoiceField(
+                choices=MemoryUnitChoices.CHOICES,
+                required=False
+            ),
         )
         super(MemoryField, self).__init__(
             fields=fields, required=False,
             require_all_fields=False, **kwargs
         )
-    
-    def compress(self, data):
+
+    @classmethod
+    def compress(cls, data):
         if data:
-            value = data[0]
-            unit = data[1]
-
-            defs = {
-                'gb': 1024**1,
-                'tb': 1024**2,
-            }
-            if value:
-                if unit != MemoryUnitChoices.UNIT_MB:
-                    return value * defs[unit]
-                else:
-                    return value
-    
-
-        
-
+            size, unit = data
+            if size:
+                return size * cls.MULTIPLIERS[unit]
 
 
 #

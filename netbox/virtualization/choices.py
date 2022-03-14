@@ -10,11 +10,12 @@ class MemoryUnitChoices(ChoiceSet):
     UNIT_GB = 'gb'
     UNIT_TB = 'tb'
 
-    choices = (
+    CHOICES = (
         (UNIT_MB, 'MB'),
         (UNIT_GB, 'GB'),
         (UNIT_TB, 'TB'),
     )
+
 
 class VirtualMachineStatusChoices(ChoiceSet):
 
