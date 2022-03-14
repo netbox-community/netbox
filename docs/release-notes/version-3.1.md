@@ -1,5 +1,15 @@
 # NetBox v3.1
 
+## v3.1.10 (FUTURE)
+
+### Enhancements
+
+* [#8233](https://github.com/netbox-community/netbox/issues/8233) -  Restrict API key usage by source IP 
+
+### Bug Fixes
+
+---
+
 ## v3.1.9 (2022-03-07)
 
 ### Enhancements
