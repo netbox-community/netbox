@@ -101,7 +101,6 @@ class RIRTable(NetBoxTable):
 
 class ASNTable(NetBoxTable):
     asn = tables.Column(
-        accessor=tables.A('asn_asdot'),
         linkify=True
     )
     asn_asdot = tables.Column(
