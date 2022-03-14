@@ -113,3 +113,7 @@ svgwrite
 # Tabular dataset library (for table-based exports)
 # https://github.com/jazzband/tablib
 tablib
+
+# It changes comma separated widget to list based in admin panel
+# https://github.com/gradam/django-better-admin-arrayfield
+django_better_admin_arrayfield

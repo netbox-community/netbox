@@ -25,16 +25,16 @@ class TokenAuthentication(authentication.TokenAuthentication):
 
         # Verify source IP is allowed
         request = self.request
-        if len(token.allowed_ipranges) > 0 and request:
-
-            if settings.PROXY_HEADER_REALIP in request.META:
-                clientip = request.META[settings.PROXY_HEADER_REALIP].split(",")[0].strip()
+        if len(token.allowed_ips) > 0 and request:
+### Replace 'HTTP_X_REAL_IP' with the settings variable choosen in #8867
+            if 'HTTP_X_REAL_IP' in request.META:
+                clientip = request.META['HTTP_X_REAL_IP'].split(",")[0].strip()
             elif 'REMOTE_ADDR' in request.META:
                 clientip = request.META['REMOTE_ADDR']
             else:
-                raise exceptions.AuthenticationFailed(f"The request headers ({settings.PROXY_HEADER_REALIP}, REMOTE_ADDR) are missing or do not contain a valid source IP.")
+                raise exceptions.AuthenticationFailed(f"The request headers (HTTP_X_REAL_IP, REMOTE_ADDR) are missing or do not contain a valid source IP.")
 
-            if not token.validateclientip(clientip):
+            if not token.validate_client_ip(clientip):
                 raise exceptions.AuthenticationFailed(f"Source IP {clientip} is not allowed to use this token.")
 
         # Enforce the Token's expiration time, if one has been set.

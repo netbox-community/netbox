@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group, User
 from users.models import ObjectPermission, Token
 from . import filters, forms, inlines
 
+from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 
 #
 # Users & groups
@@ -55,10 +56,10 @@ class UserAdmin(UserAdmin_):
 #
 
 @admin.register(Token)
-class TokenAdmin(admin.ModelAdmin):
+class TokenAdmin(admin.ModelAdmin, DynamicArrayMixin):
     form = forms.TokenAdminForm
     list_display = [
-        'key', 'user', 'created', 'expires', 'write_enabled', 'description', 'allowed_ipranges'
+        'key', 'user', 'created', 'expires', 'write_enabled', 'description', 'allowed_ips'
     ]
 
 

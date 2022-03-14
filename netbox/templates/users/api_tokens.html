@@ -35,11 +35,11 @@
                                 {% endif %}
                             </div>
                             <div class="col col-md-4">
-                                <small class="text-muted">Allowed IP Sources</small><br />
-                                {% if token.allowed_ipranges %}
-                                    {{ token.allowed_ipranges }}
+                                <small class="text-muted">Allowed Source IPs</small><br />
+                                {% if token.allowed_ips %}
+                                    {{ token.allowed_ips }}
                                 {% else %}
-                                    <span>Everywhere</span>
+                                    <span>Any</span>
                                 {% endif %}
                             </div>
                             <div class="col col-md-4">

@@ -51,7 +51,7 @@ class TokenAdminForm(forms.ModelForm):
 
     class Meta:
         fields = [
-            'user', 'key', 'write_enabled', 'expires', 'description', 'allowed_ipranges'
+            'user', 'key', 'write_enabled', 'expires', 'description', 'allowed_ips'
         ]
         model = Token
 

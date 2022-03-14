@@ -22,7 +22,7 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Token
         fields = [
-            'key', 'write_enabled', 'expires', 'description', 'allowed_ipranges',
+            'key', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
         widgets = {
             'expires': DateTimePicker(),
