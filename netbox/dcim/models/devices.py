@@ -1049,7 +1049,7 @@ class Module(NetBoxModel, ConfigContextModel):
         ordering = ('module_bay',)
 
     def __str__(self):
-        return str(self.module_type)
+        return f'{self.module_bay.name}: {self.module_type} ({self.pk})'
 
     def get_absolute_url(self):
         return reverse('dcim:module', args=[self.pk])
