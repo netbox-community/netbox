@@ -2,6 +2,10 @@
 
 ## v3.1.10 (FUTURE)
 
+### Enhancements
+
+* [#8233](https://github.com/netbox-community/netbox/issues/8233) -  Restrict API key usage by source IP
+
 ### Bug Fixes
 
 * [#8820](https://github.com/netbox-community/netbox/issues/8820) - Fix navbar background color in dark mode

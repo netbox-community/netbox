@@ -22,11 +22,11 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col col-md-4">
+                            <div class="col col-md-3">
                                 <small class="text-muted">Created</small><br />
                                 {{ token.created|annotated_date }}
                             </div>
-                            <div class="col col-md-4">
+                            <div class="col col-md-3">
                                 <small class="text-muted">Expires</small><br />
                                 {% if token.expires %}
                                     {{ token.expires|annotated_date }}
@@ -34,12 +34,20 @@
                                     <span>Never</span>
                                 {% endif %}
                             </div>
-                            <div class="col col-md-4">
+                            <div class="col col-md-3">
                                 <small class="text-muted">Create/Edit/Delete Operations</small><br />
                                 {% if token.write_enabled %}
                                     <span class="badge bg-success">Enabled</span>
                                 {% else %}
                                     <span class="badge bg-danger">Disabled</span>
+                                {% endif %}
+                            </div>
+                            <div class="col col-md-3">
+                                <small class="text-muted">Allowed Source IPs</small><br />
+                                {% if token.allowed_ips %}
+                                    {{ token.allowed_ips }}
+                                {% else %}
+                                    <span>Any</span>
                                 {% endif %}
                             </div>
                         </div>
