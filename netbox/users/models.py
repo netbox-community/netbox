@@ -208,11 +208,11 @@ class Token(BigIDModel):
         max_length=200,
         blank=True
     )
-    allowed_ips = betterArrayField(
-        base_field = IPNetworkField(),
-        blank = True,
-        null = True,        
-        help_text = 'Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"',
+    allowed_ips=betterArrayField(
+        base_field=IPNetworkField(),
+        blank=True,
+        null=True,
+        help_text='Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"',
     )
 
     class Meta:

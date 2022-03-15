@@ -26,7 +26,7 @@ class TokenAuthentication(authentication.TokenAuthentication):
         # Verify source IP is allowed
         request = self.request
         if len(token.allowed_ips) > 0 and request:
-### Replace 'HTTP_X_REAL_IP' with the settings variable choosen in #8867
+            # Replace 'HTTP_X_REAL_IP' with the settings variable choosen in #8867
             if 'HTTP_X_REAL_IP' in request.META:
                 clientip = request.META['HTTP_X_REAL_IP'].split(",")[0].strip()
             elif 'REMOTE_ADDR' in request.META:
