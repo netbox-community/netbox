@@ -59,8 +59,13 @@ class UserAdmin(UserAdmin_):
 class TokenAdmin(admin.ModelAdmin, DynamicArrayMixin):
     form = forms.TokenAdminForm
     list_display = [
-        'key', 'user', 'created', 'expires', 'write_enabled', 'description', 'allowed_ips'
+        'key', 'user', 'created', 'expires', 'write_enabled', 'description', 'list_allowed_ips'
     ]
+
+    def list_allowed_ips(self, obj):
+        return obj.allowed_ips
+    list_allowed_ips.empty_value_display = 'Any'
+    list_allowed_ips.short_description = "Allowed IPs"
 
 
 #
