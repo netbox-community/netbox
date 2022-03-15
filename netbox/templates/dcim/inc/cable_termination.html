@@ -8,6 +8,22 @@
                 <a href="{{ termination.device.get_absolute_url }}">{{ termination.device }}</a>
             </td>
         </tr>
+        {% if termination.device.site %}
+        <tr>
+            <td>Site</td>
+            <td>
+                <a href="{{ termination.device.site.get_absolute_url }}">{{ termination.device.site }}</a>
+            </td>
+        </tr>
+        {% endif %}
+        {% if termination.device.rack %}
+        <tr>
+            <td>Rack</td>
+            <td>
+                <a href="{{ termination.device.rack.get_absolute_url }}">{{ termination.device.rack }}</a>
+            </td>
+        </tr>
+        {% endif %}
         <tr>
             <td>Type</td>
             <td>
