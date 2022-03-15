@@ -5,7 +5,9 @@
 ### Bug Fixes
 
 * [#8820](https://github.com/netbox-community/netbox/issues/8820) - Fix navbar background color in dark mode
-* [#8850](https://github.com/netbox-community/netbox/issues/8850) - Show airflow field on device REST API serializer when config context data is included
+* [#8850](https://github.com/netbox-community/netbox/issues/8850) - Show airflow field on device REST API seroializer when config context data is included
+* [#8813](https://github.com/netbox-community/netbox/issues/8813) - Search bar contents not retained after submitting
+* [#7839](https://github.com/netbox-community/netbox/issues/8813) - Focus on searchbar
 
 ---
 
