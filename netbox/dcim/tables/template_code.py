@@ -102,6 +102,16 @@ DEVICE_ASSIGN_LINK = """
 <a href="{% url 'dcim:device_edit' pk=record.pk %}?rack={{ request.GET.rack }}&position={{ request.GET.position }}&site={{ request.GET.site }}&location={{ object.GET.location }}&face={{ request.GET.face }}&return_url={{ request.GET.return_url }}">{{ record }}</a>
 """
 
+DEVICE_ASSIGN_TENANT = """
+{% if record.tenant %}
+    {{ record.tenant }}
+{% elif record.vrf.tenant %}
+    {{ record.vrf.tenant }}
+{% else %}
+    &mdash;
+{% endif %}
+"""
+
 #
 # Device component buttons
 #

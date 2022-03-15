@@ -220,7 +220,9 @@ class DeviceAssignTable(BaseTable):
         verbose_name='Name'
     )
     status = ChoiceFieldColumn()
-    tenant = TenantColumn()
+    tenant = tables.TemplateColumn(
+        template_code=DEVICE_ASSIGN_TENANT
+    )
     site = tables.Column()
     location = tables.Column()
     rack = tables.Column()
