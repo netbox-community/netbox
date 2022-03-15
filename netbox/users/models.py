@@ -208,7 +208,7 @@ class Token(BigIDModel):
         max_length=200,
         blank=True
     )
-    allowed_ips=betterArrayField(
+    allowed_ips = betterArrayField(
         base_field=IPNetworkField(),
         blank=True,
         null=True,
