@@ -99,7 +99,7 @@ LOCATION_ELEVATIONS = """
 #
 
 DEVICE_ASSIGN_LINK = """
-<a href="{% url 'dcim:device_edit' pk=record.pk %}?{% if request.GET.rack %}rack={{ request.GET.rack }}{% endif %}{% if request.GET.position %}&position={{ request.GET.position }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}&location={{ object.location }}&face=front&return_url={{ request.GET.return_url }}">{{ record }}</a>
+<a href="{% url 'dcim:device_edit' pk=record.pk %}?rack={{ request.GET.rack }}&position={{ request.GET.position }}&site={{ request.GET.site }}&location={{ object.GET.location }}&face={{ request.GET.face }}&return_url={{ request.GET.return_url }}">{{ record }}</a>
 """
 
 #
