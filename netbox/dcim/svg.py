@@ -163,8 +163,9 @@ class RackElevationSVG:
                 'position': id_
             })
         )
+        return_url = "&return_url={}".format(rack.get_absolute_url())
         link = drawing.add(
-            drawing.a(href=link_url, target='_top')
+            drawing.a(href=link_url+"{}".format(return_url), target='_top')
         )
         if reservation:
             link.set_desc('{} — {} · {}'.format(

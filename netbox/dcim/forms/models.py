@@ -29,6 +29,7 @@ __all__ = (
     'DeviceBayForm',
     'DeviceBayTemplateForm',
     'DeviceForm',
+    'DeviceAssignForm',
     'DeviceRoleForm',
     'DeviceTypeForm',
     'DeviceVCMembershipForm',
@@ -629,6 +630,23 @@ class DeviceForm(TenancyForm, CustomFieldModelForm):
         position = self.data.get('position') or self.initial.get('position')
         if position:
             self.fields['position'].widget.choices = [(position, f'U{position}')]
+
+
+class DeviceAssignForm(BootstrapMixin, forms.Form):
+    rack_id = DynamicModelMultipleChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$site_id',
+            'location_id': '$location_id',
+        },
+        label=_('Rack')
+    )
+    q = forms.CharField(
+        required=False,
+        label='Search',
+    )
 
 
 class CableForm(TenancyForm, CustomFieldModelForm):

@@ -1463,6 +1463,46 @@ class DeviceEditView(generic.ObjectEditView):
     model_form = forms.DeviceForm
     template_name = 'dcim/device_edit.html'
 
+class DeviceAssignView(generic.ObjectEditView):
+    """
+    Search for Devices to be assigned to an Rack.
+    """
+    queryset = Device.objects.all()
+
+    def dispatch(self, request, *args, **kwargs):
+
+        # Redirect user if an interface has not been provided
+        if 'rack' not in request.GET:
+            return redirect('ipam:ipaddress_add')
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        form = forms.DeviceAssignForm()
+
+        return render(request, 'dcim/device_assign.html', {
+            'form': form,
+            'return_url': request.GET.get('return_url', ''),
+        })
+
+    def post(self, request):
+        form = forms.DeviceAssignForm(request.POST)
+        table = None
+
+        if form.is_valid():
+
+            devices = self.queryset.prefetch_related('rack')
+            print(devices[0].rack.pk)
+            # Limit to 100 results
+            devices = filtersets.DeviceFilterSet(request.POST, devices).qs[:100]
+            table = tables.DeviceAssignTable(devices)
+
+        return render(request, 'dcim/device_assign.html', {
+            'form': form,
+            'table': table,
+            'return_url': request.GET.get('return_url'),
+        })
+
 
 class DeviceDeleteView(generic.ObjectDeleteView):
     queryset = Device.objects.all()

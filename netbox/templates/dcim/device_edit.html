@@ -1,6 +1,11 @@
 {% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
 
+
+{% block tabs %}
+  {% include 'dcim/inc/device_edit_header.html' with active_tab='add' %}
+{% endblock %}
+
 {% block form %}
     {% render_errors form %}
     

@@ -30,6 +30,7 @@ __all__ = (
     'DeviceRearPortTable',
     'DeviceRoleTable',
     'DeviceTable',
+    'DeviceAssignTable',
     'FrontPortTable',
     'InterfaceTable',
     'InventoryItemTable',
@@ -211,6 +212,40 @@ class DeviceTable(BaseTable):
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',
             'primary_ip',
         )
+
+
+class DeviceAssignTable(BaseTable):
+    name = tables.TemplateColumn(
+        template_code=DEVICE_ASSIGN_LINK,
+        verbose_name='Name'
+    )
+    status = ChoiceFieldColumn()
+    tenant = TenantColumn()
+    site = tables.Column()
+    location = tables.Column()
+    rack = tables.Column()
+    device_role = ColoredLabelColumn(
+        verbose_name='Role'
+    )
+    manufacturer = tables.Column(
+        accessor=Accessor('device_type__manufacturer'),
+    )
+    device_type = tables.Column(
+        verbose_name='Type'
+    )
+    primary_ip = tables.Column(
+        order_by=('primary_ip4', 'primary_ip6'),
+        verbose_name='IP Address'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = Device
+        fields = (
+            'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',
+            'primary_ip',
+        )
+        exclude = ('id', )
+        orderable = False
 
 
 class DeviceImportTable(BaseTable):
