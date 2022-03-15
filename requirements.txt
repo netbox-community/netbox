@@ -28,6 +28,7 @@ social-auth-core==4.2.0
 svgwrite==1.4.1
 tablib==3.2.0
 tzdata==2021.5
+django_better_admin_arrayfield==1.4.2
 
 # Workaround for #7401
 jsonschema==3.2.0
