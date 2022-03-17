@@ -14,7 +14,7 @@ django-timezone-field==5.0
 djangorestframework==3.13.1
 drf-yasg[validation]==1.20.0
 # Installing from branch pending v2.16 release
-git+git://github.com/graphql-python/graphene-django.git@v2
+git+https://github.com/graphql-python/graphene-django.git@v2
 gunicorn==20.1.0
 Jinja2==3.0.3
 Markdown==3.3.6
