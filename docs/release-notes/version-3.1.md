@@ -2,6 +2,10 @@
 
 ## v3.1.10 (FUTURE)
 
+### Enhancements
+
+* [#8553](https://github.com/netbox-community/netbox/issues/8553) - Add missing object types to global search form
+
 ### Bug Fixes
 
 * [#8820](https://github.com/netbox-community/netbox/issues/8820) - Fix navbar background color in dark mode
