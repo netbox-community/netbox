@@ -5,9 +5,10 @@
     aria-label="Search"
     placeholder="Search"
     class="form-control"
-    value="{{ request.GET.q }}"
-  />
-
+    value=""
+    {% if request.GET.q %}autofocus
+    onfocus="this.value = '{{ request.GET.q }}';" {% endif %}
+    />
   <input name="obj_type" hidden type="text" class="search-obj-type" />
 
   <span class="input-group-text search-obj-selected">All Objects</span>
