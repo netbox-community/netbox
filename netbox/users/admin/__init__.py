@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as UserAdmin_
 from django.contrib.auth.models import Group, User
+from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 
 from users.models import ObjectPermission, Token
 from . import filters, forms, inlines
@@ -55,11 +56,16 @@ class UserAdmin(UserAdmin_):
 #
 
 @admin.register(Token)
-class TokenAdmin(admin.ModelAdmin):
+class TokenAdmin(admin.ModelAdmin, DynamicArrayMixin):
     form = forms.TokenAdminForm
     list_display = [
-        'key', 'user', 'created', 'expires', 'write_enabled', 'description'
+        'key', 'user', 'created', 'expires', 'write_enabled', 'description', 'list_allowed_ips'
     ]
+
+    def list_allowed_ips(self, obj):
+        return obj.allowed_ips
+    list_allowed_ips.empty_value_display = 'Any'
+    list_allowed_ips.short_description = "Allowed IPs"
 
 
 #

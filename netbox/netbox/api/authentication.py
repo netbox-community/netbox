@@ -10,6 +10,11 @@ class TokenAuthentication(authentication.TokenAuthentication):
     A custom authentication scheme which enforces Token expiration times.
     """
     model = Token
+    __request = False
+
+    def authenticate(self, request):
+        self.request = request
+        return super().authenticate(request)
 
     def authenticate_credentials(self, key):
         model = self.get_model()
@@ -17,6 +22,20 @@ class TokenAuthentication(authentication.TokenAuthentication):
             token = model.objects.prefetch_related('user').get(key=key)
         except model.DoesNotExist:
             raise exceptions.AuthenticationFailed("Invalid token")
+
+        # Verify source IP is allowed
+        request = self.request
+        if token.allowed_ips and request:
+            # Replace 'HTTP_X_REAL_IP' with the settings variable choosen in #8867
+            if 'HTTP_X_REAL_IP' in request.META:
+                clientip = request.META['HTTP_X_REAL_IP'].split(",")[0].strip()
+            elif 'REMOTE_ADDR' in request.META:
+                clientip = request.META['REMOTE_ADDR']
+            else:
+                raise exceptions.AuthenticationFailed(f"The request HTTP headers (HTTP_X_REAL_IP, REMOTE_ADDR) are missing or do not contain a valid source IP.")
+
+            if not token.validate_client_ip(clientip):
+                raise exceptions.AuthenticationFailed(f"Source IP {clientip} is not allowed to use this token.")
 
         # Enforce the Token's expiration time, if one has been set.
         if token.is_expired:
