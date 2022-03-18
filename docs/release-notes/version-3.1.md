@@ -4,7 +4,8 @@
 
 ### Enhancements
 
-* [#8233](https://github.com/netbox-community/netbox/issues/8233) -  Restrict API key usage by source IP
+* [#8233](https://github.com/netbox-community/netbox/issues/8233) - Restrict API key usage by source IP
+* [#8553](https://github.com/netbox-community/netbox/issues/8553) - Add missing object types to global search form
 
 ### Bug Fixes
 
