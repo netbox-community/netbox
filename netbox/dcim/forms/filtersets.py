@@ -8,9 +8,7 @@ from dcim.models import *
 from tenancy.models import *
 from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterForm
 from ipam.models import ASN
-from tenancy.forms import (
-    TenancyFilterForm, ContactModelFilterForm
-)
+from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import (
     APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm, StaticSelect,
     StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
