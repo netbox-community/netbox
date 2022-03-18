@@ -29,7 +29,7 @@ class TokenAuthentication(authentication.TokenAuthentication):
                 if not token.validate_client_ip(clientip):
                     raise exceptions.AuthenticationFailed(f"Source IP {clientip} is not allowed to use this token.")
 
-    return authenticationresult
+        return authenticationresult
 
     def authenticate_credentials(self, key):
         model = self.get_model()
