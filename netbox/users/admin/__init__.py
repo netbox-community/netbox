@@ -62,8 +62,9 @@ class TokenAdmin(admin.ModelAdmin):
     ]
 
     def list_allowed_ips(self, obj):
-        return obj.allowed_ips
-    list_allowed_ips.empty_value_display = 'Any'
+        if obj.allowed_ips:
+            return obj.allowed_ips
+        return 'Any'
     list_allowed_ips.short_description = "Allowed IPs"
 
 
