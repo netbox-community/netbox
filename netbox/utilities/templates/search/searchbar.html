@@ -5,11 +5,7 @@
     aria-label="Search"
     placeholder="Search"
     class="form-control"
-    value=""
-    {% if request.GET.q %}
-      autofocus
-      onfocus="this.value = '{{ request.GET.q|escapejs }}';" 
-    {% endif %}
+    value="{{ request.GET.q|escape }}"
   />
 
   <input name="obj_type" hidden type="text" class="search-obj-type" />
