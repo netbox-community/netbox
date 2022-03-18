@@ -4,7 +4,10 @@
 
 ### Enhancements
 
+* [#8457](https://github.com/netbox-community/netbox/issues/8457) - Enable adding non-racked devices from site & location views
 * [#8553](https://github.com/netbox-community/netbox/issues/8553) - Add missing object types to global search form
+* [#8575](https://github.com/netbox-community/netbox/issues/8575) - Add rack columns to cables list
+* [#8645](https://github.com/netbox-community/netbox/issues/8645) - Enable filtering objects by assigned contacts & contact roles
 
 ### Bug Fixes
 
