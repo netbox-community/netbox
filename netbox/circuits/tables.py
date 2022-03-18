@@ -58,6 +58,9 @@ class ProviderTable(BaseTable):
         verbose_name='Circuits'
     )
     comments = MarkdownColumn()
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = TagColumn(
         url_name='circuits:provider_list'
     )
@@ -66,7 +69,7 @@ class ProviderTable(BaseTable):
         model = Provider
         fields = (
             'pk', 'id', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count',
-            'comments', 'tags', 'created', 'last_updated',
+            'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'asn', 'account', 'circuit_count')
 
@@ -142,6 +145,9 @@ class CircuitTable(BaseTable):
     )
     commit_rate = CommitRateColumn()
     comments = MarkdownColumn()
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = TagColumn(
         url_name='circuits:circuit_list'
     )
@@ -150,7 +156,7 @@ class CircuitTable(BaseTable):
         model = Circuit
         fields = (
             'pk', 'id', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'install_date',
-            'commit_rate', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'commit_rate', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'description',

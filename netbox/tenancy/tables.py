@@ -77,6 +77,9 @@ class TenantTable(BaseTable):
     group = tables.Column(
         linkify=True
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     comments = MarkdownColumn()
     tags = TagColumn(
         url_name='tenancy:tenant_list'
@@ -84,7 +87,7 @@ class TenantTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Tenant
-        fields = ('pk', 'id', 'name', 'slug', 'group', 'description', 'comments', 'tags', 'created', 'last_updated',)
+        fields = ('pk', 'id', 'name', 'slug', 'group', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',)
         default_columns = ('pk', 'name', 'group', 'description')
 
 
