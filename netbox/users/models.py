@@ -239,7 +239,7 @@ class Token(BigIDModel):
 
     def validate_client_ip(self, raw_ip_address):
         """
-        Checks that an ip address falls within the allowed ips.
+        Checks that an IP address falls within the allowed IPs.
         """
         if not self.allowed_ips:
             return True
