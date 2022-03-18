@@ -10,7 +10,6 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from django_better_admin_arrayfield.models.fields import ArrayField as betterArrayField
 
 from netbox.models import BigIDModel
 from ipam.fields import IPNetworkField
@@ -208,7 +207,7 @@ class Token(BigIDModel):
         max_length=200,
         blank=True
     )
-    allowed_ips = betterArrayField(
+    allowed_ips = ArrayField(
         base_field=IPNetworkField(),
         blank=True,
         null=True,
