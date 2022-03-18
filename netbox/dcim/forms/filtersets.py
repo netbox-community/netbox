@@ -101,6 +101,11 @@ class DeviceComponentFilterForm(CustomFieldModelFilterForm):
 
 class RegionFilterForm(ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Region
+    field_groups = [
+        ['q', 'tag'],
+        ['parent_id'],
+        ['contact', 'contact_role'],
+    ]
     parent_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -111,6 +116,11 @@ class RegionFilterForm(ContactModelFilterForm, CustomFieldModelFilterForm):
 
 class SiteGroupFilterForm(ContactModelFilterForm, CustomFieldModelFilterForm):
     model = SiteGroup
+    field_groups = [
+        ['q', 'tag'],
+        ['parent_id'],
+        ['contact', 'contact_role'],
+    ]
     parent_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
@@ -309,6 +319,10 @@ class RackReservationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
 
 class ManufacturerFilterForm(ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Manufacturer
+    field_groups = [
+        ['q', 'tag'],
+        ['contact', 'contact_role'],
+    ]
     tag = TagFilterField(model)
 
 

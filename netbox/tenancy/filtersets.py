@@ -11,11 +11,11 @@ __all__ = (
     'ContactAssignmentFilterSet',
     'ContactFilterSet',
     'ContactGroupFilterSet',
+    'ContactModelFilterSet',
     'ContactRoleFilterSet',
     'TenancyFilterSet',
     'TenantFilterSet',
     'TenantGroupFilterSet',
-    'ContactModelFilterSet'
 )
 
 
@@ -165,7 +165,7 @@ class TenantFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = Tenant
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():

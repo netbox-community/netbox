@@ -5,9 +5,9 @@ from tenancy.models import *
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 
 __all__ = (
+    'ContactModelFilterForm',
     'TenancyForm',
     'TenancyFilterForm',
-    'ContactModelFilterForm'
 )
 
 
