@@ -26,6 +26,9 @@ class RegionTable(NetBoxTable):
         url_params={'region_id': 'pk'},
         verbose_name='Sites'
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = columns.TagColumn(
         url_name='dcim:region_list'
     )
@@ -33,7 +36,8 @@ class RegionTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Region
         fields = (
-            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'created', 'last_updated', 'actions',
+            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'contacts', 'tags', 'created', 'last_updated',
+            'actions',
         )
         default_columns = ('pk', 'name', 'site_count', 'description')
 
@@ -51,6 +55,9 @@ class SiteGroupTable(NetBoxTable):
         url_params={'group_id': 'pk'},
         verbose_name='Sites'
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = columns.TagColumn(
         url_name='dcim:sitegroup_list'
     )
@@ -58,7 +65,8 @@ class SiteGroupTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = SiteGroup
         fields = (
-            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'tags', 'created', 'last_updated', 'actions',
+            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'contacts', 'tags', 'created', 'last_updated',
+            'actions',
         )
         default_columns = ('pk', 'name', 'site_count', 'description')
 
@@ -90,6 +98,9 @@ class SiteTable(NetBoxTable):
     )
     tenant = TenantColumn()
     comments = columns.MarkdownColumn()
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = columns.TagColumn(
         url_name='dcim:site_list'
     )
@@ -99,7 +110,7 @@ class SiteTable(NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asns', 'asn_count',
             'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments',
-            'tags', 'created', 'last_updated', 'actions',
+            'contacts', 'tags', 'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'description')
 
@@ -126,6 +137,9 @@ class LocationTable(NetBoxTable):
         url_params={'location_id': 'pk'},
         verbose_name='Devices'
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = columns.TagColumn(
         url_name='dcim:location_list'
     )
@@ -136,7 +150,7 @@ class LocationTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Location
         fields = (
-            'pk', 'id', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'tags',
-            'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'contacts',
+            'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description')

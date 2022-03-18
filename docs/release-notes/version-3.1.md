@@ -2,6 +2,18 @@
 
 ## v3.1.10 (FUTURE)
 
+### Enhancements
+
+* [#8457](https://github.com/netbox-community/netbox/issues/8457) - Enable adding non-racked devices from site & location views
+* [#8553](https://github.com/netbox-community/netbox/issues/8553) - Add missing object types to global search form
+* [#8575](https://github.com/netbox-community/netbox/issues/8575) - Add rack columns to cables list
+* [#8645](https://github.com/netbox-community/netbox/issues/8645) - Enable filtering objects by assigned contacts & contact roles
+
+### Bug Fixes
+
+* [#8820](https://github.com/netbox-community/netbox/issues/8820) - Fix navbar background color in dark mode
+* [#8850](https://github.com/netbox-community/netbox/issues/8850) - Show airflow field on device REST API serializer when config context data is included
+
 ---
 
 ## v3.1.9 (2022-03-07)

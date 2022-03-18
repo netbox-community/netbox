@@ -8,7 +8,7 @@ from dcim.models import *
 from extras.forms import LocalConfigContextFilterForm
 from ipam.models import ASN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
-from tenancy.forms import TenancyFilterForm
+from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import (
     APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm, StaticSelect,
     StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES, SelectSpeedWidget,
@@ -104,8 +104,12 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
     )
 
 
-class RegionFilterForm(NetBoxModelFilterSetForm):
+class RegionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Region
+    fieldsets = (
+        (None, ('q', 'tag', 'parent_id')),
+        ('Contacts', ('contact', 'contact_role'))
+    )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -114,8 +118,12 @@ class RegionFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class SiteGroupFilterForm(NetBoxModelFilterSetForm):
+class SiteGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = SiteGroup
+    fieldsets = (
+        (None, ('q', 'tag', 'parent_id')),
+        ('Contacts', ('contact', 'contact_role'))
+    )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
@@ -124,12 +132,13 @@ class SiteGroupFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class SiteFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Site
     fieldsets = (
         (None, ('q', 'tag')),
         ('Attributes', ('status', 'region_id', 'group_id', 'asn_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Contacts', ('contact', 'contact_role')),
     )
     status = forms.MultipleChoiceField(
         choices=SiteStatusChoices,
@@ -154,12 +163,13 @@ class SiteFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class LocationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Location
     fieldsets = (
         (None, ('q', 'tag')),
         ('Parent', ('region_id', 'site_group_id', 'site_id', 'parent_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Contacts', ('contact', 'contact_role')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -197,7 +207,7 @@ class RackRoleFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class RackFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Rack
     fieldsets = (
         (None, ('q', 'tag')),
@@ -205,6 +215,7 @@ class RackFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         ('Function', ('status', 'role_id')),
         ('Hardware', ('type', 'width', 'serial', 'asset_tag')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Contacts', ('contact', 'contact_role')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -308,8 +319,12 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ManufacturerFilterForm(NetBoxModelFilterSetForm):
+class ManufacturerFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Manufacturer
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Contacts', ('contact', 'contact_role'))
+    )
     tag = TagFilterField(model)
 
 
@@ -465,7 +480,12 @@ class PlatformFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
+class DeviceFilterForm(
+    LocalConfigContextFilterForm,
+    TenancyFilterForm,
+    ContactModelFilterForm,
+    NetBoxModelFilterSetForm
+):
     model = Device
     fieldsets = (
         (None, ('q', 'tag')),
@@ -473,6 +493,7 @@ class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxMo
         ('Operation', ('status', 'role_id', 'airflow', 'serial', 'asset_tag', 'mac_address')),
         ('Hardware', ('manufacturer_id', 'device_type_id', 'platform_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Contacts', ('contact', 'contact_role')),
         ('Components', (
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports',
         )),
@@ -741,11 +762,12 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class PowerPanelFilterForm(NetBoxModelFilterSetForm):
+class PowerPanelFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = PowerPanel
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id'))
+        ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id')),
+        ('Contacts', ('contact', 'contact_role')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),

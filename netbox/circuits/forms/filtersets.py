@@ -5,7 +5,7 @@ from circuits.choices import CircuitStatusChoices
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
 from netbox.forms import NetBoxModelFilterSetForm
-from tenancy.forms import TenancyFilterForm
+from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
 from utilities.forms import DynamicModelMultipleChoiceField, StaticSelectMultiple, TagFilterField
 
 __all__ = (
@@ -16,12 +16,13 @@ __all__ = (
 )
 
 
-class ProviderFilterForm(NetBoxModelFilterSetForm):
+class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Provider
     fieldsets = (
         (None, ('q', 'tag')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('ASN', ('asn',)),
+        ('Contacts', ('contact', 'contact_role')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -72,7 +73,7 @@ class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class CircuitFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Circuit
     fieldsets = (
         (None, ('q', 'tag')),
@@ -80,6 +81,7 @@ class CircuitFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         ('Attributes', ('type_id', 'status', 'commit_rate')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Contacts', ('contact', 'contact_role')),
     )
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),

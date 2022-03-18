@@ -190,6 +190,9 @@ class DeviceTable(NetBoxTable):
         verbose_name='VC Priority'
     )
     comments = columns.MarkdownColumn()
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = columns.TagColumn(
         url_name='dcim:device_list'
     )
@@ -199,8 +202,8 @@ class DeviceTable(NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'status', 'tenant', 'device_role', 'manufacturer', 'device_type', 'platform', 'serial',
             'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'primary_ip', 'airflow', 'primary_ip4',
-            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'tags', 'created',
-            'last_updated',
+            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'contacts', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',

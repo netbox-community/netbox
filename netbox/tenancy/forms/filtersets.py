@@ -2,6 +2,7 @@ from django.utils.translation import gettext as _
 
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.models import *
+from tenancy.forms import ContactModelFilterForm
 from utilities.forms import DynamicModelMultipleChoiceField, TagFilterField
 
 __all__ = (
@@ -27,8 +28,12 @@ class TenantGroupFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class TenantFilterForm(NetBoxModelFilterSetForm):
+class TenantFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Tenant
+    fieldsets = (
+        (None, ('q', 'tag', 'group_id')),
+        ('Contacts', ('contact', 'contact_role'))
+    )
     group_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,

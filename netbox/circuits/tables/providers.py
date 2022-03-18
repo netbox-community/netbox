@@ -19,6 +19,9 @@ class ProviderTable(NetBoxTable):
         verbose_name='Circuits'
     )
     comments = columns.MarkdownColumn()
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = columns.TagColumn(
         url_name='circuits:provider_list'
     )
@@ -27,7 +30,7 @@ class ProviderTable(NetBoxTable):
         model = Provider
         fields = (
             'pk', 'id', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count',
-            'comments', 'tags', 'created', 'last_updated',
+            'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'asn', 'account', 'circuit_count')
 

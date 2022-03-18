@@ -22,6 +22,12 @@ class CableTable(NetBoxTable):
         orderable=False,
         verbose_name='Side A'
     )
+    rack_a = tables.Column(
+        accessor=Accessor('termination_a__device__rack'),
+        orderable=False,
+        linkify=True,
+        verbose_name='Rack A'
+    )
     termination_a = tables.Column(
         accessor=Accessor('termination_a'),
         orderable=False,
@@ -33,6 +39,12 @@ class CableTable(NetBoxTable):
         accessor=Accessor('termination_b'),
         orderable=False,
         verbose_name='Side B'
+    )
+    rack_b = tables.Column(
+        accessor=Accessor('termination_b__device__rack'),
+        orderable=False,
+        linkify=True,
+        verbose_name='Rack B'
     )
     termination_b = tables.Column(
         accessor=Accessor('termination_b'),
@@ -54,7 +66,7 @@ class CableTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Cable
         fields = (
-            'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',
+            'pk', 'id', 'label', 'termination_a_parent', 'rack_a', 'termination_a', 'termination_b_parent', 'rack_b', 'termination_b',
             'status', 'type', 'tenant', 'color', 'length', 'tags', 'created', 'last_updated',
         )
         default_columns = (

@@ -38,11 +38,17 @@ class TenantTable(NetBoxTable):
         linkify=True
     )
     comments = columns.MarkdownColumn()
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = columns.TagColumn(
         url_name='tenancy:tenant_list'
     )
 
     class Meta(NetBoxTable.Meta):
         model = Tenant
-        fields = ('pk', 'id', 'name', 'slug', 'group', 'description', 'comments', 'tags', 'created', 'last_updated',)
+        fields = (
+            'pk', 'id', 'name', 'slug', 'group', 'description', 'comments', 'contacts', 'tags', 'created',
+            'last_updated',
+        )
         default_columns = ('pk', 'name', 'group', 'description')

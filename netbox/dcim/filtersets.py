@@ -6,8 +6,8 @@ from ipam.models import ASN, VRF
 from netbox.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet,
 )
-from tenancy.filtersets import TenancyFilterSet
-from tenancy.models import Tenant
+from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
+from tenancy.models import *
 from utilities.choices import ColorChoices
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
@@ -67,7 +67,7 @@ __all__ = (
 )
 
 
-class RegionFilterSet(OrganizationalModelFilterSet):
+class RegionFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
         label='Parent region (ID)',
@@ -84,7 +84,7 @@ class RegionFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class SiteGroupFilterSet(OrganizationalModelFilterSet):
+class SiteGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         label='Parent site group (ID)',
@@ -101,7 +101,7 @@ class SiteGroupFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class SiteFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class SiteFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=SiteStatusChoices,
         null_value=None
@@ -166,7 +166,7 @@ class SiteFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         return queryset.filter(qs_filter)
 
 
-class LocationFilterSet(TenancyFilterSet, OrganizationalModelFilterSet):
+class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, OrganizationalModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -237,7 +237,7 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'color', 'description']
 
 
-class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -385,7 +385,7 @@ class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         )
 
 
-class ManufacturerFilterSet(OrganizationalModelFilterSet):
+class ManufacturerFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = Manufacturer
@@ -724,7 +724,7 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'napalm_driver', 'description']
 
 
-class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, LocalConfigContextFilterSet):
+class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet, LocalConfigContextFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device_type__manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -1514,7 +1514,7 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         return queryset
 
 
-class PowerPanelFilterSet(NetBoxModelFilterSet):
+class PowerPanelFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',

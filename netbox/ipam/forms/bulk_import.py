@@ -388,7 +388,7 @@ class VLANCSVForm(NetBoxModelCSVForm):
         model = VLAN
         fields = ('site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description')
         help_texts = {
-            'vid': 'Numeric VLAN ID (1-4095)',
+            'vid': 'Numeric VLAN ID (1-4094)',
             'name': 'VLAN name',
         }
 

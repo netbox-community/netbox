@@ -69,6 +69,9 @@ class RackTable(NetBoxTable):
         orderable=False,
         verbose_name='Power'
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = columns.TagColumn(
         url_name='dcim:rack_list'
     )
@@ -86,7 +89,7 @@ class RackTable(NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag',
             'type', 'width', 'outer_width', 'outer_depth', 'u_height', 'comments', 'device_count', 'get_utilization',
-            'get_power_utilization', 'tags', 'created', 'last_updated',
+            'get_power_utilization', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',

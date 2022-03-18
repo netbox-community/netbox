@@ -87,7 +87,7 @@ mkdocs-material
 mkdocstrings
 
 # Library for manipulating IP prefixes and addresses
-# https://github.com/drkjam/netaddr
+# https://github.com/netaddr/netaddr
 netaddr
 
 # Fork of PIL (Python Imaging Library) for image processing

@@ -26,13 +26,16 @@ class PowerPanelTable(NetBoxTable):
         url_params={'power_panel_id': 'pk'},
         verbose_name='Feeds'
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = columns.TagColumn(
         url_name='dcim:powerpanel_list'
     )
 
     class Meta(NetBoxTable.Meta):
         model = PowerPanel
-        fields = ('pk', 'id', 'name', 'site', 'location', 'powerfeed_count', 'tags', 'created', 'last_updated',)
+        fields = ('pk', 'id', 'name', 'site', 'location', 'powerfeed_count', 'contacts', 'tags', 'created', 'last_updated',)
         default_columns = ('pk', 'name', 'site', 'location', 'powerfeed_count')
 
 

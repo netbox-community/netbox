@@ -5,7 +5,7 @@ from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from extras.filtersets import LocalConfigContextFilterSet
 from ipam.models import VRF
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
-from tenancy.filtersets import TenancyFilterSet
+from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from utilities.filters import MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -26,14 +26,14 @@ class ClusterTypeFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class ClusterGroupFilterSet(OrganizationalModelFilterSet):
+class ClusterGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = ClusterGroup
         fields = ['id', 'name', 'slug', 'description']
 
 
-class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -104,7 +104,12 @@ class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         )
 
 
-class VirtualMachineFilterSet(NetBoxModelFilterSet, TenancyFilterSet, LocalConfigContextFilterSet):
+class VirtualMachineFilterSet(
+    NetBoxModelFilterSet,
+    TenancyFilterSet,
+    ContactModelFilterSet,
+    LocalConfigContextFilterSet
+):
     status = django_filters.MultipleChoiceFilter(
         choices=VirtualMachineStatusChoices,
         null_value=None

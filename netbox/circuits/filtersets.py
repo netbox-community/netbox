@@ -3,8 +3,8 @@ from django.db.models import Q
 
 from dcim.filtersets import CableTerminationFilterSet
 from dcim.models import Region, Site, SiteGroup
-from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
-from tenancy.filtersets import TenancyFilterSet
+from netbox.filtersets import ChangeLoggedModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet
+from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
@@ -18,7 +18,7 @@ __all__ = (
 )
 
 
-class ProviderFilterSet(NetBoxModelFilterSet):
+class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='circuits__terminations__site__region',
@@ -107,7 +107,7 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
         label='Provider (ID)',

@@ -5,7 +5,7 @@ from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from extras.forms import LocalConfigContextFilterForm
 from ipam.models import VRF
 from netbox.forms import NetBoxModelFilterSetForm
-from tenancy.forms import TenancyFilterForm
+from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import (
     DynamicModelMultipleChoiceField, StaticSelect, StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
@@ -26,18 +26,19 @@ class ClusterTypeFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ClusterGroupFilterForm(NetBoxModelFilterSetForm):
+class ClusterGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = ClusterGroup
     tag = TagFilterField(model)
 
 
-class ClusterFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Cluster
     fieldsets = (
         (None, ('q', 'tag')),
         ('Attributes', ('group_id', 'type_id')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Contacts', ('contact', 'contact_role')),
     )
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
@@ -73,7 +74,12 @@ class ClusterFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
+class VirtualMachineFilterForm(
+    LocalConfigContextFilterForm,
+    TenancyFilterForm,
+    ContactModelFilterForm,
+    NetBoxModelFilterSetForm
+):
     model = VirtualMachine
     fieldsets = (
         (None, ('q', 'tag')),
@@ -81,6 +87,7 @@ class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, 
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Attriubtes', ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Contacts', ('contact', 'contact_role')),
     )
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
