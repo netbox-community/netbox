@@ -38,7 +38,7 @@ function initDocument(): void {
 
 function initWindow(): void {
   const contentContainer = document.querySelector<HTMLElement>('.content-container');
-  if (contentContainer !== null && document.activeElement.tagName.toUpperCase() !== 'INPUT') {
+  if (contentContainer !== null && document.activeElement !==null && document.activeElement.tagName.toUpperCase() !== 'INPUT') {
     // Focus the content container for accessible navigation, unless an input item has focus
     contentContainer.focus();
   }
