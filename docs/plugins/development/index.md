@@ -1,7 +1,7 @@
 # Plugins Development
 
-!!! tip "Help Improve the NetBox Plugins Framework!"
-    We're looking for volunteers to help improve NetBox's plugins framework. If you have experience developing plugins, we'd love to hear from you! You can find more information about this initiative [here](https://github.com/netbox-community/netbox/discussions/8338).
+!!! tip "Plugins Development Tutorial"
+    Just getting started with plugins? Check out our [**NetBox Plugin Tutorial**](https://github.com/netbox-community/netbox-plugin-tutorial) on GitHub! This in-depth guide will walk you through the process of creating an entire plugin from scratch. It even includes a companion [demo plugin repo](https://github.com/netbox-community/netbox-plugin-demo) to ensure you can jump in at any step along the way. This will get you up and running with plugins in no time!
 
 NetBox can be extended to support additional data models and functionality through the use of plugins. A plugin is essentially a self-contained [Django app](https://docs.djangoproject.com/en/stable/) which gets installed alongside NetBox to provide custom functionality. Multiple plugins can be installed in a single NetBox instance, and each plugin can be enabled and configured independently.
 
