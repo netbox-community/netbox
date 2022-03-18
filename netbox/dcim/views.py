@@ -1490,9 +1490,7 @@ class DeviceAssignView(generic.ObjectEditView):
         table = None
 
         if form.is_valid():
-
             devices = self.queryset.prefetch_related('rack')
-            print(devices[0].rack.pk)
             # Limit to 100 results
             devices = filtersets.DeviceFilterSet(request.POST, devices).qs[:100]
             table = tables.DeviceAssignTable(devices)
