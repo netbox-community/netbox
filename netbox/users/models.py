@@ -246,8 +246,8 @@ class Token(BigIDModel):
 
         try:
             ip_address = ipaddress.ip_address(raw_ip_address)
-        except ValueError:
-            raise ValidationError(f"{raw_ip_address} is an invalid IP address")
+        except ValueError as e:
+            raise ValidationError(str(e))
 
         for ip_network in self.allowed_ips:
             if ip_address in ipaddress.ip_network(ip_network):

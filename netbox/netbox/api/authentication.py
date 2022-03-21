@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from rest_framework import authentication, exceptions
 from rest_framework.permissions import BasePermission, DjangoObjectPermissions, SAFE_METHODS
 
@@ -21,13 +22,18 @@ class TokenAuthentication(authentication.TokenAuthentication):
                 # Replace 'HTTP_X_REAL_IP' with the settings variable choosen in #8867
                 if 'HTTP_X_REAL_IP' in request.META:
                     clientip = request.META['HTTP_X_REAL_IP'].split(",")[0].strip()
+                    http_header = 'HTTP_X_REAL_IP'
                 elif 'REMOTE_ADDR' in request.META:
                     clientip = request.META['REMOTE_ADDR']
+                    http_header = 'REMOTE_ADDR'
                 else:
                     raise exceptions.AuthenticationFailed(f"A HTTP header containing the SourceIP (HTTP_X_REAL_IP, REMOTE_ADDR) is missing from the request.")
 
-                if not token.validate_client_ip(clientip):
-                    raise exceptions.AuthenticationFailed(f"Source IP {clientip} is not allowed to use this token.")
+                try:
+                    if not token.validate_client_ip(clientip):
+                        raise exceptions.AuthenticationFailed(f"Source IP {clientip} is not allowed to use this token.")
+                except ValidationError as ValidationErrorInfo:
+                    raise exceptions.ValidationError(f"The value in the HTTP Header {http_header} has a ValidationError: {ValidationErrorInfo.message}")
 
         return authenticationresult
 
