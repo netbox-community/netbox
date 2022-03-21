@@ -10,8 +10,8 @@ from ipam.models import ASN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import (
-    APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm, StaticSelect,
-    StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES, SelectSpeedWidget,
+    APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm, MultipleChoiceField,
+    StaticSelect, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES, SelectSpeedWidget,
 )
 from wireless.choices import *
 
@@ -140,10 +140,9 @@ class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role')),
     )
-    status = forms.MultipleChoiceField(
+    status = MultipleChoiceField(
         choices=SiteStatusChoices,
-        required=False,
-        widget=StaticSelectMultiple(),
+        required=False
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -239,20 +238,17 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         },
         label=_('Location')
     )
-    status = forms.MultipleChoiceField(
+    status = MultipleChoiceField(
         choices=RackStatusChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         choices=RackTypeChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
-    width = forms.MultipleChoiceField(
+    width = MultipleChoiceField(
         choices=RackWidthChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
@@ -346,15 +342,13 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     part_number = forms.CharField(
         required=False
     )
-    subdevice_role = forms.MultipleChoiceField(
+    subdevice_role = MultipleChoiceField(
         choices=add_blank_choice(SubdeviceRoleChoices),
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
-    airflow = forms.MultipleChoiceField(
+    airflow = MultipleChoiceField(
         choices=add_blank_choice(DeviceAirflowChoices),
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     console_ports = forms.NullBooleanField(
         required=False,
@@ -561,15 +555,13 @@ class DeviceFilterForm(
         null_option='None',
         label=_('Platform')
     )
-    status = forms.MultipleChoiceField(
+    status = MultipleChoiceField(
         choices=DeviceStatusChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
-    airflow = forms.MultipleChoiceField(
+    airflow = MultipleChoiceField(
         choices=add_blank_choice(DeviceAirflowChoices),
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     serial = forms.CharField(
         required=False
@@ -739,15 +731,13 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         },
         label=_('Device')
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         choices=add_blank_choice(CableTypeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
-    status = forms.ChoiceField(
+    status = MultipleChoiceField(
         required=False,
-        choices=add_blank_choice(LinkStatusChoices),
-        widget=StaticSelect()
+        choices=add_blank_choice(LinkStatusChoices)
     )
     color = ColorField(
         required=False
@@ -843,10 +833,9 @@ class PowerFeedFilterForm(NetBoxModelFilterSetForm):
         },
         label=_('Rack')
     )
-    status = forms.MultipleChoiceField(
+    status = MultipleChoiceField(
         choices=PowerFeedStatusChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedTypeChoices),
@@ -886,15 +875,13 @@ class ConsolePortFilterForm(DeviceComponentFilterForm):
         ('Attributes', ('name', 'label', 'type', 'speed')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         choices=ConsolePortTypeChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
-    speed = forms.MultipleChoiceField(
+    speed = MultipleChoiceField(
         choices=ConsolePortSpeedChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -906,15 +893,13 @@ class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
         ('Attributes', ('name', 'label', 'type', 'speed')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         choices=ConsolePortTypeChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
-    speed = forms.MultipleChoiceField(
+    speed = MultipleChoiceField(
         choices=ConsolePortSpeedChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -926,10 +911,9 @@ class PowerPortFilterForm(DeviceComponentFilterForm):
         ('Attributes', ('name', 'label', 'type')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         choices=PowerPortTypeChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -941,10 +925,9 @@ class PowerOutletFilterForm(DeviceComponentFilterForm):
         ('Attributes', ('name', 'label', 'type')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         choices=PowerOutletTypeChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -958,26 +941,22 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id')),
     )
-    kind = forms.MultipleChoiceField(
+    kind = MultipleChoiceField(
         choices=InterfaceKindChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         choices=InterfaceTypeChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     speed = forms.IntegerField(
         required=False,
         label='Select Speed',
         widget=SelectSpeedWidget(attrs={'readonly': None})
     )
-    duplex = forms.MultipleChoiceField(
+    duplex = MultipleChoiceField(
         choices=InterfaceDuplexChoices,
-        required=False,
-        label='Select Duplex',
-        widget=StaticSelectMultiple()
+        required=False
     )
     enabled = forms.NullBooleanField(
         required=False,
@@ -999,16 +978,14 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         required=False,
         label='WWN'
     )
-    rf_role = forms.MultipleChoiceField(
+    rf_role = MultipleChoiceField(
         choices=WirelessRoleChoices,
         required=False,
-        widget=StaticSelectMultiple(),
         label='Wireless role'
     )
-    rf_channel = forms.MultipleChoiceField(
+    rf_channel = MultipleChoiceField(
         choices=WirelessChannelChoices,
         required=False,
-        widget=StaticSelectMultiple(),
         label='Wireless channel'
     )
     rf_channel_frequency = forms.IntegerField(
@@ -1040,10 +1017,9 @@ class FrontPortFilterForm(DeviceComponentFilterForm):
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id')),
     )
     model = FrontPort
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         choices=PortTypeChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     color = ColorField(
         required=False
@@ -1058,10 +1034,9 @@ class RearPortFilterForm(DeviceComponentFilterForm):
         ('Attributes', ('name', 'label', 'type', 'color')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         choices=PortTypeChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     color = ColorField(
         required=False

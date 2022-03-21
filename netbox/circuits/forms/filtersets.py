@@ -6,7 +6,7 @@ from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
-from utilities.forms import DynamicModelMultipleChoiceField, StaticSelectMultiple, TagFilterField
+from utilities.forms import DynamicModelMultipleChoiceField, MultipleChoiceField, TagFilterField
 
 __all__ = (
     'CircuitFilterForm',
@@ -101,10 +101,9 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         },
         label=_('Provider network')
     )
-    status = forms.MultipleChoiceField(
+    status = MultipleChoiceField(
         choices=CircuitStatusChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),

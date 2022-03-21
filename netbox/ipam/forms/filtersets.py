@@ -9,7 +9,7 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
-    add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect, StaticSelectMultiple,
+    add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField, MultipleChoiceField, StaticSelect,
     TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 
@@ -164,11 +164,10 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         label=_('Address family'),
         widget=StaticSelect()
     )
-    mask_length = forms.MultipleChoiceField(
+    mask_length = MultipleChoiceField(
         required=False,
         choices=PREFIX_MASK_LENGTH_CHOICES,
-        label=_('Mask length'),
-        widget=StaticSelectMultiple()
+        label=_('Mask length')
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
@@ -181,10 +180,9 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         required=False,
         label=_('Present in VRF')
     )
-    status = forms.MultipleChoiceField(
+    status = MultipleChoiceField(
         choices=PrefixStatusChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -247,10 +245,9 @@ class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         label=_('Assigned VRF'),
         null_option='Global'
     )
-    status = forms.MultipleChoiceField(
+    status = MultipleChoiceField(
         choices=PrefixStatusChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=Role.objects.all(),
@@ -301,15 +298,13 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         required=False,
         label=_('Present in VRF')
     )
-    status = forms.MultipleChoiceField(
+    status = MultipleChoiceField(
         choices=IPAddressStatusChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
-    role = forms.MultipleChoiceField(
+    role = MultipleChoiceField(
         choices=IPAddressRoleChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     assigned_to_interface = forms.NullBooleanField(
         required=False,
@@ -328,20 +323,18 @@ class FHRPGroupFilterForm(NetBoxModelFilterSetForm):
         ('Attributes', ('protocol', 'group_id')),
         ('Authentication', ('auth_type', 'auth_key')),
     )
-    protocol = forms.MultipleChoiceField(
+    protocol = MultipleChoiceField(
         choices=FHRPGroupProtocolChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     group_id = forms.IntegerField(
         min_value=0,
         required=False,
         label='Group ID'
     )
-    auth_type = forms.MultipleChoiceField(
+    auth_type = MultipleChoiceField(
         choices=FHRPGroupAuthTypeChoices,
         required=False,
-        widget=StaticSelectMultiple(),
         label='Authentication type'
     )
     auth_key = forms.CharField(
@@ -430,10 +423,9 @@ class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         },
         label=_('VLAN group')
     )
-    status = forms.MultipleChoiceField(
+    status = MultipleChoiceField(
         choices=VLANStatusChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=Role.objects.all(),
@@ -457,7 +449,7 @@ class ServiceTemplateFilterForm(NetBoxModelFilterSetForm):
     protocol = forms.ChoiceField(
         choices=add_blank_choice(ServiceProtocolChoices),
         required=False,
-        widget=StaticSelectMultiple()
+        widget=StaticSelect()
     )
     port = forms.IntegerField(
         required=False,

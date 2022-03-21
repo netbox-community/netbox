@@ -10,7 +10,7 @@ from extras.utils import FeatureQuery
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DateTimePicker,
-    DynamicModelMultipleChoiceField, FilterForm, StaticSelect, StaticSelectMultiple, BOOLEAN_WITH_BLANK_CHOICES,
+    DynamicModelMultipleChoiceField, FilterForm, MultipleChoiceField, StaticSelect, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -37,10 +37,9 @@ class CustomFieldFilterForm(FilterForm):
         limit_choices_to=FeatureQuery('custom_fields'),
         required=False
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         choices=CustomFieldTypeChoices,
         required=False,
-        widget=StaticSelectMultiple(),
         label=_('Field type')
     )
     weight = forms.IntegerField(
@@ -117,10 +116,9 @@ class WebhookFilterForm(FilterForm):
         limit_choices_to=FeatureQuery('webhooks'),
         required=False
     )
-    http_method = forms.MultipleChoiceField(
+    http_method = MultipleChoiceField(
         choices=WebhookHttpMethodChoices,
         required=False,
-        widget=StaticSelectMultiple(),
         label=_('HTTP method')
     )
     enabled = forms.NullBooleanField(

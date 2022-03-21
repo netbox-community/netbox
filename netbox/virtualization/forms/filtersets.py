@@ -7,7 +7,7 @@ from ipam.models import VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import (
-    DynamicModelMultipleChoiceField, StaticSelect, StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    DynamicModelMultipleChoiceField, MultipleChoiceField, StaticSelect, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.choices import *
 from virtualization.models import *
@@ -135,10 +135,9 @@ class VirtualMachineFilterForm(
         },
         label=_('Role')
     )
-    status = forms.MultipleChoiceField(
+    status = MultipleChoiceField(
         choices=VirtualMachineStatusChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     platform_id = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),

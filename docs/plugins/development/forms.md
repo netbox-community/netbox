@@ -35,6 +35,16 @@ In addition to the [form fields provided by Django](https://docs.djangoproject.c
     selection:
       members: false
 
+## Choice Fields
+
+::: utilities.forms.ChoiceField
+    selection:
+      members: false
+
+::: utilities.forms.MultipleChoiceField
+    selection:
+      members: false
+
 ## Dynamic Object Fields
 
 ::: utilities.forms.DynamicModelChoiceField
