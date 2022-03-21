@@ -42,7 +42,7 @@ class ProviderView(generic.ObjectView):
 
 class ProviderEditView(generic.ObjectEditView):
     queryset = Provider.objects.all()
-    model_form = forms.ProviderForm
+    form = forms.ProviderForm
 
 
 class ProviderDeleteView(generic.ObjectDeleteView):
@@ -103,7 +103,7 @@ class ProviderNetworkView(generic.ObjectView):
 
 class ProviderNetworkEditView(generic.ObjectEditView):
     queryset = ProviderNetwork.objects.all()
-    model_form = forms.ProviderNetworkForm
+    form = forms.ProviderNetworkForm
 
 
 class ProviderNetworkDeleteView(generic.ObjectDeleteView):
@@ -157,7 +157,7 @@ class CircuitTypeView(generic.ObjectView):
 
 class CircuitTypeEditView(generic.ObjectEditView):
     queryset = CircuitType.objects.all()
-    model_form = forms.CircuitTypeForm
+    form = forms.CircuitTypeForm
 
 
 class CircuitTypeDeleteView(generic.ObjectDeleteView):
@@ -205,7 +205,7 @@ class CircuitView(generic.ObjectView):
 
 class CircuitEditView(generic.ObjectEditView):
     queryset = Circuit.objects.all()
-    model_form = forms.CircuitForm
+    form = forms.CircuitForm
 
 
 class CircuitDeleteView(generic.ObjectDeleteView):
@@ -315,7 +315,7 @@ class CircuitSwapTerminations(generic.ObjectEditView):
 
 class CircuitTerminationEditView(generic.ObjectEditView):
     queryset = CircuitTermination.objects.all()
-    model_form = forms.CircuitTerminationForm
+    form = forms.CircuitTerminationForm
     template_name = 'circuits/circuittermination_edit.html'
 
 

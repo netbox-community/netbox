@@ -49,7 +49,7 @@ class ClusterTypeView(generic.ObjectView):
 
 class ClusterTypeEditView(generic.ObjectEditView):
     queryset = ClusterType.objects.all()
-    model_form = forms.ClusterTypeForm
+    form = forms.ClusterTypeForm
 
 
 class ClusterTypeDeleteView(generic.ObjectDeleteView):
@@ -111,7 +111,7 @@ class ClusterGroupView(generic.ObjectView):
 
 class ClusterGroupEditView(generic.ObjectEditView):
     queryset = ClusterGroup.objects.all()
-    model_form = forms.ClusterGroupForm
+    form = forms.ClusterGroupForm
 
 
 class ClusterGroupDeleteView(generic.ObjectDeleteView):
@@ -195,7 +195,7 @@ class ClusterDevicesView(generic.ObjectChildrenView):
 
 class ClusterEditView(generic.ObjectEditView):
     queryset = Cluster.objects.all()
-    model_form = forms.ClusterForm
+    form = forms.ClusterForm
 
 
 class ClusterDeleteView(generic.ObjectDeleteView):
@@ -369,7 +369,7 @@ class VirtualMachineConfigContextView(ObjectConfigContextView):
 
 class VirtualMachineEditView(generic.ObjectEditView):
     queryset = VirtualMachine.objects.all()
-    model_form = forms.VirtualMachineForm
+    form = forms.VirtualMachineForm
 
 
 class VirtualMachineDeleteView(generic.ObjectDeleteView):
@@ -455,7 +455,7 @@ class VMInterfaceCreateView(generic.ComponentCreateView):
 
 class VMInterfaceEditView(generic.ObjectEditView):
     queryset = VMInterface.objects.all()
-    model_form = forms.VMInterfaceForm
+    form = forms.VMInterfaceForm
     template_name = 'virtualization/vminterface_edit.html'
 
 

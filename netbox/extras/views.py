@@ -37,7 +37,7 @@ class CustomFieldView(generic.ObjectView):
 
 class CustomFieldEditView(generic.ObjectEditView):
     queryset = CustomField.objects.all()
-    model_form = forms.CustomFieldForm
+    form = forms.CustomFieldForm
 
 
 class CustomFieldDeleteView(generic.ObjectDeleteView):
@@ -80,7 +80,7 @@ class CustomLinkView(generic.ObjectView):
 
 class CustomLinkEditView(generic.ObjectEditView):
     queryset = CustomLink.objects.all()
-    model_form = forms.CustomLinkForm
+    form = forms.CustomLinkForm
 
 
 class CustomLinkDeleteView(generic.ObjectDeleteView):
@@ -123,7 +123,7 @@ class ExportTemplateView(generic.ObjectView):
 
 class ExportTemplateEditView(generic.ObjectEditView):
     queryset = ExportTemplate.objects.all()
-    model_form = forms.ExportTemplateForm
+    form = forms.ExportTemplateForm
 
 
 class ExportTemplateDeleteView(generic.ObjectDeleteView):
@@ -166,7 +166,7 @@ class WebhookView(generic.ObjectView):
 
 class WebhookEditView(generic.ObjectEditView):
     queryset = Webhook.objects.all()
-    model_form = forms.WebhookForm
+    form = forms.WebhookForm
 
 
 class WebhookDeleteView(generic.ObjectDeleteView):
@@ -232,7 +232,7 @@ class TagView(generic.ObjectView):
 
 class TagEditView(generic.ObjectEditView):
     queryset = Tag.objects.all()
-    model_form = forms.TagForm
+    form = forms.TagForm
 
 
 class TagDeleteView(generic.ObjectDeleteView):
@@ -310,7 +310,7 @@ class ConfigContextView(generic.ObjectView):
 
 class ConfigContextEditView(generic.ObjectEditView):
     queryset = ConfigContext.objects.all()
-    model_form = forms.ConfigContextForm
+    form = forms.ConfigContextForm
     template_name = 'extras/configcontext_edit.html'
 
 
@@ -428,7 +428,7 @@ class ObjectChangeView(generic.ObjectView):
 
 class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()
-    model_form = forms.ImageAttachmentForm
+    form = forms.ImageAttachmentForm
     template_name = 'extras/imageattachment_edit.html'
 
     def alter_object(self, instance, request, args, kwargs):
@@ -467,7 +467,7 @@ class JournalEntryView(generic.ObjectView):
 
 class JournalEntryEditView(generic.ObjectEditView):
     queryset = JournalEntry.objects.all()
-    model_form = forms.JournalEntryForm
+    form = forms.JournalEntryForm
 
     def alter_object(self, obj, request, args, kwargs):
         if not obj.pk:

@@ -39,7 +39,7 @@ class WirelessLANGroupView(generic.ObjectView):
 
 class WirelessLANGroupEditView(generic.ObjectEditView):
     queryset = WirelessLANGroup.objects.all()
-    model_form = forms.WirelessLANGroupForm
+    form = forms.WirelessLANGroupForm
 
 
 class WirelessLANGroupDeleteView(generic.ObjectDeleteView):
@@ -107,7 +107,7 @@ class WirelessLANView(generic.ObjectView):
 
 class WirelessLANEditView(generic.ObjectEditView):
     queryset = WirelessLAN.objects.all()
-    model_form = forms.WirelessLANForm
+    form = forms.WirelessLANForm
 
 
 class WirelessLANDeleteView(generic.ObjectDeleteView):
@@ -150,7 +150,7 @@ class WirelessLinkView(generic.ObjectView):
 
 class WirelessLinkEditView(generic.ObjectEditView):
     queryset = WirelessLink.objects.all()
-    model_form = forms.WirelessLinkForm
+    form = forms.WirelessLinkForm
 
 
 class WirelessLinkDeleteView(generic.ObjectDeleteView):

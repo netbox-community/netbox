@@ -177,7 +177,7 @@ class RegionView(generic.ObjectView):
 
 class RegionEditView(generic.ObjectEditView):
     queryset = Region.objects.all()
-    model_form = forms.RegionForm
+    form = forms.RegionForm
 
 
 class RegionDeleteView(generic.ObjectDeleteView):
@@ -262,7 +262,7 @@ class SiteGroupView(generic.ObjectView):
 
 class SiteGroupEditView(generic.ObjectEditView):
     queryset = SiteGroup.objects.all()
-    model_form = forms.SiteGroupForm
+    form = forms.SiteGroupForm
 
 
 class SiteGroupDeleteView(generic.ObjectDeleteView):
@@ -359,7 +359,7 @@ class SiteView(generic.ObjectView):
 
 class SiteEditView(generic.ObjectEditView):
     queryset = Site.objects.all()
-    model_form = forms.SiteForm
+    form = forms.SiteForm
 
 
 class SiteDeleteView(generic.ObjectDeleteView):
@@ -447,7 +447,7 @@ class LocationView(generic.ObjectView):
 
 class LocationEditView(generic.ObjectEditView):
     queryset = Location.objects.all()
-    model_form = forms.LocationForm
+    form = forms.LocationForm
 
 
 class LocationDeleteView(generic.ObjectDeleteView):
@@ -516,7 +516,7 @@ class RackRoleView(generic.ObjectView):
 
 class RackRoleEditView(generic.ObjectEditView):
     queryset = RackRole.objects.all()
-    model_form = forms.RackRoleForm
+    form = forms.RackRoleForm
 
 
 class RackRoleDeleteView(generic.ObjectDeleteView):
@@ -641,7 +641,7 @@ class RackView(generic.ObjectView):
 
 class RackEditView(generic.ObjectEditView):
     queryset = Rack.objects.all()
-    model_form = forms.RackForm
+    form = forms.RackForm
     template_name = 'dcim/rack_edit.html'
 
 
@@ -685,7 +685,7 @@ class RackReservationView(generic.ObjectView):
 
 class RackReservationEditView(generic.ObjectEditView):
     queryset = RackReservation.objects.all()
-    model_form = forms.RackReservationForm
+    form = forms.RackReservationForm
 
     def alter_object(self, obj, request, args, kwargs):
         if not obj.pk:
@@ -771,7 +771,7 @@ class ManufacturerView(generic.ObjectView):
 
 class ManufacturerEditView(generic.ObjectEditView):
     queryset = Manufacturer.objects.all()
-    model_form = forms.ManufacturerForm
+    form = forms.ManufacturerForm
 
 
 class ManufacturerDeleteView(generic.ObjectDeleteView):
@@ -896,7 +896,7 @@ class DeviceTypeInventoryItemsView(DeviceTypeComponentsView):
 
 class DeviceTypeEditView(generic.ObjectEditView):
     queryset = DeviceType.objects.all()
-    model_form = forms.DeviceTypeForm
+    form = forms.DeviceTypeForm
 
 
 class DeviceTypeDeleteView(generic.ObjectDeleteView):
@@ -1029,7 +1029,7 @@ class ModuleTypeRearPortsView(ModuleTypeComponentsView):
 
 class ModuleTypeEditView(generic.ObjectEditView):
     queryset = ModuleType.objects.all()
-    model_form = forms.ModuleTypeForm
+    form = forms.ModuleTypeForm
 
 
 class ModuleTypeDeleteView(generic.ObjectDeleteView):
@@ -1094,7 +1094,7 @@ class ConsolePortTemplateCreateView(generic.ComponentCreateView):
 
 class ConsolePortTemplateEditView(generic.ObjectEditView):
     queryset = ConsolePortTemplate.objects.all()
-    model_form = forms.ConsolePortTemplateForm
+    form = forms.ConsolePortTemplateForm
 
 
 class ConsolePortTemplateDeleteView(generic.ObjectDeleteView):
@@ -1129,7 +1129,7 @@ class ConsoleServerPortTemplateCreateView(generic.ComponentCreateView):
 
 class ConsoleServerPortTemplateEditView(generic.ObjectEditView):
     queryset = ConsoleServerPortTemplate.objects.all()
-    model_form = forms.ConsoleServerPortTemplateForm
+    form = forms.ConsoleServerPortTemplateForm
 
 
 class ConsoleServerPortTemplateDeleteView(generic.ObjectDeleteView):
@@ -1164,7 +1164,7 @@ class PowerPortTemplateCreateView(generic.ComponentCreateView):
 
 class PowerPortTemplateEditView(generic.ObjectEditView):
     queryset = PowerPortTemplate.objects.all()
-    model_form = forms.PowerPortTemplateForm
+    form = forms.PowerPortTemplateForm
 
 
 class PowerPortTemplateDeleteView(generic.ObjectDeleteView):
@@ -1199,7 +1199,7 @@ class PowerOutletTemplateCreateView(generic.ComponentCreateView):
 
 class PowerOutletTemplateEditView(generic.ObjectEditView):
     queryset = PowerOutletTemplate.objects.all()
-    model_form = forms.PowerOutletTemplateForm
+    form = forms.PowerOutletTemplateForm
 
 
 class PowerOutletTemplateDeleteView(generic.ObjectDeleteView):
@@ -1234,7 +1234,7 @@ class InterfaceTemplateCreateView(generic.ComponentCreateView):
 
 class InterfaceTemplateEditView(generic.ObjectEditView):
     queryset = InterfaceTemplate.objects.all()
-    model_form = forms.InterfaceTemplateForm
+    form = forms.InterfaceTemplateForm
 
 
 class InterfaceTemplateDeleteView(generic.ObjectDeleteView):
@@ -1277,7 +1277,7 @@ class FrontPortTemplateCreateView(generic.ComponentCreateView):
 
 class FrontPortTemplateEditView(generic.ObjectEditView):
     queryset = FrontPortTemplate.objects.all()
-    model_form = forms.FrontPortTemplateForm
+    form = forms.FrontPortTemplateForm
 
 
 class FrontPortTemplateDeleteView(generic.ObjectDeleteView):
@@ -1312,7 +1312,7 @@ class RearPortTemplateCreateView(generic.ComponentCreateView):
 
 class RearPortTemplateEditView(generic.ObjectEditView):
     queryset = RearPortTemplate.objects.all()
-    model_form = forms.RearPortTemplateForm
+    form = forms.RearPortTemplateForm
 
 
 class RearPortTemplateDeleteView(generic.ObjectDeleteView):
@@ -1348,7 +1348,7 @@ class ModuleBayTemplateCreateView(generic.ComponentCreateView):
 
 class ModuleBayTemplateEditView(generic.ObjectEditView):
     queryset = ModuleBayTemplate.objects.all()
-    model_form = forms.ModuleBayTemplateForm
+    form = forms.ModuleBayTemplateForm
 
 
 class ModuleBayTemplateDeleteView(generic.ObjectDeleteView):
@@ -1383,7 +1383,7 @@ class DeviceBayTemplateCreateView(generic.ComponentCreateView):
 
 class DeviceBayTemplateEditView(generic.ObjectEditView):
     queryset = DeviceBayTemplate.objects.all()
-    model_form = forms.DeviceBayTemplateForm
+    form = forms.DeviceBayTemplateForm
 
 
 class DeviceBayTemplateDeleteView(generic.ObjectDeleteView):
@@ -1429,7 +1429,7 @@ class InventoryItemTemplateCreateView(generic.ComponentCreateView):
 
 class InventoryItemTemplateEditView(generic.ObjectEditView):
     queryset = InventoryItemTemplate.objects.all()
-    model_form = forms.InventoryItemTemplateForm
+    form = forms.InventoryItemTemplateForm
 
 
 class InventoryItemTemplateDeleteView(generic.ObjectDeleteView):
@@ -1484,7 +1484,7 @@ class DeviceRoleView(generic.ObjectView):
 
 class DeviceRoleEditView(generic.ObjectEditView):
     queryset = DeviceRole.objects.all()
-    model_form = forms.DeviceRoleForm
+    form = forms.DeviceRoleForm
 
 
 class DeviceRoleDeleteView(generic.ObjectDeleteView):
@@ -1547,7 +1547,7 @@ class PlatformView(generic.ObjectView):
 
 class PlatformEditView(generic.ObjectEditView):
     queryset = Platform.objects.all()
-    model_form = forms.PlatformForm
+    form = forms.PlatformForm
 
 
 class PlatformDeleteView(generic.ObjectDeleteView):
@@ -1730,7 +1730,7 @@ class DeviceConfigContextView(ObjectConfigContextView):
 
 class DeviceEditView(generic.ObjectEditView):
     queryset = Device.objects.all()
-    model_form = forms.DeviceForm
+    form = forms.DeviceForm
     template_name = 'dcim/device_edit.html'
 
 
@@ -1793,7 +1793,7 @@ class ModuleView(generic.ObjectView):
 
 class ModuleEditView(generic.ObjectEditView):
     queryset = Module.objects.all()
-    model_form = forms.ModuleForm
+    form = forms.ModuleForm
 
 
 class ModuleDeleteView(generic.ObjectDeleteView):
@@ -1843,7 +1843,7 @@ class ConsolePortCreateView(generic.ComponentCreateView):
 
 class ConsolePortEditView(generic.ObjectEditView):
     queryset = ConsolePort.objects.all()
-    model_form = forms.ConsolePortForm
+    form = forms.ConsolePortForm
     template_name = 'dcim/device_component_edit.html'
 
 
@@ -1902,7 +1902,7 @@ class ConsoleServerPortCreateView(generic.ComponentCreateView):
 
 class ConsoleServerPortEditView(generic.ObjectEditView):
     queryset = ConsoleServerPort.objects.all()
-    model_form = forms.ConsoleServerPortForm
+    form = forms.ConsoleServerPortForm
     template_name = 'dcim/device_component_edit.html'
 
 
@@ -1961,7 +1961,7 @@ class PowerPortCreateView(generic.ComponentCreateView):
 
 class PowerPortEditView(generic.ObjectEditView):
     queryset = PowerPort.objects.all()
-    model_form = forms.PowerPortForm
+    form = forms.PowerPortForm
     template_name = 'dcim/device_component_edit.html'
 
 
@@ -2020,7 +2020,7 @@ class PowerOutletCreateView(generic.ComponentCreateView):
 
 class PowerOutletEditView(generic.ObjectEditView):
     queryset = PowerOutlet.objects.all()
-    model_form = forms.PowerOutletForm
+    form = forms.PowerOutletForm
     template_name = 'dcim/device_component_edit.html'
 
 
@@ -2142,7 +2142,7 @@ class InterfaceCreateView(generic.ComponentCreateView):
 
 class InterfaceEditView(generic.ObjectEditView):
     queryset = Interface.objects.all()
-    model_form = forms.InterfaceForm
+    form = forms.InterfaceForm
     template_name = 'dcim/interface_edit.html'
 
 
@@ -2209,7 +2209,7 @@ class FrontPortCreateView(generic.ComponentCreateView):
 
 class FrontPortEditView(generic.ObjectEditView):
     queryset = FrontPort.objects.all()
-    model_form = forms.FrontPortForm
+    form = forms.FrontPortForm
     template_name = 'dcim/device_component_edit.html'
 
 
@@ -2268,7 +2268,7 @@ class RearPortCreateView(generic.ComponentCreateView):
 
 class RearPortEditView(generic.ObjectEditView):
     queryset = RearPort.objects.all()
-    model_form = forms.RearPortForm
+    form = forms.RearPortForm
     template_name = 'dcim/device_component_edit.html'
 
 
@@ -2328,7 +2328,7 @@ class ModuleBayCreateView(generic.ComponentCreateView):
 
 class ModuleBayEditView(generic.ObjectEditView):
     queryset = ModuleBay.objects.all()
-    model_form = forms.ModuleBayForm
+    form = forms.ModuleBayForm
     template_name = 'dcim/device_component_edit.html'
 
 
@@ -2383,7 +2383,7 @@ class DeviceBayCreateView(generic.ComponentCreateView):
 
 class DeviceBayEditView(generic.ObjectEditView):
     queryset = DeviceBay.objects.all()
-    model_form = forms.DeviceBayForm
+    form = forms.DeviceBayForm
     template_name = 'dcim/device_component_edit.html'
 
 
@@ -2499,7 +2499,7 @@ class InventoryItemView(generic.ObjectView):
 
 class InventoryItemEditView(generic.ObjectEditView):
     queryset = InventoryItem.objects.all()
-    model_form = forms.InventoryItemForm
+    form = forms.InventoryItemForm
 
 
 class InventoryItemCreateView(generic.ComponentCreateView):
@@ -2571,7 +2571,7 @@ class InventoryItemRoleView(generic.ObjectView):
 
 class InventoryItemRoleEditView(generic.ObjectEditView):
     queryset = InventoryItemRole.objects.all()
-    model_form = forms.InventoryItemRoleForm
+    form = forms.InventoryItemRoleForm
 
 
 class InventoryItemRoleDeleteView(generic.ObjectDeleteView):
@@ -2853,7 +2853,7 @@ class CableCreateView(generic.ObjectEditView):
 
 class CableEditView(generic.ObjectEditView):
     queryset = Cable.objects.all()
-    model_form = forms.CableForm
+    form = forms.CableForm
     template_name = 'dcim/cable_edit.html'
 
 
@@ -2952,7 +2952,7 @@ class VirtualChassisView(generic.ObjectView):
 
 class VirtualChassisCreateView(generic.ObjectEditView):
     queryset = VirtualChassis.objects.all()
-    model_form = forms.VirtualChassisCreateForm
+    form = forms.VirtualChassisCreateForm
     template_name = 'dcim/virtualchassis_add.html'
 
 
@@ -3189,7 +3189,7 @@ class PowerPanelView(generic.ObjectView):
 
 class PowerPanelEditView(generic.ObjectEditView):
     queryset = PowerPanel.objects.all()
-    model_form = forms.PowerPanelForm
+    form = forms.PowerPanelForm
 
 
 class PowerPanelDeleteView(generic.ObjectDeleteView):
@@ -3236,7 +3236,7 @@ class PowerFeedView(generic.ObjectView):
 
 class PowerFeedEditView(generic.ObjectEditView):
     queryset = PowerFeed.objects.all()
-    model_form = forms.PowerFeedForm
+    form = forms.PowerFeedForm
 
 
 class PowerFeedDeleteView(generic.ObjectDeleteView):

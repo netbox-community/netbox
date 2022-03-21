@@ -286,10 +286,10 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
     Create or edit a single object.
 
     Attributes:
-        model_form: The form used to create or edit the object
+        form: The form used to create or edit the object
     """
     template_name = 'generic/object_edit.html'
-    model_form = None
+    form = None
 
     def dispatch(self, request, *args, **kwargs):
         # Determine required permission based on whether we are editing an existing object
@@ -339,7 +339,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         obj = self.alter_object(obj, request, args, kwargs)
 
         initial_data = normalize_querydict(request.GET)
-        form = self.model_form(instance=obj, initial=initial_data)
+        form = self.form(instance=obj, initial=initial_data)
         restrict_form_fields(form, request.user)
 
         return render(request, self.template_name, {
@@ -365,11 +365,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
 
         obj = self.alter_object(obj, request, args, kwargs)
 
-        form = self.model_form(
-            data=request.POST,
-            files=request.FILES,
-            instance=obj
-        )
+        form = self.form(data=request.POST, files=request.FILES, instance=obj)
         restrict_form_fields(form, request.user)
 
         if form.is_valid():

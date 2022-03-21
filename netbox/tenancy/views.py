@@ -45,7 +45,7 @@ class TenantGroupView(generic.ObjectView):
 
 class TenantGroupEditView(generic.ObjectEditView):
     queryset = TenantGroup.objects.all()
-    model_form = forms.TenantGroupForm
+    form = forms.TenantGroupForm
 
 
 class TenantGroupDeleteView(generic.ObjectDeleteView):
@@ -122,7 +122,7 @@ class TenantView(generic.ObjectView):
 
 class TenantEditView(generic.ObjectEditView):
     queryset = Tenant.objects.all()
-    model_form = forms.TenantForm
+    form = forms.TenantForm
 
 
 class TenantDeleteView(generic.ObjectDeleteView):
@@ -195,7 +195,7 @@ class ContactGroupView(generic.ObjectView):
 
 class ContactGroupEditView(generic.ObjectEditView):
     queryset = ContactGroup.objects.all()
-    model_form = forms.ContactGroupForm
+    form = forms.ContactGroupForm
 
 
 class ContactGroupDeleteView(generic.ObjectDeleteView):
@@ -262,7 +262,7 @@ class ContactRoleView(generic.ObjectView):
 
 class ContactRoleEditView(generic.ObjectEditView):
     queryset = ContactRole.objects.all()
-    model_form = forms.ContactRoleForm
+    form = forms.ContactRoleForm
 
 
 class ContactRoleDeleteView(generic.ObjectDeleteView):
@@ -319,7 +319,7 @@ class ContactView(generic.ObjectView):
 
 class ContactEditView(generic.ObjectEditView):
     queryset = Contact.objects.all()
-    model_form = forms.ContactForm
+    form = forms.ContactForm
 
 
 class ContactDeleteView(generic.ObjectDeleteView):
@@ -351,7 +351,7 @@ class ContactBulkDeleteView(generic.BulkDeleteView):
 
 class ContactAssignmentEditView(generic.ObjectEditView):
     queryset = ContactAssignment.objects.all()
-    model_form = forms.ContactAssignmentForm
+    form = forms.ContactAssignmentForm
     template_name = 'tenancy/contactassignment_edit.html'
 
     def alter_object(self, instance, request, args, kwargs):

@@ -55,7 +55,7 @@ class VRFView(generic.ObjectView):
 
 class VRFEditView(generic.ObjectEditView):
     queryset = VRF.objects.all()
-    model_form = forms.VRFForm
+    form = forms.VRFForm
 
 
 class VRFDeleteView(generic.ObjectDeleteView):
@@ -113,7 +113,7 @@ class RouteTargetView(generic.ObjectView):
 
 class RouteTargetEditView(generic.ObjectEditView):
     queryset = RouteTarget.objects.all()
-    model_form = forms.RouteTargetForm
+    form = forms.RouteTargetForm
 
 
 class RouteTargetDeleteView(generic.ObjectDeleteView):
@@ -169,7 +169,7 @@ class RIRView(generic.ObjectView):
 
 class RIREditView(generic.ObjectEditView):
     queryset = RIR.objects.all()
-    model_form = forms.RIRForm
+    form = forms.RIRForm
 
 
 class RIRDeleteView(generic.ObjectDeleteView):
@@ -228,7 +228,7 @@ class ASNView(generic.ObjectView):
 
 class ASNEditView(generic.ObjectEditView):
     queryset = ASN.objects.all()
-    model_form = forms.ASNForm
+    form = forms.ASNForm
 
 
 class ASNDeleteView(generic.ObjectDeleteView):
@@ -306,7 +306,7 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
 
 class AggregateEditView(generic.ObjectEditView):
     queryset = Aggregate.objects.all()
-    model_form = forms.AggregateForm
+    form = forms.AggregateForm
 
 
 class AggregateDeleteView(generic.ObjectDeleteView):
@@ -365,7 +365,7 @@ class RoleView(generic.ObjectView):
 
 class RoleEditView(generic.ObjectEditView):
     queryset = Role.objects.all()
-    model_form = forms.RoleForm
+    form = forms.RoleForm
 
 
 class RoleDeleteView(generic.ObjectDeleteView):
@@ -524,7 +524,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
 
 class PrefixEditView(generic.ObjectEditView):
     queryset = Prefix.objects.all()
-    model_form = forms.PrefixForm
+    form = forms.PrefixForm
 
 
 class PrefixDeleteView(generic.ObjectDeleteView):
@@ -585,7 +585,7 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
 
 class IPRangeEditView(generic.ObjectEditView):
     queryset = IPRange.objects.all()
-    model_form = forms.IPRangeForm
+    form = forms.IPRangeForm
 
 
 class IPRangeDeleteView(generic.ObjectDeleteView):
@@ -673,7 +673,7 @@ class IPAddressView(generic.ObjectView):
 
 class IPAddressEditView(generic.ObjectEditView):
     queryset = IPAddress.objects.all()
-    model_form = forms.IPAddressForm
+    form = forms.IPAddressForm
     template_name = 'ipam/ipaddress_edit.html'
 
     def alter_object(self, obj, request, url_args, url_kwargs):
@@ -815,7 +815,7 @@ class VLANGroupView(generic.ObjectView):
 
 class VLANGroupEditView(generic.ObjectEditView):
     queryset = VLANGroup.objects.all()
-    model_form = forms.VLANGroupForm
+    form = forms.VLANGroupForm
 
 
 class VLANGroupDeleteView(generic.ObjectDeleteView):
@@ -884,7 +884,7 @@ class FHRPGroupView(generic.ObjectView):
 
 class FHRPGroupEditView(generic.ObjectEditView):
     queryset = FHRPGroup.objects.all()
-    model_form = forms.FHRPGroupForm
+    form = forms.FHRPGroupForm
     template_name = 'ipam/fhrpgroup_edit.html'
 
     def get_return_url(self, request, obj=None):
@@ -927,7 +927,7 @@ class FHRPGroupBulkDeleteView(generic.BulkDeleteView):
 
 class FHRPGroupAssignmentEditView(generic.ObjectEditView):
     queryset = FHRPGroupAssignment.objects.all()
-    model_form = forms.FHRPGroupAssignmentForm
+    form = forms.FHRPGroupAssignmentForm
     template_name = 'ipam/fhrpgroupassignment_edit.html'
 
     def alter_object(self, instance, request, args, kwargs):
@@ -1001,7 +1001,7 @@ class VLANVMInterfacesView(generic.ObjectChildrenView):
 
 class VLANEditView(generic.ObjectEditView):
     queryset = VLAN.objects.all()
-    model_form = forms.VLANForm
+    form = forms.VLANForm
     template_name = 'ipam/vlan_edit.html'
 
 
@@ -1045,7 +1045,7 @@ class ServiceTemplateView(generic.ObjectView):
 
 class ServiceTemplateEditView(generic.ObjectEditView):
     queryset = ServiceTemplate.objects.all()
-    model_form = forms.ServiceTemplateForm
+    form = forms.ServiceTemplateForm
 
 
 class ServiceTemplateDeleteView(generic.ObjectDeleteView):
@@ -1088,13 +1088,13 @@ class ServiceView(generic.ObjectView):
 
 class ServiceCreateView(generic.ObjectEditView):
     queryset = Service.objects.all()
-    model_form = forms.ServiceCreateForm
+    form = forms.ServiceCreateForm
     template_name = 'ipam/service_create.html'
 
 
 class ServiceEditView(generic.ObjectEditView):
     queryset = Service.objects.prefetch_related('ipaddresses')
-    model_form = forms.ServiceForm
+    form = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
 
 
