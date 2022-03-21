@@ -83,18 +83,19 @@ class ObjectChangeActionChoices(ChoiceSet):
 #
 
 class JournalEntryKindChoices(ChoiceSet):
+    key = 'JournalEntry.kind'
 
     KIND_INFO = 'info'
     KIND_SUCCESS = 'success'
     KIND_WARNING = 'warning'
     KIND_DANGER = 'danger'
 
-    CHOICES = (
+    CHOICES = [
         (KIND_INFO, 'Info', 'cyan'),
         (KIND_SUCCESS, 'Success', 'green'),
         (KIND_WARNING, 'Warning', 'yellow'),
         (KIND_DANGER, 'Danger', 'red'),
-    )
+    ]
 
 
 #

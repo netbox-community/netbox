@@ -207,6 +207,7 @@ The following model fields support configurable choices:
 * `dcim.PowerFeed.status`
 * `dcim.Rack.status`
 * `dcim.Site.status`
+* `extras.JournalEntry.kind`
 * `ipam.IPAddress.status`
 * `ipam.IPRange.status`
 * `ipam.Prefix.status`

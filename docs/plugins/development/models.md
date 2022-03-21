@@ -161,12 +161,15 @@ class StatusChoices(ChoiceSet):
     STATUS_BAR = 'bar'
     STATUS_BAZ = 'baz'
 
-    CHOICES = (
+    CHOICES = [
         (STATUS_FOO, 'Foo', 'red'),
         (STATUS_BAR, 'Bar', 'green'),
         (STATUS_BAZ, 'Baz', 'blue'),
-    )
+    ]
 ```
+
+!!! warning
+    For dynamic configuration to work properly, `CHOICES` must be a mutable list, rather than a tuple.
 
 ```python
 # models.py
