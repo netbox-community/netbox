@@ -166,3 +166,6 @@ class ContactAssignment(ChangeLoggedModel):
         if self.priority:
             return f"{self.contact} ({self.get_priority_display()})"
         return str(self.contact)
+
+    def get_absolute_url(self):
+        return reverse('tenancy:contact', args=[self.contact.pk])

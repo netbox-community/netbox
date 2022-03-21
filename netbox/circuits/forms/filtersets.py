@@ -5,7 +5,7 @@ from circuits.choices import CircuitStatusChoices
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
 from extras.forms import CustomFieldModelFilterForm
-from tenancy.forms import TenancyFilterForm
+from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
 from utilities.forms import DynamicModelMultipleChoiceField, StaticSelectMultiple, TagFilterField
 
 __all__ = (
@@ -16,12 +16,13 @@ __all__ = (
 )
 
 
-class ProviderFilterForm(CustomFieldModelFilterForm):
+class ProviderFilterForm(ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Provider
     field_groups = [
         ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id'],
         ['asn'],
+        ['contact', 'contact_role']
     ]
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -68,7 +69,7 @@ class CircuitTypeFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class CircuitFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Circuit
     field_groups = [
         ['q', 'tag'],
@@ -76,6 +77,7 @@ class CircuitFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['type_id', 'status', 'commit_rate'],
         ['region_id', 'site_group_id', 'site_id'],
         ['tenant_group_id', 'tenant_id'],
+        ['contact', 'contact_role']
     ]
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
