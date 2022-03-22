@@ -124,8 +124,10 @@ The demo data is provided in JSON format and loaded into an empty database using
 
 Prior to committing any substantial changes to the code base, be sure to run NetBox's test suite to catch any potential errors. Tests are run using the `test` management command. Remember to ensure the Python virtual environment is active before running this command. Also keep in mind that these commands are executed in the `/netbox/` directory, not the root directory of the repository.
 
+When running tests, it's advised to use the special testing configuration file that ships with NetBox. This ensures that tests are run with the same configuration parameters consistently. To override your local configuration when running tests, set the `NETBOX_CONFIGURATION` environment variable to `netbox.configuration_testing`.
+
 ```no-highlight
-$ python manage.py test
+$ NETBOX_CONFIGURATION=netbox.configuration_testing python manage.py test
 ```
 
 In cases where you haven't made any changes to the database (which is most of the time), you can append the `--keepdb` argument to this command to reuse the test database between runs. This cuts down on the time it takes to run the test suite since the database doesn't have to be rebuilt each time. (Note that this argument will cause errors if you've modified any model fields since the previous test run.)
