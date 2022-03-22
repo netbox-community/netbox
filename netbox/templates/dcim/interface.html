@@ -152,9 +152,7 @@
                                     </tr>
                                     <tr>
                                         <th scope="row">Name</th>
-                                        <td>
-                                            <a href="{{ iface.get_absolute_url }}">{{ iface.name }}</a>
-                                        </td>
+                                        <td>{{ iface|linkify:"name" }}</td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Type</th>
@@ -370,9 +368,7 @@
                                               &mdash;
                                             {% endif %}
                                         </td>
-                                        <td>
-                                            <a href="{{ wlan.get_absolute_url }}">{{ wlan.ssid }}</a>
-                                        </td>
+                                        <td>{{ wlan|linkify:"ssid" }}</td>
                                     </tr>
                                 {% empty %}
                                     <tr>

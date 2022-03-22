@@ -66,7 +66,7 @@
                         <td>
                             {% if object.tenant %}
                                 {% if object.tenant.group %}
-                                    {{ object.tenant.group|linkify }}/
+                                    {{ object.tenant.group|linkify }} /
                                 {% endif %}
                                 {{ object|linkify }}
                             {% else %}
@@ -206,9 +206,7 @@
                     </tr>
                     {% for resv in reservations %}
                         <tr>
-                            <td>
-                                <a href="{{ resv.get_absolute_url }}">{{ resv.unit_list }}</a>
-                            </td>
+                            <td>{{ resv|linkify:"unit_list" }}</td>
                             <td>{{ resv.tenant|linkify|placeholder }}</td>
                             <td>
                                 {{ resv.description }}<br />

@@ -15,7 +15,7 @@
       <tbody>
         {% for item in object.inventory_items.all %}
           <tr>
-            <td><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
+            <td>{{ item|linkify:"name" }}</td>
             <td>{{ item.label|placeholder }}</td>
             <td>{{ item.role|linkify|placeholder }}</td>
             <td class="text-end noprint">

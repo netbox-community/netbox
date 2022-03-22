@@ -81,9 +81,7 @@
                             </tr>
                             <tr>
                                 <th scope="row">Name</th>
-                                <td>
-                                    <a href="{{ object.connected_endpoint.get_absolute_url }}">{{ object.connected_endpoint.name }}</a>
-                                </td>
+                                <td>{{ object.connected_endpoint|linkify:"name" }}</td>
                             </tr>
                             <tr>
                                 <th scope="row">Type</th>

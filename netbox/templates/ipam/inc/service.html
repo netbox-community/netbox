@@ -1,5 +1,5 @@
 <tr>
-    <td><a href="{{ service.get_absolute_url }}">{{ service.name }}</a></td>
+    <td>{{ service|linkify:"name" }}</td>
     <td>{{ service.get_protocol_display }}</td>
     <td>{{ service.port_list }}</td>
     <td>

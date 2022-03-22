@@ -21,15 +21,23 @@ register = template.Library()
 #
 
 @register.filter()
-def linkify(instance):
+def linkify(instance, attr=None):
     """
-    Render a hyperlink for object's with a `get_absolute_url()` method, using the object's string representation
-    as the link's text. If the object has no `get_absolute_url()` method, return an empty string.
+    Render a hyperlink for an object with a `get_absolute_url()` method, optionally specifying the name of an
+    attribute to use for the link text. If no attribute is given, the object's string representation will be
+    used.
+
+    If the object has no `get_absolute_url()` method, return the text without a hyperlink element.
     """
-    try:
-        return mark_safe(f'<a href="{instance.get_absolute_url()}">{instance}</a>')
-    except (AttributeError, TypeError):
+    if instance is None:
         return ''
+
+    text = getattr(instance, attr) if attr is not None else str(instance)
+    try:
+        url = instance.get_absolute_url()
+        return mark_safe(f'<a href="{url}">{text}</a>')
+    except (AttributeError, TypeError):
+        return text
 
 
 @register.filter()
