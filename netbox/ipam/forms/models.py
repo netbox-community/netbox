@@ -222,7 +222,7 @@ class PrefixForm(TenancyForm, CustomFieldModelForm):
         label='VLAN group',
         null_option='None',
         query_params={
-            'site_id': '$site'
+            'site': '$site'
         },
         initial_params={
             'vlans': '$vlan'
