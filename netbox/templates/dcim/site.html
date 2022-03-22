@@ -30,9 +30,9 @@
             <td>
               {% if object.region %}
                 {% for region in object.region.get_ancestors %}
-                  <a href="{{ region.get_absolute_url }}">{{ region }}</a> /
+                  {{ region|linkify }} /
                 {% endfor %}
-                <a href="{{ object.region.get_absolute_url }}">{{ object.region }}</a>
+                {{ object.region|linkify }}
               {% else %}
                 <span class="text-muted">None</span>
               {% endif %}
@@ -43,9 +43,9 @@
             <td>
               {% if object.group %}
                 {% for group in object.group.get_ancestors %}
-                  <a href="{{ group.get_absolute_url }}">{{ group }}</a> /
+                  {{ group|linkify }} /
                 {% endfor %}
-                <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
+                {{ object.group|linkify }}
               {% else %}
                 <span class="text-muted">None</span>
               {% endif %}
@@ -60,9 +60,9 @@
             <td>
               {% if object.tenant %}
                 {% if object.tenant.group %}
-                  <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                  {{ object.tenant.group|linkify }} /
                 {% endif %}
-                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                {{ object.tenant|linkify }}
               {% else %}
                 <span class="text-muted">None</span>
               {% endif %}
@@ -242,7 +242,7 @@
                 <tr>
                   <td>
                     {% for i in location.level|as_range %}<i class="mdi mdi-circle-small"></i>{% endfor %}
-                    <a href="{{ location.get_absolute_url }}">{{ location }}</a>
+                    {{ location|linkify }}
                   </td>
                   <td>
                     <a href="{% url 'dcim:rack_list' %}?location_id={{ location.pk }}">{{ location.rack_count }}</a>
@@ -281,7 +281,7 @@
               </tr>
             {% for asn in asns %}
               <tr>
-                <td><a href="{{ asn.get_absolute_url }}">{{ asn }}</a></td>
+                <td>{{ asn|linkify }}</td>
                 <td>{{ asn.description|placeholder }}</td>
               </tr>
             {% endfor %}

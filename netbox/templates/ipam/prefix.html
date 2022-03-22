@@ -29,9 +29,9 @@
             <td>
               {% if object.tenant %}
                 {% if object.tenant.group %}
-                  <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                  {{ object.tenant.group|linkify }} /
                 {% endif %}
-                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                {{ object.tenant|linkify }}
               {% else %}
                 <span class="text-muted">None</span>
               {% endif %}
@@ -52,9 +52,9 @@
             <td>
               {% if object.site %}
                 {% if object.site.region %}
-                  <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
+                  {{ object.site.region|linkify }} /
                 {% endif %}
-                <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+                {{ object.site|linkify }}
               {% else %}
                 <span class="text-muted">None</span>
               {% endif %}
@@ -65,9 +65,9 @@
             <td>
               {% if object.vlan %}
                 {% if object.vlan.group %}
-                  <a href="{{ object.vlan.group.get_absolute_url }}">{{ object.vlan.group }}</a> /
+                  {{ object.vlan.group|linkify }} /
                 {% endif %}
-                <a href="{% url 'ipam:vlan' pk=object.vlan.pk %}">{{ object.vlan }}</a>
+                {{ object.vlan|linkify }}
               {% else %}
                 <span class="text-muted">None</span>
               {% endif %}
@@ -79,13 +79,7 @@
           </tr>
           <tr>
             <th scope="row">Role</th>
-            <td>
-              {% if object.role %}
-                <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
-              {% else %}
-                <span class="text-muted">None</span>
-              {% endif %}
-            </td>
+            <td>{{ object.role|linkify|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">Description</th>

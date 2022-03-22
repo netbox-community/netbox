@@ -30,10 +30,10 @@
               <td>Tenant</td>
               <td>
                 {% if object.tenant %}
-                  {% if prefix.object.group %}
-                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                  {% if object.tenant.group %}
+                    {{ object.tenant.group|linkify }} /
                   {% endif %}
-                  <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                  {{ object.tenant|linkify }}
                 {% else %}
                   <span class="text-muted">None</span>
                 {% endif %}

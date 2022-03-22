@@ -7,7 +7,7 @@
   {{ block.super }}
   {% if object.scope %}
     {# TODO: This should link to a filtered list of VLANGroups #}
-    <li class="breadcrumb-item"><a href="{{ object.scope.get_absolute_url }}">{{ object.scope }}</a></li>
+    <li class="breadcrumb-item">{{ object.scope|linkify }}</li>
   {% endif %}
 {% endblock %}
 
@@ -36,12 +36,7 @@
           </tr>
           <tr>
             <th scope="row">Scope</th>
-            <td>
-            {% if object.scope %}
-              <a href="{{ object.scope.get_absolute_url }}">{{ object.scope }}</a>
-            {% else %}
-              <span class="text-muted">&mdash;</span>
-            {% endif %}
+            <td>{{ object.scope|linkify|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">Permitted VIDs</th>

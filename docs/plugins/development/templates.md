@@ -230,6 +230,8 @@ The following custom template filters are available in NetBox.
 
 ::: utilities.templatetags.builtins.filters.content_type_id
 
+::: utilities.templatetags.builtins.filters.linkify
+
 ::: utilities.templatetags.builtins.filters.meta
 
 ::: utilities.templatetags.builtins.filters.placeholder

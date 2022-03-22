@@ -27,13 +27,7 @@
                     </tr>
                     <tr>
                         <th scope="row">Master</th>
-                        <td>
-                            {% if object.master %}
-                                <a href="{{ object.master.get_absolute_url }}">{{ object.master }}</a>
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
-                            {% endif %}
-                        </td>
+                        <td>{{ object.master|linkify }}</td>
                     </tr>
                 </table>
             </div>
@@ -58,7 +52,7 @@
                     {% for vc_member in members %}
                         <tr{% if vc_member == device %} class="info"{% endif %}>
                             <td>
-                                <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
+                                {{ vc_member|linkify }}
                             </td>
                             <td>
                               {% badge vc_member.vc_position show_empty=True %}

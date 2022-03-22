@@ -21,6 +21,18 @@ register = template.Library()
 #
 
 @register.filter()
+def linkify(instance):
+    """
+    Render a hyperlink for object's with a `get_absolute_url()` method, using the object's string representation
+    as the link's text. If the object has no `get_absolute_url()` method, return an empty string.
+    """
+    try:
+        return mark_safe(f'<a href="{instance.get_absolute_url()}">{instance}</a>')
+    except (AttributeError, TypeError):
+        return ''
+
+
+@register.filter()
 def bettertitle(value):
     """
     Alternative to the builtin title(). Ensures that the first letter of each word is uppercase but retains the

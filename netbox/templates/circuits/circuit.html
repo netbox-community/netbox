@@ -18,9 +18,7 @@
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">Provider</th>
-                        <td>
-                            <a href="{{ object.provider.get_absolute_url }}">{{ object.provider }}</a>
-                        </td>
+                        <td>{{ object.provider|linkify }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Circuit ID</th>
@@ -28,7 +26,7 @@
                     </tr>
                     <tr>
                         <th scope="row">Type</th>
-                        <td><a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a></td>
+                        <td>{{ object.type|linkify }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Status</th>
@@ -39,9 +37,9 @@
                         <td>
                             {% if object.tenant %}
                                 {% if object.tenant.group %}
-                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                                    {{ object.tenant.group|linkify }} /
                                 {% endif %}
-                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                                {{ object.tenant|linkify }}
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
