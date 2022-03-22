@@ -619,8 +619,8 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
     parent = NestedInterfaceSerializer(required=False, allow_null=True)
     bridge = NestedInterfaceSerializer(required=False, allow_null=True)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
-    mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
-    rf_role = ChoiceField(choices=WirelessRoleChoices, required=False, allow_null=True)
+    mode = ChoiceField(choices=InterfaceModeChoices, required=False, allow_blank=True)
+    rf_role = ChoiceField(choices=WirelessRoleChoices, required=False, allow_blank=True)
     rf_channel = ChoiceField(choices=WirelessChannelChoices, required=False, allow_blank=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
