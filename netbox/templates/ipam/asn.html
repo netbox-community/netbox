@@ -29,14 +29,10 @@
             <tr>
               <td>Tenant</td>
               <td>
-                {% if object.tenant %}
-                  {% if object.tenant.group %}
-                    {{ object.tenant.group|linkify }} /
-                  {% endif %}
-                  {{ object.tenant|linkify }}
-                {% else %}
-                  <span class="text-muted">None</span>
+                {% if object.tenant.group %}
+                  {{ object.tenant.group|linkify }} /
                 {% endif %}
+                {{ object.tenant|linkify|placeholder }}
               </td>
             </tr>
             <tr>

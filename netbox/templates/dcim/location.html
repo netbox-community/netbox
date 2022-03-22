@@ -44,17 +44,13 @@
             <td>{{ object.parent|linkify|placeholder }}</td>
           </tr>
           <tr>
-              <th scope="row">Tenant</th>
-              <td>
-                  {% if object.tenant %}
-                      {% if object.tenant.group %}
-                          {{ object.tenant.group|linkify }} /
-                      {% endif %}
-                      {{ object.tenant|linkify }}
-                  {% else %}
-                      <span class="text-muted">None</span>
-                  {% endif %}
-              </td>
+            <th scope="row">Tenant</th>
+            <td>
+              {% if object.tenant.group %}
+                {{ object.tenant.group|linkify }} /
+              {% endif %}
+              {{ object.tenant|linkify|placeholder }}
+            </td>
           </tr>
           <tr>
             <th scope="row">Racks</th>
