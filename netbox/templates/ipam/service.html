@@ -28,9 +28,7 @@
                     </tr>
                     <tr>
                         <th scope="row">Parent</th>
-                        <td>
-                            <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
-                        </td>
+                        <td>{{ object.parent|linkify }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Protocol</th>
@@ -44,7 +42,7 @@
                         <th scope="row">IP Addresses</th>
                         <td>
                             {% for ipaddress in object.ipaddresses.all %}
-                                <a href="{{ ipaddress.get_absolute_url }}">{{ ipaddress }}</a><br />
+                                {{ ipaddress|linkify }}<br />
                             {% empty %}
                                 <span class="text-muted">None</span>
                             {% endfor %}

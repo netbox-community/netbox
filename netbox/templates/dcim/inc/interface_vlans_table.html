@@ -8,9 +8,7 @@
     {% with tagged_vlans=obj.tagged_vlans.all %}
         {% if obj.untagged_vlan and obj.untagged_vlan not in tagged_vlans %}
             <tr>
-                <td>
-                    <a href="{{ obj.untagged_vlan.get_absolute_url }}">{{ obj.untagged_vlan.vid }}</a>
-                </td>
+                <td>{{ obj.untagged_vlan|linkify:"vid" }}</td>
                 <td>{{ obj.untagged_vlan.name }}</td>
                 <td>
                     <input type="radio" name="untagged_vlan" value="{{ obj.untagged_vlan.pk }}" checked="checked" />
@@ -22,9 +20,7 @@
         {% endif %}
         {% for vlan in tagged_vlans %}
             <tr>
-                <td>
-                    <a href="{{ vlan.get_absolute_url }}">{{ vlan.vid }}</a>
-                </td>
+                <td>{{ vlan|linkify:"vid" }}</td>
                 <td>{{ vlan.name }}</td>
                 <td>
                     <input type="radio" name="untagged_vlan" value="{{ vlan.pk }}"{% if vlan == obj.untagged_vlan %} checked="checked"{% endif %} />

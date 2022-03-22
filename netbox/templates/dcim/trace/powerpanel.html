@@ -1,5 +1,5 @@
 <div class="node">
-    <strong><a href="{{ powerpanel.get_absolute_url }}">{{ powerpanel }}</a></strong><br />
+    <strong>{{ powerpanel|linkify }}</strong><br />
     Power Panel<br />
-    <a href="{{ powerpanel.site.get_absolute_url }}">{{ powerpanel.site }}</a>
+    {{ powerpanel.site|linkify }}
 </div>

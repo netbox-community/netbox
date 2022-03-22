@@ -61,7 +61,7 @@
                         <th scope="row">Object</th>
                         <td>
                             {% if object.changed_object and object.changed_object.get_absolute_url %}
-                                <a href="{{ object.changed_object.get_absolute_url }}">{{ object.changed_object }}</a>
+                                {{ object.changed_object|linkify }}
                             {% else %}
                                 {{ object.object_repr }}
                             {% endif %}

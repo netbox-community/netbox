@@ -30,19 +30,11 @@
                     <table class="table table-hover">
                         <tr>
                             <th scope="row">Device</th>
-                            <td>
-                                <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
-                            </td>
+                            <td>{{ object.device|linkify }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Module</th>
-                            <td>
-                              {% if object.module %}
-                                <a href="{{ object.module.get_absolute_url }}">{{ object.module }}</a>
-                              {% else %}
-                                {{ None|placeholder }}
-                              {% endif %}
-                            </td>
+                            <td>{{ object.module|linkify|placeholder }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Name</th>
@@ -74,33 +66,15 @@
                         </tr>
                         <tr>
                             <th scope="row">Parent</th>
-                            <td>
-                                {% if object.parent %}
-                                    <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
+                            <td>{{ object.parent|linkify|placeholder }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Bridge</th>
-                            <td>
-                                {% if object.bridge %}
-                                    <a href="{{ object.bridge.get_absolute_url }}">{{ object.bridge }}</a>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
+                            <td>{{ object.bridge|linkify|placeholder }}</td>
                         </tr>
                         <tr>
                             <th scope="row">LAG</th>
-                            <td>
-                                {% if object.lag%}
-                                    <a href="{{ object.lag.get_absolute_url }}">{{ object.lag }}</a>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
+                            <td>{{ object.lag|linkify|placeholder }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Description</th>
@@ -128,13 +102,7 @@
                         </tr>
                         <tr>
                             <th scope="row">VRF</th>
-                            <td>
-                                {% if object.vrf %}
-                                    <a href="{{ object.vrf.get_absolute_url }}">{{ object.vrf }}</a>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
+                            <td>{{ object.vrf|linkify|placeholder }}</td>
                         </tr>
                     </table>
                 </div>
@@ -170,7 +138,7 @@
                             <tr>
                                 <th scope="row">Cable</th>
                                 <td>
-                                    <a href="{{ object.cable.get_absolute_url }}">{{ object.cable }}</a>
+                                    {{ object.cable|linkify }}
                                     <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
                                         <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                                     </a>
@@ -180,15 +148,11 @@
                                 {% with iface=object.connected_endpoint %}
                                     <tr>
                                         <th scope="row">Device</th>
-                                        <td>
-                                            <a href="{{ iface.device.get_absolute_url }}">{{ iface.device }}</a>
-                                        </td>
+                                        <td>{{ iface.device|linkify }}</td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Name</th>
-                                        <td>
-                                            <a href="{{ iface.get_absolute_url }}">{{ iface.name }}</a>
-                                        </td>
+                                        <td>{{ iface|linkify:"name" }}</td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Type</th>
@@ -196,13 +160,7 @@
                                     </tr>
                                     <tr>
                                         <th scope="row">LAG</th>
-                                        <td>
-                                            {% if iface.lag%}
-                                                <a href="{{ iface.lag.get_absolute_url }}">{{ iface.lag }}</a>
-                                            {% else %}
-                                                <span class="text-muted">None</span>
-                                            {% endif %}
-                                        </td>
+                                        <td>{{ iface.lag|linkify|placeholder }}</td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Description</th>
@@ -225,11 +183,11 @@
                                 {% with ct=object.connected_endpoint %}
                                     <tr>
                                         <th scope="row">Provider</th>
-                                        <td><a href="{{ ct.circuit.provider.get_absolute_url }}">{{ ct.circuit.provider }}</a></td>
+                                        <td>{{ ct.circuit.provider|linkify }}</td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Circuit</th>
-                                        <td><a href="{{ ct.circuit.get_absolute_url }}">{{ ct.circuit }}</a></td>
+                                        <td>{{ ct.circuit|linkify }}</td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Side</th>
@@ -253,7 +211,7 @@
                             <tr>
                                 <th scope="row">Wireless Link</th>
                                 <td>
-                                    <a href="{{ object.wireless_link.get_absolute_url }}">{{ object.wireless_link }}</a>
+                                    {{ object.wireless_link|linkify }}
                                     <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
                                         <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                                     </a>
@@ -262,15 +220,11 @@
                             {% with peer_interface=object.connected_endpoint %}
                                 <tr>
                                     <th scope="row">Device</th>
-                                    <td>
-                                        <a href="{{ peer_interface.device.get_absolute_url }}">{{ peer_interface.device }}</a>
-                                    </td>
+                                    <td>{{ peer_interface.device|linkify }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Name</th>
-                                    <td>
-                                        <a href="{{ peer_interface.get_absolute_url }}">{{ peer_interface }}</a>
-                                    </td>
+                                    <td>{{ peer_interface|linkify }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Type</th>
@@ -409,14 +363,12 @@
                                     <tr>
                                         <td>
                                             {% if wlan.group %}
-                                              <a href="{{ wlan.group.get_absolute_url }}">{{ wlan.group }}</a>
+                                              {{ wlan.group|linkify }}
                                             {% else %}
                                               &mdash;
                                             {% endif %}
                                         </td>
-                                        <td>
-                                            <a href="{{ wlan.get_absolute_url }}">{{ wlan.ssid }}</a>
-                                        </td>
+                                        <td>{{ wlan|linkify:"ssid" }}</td>
                                     </tr>
                                 {% empty %}
                                     <tr>
@@ -443,15 +395,9 @@
                             <tbody>
                                 {% for member in object.member_interfaces.all %}
                                     <tr>
-                                        <td>
-                                            <a href="{{ member.device.get_absolute_url }}">{{ member.device }}</a>
-                                        </td>
-                                        <td>
-                                            <a href="{{ member.get_absolute_url }}">{{ member }}</a>
-                                        </td>
-                                        <td>
-                                            {{ member.get_type_display }}
-                                        </td>
+                                        <td>{{ member.device|linkify }}</td>
+                                        <td>{{ member|linkify }}</td>
+                                        <td>{{ member.get_type_display }}</td>
                                     </tr>
                                 {% empty %}
                                     <tr>

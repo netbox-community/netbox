@@ -15,13 +15,7 @@
             </tr>
             <tr>
               <th  scope="row">Tenant</th>
-              <td>
-                {% if object.tenant %}
-                  <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                {% else %}
-                  <span class="text-muted">None</span>
-                {% endif %}
-              </td>
+              <td>{{ object.tenant|linkify|placeholder }}</td>
             </tr>
             <tr>
               <th scope="row">Description</th>

@@ -17,37 +17,24 @@
                 </tr>
                 <tr>
                     <th scope="row">Type</th>
-                    <td><a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a></td>
+                    <td>{{ object.type|linkify }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Group</th>
-                    <td>
-                        {% if object.group %}
-                            <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ object.group|linkify }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Tenant</th>
                     <td>
-                        {% if object.tenant %}
-                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
+                        {% if object.tenant.group %}
+                            {{ object.tenant.group|linkify }} /
                         {% endif %}
+                        {{ object.tenant|linkify|placeholder }}
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">Site</th>
-                    <td>
-                        {% if object.site %}
-                            <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ object.site|linkify }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Virtual Machines</th>

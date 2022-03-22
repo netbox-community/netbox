@@ -10,7 +10,7 @@
       </label>
       <div class="col-sm-9">
         <div class="form-control-plaintext">
-          <a href="{{ object.parent.get_absolute_url }}" class="">{{ object.parent }}</a>
+          {{ object.parent|linkify }}
         </div>
       </div>
     </div>
