@@ -32,6 +32,8 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     )
     object_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
+        # TODO: Come up with a canonical way to register suitable models
+        limit_choices_to=FeatureQuery('webhooks'),
         required=False,
         help_text="Type of the related object (for object/multi-object fields only)"
     )
