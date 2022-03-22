@@ -619,8 +619,8 @@ class RackView(generic.ObjectView):
             peer_racks = peer_racks.filter(location=instance.location)
         else:
             peer_racks = peer_racks.filter(location__isnull=True)
-        next_rack = peer_racks.filter(name__gt=instance.name).order_by('name').first()
-        prev_rack = peer_racks.filter(name__lt=instance.name).order_by('-name').first()
+        next_rack = peer_racks.filter(_name__gt=instance._name).first()
+        prev_rack = peer_racks.filter(_name__lt=instance._name).reverse().first()
 
         reservations = RackReservation.objects.restrict(request.user, 'view').filter(rack=instance)
         power_feeds = PowerFeed.objects.restrict(request.user, 'view').filter(rack=instance).prefetch_related(
