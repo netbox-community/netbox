@@ -753,8 +753,6 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
 
         for _scripts in scripts.values():
             for script in _scripts.values():
-                # Prevent django from instantiating the class on all accesses
-                script.do_not_call_in_templates = True
                 script.result = results.get(script.full_name)
 
         return render(request, 'extras/script_list.html', {
