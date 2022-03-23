@@ -374,6 +374,11 @@ class ModuleType(NetBoxModel):
         blank=True
     )
 
+    # Generic relations
+    images = GenericRelation(
+        to='extras.ImageAttachment'
+    )
+
     clone_fields = ('manufacturer',)
 
     class Meta:
