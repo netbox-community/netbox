@@ -29,11 +29,9 @@
                                 {% elif field.type == 'object' and value %}
                                     {{ value|linkify }}
                                 {% elif field.type == 'multiobject' and value %}
-                                    <ul>
-                                      {% for obj in value %}
-                                        <li>{{ obj|linkify }}</li>
-                                      {% endfor %}
-                                    </ul>
+                                    {% for obj in value %}
+                                      {{ obj|linkify }}{% if not forloop.last %}<br />{% endif %}
+                                    {% endfor %}
                                 {% elif value %}
                                     {{ value }}
                                 {% elif field.required %}

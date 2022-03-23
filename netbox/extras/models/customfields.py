@@ -430,6 +430,15 @@ class CustomField(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
             filter_class = filters.MultiValueCharFilter
             kwargs['lookup_expr'] = 'has_key'
 
+        # Object
+        elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
+            filter_class = filters.MultiValueNumberFilter
+
+        # Multi-object
+        elif self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+            filter_class = filters.MultiValueNumberFilter
+            kwargs['lookup_expr'] = 'contains'
+
         # Unsupported custom field type
         else:
             return None

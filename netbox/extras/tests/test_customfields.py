@@ -5,7 +5,7 @@ from rest_framework import status
 
 from dcim.filtersets import SiteFilterSet
 from dcim.forms import SiteCSVForm
-from dcim.models import Site, Rack
+from dcim.models import Manufacturer, Rack, Site
 from extras.choices import *
 from extras.models import CustomField
 from ipam.models import VLAN
@@ -1022,6 +1022,13 @@ class CustomFieldModelFilterTest(TestCase):
     def setUpTestData(cls):
         obj_type = ContentType.objects.get_for_model(Site)
 
+        manufacturers = Manufacturer.objects.bulk_create((
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+            Manufacturer(name='Manufacturer 4', slug='manufacturer-4'),
+        ))
+
         # Integer filtering
         cf = CustomField(name='cf1', type=CustomFieldTypeChoices.TYPE_INTEGER)
         cf.save()
@@ -1071,6 +1078,24 @@ class CustomFieldModelFilterTest(TestCase):
         cf.save()
         cf.content_types.set([obj_type])
 
+        # Object filtering
+        cf = CustomField(
+            name='cf10',
+            type=CustomFieldTypeChoices.TYPE_OBJECT,
+            object_type=ContentType.objects.get_for_model(Manufacturer)
+        )
+        cf.save()
+        cf.content_types.set([obj_type])
+
+        # Multi-object filtering
+        cf = CustomField(
+            name='cf11',
+            type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
+            object_type=ContentType.objects.get_for_model(Manufacturer)
+        )
+        cf.save()
+        cf.content_types.set([obj_type])
+
         Site.objects.bulk_create([
             Site(name='Site 1', slug='site-1', custom_field_data={
                 'cf1': 100,
@@ -1082,6 +1107,8 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf7': 'http://a.example.com',
                 'cf8': 'Foo',
                 'cf9': ['A', 'X'],
+                'cf10': manufacturers[0].pk,
+                'cf11': [manufacturers[0].pk, manufacturers[3].pk],
             }),
             Site(name='Site 2', slug='site-2', custom_field_data={
                 'cf1': 200,
@@ -1093,6 +1120,8 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf7': 'http://b.example.com',
                 'cf8': 'Bar',
                 'cf9': ['B', 'X'],
+                'cf10': manufacturers[1].pk,
+                'cf11': [manufacturers[1].pk, manufacturers[3].pk],
             }),
             Site(name='Site 3', slug='site-3', custom_field_data={
                 'cf1': 300,
@@ -1104,6 +1133,8 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf7': 'http://c.example.com',
                 'cf8': 'Baz',
                 'cf9': ['C', 'X'],
+                'cf10': manufacturers[2].pk,
+                'cf11': [manufacturers[2].pk, manufacturers[3].pk],
             }),
         ])
 
@@ -1163,3 +1194,12 @@ class CustomFieldModelFilterTest(TestCase):
     def test_filter_multiselect(self):
         self.assertEqual(self.filterset({'cf_cf9': ['A', 'B']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf9': ['X']}, self.queryset).qs.count(), 3)
+
+    def test_filter_object(self):
+        manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
+        self.assertEqual(self.filterset({'cf_cf10': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(), 2)
+
+    def test_filter_multiobject(self):
+        manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
+        self.assertEqual(self.filterset({'cf_cf11': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf11': [manufacturer_ids[3]]}, self.queryset).qs.count(), 3)
