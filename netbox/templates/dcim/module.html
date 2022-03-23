@@ -11,36 +11,36 @@
 {% endblock %}
 
 {% block extra_controls %}
-    {% if perms.dcim.change_module %}
-        <div class="dropdown">
-            <button id="add-components" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Components
-            </button>
-            <ul class="dropdown-menu" aria-labeled-by="add-components">
-                {% if perms.dcim.add_consoleport %}
-                    <li><a class="dropdown-item" href="{% url 'dcim:consoleport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_consoleports' pk=object.pk %}">Console Ports</a></li>
-                {% endif %}
-                {% if perms.dcim.add_consoleserverport %}
-                    <li><a class="dropdown-item" href="{% url 'dcim:consoleserverport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}">Console Server Ports</a></li>
-                {% endif %}
-                {% if perms.dcim.add_powerport %}
-                    <li><a class="dropdown-item" href="{% url 'dcim:powerport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_powerports' pk=object.pk %}">Power Ports</a></li>
-                {% endif %}
-                {% if perms.dcim.add_poweroutlet %}
-                    <li><a class="dropdown-item" href="{% url 'dcim:poweroutlet_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}">Power Outlets</a></li>
-                {% endif %}
-                {% if perms.dcim.add_interface %}
-                    <li><a class="dropdown-item" href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Interfaces</a></li>
-                {% endif %}
-                {% if perms.dcim.add_frontport %}
-                    <li><a class="dropdown-item" href="{% url 'dcim:frontport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_frontports' pk=object.pk %}">Front Ports</a></li>
-                {% endif %}
-                {% if perms.dcim.add_rearport %}
-                    <li><a class="dropdown-item" href="{% url 'dcim:rearport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_rearports' pk=object.pk %}">Rear Ports</a></li>
-                {% endif %}
-            </ul>
-        </div>
-    {% endif %}
+  {% if perms.dcim.change_module %}
+    <div class="dropdown">
+      <button id="add-components" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Components
+      </button>
+      <ul class="dropdown-menu" aria-labeled-by="add-components">
+        {% if perms.dcim.add_consoleport %}
+          <li><a class="dropdown-item" href="{% url 'dcim:consoleport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_consoleports' pk=object.pk %}">Console Ports</a></li>
+        {% endif %}
+        {% if perms.dcim.add_consoleserverport %}
+          <li><a class="dropdown-item" href="{% url 'dcim:consoleserverport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}">Console Server Ports</a></li>
+        {% endif %}
+        {% if perms.dcim.add_powerport %}
+          <li><a class="dropdown-item" href="{% url 'dcim:powerport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_powerports' pk=object.pk %}">Power Ports</a></li>
+        {% endif %}
+        {% if perms.dcim.add_poweroutlet %}
+          <li><a class="dropdown-item" href="{% url 'dcim:poweroutlet_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}">Power Outlets</a></li>
+        {% endif %}
+        {% if perms.dcim.add_interface %}
+          <li><a class="dropdown-item" href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Interfaces</a></li>
+        {% endif %}
+        {% if perms.dcim.add_frontport %}
+          <li><a class="dropdown-item" href="{% url 'dcim:frontport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_frontports' pk=object.pk %}">Front Ports</a></li>
+        {% endif %}
+        {% if perms.dcim.add_rearport %}
+          <li><a class="dropdown-item" href="{% url 'dcim:rearport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_rearports' pk=object.pk %}">Rear Ports</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -90,7 +90,7 @@
                   {% if component_count %}
                     <a href="{% url 'dcim:interface_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
-                    None
+                    {{ ''|placeholder }}
                   {% endif %}
                 {% endwith %}
               </td>
@@ -102,7 +102,7 @@
                   {% if component_count %}
                     <a href="{% url 'dcim:consoleport_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
-                    None
+                    {{ ''|placeholder }}
                   {% endif %}
                 {% endwith %}
               </td>
@@ -114,7 +114,7 @@
                   {% if component_count %}
                     <a href="{% url 'dcim:consoleserverport_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
-                    None
+                    {{ ''|placeholder }}
                   {% endif %}
                 {% endwith %}
               </td>
@@ -126,7 +126,7 @@
                   {% if component_count %}
                     <a href="{% url 'dcim:powerport_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
-                    None
+                    {{ ''|placeholder }}
                   {% endif %}
                 {% endwith %}
               </td>
@@ -138,7 +138,7 @@
                   {% if component_count %}
                     <a href="{% url 'dcim:poweroutlet_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
-                    None
+                    {{ ''|placeholder }}
                   {% endif %}
                 {% endwith %}
               </td>
@@ -150,7 +150,7 @@
                   {% if component_count %}
                     <a href="{% url 'dcim:frontport_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
-                    None
+                    {{ ''|placeholder }}
                   {% endif %}
                 {% endwith %}
               </td>
@@ -162,7 +162,7 @@
                   {% if component_count %}
                     <a href="{% url 'dcim:rearport_list' %}?module_id={{ object.pk }}">{{ component_count }}</a>
                   {% else %}
-                    None
+                    {{ ''|placeholder }}
                   {% endif %}
                 {% endwith %}
               </td>
