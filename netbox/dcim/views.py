@@ -2791,8 +2791,8 @@ class CableCreateView(generic.ObjectEditView):
 
     def dispatch(self, request, *args, **kwargs):
 
-        # Set the model_form class based on the type of component being connected
-        self.model_form = {
+        # Set the form class based on the type of component being connected
+        self.form = {
             'console-port': forms.ConnectCableToConsolePortForm,
             'console-server-port': forms.ConnectCableToConsoleServerPortForm,
             'power-port': forms.ConnectCableToPowerPortForm,
@@ -2840,7 +2840,7 @@ class CableCreateView(generic.ObjectEditView):
         if 'termination_b_rack' not in initial_data:
             initial_data['termination_b_rack'] = getattr(obj.termination_a.parent_object, 'rack', None)
 
-        form = self.model_form(instance=obj, initial=initial_data)
+        form = self.form(instance=obj, initial=initial_data)
 
         return render(request, self.template_name, {
             'obj': obj,
