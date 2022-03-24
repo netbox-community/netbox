@@ -15,6 +15,7 @@
 * [#8813](https://github.com/netbox-community/netbox/issues/8813) - Retain global search bar query after submitting
 * [#8820](https://github.com/netbox-community/netbox/issues/8820) - Fix navbar background color in dark mode
 * [#8850](https://github.com/netbox-community/netbox/issues/8850) - Show airflow field on device REST API serializer when config context data is included
+* [#8905](https://github.com/netbox-community/netbox/issues/8905) - Disable ordering by assigned tags to prevent erroneous results
 * [#8919](https://github.com/netbox-community/netbox/issues/8919) - Fix filtering of VLAN groups by site under prefix edit form
 * [#8924](https://github.com/netbox-community/netbox/issues/8924) - Improve load time of custom script list
 * [#8932](https://github.com/netbox-community/netbox/issues/8932) - Fix error when setting null value for interface `rf_role` via REST API
