@@ -605,11 +605,6 @@ class DeviceForm(TenancyForm, CustomFieldModelForm):
             # can be flipped from one face to another.
             self.fields['position'].widget.add_query_param('exclude', self.instance.pk)
 
-            # Limit platform by manufacturer
-            self.fields['platform'].queryset = Platform.objects.filter(
-                Q(manufacturer__isnull=True) | Q(manufacturer=self.instance.device_type.manufacturer)
-            )
-
             # Disable rack assignment if this is a child device installed in a parent device
             if self.instance.device_type.is_child_device and hasattr(self.instance, 'parent_bay'):
                 self.fields['site'].disabled = True
