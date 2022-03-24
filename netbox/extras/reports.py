@@ -84,15 +84,6 @@ def run_report(job_result, *args, **kwargs):
         job_result.save()
         logging.error(f"Error during execution of report {job_result.name}")
 
-    # Delete any previous terminal state results
-    JobResult.objects.filter(
-        obj_type=job_result.obj_type,
-        name=job_result.name,
-        status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
-    ).exclude(
-        pk=job_result.pk
-    ).delete()
-
 
 class Report(object):
     """
