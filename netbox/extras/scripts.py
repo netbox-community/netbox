@@ -259,6 +259,10 @@ class BaseScript:
     Base model for custom scripts. User classes should inherit from this model if they want to extend Script
     functionality for use in other subclasses.
     """
+
+    # Prevent django from instantiating the class on all accesses
+    do_not_call_in_templates = True
+
     class Meta:
         pass
 
@@ -280,7 +284,7 @@ class BaseScript:
 
     @classproperty
     def name(self):
-        return getattr(self.Meta, 'name', self.__class__.__name__)
+        return getattr(self.Meta, 'name', self.__name__)
 
     @classproperty
     def full_name(self):
