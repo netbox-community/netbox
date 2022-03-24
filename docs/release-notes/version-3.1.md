@@ -11,6 +11,7 @@
 
 ### Bug Fixes
 
+* [#8696](https://github.com/netbox-community/netbox/issues/8696) - Fix help link under FHRP group assigment creation view
 * [#8813](https://github.com/netbox-community/netbox/issues/8813) - Retain global search bar query after submitting
 * [#8820](https://github.com/netbox-community/netbox/issues/8820) - Fix navbar background color in dark mode
 * [#8850](https://github.com/netbox-community/netbox/issues/8850) - Show airflow field on device REST API serializer when config context data is included
@@ -20,6 +21,7 @@
 * [#8935](https://github.com/netbox-community/netbox/issues/8935) - Correct ordering of next/previous racks to use naturalized names
 * [#8947](https://github.com/netbox-community/netbox/issues/8947) - Retain filter parameters when handling an export template exception
 * [#8951](https://github.com/netbox-community/netbox/issues/8951) - Allow changing device type & platform to different manufacturer simultaneously
+* [#8952](https://github.com/netbox-community/netbox/issues/8952) - Device images in rear rack elevations should be hyperlinked
 
 ---
 
