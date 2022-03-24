@@ -18,6 +18,7 @@
 * [#8924](https://github.com/netbox-community/netbox/issues/8924) - Improve load time of custom script list
 * [#8932](https://github.com/netbox-community/netbox/issues/8932) - Fix error when setting null value for interface `rf_role` via REST API
 * [#8935](https://github.com/netbox-community/netbox/issues/8935) - Correct ordering of next/previous racks to use naturalized names
+* [#8947](https://github.com/netbox-community/netbox/issues/8947) - Retain filter parameters when handling an export template exception
 * [#8951](https://github.com/netbox-community/netbox/issues/8951) - Allow changing device type & platform to different manufacturer simultaneously
 
 ---
