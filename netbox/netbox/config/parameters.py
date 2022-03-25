@@ -188,6 +188,13 @@ PARAMS = (
         field=forms.IntegerField
     ),
     ConfigParam(
+        name='JOBRESULT_RETENTION',
+        label='Job result retention',
+        default=0,
+        description="Days to retain job result history (set to zero for unlimited)",
+        field=forms.IntegerField
+    ),
+    ConfigParam(
         name='MAPS_URL',
         label='Maps URL',
         default='https://maps.google.com/?q=',
