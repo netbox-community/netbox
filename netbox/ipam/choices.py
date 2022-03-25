@@ -100,6 +100,7 @@ class IPAddressRoleChoices(ChoiceSet):
     ROLE_HSRP = 'hsrp'
     ROLE_GLBP = 'glbp'
     ROLE_CARP = 'carp'
+    ROLE_CLUSTERXL = 'clusterxl'
 
     CHOICES = (
         (ROLE_LOOPBACK, 'Loopback'),
@@ -108,6 +109,7 @@ class IPAddressRoleChoices(ChoiceSet):
         (ROLE_VIP, 'VIP'),
         (ROLE_VRRP, 'VRRP'),
         (ROLE_HSRP, 'HSRP'),
+        (ROLE_CLUSTERXL, 'ClusterXL'),
         (ROLE_GLBP, 'GLBP'),
         (ROLE_CARP, 'CARP'),
     )
@@ -119,6 +121,7 @@ class IPAddressRoleChoices(ChoiceSet):
         ROLE_VIP: 'success',
         ROLE_VRRP: 'success',
         ROLE_HSRP: 'success',
+        ROLE_CLUSTERXL: 'success',
         ROLE_GLBP: 'success',
         ROLE_CARP: 'success',
     }
