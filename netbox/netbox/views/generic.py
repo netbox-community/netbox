@@ -212,7 +212,10 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
             return template.render_to_response(self.queryset)
         except Exception as e:
             messages.error(request, f"There was an error rendering the selected export template ({template.name}): {e}")
-            return redirect(request.path)
+            # Strip the `export` param and redirect user to the filtered objects list
+            query_params = request.GET.copy()
+            query_params.pop('export')
+            return redirect(f'{request.path}?{query_params.urlencode()}')
 
     def get(self, request):
         model = self.queryset.model
