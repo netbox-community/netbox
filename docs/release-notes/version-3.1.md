@@ -9,6 +9,7 @@
 * [#8553](https://github.com/netbox-community/netbox/issues/8553) - Add missing object types to global search form
 * [#8575](https://github.com/netbox-community/netbox/issues/8575) - Add rack columns to cables list
 * [#8645](https://github.com/netbox-community/netbox/issues/8645) - Enable filtering objects by assigned contacts & contact roles
+* [#8926](https://github.com/netbox-community/netbox/issues/8926) - Add device type, role columns to device bay table
 
 ### Bug Fixes
 
@@ -19,7 +20,6 @@
 * [#8905](https://github.com/netbox-community/netbox/issues/8905) - Disable ordering by assigned tags to prevent erroneous results
 * [#8919](https://github.com/netbox-community/netbox/issues/8919) - Fix filtering of VLAN groups by site under prefix edit form
 * [#8924](https://github.com/netbox-community/netbox/issues/8924) - Improve load time of custom script list
-* [#8926](https://github.com/netbox-community/netbox/issues/8926) - Add device type, role columns to device bay table
 * [#8932](https://github.com/netbox-community/netbox/issues/8932) - Fix error when setting null value for interface `rf_role` via REST API
 * [#8935](https://github.com/netbox-community/netbox/issues/8935) - Correct ordering of next/previous racks to use naturalized names
 * [#8947](https://github.com/netbox-community/netbox/issues/8947) - Retain filter parameters when handling an export template exception
