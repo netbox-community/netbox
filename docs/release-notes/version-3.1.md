@@ -1,13 +1,19 @@
 # NetBox v3.1
 
-## v3.1.10 (FUTURE)
+## v3.1.11 (FUTURE)
+
+---
+
+## v3.1.10 (2022-03-25)
 
 ### Enhancements
 
+* [#8232](https://github.com/netbox-community/netbox/issues/8232) - Use a different color for 100% utilization bars
 * [#8457](https://github.com/netbox-community/netbox/issues/8457) - Enable adding non-racked devices from site & location views
 * [#8553](https://github.com/netbox-community/netbox/issues/8553) - Add missing object types to global search form
 * [#8575](https://github.com/netbox-community/netbox/issues/8575) - Add rack columns to cables list
 * [#8645](https://github.com/netbox-community/netbox/issues/8645) - Enable filtering objects by assigned contacts & contact roles
+* [#8926](https://github.com/netbox-community/netbox/issues/8926) - Add device type, role columns to device bay table
 
 ### Bug Fixes
 

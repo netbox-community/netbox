@@ -409,7 +409,7 @@ class Rack(NetBoxModel):
                 available_units.remove(u)
 
         occupied_unit_count = self.u_height - len(available_units)
-        percentage = int(float(occupied_unit_count) / self.u_height * 100)
+        percentage = float(occupied_unit_count) / self.u_height * 100
 
         return percentage
 

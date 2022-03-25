@@ -204,11 +204,11 @@ class TestPrefix(TestCase):
         IPAddress.objects.bulk_create([
             IPAddress(address=IPNetwork(f'10.0.0.{i}/24')) for i in range(1, 33)
         ])
-        self.assertEqual(prefix.get_utilization(), 12)  # 12.5% utilization
+        self.assertEqual(prefix.get_utilization(), 32 / 254 * 100)  # ~12.5% utilization
 
         # Create a child range with 32 additional IPs
         IPRange.objects.create(start_address=IPNetwork('10.0.0.33/24'), end_address=IPNetwork('10.0.0.64/24'))
-        self.assertEqual(prefix.get_utilization(), 25)  # 25% utilization
+        self.assertEqual(prefix.get_utilization(), 64 / 254 * 100)  # ~25% utilization
 
     #
     # Uniqueness enforcement tests
