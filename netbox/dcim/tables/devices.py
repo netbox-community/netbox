@@ -194,6 +194,9 @@ class DeviceTable(BaseTable):
     vc_priority = tables.Column(
         verbose_name='VC Priority'
     )
+    contacts = tables.ManyToManyColumn(
+        linkify_item=True
+    )
     comments = MarkdownColumn()
     tags = TagColumn(
         url_name='dcim:device_list'
@@ -204,8 +207,8 @@ class DeviceTable(BaseTable):
         fields = (
             'pk', 'id', 'name', 'status', 'tenant', 'device_role', 'manufacturer', 'device_type', 'platform', 'serial',
             'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'primary_ip', 'airflow', 'primary_ip4',
-            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'tags', 'created',
-            'last_updated',
+            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'contacts', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',
@@ -677,6 +680,15 @@ class DeviceBayTable(DeviceComponentTable):
             'args': [Accessor('device_id')],
         }
     )
+    device_role = ColoredLabelColumn(
+        accessor=Accessor('installed_device__device_role'),
+        verbose_name='Role'
+    )
+    device_type = tables.Column(
+        accessor=Accessor('installed_device__device_type'),
+        linkify=True,
+        verbose_name='Type'
+    )
     status = tables.TemplateColumn(
         template_code=DEVICEBAY_STATUS,
         order_by=Accessor('installed_device__status')
@@ -691,7 +703,7 @@ class DeviceBayTable(DeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = DeviceBay
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'status', 'installed_device', 'description', 'tags',
+            'pk', 'id', 'name', 'device', 'label', 'status', 'device_role', 'device_type', 'installed_device', 'description', 'tags',
             'created', 'last_updated',
         )
 

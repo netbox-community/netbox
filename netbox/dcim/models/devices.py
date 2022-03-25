@@ -739,8 +739,8 @@ class Device(PrimaryModel, ConfigContextModel):
         if hasattr(self, 'device_type') and self.platform:
             if self.platform.manufacturer and self.platform.manufacturer != self.device_type.manufacturer:
                 raise ValidationError({
-                    'platform': "The assigned platform is limited to {} device types, but this device's type belongs "
-                                "to {}.".format(self.platform.manufacturer, self.device_type.manufacturer)
+                    'platform': f"The assigned platform is limited to {self.platform.manufacturer} device types, but "
+                                f"this device's type belongs to {self.device_type.manufacturer}."
                 })
 
         # A Device can only be assigned to a Cluster in the same Site (or no Site)

@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterForm
-from tenancy.forms import TenancyFilterForm
+from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
 from utilities.forms import (
     DynamicModelMultipleChoiceField, StaticSelect, StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
@@ -24,18 +24,19 @@ class ClusterTypeFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ClusterGroupFilterForm(CustomFieldModelFilterForm):
+class ClusterGroupFilterForm(ContactModelFilterForm, CustomFieldModelFilterForm):
     model = ClusterGroup
     tag = TagFilterField(model)
 
 
-class ClusterFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Cluster
     field_groups = [
         ['q', 'tag'],
         ['group_id', 'type_id'],
         ['region_id', 'site_group_id', 'site_id'],
         ['tenant_group_id', 'tenant_id'],
+        ['contact', 'contact_role'],
     ]
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
@@ -71,7 +72,7 @@ class ClusterFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
+class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, ContactModelFilterForm, CustomFieldModelFilterForm):
     model = VirtualMachine
     field_groups = [
         ['q', 'tag'],
@@ -79,6 +80,7 @@ class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, 
         ['region_id', 'site_group_id', 'site_id'],
         ['status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data'],
         ['tenant_group_id', 'tenant_id'],
+        ['contact', 'contact_role'],
     ]
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),

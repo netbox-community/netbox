@@ -5,9 +5,10 @@ from django.utils.translation import gettext as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from tenancy.models import *
 from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterForm
 from ipam.models import ASN
-from tenancy.forms import TenancyFilterForm
+from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import (
     APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm, StaticSelect,
     StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
@@ -98,8 +99,13 @@ class DeviceComponentFilterForm(CustomFieldModelFilterForm):
     )
 
 
-class RegionFilterForm(CustomFieldModelFilterForm):
+class RegionFilterForm(ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Region
+    field_groups = [
+        ['q', 'tag'],
+        ['parent_id'],
+        ['contact', 'contact_role'],
+    ]
     parent_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -108,8 +114,13 @@ class RegionFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class SiteGroupFilterForm(CustomFieldModelFilterForm):
+class SiteGroupFilterForm(ContactModelFilterForm, CustomFieldModelFilterForm):
     model = SiteGroup
+    field_groups = [
+        ['q', 'tag'],
+        ['parent_id'],
+        ['contact', 'contact_role'],
+    ]
     parent_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
@@ -118,13 +129,14 @@ class SiteGroupFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class SiteFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Site
     field_groups = [
         ['q', 'tag'],
         ['status', 'region_id', 'group_id'],
         ['tenant_group_id', 'tenant_id'],
-        ['asn_id']
+        ['asn_id'],
+        ['contact', 'contact_role'],
     ]
     status = forms.MultipleChoiceField(
         choices=SiteStatusChoices,
@@ -149,12 +161,13 @@ class SiteFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class LocationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Location
     field_groups = [
         ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id', 'parent_id'],
         ['tenant_group_id', 'tenant_id'],
+        ['contact', 'contact_role'],
     ]
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -192,7 +205,7 @@ class RackRoleFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class RackFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Rack
     field_groups = [
         ['q', 'tag'],
@@ -200,6 +213,7 @@ class RackFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['status', 'role_id'],
         ['type', 'width', 'serial', 'asset_tag'],
         ['tenant_group_id', 'tenant_id'],
+        ['contact', 'contact_role']
     ]
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -303,8 +317,12 @@ class RackReservationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ManufacturerFilterForm(CustomFieldModelFilterForm):
+class ManufacturerFilterForm(ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Manufacturer
+    field_groups = [
+        ['q', 'tag'],
+        ['contact', 'contact_role'],
+    ]
     tag = TagFilterField(model)
 
 
@@ -390,7 +408,7 @@ class PlatformFilterForm(CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
+class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, ContactModelFilterForm, CustomFieldModelFilterForm):
     model = Device
     field_groups = [
         ['q', 'tag'],
@@ -402,6 +420,7 @@ class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFi
             'has_primary_ip', 'virtual_chassis_member', 'console_ports', 'console_server_ports', 'power_ports',
             'power_outlets', 'interfaces', 'pass_through_ports', 'local_context_data',
         ],
+        ['contact', 'contact_role'],
     ]
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -636,11 +655,12 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class PowerPanelFilterForm(CustomFieldModelFilterForm):
+class PowerPanelFilterForm(ContactModelFilterForm, CustomFieldModelFilterForm):
     model = PowerPanel
     field_groups = (
         ('q', 'tag'),
-        ('region_id', 'site_group_id', 'site_id', 'location_id')
+        ('region_id', 'site_group_id', 'site_id', 'location_id'),
+        ('contact', 'contact_role')
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),

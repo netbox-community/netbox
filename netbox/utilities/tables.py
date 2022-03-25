@@ -430,6 +430,7 @@ class TagColumn(tables.TemplateColumn):
 
     def __init__(self, url_name=None):
         super().__init__(
+            orderable=False,
             template_code=self.template_code,
             extra_context={'url_name': url_name}
         )
