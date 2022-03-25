@@ -680,6 +680,15 @@ class DeviceBayTable(DeviceComponentTable):
             'args': [Accessor('device_id')],
         }
     )
+    device_role = ColoredLabelColumn(
+        accessor=Accessor('installed_device__device_role'),
+        verbose_name='Role'
+    )
+    device_type = tables.Column(
+        accessor=Accessor('installed_device__device_type'),
+        linkify=True,
+        verbose_name='Type'
+    )
     status = tables.TemplateColumn(
         template_code=DEVICEBAY_STATUS,
         order_by=Accessor('installed_device__status')
@@ -694,7 +703,7 @@ class DeviceBayTable(DeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = DeviceBay
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'status', 'installed_device', 'description', 'tags',
+            'pk', 'id', 'name', 'device', 'label', 'status', 'device_role', 'device_type', 'installed_device', 'description', 'tags',
             'created', 'last_updated',
         )
 
