@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#8232](https://github.com/netbox-community/netbox/issues/8232) - Use a different color for 100% utilization bars
 * [#8457](https://github.com/netbox-community/netbox/issues/8457) - Enable adding non-racked devices from site & location views
 * [#8553](https://github.com/netbox-community/netbox/issues/8553) - Add missing object types to global search form
 * [#8575](https://github.com/netbox-community/netbox/issues/8575) - Add rack columns to cables list
@@ -18,6 +19,7 @@
 * [#8905](https://github.com/netbox-community/netbox/issues/8905) - Disable ordering by assigned tags to prevent erroneous results
 * [#8919](https://github.com/netbox-community/netbox/issues/8919) - Fix filtering of VLAN groups by site under prefix edit form
 * [#8924](https://github.com/netbox-community/netbox/issues/8924) - Improve load time of custom script list
+* [#8926](https://github.com/netbox-community/netbox/issues/8926) - Add device type, role columns to device bay table
 * [#8932](https://github.com/netbox-community/netbox/issues/8932) - Fix error when setting null value for interface `rf_role` via REST API
 * [#8935](https://github.com/netbox-community/netbox/issues/8935) - Correct ordering of next/previous racks to use naturalized names
 * [#8947](https://github.com/netbox-community/netbox/issues/8947) - Retain filter parameters when handling an export template exception
@@ -30,7 +32,6 @@
 
 ### Enhancements
 
-* [#8232](https://github.com/netbox-community/netbox/issues/8232) - Use a different color for 100% utilization bars
 * [#8594](https://github.com/netbox-community/netbox/issues/8594) - Enable filtering by exact description match for all applicable models
 * [#8629](https://github.com/netbox-community/netbox/issues/8629) - Add description to tag table search function
 * [#8664](https://github.com/netbox-community/netbox/issues/8664) - Show assigned ASNs/sites under list views
@@ -38,7 +39,6 @@
 * [#8758](https://github.com/netbox-community/netbox/issues/8758) - Allow empty string substitution when renaming objects in bulk
 * [#8762](https://github.com/netbox-community/netbox/issues/8762) - Link to rack elevations list from site view
 * [#8766](https://github.com/netbox-community/netbox/issues/8766) - Add SCTP to service protocols list
-* [#8926](https://github.com/netbox-community/netbox/issues/8926) - Add device type, role columns to device bay table
 
 ### Bug Fixes
 
