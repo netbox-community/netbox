@@ -100,7 +100,6 @@ class IPAddressRoleChoices(ChoiceSet):
     ROLE_HSRP = 'hsrp'
     ROLE_GLBP = 'glbp'
     ROLE_CARP = 'carp'
-    ROLE_CLUSTERXL = 'clusterxl'
 
     CHOICES = (
         (ROLE_LOOPBACK, 'Loopback'),
@@ -109,7 +108,6 @@ class IPAddressRoleChoices(ChoiceSet):
         (ROLE_VIP, 'VIP'),
         (ROLE_VRRP, 'VRRP'),
         (ROLE_HSRP, 'HSRP'),
-        (ROLE_CLUSTERXL, 'ClusterXL'),
         (ROLE_GLBP, 'GLBP'),
         (ROLE_CARP, 'CARP'),
     )
@@ -121,7 +119,6 @@ class IPAddressRoleChoices(ChoiceSet):
         ROLE_VIP: 'success',
         ROLE_VRRP: 'success',
         ROLE_HSRP: 'success',
-        ROLE_CLUSTERXL: 'success',
         ROLE_GLBP: 'success',
         ROLE_CARP: 'success',
     }
@@ -138,14 +135,22 @@ class FHRPGroupProtocolChoices(ChoiceSet):
     PROTOCOL_HSRP = 'hsrp'
     PROTOCOL_GLBP = 'glbp'
     PROTOCOL_CARP = 'carp'
+    PROTOCOL_CLUSTERXL = 'clusterxl'
     PROTOCOL_OTHER = 'other'
 
     CHOICES = (
-        (PROTOCOL_VRRP2, 'VRRPv2'),
-        (PROTOCOL_VRRP3, 'VRRPv3'),
-        (PROTOCOL_HSRP, 'HSRP'),
-        (PROTOCOL_GLBP, 'GLBP'),
-        (PROTOCOL_CARP, 'CARP'),
+        ('Standard', (
+            (PROTOCOL_VRRP2, 'VRRPv2'),
+            (PROTOCOL_VRRP3, 'VRRPv3'),
+            (PROTOCOL_CARP, 'CARP'),
+        ),
+        ('CheckPoint', (
+            (PROTOCOL_CLUSTERXL, 'ClusterXL'),
+        ),
+        ('Cisco', (
+            (PROTOCOL_HSRP, 'HSRP'),
+            (PROTOCOL_GLBP, 'GLBP'),
+        ),
         (PROTOCOL_OTHER, 'Other'),
     )
 
