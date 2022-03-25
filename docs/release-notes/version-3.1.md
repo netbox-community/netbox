@@ -30,6 +30,7 @@
 
 ### Enhancements
 
+* [#8232](https://github.com/netbox-community/netbox/issues/8232) - Use a different color for 100% utilization bars
 * [#8594](https://github.com/netbox-community/netbox/issues/8594) - Enable filtering by exact description match for all applicable models
 * [#8629](https://github.com/netbox-community/netbox/issues/8629) - Add description to tag table search function
 * [#8664](https://github.com/netbox-community/netbox/issues/8664) - Show assigned ASNs/sites under list views
@@ -37,6 +38,7 @@
 * [#8758](https://github.com/netbox-community/netbox/issues/8758) - Allow empty string substitution when renaming objects in bulk
 * [#8762](https://github.com/netbox-community/netbox/issues/8762) - Link to rack elevations list from site view
 * [#8766](https://github.com/netbox-community/netbox/issues/8766) - Add SCTP to service protocols list
+* [#8926](https://github.com/netbox-community/netbox/issues/8926) - Add device type, role columns to device bay table
 
 ### Bug Fixes
 
