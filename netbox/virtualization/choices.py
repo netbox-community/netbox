@@ -5,17 +5,33 @@ from utilities.choices import ChoiceSet
 # VirtualMachines
 #
 
-class MemoryUnitChoices(ChoiceSet):
-    UNIT_MB = 'mb'
-    UNIT_GB = 'gb'
-    UNIT_TB = 'tb'
+UNIT_MB = 'mb'
+UNIT_GB = 'gb'
+UNIT_TB = 'tb'
 
-    DISK_CHOICES = (
+MEMORY_MULTIPLIERS = {
+    UNIT_MB: 1024**0,
+    UNIT_GB: 1024**1,
+    UNIT_TB: 1024**2,
+}
+
+DISK_MULTIPLIERS = {
+    UNIT_GB: 1024**0,
+    UNIT_TB: 1024**1,
+}
+
+
+class DiskUnitChoices(ChoiceSet):
+
+    CHOICES = (
         (UNIT_GB, 'GB'),
         (UNIT_TB, 'TB'),
     )
 
-    MEMORY_CHOICES = (
+
+class MemoryUnitChoices(ChoiceSet):
+
+    CHOICES = (
         (UNIT_MB, 'MB'),
         (UNIT_GB, 'GB'),
         (UNIT_TB, 'TB'),

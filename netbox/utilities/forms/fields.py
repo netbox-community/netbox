@@ -17,7 +17,7 @@ from django.urls import reverse
 from utilities.choices import unpack_grouped_choices
 from utilities.utils import content_type_identifier, content_type_name
 from utilities.validators import EnhancedURLValidator
-from virtualization.choices import MemoryUnitChoices
+from virtualization.choices import *
 from . import widgets
 from .constants import *
 from .utils import expand_alphanumeric_pattern, expand_ipaddress_pattern, parse_csv, validate_csv
@@ -35,7 +35,6 @@ __all__ = (
     'CSVMultipleChoiceField',
     'CSVMultipleContentTypeField',
     'CSVTypedChoiceField',
-    'DiskField',
     'DynamicModelChoiceField',
     'DynamicModelMultipleChoiceField',
     'ExpandableIPAddressField',
@@ -154,68 +153,36 @@ class MACAddressField(forms.Field):
 
 
 class MemoryField(forms.MultiValueField):
-    widget = widgets.MemoryWidget
-    MULTIPLIERS = {
-        MemoryUnitChoices.UNIT_MB: 1024**0,
-        MemoryUnitChoices.UNIT_GB: 1024**1,
-        MemoryUnitChoices.UNIT_TB: 1024**2,
-    }
+    """
+    Memory Unit Field
+    """
 
     def __init__(self, **kwargs):
+        self.multipliers = kwargs['multipliers']
+
+        widget = widgets.MemoryWidget(
+            choices=kwargs['choices'],
+            default_unit=kwargs['default_unit']
+        )
         fields = (
             forms.IntegerField(required=False),
             forms.ChoiceField(
-                choices=MemoryUnitChoices.MEMORY_CHOICES,
+                choices=kwargs['choices'],
                 required=False
             ),
         )
         super(MemoryField, self).__init__(
             fields=fields, required=False,
-            require_all_fields=False, **kwargs
+            require_all_fields=False, widget=widget
         )
 
     @classmethod
     def compress(cls, data):
         if data:
             size, unit = data
-            if size and not unit:
-                raise forms.ValidationError("Memory unit cannot be blank.")
-            elif size and unit:
-                return size * cls.MULTIPLIERS[unit]
-            elif not size and unit:
-                raise forms.ValidationError("Please enter a memory value when unit is selected.")
-
-
-class DiskField(forms.MultiValueField):
-    widget = widgets.DiskWidget
-    MULTIPLIERS = {
-        MemoryUnitChoices.UNIT_GB: 1024**0,
-        MemoryUnitChoices.UNIT_TB: 1024**1,
-    }
-
-    def __init__(self, **kwargs):
-        fields = (
-            forms.IntegerField(required=False),
-            forms.ChoiceField(
-                choices=MemoryUnitChoices.DISK_CHOICES,
-                required=False
-            ),
-        )
-        super(DiskField, self).__init__(
-            fields=fields, required=False,
-            require_all_fields=False, **kwargs
-        )
-
-    @classmethod
-    def compress(cls, data):
-        if data:
-            size, unit = data
-            if size and not unit:
-                raise forms.ValidationError("Disk unit cannot be blank.")
-            elif size and unit:
-                return size * cls.MULTIPLIERS[unit]
-            elif not size and unit:
-                raise forms.ValidationError("Please enter a disk value when unit is selected.")
+            if not size or not unit:
+                raise forms.ValidationError("Size and unit must be specified.")
+            return size * cls.multipliers[unit]
 
 
 #

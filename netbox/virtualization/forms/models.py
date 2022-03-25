@@ -10,10 +10,11 @@ from extras.models import Tag
 from ipam.models import IPAddress, VLAN, VLANGroup
 from tenancy.forms import TenancyForm
 from utilities.forms import (
-    BootstrapMixin, CommentField, ConfirmationForm, DiskField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    BootstrapMixin, CommentField, ConfirmationForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
     JSONField, MemoryField, SlugField, StaticSelect
 )
 from virtualization.models import *
+from virtualization.choices import *
 
 __all__ = (
     'ClusterAddDevicesForm',
@@ -205,8 +206,8 @@ class VirtualMachineForm(TenancyForm, CustomFieldModelForm):
         queryset=Tag.objects.all(),
         required=False
     )
-    memory = MemoryField()
-    disk = DiskField()
+    memory = MemoryField(multipliers=MEMORY_MULTIPLIERS, choices=MemoryUnitChoices.CHOICES, default_unit=UNIT_MB)
+    disk = MemoryField(multipliers=DISK_MULTIPLIERS, choices=DiskUnitChoices.CHOICES, default_unit=UNIT_GB)
 
     class Meta:
         model = VirtualMachine

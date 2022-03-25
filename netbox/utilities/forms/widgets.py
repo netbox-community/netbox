@@ -7,7 +7,7 @@ from django.contrib.postgres.forms import SimpleArrayField
 
 from utilities.choices import ColorChoices
 from .utils import add_blank_choice, parse_numeric_range
-from virtualization.choices import MemoryUnitChoices
+from virtualization.choices import UNIT_GB, UNIT_MB, UNIT_TB
 
 __all__ = (
     'APISelect',
@@ -17,7 +17,6 @@ __all__ = (
     'ColorSelect',
     'DatePicker',
     'DateTimePicker',
-    'DiskWidget',
     'MemoryWidget',
     'NumericArrayField',
     'SelectSpeedWidget',
@@ -317,35 +316,18 @@ class TimePicker(forms.TextInput):
 
 class MemoryWidget(forms.MultiWidget):
     """
-    Memory Widget.
+    Memory Unit Widget.
     """
-    def __init__(self, attrs=None):
+    def __init__(self, attrs=None, **kwargs):
+        self.default_unit = kwargs['default_unit']
         widgets = (
             forms.NumberInput(),
-            StaticSelect(choices=add_blank_choice(MemoryUnitChoices.MEMORY_CHOICES))
+            StaticSelect(choices=add_blank_choice(kwargs['choices']))
         )
         super(MemoryWidget, self).__init__(widgets, attrs)
 
     def decompress(self, value):
         if value:
-            return [value, MemoryUnitChoices.UNIT_MB]
-        else:
-            return ['', '']
-
-
-class DiskWidget(forms.MultiWidget):
-    """
-    Disk Widget.
-    """
-    def __init__(self, attrs=None):
-        widgets = (
-            forms.NumberInput(),
-            StaticSelect(choices=add_blank_choice(MemoryUnitChoices.DISK_CHOICES))
-        )
-        super(DiskWidget, self).__init__(widgets, attrs)
-
-    def decompress(self, value):
-        if value:
-            return [value, MemoryUnitChoices.UNIT_GB]
+            return [value, self.default_unit]
         else:
             return ['', '']
