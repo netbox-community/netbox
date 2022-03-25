@@ -7,8 +7,8 @@ from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.models import VLAN
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, SmallTextarea, StaticSelect, MemoryField
+    add_blank_choice, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, DiskField, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, MemoryField, SmallTextarea, StaticSelect
 )
 from virtualization.choices import *
 from virtualization.models import *
@@ -132,13 +132,7 @@ class VirtualMachineBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm
         label='vCPUs'
     )
     memory = MemoryField()
-    # memory = forms.IntegerField(
-    #     required=False
-    # )
-    disk = forms.IntegerField(
-        required=False,
-        label='Disk (GB)'
-    )
+    disk = DiskField()
     comments = CommentField(
         widget=SmallTextarea,
         label='Comments'

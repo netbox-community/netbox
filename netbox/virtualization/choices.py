@@ -10,7 +10,12 @@ class MemoryUnitChoices(ChoiceSet):
     UNIT_GB = 'gb'
     UNIT_TB = 'tb'
 
-    CHOICES = (
+    DISK_CHOICES = (
+        (UNIT_GB, 'GB'),
+        (UNIT_TB, 'TB'),
+    )
+
+    MEMORY_CHOICES = (
         (UNIT_MB, 'MB'),
         (UNIT_GB, 'GB'),
         (UNIT_TB, 'TB'),

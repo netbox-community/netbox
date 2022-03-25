@@ -35,6 +35,7 @@ __all__ = (
     'CSVMultipleChoiceField',
     'CSVMultipleContentTypeField',
     'CSVTypedChoiceField',
+    'DiskField',
     'DynamicModelChoiceField',
     'DynamicModelMultipleChoiceField',
     'ExpandableIPAddressField',
@@ -164,7 +165,7 @@ class MemoryField(forms.MultiValueField):
         fields = (
             forms.IntegerField(required=False),
             forms.ChoiceField(
-                choices=MemoryUnitChoices.CHOICES,
+                choices=MemoryUnitChoices.MEMORY_CHOICES,
                 required=False
             ),
         )
@@ -183,6 +184,38 @@ class MemoryField(forms.MultiValueField):
                 return size * cls.MULTIPLIERS[unit]
             elif not size and unit:
                 raise forms.ValidationError("Please enter a memory value when unit is selected.")
+
+
+class DiskField(forms.MultiValueField):
+    widget = widgets.DiskWidget
+    MULTIPLIERS = {
+        MemoryUnitChoices.UNIT_GB: 1024**0,
+        MemoryUnitChoices.UNIT_TB: 1024**1,
+    }
+
+    def __init__(self, **kwargs):
+        fields = (
+            forms.IntegerField(required=False),
+            forms.ChoiceField(
+                choices=MemoryUnitChoices.DISK_CHOICES,
+                required=False
+            ),
+        )
+        super(DiskField, self).__init__(
+            fields=fields, required=False,
+            require_all_fields=False, **kwargs
+        )
+
+    @classmethod
+    def compress(cls, data):
+        if data:
+            size, unit = data
+            if size and not unit:
+                raise forms.ValidationError("Disk unit cannot be blank.")
+            elif size and unit:
+                return size * cls.MULTIPLIERS[unit]
+            elif not size and unit:
+                raise forms.ValidationError("Please enter a disk value when unit is selected.")
 
 
 #
