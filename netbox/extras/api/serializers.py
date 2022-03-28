@@ -79,7 +79,8 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     )
     type = ChoiceField(choices=CustomFieldTypeChoices)
     object_type = ContentTypeField(
-        queryset=ContentType.objects.all()
+        queryset=ContentType.objects.all(),
+        required=False
     )
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
     data_type = serializers.SerializerMethodField()
