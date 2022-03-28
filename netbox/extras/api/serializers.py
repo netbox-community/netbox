@@ -78,15 +78,18 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         many=True
     )
     type = ChoiceField(choices=CustomFieldTypeChoices)
+    object_type = ContentTypeField(
+        queryset=ContentType.objects.all()
+    )
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
     data_type = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomField
         fields = [
-            'id', 'url', 'display', 'content_types', 'type', 'data_type', 'name', 'label', 'description', 'required',
-            'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
-            'choices', 'created', 'last_updated',
+            'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'description',
+            'required', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
+            'validation_regex', 'choices', 'created', 'last_updated',
         ]
 
     def get_data_type(self, obj):

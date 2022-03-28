@@ -152,6 +152,7 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * [#8869](https://github.com/netbox-community/netbox/issues/8869) - Fix NoReverseMatch exception when displaying tag w/assignments
 * [#8872](https://github.com/netbox-community/netbox/issues/8872) - Enable filtering by custom object fields
 * [#8970](https://github.com/netbox-community/netbox/issues/8970) - Permit nested inventory item templates on device types
+* [#8976](https://github.com/netbox-community/netbox/issues/8976) - Add missing `object_type` field on CustomField REST API serializer
 
 ### Other Changes
 

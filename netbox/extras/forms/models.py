@@ -48,6 +48,10 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = CustomField
         fields = '__all__'
+        help_texts = {
+            'type': "The type of data stored in this field. For object/multi-object fields, select the related object "
+                    "type below."
+        }
         widgets = {
             'type': StaticSelect(),
             'filter_logic': StaticSelect(),
