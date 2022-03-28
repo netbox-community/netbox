@@ -763,6 +763,10 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
         return self.type == InterfaceTypeChoices.TYPE_LAG
 
     @property
+    def is_bridge(self):
+        return self.type == InterfaceTypeChoices.TYPE_BRIDGE
+
+    @property
     def link(self):
         return self.cable or self.wireless_link
 
