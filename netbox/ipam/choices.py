@@ -143,14 +143,14 @@ class FHRPGroupProtocolChoices(ChoiceSet):
             (PROTOCOL_VRRP2, 'VRRPv2'),
             (PROTOCOL_VRRP3, 'VRRPv3'),
             (PROTOCOL_CARP, 'CARP'),
-        ),
+        )),
         ('CheckPoint', (
             (PROTOCOL_CLUSTERXL, 'ClusterXL'),
-        ),
+        )),
         ('Cisco', (
             (PROTOCOL_HSRP, 'HSRP'),
             (PROTOCOL_GLBP, 'GLBP'),
-        ),
+        )),
         (PROTOCOL_OTHER, 'Other'),
     )
 
