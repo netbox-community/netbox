@@ -1025,10 +1025,10 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
 
 class InventoryItemTemplateForm(BootstrapMixin, forms.ModelForm):
     parent = DynamicModelChoiceField(
-        queryset=InventoryItem.objects.all(),
+        queryset=InventoryItemTemplate.objects.all(),
         required=False,
         query_params={
-            'device_id': '$device'
+            'devicetype_id': '$device_type'
         }
     )
     role = DynamicModelChoiceField(
@@ -1048,11 +1048,6 @@ class InventoryItemTemplateForm(BootstrapMixin, forms.ModelForm):
     component_id = forms.IntegerField(
         required=False,
         widget=forms.HiddenInput
-    )
-
-    fieldsets = (
-        ('Inventory Item', ('device_type', 'parent', 'name', 'label', 'role', 'description')),
-        ('Hardware', ('manufacturer', 'part_id')),
     )
 
     class Meta:
