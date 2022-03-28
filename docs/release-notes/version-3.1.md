@@ -2,6 +2,10 @@
 
 ## v3.1.11 (FUTURE)
 
+### Enhancements
+
+* [#8974](https://github.com/netbox-community/netbox/issues/8974) - Use monospace font for text areas in config revision form
+
 ---
 
 ## v3.1.10 (2022-03-25)
