@@ -37,13 +37,7 @@
           </tr>
           <tr>
             <th scope="row">Manufacturer</th>
-            <td>
-              {% if object.manufacturer %}
-                <a href="{{ object.manufacturer.get_absolute_url }}">{{ object.manufacturer }}</a>
-              {% else %}
-                <span class="text-muted">None</span>
-              {% endif %}
-            </td>
+            <td>{{ object.manufacturer|linkify|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">NAPALM Driver</th>
@@ -73,7 +67,7 @@
         NAPALM Arguments
       </h5>
       <div class="card-body">
-        <pre>{{ object.napalm_args|render_json }}</pre>
+        <pre>{{ object.napalm_args|json }}</pre>
       </div>
     </div>
     {% include 'inc/panels/custom_fields.html' %}

@@ -1,7 +1,8 @@
 from rest_framework.routers import APIRootView
 
 from dcim.models import Device
-from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet, ModelViewSet
+from extras.api.views import ConfigContextQuerySetMixin
+from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.utils import count_related
 from virtualization import filtersets
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -20,7 +21,7 @@ class VirtualizationRootView(APIRootView):
 # Clusters
 #
 
-class ClusterTypeViewSet(CustomFieldModelViewSet):
+class ClusterTypeViewSet(NetBoxModelViewSet):
     queryset = ClusterType.objects.annotate(
         cluster_count=count_related(Cluster, 'type')
     ).prefetch_related('tags')
@@ -28,7 +29,7 @@ class ClusterTypeViewSet(CustomFieldModelViewSet):
     filterset_class = filtersets.ClusterTypeFilterSet
 
 
-class ClusterGroupViewSet(CustomFieldModelViewSet):
+class ClusterGroupViewSet(NetBoxModelViewSet):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
     ).prefetch_related('tags')
@@ -36,7 +37,7 @@ class ClusterGroupViewSet(CustomFieldModelViewSet):
     filterset_class = filtersets.ClusterGroupFilterSet
 
 
-class ClusterViewSet(CustomFieldModelViewSet):
+class ClusterViewSet(NetBoxModelViewSet):
     queryset = Cluster.objects.prefetch_related(
         'type', 'group', 'tenant', 'site', 'tags'
     ).annotate(
@@ -51,7 +52,7 @@ class ClusterViewSet(CustomFieldModelViewSet):
 # Virtual machines
 #
 
-class VirtualMachineViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
+class VirtualMachineViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
     queryset = VirtualMachine.objects.prefetch_related(
         'cluster__site', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'tags'
     )
@@ -78,9 +79,10 @@ class VirtualMachineViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet)
         return serializers.VirtualMachineWithConfigContextSerializer
 
 
-class VMInterfaceViewSet(ModelViewSet):
+class VMInterfaceViewSet(NetBoxModelViewSet):
     queryset = VMInterface.objects.prefetch_related(
-        'virtual_machine', 'parent', 'tags', 'untagged_vlan', 'tagged_vlans', 'ip_addresses', 'fhrp_group_assignments',
+        'virtual_machine', 'parent', 'tags', 'untagged_vlan', 'tagged_vlans', 'vrf', 'ip_addresses',
+        'fhrp_group_assignments',
     )
     serializer_class = serializers.VMInterfaceSerializer
     filterset_class = filtersets.VMInterfaceFilterSet

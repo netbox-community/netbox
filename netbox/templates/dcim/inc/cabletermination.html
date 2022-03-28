@@ -6,9 +6,9 @@
             {{ termination.parent_object }}
         </a>
     {% else %}
-        <a href="{{ termination.parent_object.get_absolute_url }}">{{ termination.parent_object }}</a>
+        {{ termination.parent_object|linkify }}
     {% endif %}
 </td>
 <td>
-    <a href="{{ termination.get_absolute_url }}">{{ termination }}</a>
+    {{ termination|linkify }}
 </td>

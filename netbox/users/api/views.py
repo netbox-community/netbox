@@ -9,7 +9,7 @@ from rest_framework.status import HTTP_201_CREATED
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
-from netbox.api.views import ModelViewSet
+from netbox.api.viewsets import NetBoxModelViewSet
 from users import filtersets
 from users.models import ObjectPermission, Token, UserConfig
 from utilities.querysets import RestrictedQuerySet
@@ -29,13 +29,13 @@ class UsersRootView(APIRootView):
 # Users and groups
 #
 
-class UserViewSet(ModelViewSet):
+class UserViewSet(NetBoxModelViewSet):
     queryset = RestrictedQuerySet(model=User).prefetch_related('groups').order_by('username')
     serializer_class = serializers.UserSerializer
     filterset_class = filtersets.UserFilterSet
 
 
-class GroupViewSet(ModelViewSet):
+class GroupViewSet(NetBoxModelViewSet):
     queryset = RestrictedQuerySet(model=Group).annotate(user_count=Count('user')).order_by('name')
     serializer_class = serializers.GroupSerializer
     filterset_class = filtersets.GroupFilterSet
@@ -45,7 +45,7 @@ class GroupViewSet(ModelViewSet):
 # REST API tokens
 #
 
-class TokenViewSet(ModelViewSet):
+class TokenViewSet(NetBoxModelViewSet):
     queryset = RestrictedQuerySet(model=Token).prefetch_related('user')
     serializer_class = serializers.TokenSerializer
     filterset_class = filtersets.TokenFilterSet
@@ -94,7 +94,7 @@ class TokenProvisionView(APIView):
 # ObjectPermissions
 #
 
-class ObjectPermissionViewSet(ModelViewSet):
+class ObjectPermissionViewSet(NetBoxModelViewSet):
     queryset = ObjectPermission.objects.prefetch_related('object_types', 'groups', 'users')
     serializer_class = serializers.ObjectPermissionSerializer
     filterset_class = filtersets.ObjectPermissionFilterSet

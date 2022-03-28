@@ -1,14 +1,16 @@
 {% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
 
-{% block form_fields %}
+{% block form %}
+  <div class="field-group mb-5">
     {% if form.instance.device %}
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label text-lg-end">Device</label>
-            <div class="col">
-                <input class="form-control" value="{{ form.instance.device }}" disabled />
-            </div>
+      <div class="row mb-3">
+        <label class="col-sm-3 col-form-label text-lg-end">Device</label>
+        <div class="col">
+          <input class="form-control" value="{{ form.instance.device }}" disabled />
         </div>
+      </div>
     {% endif %}
     {% render_form form %}
-{% endblock %}
+  </div>
+{% endblock form %}

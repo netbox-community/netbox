@@ -17,6 +17,7 @@ Device components represent discrete objects within a device which are used to t
 {!models/dcim/interface.md!}
 {!models/dcim/frontport.md!}
 {!models/dcim/rearport.md!}
+{!models/dcim/modulebay.md!}
 {!models/dcim/devicebay.md!}
 {!models/dcim/inventoryitem.md!}
 

@@ -5,13 +5,15 @@ from circuits.filtersets import CircuitFilterSet, ProviderFilterSet, ProviderNet
 from circuits.models import Circuit, ProviderNetwork, Provider
 from circuits.tables import CircuitTable, ProviderNetworkTable, ProviderTable
 from dcim.filtersets import (
-    CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, PowerFeedFilterSet, RackFilterSet, RackReservationFilterSet,
-    LocationFilterSet, SiteFilterSet, VirtualChassisFilterSet,
+    CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, LocationFilterSet, ModuleFilterSet, ModuleTypeFilterSet,
+    PowerFeedFilterSet, RackFilterSet, RackReservationFilterSet, SiteFilterSet, VirtualChassisFilterSet,
 )
-from dcim.models import Cable, Device, DeviceType, Location, PowerFeed, Rack, RackReservation, Site, VirtualChassis
+from dcim.models import (
+    Cable, Device, DeviceType, Location, Module, ModuleType, PowerFeed, Rack, RackReservation, Site, VirtualChassis,
+)
 from dcim.tables import (
-    CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, RackReservationTable, LocationTable, SiteTable,
-    VirtualChassisTable,
+    CableTable, DeviceTable, DeviceTypeTable, LocationTable, ModuleTable, ModuleTypeTable, PowerFeedTable, RackTable,
+    RackReservationTable, SiteTable, VirtualChassisTable,
 )
 from ipam.filtersets import (
     AggregateFilterSet, ASNFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet,
@@ -109,6 +111,22 @@ DCIM_TYPES = OrderedDict(
             'filterset': DeviceFilterSet,
             'table': DeviceTable,
             'url': 'dcim:device_list',
+        }),
+        ('moduletype', {
+            'queryset': ModuleType.objects.prefetch_related('manufacturer').annotate(
+                instance_count=count_related(Module, 'module_type')
+            ),
+            'filterset': ModuleTypeFilterSet,
+            'table': ModuleTypeTable,
+            'url': 'dcim:moduletype_list',
+        }),
+        ('module', {
+            'queryset': Module.objects.prefetch_related(
+                'module_type__manufacturer', 'device', 'module_bay',
+            ),
+            'filterset': ModuleFilterSet,
+            'table': ModuleTable,
+            'url': 'dcim:module_list',
         }),
         ('virtualchassis', {
             'queryset': VirtualChassis.objects.prefetch_related('master').annotate(

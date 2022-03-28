@@ -21,9 +21,7 @@
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">Virtual Machine</th>
-                        <td>
-                            <a href="{{ object.virtual_machine.get_absolute_url }}">{{ object.virtual_machine }}</a>
-                        </td>
+                        <td>{{ object.virtual_machine|linkify }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Name</th>
@@ -41,23 +39,15 @@
                     </tr>
                     <tr>
                         <th scope="row">Parent</th>
-                        <td>
-                            {% if object.parent %}
-                                <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
-                            {% endif %}
-                        </td>
+                        <td>{{ object.parent|linkify|placeholder }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Bridge</th>
-                        <td>
-                            {% if object.bridge %}
-                                <a href="{{ object.bridge.get_absolute_url }}">{{ object.bridge }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
-                            {% endif %}
-                        </td>
+                        <td>{{ object.bridge|linkify|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">VRF</th>
+                        <td>{{ object.vrf|linkify|placeholder }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Description</th>

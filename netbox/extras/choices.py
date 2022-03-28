@@ -1,4 +1,4 @@
-from utilities.choices import ChoiceSet
+from utilities.choices import ButtonColorChoices, ChoiceSet
 
 
 #
@@ -16,6 +16,8 @@ class CustomFieldTypeChoices(ChoiceSet):
     TYPE_JSON = 'json'
     TYPE_SELECT = 'select'
     TYPE_MULTISELECT = 'multiselect'
+    TYPE_OBJECT = 'object'
+    TYPE_MULTIOBJECT = 'multiobject'
 
     CHOICES = (
         (TYPE_TEXT, 'Text'),
@@ -27,6 +29,8 @@ class CustomFieldTypeChoices(ChoiceSet):
         (TYPE_JSON, 'JSON'),
         (TYPE_SELECT, 'Selection'),
         (TYPE_MULTISELECT, 'Multiple selection'),
+        (TYPE_OBJECT, 'Object'),
+        (TYPE_MULTIOBJECT, 'Multiple objects'),
     )
 
 
@@ -47,36 +51,13 @@ class CustomFieldFilterLogicChoices(ChoiceSet):
 # CustomLinks
 #
 
-class CustomLinkButtonClassChoices(ChoiceSet):
+class CustomLinkButtonClassChoices(ButtonColorChoices):
 
-    CLASS_DEFAULT = 'outline-dark'
-    CLASS_LINK = 'ghost-dark'
-    CLASS_BLUE = 'blue'
-    CLASS_INDIGO = 'indigo'
-    CLASS_PURPLE = 'purple'
-    CLASS_PINK = 'pink'
-    CLASS_RED = 'red'
-    CLASS_ORANGE = 'orange'
-    CLASS_YELLOW = 'yellow'
-    CLASS_GREEN = 'green'
-    CLASS_TEAL = 'teal'
-    CLASS_CYAN = 'cyan'
-    CLASS_GRAY = 'secondary'
+    LINK = 'ghost-dark'
 
     CHOICES = (
-        (CLASS_DEFAULT, 'Default'),
-        (CLASS_LINK, 'Link'),
-        (CLASS_BLUE, 'Blue'),
-        (CLASS_INDIGO, 'Indigo'),
-        (CLASS_PURPLE, 'Purple'),
-        (CLASS_PINK, 'Pink'),
-        (CLASS_RED, 'Red'),
-        (CLASS_ORANGE, 'Orange'),
-        (CLASS_YELLOW, 'Yellow'),
-        (CLASS_GREEN, 'Green'),
-        (CLASS_TEAL, 'Teal'),
-        (CLASS_CYAN, 'Cyan'),
-        (CLASS_GRAY, 'Gray'),
+        *ButtonColorChoices.CHOICES,
+        (LINK, 'Link'),
     )
 
 #
@@ -91,16 +72,10 @@ class ObjectChangeActionChoices(ChoiceSet):
     ACTION_DELETE = 'delete'
 
     CHOICES = (
-        (ACTION_CREATE, 'Created'),
-        (ACTION_UPDATE, 'Updated'),
-        (ACTION_DELETE, 'Deleted'),
+        (ACTION_CREATE, 'Created', 'green'),
+        (ACTION_UPDATE, 'Updated', 'blue'),
+        (ACTION_DELETE, 'Deleted', 'red'),
     )
-
-    CSS_CLASSES = {
-        ACTION_CREATE: 'success',
-        ACTION_UPDATE: 'primary',
-        ACTION_DELETE: 'danger',
-    }
 
 
 #
@@ -108,25 +83,19 @@ class ObjectChangeActionChoices(ChoiceSet):
 #
 
 class JournalEntryKindChoices(ChoiceSet):
+    key = 'JournalEntry.kind'
 
     KIND_INFO = 'info'
     KIND_SUCCESS = 'success'
     KIND_WARNING = 'warning'
     KIND_DANGER = 'danger'
 
-    CHOICES = (
-        (KIND_INFO, 'Info'),
-        (KIND_SUCCESS, 'Success'),
-        (KIND_WARNING, 'Warning'),
-        (KIND_DANGER, 'Danger'),
-    )
-
-    CSS_CLASSES = {
-        KIND_INFO: 'info',
-        KIND_SUCCESS: 'success',
-        KIND_WARNING: 'warning',
-        KIND_DANGER: 'danger',
-    }
+    CHOICES = [
+        (KIND_INFO, 'Info', 'cyan'),
+        (KIND_SUCCESS, 'Success', 'green'),
+        (KIND_WARNING, 'Warning', 'yellow'),
+        (KIND_DANGER, 'Danger', 'red'),
+    ]
 
 
 #
@@ -142,20 +111,12 @@ class LogLevelChoices(ChoiceSet):
     LOG_FAILURE = 'failure'
 
     CHOICES = (
-        (LOG_DEFAULT, 'Default'),
-        (LOG_SUCCESS, 'Success'),
-        (LOG_INFO, 'Info'),
-        (LOG_WARNING, 'Warning'),
-        (LOG_FAILURE, 'Failure'),
+        (LOG_DEFAULT, 'Default', 'gray'),
+        (LOG_SUCCESS, 'Success', 'green'),
+        (LOG_INFO, 'Info', 'cyan'),
+        (LOG_WARNING, 'Warning', 'yellow'),
+        (LOG_FAILURE, 'Failure', 'red'),
     )
-
-    CSS_CLASSES = {
-        LOG_DEFAULT: 'secondary',
-        LOG_SUCCESS: 'success',
-        LOG_INFO: 'info',
-        LOG_WARNING: 'warning',
-        LOG_FAILURE: 'danger',
-    }
 
 
 #

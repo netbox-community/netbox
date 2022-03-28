@@ -1,10 +1,10 @@
 from django.urls import include, path
 
-from netbox.api import OrderedDefaultRouter
+from netbox.api import NetBoxRouter
 from . import views
 
 
-router = OrderedDefaultRouter()
+router = NetBoxRouter()
 router.APIRootView = views.UsersRootView
 
 # Users and groups

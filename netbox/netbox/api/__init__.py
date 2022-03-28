@@ -1,5 +1,5 @@
 from .fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
-from .routers import OrderedDefaultRouter
+from .routers import NetBoxRouter
 from .serializers import BulkOperationSerializer, ValidatedModelSerializer, WritableNestedSerializer
 
 
@@ -7,7 +7,7 @@ __all__ = (
     'BulkOperationSerializer',
     'ChoiceField',
     'ContentTypeField',
-    'OrderedDefaultRouter',
+    'NetBoxRouter',
     'SerializedPKRelatedField',
     'ValidatedModelSerializer',
     'WritableNestedSerializer',

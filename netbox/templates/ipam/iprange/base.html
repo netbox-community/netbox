@@ -9,12 +9,7 @@
   {% endif %}
 {% endblock %}
 
-{% block tab_items %}
-  <li role="presentation" class="nav-item">
-    <a class="nav-link{% if not active_tab %} active{% endif %}" href="{{ object.get_absolute_url }}">
-      IP Range
-    </a>
-  </li>
+{% block extra_tabs %}
   {% if perms.ipam.view_ipaddress %}
     <li role="presentation" class="nav-item">
       <a class="nav-link{% if active_tab == 'ip-addresses' %} active{% endif %}" href="{% url 'ipam:iprange_ipaddresses' pk=object.pk %}">

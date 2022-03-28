@@ -37,4 +37,5 @@ Once component templates have been created, every new device that you create as 
 {!models/dcim/interfacetemplate.md!}
 {!models/dcim/frontporttemplate.md!}
 {!models/dcim/rearporttemplate.md!}
+{!models/dcim/modulebaytemplate.md!}
 {!models/dcim/devicebaytemplate.md!}

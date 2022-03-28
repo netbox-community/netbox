@@ -1,0 +1,34 @@
+{% extends 'generic/object_edit.html' %}
+{% load form_helpers %}
+
+{% block form %}
+  <div class="row mb-2">
+    <div class="offset-sm-3">
+      <ul class="nav nav-pills" role="tablist">
+        <li role="presentation" class="nav-item">
+          <button role="tab" type="button" id="devicetype_tab" data-bs-toggle="tab" aria-controls="devicetype" data-bs-target="#devicetype" class="nav-link {% if not form.initial.module_type %}active{% endif %}">
+            Device Type
+          </button>
+        </li>
+        <li role="presentation" class="nav-item">
+          <button role="tab" type="button" id="moduletype_tab" data-bs-toggle="tab" aria-controls="moduletype" data-bs-target="#moduletype" class="nav-link {% if form.initial.module_type %}active{% endif %}">
+            Module Type
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="tab-content p-0 border-0">
+    <div class="tab-pane {% if not form.initial.module_type %}active{% endif %}" id="devicetype" role="tabpanel">
+      {% render_field replication_form.device_type %}
+    </div>
+    <div class="tab-pane {% if form.initial.module_type %}active{% endif %}" id="moduletype" role="tabpanel">
+      {% render_field replication_form.module_type %}
+    </div>
+    {% block replication_fields %}
+      {% render_field replication_form.name_pattern %}
+      {% render_field replication_form.label_pattern %}
+    {% endblock replication_fields %}
+  </div>
+  {{ block.super }}
+{% endblock form %}

@@ -42,6 +42,7 @@ FILTER_TREENODE_NEGATION_LOOKUP_MAP = dict(
 ADVISORY_LOCK_KEYS = {
     'available-prefixes': 100100,
     'available-ips': 100200,
+    'available-vlans': 100300,
 }
 
 #

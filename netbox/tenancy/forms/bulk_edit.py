@@ -1,6 +1,6 @@
 from django import forms
 
-from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
+from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import *
 from utilities.forms import DynamicModelChoiceField
 
@@ -17,11 +17,7 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=TenantGroup.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
+class TenantGroupBulkEditForm(NetBoxModelBulkEditForm):
     parent = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False
@@ -31,35 +27,28 @@ class TenantGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ['parent', 'description']
+    model = TenantGroup
+    nullable_fields = ('parent', 'description')
 
 
-class TenantBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Tenant.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
+class TenantBulkEditForm(NetBoxModelBulkEditForm):
     group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False
     )
 
-    class Meta:
-        nullable_fields = [
-            'group',
-        ]
+    model = Tenant
+    fieldsets = (
+        (None, ('group',)),
+    )
+    nullable_fields = ('group',)
 
 
 #
 # Contacts
 #
 
-class ContactGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ContactGroup.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
+class ContactGroupBulkEditForm(NetBoxModelBulkEditForm):
     parent = DynamicModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False
@@ -69,29 +58,27 @@ class ContactGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ['parent', 'description']
-
-
-class ContactRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ContactRole.objects.all(),
-        widget=forms.MultipleHiddenInput
+    model = ContactGroup
+    fieldsets = (
+        (None, ('parent', 'description')),
     )
+    nullable_fields = ('parent', 'description')
+
+
+class ContactRoleBulkEditForm(NetBoxModelBulkEditForm):
     description = forms.CharField(
         max_length=200,
         required=False
     )
 
-    class Meta:
-        nullable_fields = ['description']
-
-
-class ContactBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Contact.objects.all(),
-        widget=forms.MultipleHiddenInput()
+    model = ContactRole
+    fieldsets = (
+        (None, ('description',)),
     )
+    nullable_fields = ('description',)
+
+
+class ContactBulkEditForm(NetBoxModelBulkEditForm):
     group = DynamicModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False
@@ -112,5 +99,8 @@ class ContactBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ['group', 'title', 'phone', 'email', 'address', 'comments']
+    model = Contact
+    fieldsets = (
+        (None, ('group', 'title', 'phone', 'email', 'address')),
+    )
+    nullable_fields = ('group', 'title', 'phone', 'email', 'address', 'comments')

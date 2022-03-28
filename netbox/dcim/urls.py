@@ -1,7 +1,6 @@
 from django.urls import path
 
-from extras.views import ObjectChangeLogView, ObjectJournalView
-from utilities.views import SlugRedirectView
+from netbox.views.generic import ObjectChangeLogView, ObjectJournalView
 from . import views
 from .models import *
 
@@ -37,7 +36,6 @@ urlpatterns = [
     path('sites/edit/', views.SiteBulkEditView.as_view(), name='site_bulk_edit'),
     path('sites/delete/', views.SiteBulkDeleteView.as_view(), name='site_bulk_delete'),
     path('sites/<int:pk>/', views.SiteView.as_view(), name='site'),
-    path('sites/<slug:slug>/', SlugRedirectView.as_view(), kwargs={'model': Site}),
     path('sites/<int:pk>/edit/', views.SiteEditView.as_view(), name='site_edit'),
     path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name='site_delete'),
     path('sites/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),
@@ -115,11 +113,32 @@ urlpatterns = [
     path('device-types/<int:pk>/interfaces/', views.DeviceTypeInterfacesView.as_view(), name='devicetype_interfaces'),
     path('device-types/<int:pk>/front-ports/', views.DeviceTypeFrontPortsView.as_view(), name='devicetype_frontports'),
     path('device-types/<int:pk>/rear-ports/', views.DeviceTypeRearPortsView.as_view(), name='devicetype_rearports'),
+    path('device-types/<int:pk>/module-bays/', views.DeviceTypeModuleBaysView.as_view(), name='devicetype_modulebays'),
     path('device-types/<int:pk>/device-bays/', views.DeviceTypeDeviceBaysView.as_view(), name='devicetype_devicebays'),
+    path('device-types/<int:pk>/inventory-items/', views.DeviceTypeInventoryItemsView.as_view(), name='devicetype_inventoryitems'),
     path('device-types/<int:pk>/edit/', views.DeviceTypeEditView.as_view(), name='devicetype_edit'),
     path('device-types/<int:pk>/delete/', views.DeviceTypeDeleteView.as_view(), name='devicetype_delete'),
     path('device-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='devicetype_changelog', kwargs={'model': DeviceType}),
     path('device-types/<int:pk>/journal/', ObjectJournalView.as_view(), name='devicetype_journal', kwargs={'model': DeviceType}),
+
+    # Module types
+    path('module-types/', views.ModuleTypeListView.as_view(), name='moduletype_list'),
+    path('module-types/add/', views.ModuleTypeEditView.as_view(), name='moduletype_add'),
+    path('module-types/import/', views.ModuleTypeImportView.as_view(), name='moduletype_import'),
+    path('module-types/edit/', views.ModuleTypeBulkEditView.as_view(), name='moduletype_bulk_edit'),
+    path('module-types/delete/', views.ModuleTypeBulkDeleteView.as_view(), name='moduletype_bulk_delete'),
+    path('module-types/<int:pk>/', views.ModuleTypeView.as_view(), name='moduletype'),
+    path('module-types/<int:pk>/console-ports/', views.ModuleTypeConsolePortsView.as_view(), name='moduletype_consoleports'),
+    path('module-types/<int:pk>/console-server-ports/', views.ModuleTypeConsoleServerPortsView.as_view(), name='moduletype_consoleserverports'),
+    path('module-types/<int:pk>/power-ports/', views.ModuleTypePowerPortsView.as_view(), name='moduletype_powerports'),
+    path('module-types/<int:pk>/power-outlets/', views.ModuleTypePowerOutletsView.as_view(), name='moduletype_poweroutlets'),
+    path('module-types/<int:pk>/interfaces/', views.ModuleTypeInterfacesView.as_view(), name='moduletype_interfaces'),
+    path('module-types/<int:pk>/front-ports/', views.ModuleTypeFrontPortsView.as_view(), name='moduletype_frontports'),
+    path('module-types/<int:pk>/rear-ports/', views.ModuleTypeRearPortsView.as_view(), name='moduletype_rearports'),
+    path('module-types/<int:pk>/edit/', views.ModuleTypeEditView.as_view(), name='moduletype_edit'),
+    path('module-types/<int:pk>/delete/', views.ModuleTypeDeleteView.as_view(), name='moduletype_delete'),
+    path('module-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='moduletype_changelog', kwargs={'model': ModuleType}),
+    path('module-types/<int:pk>/journal/', ObjectJournalView.as_view(), name='moduletype_journal', kwargs={'model': ModuleType}),
 
     # Console port templates
     path('console-port-templates/add/', views.ConsolePortTemplateCreateView.as_view(), name='consoleporttemplate_add'),
@@ -185,6 +204,22 @@ urlpatterns = [
     path('device-bay-templates/<int:pk>/edit/', views.DeviceBayTemplateEditView.as_view(), name='devicebaytemplate_edit'),
     path('device-bay-templates/<int:pk>/delete/', views.DeviceBayTemplateDeleteView.as_view(), name='devicebaytemplate_delete'),
 
+    # Module bay templates
+    path('module-bay-templates/add/', views.ModuleBayTemplateCreateView.as_view(), name='modulebaytemplate_add'),
+    path('module-bay-templates/edit/', views.ModuleBayTemplateBulkEditView.as_view(), name='modulebaytemplate_bulk_edit'),
+    path('module-bay-templates/rename/', views.ModuleBayTemplateBulkRenameView.as_view(), name='modulebaytemplate_bulk_rename'),
+    path('module-bay-templates/delete/', views.ModuleBayTemplateBulkDeleteView.as_view(), name='modulebaytemplate_bulk_delete'),
+    path('module-bay-templates/<int:pk>/edit/', views.ModuleBayTemplateEditView.as_view(), name='modulebaytemplate_edit'),
+    path('module-bay-templates/<int:pk>/delete/', views.ModuleBayTemplateDeleteView.as_view(), name='modulebaytemplate_delete'),
+
+    # Inventory item templates
+    path('inventory-item-templates/add/', views.InventoryItemTemplateCreateView.as_view(), name='inventoryitemtemplate_add'),
+    path('inventory-item-templates/edit/', views.InventoryItemTemplateBulkEditView.as_view(), name='inventoryitemtemplate_bulk_edit'),
+    path('inventory-item-templates/rename/', views.InventoryItemTemplateBulkRenameView.as_view(), name='inventoryitemtemplate_bulk_rename'),
+    path('inventory-item-templates/delete/', views.InventoryItemTemplateBulkDeleteView.as_view(), name='inventoryitemtemplate_bulk_delete'),
+    path('inventory-item-templates/<int:pk>/edit/', views.InventoryItemTemplateEditView.as_view(), name='inventoryitemtemplate_edit'),
+    path('inventory-item-templates/<int:pk>/delete/', views.InventoryItemTemplateDeleteView.as_view(), name='inventoryitemtemplate_delete'),
+
     # Device roles
     path('device-roles/', views.DeviceRoleListView.as_view(), name='devicerole_list'),
     path('device-roles/add/', views.DeviceRoleEditView.as_view(), name='devicerole_add'),
@@ -224,14 +259,27 @@ urlpatterns = [
     path('devices/<int:pk>/interfaces/', views.DeviceInterfacesView.as_view(), name='device_interfaces'),
     path('devices/<int:pk>/front-ports/', views.DeviceFrontPortsView.as_view(), name='device_frontports'),
     path('devices/<int:pk>/rear-ports/', views.DeviceRearPortsView.as_view(), name='device_rearports'),
+    path('devices/<int:pk>/module-bays/', views.DeviceModuleBaysView.as_view(), name='device_modulebays'),
     path('devices/<int:pk>/device-bays/', views.DeviceDeviceBaysView.as_view(), name='device_devicebays'),
     path('devices/<int:pk>/inventory/', views.DeviceInventoryView.as_view(), name='device_inventory'),
     path('devices/<int:pk>/config-context/', views.DeviceConfigContextView.as_view(), name='device_configcontext'),
-    path('devices/<int:pk>/changelog/', views.DeviceChangeLogView.as_view(), name='device_changelog', kwargs={'model': Device}),
-    path('devices/<int:pk>/journal/', views.DeviceJournalView.as_view(), name='device_journal', kwargs={'model': Device}),
+    path('devices/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='device_changelog', kwargs={'model': Device}),
+    path('devices/<int:pk>/journal/', ObjectJournalView.as_view(), name='device_journal', kwargs={'model': Device}),
     path('devices/<int:pk>/status/', views.DeviceStatusView.as_view(), name='device_status'),
     path('devices/<int:pk>/lldp-neighbors/', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
     path('devices/<int:pk>/config/', views.DeviceConfigView.as_view(), name='device_config'),
+
+    # Modules
+    path('modules/', views.ModuleListView.as_view(), name='module_list'),
+    path('modules/add/', views.ModuleEditView.as_view(), name='module_add'),
+    path('modules/import/', views.ModuleBulkImportView.as_view(), name='module_import'),
+    path('modules/edit/', views.ModuleBulkEditView.as_view(), name='module_bulk_edit'),
+    path('modules/delete/', views.ModuleBulkDeleteView.as_view(), name='module_bulk_delete'),
+    path('modules/<int:pk>/', views.ModuleView.as_view(), name='module'),
+    path('modules/<int:pk>/edit/', views.ModuleEditView.as_view(), name='module_edit'),
+    path('modules/<int:pk>/delete/', views.ModuleDeleteView.as_view(), name='module_delete'),
+    path('modules/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='module_changelog', kwargs={'model': Module}),
+    path('modules/<int:pk>/journal/', ObjectJournalView.as_view(), name='module_journal', kwargs={'model': Module}),
 
     # Console ports
     path('console-ports/', views.ConsolePortListView.as_view(), name='consoleport_list'),
@@ -345,6 +393,19 @@ urlpatterns = [
     path('rear-ports/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='rearport_connect', kwargs={'termination_a_type': RearPort}),
     path('devices/rear-ports/add/', views.DeviceBulkAddRearPortView.as_view(), name='device_bulk_add_rearport'),
 
+    # Module bays
+    path('module-bays/', views.ModuleBayListView.as_view(), name='modulebay_list'),
+    path('module-bays/add/', views.ModuleBayCreateView.as_view(), name='modulebay_add'),
+    path('module-bays/import/', views.ModuleBayBulkImportView.as_view(), name='modulebay_import'),
+    path('module-bays/edit/', views.ModuleBayBulkEditView.as_view(), name='modulebay_bulk_edit'),
+    path('module-bays/rename/', views.ModuleBayBulkRenameView.as_view(), name='modulebay_bulk_rename'),
+    path('module-bays/delete/', views.ModuleBayBulkDeleteView.as_view(), name='modulebay_bulk_delete'),
+    path('module-bays/<int:pk>/', views.ModuleBayView.as_view(), name='modulebay'),
+    path('module-bays/<int:pk>/edit/', views.ModuleBayEditView.as_view(), name='modulebay_edit'),
+    path('module-bays/<int:pk>/delete/', views.ModuleBayDeleteView.as_view(), name='modulebay_delete'),
+    path('module-bays/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='modulebay_changelog', kwargs={'model': ModuleBay}),
+    path('devices/module-bays/add/', views.DeviceBulkAddModuleBayView.as_view(), name='device_bulk_add_modulebay'),
+
     # Device bays
     path('device-bays/', views.DeviceBayListView.as_view(), name='devicebay_list'),
     path('device-bays/add/', views.DeviceBayCreateView.as_view(), name='devicebay_add'),
@@ -372,6 +433,17 @@ urlpatterns = [
     path('inventory-items/<int:pk>/delete/', views.InventoryItemDeleteView.as_view(), name='inventoryitem_delete'),
     path('inventory-items/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='inventoryitem_changelog', kwargs={'model': InventoryItem}),
     path('devices/inventory-items/add/', views.DeviceBulkAddInventoryItemView.as_view(), name='device_bulk_add_inventoryitem'),
+
+    # Device roles
+    path('inventory-item-roles/', views.InventoryItemRoleListView.as_view(), name='inventoryitemrole_list'),
+    path('inventory-item-roles/add/', views.InventoryItemRoleEditView.as_view(), name='inventoryitemrole_add'),
+    path('inventory-item-roles/import/', views.InventoryItemRoleBulkImportView.as_view(), name='inventoryitemrole_import'),
+    path('inventory-item-roles/edit/', views.InventoryItemRoleBulkEditView.as_view(), name='inventoryitemrole_bulk_edit'),
+    path('inventory-item-roles/delete/', views.InventoryItemRoleBulkDeleteView.as_view(), name='inventoryitemrole_bulk_delete'),
+    path('inventory-item-roles/<int:pk>/', views.InventoryItemRoleView.as_view(), name='inventoryitemrole'),
+    path('inventory-item-roles/<int:pk>/edit/', views.InventoryItemRoleEditView.as_view(), name='inventoryitemrole_edit'),
+    path('inventory-item-roles/<int:pk>/delete/', views.InventoryItemRoleDeleteView.as_view(), name='inventoryitemrole_delete'),
+    path('inventory-item-roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='inventoryitemrole_changelog', kwargs={'model': InventoryItemRole}),
 
     # Cables
     path('cables/', views.CableListView.as_view(), name='cable_list'),

@@ -20,6 +20,10 @@
             <td>{{ object.content_type }}</td>
           </tr>
           <tr>
+            <th scope="row">Enabled</th>
+            <td>{% checkmark object.enabled %}</td>
+          </tr>
+          <tr>
             <th scope="row">Group Name</th>
             <td>{{ object.group_name|placeholder }}</td>
           </tr>

@@ -4,51 +4,35 @@
         {# Device component #}
         <tr>
             <td>Device</td>
-            <td>
-                <a href="{{ termination.device.get_absolute_url }}">{{ termination.device }}</a>
-            </td>
+            <td>{{ termination.device|linkify }}</td>
         </tr>
-        {% if termination.device.site %}
         <tr>
             <td>Site</td>
-            <td>
-                <a href="{{ termination.device.site.get_absolute_url }}">{{ termination.device.site }}</a>
-            </td>
+            <td>{{ termination.device.site|linkify }}</td>
         </tr>
-        {% endif %}
         {% if termination.device.rack %}
-        <tr>
-            <td>Rack</td>
-            <td>
-                <a href="{{ termination.device.rack.get_absolute_url }}">{{ termination.device.rack }}</a>
-            </td>
-        </tr>
+            <tr>
+                <td>Rack</td>
+                <td>{{ termination.device.rack|linkify }}</td>
+            </tr>
         {% endif %}
         <tr>
             <td>Type</td>
-            <td>
-                {{ termination|meta:"verbose_name"|capfirst }}
-            </td>
+            <td>{{ termination|meta:"verbose_name"|capfirst }}</td>
         </tr>
         <tr>
             <td>Component</td>
-            <td>
-                <a href="{{ termination.get_absolute_url }}">{{ termination }}</a>
-            </td>
+            <td>{{ termination|linkify }}</td>
         </tr>
     {% else %}
         {# Circuit termination #}
         <tr>
             <td>Provider</td>
-            <td>
-                <a href="{{ termination.circuit.provider.get_absolute_url }}">{{ termination.circuit.provider }}</a>
-            </td>
+            <td>{{ termination.circuit.provider|linkify }}</td>
         </tr>
         <tr>
             <td>Circuit</td>
-            <td>
-                <a href="{{ termination.circuit.get_absolute_url }}">{{ termination.circuit }}</a> ({{ termination }})
-            </td>
+            <td>{{ termination.|linkify }} ({{ termination }})</td>
         </tr>
     {% endif %}
 </table>

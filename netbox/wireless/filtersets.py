@@ -2,9 +2,8 @@ import django_filters
 from django.db.models import Q
 
 from dcim.choices import LinkStatusChoices
-from extras.filters import TagFilter
 from ipam.models import VLAN
-from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
+from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from utilities.filters import MultiValueNumberFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
@@ -25,18 +24,13 @@ class WirelessLANGroupFilterSet(OrganizationalModelFilterSet):
         queryset=WirelessLANGroup.objects.all(),
         to_field_name='slug'
     )
-    tag = TagFilter()
 
     class Meta:
         model = WirelessLANGroup
         fields = ['id', 'name', 'slug', 'description']
 
 
-class WirelessLANFilterSet(PrimaryModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class WirelessLANFilterSet(NetBoxModelFilterSet):
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=WirelessLANGroup.objects.all(),
         field_name='group',
@@ -57,7 +51,6 @@ class WirelessLANFilterSet(PrimaryModelFilterSet):
     auth_cipher = django_filters.MultipleChoiceFilter(
         choices=WirelessAuthCipherChoices
     )
-    tag = TagFilter()
 
     class Meta:
         model = WirelessLAN
@@ -73,11 +66,7 @@ class WirelessLANFilterSet(PrimaryModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class WirelessLinkFilterSet(PrimaryModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class WirelessLinkFilterSet(NetBoxModelFilterSet):
     interface_a_id = MultiValueNumberFilter()
     interface_b_id = MultiValueNumberFilter()
     status = django_filters.MultipleChoiceFilter(
@@ -89,7 +78,6 @@ class WirelessLinkFilterSet(PrimaryModelFilterSet):
     auth_cipher = django_filters.MultipleChoiceFilter(
         choices=WirelessAuthCipherChoices
     )
-    tag = TagFilter()
 
     class Meta:
         model = WirelessLink

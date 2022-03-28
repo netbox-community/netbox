@@ -204,11 +204,11 @@ class TestPrefix(TestCase):
         IPAddress.objects.bulk_create([
             IPAddress(address=IPNetwork(f'10.0.0.{i}/24')) for i in range(1, 33)
         ])
-        self.assertEqual(prefix.get_utilization(), 12)  # 12.5% utilization
+        self.assertEqual(prefix.get_utilization(), 32 / 254 * 100)  # ~12.5% utilization
 
         # Create a child range with 32 additional IPs
         IPRange.objects.create(start_address=IPNetwork('10.0.0.33/24'), end_address=IPNetwork('10.0.0.64/24'))
-        self.assertEqual(prefix.get_utilization(), 25)  # 25% utilization
+        self.assertEqual(prefix.get_utilization(), 64 / 254 * 100)  # ~25% utilization
 
     #
     # Uniqueness enforcement tests
@@ -497,18 +497,32 @@ class TestIPAddress(TestCase):
 
 class TestVLANGroup(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        vlangroup = VLANGroup.objects.create(
+            name='VLAN Group 1',
+            slug='vlan-group-1',
+            min_vid=100,
+            max_vid=199
+        )
+        VLAN.objects.bulk_create((
+            VLAN(name='VLAN 100', vid=100, group=vlangroup),
+            VLAN(name='VLAN 101', vid=101, group=vlangroup),
+            VLAN(name='VLAN 102', vid=102, group=vlangroup),
+            VLAN(name='VLAN 103', vid=103, group=vlangroup),
+        ))
+
+    def test_get_available_vids(self):
+        vlangroup = VLANGroup.objects.first()
+        child_vids = VLAN.objects.filter(group=vlangroup).values_list('vid', flat=True)
+        self.assertEqual(len(child_vids), 4)
+
+        available_vids = vlangroup.get_available_vids()
+        self.assertListEqual(available_vids, list(range(104, 200)))
+
     def test_get_next_available_vid(self):
+        vlangroup = VLANGroup.objects.first()
+        self.assertEqual(vlangroup.get_next_available_vid(), 104)
 
-        vlangroup = VLANGroup.objects.create(name='VLAN Group 1', slug='vlan-group-1')
-        VLAN.objects.bulk_create((
-            VLAN(name='VLAN 1', vid=1, group=vlangroup),
-            VLAN(name='VLAN 2', vid=2, group=vlangroup),
-            VLAN(name='VLAN 3', vid=3, group=vlangroup),
-            VLAN(name='VLAN 5', vid=5, group=vlangroup),
-        ))
-        self.assertEqual(vlangroup.get_next_available_vid(), 4)
-
-        VLAN.objects.bulk_create((
-            VLAN(name='VLAN 4', vid=4, group=vlangroup),
-        ))
-        self.assertEqual(vlangroup.get_next_available_vid(), 6)
+        VLAN.objects.create(name='VLAN 104', vid=104, group=vlangroup)
+        self.assertEqual(vlangroup.get_next_available_vid(), 105)

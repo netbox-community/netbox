@@ -3,8 +3,7 @@ from django.db.models import Q
 
 from dcim.filtersets import CableTerminationFilterSet
 from dcim.models import Region, Site, SiteGroup
-from extras.filters import TagFilter
-from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
+from netbox.filtersets import ChangeLoggedModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import TreeNodeMultipleChoiceFilter
 from .choices import *
@@ -19,11 +18,7 @@ __all__ = (
 )
 
 
-class ProviderFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='circuits__terminations__site__region',
@@ -61,7 +56,6 @@ class ProviderFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Provider
@@ -79,11 +73,7 @@ class ProviderFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
         )
 
 
-class ProviderNetworkFilterSet(PrimaryModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class ProviderNetworkFilterSet(NetBoxModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
         label='Provider (ID)',
@@ -94,35 +84,30 @@ class ProviderNetworkFilterSet(PrimaryModelFilterSet):
         to_field_name='slug',
         label='Provider (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = ProviderNetwork
-        fields = ['id', 'name', 'description']
+        fields = ['id', 'name', 'service_id', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(service_id__icontains=value) |
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         ).distinct()
 
 
 class CircuitTypeFilterSet(OrganizationalModelFilterSet):
-    tag = TagFilter()
 
     class Meta:
         model = CircuitType
         fields = ['id', 'name', 'slug', 'description']
 
 
-class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
         label='Provider (ID)',
@@ -189,7 +174,6 @@ class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilt
         to_field_name='slug',
         label='Site (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Circuit

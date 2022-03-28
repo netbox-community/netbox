@@ -15,7 +15,7 @@ When viewing a device named Router4, this link would render as:
 <a href="https://nms.example.com/nodes/?name=Router4">View NMS</a>
 ```
 
-Custom links appear as buttons in the top right corner of the page. Numeric weighting can be used to influence the ordering of links.
+Custom links appear as buttons in the top right corner of the page. Numeric weighting can be used to influence the ordering of links, and each link can be enabled or disabled individually.
 
 !!! warning
     Custom links rely on user-created code to generate arbitrary HTML output, which may be dangerous. Only grant permission to create or modify custom links to trusted users.
@@ -24,13 +24,14 @@ Custom links appear as buttons in the top right corner of the page. Numeric weig
 
 The following context data is available within the template when rendering a custom link's text or URL.
 
-| Variable | Description |
-|----------|-------------|
-| `obj`      | The NetBox object being displayed |
-| `debug`    | A boolean indicating whether debugging is enabled |
-| `request`  | The current WSGI request |
-| `user`     | The current user (if authenticated) |
-| `perms`    | The [permissions](https://docs.djangoproject.com/en/stable/topics/auth/default/#permissions) assigned to the user |
+| Variable  | Description                                                                                                       |
+|-----------|-------------------------------------------------------------------------------------------------------------------|
+| `object`  | The NetBox object being displayed                                                                                 |
+| `obj`     | Same as `object`; maintained for backward compatability until NetBox v3.5                                         |
+| `debug`   | A boolean indicating whether debugging is enabled                                                                 |
+| `request` | The current WSGI request                                                                                          |
+| `user`    | The current user (if authenticated)                                                                               |
+| `perms`   | The [permissions](https://docs.djangoproject.com/en/stable/topics/auth/default/#permissions) assigned to the user |
 
 ## Conditional Rendering
 

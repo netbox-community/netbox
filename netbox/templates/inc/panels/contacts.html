@@ -14,9 +14,7 @@
           </tr>
           {% for contact in contacts %}
             <tr>
-              <td>
-                <a href="{{ contact.contact.get_absolute_url }}">{{ contact.contact }}</a>
-              </td>
+              <td>{{ contact.contact|linkify }}</td>
               <td>{{ contact.role|placeholder }}</td>
               <td>{{ contact.get_priority_display|placeholder }}</td>
               <td class="text-end noprint">

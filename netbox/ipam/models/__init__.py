@@ -16,6 +16,7 @@ __all__ = (
     'Role',
     'RouteTarget',
     'Service',
+    'ServiceTemplate',
     'VLAN',
     'VLANGroup',
     'VRF',

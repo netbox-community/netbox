@@ -3,10 +3,12 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      NETBOX_CONFIGURATION: netbox.configuration_testing
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
-        node-version: [14.x]
+        python-version: ['3.8', '3.9', '3.10']
+        node-version: ['14.x']
     services:
       redis:
         image: redis
@@ -57,7 +59,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pycodestyle coverage tblib
-        ln -s configuration.testing.py netbox/netbox/configuration.py
 
     - name: Build documentation
       run: mkdocs build

@@ -1,3 +1,5 @@
-<a href="{% url import_url %}" type="button" class="btn btn-sm btn-info">
-  <i class="mdi mdi-upload"></i>&nbsp;Import
-</a>
+{% if url %}
+  <a href="{{ url }}" type="button" class="btn btn-sm btn-info">
+    <i class="mdi mdi-upload"></i> Import
+  </a>
+{% endif %}
