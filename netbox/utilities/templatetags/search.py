@@ -13,5 +13,5 @@ def search_options(request, navbar) -> Dict:
     return {
         'options': search_form.options,
         'request': request,
-        'navbar' : navbar,
+        'navbar': navbar,
     }
