@@ -33,7 +33,7 @@
                 </button>
               </div>
               <div class="d-flex my-1 flex-grow-1 justify-content-center w-100">
-                {% search_options request %}
+                {% search_options request "mobile" %}
               </div>
             </div>
 
@@ -45,7 +45,7 @@
 
               {# Search bar #}
               <div class="col-6 d-flex flex-grow-1 justify-content-center">
-                {% search_options request %}
+                {% search_options request "desktop" %}
               </div>
 
               {# Proflie/login button #}
