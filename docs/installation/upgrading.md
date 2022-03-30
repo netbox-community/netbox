@@ -6,7 +6,7 @@ Prior to upgrading your NetBox instance, be sure to carefully review all [releas
 
 ## Update Dependencies to Required Versions
 
-NetBox v3.0 and later requires the following:
+NetBox v3.0 and later require the following:
 
 | Dependency | Minimum Version |
 |------------|-----------------|
@@ -66,6 +66,11 @@ cd /opt/netbox
 sudo git checkout master
 sudo git pull origin master
 ```
+
+!!! info "Checking out an older release"
+    If you need to upgrade to an older version rather than the current stable release, you can check out any valid [git tag](https://github.com/netbox-community/netbox/tags), each of which represents a release. For example, to checkout the code for NetBox v2.11.11, do:
+
+        sudo git checkout v2.11.11
 
 ## Run the Upgrade Script
 

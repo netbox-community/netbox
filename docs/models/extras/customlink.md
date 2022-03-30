@@ -2,7 +2,7 @@
 
 Custom links allow users to display arbitrary hyperlinks to external content within NetBox object views. These are helpful for cross-referencing related records in systems outside NetBox. For example, you might create a custom link on the device view which links to the current device in a Network Monitoring System (NMS).
 
-Custom links are created by navigating to Customization > Custom Links. Each link is associated with a particular NetBox object type (site, device, prefix, etc.) and will be displayed on relevant views. Each link has display text and a URL, and data from the Netbox item being viewed can be included in the link using [Jinja2 template code](https://jinja2docs.readthedocs.io/en/stable/) through the variable `obj`, and custom fields through `obj.cf`.
+Custom links are created by navigating to Customization > Custom Links. Each link is associated with a particular NetBox object type (site, device, prefix, etc.) and will be displayed on relevant views. Each link has display text and a URL, and data from the NetBox item being viewed can be included in the link using [Jinja2 template code](https://jinja2docs.readthedocs.io/en/stable/) through the variable `obj`, and custom fields through `obj.cf`.
 
 For example, you might define a link like this:
 
@@ -32,6 +32,10 @@ The following context data is available within the template when rendering a cus
 | `request` | The current WSGI request                                                                                          |
 | `user`    | The current user (if authenticated)                                                                               |
 | `perms`   | The [permissions](https://docs.djangoproject.com/en/stable/topics/auth/default/#permissions) assigned to the user |
+
+While most of the context variables listed above will have consistent attributes, the object will be an instance of the specific object being viewed when the link is rendered. Different models have different fields and properties, so you may need to some research to determine the attributes available for use within your template for a specific object type.
+
+Checking the REST API representation of an object is generally a convenient way to determine what attributes are available. You can also reference the NetBox source code directly for a comprehensive list.
 
 ## Conditional Rendering
 
