@@ -4,9 +4,14 @@
 
 ### Enhancements
 
+* [#8163](https://github.com/netbox-community/netbox/issues/8163) - Show bridge interface members under interface view
 * [#8785](https://github.com/netbox-community/netbox/issues/8785) - Permit wildcard values in IP address DNS names
 * [#8830](https://github.com/netbox-community/netbox/issues/8830) - Add Checkpoint ClusterXL protocol for FHRP groups
 * [#8974](https://github.com/netbox-community/netbox/issues/8974) - Use monospace font for text areas in config revision form
+
+### Bug Fixes
+
+* [#8866](https://github.com/netbox-community/netbox/issues/8866) - Prevent exception when searching for a rack position with no rack specified under device edit view
 
 ---
 
