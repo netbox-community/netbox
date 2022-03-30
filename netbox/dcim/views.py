@@ -1776,6 +1776,14 @@ class InterfaceView(generic.ObjectView):
             orderable=False
         )
 
+        # Get bridge interfaces
+        bridge_interfaces = Interface.objects.restrict(request.user, 'view').filter(bridge=instance)
+        bridge_interfaces_tables = tables.InterfaceTable(
+            bridge_interfaces,
+            exclude=('device', 'parent'),
+            orderable=False
+        )
+
         # Get child interfaces
         child_interfaces = Interface.objects.restrict(request.user, 'view').filter(parent=instance)
         child_interfaces_tables = tables.InterfaceTable(
@@ -1800,6 +1808,7 @@ class InterfaceView(generic.ObjectView):
 
         return {
             'ipaddress_table': ipaddress_table,
+            'bridge_interfaces_table': bridge_interfaces_tables,
             'child_interfaces_table': child_interfaces_tables,
             'vlan_table': vlan_table,
         }
