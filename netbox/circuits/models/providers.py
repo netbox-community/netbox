@@ -30,6 +30,11 @@ class Provider(NetBoxModel):
         verbose_name='ASN',
         help_text='32-bit autonomous system number'
     )
+    asns = models.ManyToManyField(
+        to='ipam.ASN',
+        related_name='providers',
+        blank=True
+    )
     account = models.CharField(
         max_length=30,
         blank=True,

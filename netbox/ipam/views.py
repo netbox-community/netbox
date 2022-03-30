@@ -4,6 +4,8 @@ from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from circuits.models import Provider
+from circuits.tables import ProviderTable
 from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from dcim.tables import SiteTable
@@ -206,6 +208,7 @@ class RIRBulkDeleteView(generic.BulkDeleteView):
 class ASNListView(generic.ObjectListView):
     queryset = ASN.objects.annotate(
         site_count=count_related(Site, 'asns'),
+        provider_count=count_related(Provider, 'asns')
     )
     filterset = filtersets.ASNFilterSet
     filterset_form = forms.ASNFilterForm
@@ -216,13 +219,21 @@ class ASNView(generic.ObjectView):
     queryset = ASN.objects.all()
 
     def get_extra_context(self, request, instance):
+        # Gather assigned Sites
         sites = instance.sites.restrict(request.user, 'view')
         sites_table = SiteTable(sites)
         sites_table.configure(request)
 
+        # Gather assigned Providers
+        providers = instance.providers.restrict(request.user, 'view')
+        providers_table = ProviderTable(providers)
+        providers_table.configure(request)
+
         return {
             'sites_table': sites_table,
-            'sites_count': sites.count()
+            'sites_count': sites.count(),
+            'providers_table': providers_table,
+            'providers_count': providers.count(),
         }
 
 

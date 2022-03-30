@@ -21,7 +21,7 @@ class CircuitsRootView(APIRootView):
 #
 
 class ProviderViewSet(NetBoxModelViewSet):
-    queryset = Provider.objects.prefetch_related('tags').annotate(
+    queryset = Provider.objects.prefetch_related('asns', 'tags').annotate(
         circuit_count=count_related(Circuit, 'provider')
     )
     serializer_class = serializers.ProviderSerializer

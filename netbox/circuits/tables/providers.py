@@ -14,6 +14,16 @@ class ProviderTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
+    asns = tables.ManyToManyColumn(
+        linkify_item=True,
+        verbose_name='ASNs'
+    )
+    asn_count = columns.LinkedCountColumn(
+        accessor=tables.A('asns__count'),
+        viewname='ipam:asn_list',
+        url_params={'provider_id': 'pk'},
+        verbose_name='ASN Count'
+    )
     circuit_count = tables.Column(
         accessor=Accessor('count_circuits'),
         verbose_name='Circuits'
@@ -29,8 +39,8 @@ class ProviderTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Provider
         fields = (
-            'pk', 'id', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count',
-            'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'asn', 'asns', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'asn_count',
+            'circuit_count', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'asn', 'account', 'circuit_count')
 

@@ -7,7 +7,6 @@ from timezone_field import TimeZoneFormField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from extras.models import Tag
 from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm

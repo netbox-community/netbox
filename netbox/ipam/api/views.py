@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.views import APIView
 
+from circuits.models import Provider
 from dcim.models import Site
 from ipam import filtersets
 from ipam.models import *
@@ -32,7 +33,10 @@ class IPAMRootView(APIRootView):
 #
 
 class ASNViewSet(NetBoxModelViewSet):
-    queryset = ASN.objects.prefetch_related('tenant', 'rir').annotate(site_count=count_related(Site, 'asns'))
+    queryset = ASN.objects.prefetch_related('tenant', 'rir').annotate(
+        site_count=count_related(Site, 'asns'),
+        provider_count=count_related(Provider, 'asns')
+    )
     serializer_class = serializers.ASNSerializer
     filterset_class = filtersets.ASNFilterSet
 

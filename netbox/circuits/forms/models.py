@@ -1,8 +1,9 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
-from extras.models import Tag
+from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import (
@@ -21,17 +22,22 @@ __all__ = (
 
 class ProviderForm(NetBoxModelForm):
     slug = SlugField()
+    asns = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        label=_('ASNs'),
+        required=False
+    )
     comments = CommentField()
 
     fieldsets = (
-        ('Provider', ('name', 'slug', 'asn', 'tags')),
+        ('Provider', ('name', 'slug', 'asn', 'asns', 'tags')),
         ('Support Info', ('account', 'portal_url', 'noc_contact', 'admin_contact')),
     )
 
     class Meta:
         model = Provider
         fields = [
-            'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments', 'tags',
+            'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'asns', 'comments', 'tags',
         ]
         widgets = {
             'noc_contact': SmallTextarea(

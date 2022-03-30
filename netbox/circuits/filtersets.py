@@ -3,6 +3,7 @@ from django.db.models import Q
 
 from dcim.filtersets import CableTerminationFilterSet
 from dcim.models import Region, Site, SiteGroup
+from ipam.models import ASN
 from netbox.filtersets import ChangeLoggedModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import TreeNodeMultipleChoiceFilter
@@ -55,6 +56,11 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
+    )
+    asn_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='asns',
+        queryset=ASN.objects.all(),
+        label='ASN (ID)',
     )
 
     class Meta:

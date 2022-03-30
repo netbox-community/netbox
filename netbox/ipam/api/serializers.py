@@ -24,12 +24,13 @@ class ASNSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     site_count = serializers.IntegerField(read_only=True)
+    provider_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ASN
         fields = [
-            'id', 'url', 'display', 'asn', 'site_count', 'rir', 'tenant', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'asn', 'rir', 'tenant', 'description', 'site_count', 'provider_count', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 

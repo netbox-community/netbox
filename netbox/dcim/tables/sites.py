@@ -86,15 +86,15 @@ class SiteTable(NetBoxTable):
     group = tables.Column(
         linkify=True
     )
+    asns = tables.ManyToManyColumn(
+        linkify_item=True,
+        verbose_name='ASNs'
+    )
     asn_count = columns.LinkedCountColumn(
         accessor=tables.A('asns__count'),
         viewname='ipam:asn_list',
         url_params={'site_id': 'pk'},
         verbose_name='ASN Count'
-    )
-    asns = tables.ManyToManyColumn(
-        linkify_item=True,
-        verbose_name='ASNs'
     )
     tenant = TenantColumn()
     comments = columns.MarkdownColumn()
