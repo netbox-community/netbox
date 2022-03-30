@@ -795,7 +795,7 @@ class VLANGroupView(generic.ObjectView):
         vlans_count = vlans.count()
         vlans = add_available_vlans(vlans, vlan_group=instance)
 
-        vlans_table = tables.VLANTable(vlans, exclude=('site', 'group', 'prefixes'))
+        vlans_table = tables.VLANTable(vlans, exclude=('group',))
         if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
             vlans_table.columns.show('pk')
         paginate_table(vlans_table, request)
