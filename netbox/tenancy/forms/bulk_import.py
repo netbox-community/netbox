@@ -79,4 +79,4 @@ class ContactCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Contact
-        fields = ('name', 'title', 'phone', 'email', 'address', 'group', 'comments')
+        fields = ('name', 'title', 'phone', 'email', 'address', 'link', 'group', 'comments')

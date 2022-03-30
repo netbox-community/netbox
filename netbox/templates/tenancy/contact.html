@@ -54,6 +54,16 @@
               <td>{{ object.address|linebreaksbr|placeholder }}</td>
             </tr>
             <tr>
+              <td>Link</td>
+              <td>
+                {% if object.link %}
+                  <a href="{{ object.link }}">{{ object.link }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
               <th scope="row">Assignments</th>
               <td>{{ assignment_count }}</td>
             </tr>

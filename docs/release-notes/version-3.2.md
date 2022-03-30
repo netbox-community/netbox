@@ -143,6 +143,7 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * [#8307](https://github.com/netbox-community/netbox/issues/8307) - Add `data_type` indicator to REST API serializer for custom fields
 * [#8463](https://github.com/netbox-community/netbox/issues/8463) - Change the `created` field on all change-logged models from date to datetime
 * [#8572](https://github.com/netbox-community/netbox/issues/8572) - Add a `pre_run()` method for reports
+* [#8593](https://github.com/netbox-community/netbox/issues/8593) - Add a `link` field for contacts
 * [#8649](https://github.com/netbox-community/netbox/issues/8649) - Enable customization of configuration module using `NETBOX_CONFIGURATION` environment variable
 
 ### Bug Fixes (From Beta2)
@@ -205,5 +206,7 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * ipam.VLANGroup
     * Added the `/availables-vlans/` endpoint
     * Added the `min_vid` and `max_vid` fields
+* tenancy.Contact
+    * Added the `link` field
 * virtualization.VMInterface
     * Added `vrf` field

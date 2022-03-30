@@ -98,9 +98,12 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    link = forms.URLField(
+        required=False
+    )
 
     model = Contact
     fieldsets = (
-        (None, ('group', 'title', 'phone', 'email', 'address')),
+        (None, ('group', 'title', 'phone', 'email', 'address', 'link')),
     )
-    nullable_fields = ('group', 'title', 'phone', 'email', 'address', 'comments')
+    nullable_fields = ('group', 'title', 'phone', 'email', 'address', 'link', 'comments')
