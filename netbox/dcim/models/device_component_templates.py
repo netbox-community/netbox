@@ -280,7 +280,8 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         if self.power_port:
-            power_port = PowerPort.objects.get(name=self.power_port.name, **kwargs)
+            power_port_name = self.power_port.resolve_name(kwargs.get('module'))
+            power_port = PowerPort.objects.get(name=power_port_name, **kwargs)
         else:
             power_port = None
         return self.component_model(
@@ -390,7 +391,8 @@ class FrontPortTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         if self.rear_port:
-            rear_port = RearPort.objects.get(name=self.rear_port.name, **kwargs)
+            rear_port_name = self.rear_port.resolve_name(kwargs.get('module'))
+            rear_port = RearPort.objects.get(name=rear_port_name, **kwargs)
         else:
             rear_port = None
         return self.component_model(
