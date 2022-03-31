@@ -146,6 +146,7 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * [#8572](https://github.com/netbox-community/netbox/issues/8572) - Add a `pre_run()` method for reports
 * [#8593](https://github.com/netbox-community/netbox/issues/8593) - Add a `link` field for contacts
 * [#8649](https://github.com/netbox-community/netbox/issues/8649) - Enable customization of configuration module using `NETBOX_CONFIGURATION` environment variable
+* [#9006](https://github.com/netbox-community/netbox/issues/9006) - Enable custom fields, custom links, and tags for journal entries
 
 ### Bug Fixes (From Beta2)
 
@@ -207,11 +208,13 @@ Where it is desired to limit the range of available VLANs within a group, users 
     * Added `data_type` and `object_type` fields
 * extras.CustomLink
     * Added `enabled` field
+* extras.JournalEntry
+    * Added `custom_fields` and `tags` fields
 * ipam.ASN
     * Added `provider_count` field
 * ipam.VLANGroup
     * Added the `/availables-vlans/` endpoint
-    * Added the `min_vid` and `max_vid` fields
+    * Added `min_vid` and `max_vid` fields
 * tenancy.Contact
     * Added `link` field
 * virtualization.VMInterface

@@ -11,11 +11,7 @@
         <div class="field-group">
           <h4>New Journal Entry</h4>
           {% csrf_token %}
-          {% for field in form.hidden_fields %}
-            {{ field }}
-          {% endfor %}
-          {% render_field form.kind %}
-          {% render_field form.comments %}
+          {% render_form form %}
         </div>
         <div class="col col-md-12 text-end my-3">
           <a href="{{ object.get_absolute_url }}" class="btn btn-outline-danger">Cancel</a>

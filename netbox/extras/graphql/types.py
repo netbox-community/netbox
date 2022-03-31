@@ -1,4 +1,5 @@
 from extras import filtersets, models
+from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import BaseObjectType, ObjectType
 
 __all__ = (
@@ -54,7 +55,7 @@ class ImageAttachmentType(BaseObjectType):
         filterset_class = filtersets.ImageAttachmentFilterSet
 
 
-class JournalEntryType(ObjectType):
+class JournalEntryType(CustomFieldsMixin, TagsMixin, ObjectType):
 
     class Meta:
         model = models.JournalEntry

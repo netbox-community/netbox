@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
-from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet
+from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
 from virtualization.models import Cluster, ClusterGroup, ClusterType
@@ -134,11 +134,7 @@ class ImageAttachmentFilterSet(BaseFilterSet):
         return queryset.filter(name__icontains=value)
 
 
-class JournalEntryFilterSet(ChangeLoggedModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class JournalEntryFilterSet(NetBoxModelFilterSet):
     created = django_filters.DateTimeFromToRangeFilter()
     assigned_object_type = ContentTypeFilter()
     created_by_id = django_filters.ModelMultipleChoiceFilter(

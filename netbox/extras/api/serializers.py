@@ -14,7 +14,7 @@ from extras.models import *
 from extras.utils import FeatureQuery
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.exceptions import SerializerNotFound
-from netbox.api.serializers import BaseModelSerializer, ValidatedModelSerializer
+from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
 from users.api.nested_serializers import NestedUserSerializer
@@ -200,7 +200,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 # Journal entries
 #
 
-class JournalEntrySerializer(ValidatedModelSerializer):
+class JournalEntrySerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:journalentry-detail')
     assigned_object_type = ContentTypeField(
         queryset=ContentType.objects.all()
@@ -221,7 +221,7 @@ class JournalEntrySerializer(ValidatedModelSerializer):
         model = JournalEntry
         fields = [
             'id', 'url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'created',
-            'created_by', 'kind', 'comments',
+            'created_by', 'kind', 'comments', 'tags', 'custom_fields',
         ]
 
     def validate(self, data):
