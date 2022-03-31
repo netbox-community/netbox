@@ -551,7 +551,7 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
         unique_together = ('device_type', 'parent', 'name')
 
     def instantiate(self, **kwargs):
-        parent = InventoryItemTemplate.objects.get(name=self.parent.name, **kwargs) if self.parent else None
+        parent = InventoryItem.objects.get(name=self.parent.name, **kwargs) if self.parent else None
         if self.component:
             model = self.component.component_model
             component = model.objects.get(name=self.component.name, **kwargs)
