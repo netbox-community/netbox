@@ -812,6 +812,8 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_XDSL = 'xdsl'
 
     # Stacking
+    TYPE_ARUBA29XXSTACK = 'aruba-29xx-stack'
+    TYPE_ARUBA38XXSTACK = 'aruba-38xx-stack'
     TYPE_STACKWISE = 'cisco-stackwise'
     TYPE_STACKWISE_PLUS = 'cisco-stackwise-plus'
     TYPE_FLEXSTACK = 'cisco-flexstack'
@@ -820,6 +822,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_STACKWISE160 = 'cisco-stackwise-160'
     TYPE_STACKWISE320 = 'cisco-stackwise-320'
     TYPE_STACKWISE480 = 'cisco-stackwise-480'
+    TYPE_GENERICSTACK = 'generic-stacking-port'
     TYPE_JUNIPER_VCP = 'juniper-vcp'
     TYPE_SUMMITSTACK = 'extreme-summitstack'
     TYPE_SUMMITSTACK128 = 'extreme-summitstack-128'
@@ -950,6 +953,8 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             'Stacking',
             (
+                (TYPE_ARUBA29XXSTACK, 'Aruba 2920/2930 Stack'),
+                (TYPE_ARUBA38XXSTACK, 'Aruba 3800/3810 Stack'),
                 (TYPE_STACKWISE, 'Cisco StackWise'),
                 (TYPE_STACKWISE_PLUS, 'Cisco StackWise Plus'),
                 (TYPE_FLEXSTACK, 'Cisco FlexStack'),
@@ -958,6 +963,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_STACKWISE160, 'Cisco StackWise-160'),
                 (TYPE_STACKWISE320, 'Cisco StackWise-320'),
                 (TYPE_STACKWISE480, 'Cisco StackWise-480'),
+                (TYPE_GENERICSTACK, 'Generic Stacking Port'),
                 (TYPE_JUNIPER_VCP, 'Juniper VCP'),
                 (TYPE_SUMMITSTACK, 'Extreme SummitStack'),
                 (TYPE_SUMMITSTACK128, 'Extreme SummitStack-128'),
