@@ -14,6 +14,13 @@ from django.core.validators import URLValidator
 
 from netbox.config import PARAMS
 
+# Monkey patch to fix Django 4.0 support for graphene-django (see
+# https://github.com/graphql-python/graphene-django/issues/1284)
+# TODO: Remove this when graphene-django 2.16 becomes available
+import django
+from django.utils.encoding import force_str
+django.utils.encoding.force_text = force_str
+
 
 #
 # Environment setup
