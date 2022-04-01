@@ -24,8 +24,10 @@ class ProviderTable(NetBoxTable):
         url_params={'provider_id': 'pk'},
         verbose_name='ASN Count'
     )
-    circuit_count = tables.Column(
+    circuit_count = columns.LinkedCountColumn(
         accessor=Accessor('count_circuits'),
+        viewname='circuits:circuit_list',
+        url_params={'provider_id': 'pk'},
         verbose_name='Circuits'
     )
     comments = columns.MarkdownColumn()
