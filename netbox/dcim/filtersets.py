@@ -639,6 +639,11 @@ class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilte
         to_field_name='slug',
         label='Role (slug)',
     )
+    parent_device_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent_bay__device',
+        queryset=Device.objects.all(),
+        label='Parent Device (ID)',
+    )
     platform_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Platform.objects.all(),
         label='Platform (ID)',
