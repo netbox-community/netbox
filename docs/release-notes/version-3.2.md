@@ -150,6 +150,7 @@ Where it is desired to limit the range of available VLANs within a group, users 
 
 ### Bug Fixes (From Beta2)
 
+* [#8658](https://github.com/netbox-community/netbox/issues/8658) - Fix display of assigned components under inventory item lists
 * [#8838](https://github.com/netbox-community/netbox/issues/8838) - Fix FieldError exception during global search
 * [#8845](https://github.com/netbox-community/netbox/issues/8845) - Correct default ASN formatting in table
 * [#8869](https://github.com/netbox-community/netbox/issues/8869) - Fix NoReverseMatch exception when displaying tag w/assignments

@@ -772,7 +772,6 @@ class InventoryItemTable(DeviceComponentTable):
         linkify=True
     )
     component = tables.Column(
-        accessor=Accessor('component'),
         orderable=False,
         linkify=True
     )
