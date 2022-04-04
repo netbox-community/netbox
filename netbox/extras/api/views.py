@@ -236,7 +236,8 @@ class ReportViewSet(ViewSet):
             run_report,
             report.full_name,
             report_content_type,
-            request.user
+            request.user,
+            job_timeout=report.job_timeout
         )
         report.result = job_result
 
@@ -320,7 +321,8 @@ class ScriptViewSet(ViewSet):
                 request.user,
                 data=data,
                 request=copy_safe_request(request),
-                commit=commit
+                commit=commit,
+                job_timeout=script.job_timeout,
             )
             script.result = job_result
             serializer = serializers.ScriptDetailSerializer(script, context={'request': request})

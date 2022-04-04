@@ -89,6 +89,10 @@ The checkbox to commit database changes when executing a script is checked by de
 commit_default = False
 ```
 
+### `job_timeout`
+
+Set the allowed runtime of a script. If not set the `RQ_DEFAULT_TIMEOUT` will be used.
+
 ## Accessing Request Data
 
 Details of the current HTTP request (the one being made to execute the script) are available as the instance attribute `self.request`. This can be used to infer, for example, the user executing the script and the client IP address:

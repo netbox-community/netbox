@@ -588,7 +588,8 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
             run_report,
             report.full_name,
             report_content_type,
-            request.user
+            request.user,
+            job_timeout=report.job_timeout
         )
 
         return redirect('extras:report_result', job_result_pk=job_result.pk)
@@ -708,6 +709,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
             commit = form.cleaned_data.pop('_commit')
 
             script_content_type = ContentType.objects.get(app_label='extras', model='script')
+
             job_result = JobResult.enqueue_job(
                 run_script,
                 script.full_name,
@@ -715,7 +717,8 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
                 request.user,
                 data=form.cleaned_data,
                 request=copy_safe_request(request),
-                commit=commit
+                commit=commit,
+                job_timeout=script.job_timeout,
             )
 
             return redirect('extras:script_result', job_result_pk=job_result.pk)
