@@ -418,7 +418,6 @@ def is_variable(obj):
     return isinstance(obj, ScriptVariable)
 
 
-#@job('default')
 def run_script(data, request, commit=True, *args, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
