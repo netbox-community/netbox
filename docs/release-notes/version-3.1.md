@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#8163](https://github.com/netbox-community/netbox/issues/8163) - Show bridge interface members under interface view
+* [#8365](https://github.com/netbox-community/netbox/issues/8365) - Enable filtering child devices by parent device ID
 * [#8785](https://github.com/netbox-community/netbox/issues/8785) - Permit wildcard values in IP address DNS names
 * [#8790](https://github.com/netbox-community/netbox/issues/8790) - Include site and prefixes columns in VLAN group VLANs table
 * [#8830](https://github.com/netbox-community/netbox/issues/8830) - Add Checkpoint ClusterXL protocol for FHRP groups
