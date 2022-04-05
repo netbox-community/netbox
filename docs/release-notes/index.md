@@ -10,7 +10,7 @@ Minor releases are published in April, August, and December of each calendar yea
 
 This page contains a history of all major and minor releases since NetBox v2.0. For more detail on a specific patch release, please see the release notes page for that specific minor release.
 
-#### [Version 3.2](./version-3.2.md) (Pending Release)
+#### [Version 3.2](./version-3.2.md) (April 2022)
 
 * Plugins Framework Extensions ([#8333](https://github.com/netbox-community/netbox/issues/8333))
 * Modules & Module Types ([#7844](https://github.com/netbox-community/netbox/issues/7844))

@@ -84,7 +84,7 @@ mkdocs-material
 
 # Introspection for embedded code
 # https://github.com/mkdocstrings/mkdocstrings
-mkdocstrings
+mkdocstrings<=0.17.0
 
 # Library for manipulating IP prefixes and addresses
 # https://github.com/netaddr/netaddr

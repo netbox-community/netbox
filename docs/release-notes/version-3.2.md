@@ -1,6 +1,6 @@
 # NetBox v3.2
 
-## v3.2.0 (FUTURE)
+## v3.2.0 (2022-04-05)
 
 !!! warning "Python 3.8 or Later Required"
     NetBox v3.2 requires Python 3.8 or later.
