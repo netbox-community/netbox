@@ -4,6 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('dcim', '0145_site_remove_deprecated_fields'),
         ('tenancy', '0004_extend_tag_support'),
     ]
 
