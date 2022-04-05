@@ -5,6 +5,12 @@
 !!! warning "Python 3.8 or Later Required"
     NetBox v3.2 requires Python 3.8 or later.
 
+!!! warning "Deletion of Legacy Data"
+    This release includes a database migration that will remove the `asn`, `contact_name`, `contact_phone`, and `contact_email` fields from the site model. (These fields have been superseded by the ASN and contact models introduced in NetBox v3.1.) To protect against the accidental destruction of data, the upgrade process **will fail** if any sites still have data in any of these fields. To bypass this safeguard, set the `NETBOX_DELETE_LEGACY_DATA` environment variable when running the upgrade script, which will permit the destruction of legacy data.
+
+!!! tip "Migration Scripts"
+    A set of [migration scripts](https://github.com/netbox-community/migration-scripts) is available to assist with the migration of legacy site data.
+
 ### Breaking Changes
 
 * Automatic redirection of legacy slug-based URL paths has been removed. URL-based slugs were changed to use numeric IDs in v2.11.0.
