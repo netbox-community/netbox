@@ -99,8 +99,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('object_id', models.IntegerField(db_index=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='extras_taggeditem_tagged_items', to='contenttypes.contenttype')),
-                ('tag', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='extras_taggeditem_items', to='extras.tag')),
+                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(app_label)s_%(class)s_tagged_items', to='contenttypes.contenttype')),
+                ('tag', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(app_label)s_%(class)s_items', to='extras.tag')),
             ],
         ),
         migrations.CreateModel(

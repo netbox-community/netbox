@@ -11,8 +11,8 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField, WWNField
 from dcim.svg import CableTraceSVG
-from extras.utils import extras_features
-from netbox.models import PrimaryModel
+from netbox.models import OrganizationalModel, NetBoxModel
+from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
@@ -30,6 +30,8 @@ __all__ = (
     'FrontPort',
     'Interface',
     'InventoryItem',
+    'InventoryItemRole',
+    'ModuleBay',
     'PathEndpoint',
     'PowerOutlet',
     'PowerPort',
@@ -37,7 +39,7 @@ __all__ = (
 )
 
 
-class ComponentModel(PrimaryModel):
+class ComponentModel(NetBoxModel):
     """
     An abstract model inherited by any model which has a parent Device.
     """
@@ -73,17 +75,32 @@ class ComponentModel(PrimaryModel):
         return self.name
 
     def to_objectchange(self, action):
-        # Annotate the parent Device
-        try:
-            device = self.device
-        except ObjectDoesNotExist:
-            # The parent Device has already been deleted
-            device = None
-        return super().to_objectchange(action, related_object=device)
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.device
+        return super().to_objectchange(action)
 
     @property
     def parent_object(self):
         return self.device
+
+
+class ModularComponentModel(ComponentModel):
+    module = models.ForeignKey(
+        to='dcim.Module',
+        on_delete=models.CASCADE,
+        related_name='%(class)ss',
+        blank=True,
+        null=True
+    )
+    inventory_items = GenericRelation(
+        to='dcim.InventoryItem',
+        content_type_field='component_type',
+        object_id_field='component_id',
+        related_name='%(class)ss',
+    )
+
+    class Meta:
+        abstract = True
 
 
 class LinkTermination(models.Model):
@@ -109,7 +126,7 @@ class LinkTermination(models.Model):
         blank=True,
         null=True
     )
-    _link_peer_id = models.PositiveIntegerField(
+    _link_peer_id = models.PositiveBigIntegerField(
         blank=True,
         null=True
     )
@@ -229,11 +246,10 @@ class PathEndpoint(models.Model):
 
 
 #
-# Console ports
+# Console components
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class ConsolePort(ComponentModel, LinkTermination, PathEndpoint):
+class ConsolePort(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -260,12 +276,7 @@ class ConsolePort(ComponentModel, LinkTermination, PathEndpoint):
         return reverse('dcim:consoleport', kwargs={'pk': self.pk})
 
 
-#
-# Console server ports
-#
-
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class ConsoleServerPort(ComponentModel, LinkTermination, PathEndpoint):
+class ConsoleServerPort(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -293,11 +304,10 @@ class ConsoleServerPort(ComponentModel, LinkTermination, PathEndpoint):
 
 
 #
-# Power ports
+# Power components
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class PowerPort(ComponentModel, LinkTermination, PathEndpoint):
+class PowerPort(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -389,12 +399,7 @@ class PowerPort(ComponentModel, LinkTermination, PathEndpoint):
         }
 
 
-#
-# Power outlets
-#
-
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class PowerOutlet(ComponentModel, LinkTermination, PathEndpoint):
+class PowerOutlet(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -508,8 +513,7 @@ class BaseInterface(models.Model):
         return self.fhrp_group_assignments.count()
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
+class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpoint):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
@@ -536,6 +540,16 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
         default=False,
         verbose_name='Management only',
         help_text='This interface is used only for out-of-band management'
+    )
+    speed = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    duplex = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        choices=InterfaceDuplexChoices
     )
     wwn = WWNField(
         null=True,
@@ -601,6 +615,14 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
         related_name='interfaces_as_tagged',
         blank=True,
         verbose_name='Tagged VLANs'
+    )
+    vrf = models.ForeignKey(
+        to='ipam.VRF',
+        on_delete=models.SET_NULL,
+        related_name='interfaces',
+        null=True,
+        blank=True,
+        verbose_name='VRF'
     )
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',
@@ -775,8 +797,7 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
 # Pass-through ports
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class FrontPort(ComponentModel, LinkTermination):
+class FrontPort(ModularComponentModel, LinkTermination):
     """
     A pass-through port on the front of a Device.
     """
@@ -829,8 +850,7 @@ class FrontPort(ComponentModel, LinkTermination):
             })
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class RearPort(ComponentModel, LinkTermination):
+class RearPort(ModularComponentModel, LinkTermination):
     """
     A pass-through port on the rear of a Device.
     """
@@ -870,10 +890,29 @@ class RearPort(ComponentModel, LinkTermination):
 
 
 #
-# Device bays
+# Bays
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
+class ModuleBay(ComponentModel):
+    """
+    An empty space within a Device which can house a child device
+    """
+    position = models.CharField(
+        max_length=30,
+        blank=True,
+        help_text='Identifier to reference when renaming installed components'
+    )
+
+    clone_fields = ['device']
+
+    class Meta:
+        ordering = ('device', '_name')
+        unique_together = ('device', 'name')
+
+    def get_absolute_url(self):
+        return reverse('dcim:modulebay', kwargs={'pk': self.pk})
+
+
 class DeviceBay(ComponentModel):
     """
     An empty space within a Device which can house a child device
@@ -923,7 +962,37 @@ class DeviceBay(ComponentModel):
 # Inventory items
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
+
+class InventoryItemRole(OrganizationalModel):
+    """
+    Inventory items may optionally be assigned a functional role.
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True
+    )
+    color = ColorField(
+        default=ColorChoices.COLOR_GREY
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True,
+    )
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:inventoryitemrole', args=[self.pk])
+
+
 class InventoryItem(MPTTModel, ComponentModel):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
@@ -936,6 +1005,29 @@ class InventoryItem(MPTTModel, ComponentModel):
         blank=True,
         null=True,
         db_index=True
+    )
+    component_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to=MODULAR_COMPONENT_MODELS,
+        on_delete=models.PROTECT,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    component_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    component = GenericForeignKey(
+        ct_field='component_type',
+        fk_field='component_id'
+    )
+    role = models.ForeignKey(
+        to='dcim.InventoryItemRole',
+        on_delete=models.PROTECT,
+        related_name='inventory_items',
+        blank=True,
+        null=True
     )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
@@ -970,7 +1062,7 @@ class InventoryItem(MPTTModel, ComponentModel):
 
     objects = TreeManager()
 
-    clone_fields = ['device', 'parent', 'manufacturer', 'part_id']
+    clone_fields = ['device', 'parent', 'role', 'manufacturer', 'part_id']
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')

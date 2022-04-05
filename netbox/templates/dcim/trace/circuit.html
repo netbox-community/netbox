@@ -1,5 +1,5 @@
 <div class="node">
-    <strong><a href="{{ circuit.get_absolute_url }}">{{ circuit }}</a></strong><br />
+    <strong>{{ circuit|linkify }}</strong><br />
     Circuit<br />
-    <a href="{{ circuit.provider.get_absolute_url }}">{{ circuit.provider }}</a>
+    {{ circuit.provider|linkify }}
 </div>

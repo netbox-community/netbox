@@ -29,14 +29,10 @@
             <tr>
               <td>Tenant</td>
               <td>
-                {% if object.tenant %}
-                  {% if prefix.object.group %}
-                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
-                  {% endif %}
-                  <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                {% else %}
-                  <span class="text-muted">None</span>
+                {% if object.tenant.group %}
+                  {{ object.tenant.group|linkify }} /
                 {% endif %}
+                {{ object.tenant|linkify|placeholder }}
               </td>
             </tr>
             <tr>
@@ -49,7 +45,17 @@
                 {% if sites_count %}
                   <a href="{% url 'dcim:site_list' %}?asn_id={{ object.pk }}">{{ sites_count }}</a>
                 {% else %}
-                  {{ sites_count }}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <td>Providers</td>
+              <td>
+                {% if providers_count %}
+                  <a href="{% url 'circuits:provider_list' %}?asn_id={{ object.pk }}">{{ providers_count }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
                 {% endif %}
               </td>
             </tr>
@@ -71,6 +77,13 @@
         <div class="card-body table-responsive">
           {% render_table sites_table 'inc/table.html' %}
           {% include 'inc/paginator.html' with paginator=sites_table.paginator page=sites_table.page %}
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">Providers</h5>
+        <div class="card-body table-responsive">
+          {% render_table providers_table 'inc/table.html' %}
+          {% include 'inc/paginator.html' with paginator=providers_table.paginator page=providers_table.page %}
         </div>
       </div>
       {% plugin_full_width_page object %}

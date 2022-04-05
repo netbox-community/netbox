@@ -4,8 +4,10 @@ from circuits.choices import CircuitStatusChoices
 from circuits.models import *
 from dcim.api.nested_serializers import NestedCableSerializer, NestedSiteSerializer
 from dcim.api.serializers import LinkTerminationSerializer
-from netbox.api import ChoiceField
-from netbox.api.serializers import PrimaryModelSerializer, ValidatedModelSerializer, WritableNestedSerializer
+from ipam.models import ASN
+from ipam.api.nested_serializers import NestedASNSerializer
+from netbox.api import ChoiceField, SerializedPKRelatedField
+from netbox.api.serializers import NetBoxModelSerializer, ValidatedModelSerializer, WritableNestedSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from .nested_serializers import *
 
@@ -14,15 +16,23 @@ from .nested_serializers import *
 # Providers
 #
 
-class ProviderSerializer(PrimaryModelSerializer):
+class ProviderSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
+    asns = SerializedPKRelatedField(
+        queryset=ASN.objects.all(),
+        serializer=NestedASNSerializer,
+        required=False,
+        many=True
+    )
+
+    # Related object counts
     circuit_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Provider
         fields = [
             'id', 'url', 'display', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count',
+            'comments', 'asns', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count',
         ]
 
 
@@ -30,15 +40,15 @@ class ProviderSerializer(PrimaryModelSerializer):
 # Provider networks
 #
 
-class ProviderNetworkSerializer(PrimaryModelSerializer):
+class ProviderNetworkSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:providernetwork-detail')
     provider = NestedProviderSerializer()
 
     class Meta:
         model = ProviderNetwork
         fields = [
-            'id', 'url', 'display', 'provider', 'name', 'description', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'provider', 'name', 'service_id', 'description', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -46,7 +56,7 @@ class ProviderNetworkSerializer(PrimaryModelSerializer):
 # Circuits
 #
 
-class CircuitTypeSerializer(PrimaryModelSerializer):
+class CircuitTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
     circuit_count = serializers.IntegerField(read_only=True)
 
@@ -70,7 +80,7 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
         ]
 
 
-class CircuitSerializer(PrimaryModelSerializer):
+class CircuitSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
     provider = NestedProviderSerializer()
     status = ChoiceField(choices=CircuitStatusChoices, required=False)

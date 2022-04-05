@@ -16,21 +16,14 @@
       <tbody>
         {% for assignment in object.fhrp_group_assignments.all %}
           <tr>
-            <td>
-              <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group.group_id }}</a>
-            </td>
-            <td>
-              {{ assignment.group.get_protocol_display }}
-            </td>
+            <td>{{ assignment.group|linkify:"group_id" }}</td>
+            <td>{{ assignment.group.get_protocol_display }}</td>
             <td>
               {% for ipaddress in assignment.group.ip_addresses.all %}
-                <a href="{{ ipaddress.get_absolute_url }}">{{ ipaddress }}</a>
-                {% if not forloop.last %}<br />{% endif %}
+                {{ ipaddress|linkify }}{% if not forloop.last %}<br />{% endif %}
               {% endfor %}
             </td>
-            <td>
-              {{ assignment.priority }}
-            </td>
+            <td>{{ assignment.priority }}</td>
             <td class="text-end noprint">
               {% if perms.ipam.change_fhrpgroupassignment %}
                 <a href="{% url 'ipam:fhrpgroupassignment_edit' pk=assignment.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning btn-sm lh-1" title="Edit">

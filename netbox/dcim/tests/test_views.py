@@ -11,9 +11,9 @@ from netaddr import EUI
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from ipam.models import ASN, RIR, VLAN
+from ipam.models import ASN, RIR, VLAN, VRF
 from tenancy.models import Tenant
-from utilities.testing import ViewTestCases, create_tags, create_test_device
+from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
 
@@ -144,9 +144,6 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'shipping_address': '742 Evergreen Terrace, Springfield, USA',
             'latitude': Decimal('35.780000'),
             'longitude': Decimal('-78.642000'),
-            'contact_name': 'Hank Hill',
-            'contact_phone': '123-555-9999',
-            'contact_email': 'hank@stricklandpropane.com',
             'comments': 'Test site',
             'tags': [t.pk for t in tags],
         }
@@ -558,6 +555,19 @@ class DeviceTypeTestCase(
         self.assertHttpStatus(self.client.get(url), 200)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_modulebays(self):
+        devicetype = DeviceType.objects.first()
+        module_bays = (
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay 1'),
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay 2'),
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay 3'),
+        )
+        ModuleBayTemplate.objects.bulk_create(module_bays)
+
+        url = reverse('dcim:devicetype_modulebays', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_devicetype_devicebays(self):
         devicetype = DeviceType.objects.first()
         device_bays = (
@@ -571,6 +581,20 @@ class DeviceTypeTestCase(
         self.assertHttpStatus(self.client.get(url), 200)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_inventoryitems(self):
+        devicetype = DeviceType.objects.first()
+        inventory_items = (
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay 1'),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay 2'),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay 3'),
+        )
+        for inventory_item in inventory_items:
+            inventory_item.save()
+
+        url = reverse('dcim:devicetype_inventoryitems', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_import_objects(self):
         """
         Custom import test for YAML-based imports (versus CSV)
@@ -581,7 +605,7 @@ model: TEST-1000
 slug: test-1000
 u_height: 2
 subdevice_role: parent
-comments: test comment
+comments: Test comment
 console-ports:
   - name: Console Port 1
     type: de-9
@@ -641,10 +665,21 @@ front-ports:
   - name: Front Port 3
     type: 8p8c
     rear_port: Rear Port 3
+module-bays:
+  - name: Module Bay 1
+  - name: Module Bay 2
+  - name: Module Bay 3
 device-bays:
   - name: Device Bay 1
   - name: Device Bay 2
   - name: Device Bay 3
+inventory-items:
+  - name: Inventory Item 1
+    manufacturer: Generic
+  - name: Inventory Item 2
+    manufacturer: Generic
+  - name: Inventory Item 3
+    manufacturer: Generic
 """
 
         # Create the manufacturer
@@ -661,7 +696,9 @@ device-bays:
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
             'dcim.add_devicebaytemplate',
+            'dcim.add_inventoryitemtemplate',
         )
 
         form_data = {
@@ -671,63 +708,365 @@ device-bays:
         response = self.client.post(reverse('dcim:devicetype_import'), data=form_data, follow=True)
         self.assertHttpStatus(response, 200)
 
-        dt = DeviceType.objects.get(model='TEST-1000')
-        self.assertEqual(dt.comments, 'test comment')
+        device_type = DeviceType.objects.get(model='TEST-1000')
+        self.assertEqual(device_type.comments, 'Test comment')
 
         # Verify all of the components were created
-        self.assertEqual(dt.consoleporttemplates.count(), 3)
+        self.assertEqual(device_type.consoleporttemplates.count(), 3)
         cp1 = ConsolePortTemplate.objects.first()
         self.assertEqual(cp1.name, 'Console Port 1')
         self.assertEqual(cp1.type, ConsolePortTypeChoices.TYPE_DE9)
 
-        self.assertEqual(dt.consoleserverporttemplates.count(), 3)
+        self.assertEqual(device_type.consoleserverporttemplates.count(), 3)
         csp1 = ConsoleServerPortTemplate.objects.first()
         self.assertEqual(csp1.name, 'Console Server Port 1')
         self.assertEqual(csp1.type, ConsolePortTypeChoices.TYPE_RJ45)
 
-        self.assertEqual(dt.powerporttemplates.count(), 3)
+        self.assertEqual(device_type.powerporttemplates.count(), 3)
         pp1 = PowerPortTemplate.objects.first()
         self.assertEqual(pp1.name, 'Power Port 1')
         self.assertEqual(pp1.type, PowerPortTypeChoices.TYPE_IEC_C14)
 
-        self.assertEqual(dt.poweroutlettemplates.count(), 3)
+        self.assertEqual(device_type.poweroutlettemplates.count(), 3)
         po1 = PowerOutletTemplate.objects.first()
         self.assertEqual(po1.name, 'Power Outlet 1')
         self.assertEqual(po1.type, PowerOutletTypeChoices.TYPE_IEC_C13)
         self.assertEqual(po1.power_port, pp1)
         self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
 
-        self.assertEqual(dt.interfacetemplates.count(), 3)
+        self.assertEqual(device_type.interfacetemplates.count(), 3)
         iface1 = InterfaceTemplate.objects.first()
         self.assertEqual(iface1.name, 'Interface 1')
         self.assertEqual(iface1.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
         self.assertTrue(iface1.mgmt_only)
 
-        self.assertEqual(dt.rearporttemplates.count(), 3)
+        self.assertEqual(device_type.rearporttemplates.count(), 3)
         rp1 = RearPortTemplate.objects.first()
         self.assertEqual(rp1.name, 'Rear Port 1')
 
-        self.assertEqual(dt.frontporttemplates.count(), 3)
+        self.assertEqual(device_type.frontporttemplates.count(), 3)
         fp1 = FrontPortTemplate.objects.first()
         self.assertEqual(fp1.name, 'Front Port 1')
         self.assertEqual(fp1.rear_port, rp1)
         self.assertEqual(fp1.rear_port_position, 1)
 
-        self.assertEqual(dt.devicebaytemplates.count(), 3)
+        self.assertEqual(device_type.modulebaytemplates.count(), 3)
+        mb1 = ModuleBayTemplate.objects.first()
+        self.assertEqual(mb1.name, 'Module Bay 1')
+
+        self.assertEqual(device_type.devicebaytemplates.count(), 3)
         db1 = DeviceBayTemplate.objects.first()
         self.assertEqual(db1.name, 'Device Bay 1')
+
+        self.assertEqual(device_type.inventoryitemtemplates.count(), 3)
+        ii1 = InventoryItemTemplate.objects.first()
+        self.assertEqual(ii1.name, 'Inventory Item 1')
 
     def test_export_objects(self):
         url = reverse('dcim:devicetype_list')
         self.add_permissions('dcim.view_devicetype')
 
         # Test default YAML export
-        response = self.client.get('{}?export'.format(url))
+        response = self.client.get(f'{url}?export')
         self.assertEqual(response.status_code, 200)
         data = list(yaml.load_all(response.content, Loader=yaml.SafeLoader))
         self.assertEqual(len(data), 3)
         self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
         self.assertEqual(data[0]['model'], 'Device Type 1')
+
+        # Test table-based export
+        response = self.client.get(f'{url}?export=table')
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
+
+
+# TODO: Change base class to PrimaryObjectViewTestCase
+# Blocked by absence of bulk import view for ModuleTypes
+class ModuleTypeTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
+    model = ModuleType
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2')
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        ModuleType.objects.bulk_create([
+            ModuleType(model='Module Type 1', manufacturer=manufacturers[0]),
+            ModuleType(model='Module Type 2', manufacturer=manufacturers[0]),
+            ModuleType(model='Module Type 3', manufacturer=manufacturers[0]),
+        ])
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'manufacturer': manufacturers[1].pk,
+            'model': 'Device Type X',
+            'part_number': '123ABC',
+            'comments': 'Some comments',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'manufacturer': manufacturers[1].pk,
+            'part_number': '456DEF',
+        }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_consoleports(self):
+        moduletype = ModuleType.objects.first()
+        console_ports = (
+            ConsolePortTemplate(module_type=moduletype, name='Console Port 1'),
+            ConsolePortTemplate(module_type=moduletype, name='Console Port 2'),
+            ConsolePortTemplate(module_type=moduletype, name='Console Port 3'),
+        )
+        ConsolePortTemplate.objects.bulk_create(console_ports)
+
+        url = reverse('dcim:moduletype_consoleports', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_consoleserverports(self):
+        moduletype = ModuleType.objects.first()
+        console_server_ports = (
+            ConsoleServerPortTemplate(module_type=moduletype, name='Console Server Port 1'),
+            ConsoleServerPortTemplate(module_type=moduletype, name='Console Server Port 2'),
+            ConsoleServerPortTemplate(module_type=moduletype, name='Console Server Port 3'),
+        )
+        ConsoleServerPortTemplate.objects.bulk_create(console_server_ports)
+
+        url = reverse('dcim:moduletype_consoleserverports', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_powerports(self):
+        moduletype = ModuleType.objects.first()
+        power_ports = (
+            PowerPortTemplate(module_type=moduletype, name='Power Port 1'),
+            PowerPortTemplate(module_type=moduletype, name='Power Port 2'),
+            PowerPortTemplate(module_type=moduletype, name='Power Port 3'),
+        )
+        PowerPortTemplate.objects.bulk_create(power_ports)
+
+        url = reverse('dcim:moduletype_powerports', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_poweroutlets(self):
+        moduletype = ModuleType.objects.first()
+        power_outlets = (
+            PowerOutletTemplate(module_type=moduletype, name='Power Outlet 1'),
+            PowerOutletTemplate(module_type=moduletype, name='Power Outlet 2'),
+            PowerOutletTemplate(module_type=moduletype, name='Power Outlet 3'),
+        )
+        PowerOutletTemplate.objects.bulk_create(power_outlets)
+
+        url = reverse('dcim:moduletype_poweroutlets', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_interfaces(self):
+        moduletype = ModuleType.objects.first()
+        interfaces = (
+            InterfaceTemplate(module_type=moduletype, name='Interface 1'),
+            InterfaceTemplate(module_type=moduletype, name='Interface 2'),
+            InterfaceTemplate(module_type=moduletype, name='Interface 3'),
+        )
+        InterfaceTemplate.objects.bulk_create(interfaces)
+
+        url = reverse('dcim:moduletype_interfaces', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_rearports(self):
+        moduletype = ModuleType.objects.first()
+        rear_ports = (
+            RearPortTemplate(module_type=moduletype, name='Rear Port 1'),
+            RearPortTemplate(module_type=moduletype, name='Rear Port 2'),
+            RearPortTemplate(module_type=moduletype, name='Rear Port 3'),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+
+        url = reverse('dcim:moduletype_rearports', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_frontports(self):
+        moduletype = ModuleType.objects.first()
+        rear_ports = (
+            RearPortTemplate(module_type=moduletype, name='Rear Port 1'),
+            RearPortTemplate(module_type=moduletype, name='Rear Port 2'),
+            RearPortTemplate(module_type=moduletype, name='Rear Port 3'),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+        front_ports = (
+            FrontPortTemplate(module_type=moduletype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1),
+            FrontPortTemplate(module_type=moduletype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1),
+            FrontPortTemplate(module_type=moduletype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1),
+        )
+        FrontPortTemplate.objects.bulk_create(front_ports)
+
+        url = reverse('dcim:moduletype_frontports', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_import_objects(self):
+        """
+        Custom import test for YAML-based imports (versus CSV)
+        """
+        IMPORT_DATA = """
+manufacturer: Generic
+model: TEST-1000
+comments: Test comment
+console-ports:
+  - name: Console Port 1
+    type: de-9
+  - name: Console Port 2
+    type: de-9
+  - name: Console Port 3
+    type: de-9
+console-server-ports:
+  - name: Console Server Port 1
+    type: rj-45
+  - name: Console Server Port 2
+    type: rj-45
+  - name: Console Server Port 3
+    type: rj-45
+power-ports:
+  - name: Power Port 1
+    type: iec-60320-c14
+  - name: Power Port 2
+    type: iec-60320-c14
+  - name: Power Port 3
+    type: iec-60320-c14
+power-outlets:
+  - name: Power Outlet 1
+    type: iec-60320-c13
+    power_port: Power Port 1
+    feed_leg: A
+  - name: Power Outlet 2
+    type: iec-60320-c13
+    power_port: Power Port 1
+    feed_leg: A
+  - name: Power Outlet 3
+    type: iec-60320-c13
+    power_port: Power Port 1
+    feed_leg: A
+interfaces:
+  - name: Interface 1
+    type: 1000base-t
+    mgmt_only: true
+  - name: Interface 2
+    type: 1000base-t
+  - name: Interface 3
+    type: 1000base-t
+rear-ports:
+  - name: Rear Port 1
+    type: 8p8c
+  - name: Rear Port 2
+    type: 8p8c
+  - name: Rear Port 3
+    type: 8p8c
+front-ports:
+  - name: Front Port 1
+    type: 8p8c
+    rear_port: Rear Port 1
+  - name: Front Port 2
+    type: 8p8c
+    rear_port: Rear Port 2
+  - name: Front Port 3
+    type: 8p8c
+    rear_port: Rear Port 3
+"""
+
+        # Create the manufacturer
+        Manufacturer(name='Generic', slug='generic').save()
+
+        # Add all required permissions to the test user
+        self.add_permissions(
+            'dcim.view_moduletype',
+            'dcim.add_moduletype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+        )
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('dcim:moduletype_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        module_type = ModuleType.objects.get(model='TEST-1000')
+        self.assertEqual(module_type.comments, 'Test comment')
+
+        # Verify all the components were created
+        self.assertEqual(module_type.consoleporttemplates.count(), 3)
+        cp1 = ConsolePortTemplate.objects.first()
+        self.assertEqual(cp1.name, 'Console Port 1')
+        self.assertEqual(cp1.type, ConsolePortTypeChoices.TYPE_DE9)
+
+        self.assertEqual(module_type.consoleserverporttemplates.count(), 3)
+        csp1 = ConsoleServerPortTemplate.objects.first()
+        self.assertEqual(csp1.name, 'Console Server Port 1')
+        self.assertEqual(csp1.type, ConsolePortTypeChoices.TYPE_RJ45)
+
+        self.assertEqual(module_type.powerporttemplates.count(), 3)
+        pp1 = PowerPortTemplate.objects.first()
+        self.assertEqual(pp1.name, 'Power Port 1')
+        self.assertEqual(pp1.type, PowerPortTypeChoices.TYPE_IEC_C14)
+
+        self.assertEqual(module_type.poweroutlettemplates.count(), 3)
+        po1 = PowerOutletTemplate.objects.first()
+        self.assertEqual(po1.name, 'Power Outlet 1')
+        self.assertEqual(po1.type, PowerOutletTypeChoices.TYPE_IEC_C13)
+        self.assertEqual(po1.power_port, pp1)
+        self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
+
+        self.assertEqual(module_type.interfacetemplates.count(), 3)
+        iface1 = InterfaceTemplate.objects.first()
+        self.assertEqual(iface1.name, 'Interface 1')
+        self.assertEqual(iface1.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
+        self.assertTrue(iface1.mgmt_only)
+
+        self.assertEqual(module_type.rearporttemplates.count(), 3)
+        rp1 = RearPortTemplate.objects.first()
+        self.assertEqual(rp1.name, 'Rear Port 1')
+
+        self.assertEqual(module_type.frontporttemplates.count(), 3)
+        fp1 = FrontPortTemplate.objects.first()
+        self.assertEqual(fp1.name, 'Front Port 1')
+        self.assertEqual(fp1.rear_port, rp1)
+        self.assertEqual(fp1.rear_port_position, 1)
+
+    def test_export_objects(self):
+        url = reverse('dcim:moduletype_list')
+        self.add_permissions('dcim.view_moduletype')
+
+        # Test default YAML export
+        response = self.client.get(f'{url}?export')
+        self.assertEqual(response.status_code, 200)
+        data = list(yaml.load_all(response.content, Loader=yaml.SafeLoader))
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
+        self.assertEqual(data[0]['model'], 'Module Type 1')
 
         # Test table-based export
         response = self.client.get(f'{url}?export=table')
@@ -1014,6 +1353,39 @@ class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase
         }
 
 
+class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+    model = ModuleBayTemplate
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetypes = (
+            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
+        )
+        DeviceType.objects.bulk_create(devicetypes)
+
+        ModuleBayTemplate.objects.bulk_create((
+            ModuleBayTemplate(device_type=devicetypes[0], name='Module Bay Template 1'),
+            ModuleBayTemplate(device_type=devicetypes[0], name='Module Bay Template 2'),
+            ModuleBayTemplate(device_type=devicetypes[0], name='Module Bay Template 3'),
+        ))
+
+        cls.form_data = {
+            'device_type': devicetypes[1].pk,
+            'name': 'Module Bay Template X',
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetypes[1].pk,
+            'name_pattern': 'Module Bay Template [4-6]',
+        }
+
+        cls.bulk_edit_data = {
+            'description': 'Foo bar',
+        }
+
+
 class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = DeviceBayTemplate
 
@@ -1047,6 +1419,48 @@ class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
         }
 
 
+class InventoryItemTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+    model = InventoryItemTemplate
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        devicetypes = (
+            DeviceType(manufacturer=manufacturers[0], model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturers[0], model='Device Type 2', slug='device-type-2'),
+        )
+        DeviceType.objects.bulk_create(devicetypes)
+
+        inventory_item_templates = (
+            InventoryItemTemplate(device_type=devicetypes[0], name='Inventory Item Template 1', manufacturer=manufacturers[0]),
+            InventoryItemTemplate(device_type=devicetypes[0], name='Inventory Item Template 2', manufacturer=manufacturers[0]),
+            InventoryItemTemplate(device_type=devicetypes[0], name='Inventory Item Template 3', manufacturer=manufacturers[0]),
+        )
+        for item in inventory_item_templates:
+            item.save()
+
+        cls.form_data = {
+            'device_type': devicetypes[1].pk,
+            'name': 'Inventory Item Template X',
+            'manufacturer': manufacturers[1].pk,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetypes[1].pk,
+            'name_pattern': 'Inventory Item Template [4-6]',
+            'manufacturer': manufacturers[1].pk,
+        }
+
+        cls.bulk_edit_data = {
+            'description': 'Foo bar',
+        }
+
+
 class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = DeviceRole
 
@@ -1062,7 +1476,7 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'name': 'Devie Role X',
+            'name': 'Device Role X',
             'slug': 'device-role-x',
             'color': 'c0c0c0',
             'vm_role': False,
@@ -1311,6 +1725,19 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(self.client.get(url), 200)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_device_modulebays(self):
+        device = Device.objects.first()
+        device_bays = (
+            ModuleBay(device=device, name='Module Bay 1'),
+            ModuleBay(device=device, name='Module Bay 2'),
+            ModuleBay(device=device, name='Module Bay 3'),
+        )
+        ModuleBay.objects.bulk_create(device_bays)
+
+        url = reverse('dcim:device_modulebays', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_devicebays(self):
         device = Device.objects.first()
         device_bays = (
@@ -1336,6 +1763,111 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         url = reverse('dcim:device_inventory', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
+
+
+class ModuleTestCase(
+    # Module does not support bulk renaming (no name field) or
+    # bulk creation (need to specify module bays)
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkImportObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
+    model = Module
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
+        devices = (
+            create_test_device('Device 1'),
+            create_test_device('Device 2'),
+        )
+
+        module_types = (
+            ModuleType(manufacturer=manufacturer, model='Module Type 1'),
+            ModuleType(manufacturer=manufacturer, model='Module Type 2'),
+            ModuleType(manufacturer=manufacturer, model='Module Type 3'),
+            ModuleType(manufacturer=manufacturer, model='Module Type 4'),
+        )
+        ModuleType.objects.bulk_create(module_types)
+
+        module_bays = (
+            ModuleBay(device=devices[0], name='Module Bay 1'),
+            ModuleBay(device=devices[0], name='Module Bay 2'),
+            ModuleBay(device=devices[0], name='Module Bay 3'),
+            ModuleBay(device=devices[0], name='Module Bay 4'),
+            ModuleBay(device=devices[1], name='Module Bay 1'),
+            ModuleBay(device=devices[1], name='Module Bay 2'),
+            ModuleBay(device=devices[1], name='Module Bay 3'),
+            ModuleBay(device=devices[1], name='Module Bay 4'),
+        )
+        ModuleBay.objects.bulk_create(module_bays)
+
+        modules = (
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_types[0]),
+            Module(device=devices[0], module_bay=module_bays[1], module_type=module_types[1]),
+            Module(device=devices[0], module_bay=module_bays[2], module_type=module_types[2]),
+        )
+        Module.objects.bulk_create(modules)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'device': devices[1].pk,
+            'module_bay': module_bays[3].pk,
+            'module_type': module_types[0].pk,
+            'serial': 'A',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'module_type': module_types[3].pk,
+        }
+
+        cls.csv_data = (
+            "device,module_bay,module_type,serial,asset_tag",
+            "Device 2,Module Bay 1,Module Type 1,A,A",
+            "Device 2,Module Bay 2,Module Type 2,B,B",
+            "Device 2,Module Bay 3,Module Type 3,C,C",
+        )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_module_component_replication(self):
+        self.add_permissions('dcim.add_module')
+
+        # Add 5 InterfaceTemplates to a ModuleType
+        module_type = ModuleType.objects.first()
+        interface_templates = [
+            InterfaceTemplate(module_type=module_type, name=f'Interface {i}') for i in range(1, 6)
+        ]
+        InterfaceTemplate.objects.bulk_create(interface_templates)
+
+        form_data = self.form_data.copy()
+        device = Device.objects.get(pk=form_data['device'])
+
+        # Create a module *without* replicating components
+        form_data['replicate_components'] = False
+        request = {
+            'path': self._get_url('add'),
+            'data': post_data(form_data),
+        }
+        self.assertHttpStatus(self.client.post(**request), 302)
+        self.assertEqual(Interface.objects.filter(device=device).count(), 0)
+
+        # Create a second module (in the next bay) with replicated components
+        form_data['module_bay'] += 1
+        form_data['replicate_components'] = True
+        request = {
+            'path': self._get_url('add'),
+            'data': post_data(form_data),
+        }
+        self.assertHttpStatus(self.client.post(**request), 302)
+        self.assertEqual(Interface.objects.filter(device=device).count(), 5)
 
 
 class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
@@ -1609,6 +2141,13 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         WirelessLAN.objects.bulk_create(wireless_lans)
 
+        vrfs = (
+            VRF(name='VRF 1'),
+            VRF(name='VRF 2'),
+            VRF(name='VRF 3'),
+        )
+        VRF.objects.bulk_create(vrfs)
+
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
@@ -1621,6 +2160,8 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 65000,
+            'speed': 1000000,
+            'duplex': 'full',
             'mgmt_only': True,
             'description': 'A front port',
             'mode': InterfaceModeChoices.MODE_TAGGED,
@@ -1628,6 +2169,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
+            'vrf': vrfs[0].pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -1641,12 +2183,15 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 2000,
+            'speed': 100000,
+            'duplex': 'half',
             'mgmt_only': True,
             'description': 'A front port',
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
+            'vrf': vrfs[0].pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -1657,19 +2202,22 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 2000,
+            'speed': 1000000,
+            'duplex': 'full',
             'mgmt_only': True,
             'description': 'New description',
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'tx_power': 10,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'vrf': vrfs[1].pk,
         }
 
         cls.csv_data = (
-            "device,name,type",
-            "Device 1,Interface 4,1000base-t",
-            "Device 1,Interface 5,1000base-t",
-            "Device 1,Interface 6,1000base-t",
+            f"device,name,type,vrf.pk",
+            f"Device 1,Interface 4,1000base-t,{vrfs[0].pk}",
+            f"Device 1,Interface 5,1000base-t,{vrfs[0].pk}",
+            f"Device 1,Interface 6,1000base-t,{vrfs[0].pk}",
         )
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -1810,6 +2358,47 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.assertHttpStatus(response, 200)
 
 
+class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
+    model = ModuleBay
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+
+        ModuleBay.objects.bulk_create([
+            ModuleBay(device=device, name='Module Bay 1'),
+            ModuleBay(device=device, name='Module Bay 2'),
+            ModuleBay(device=device, name='Module Bay 3'),
+        ])
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Module Bay X',
+            'description': 'A device bay',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Module Bay [4-6]',
+            'description': 'A module bay',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Module Bay 4",
+            "Device 1,Module Bay 5",
+            "Device 1,Module Bay 6",
+        )
+
+
 class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = DeviceBay
 
@@ -1862,14 +2451,21 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         device = create_test_device('Device 1')
         manufacturer, _ = Manufacturer.objects.get_or_create(name='Manufacturer 1', slug='manufacturer-1')
 
-        InventoryItem.objects.create(device=device, name='Inventory Item 1')
-        InventoryItem.objects.create(device=device, name='Inventory Item 2')
-        InventoryItem.objects.create(device=device, name='Inventory Item 3')
+        roles = (
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2'),
+        )
+        InventoryItemRole.objects.bulk_create(roles)
+
+        InventoryItem.objects.create(device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer)
+        InventoryItem.objects.create(device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer)
+        InventoryItem.objects.create(device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
+            'role': roles[1].pk,
             'manufacturer': manufacturer.pk,
             'name': 'Inventory Item X',
             'parent': None,
@@ -1884,6 +2480,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.bulk_create_data = {
             'device': device.pk,
             'name_pattern': 'Inventory Item [4-6]',
+            'role': roles[1].pk,
             'manufacturer': manufacturer.pk,
             'parent': None,
             'discovered': False,
@@ -1894,6 +2491,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.bulk_edit_data = {
+            'role': roles[1].pk,
             'part_id': '123456',
             'description': 'New description',
         }
@@ -1904,6 +2502,41 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Inventory Item 5,Inventory Item 2",
             "Device 1,Inventory Item 6,Inventory Item 3",
         )
+
+
+class InventoryItemRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = InventoryItemRole
+
+    @classmethod
+    def setUpTestData(cls):
+
+        InventoryItemRole.objects.bulk_create([
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2'),
+            InventoryItemRole(name='Inventory Item Role 3', slug='inventory-item-role-3'),
+        ])
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Inventory Item Role X',
+            'slug': 'inventory-item-role-x',
+            'color': 'c0c0c0',
+            'description': 'New inventory item role',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,slug,color",
+            "Inventory Item Role 4,inventory-item-role-4,ff0000",
+            "Inventory Item Role 5,inventory-item-role-5,00ff00",
+            "Inventory Item Role 6,inventory-item-role-6,0000ff",
+        )
+
+        cls.bulk_edit_data = {
+            'color': '00ff00',
+            'description': 'New description',
+        }
 
 
 # TODO: Change base class to PrimaryObjectViewTestCase

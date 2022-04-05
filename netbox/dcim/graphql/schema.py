@@ -50,11 +50,29 @@ class DCIMQuery(graphene.ObjectType):
     inventory_item = ObjectField(InventoryItemType)
     inventory_item_list = ObjectListField(InventoryItemType)
 
+    inventory_item_role = ObjectField(InventoryItemRoleType)
+    inventory_item_role_list = ObjectListField(InventoryItemRoleType)
+
+    inventory_item_template = ObjectField(InventoryItemTemplateType)
+    inventory_item_template_list = ObjectListField(InventoryItemTemplateType)
+
     location = ObjectField(LocationType)
     location_list = ObjectListField(LocationType)
 
     manufacturer = ObjectField(ManufacturerType)
     manufacturer_list = ObjectListField(ManufacturerType)
+
+    module = ObjectField(ModuleType)
+    module_list = ObjectListField(ModuleType)
+
+    module_bay = ObjectField(ModuleBayType)
+    module_bay_list = ObjectListField(ModuleBayType)
+
+    module_bay_template = ObjectField(ModuleBayTemplateType)
+    module_bay_template_list = ObjectListField(ModuleBayTemplateType)
+
+    module_type = ObjectField(ModuleTypeType)
+    module_type_list = ObjectListField(ModuleTypeType)
 
     platform = ObjectField(PlatformType)
     platform_list = ObjectListField(PlatformType)

@@ -51,9 +51,7 @@
                       {% endfor %}
                       {% with device=form.instance virtual_chassis=vc_form.instance %}
                           <tr>
-                              <td>
-                                  <a href="{{ device.get_absolute_url }}">{{ device }}</a>
-                              </td>
+                              <td>{{ device|linkify }}</td>
                               <td>{{ device.pk }}</td>
                               <td>
                                   {% if device.rack %}

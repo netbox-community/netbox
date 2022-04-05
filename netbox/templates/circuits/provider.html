@@ -16,14 +16,29 @@
 <div class="row mb-3">
 	  <div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">
-                Provider
-            </h5>
+            <h5 class="card-header">Provider</h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
-                        <th scope="row">ASN</th>
-                        <td>{{ object.asn|placeholder }}</td>
+                      <th scope="row">ASN</th>
+                      <td>
+                        {% if object.asn %}
+                          <div class="float-end text-warning">
+                            <i class="mdi mdi-alert" title="This field will be removed in a future release. Please migrate this data to ASN objects."></i>
+                          </div>
+                        {% endif %}
+                        {{ object.asn|placeholder }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">ASNs</th>
+                      <td>
+                        {% for asn in object.asns.all %}
+                          {{ asn|linkify }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                          {{ ''|placeholder }}
+                        {% endfor %}
+                      </td>
                     </tr>
                     <tr>
                         <th scope="row">Account</th>
@@ -41,11 +56,11 @@
                     </tr>
                     <tr>
                         <th scope="row">NOC Contact</th>
-                        <td>{{ object.noc_contact|render_markdown|placeholder }}</td>
+                        <td>{{ object.noc_contact|markdown|placeholder }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Admin Contact</th>
-                        <td>{{ object.admin_contact|render_markdown|placeholder }}</td>
+                        <td>{{ object.admin_contact|markdown|placeholder }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Circuits</th>

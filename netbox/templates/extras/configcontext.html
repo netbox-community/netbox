@@ -56,7 +56,7 @@
                           <td>
                             <ul class="list-unstyled mb-0">
                               {% for object in objects %}
-                                <li><a href="{{ object.get_absolute_url }}">{{ object }}</a></li>
+                                <li>{{ object|linkify }}</li>
                               {% empty %}
                                 <li class="text-muted">None</li>
                               {% endfor %}

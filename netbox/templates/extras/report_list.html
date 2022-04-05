@@ -40,7 +40,7 @@
                     <td>
                       {% include 'extras/inc/job_label.html' with result=report.result %}
                     </td>
-                    <td>{{ report.description|render_markdown|placeholder }}</td>
+                    <td>{{ report.description|markdown|placeholder }}</td>
                     <td class="text-end">
                       {% if report.result %}
                         <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">{{ report.result.created|annotated_date }}</a>

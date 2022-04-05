@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rearporttemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rearporttemplates', to='dcim.devicetype'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
         ),
         migrations.AddField(
             model_name='rearport',
@@ -73,7 +73,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rearport',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rearports', to='dcim.device'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
         ),
         migrations.AddField(
             model_name='rearport',
@@ -128,7 +128,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='powerporttemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='powerporttemplates', to='dcim.devicetype'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
         ),
         migrations.AddField(
             model_name='powerport',
@@ -148,7 +148,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='powerport',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='powerports', to='dcim.device'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
         ),
         migrations.AddField(
             model_name='powerport',
@@ -173,7 +173,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='poweroutlettemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='poweroutlettemplates', to='dcim.devicetype'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
         ),
         migrations.AddField(
             model_name='poweroutlettemplate',
@@ -198,7 +198,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='poweroutlet',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='poweroutlets', to='dcim.device'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
         ),
         migrations.AddField(
             model_name='poweroutlet',
@@ -258,7 +258,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='inventoryitem',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='inventoryitems', to='dcim.device'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
         ),
         migrations.AddField(
             model_name='inventoryitem',
@@ -278,7 +278,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='interfacetemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='interfacetemplates', to='dcim.devicetype'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
         ),
         migrations.AddField(
             model_name='interface',
@@ -298,7 +298,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='interface',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='interfaces', to='dcim.device'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
         ),
         migrations.AddField(
             model_name='interface',

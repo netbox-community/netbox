@@ -40,7 +40,7 @@
                       {% include 'extras/inc/job_label.html' with result=script.result %}
                     </td>
                     <td>
-                      {{ script.Meta.description|render_markdown|placeholder }}
+                      {{ script.Meta.description|markdown|placeholder }}
                     </td>
                     {% if script.result %}
                       <td class="text-end">

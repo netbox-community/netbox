@@ -7,7 +7,7 @@
   {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'dcim:powerpanel_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
   {% if object.location %}
-    <li class="breadcrumb-item"><a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a></li>
+    <li class="breadcrumb-item">{{ object.location|linkify }}</li>
   {% endif %}
 {% endblock %}
 
@@ -22,19 +22,11 @@
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">Site</th>
-                        <td>
-                            <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
-                        </td>
+                        <td>{{ object.site|linkify }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Location</th>
-                        <td>
-                            {% if object.location %}
-                                <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
-                            {% endif %}
-                        </td>
+                        <td>{{ object.location|linkify|placeholder }}</td>
                     </tr>
                 </table>
             </div>

@@ -3,7 +3,7 @@
 A webhook is a mechanism for conveying to some external system a change that took place in NetBox. For example, you may want to notify a monitoring system whenever the status of a device is updated in NetBox. This can be done by creating a webhook for the device model in NetBox and identifying the webhook receiver. When NetBox detects a change to a device, an HTTP request containing the details of the change and who made it be sent to the specified receiver. Webhooks are managed under Logging > Webhooks.
 
 !!! warning
-    Webhooks support the inclusion of user-submitted code to generate custom headers and payloads, which may pose security risks under certain conditions. Only grant permission to create or modify webhooks to trusted users.
+    Webhooks support the inclusion of user-submitted code to generate URL, custom headers and payloads, which may pose security risks under certain conditions. Only grant permission to create or modify webhooks to trusted users.
 
 ## Configuration
 
@@ -12,7 +12,7 @@ A webhook is a mechanism for conveying to some external system a change that too
 * **Enabled** - If unchecked, the webhook will be inactive.
 * **Events** - A webhook may trigger on any combination of create, update, and delete events. At least one event type must be selected.
 * **HTTP method** - The type of HTTP request to send. Options include `GET`, `POST`, `PUT`, `PATCH`, and `DELETE`.
-* **URL** - The fuly-qualified URL of the request to be sent. This may specify a destination port number if needed.
+* **URL** - The fully-qualified URL of the request to be sent. This may specify a destination port number if needed. Jinja2 templating is supported for this field.
 * **HTTP content type** - The value of the request's `Content-Type` header. (Defaults to `application/json`)
 * **Additional headers** - Any additional headers to include with the request (optional). Add one header per line in the format `Name: Value`. Jinja2 templating is supported for this field (see below).
 * **Body template** - The content of the request being sent (optional). Jinja2 templating is supported for this field (see below). If blank, NetBox will populate the request body with a raw dump of the webhook context. (If the HTTP cotent type is set to `application/json`, this will be formatted as a JSON object.)
@@ -23,7 +23,7 @@ A webhook is a mechanism for conveying to some external system a change that too
 
 ## Jinja2 Template Support
 
-[Jinja2 templating](https://jinja.palletsprojects.com/) is supported for the `additional_headers` and `body_template` fields. This enables the user to convey object data in the request headers as well as to craft a customized request body. Request content can be crafted to enable the direct interaction with external systems by ensuring the outgoing message is in a format the receiver expects and understands.
+[Jinja2 templating](https://jinja.palletsprojects.com/) is supported for the `URL`, `additional_headers` and `body_template` fields. This enables the user to convey object data in the request headers as well as to craft a customized request body. Request content can be crafted to enable the direct interaction with external systems by ensuring the outgoing message is in a format the receiver expects and understands.
 
 For example, you might create a NetBox webhook to [trigger a Slack message](https://api.slack.com/messaging/webhooks) any time an IP address is created. You can accomplish this using the following configuration:
 

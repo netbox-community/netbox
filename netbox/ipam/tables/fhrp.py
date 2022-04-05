@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, ButtonsColumn, MarkdownColumn, TagColumn, ToggleColumn
 from ipam.models import *
+from netbox.tables import NetBoxTable, columns
 
 __all__ = (
     'FHRPGroupTable',
@@ -16,12 +16,11 @@ IPADDRESSES = """
 """
 
 
-class FHRPGroupTable(BaseTable):
-    pk = ToggleColumn()
+class FHRPGroupTable(NetBoxTable):
     group_id = tables.Column(
         linkify=True
     )
-    comments = MarkdownColumn()
+    comments = columns.MarkdownColumn()
     ip_addresses = tables.TemplateColumn(
         template_code=IPADDRESSES,
         orderable=False,
@@ -30,11 +29,11 @@ class FHRPGroupTable(BaseTable):
     member_count = tables.Column(
         verbose_name='Members'
     )
-    tags = TagColumn(
+    tags = columns.TagColumn(
         url_name='ipam:fhrpgroup_list'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = FHRPGroup
         fields = (
             'pk', 'group_id', 'protocol', 'auth_type', 'auth_key', 'description', 'ip_addresses', 'member_count',
@@ -43,8 +42,7 @@ class FHRPGroupTable(BaseTable):
         default_columns = ('pk', 'group_id', 'protocol', 'auth_type', 'description', 'ip_addresses', 'member_count')
 
 
-class FHRPGroupAssignmentTable(BaseTable):
-    pk = ToggleColumn()
+class FHRPGroupAssignmentTable(NetBoxTable):
     interface_parent = tables.Column(
         accessor=tables.A('interface__parent_object'),
         linkify=True,
@@ -58,12 +56,11 @@ class FHRPGroupAssignmentTable(BaseTable):
     group = tables.Column(
         linkify=True
     )
-    actions = ButtonsColumn(
-        model=FHRPGroupAssignment,
-        buttons=('edit', 'delete')
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete')
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = FHRPGroupAssignment
         fields = ('pk', 'group', 'interface_parent', 'interface', 'priority')
         exclude = ('id',)

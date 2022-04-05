@@ -14,12 +14,12 @@ from rest_framework.viewsets import ViewSet
 from circuits.models import Circuit
 from dcim import filtersets
 from dcim.models import *
-from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
+from extras.api.views import ConfigContextQuerySetMixin
 from ipam.models import Prefix, VLAN
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import ServiceUnavailable
 from netbox.api.metadata import ContentTypeMetadata
-from netbox.api.views import ModelViewSet
+from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.config import get_config
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related
@@ -103,7 +103,7 @@ class PassThroughPortMixin(object):
 # Regions
 #
 
-class RegionViewSet(CustomFieldModelViewSet):
+class RegionViewSet(NetBoxModelViewSet):
     queryset = Region.objects.add_related_count(
         Region.objects.all(),
         Site,
@@ -119,7 +119,7 @@ class RegionViewSet(CustomFieldModelViewSet):
 # Site groups
 #
 
-class SiteGroupViewSet(CustomFieldModelViewSet):
+class SiteGroupViewSet(NetBoxModelViewSet):
     queryset = SiteGroup.objects.add_related_count(
         SiteGroup.objects.all(),
         Site,
@@ -135,7 +135,7 @@ class SiteGroupViewSet(CustomFieldModelViewSet):
 # Sites
 #
 
-class SiteViewSet(CustomFieldModelViewSet):
+class SiteViewSet(NetBoxModelViewSet):
     queryset = Site.objects.prefetch_related(
         'region', 'tenant', 'asns', 'tags'
     ).annotate(
@@ -154,7 +154,7 @@ class SiteViewSet(CustomFieldModelViewSet):
 # Locations
 #
 
-class LocationViewSet(CustomFieldModelViewSet):
+class LocationViewSet(NetBoxModelViewSet):
     queryset = Location.objects.add_related_count(
         Location.objects.add_related_count(
             Location.objects.all(),
@@ -176,7 +176,7 @@ class LocationViewSet(CustomFieldModelViewSet):
 # Rack roles
 #
 
-class RackRoleViewSet(CustomFieldModelViewSet):
+class RackRoleViewSet(NetBoxModelViewSet):
     queryset = RackRole.objects.prefetch_related('tags').annotate(
         rack_count=count_related(Rack, 'role')
     )
@@ -188,7 +188,7 @@ class RackRoleViewSet(CustomFieldModelViewSet):
 # Racks
 #
 
-class RackViewSet(CustomFieldModelViewSet):
+class RackViewSet(NetBoxModelViewSet):
     queryset = Rack.objects.prefetch_related(
         'site', 'location', 'role', 'tenant', 'tags'
     ).annotate(
@@ -250,7 +250,7 @@ class RackViewSet(CustomFieldModelViewSet):
 # Rack reservations
 #
 
-class RackReservationViewSet(ModelViewSet):
+class RackReservationViewSet(NetBoxModelViewSet):
     queryset = RackReservation.objects.prefetch_related('rack', 'user', 'tenant')
     serializer_class = serializers.RackReservationSerializer
     filterset_class = filtersets.RackReservationFilterSet
@@ -260,7 +260,7 @@ class RackReservationViewSet(ModelViewSet):
 # Manufacturers
 #
 
-class ManufacturerViewSet(CustomFieldModelViewSet):
+class ManufacturerViewSet(NetBoxModelViewSet):
     queryset = Manufacturer.objects.prefetch_related('tags').annotate(
         devicetype_count=count_related(DeviceType, 'manufacturer'),
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
@@ -271,10 +271,10 @@ class ManufacturerViewSet(CustomFieldModelViewSet):
 
 
 #
-# Device types
+# Device/module types
 #
 
-class DeviceTypeViewSet(CustomFieldModelViewSet):
+class DeviceTypeViewSet(NetBoxModelViewSet):
     queryset = DeviceType.objects.prefetch_related('manufacturer', 'tags').annotate(
         device_count=count_related(Device, 'device_type')
     )
@@ -283,63 +283,84 @@ class DeviceTypeViewSet(CustomFieldModelViewSet):
     brief_prefetch_fields = ['manufacturer']
 
 
+class ModuleTypeViewSet(NetBoxModelViewSet):
+    queryset = ModuleType.objects.prefetch_related('manufacturer', 'tags').annotate(
+        # module_count=count_related(Module, 'module_type')
+    )
+    serializer_class = serializers.ModuleTypeSerializer
+    filterset_class = filtersets.ModuleTypeFilterSet
+    brief_prefetch_fields = ['manufacturer']
+
+
 #
 # Device type components
 #
 
-class ConsolePortTemplateViewSet(ModelViewSet):
+class ConsolePortTemplateViewSet(NetBoxModelViewSet):
     queryset = ConsolePortTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.ConsolePortTemplateSerializer
     filterset_class = filtersets.ConsolePortTemplateFilterSet
 
 
-class ConsoleServerPortTemplateViewSet(ModelViewSet):
+class ConsoleServerPortTemplateViewSet(NetBoxModelViewSet):
     queryset = ConsoleServerPortTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.ConsoleServerPortTemplateSerializer
     filterset_class = filtersets.ConsoleServerPortTemplateFilterSet
 
 
-class PowerPortTemplateViewSet(ModelViewSet):
+class PowerPortTemplateViewSet(NetBoxModelViewSet):
     queryset = PowerPortTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.PowerPortTemplateSerializer
     filterset_class = filtersets.PowerPortTemplateFilterSet
 
 
-class PowerOutletTemplateViewSet(ModelViewSet):
+class PowerOutletTemplateViewSet(NetBoxModelViewSet):
     queryset = PowerOutletTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.PowerOutletTemplateSerializer
     filterset_class = filtersets.PowerOutletTemplateFilterSet
 
 
-class InterfaceTemplateViewSet(ModelViewSet):
+class InterfaceTemplateViewSet(NetBoxModelViewSet):
     queryset = InterfaceTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.InterfaceTemplateSerializer
     filterset_class = filtersets.InterfaceTemplateFilterSet
 
 
-class FrontPortTemplateViewSet(ModelViewSet):
+class FrontPortTemplateViewSet(NetBoxModelViewSet):
     queryset = FrontPortTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.FrontPortTemplateSerializer
     filterset_class = filtersets.FrontPortTemplateFilterSet
 
 
-class RearPortTemplateViewSet(ModelViewSet):
+class RearPortTemplateViewSet(NetBoxModelViewSet):
     queryset = RearPortTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.RearPortTemplateSerializer
     filterset_class = filtersets.RearPortTemplateFilterSet
 
 
-class DeviceBayTemplateViewSet(ModelViewSet):
+class ModuleBayTemplateViewSet(NetBoxModelViewSet):
+    queryset = ModuleBayTemplate.objects.prefetch_related('device_type__manufacturer')
+    serializer_class = serializers.ModuleBayTemplateSerializer
+    filterset_class = filtersets.ModuleBayTemplateFilterSet
+
+
+class DeviceBayTemplateViewSet(NetBoxModelViewSet):
     queryset = DeviceBayTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.DeviceBayTemplateSerializer
     filterset_class = filtersets.DeviceBayTemplateFilterSet
+
+
+class InventoryItemTemplateViewSet(NetBoxModelViewSet):
+    queryset = InventoryItemTemplate.objects.prefetch_related('device_type__manufacturer', 'role')
+    serializer_class = serializers.InventoryItemTemplateSerializer
+    filterset_class = filtersets.InventoryItemTemplateFilterSet
 
 
 #
 # Device roles
 #
 
-class DeviceRoleViewSet(CustomFieldModelViewSet):
+class DeviceRoleViewSet(NetBoxModelViewSet):
     queryset = DeviceRole.objects.prefetch_related('tags').annotate(
         device_count=count_related(Device, 'device_role'),
         virtualmachine_count=count_related(VirtualMachine, 'role')
@@ -352,7 +373,7 @@ class DeviceRoleViewSet(CustomFieldModelViewSet):
 # Platforms
 #
 
-class PlatformViewSet(CustomFieldModelViewSet):
+class PlatformViewSet(NetBoxModelViewSet):
     queryset = Platform.objects.prefetch_related('tags').annotate(
         device_count=count_related(Device, 'platform'),
         virtualmachine_count=count_related(VirtualMachine, 'platform')
@@ -362,10 +383,10 @@ class PlatformViewSet(CustomFieldModelViewSet):
 
 
 #
-# Devices
+# Devices/modules
 #
 
-class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
+class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'parent_bay',
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',
@@ -511,83 +532,120 @@ class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
         return Response(response)
 
 
+class ModuleViewSet(NetBoxModelViewSet):
+    queryset = Module.objects.prefetch_related(
+        'device', 'module_bay', 'module_type__manufacturer', 'tags',
+    )
+    serializer_class = serializers.ModuleSerializer
+    filterset_class = filtersets.ModuleFilterSet
+
+
 #
 # Device components
 #
 
-class ConsolePortViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = ConsolePort.objects.prefetch_related('device', '_path__destination', 'cable', '_link_peer', 'tags')
+class ConsolePortViewSet(PathEndpointMixin, NetBoxModelViewSet):
+    queryset = ConsolePort.objects.prefetch_related(
+        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+    )
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filtersets.ConsolePortFilterSet
     brief_prefetch_fields = ['device']
 
 
-class ConsoleServerPortViewSet(PathEndpointMixin, ModelViewSet):
+class ConsoleServerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = ConsoleServerPort.objects.prefetch_related(
-        'device', '_path__destination', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
     )
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filtersets.ConsoleServerPortFilterSet
     brief_prefetch_fields = ['device']
 
 
-class PowerPortViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = PowerPort.objects.prefetch_related('device', '_path__destination', 'cable', '_link_peer', 'tags')
+class PowerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
+    queryset = PowerPort.objects.prefetch_related(
+        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+    )
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filtersets.PowerPortFilterSet
     brief_prefetch_fields = ['device']
 
 
-class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = PowerOutlet.objects.prefetch_related('device', '_path__destination', 'cable', '_link_peer', 'tags')
+class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
+    queryset = PowerOutlet.objects.prefetch_related(
+        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+    )
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filtersets.PowerOutletFilterSet
     brief_prefetch_fields = ['device']
 
 
-class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
+class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        'device', 'parent', 'bridge', 'lag', '_path__destination', 'cable', '_link_peer', 'wireless_lans',
-        'untagged_vlan', 'tagged_vlans', 'ip_addresses', 'fhrp_group_assignments', 'tags'
+        'device', 'module__module_bay', 'parent', 'bridge', 'lag', '_path__destination', 'cable', '_link_peer',
+        'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'vrf', 'ip_addresses', 'fhrp_group_assignments', 'tags'
     )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filtersets.InterfaceFilterSet
     brief_prefetch_fields = ['device']
 
 
-class FrontPortViewSet(PassThroughPortMixin, ModelViewSet):
-    queryset = FrontPort.objects.prefetch_related('device__device_type__manufacturer', 'rear_port', 'cable', 'tags')
+class FrontPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
+    queryset = FrontPort.objects.prefetch_related(
+        'device__device_type__manufacturer', 'module__module_bay', 'rear_port', 'cable', 'tags'
+    )
     serializer_class = serializers.FrontPortSerializer
     filterset_class = filtersets.FrontPortFilterSet
     brief_prefetch_fields = ['device']
 
 
-class RearPortViewSet(PassThroughPortMixin, ModelViewSet):
-    queryset = RearPort.objects.prefetch_related('device__device_type__manufacturer', 'cable', 'tags')
+class RearPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
+    queryset = RearPort.objects.prefetch_related(
+        'device__device_type__manufacturer', 'module__module_bay', 'cable', 'tags'
+    )
     serializer_class = serializers.RearPortSerializer
     filterset_class = filtersets.RearPortFilterSet
     brief_prefetch_fields = ['device']
 
 
-class DeviceBayViewSet(ModelViewSet):
-    queryset = DeviceBay.objects.prefetch_related('installed_device').prefetch_related('tags')
+class ModuleBayViewSet(NetBoxModelViewSet):
+    queryset = ModuleBay.objects.prefetch_related('tags')
+    serializer_class = serializers.ModuleBaySerializer
+    filterset_class = filtersets.ModuleBayFilterSet
+    brief_prefetch_fields = ['device']
+
+
+class DeviceBayViewSet(NetBoxModelViewSet):
+    queryset = DeviceBay.objects.prefetch_related('installed_device', 'tags')
     serializer_class = serializers.DeviceBaySerializer
     filterset_class = filtersets.DeviceBayFilterSet
     brief_prefetch_fields = ['device']
 
 
-class InventoryItemViewSet(ModelViewSet):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer').prefetch_related('tags')
+class InventoryItemViewSet(NetBoxModelViewSet):
+    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer', 'tags')
     serializer_class = serializers.InventoryItemSerializer
     filterset_class = filtersets.InventoryItemFilterSet
     brief_prefetch_fields = ['device']
 
 
 #
+# Device component roles
+#
+
+class InventoryItemRoleViewSet(NetBoxModelViewSet):
+    queryset = InventoryItemRole.objects.prefetch_related('tags').annotate(
+        inventoryitem_count=count_related(InventoryItem, 'role')
+    )
+    serializer_class = serializers.InventoryItemRoleSerializer
+    filterset_class = filtersets.InventoryItemRoleFilterSet
+
+
+#
 # Cables
 #
 
-class CableViewSet(ModelViewSet):
+class CableViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = Cable.objects.prefetch_related(
         'termination_a', 'termination_b'
@@ -600,7 +658,7 @@ class CableViewSet(ModelViewSet):
 # Virtual chassis
 #
 
-class VirtualChassisViewSet(ModelViewSet):
+class VirtualChassisViewSet(NetBoxModelViewSet):
     queryset = VirtualChassis.objects.prefetch_related('tags').annotate(
         member_count=count_related(Device, 'virtual_chassis')
     )
@@ -613,7 +671,7 @@ class VirtualChassisViewSet(ModelViewSet):
 # Power panels
 #
 
-class PowerPanelViewSet(ModelViewSet):
+class PowerPanelViewSet(NetBoxModelViewSet):
     queryset = PowerPanel.objects.prefetch_related(
         'site', 'location'
     ).annotate(
@@ -627,7 +685,7 @@ class PowerPanelViewSet(ModelViewSet):
 # Power feeds
 #
 
-class PowerFeedViewSet(PathEndpointMixin, CustomFieldModelViewSet):
+class PowerFeedViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = PowerFeed.objects.prefetch_related(
         'power_panel', 'rack', '_path__destination', 'cable', '_link_peer', 'tags'
     )

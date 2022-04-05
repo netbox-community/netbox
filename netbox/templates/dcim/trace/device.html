@@ -1,11 +1,11 @@
 <div class="node">
-    <strong><a href="{{ device.get_absolute_url }}">{{ device }}</a></strong><br />
+    <strong>{{ device|linkify }}</strong><br />
     {{ device.device_type.manufacturer }} {{ device.device_type }}<br />
-    <a href="{{ device.site.get_absolute_url }}">{{ device.site }}</a>
+    {{ device.site|linkify }}
     {% if device.location %}
-        / <a href="{{ device.location.get_absolute_url }}">{{ device.location }}</a>
+        / {{ device.location|linkify }}
     {% endif %}
     {% if device.rack %}
-        / <a href="{{ device.rack.get_absolute_url }}">{{ device.rack }}</a>
+        / {{ device.rack|linkify }}
     {% endif %}
 </div>

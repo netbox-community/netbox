@@ -1,11 +1,9 @@
 from django import forms
 
-from extras.forms import CustomFieldModelForm
-from extras.models import Tag
+from netbox.forms import NetBoxModelForm
 from tenancy.models import *
 from utilities.forms import (
-    BootstrapMixin, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, SmallTextarea,
-    StaticSelect,
+    BootstrapMixin, CommentField, DynamicModelChoiceField, SlugField, SmallTextarea, StaticSelect,
 )
 
 __all__ = (
@@ -22,16 +20,12 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupForm(CustomFieldModelForm):
+class TenantGroupForm(NetBoxModelForm):
     parent = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False
     )
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = TenantGroup
@@ -40,16 +34,16 @@ class TenantGroupForm(CustomFieldModelForm):
         ]
 
 
-class TenantForm(CustomFieldModelForm):
+class TenantForm(NetBoxModelForm):
     slug = SlugField()
     group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
+
+    fieldsets = (
+        ('Tenant', ('name', 'slug', 'group', 'description', 'tags')),
     )
 
     class Meta:
@@ -57,61 +51,47 @@ class TenantForm(CustomFieldModelForm):
         fields = (
             'name', 'slug', 'group', 'description', 'comments', 'tags',
         )
-        fieldsets = (
-            ('Tenant', ('name', 'slug', 'group', 'description', 'tags')),
-        )
 
 
 #
 # Contacts
 #
 
-class ContactGroupForm(CustomFieldModelForm):
+class ContactGroupForm(NetBoxModelForm):
     parent = DynamicModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False
     )
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = ContactGroup
         fields = ('parent', 'name', 'slug', 'description', 'tags')
 
 
-class ContactRoleForm(CustomFieldModelForm):
+class ContactRoleForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = ContactRole
         fields = ('name', 'slug', 'description', 'tags')
 
 
-class ContactForm(CustomFieldModelForm):
+class ContactForm(NetBoxModelForm):
     group = DynamicModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
+
+    fieldsets = (
+        ('Contact', ('group', 'name', 'title', 'phone', 'email', 'address', 'link', 'tags')),
     )
 
     class Meta:
         model = Contact
         fields = (
-            'group', 'name', 'title', 'phone', 'email', 'address', 'comments', 'tags',
-        )
-        fieldsets = (
-            ('Contact', ('group', 'name', 'title', 'phone', 'email', 'address', 'tags')),
+            'group', 'name', 'title', 'phone', 'email', 'address', 'link', 'comments', 'tags',
         )
         widgets = {
             'address': SmallTextarea(attrs={'rows': 3}),

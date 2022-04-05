@@ -51,7 +51,8 @@ class CustomLinkCSVForm(CSVModelForm):
     class Meta:
         model = CustomLink
         fields = (
-            'name', 'content_type', 'weight', 'group_name', 'button_class', 'new_window', 'link_text', 'link_url',
+            'name', 'content_type', 'enabled', 'weight', 'group_name', 'button_class', 'new_window', 'link_text',
+            'link_url',
         )
 
 

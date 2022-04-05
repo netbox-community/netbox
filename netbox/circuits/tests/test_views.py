@@ -6,6 +6,7 @@ from django.urls import reverse
 from circuits.choices import *
 from circuits.models import *
 from dcim.models import Cable, Interface, Site
+from ipam.models import ASN, RIR
 from utilities.testing import ViewTestCases, create_tags, create_test_device
 
 
@@ -15,11 +16,21 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        Provider.objects.bulk_create([
+        rir = RIR.objects.create(name='RFC 6996', is_private=True)
+        asns = [
+            ASN(asn=65000 + i, rir=rir) for i in range(8)
+        ]
+        ASN.objects.bulk_create(asns)
+
+        providers = (
             Provider(name='Provider 1', slug='provider-1', asn=65001),
             Provider(name='Provider 2', slug='provider-2', asn=65002),
             Provider(name='Provider 3', slug='provider-3', asn=65003),
-        ])
+        )
+        Provider.objects.bulk_create(providers)
+        providers[0].asns.set([asns[0], asns[1]])
+        providers[1].asns.set([asns[2], asns[3]])
+        providers[2].asns.set([asns[4], asns[5]])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -27,6 +38,7 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'name': 'Provider X',
             'slug': 'provider-x',
             'asn': 65123,
+            'asns': [asns[6].pk, asns[7].pk],
             'account': '1234',
             'portal_url': 'http://example.com/portal',
             'noc_contact': 'noc@example.com',
@@ -218,6 +230,7 @@ class CircuitTerminationTestCase(
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
         cls.form_data = {
+            'circuit': circuits[2].pk,
             'term_side': 'A',
             'site': sites[2].pk,
             'description': 'New description',
