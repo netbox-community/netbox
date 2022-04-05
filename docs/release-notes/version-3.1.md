@@ -11,6 +11,7 @@
 * [#8830](https://github.com/netbox-community/netbox/issues/8830) - Add Checkpoint ClusterXL protocol for FHRP groups
 * [#8974](https://github.com/netbox-community/netbox/issues/8974) - Use monospace font for text areas in config revision form
 * [#9012](https://github.com/netbox-community/netbox/issues/9012) - Linkify circuits count in providers list
+* [#9036](https://github.com/netbox-community/netbox/issues/9036) - Add bulk edit capability for site contact fields
 
 ### Bug Fixes
 

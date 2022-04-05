@@ -122,6 +122,18 @@ class SiteBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         label=_('ASNs'),
         required=False
     )
+    contact_name = forms.CharField(
+        max_length=50,
+        required=False
+    )
+    contact_phone = forms.CharField(
+        max_length=20,
+        required=False
+    )
+    contact_email = forms.EmailField(
+        required=False,
+        label='Contact E-mail'
+    )
     description = forms.CharField(
         max_length=100,
         required=False
@@ -134,7 +146,8 @@ class SiteBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
 
     class Meta:
         nullable_fields = [
-            'region', 'group', 'tenant', 'asn', 'asns', 'description', 'time_zone',
+            'region', 'group', 'tenant', 'asn', 'asns', 'contact_name', 'contact_phone', 'contact_email', 'description',
+            'time_zone',
         ]
 
 
