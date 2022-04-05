@@ -1,0 +1,46 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load perms %}
+{% load plugins %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Service Template</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Protocol</th>
+              <td>{{ object.get_protocol_display }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Ports</th>
+              <td>{{ object.port_list }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% plugin_left_page object %}
+      </div>
+      <div class="col col-md-6">
+        {% include 'inc/panels/custom_fields.html' %}
+        {% include 'inc/panels/tags.html' %}
+        {% plugin_right_page object %}
+      </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

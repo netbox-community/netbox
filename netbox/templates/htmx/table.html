@@ -1,5 +1,13 @@
 {# Render an HTMX-enabled table with paginator #}
+{% load helpers %}
 {% load render_table from django_tables2 %}
 
-{% render_table table 'inc/table_htmx.html' %}
-{% include 'inc/paginator_htmx.html' with paginator=table.paginator page=table.page %}
+{% with preferences|get_key:"pagination.placement" as paginator_placement %}
+  {% if paginator_placement == 'top' or paginator_placement == 'both' %}
+    {% include 'inc/paginator_htmx.html' with paginator=table.paginator page=table.page %}
+  {% endif %}
+  {% render_table table 'inc/table_htmx.html' %}
+  {% if paginator_placement != 'top' %}
+    {% include 'inc/paginator_htmx.html' with paginator=table.paginator page=table.page %}
+  {% endif %}
+{% endwith %}

@@ -3,6 +3,7 @@ from django.urls import reverse
 from circuits.choices import *
 from circuits.models import *
 from dcim.models import Site
+from ipam.models import ASN, RIR
 from utilities.testing import APITestCase, APIViewTestCases
 
 
@@ -18,20 +19,6 @@ class AppTest(APITestCase):
 class ProviderTest(APIViewTestCases.APIViewTestCase):
     model = Provider
     brief_fields = ['circuit_count', 'display', 'id', 'name', 'slug', 'url']
-    create_data = [
-        {
-            'name': 'Provider 4',
-            'slug': 'provider-4',
-        },
-        {
-            'name': 'Provider 5',
-            'slug': 'provider-5',
-        },
-        {
-            'name': 'Provider 6',
-            'slug': 'provider-6',
-        },
-    ]
     bulk_update_data = {
         'asn': 1234,
     }
@@ -39,12 +26,36 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
+        rir = RIR.objects.create(name='RFC 6996', is_private=True)
+        asns = [
+            ASN(asn=65000 + i, rir=rir) for i in range(8)
+        ]
+        ASN.objects.bulk_create(asns)
+
         providers = (
             Provider(name='Provider 1', slug='provider-1'),
             Provider(name='Provider 2', slug='provider-2'),
             Provider(name='Provider 3', slug='provider-3'),
         )
         Provider.objects.bulk_create(providers)
+
+        cls.create_data = [
+            {
+                'name': 'Provider 4',
+                'slug': 'provider-4',
+                'asns': [asns[0].pk, asns[1].pk],
+            },
+            {
+                'name': 'Provider 5',
+                'slug': 'provider-5',
+                'asns': [asns[2].pk, asns[3].pk],
+            },
+            {
+                'name': 'Provider 6',
+                'slug': 'provider-6',
+                'asns': [asns[4].pk, asns[5].pk],
+            },
+        ]
 
 
 class CircuitTypeTest(APIViewTestCases.APIViewTestCase):

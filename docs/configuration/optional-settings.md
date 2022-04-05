@@ -13,6 +13,23 @@ ADMINS = [
 
 ---
 
+## AUTH_PASSWORD_VALIDATORS
+
+This parameter acts as a pass-through for configuring Django's built-in password validators for local user accounts. If configured, these will be applied whenever a user's password is updated to ensure that it meets minimum criteria such as length or complexity. An example is provided below. For more detail on the available options, please see [the Django documentation](https://docs.djangoproject.com/en/stable/topics/auth/passwords/#password-validation).
+
+```python
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 10,
+        }
+    },
+]
+```
+
+---
+
 ## BASE_PATH
 
 Default: None
@@ -45,6 +62,21 @@ expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.)
 CORS_ORIGIN_WHITELIST = [
     'https://example.com',
 ]
+```
+
+---
+
+## CSRF_TRUSTED_ORIGINS
+
+Default: `[]`
+
+Defines a list of trusted origins for unsafe (e.g. `POST`) requests. This is a pass-through to Django's [`CSRF_TRUSTED_ORIGINS`](https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS) setting. Note that each host listed must specify a scheme (e.g. `http://` or `https://).
+
+```python
+CSRF_TRUSTED_ORIGINS = (
+    'http://netbox.local',
+    'https://netbox.local',
+)
 ```
 
 ---
@@ -137,6 +169,66 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 !!! note
     Using a wildcard will not affect certain potentially sensitive models, such as user permissions. If there is a need to exempt these models, they must be specified individually.
+
+---
+
+## FIELD_CHOICES
+
+Some static choice fields on models can be configured with custom values. This is done by defining `FIELD_CHOICES` as a dictionary mapping model fields to their choices. Each choice in the list must have a database value and a human-friendly label, and may optionally specify a color. (A list of available colors is provided below.)
+
+The choices provided can either replace the stock choices provided by NetBox, or append to them. To _replace_ the available choices, specify the app, model, and field name separated by dots. For example, the site model would be referenced as `dcim.Site.status`. To _extend_ the available choices, append a plus sign to the end of this string (e.g. `dcim.Site.status+`).
+
+For example, the following configuration would replace the default site status choices with the options Foo, Bar, and Baz:
+
+```python
+FIELD_CHOICES = {
+    'dcim.Site.status': (
+        ('foo', 'Foo', 'red'),
+        ('bar', 'Bar', 'green'),
+        ('baz', 'Baz', 'blue'),
+    )
+}
+```
+
+Appending a plus sign to the field identifier would instead _add_ these choices to the ones already offered:
+
+```python
+FIELD_CHOICES = {
+    'dcim.Site.status+': (
+        ...
+    )
+}
+```
+
+The following model fields support configurable choices:
+
+* `circuits.Circuit.status`
+* `dcim.Device.status`
+* `dcim.PowerFeed.status`
+* `dcim.Rack.status`
+* `dcim.Site.status`
+* `extras.JournalEntry.kind`
+* `ipam.IPAddress.status`
+* `ipam.IPRange.status`
+* `ipam.Prefix.status`
+* `ipam.VLAN.status`
+* `virtualization.VirtualMachine.status`
+
+The following colors are supported:
+
+* `blue`
+* `indigo`
+* `purple`
+* `pink`
+* `red`
+* `orange`
+* `yellow`
+* `green`
+* `teal`
+* `cyan`
+* `gray`
+* `black`
+* `white`
 
 ---
 

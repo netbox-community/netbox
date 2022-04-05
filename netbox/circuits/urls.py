@@ -1,8 +1,7 @@
 from django.urls import path
 
 from dcim.views import CableCreateView, PathTraceView
-from extras.views import ObjectChangeLogView, ObjectJournalView
-from utilities.views import SlugRedirectView
+from netbox.views.generic import ObjectChangeLogView, ObjectJournalView
 from . import views
 from .models import *
 
@@ -16,7 +15,6 @@ urlpatterns = [
     path('providers/edit/', views.ProviderBulkEditView.as_view(), name='provider_bulk_edit'),
     path('providers/delete/', views.ProviderBulkDeleteView.as_view(), name='provider_bulk_delete'),
     path('providers/<int:pk>/', views.ProviderView.as_view(), name='provider'),
-    path('providers/<slug:slug>/', SlugRedirectView.as_view(), kwargs={'model': Provider}),
     path('providers/<int:pk>/edit/', views.ProviderEditView.as_view(), name='provider_edit'),
     path('providers/<int:pk>/delete/', views.ProviderDeleteView.as_view(), name='provider_delete'),
     path('providers/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='provider_changelog', kwargs={'model': Provider}),
@@ -59,7 +57,7 @@ urlpatterns = [
     path('circuits/<int:pk>/terminations/swap/', views.CircuitSwapTerminations.as_view(), name='circuit_terminations_swap'),
 
     # Circuit terminations
-    path('circuits/<int:circuit>/terminations/add/', views.CircuitTerminationEditView.as_view(), name='circuittermination_add'),
+    path('circuit-terminations/add/', views.CircuitTerminationEditView.as_view(), name='circuittermination_add'),
     path('circuit-terminations/<int:pk>/edit/', views.CircuitTerminationEditView.as_view(), name='circuittermination_edit'),
     path('circuit-terminations/<int:pk>/delete/', views.CircuitTerminationDeleteView.as_view(), name='circuittermination_delete'),
     path('circuit-terminations/<int:termination_a_id>/connect/<str:termination_b_type>/', CableCreateView.as_view(), name='circuittermination_connect', kwargs={'termination_a_type': CircuitTermination}),

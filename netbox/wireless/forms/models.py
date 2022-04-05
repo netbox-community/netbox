@@ -1,7 +1,7 @@
 from dcim.models import Device, Interface, Location, Site
-from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from ipam.models import VLAN
+from netbox.forms import NetBoxModelForm
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, StaticSelect
 from wireless.models import *
 
@@ -12,16 +12,12 @@ __all__ = (
 )
 
 
-class WirelessLANGroupForm(CustomFieldModelForm):
+class WirelessLANGroupForm(NetBoxModelForm):
     parent = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
     )
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = WirelessLANGroup
@@ -30,7 +26,7 @@ class WirelessLANGroupForm(CustomFieldModelForm):
         ]
 
 
-class WirelessLANForm(CustomFieldModelForm):
+class WirelessLANForm(NetBoxModelForm):
     group = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
@@ -40,9 +36,11 @@ class WirelessLANForm(CustomFieldModelForm):
         required=False,
         label='VLAN'
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
+
+    fieldsets = (
+        ('Wireless LAN', ('ssid', 'group', 'description', 'tags')),
+        ('VLAN', ('vlan',)),
+        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
     )
 
     class Meta:
@@ -50,18 +48,13 @@ class WirelessLANForm(CustomFieldModelForm):
         fields = [
             'ssid', 'group', 'description', 'vlan', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
         ]
-        fieldsets = (
-            ('Wireless LAN', ('ssid', 'group', 'description', 'tags')),
-            ('VLAN', ('vlan',)),
-            ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
-        )
         widgets = {
             'auth_type': StaticSelect,
             'auth_cipher': StaticSelect,
         }
 
 
-class WirelessLinkForm(CustomFieldModelForm):
+class WirelessLinkForm(NetBoxModelForm):
     site_a = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -136,9 +129,12 @@ class WirelessLinkForm(CustomFieldModelForm):
         disabled_indicator='_occupied',
         label='Interface'
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
+
+    fieldsets = (
+        ('Side A', ('site_a', 'location_a', 'device_a', 'interface_a')),
+        ('Side B', ('site_b', 'location_b', 'device_b', 'interface_b')),
+        ('Link', ('status', 'ssid', 'description', 'tags')),
+        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
     )
 
     class Meta:
@@ -147,12 +143,6 @@ class WirelessLinkForm(CustomFieldModelForm):
             'site_a', 'location_a', 'device_a', 'interface_a', 'site_b', 'location_b', 'device_b', 'interface_b',
             'status', 'ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
         ]
-        fieldsets = (
-            ('Side A', ('site_a', 'location_a', 'device_a', 'interface_a')),
-            ('Side B', ('site_b', 'location_b', 'device_b', 'interface_b')),
-            ('Link', ('status', 'ssid', 'description', 'tags')),
-            ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
-        )
         widgets = {
             'status': StaticSelect,
             'auth_type': StaticSelect,

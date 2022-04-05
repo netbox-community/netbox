@@ -18,6 +18,23 @@ theme:
       toggle:
         icon: material/lightbulb
         name: Switch to Light Mode
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          setup_commands:
+            - import os
+            - import django
+            - os.chdir('netbox/')
+            - os.environ.setdefault("DJANGO_SETTINGS_MODULE", "netbox.settings")
+            - django.setup()
+          rendering:
+            heading_level: 3
+            members_order: source
+            show_root_heading: true
+            show_root_full_path: false
+            show_root_toc_entry: false
+            show_source: false
 extra:
   social:
     - icon: fontawesome/brands/github
@@ -62,6 +79,7 @@ nav:
         - Sites and Racks: 'core-functionality/sites-and-racks.md'
         - Devices and Cabling: 'core-functionality/devices.md'
         - Device Types: 'core-functionality/device-types.md'
+        - Modules: 'core-functionality/modules.md'
         - Virtualization: 'core-functionality/virtualization.md'
         - Service Mapping: 'core-functionality/services.md'
         - Circuits: 'core-functionality/circuits.md'
@@ -86,7 +104,18 @@ nav:
         - Webhooks: 'additional-features/webhooks.md'
     - Plugins:
         - Using Plugins: 'plugins/index.md'
-        - Developing Plugins: 'plugins/development.md'
+        - Developing Plugins:
+            - Getting Started: 'plugins/development/index.md'
+            - Models: 'plugins/development/models.md'
+            - Views: 'plugins/development/views.md'
+            - Navigation: 'plugins/development/navigation.md'
+            - Templates: 'plugins/development/templates.md'
+            - Tables: 'plugins/development/tables.md'
+            - Forms: 'plugins/development/forms.md'
+            - Filters & Filter Sets: 'plugins/development/filtersets.md'
+            - REST API: 'plugins/development/rest-api.md'
+            - GraphQL API: 'plugins/development/graphql-api.md'
+            - Background Tasks: 'plugins/development/background-tasks.md'
     - Administration:
         - Authentication: 'administration/authentication.md'
         - Permissions: 'administration/permissions.md'
@@ -115,6 +144,7 @@ nav:
         - Release Checklist: 'development/release-checklist.md'
     - Release Notes:
         - Summary: 'release-notes/index.md'
+        - Version 3.2: 'release-notes/version-3.2.md'
         - Version 3.1: 'release-notes/version-3.1.md'
         - Version 3.0: 'release-notes/version-3.0.md'
         - Version 2.11: 'release-notes/version-2.11.md'

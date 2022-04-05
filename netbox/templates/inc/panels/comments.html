@@ -6,7 +6,7 @@
   </h5>
   <div class="card-body">
     {% if object.comments %}
-      {{ object.comments|render_markdown }}
+      {{ object.comments|markdown }}
     {% else %}
       <span class="text-muted">None</span>
     {% endif %}

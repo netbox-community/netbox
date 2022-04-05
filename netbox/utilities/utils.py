@@ -12,8 +12,42 @@ from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
 from dcim.choices import CableLengthUnitChoices
+from extras.plugins import PluginConfig
 from extras.utils import is_taggable
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
+
+
+def get_viewname(model, action=None, rest_api=False):
+    """
+    Return the view name for the given model and action, if valid.
+
+    :param model: The model or instance to which the view applies
+    :param action: A string indicating the desired action (if any); e.g. "add" or "list"
+    :param rest_api: A boolean indicating whether this is a REST API view
+    """
+    is_plugin = isinstance(model._meta.app_config, PluginConfig)
+    app_label = model._meta.app_label
+    model_name = model._meta.model_name
+
+    if rest_api:
+        if is_plugin:
+            viewname = f'plugins-api:{app_label}-api:{model_name}'
+        else:
+            viewname = f'{app_label}-api:{model_name}'
+        # Append the action, if any
+        if action:
+            viewname = f'{viewname}-{action}'
+
+    else:
+        viewname = f'{app_label}:{model_name}'
+        # Prepend the plugins namespace if this is a plugin model
+        if is_plugin:
+            viewname = f'plugins:{viewname}'
+        # Append the action, if any
+        if action:
+            viewname = f'{viewname}_{action}'
+
+    return viewname
 
 
 def csv_format(data):
@@ -281,7 +315,7 @@ def flatten_dict(d, prefix='', separator='.'):
     for k, v in d.items():
         key = separator.join([prefix, k]) if prefix else k
         if type(v) is dict:
-            ret.update(flatten_dict(v, prefix=key))
+            ret.update(flatten_dict(v, prefix=key, separator=separator))
         else:
             ret[key] = v
     return ret

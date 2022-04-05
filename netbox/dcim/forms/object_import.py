@@ -11,6 +11,9 @@ __all__ = (
     'DeviceTypeImportForm',
     'FrontPortTemplateImportForm',
     'InterfaceTemplateImportForm',
+    'InventoryItemTemplateImportForm',
+    'ModuleBayTemplateImportForm',
+    'ModuleTypeImportForm',
     'PowerOutletTemplateImportForm',
     'PowerPortTemplateImportForm',
     'RearPortTemplateImportForm',
@@ -31,31 +34,23 @@ class DeviceTypeImportForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
+class ModuleTypeImportForm(BootstrapMixin, forms.ModelForm):
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name'
+    )
+
+    class Meta:
+        model = ModuleType
+        fields = ['manufacturer', 'model', 'part_number', 'comments']
+
+
 #
 # Component template import forms
 #
 
 class ComponentTemplateImportForm(BootstrapMixin, forms.ModelForm):
-
-    def __init__(self, device_type, data=None, *args, **kwargs):
-
-        # Must pass the parent DeviceType on form initialization
-        data.update({
-            'device_type': device_type.pk,
-        })
-
-        super().__init__(data, *args, **kwargs)
-
-    def clean_device_type(self):
-
-        data = self.cleaned_data['device_type']
-
-        # Limit fields referencing other components to the parent DeviceType
-        for field_name, field in self.fields.items():
-            if isinstance(field, forms.ModelChoiceField) and field_name != 'device_type':
-                field.queryset = field.queryset.filter(device_type=data)
-
-        return data
+    pass
 
 
 class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
@@ -63,7 +58,7 @@ class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'description',
         ]
 
 
@@ -72,7 +67,7 @@ class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'description',
         ]
 
 
@@ -81,7 +76,7 @@ class PowerPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
         ]
 
 
@@ -95,8 +90,22 @@ class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
         ]
+
+    def clean_device_type(self):
+        if device_type := self.cleaned_data['device_type']:
+            power_port = self.fields['power_port']
+            power_port.queryset = power_port.queryset.filter(device_type=device_type)
+
+        return device_type
+
+    def clean_module_type(self):
+        if module_type := self.cleaned_data['module_type']:
+            power_port = self.fields['power_port']
+            power_port.queryset = power_port.queryset.filter(module_type=module_type)
+
+        return module_type
 
 
 class InterfaceTemplateImportForm(ComponentTemplateImportForm):
@@ -107,7 +116,7 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'mgmt_only', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description',
         ]
 
 
@@ -120,10 +129,24 @@ class FrontPortTemplateImportForm(ComponentTemplateImportForm):
         to_field_name='name'
     )
 
+    def clean_device_type(self):
+        if device_type := self.cleaned_data['device_type']:
+            rear_port = self.fields['rear_port']
+            rear_port.queryset = rear_port.queryset.filter(device_type=device_type)
+
+        return device_type
+
+    def clean_module_type(self):
+        if module_type := self.cleaned_data['module_type']:
+            rear_port = self.fields['rear_port']
+            rear_port.queryset = rear_port.queryset.filter(module_type=module_type)
+
+        return module_type
+
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'device_type', 'name', 'type', 'rear_port', 'rear_port_position', 'label', 'description',
+            'device_type', 'module_type', 'name', 'type', 'rear_port', 'rear_port_position', 'label', 'description',
         ]
 
 
@@ -135,7 +158,16 @@ class RearPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = RearPortTemplate
         fields = [
-            'device_type', 'name', 'type', 'positions', 'label', 'description',
+            'device_type', 'module_type', 'name', 'type', 'positions', 'label', 'description',
+        ]
+
+
+class ModuleBayTemplateImportForm(ComponentTemplateImportForm):
+
+    class Meta:
+        model = ModuleBayTemplate
+        fields = [
+            'device_type', 'name', 'label', 'position', 'description',
         ]
 
 
@@ -146,3 +178,40 @@ class DeviceBayTemplateImportForm(ComponentTemplateImportForm):
         fields = [
             'device_type', 'name', 'label', 'description',
         ]
+
+
+class InventoryItemTemplateImportForm(ComponentTemplateImportForm):
+    parent = forms.ModelChoiceField(
+        queryset=InventoryItemTemplate.objects.all(),
+        required=False
+    )
+    role = forms.ModelChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        to_field_name='name',
+        required=False
+    )
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name',
+        required=False
+    )
+
+    class Meta:
+        model = InventoryItemTemplate
+        fields = [
+            'device_type', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'description',
+        ]
+
+    def clean_device_type(self):
+        if device_type := self.cleaned_data['device_type']:
+            parent = self.fields['parent']
+            parent.queryset = parent.queryset.filter(device_type=device_type)
+
+        return device_type
+
+    def clean_module_type(self):
+        if module_type := self.cleaned_data['module_type']:
+            parent = self.fields['parent']
+            parent.queryset = parent.queryset.filter(module_type=module_type)
+
+        return module_type

@@ -4,7 +4,7 @@ from dcim.choices import LinkStatusChoices
 from dcim.api.serializers import NestedInterfaceSerializer
 from ipam.api.serializers import NestedVLANSerializer
 from netbox.api import ChoiceField
-from netbox.api.serializers import NestedGroupModelSerializer, PrimaryModelSerializer
+from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
 from wireless.choices import *
 from wireless.models import *
 from .nested_serializers import *
@@ -29,7 +29,7 @@ class WirelessLANGroupSerializer(NestedGroupModelSerializer):
         ]
 
 
-class WirelessLANSerializer(PrimaryModelSerializer):
+class WirelessLANSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslan-detail')
     group = NestedWirelessLANGroupSerializer(required=False, allow_null=True)
     vlan = NestedVLANSerializer(required=False, allow_null=True)
@@ -44,7 +44,7 @@ class WirelessLANSerializer(PrimaryModelSerializer):
         ]
 
 
-class WirelessLinkSerializer(PrimaryModelSerializer):
+class WirelessLinkSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslink-detail')
     status = ChoiceField(choices=LinkStatusChoices, required=False)
     interface_a = NestedInterfaceSerializer()

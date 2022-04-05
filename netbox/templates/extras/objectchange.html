@@ -61,7 +61,7 @@
                         <th scope="row">Object</th>
                         <td>
                             {% if object.changed_object and object.changed_object.get_absolute_url %}
-                                <a href="{{ object.changed_object.get_absolute_url }}">{{ object.changed_object }}</a>
+                                {{ object.changed_object|linkify }}
                             {% else %}
                                 {{ object.object_repr }}
                             {% endif %}
@@ -102,8 +102,8 @@
                         {% endif %}
                     </span>
                 {% else %}
-                    <pre class="change-diff change-removed">{{ diff_removed|render_json }}</pre>
-                    <pre class="change-diff change-added">{{ diff_added|render_json }}</pre>
+                    <pre class="change-diff change-removed">{{ diff_removed|json }}</pre>
+                    <pre class="change-diff change-added">{{ diff_added|json }}</pre>
                 {% endif %}
             </div>
         </div>
@@ -118,7 +118,7 @@
             <div class="card-body">
             {% if object.prechange_data %}
                 <pre class="change-data">{% for k, v in object.prechange_data.items %}{% spaceless %}
-                    <span{% if k in diff_removed %} class="removed"{% endif %}>{{ k }}: {{ v|render_json }}</span>
+                    <span{% if k in diff_removed %} class="removed"{% endif %}>{{ k }}: {{ v|json }}</span>
                 {% endspaceless %}{% endfor %}
                 </pre>
             {% elif non_atomic_change %}
@@ -137,7 +137,7 @@
             <div class="card-body">
                 {% if object.postchange_data %}
                     <pre class="change-data">{% for k, v in object.postchange_data.items %}{% spaceless %}
-                        <span{% if k in diff_added %} class="added"{% endif %}>{{ k }}: {{ v|render_json }}</span>
+                        <span{% if k in diff_added %} class="added"{% endif %}>{{ k }}: {{ v|json }}</span>
                         {% endspaceless %}{% endfor %}
                     </pre>
                 {% else %}

@@ -10,7 +10,6 @@ from .widgets import APISelect, APISelectMultiple, ClearableFileInput, StaticSel
 __all__ = (
     'BootstrapMixin',
     'BulkEditForm',
-    'BulkEditBaseForm',
     'BulkRenameForm',
     'ConfirmationForm',
     'CSVModelForm',
@@ -20,6 +19,10 @@ __all__ = (
     'TableConfigForm',
 )
 
+
+#
+# Mixins
+#
 
 class BootstrapMixin:
     """
@@ -61,6 +64,10 @@ class BootstrapMixin:
                 field.widget.attrs['class'] = ' '.join((css, 'form-select')).strip()
 
 
+#
+# Form classes
+#
+
 class ReturnURLForm(forms.Form):
     """
     Provides a hidden return URL field to control where the user is directed after the form is submitted.
@@ -75,22 +82,11 @@ class ConfirmationForm(BootstrapMixin, ReturnURLForm):
     confirm = forms.BooleanField(required=True, widget=forms.HiddenInput(), initial=True)
 
 
-class BulkEditBaseForm(forms.Form):
+class BulkEditForm(BootstrapMixin, forms.Form):
     """
-    Base form for editing multiple objects in bulk
+    Provides bulk edit support for objects.
     """
-    def __init__(self, model, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.model = model
-        self.nullable_fields = []
-
-        # Copy any nullable fields defined in Meta
-        if hasattr(self.Meta, 'nullable_fields'):
-            self.nullable_fields = self.Meta.nullable_fields
-
-
-class BulkEditForm(BootstrapMixin, BulkEditBaseForm):
-    pass
+    nullable_fields = ()
 
 
 class BulkRenameForm(BootstrapMixin, forms.Form):

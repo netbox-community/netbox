@@ -6,8 +6,7 @@ from django.db.models import Q
 from netaddr.core import AddrFormatError
 
 from dcim.models import Device, Interface, Region, Site, SiteGroup
-from extras.filters import TagFilter
-from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
+from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
@@ -29,17 +28,14 @@ __all__ = (
     'RoleFilterSet',
     'RouteTargetFilterSet',
     'ServiceFilterSet',
+    'ServiceTemplateFilterSet',
     'VLANFilterSet',
     'VLANGroupFilterSet',
     'VRFFilterSet',
 )
 
 
-class VRFFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class VRFFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     import_target_id = django_filters.ModelMultipleChoiceFilter(
         field_name='import_targets',
         queryset=RouteTarget.objects.all(),
@@ -62,7 +58,6 @@ class VRFFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='name',
         label='Export target (name)',
     )
-    tag = TagFilter()
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -78,11 +73,7 @@ class VRFFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         fields = ['id', 'name', 'rd', 'enforce_unique', 'description']
 
 
-class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class RouteTargetFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     importing_vrf_id = django_filters.ModelMultipleChoiceFilter(
         field_name='importing_vrfs',
         queryset=VRF.objects.all(),
@@ -105,7 +96,6 @@ class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='rd',
         label='Export VRF (RD)',
     )
-    tag = TagFilter()
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -121,18 +111,13 @@ class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
 
 class RIRFilterSet(OrganizationalModelFilterSet):
-    tag = TagFilter()
 
     class Meta:
         model = RIR
         fields = ['id', 'name', 'slug', 'is_private', 'description']
 
 
-class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class AggregateFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     family = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='family'
@@ -151,7 +136,6 @@ class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label='RIR (slug)',
     )
-    tag = TagFilter()
 
     class Meta:
         model = Aggregate
@@ -217,22 +201,13 @@ class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
 
 
 class RoleFilterSet(OrganizationalModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
-    tag = TagFilter()
 
     class Meta:
         model = Role
         fields = ['id', 'name', 'slug', 'description']
 
 
-class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     family = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='family'
@@ -350,7 +325,6 @@ class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         choices=PrefixStatusChoices,
         null_value=None
     )
-    tag = TagFilter()
 
     class Meta:
         model = Prefix
@@ -419,11 +393,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         )
 
 
-class IPRangeFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='start_address',
         lookup_expr='family'
@@ -456,7 +426,6 @@ class IPRangeFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         choices=IPRangeStatusChoices,
         null_value=None
     )
-    tag = TagFilter()
 
     class Meta:
         model = IPRange
@@ -486,11 +455,7 @@ class IPRangeFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
             return queryset.none()
 
 
-class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     family = django_filters.NumberFilter(
         field_name='address',
         lookup_expr='family'
@@ -581,7 +546,6 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     role = django_filters.MultipleChoiceFilter(
         choices=IPAddressRoleChoices
     )
-    tag = TagFilter()
 
     class Meta:
         model = IPAddress
@@ -652,11 +616,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         return queryset.exclude(assigned_object_id__isnull=value)
 
 
-class FHRPGroupFilterSet(PrimaryModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class FHRPGroupFilterSet(NetBoxModelFilterSet):
     protocol = django_filters.MultipleChoiceFilter(
         choices=FHRPGroupProtocolChoices
     )
@@ -667,7 +627,6 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
         queryset=IPAddress.objects.all(),
         method='filter_related_ip'
     )
-    tag = TagFilter()
 
     class Meta:
         model = FHRPGroup
@@ -714,10 +673,6 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
 
 
 class VLANGroupFilterSet(OrganizationalModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
     scope_type = ContentTypeFilter()
     region = django_filters.NumberFilter(
         method='filter_scope'
@@ -740,11 +695,10 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
     cluster = django_filters.NumberFilter(
         method='filter_scope'
     )
-    tag = TagFilter()
 
     class Meta:
         model = VLANGroup
-        fields = ['id', 'name', 'slug', 'description', 'scope_id']
+        fields = ['id', 'name', 'slug', 'min_vid', 'max_vid', 'description', 'scope_id']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -762,11 +716,7 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
         )
 
 
-class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -835,7 +785,6 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         queryset=VirtualMachine.objects.all(),
         method='get_for_virtualmachine'
     )
-    tag = TagFilter()
 
     class Meta:
         model = VLAN
@@ -858,11 +807,24 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         return queryset.get_for_virtualmachine(value)
 
 
-class ServiceFilterSet(PrimaryModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
+class ServiceTemplateFilterSet(NetBoxModelFilterSet):
+    port = NumericArrayFilter(
+        field_name='ports',
+        lookup_expr='contains'
     )
+
+    class Meta:
+        model = ServiceTemplate
+        fields = ['id', 'name', 'protocol']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
+        return queryset.filter(qs_filter)
+
+
+class ServiceFilterSet(NetBoxModelFilterSet):
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label='Device (ID)',
@@ -887,7 +849,6 @@ class ServiceFilterSet(PrimaryModelFilterSet):
         field_name='ports',
         lookup_expr='contains'
     )
-    tag = TagFilter()
 
     class Meta:
         model = Service

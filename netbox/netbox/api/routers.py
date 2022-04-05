@@ -1,14 +1,16 @@
-from collections import OrderedDict
-
 from rest_framework.routers import DefaultRouter
 
 
-class OrderedDefaultRouter(DefaultRouter):
-
+class NetBoxRouter(DefaultRouter):
+    """
+    Extend DRF's built-in DefaultRouter to:
+    1. Support bulk operations
+    2. Alphabetically order endpoints under the root view
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Extend the list view mappings to support the DELETE operation
+        # Update the list view mappings to support bulk operations
         self.routes[0].mapping.update({
             'put': 'bulk_update',
             'patch': 'bulk_partial_update',
@@ -19,7 +21,7 @@ class OrderedDefaultRouter(DefaultRouter):
         """
         Wrap DRF's DefaultRouter to return an alphabetized list of endpoints.
         """
-        api_root_dict = OrderedDict()
+        api_root_dict = {}
         list_name = self.routes[0].name
         for prefix, viewset, basename in sorted(self.registry, key=lambda x: x[0]):
             api_root_dict[prefix] = list_name.format(basename=basename)

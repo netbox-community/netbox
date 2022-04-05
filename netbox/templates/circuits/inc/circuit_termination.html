@@ -5,7 +5,7 @@
         <strong class="d-block d-md-inline mb-3 mb-md-0">Termination - {{ side }} Side</strong>
         <div class="float-md-end">
             {% if not termination and perms.circuits.add_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_add' circuit=object.pk %}?term_side={{ side }}" class="btn btn-sm btn-success lh-1">
+                <a href="{% url 'circuits:circuittermination_add' %}?circuit={{ object.pk }}&term_side={{ side }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-success lh-1">
                     <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add
                 </a>
             {% endif %}
@@ -32,9 +32,9 @@
               <td>Site</td>
               <td>
                 {% if termination.site.region %}
-                  <a href="{{ termination.site.region.get_absolute_url }}">{{ termination.site.region }}</a> /
+                  {{ termination.site.region|linkify }} /
                 {% endif %}
-                <a href="{{ termination.site.get_absolute_url }}">{{ termination.site }}</a>
+                {{ termination.site|linkify }}
               </td>
             </tr>
             <tr>
@@ -48,11 +48,11 @@
                   {% with peer=termination.get_link_peer %}
                     to
                     {% if peer.device %}
-                      <a href="{{ peer.device.get_absolute_url }}">{{ peer.device }}</a><br/>
+                      {{ peer.device|linkify }}<br/>
                     {% elif peer.circuit %}
-                      <a href="{{ peer.circuit.get_absolute_url }}">{{ peer.circuit }}</a><br/>
+                      {{ peer.circuit|linkify }}<br/>
                     {% endif %}
-                    <a href="{{ peer.get_absolute_url }}">{{ peer }}</a>
+                    {{ peer|linkify }}
                   {% endwith %}
                   <div class="mt-1">
                     <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
@@ -82,9 +82,7 @@
           {% else %}
             <tr>
               <td>Provider Network</td>
-              <td>
-                <a href="{{ termination.provider_network.get_absolute_url }}">{{ termination.provider_network }}</a>
-              </td>
+              <td>{{ termination.provider_network|linkify }}</td>
             </tr>
           {% endif %}
             <tr>

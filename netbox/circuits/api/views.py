@@ -3,8 +3,7 @@ from rest_framework.routers import APIRootView
 from circuits import filtersets
 from circuits.models import *
 from dcim.api.views import PassThroughPortMixin
-from extras.api.views import CustomFieldModelViewSet
-from netbox.api.views import ModelViewSet
+from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.utils import count_related
 from . import serializers
 
@@ -21,8 +20,8 @@ class CircuitsRootView(APIRootView):
 # Providers
 #
 
-class ProviderViewSet(CustomFieldModelViewSet):
-    queryset = Provider.objects.prefetch_related('tags').annotate(
+class ProviderViewSet(NetBoxModelViewSet):
+    queryset = Provider.objects.prefetch_related('asns', 'tags').annotate(
         circuit_count=count_related(Circuit, 'provider')
     )
     serializer_class = serializers.ProviderSerializer
@@ -33,7 +32,7 @@ class ProviderViewSet(CustomFieldModelViewSet):
 #  Circuit Types
 #
 
-class CircuitTypeViewSet(CustomFieldModelViewSet):
+class CircuitTypeViewSet(NetBoxModelViewSet):
     queryset = CircuitType.objects.prefetch_related('tags').annotate(
         circuit_count=count_related(Circuit, 'type')
     )
@@ -45,7 +44,7 @@ class CircuitTypeViewSet(CustomFieldModelViewSet):
 # Circuits
 #
 
-class CircuitViewSet(CustomFieldModelViewSet):
+class CircuitViewSet(NetBoxModelViewSet):
     queryset = Circuit.objects.prefetch_related(
         'type', 'tenant', 'provider', 'termination_a', 'termination_z'
     ).prefetch_related('tags')
@@ -57,7 +56,7 @@ class CircuitViewSet(CustomFieldModelViewSet):
 # Circuit Terminations
 #
 
-class CircuitTerminationViewSet(PassThroughPortMixin, ModelViewSet):
+class CircuitTerminationViewSet(PassThroughPortMixin, NetBoxModelViewSet):
     queryset = CircuitTermination.objects.prefetch_related(
         'circuit', 'site', 'provider_network', 'cable'
     )
@@ -70,7 +69,7 @@ class CircuitTerminationViewSet(PassThroughPortMixin, ModelViewSet):
 # Provider networks
 #
 
-class ProviderNetworkViewSet(CustomFieldModelViewSet):
+class ProviderNetworkViewSet(NetBoxModelViewSet):
     queryset = ProviderNetwork.objects.prefetch_related('tags')
     serializer_class = serializers.ProviderNetworkSerializer
     filterset_class = filtersets.ProviderNetworkFilterSet

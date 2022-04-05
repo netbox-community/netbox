@@ -67,7 +67,7 @@ def process_webhook(webhook, model_name, event, data, snapshots, timestamp, user
     # Prepare the HTTP request
     params = {
         'method': webhook.http_method,
-        'url': webhook.payload_url,
+        'url': webhook.render_payload_url(context),
         'headers': headers,
         'data': body.encode('utf8'),
     }

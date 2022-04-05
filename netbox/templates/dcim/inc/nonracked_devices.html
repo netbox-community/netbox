@@ -21,7 +21,7 @@
             <td>{{ device.device_role }}</td>
             <td>{{ device.device_type }}</td>
             {% if device.parent_bay %}
-                <td><a href="{{ device.parent_bay.device.get_absolute_url }}">{{ device.parent_bay.device }}</a></td>
+                <td>{{ device.parent_bay.device|linkify }}</td>
                 <td>{{ device.parent_bay }}</td>
             {% else %}
                 <td colspan="2" class="text-muted">&mdash;</td>

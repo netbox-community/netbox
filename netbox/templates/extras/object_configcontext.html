@@ -43,7 +43,7 @@
                         <div class="float-end">
                             <span class="text-muted">{{ context.weight }}</span>
                         </div>
-                        <a href="{{ context.get_absolute_url }}"><strong>{{ context.name }}</strong></a>
+                        <strong>{{ context|linkify:"name" }}"></strong>
                         {% if context.description %}
                             <br /><small>{{ context.description }}</small>
                         {% endif %}

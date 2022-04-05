@@ -5,7 +5,6 @@ from circuits.models import Circuit
 from dcim.models import Cable, Device, Location, Rack, RackReservation, Site
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF, ASN
 from netbox.views import generic
-from utilities.tables import paginate_table
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, Cluster
 from . import filtersets, forms, tables
@@ -37,7 +36,7 @@ class TenantGroupView(generic.ObjectView):
             group=instance
         )
         tenants_table = tables.TenantTable(tenants, exclude=('group',))
-        paginate_table(tenants_table, request)
+        tenants_table.configure(request)
 
         return {
             'tenants_table': tenants_table,
@@ -46,7 +45,7 @@ class TenantGroupView(generic.ObjectView):
 
 class TenantGroupEditView(generic.ObjectEditView):
     queryset = TenantGroup.objects.all()
-    model_form = forms.TenantGroupForm
+    form = forms.TenantGroupForm
 
 
 class TenantGroupDeleteView(generic.ObjectDeleteView):
@@ -123,7 +122,7 @@ class TenantView(generic.ObjectView):
 
 class TenantEditView(generic.ObjectEditView):
     queryset = Tenant.objects.all()
-    model_form = forms.TenantForm
+    form = forms.TenantForm
 
 
 class TenantDeleteView(generic.ObjectDeleteView):
@@ -186,7 +185,7 @@ class ContactGroupView(generic.ObjectView):
             group=instance
         )
         contacts_table = tables.ContactTable(contacts, exclude=('group',))
-        paginate_table(contacts_table, request)
+        contacts_table.configure(request)
 
         return {
             'child_groups_table': child_groups_table,
@@ -196,7 +195,7 @@ class ContactGroupView(generic.ObjectView):
 
 class ContactGroupEditView(generic.ObjectEditView):
     queryset = ContactGroup.objects.all()
-    model_form = forms.ContactGroupForm
+    form = forms.ContactGroupForm
 
 
 class ContactGroupDeleteView(generic.ObjectDeleteView):
@@ -253,7 +252,7 @@ class ContactRoleView(generic.ObjectView):
         )
         contacts_table = tables.ContactAssignmentTable(contact_assignments)
         contacts_table.columns.hide('role')
-        paginate_table(contacts_table, request)
+        contacts_table.configure(request)
 
         return {
             'contacts_table': contacts_table,
@@ -263,7 +262,7 @@ class ContactRoleView(generic.ObjectView):
 
 class ContactRoleEditView(generic.ObjectEditView):
     queryset = ContactRole.objects.all()
-    model_form = forms.ContactRoleForm
+    form = forms.ContactRoleForm
 
 
 class ContactRoleDeleteView(generic.ObjectDeleteView):
@@ -310,7 +309,7 @@ class ContactView(generic.ObjectView):
         )
         assignments_table = tables.ContactAssignmentTable(contact_assignments)
         assignments_table.columns.hide('contact')
-        paginate_table(assignments_table, request)
+        assignments_table.configure(request)
 
         return {
             'assignments_table': assignments_table,
@@ -320,7 +319,7 @@ class ContactView(generic.ObjectView):
 
 class ContactEditView(generic.ObjectEditView):
     queryset = Contact.objects.all()
-    model_form = forms.ContactForm
+    form = forms.ContactForm
 
 
 class ContactDeleteView(generic.ObjectDeleteView):
@@ -352,10 +351,10 @@ class ContactBulkDeleteView(generic.BulkDeleteView):
 
 class ContactAssignmentEditView(generic.ObjectEditView):
     queryset = ContactAssignment.objects.all()
-    model_form = forms.ContactAssignmentForm
+    form = forms.ContactAssignmentForm
     template_name = 'tenancy/contactassignment_edit.html'
 
-    def alter_obj(self, instance, request, args, kwargs):
+    def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:
             # Assign the object based on URL kwargs
             content_type = get_object_or_404(ContentType, pk=request.GET.get('content_type'))

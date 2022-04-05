@@ -10,6 +10,18 @@ Minor releases are published in April, August, and December of each calendar yea
 
 This page contains a history of all major and minor releases since NetBox v2.0. For more detail on a specific patch release, please see the release notes page for that specific minor release.
 
+#### [Version 3.2](./version-3.2.md) (Pending Release)
+
+* Plugins Framework Extensions ([#8333](https://github.com/netbox-community/netbox/issues/8333))
+* Modules & Module Types ([#7844](https://github.com/netbox-community/netbox/issues/7844))
+* Custom Object Fields ([#7006](https://github.com/netbox-community/netbox/issues/7006))
+* Custom Status Choices ([#8054](https://github.com/netbox-community/netbox/issues/8054))
+* Improved User Preferences ([#7759](https://github.com/netbox-community/netbox/issues/7759))
+* Inventory Item Roles ([#3087](https://github.com/netbox-community/netbox/issues/3087))
+* Inventory Item Templates ([#8118](https://github.com/netbox-community/netbox/issues/8118))
+* Service Templates ([#1591](https://github.com/netbox-community/netbox/issues/1591))
+* Automatic Provisioning of Next Available VLANs ([#2658](https://github.com/netbox-community/netbox/issues/2658))
+
 #### [Version 3.1](./version-3.1.md) (December 2021)
 
 * Contact Objects ([#1344](https://github.com/netbox-community/netbox/issues/1344))

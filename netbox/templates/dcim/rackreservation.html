@@ -24,26 +24,18 @@
                             <th scope="row">Site</th>
                             <td>
                                 {% if rack.site.region %}
-                                    <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a> /
+                                    {{ rack.site.region|linkify }} /
                                 {% endif %}
-                                <a href="{{ rack.site.get_absolute_url }}">{{ rack.site }}</a>
+                                {{ rack.site|linkify }}
                             </td>
                         </tr>
                         <tr>
                             <th scope="row">Location</th>
-                            <td>
-                                {% if rack.location %}
-                                    <a href="{{ rack.location.get_absolute_url }}">{{ rack.location }}</a>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
+                            <td>{{ rack.location|linkify|placeholder }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Rack</th>
-                            <td>
-                                <a href="{{ rack.get_absolute_url }}">{{ rack }}</a>
-                            </td>
+                            <td>{{ rack|linkify }}</td>
                         </tr>
                     {% endwith %}
                 </table>
@@ -62,14 +54,10 @@
                     <tr>
                         <th scope="row">Tenant</th>
                         <td>
-                            {% if object.tenant %}
-                                {% if object.tenant.group %}
-                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
-                                {% endif %}
-                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
+                            {% if object.tenant.group %}
+                                {{ object.tenant.group|linkify }} /
                             {% endif %}
+                            {{ object.tenant|linkify|placeholder }}
                         </td>
                     </tr>
                     <tr>

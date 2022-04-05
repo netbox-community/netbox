@@ -36,6 +36,9 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
             'fields': ('NAPALM_USERNAME', 'NAPALM_PASSWORD', 'NAPALM_TIMEOUT', 'NAPALM_ARGS'),
             'classes': ('monospace',),
         }),
+        ('User Preferences', {
+            'fields': ('DEFAULT_USER_PREFERENCES',),
+        }),
         ('Miscellaneous', {
             'fields': ('MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'MAPS_URL'),
         }),

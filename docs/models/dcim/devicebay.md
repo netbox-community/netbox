@@ -5,4 +5,4 @@ Device bays represent a space or slot within a parent device in which a child de
 Child devices are first-class Devices in their own right: That is, they are fully independent managed entities which don't share any control plane with the parent.  Just like normal devices, child devices have their own platform (OS), role, tags, and components.  LAG interfaces may not group interfaces belonging to different child devices.
 
 !!! note
-    Device bays are **not** suitable for modeling line cards (such as those commonly found in chassis-based routers and switches), as these components depend on the control plane of the parent device to operate. Instead, line cards and similarly non-autonomous hardware should be modeled as inventory items within a device, with any associated interfaces or other components assigned directly to the device.
+    Device bays are **not** suitable for modeling line cards (such as those commonly found in chassis-based routers and switches), as these components depend on the control plane of the parent device to operate. Instead, these should be modeled as modules installed within module bays.
