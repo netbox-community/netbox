@@ -15,7 +15,7 @@ djangorestframework==3.13.1
 drf-yasg[validation]==1.20.0
 graphene-django==2.15.0
 gunicorn==20.1.0
-Jinja2==3.1.1
+Jinja2==3.0.3
 Markdown==3.3.6
 markdown-include==0.6.0
 mkdocs-material==8.2.8

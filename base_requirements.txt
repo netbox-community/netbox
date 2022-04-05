@@ -68,7 +68,8 @@ gunicorn
 
 # Platform-agnostic template rendering engine
 # https://github.com/pallets/jinja
-Jinja2
+# Pin to v3.0 for mkdocstrings
+Jinja2<3.1
 
 # Simple markup language for rendering HTML
 # https://github.com/Python-Markdown/markdown
