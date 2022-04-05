@@ -467,6 +467,13 @@
             {% include 'inc/panel_table.html' with table=vlan_table heading="VLANs" %}
         </div>
     </div>
+    {% if object.is_bridge %}
+    <div class="row mb-3">
+        <div class="col col-md-12">
+            {% include 'inc/panel_table.html' with table=bridge_interfaces_table heading="Bridge Interfaces" %}
+        </div>
+    </div>
+    {% endif %}
     <div class="row mb-3">
         <div class="col col-md-12">
             {% include 'inc/panel_table.html' with table=child_interfaces_table heading="Child Interfaces" %}

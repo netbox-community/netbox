@@ -2,7 +2,9 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from tenancy.tables import TenantColumn
-from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, MarkdownColumn, TagColumn, ToggleColumn
+from utilities.tables import (
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, MarkdownColumn, TagColumn, ToggleColumn,
+)
 from .models import *
 
 
@@ -53,8 +55,10 @@ class ProviderTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
-    circuit_count = tables.Column(
+    circuit_count = LinkedCountColumn(
         accessor=Accessor('count_circuits'),
+        viewname='circuits:circuit_list',
+        url_params={'provider_id': 'pk'},
         verbose_name='Circuits'
     )
     comments = MarkdownColumn()
