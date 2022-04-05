@@ -9,6 +9,7 @@ class ChoiceSetMeta(type):
 
         # Extend static choices with any configured choices
         if key := attrs.get('key'):
+            assert type(attrs['CHOICES']) is list, f"{name} has a key defined but CHOICES is not a list"
             app = attrs['__module__'].split('.', 1)[0]
             replace_key = f'{app}.{key}'
             extend_key = f'{replace_key}+' if replace_key else None
@@ -47,7 +48,7 @@ class ChoiceSetMeta(type):
 
 class ChoiceSet(metaclass=ChoiceSetMeta):
     """
-    Holds an interable of choice tuples suitable for passing to a Django model or form field. Choices can be defined
+    Holds an iterable of choice tuples suitable for passing to a Django model or form field. Choices can be defined
     statically within the class as CHOICES and/or gleaned from the FIELD_CHOICES configuration parameter.
     """
     CHOICES = list()
