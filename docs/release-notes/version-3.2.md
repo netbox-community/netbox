@@ -2,6 +2,11 @@
 
 ## v3.2.1 (FUTURE)
 
+### Bug Fixes (From Beta2)
+
+* [#9061](https://github.com/netbox-community/netbox/issues/9061) - Change inheritance order for DeviceComponentFilterSets
+
+
 ---
 
 ## v3.2.0 (2022-04-05)
