@@ -960,7 +960,7 @@ class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
 
 class ModuleTypeListView(generic.ObjectListView):
     queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
-        # instance_count=count_related(Module, 'module_type')
+        instance_count=count_related(Module, 'module_type')
     )
     filterset = filtersets.ModuleTypeFilterSet
     filterset_form = forms.ModuleTypeFilterForm
@@ -1066,7 +1066,7 @@ class ModuleTypeImportView(generic.ObjectImportView):
 
 class ModuleTypeBulkEditView(generic.BulkEditView):
     queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
-        # instance_count=count_related(Module, 'module_type')
+        instance_count=count_related(Module, 'module_type')
     )
     filterset = filtersets.ModuleTypeFilterSet
     table = tables.ModuleTypeTable
@@ -1075,7 +1075,7 @@ class ModuleTypeBulkEditView(generic.BulkEditView):
 
 class ModuleTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
-        # instance_count=count_related(Module, 'module_type')
+        instance_count=count_related(Module, 'module_type')
     )
     filterset = filtersets.ModuleTypeFilterSet
     table = tables.ModuleTypeTable

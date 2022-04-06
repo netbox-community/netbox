@@ -4,6 +4,7 @@
 
 ### Bug Fixes (From Beta2)
 
+* [#9057](https://github.com/netbox-community/netbox/issues/9057) - Fix missing instance counts for module types
 * [#9061](https://github.com/netbox-community/netbox/issues/9061) - Change inheritance order for DeviceComponentFilterSets
 
 
