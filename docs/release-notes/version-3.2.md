@@ -11,6 +11,7 @@
 * [#8931](https://github.com/netbox-community/netbox/issues/8931) - Copy assigned tenant when cloning a location
 * [#9057](https://github.com/netbox-community/netbox/issues/9057) - Fix missing instance counts for module types
 * [#9061](https://github.com/netbox-community/netbox/issues/9061) - Change inheritance order for DeviceComponentFilterSets
+* [#9065](https://github.com/netbox-community/netbox/issues/9065) - Min/max VID should not be required when filtering VLAN groups
 
 ---
 
