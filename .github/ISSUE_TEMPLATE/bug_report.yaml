@@ -22,9 +22,9 @@ body:
       label: Python version
       description: What version of Python are you currently running?
       options:
-        - "3.7"
         - "3.8"
         - "3.9"
+        - "3.10"
     validations:
       required: true
   - type: textarea
