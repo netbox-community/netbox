@@ -346,7 +346,13 @@ class SiteView(generic.ObjectView):
             site=instance,
             position__isnull=True,
             parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer')
+        ).prefetch_related('device_type__manufacturer').order_by('-pk')[:10]
+
+        total_nonracked_devices_count = Device.objects.filter(
+            site=instance,
+            position__isnull=True,
+            parent_bay__isnull=True
+        ).count()
 
         asns = ASN.objects.restrict(request.user, 'view').filter(sites=instance)
         asn_count = asns.count()
@@ -358,6 +364,7 @@ class SiteView(generic.ObjectView):
             'locations': locations,
             'asns': asns,
             'nonracked_devices': nonracked_devices,
+            'total_nonracked_devices_count': total_nonracked_devices_count,
         }
 
 
@@ -439,13 +446,20 @@ class LocationView(generic.ObjectView):
             location=instance,
             position__isnull=True,
             parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer')
+        ).prefetch_related('device_type__manufacturer').order_by('-pk')[:10]
+
+        total_nonracked_devices_count = Device.objects.filter(
+            location=instance,
+            position__isnull=True,
+            parent_bay__isnull=True
+        ).count()
 
         return {
             'rack_count': rack_count,
             'device_count': device_count,
             'child_locations_table': child_locations_table,
             'nonracked_devices': nonracked_devices,
+            'total_nonracked_devices_count': total_nonracked_devices_count,
         }
 
 
