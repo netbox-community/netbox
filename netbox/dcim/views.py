@@ -14,7 +14,7 @@ from django.views.generic import View
 
 from circuits.models import Circuit
 from extras.views import ObjectConfigContextView
-from ipam.models import ASN, IPAddress, Prefix, Service, VLAN
+from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
@@ -320,6 +320,10 @@ class SiteView(generic.ObjectView):
             'rack_count': Rack.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(site=instance).count(),
+            'vlangroup_count': VLANGroup.objects.restrict(request.user, 'view').filter(
+                scope_type=ContentType.objects.get_for_model(Site),
+                scope_id=instance.pk
+            ).count(),
             'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).count(),
             'vm_count': VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=instance).count(),

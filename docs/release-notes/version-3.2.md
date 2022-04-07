@@ -2,6 +2,10 @@
 
 ## v3.2.1 (FUTURE)
 
+### Enhancements
+
+* [#8973](https://github.com/netbox-community/netbox/issues/8973) - Display VLAN group count under site view
+
 ### Bug Fixes
 
 * [#8931](https://github.com/netbox-community/netbox/issues/8931) - Copy assigned tenant when cloning a location

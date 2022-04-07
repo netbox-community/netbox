@@ -189,6 +189,16 @@
               </td>
             </tr>
             <tr>
+              <th scope="row">VLAN Groups</th>
+              <td class="text-end">
+                {% if stats.vlangroup_count %}
+                  <a href="{% url 'ipam:vlangroup_list' %}?site={{ object.pk }}">{{ stats.vlangroup_count }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
               <th scope="row">VLANs</th>
               <td class="text-end">
                 {% if stats.vlan_count %}
