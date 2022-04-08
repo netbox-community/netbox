@@ -1204,6 +1204,10 @@ class InventoryItemBulkEditForm(
     form_from_model(InventoryItem, ['label', 'role', 'manufacturer', 'part_id', 'description']),
     NetBoxModelBulkEditForm
 ):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False
+    )
     role = DynamicModelChoiceField(
         queryset=InventoryItemRole.objects.all(),
         required=False
@@ -1215,7 +1219,7 @@ class InventoryItemBulkEditForm(
 
     model = InventoryItem
     fieldsets = (
-        (None, ('label', 'role', 'manufacturer', 'part_id', 'description')),
+        (None, ('device', 'label', 'role', 'manufacturer', 'part_id', 'description')),
     )
     nullable_fields = ('label', 'role', 'manufacturer', 'part_id', 'description')
 

@@ -2517,7 +2517,7 @@ class InventoryItemEditView(generic.ObjectEditView):
 
 class InventoryItemCreateView(generic.ComponentCreateView):
     queryset = InventoryItem.objects.all()
-    form = forms.DeviceComponentCreateForm
+    form = forms.InventoryItemCreateForm
     model_form = forms.InventoryItemForm
     template_name = 'dcim/inventoryitem_create.html'
 

@@ -1362,6 +1362,9 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
 
 
 class InventoryItemForm(NetBoxModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
     parent = DynamicModelChoiceField(
         queryset=InventoryItem.objects.all(),
         required=False,
@@ -1399,9 +1402,6 @@ class InventoryItemForm(NetBoxModelForm):
             'device', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
             'description', 'component_type', 'component_id', 'tags',
         ]
-        widgets = {
-            'device': forms.HiddenInput(),
-        }
 
 
 #
