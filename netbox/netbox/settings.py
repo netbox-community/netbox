@@ -26,7 +26,7 @@ django.utils.encoding.force_text = force_str
 # Environment setup
 #
 
-VERSION = '3.2.1-dev'
+VERSION = '3.3.0-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -469,6 +469,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
     ),
     'DEFAULT_METADATA_CLASS': 'netbox.api.metadata.BulkOperationMetadata',
     'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.OptionalLimitOffsetPagination',
