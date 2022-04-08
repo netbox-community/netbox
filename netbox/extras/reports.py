@@ -119,6 +119,7 @@ class Report(object):
     }
     """
     description = None
+    job_timeout = None
 
     def __init__(self):
 

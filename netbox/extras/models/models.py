@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
 from rest_framework.utils.encoders import JSONEncoder
+import django_rq
 
 from extras.choices import *
 from extras.constants import *
@@ -550,7 +551,8 @@ class JobResult(models.Model):
             job_id=uuid.uuid4()
         )
 
-        func.delay(*args, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
+        queue = django_rq.get_queue("default")
+        queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
 
         return job_result
 

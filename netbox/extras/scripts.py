@@ -298,6 +298,10 @@ class BaseScript:
     def module(cls):
         return cls.__module__
 
+    @classproperty
+    def job_timeout(self):
+        return getattr(self.Meta, 'job_timeout', None)
+
     @classmethod
     def _get_vars(cls):
         vars = {}
@@ -414,7 +418,6 @@ def is_variable(obj):
     return isinstance(obj, ScriptVariable)
 
 
-@job('default')
 def run_script(data, request, commit=True, *args, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
