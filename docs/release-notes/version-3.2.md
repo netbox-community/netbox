@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#5479](https://github.com/netbox-community/netbox/issues/5479) - Allow custom job timeouts for scripts & reports
 * [#8973](https://github.com/netbox-community/netbox/issues/8973) - Display VLAN group count under site view
 
 ### Bug Fixes

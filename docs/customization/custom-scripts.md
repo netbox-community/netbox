@@ -91,7 +91,9 @@ commit_default = False
 
 ### `job_timeout`
 
-Set the allowed runtime of a script. If not set the `RQ_DEFAULT_TIMEOUT` will be used.
+Set the maximum allowed runtime for the script. If not set, `RQ_DEFAULT_TIMEOUT` will be used.
+
+!!! info "This feature was introduced in v3.2.1"
 
 ## Accessing Request Data
 
