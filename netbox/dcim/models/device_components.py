@@ -1070,3 +1070,12 @@ class InventoryItem(MPTTModel, ComponentModel):
 
     def get_absolute_url(self):
         return reverse('dcim:inventoryitem', kwargs={'pk': self.pk})
+
+    def clean(self):
+        super().clean()
+
+        # An InventoryItem cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({
+                "parent": "Cannot assign self as parent."
+            })
