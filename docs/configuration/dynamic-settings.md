@@ -45,7 +45,7 @@ changes in the database indefinitely.
 
 ## JOBRESULT_RETENTION
 
-Default: 0
+Default: 90
 
 The number of days to retain job results (scripts and reports). Set this to `0` to retain
 job results in the database indefinitely.

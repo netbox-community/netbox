@@ -190,7 +190,7 @@ PARAMS = (
     ConfigParam(
         name='JOBRESULT_RETENTION',
         label='Job result retention',
-        default=0,
+        default=90,
         description="Days to retain job result history (set to zero for unlimited)",
         field=forms.IntegerField
     ),
