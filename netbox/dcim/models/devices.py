@@ -257,6 +257,7 @@ class DeviceType(NetBoxModel):
                 {
                     'name': c.name,
                     'label': c.label,
+                    'position': c.position,
                     'description': c.description,
                 }
                 for c in self.modulebaytemplates.all()
