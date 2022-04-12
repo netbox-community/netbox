@@ -19,8 +19,7 @@ from circuits.models import Circuit, Provider
 from dcim.models import (
     Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, Site,
 )
-from extras.choices import JobResultStatusChoices
-from extras.models import ObjectChange, JobResult
+from extras.models import ObjectChange
 from extras.tables import ObjectChangeTable
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF
 from netbox.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
@@ -47,13 +46,6 @@ class HomeView(View):
             _path__destination_id__isnull=False,
             pk__lt=F('_path__destination_id')
         )
-
-        # Report Results
-        report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        report_results = JobResult.objects.filter(
-            obj_type=report_content_type,
-            status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
-        ).defer('data')[:10]
 
         def build_stats():
             org = (
@@ -150,7 +142,6 @@ class HomeView(View):
         return render(request, self.template_name, {
             'search_form': SearchForm(),
             'stats': build_stats(),
-            'report_results': report_results,
             'changelog_table': changelog_table,
             'new_release': new_release,
         })

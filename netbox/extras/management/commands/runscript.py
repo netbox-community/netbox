@@ -113,13 +113,6 @@ class Command(BaseCommand):
 
         script_content_type = ContentType.objects.get(app_label='extras', model='script')
 
-        # Delete any previous terminal state results
-        JobResult.objects.filter(
-            obj_type=script_content_type,
-            name=script.full_name,
-            status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
-        ).delete()
-
         # Create the job result
         job_result = JobResult.objects.create(
             name=script.full_name,

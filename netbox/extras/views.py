@@ -524,7 +524,7 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
             for r in JobResult.objects.filter(
                 obj_type=report_content_type,
                 status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
-            ).defer('data')
+            ).order_by('name', '-created').distinct('name').defer('data')
         }
 
         ret = []
@@ -656,7 +656,7 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
             for r in JobResult.objects.filter(
                 obj_type=script_content_type,
                 status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
-            ).defer('data')
+            ).order_by('name', '-created').distinct('name').defer('data')
         }
 
         for _scripts in scripts.values():
