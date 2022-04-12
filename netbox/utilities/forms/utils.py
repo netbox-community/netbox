@@ -146,7 +146,7 @@ def get_selected_values(form, field_name):
 
     # If the field has a `null_option` attribute set and it is selected,
     # add it to the field's grouped choices.
-    if getattr(field, 'null_option') and None in filter_data:
+    if getattr(field, 'null_option', None) and None in filter_data:
         values.remove(None)
         values.insert(0, field.null_option)
 
