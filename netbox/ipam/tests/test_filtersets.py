@@ -891,7 +891,7 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'assigned_to_interface': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'assigned_to_interface': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_status(self):
         params = {'status': [PrefixStatusChoices.STATUS_DEPRECATED, PrefixStatusChoices.STATUS_RESERVED]}

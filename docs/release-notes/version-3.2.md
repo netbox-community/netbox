@@ -19,6 +19,7 @@
 * [#9079](https://github.com/netbox-community/netbox/issues/9079) - Fail validation when an inventory item is assigned as its own parent
 * [#9096](https://github.com/netbox-community/netbox/issues/9096) - Remove duplicate filter tag when filtering by "none"
 * [#9100](https://github.com/netbox-community/netbox/issues/9100) - Include position field in module type YAML export
+* [#9116](https://github.com/netbox-community/netbox/issues/9116) - `assigned_to_interface` filter for IP addresses should not match FHRP group assignments
 
 ---
 
