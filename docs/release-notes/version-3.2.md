@@ -6,6 +6,7 @@
 
 * [#5479](https://github.com/netbox-community/netbox/issues/5479) - Allow custom job timeouts for scripts & reports
 * [#8973](https://github.com/netbox-community/netbox/issues/8973) - Display VLAN group count under site view
+* [#9099](https://github.com/netbox-community/netbox/issues/9099) - Enable display of installed module serial & asset tag in module bays list
 
 ### Bug Fixes
 
