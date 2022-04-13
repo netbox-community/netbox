@@ -23,6 +23,7 @@
 * [#9096](https://github.com/netbox-community/netbox/issues/9096) - Remove duplicate filter tag when filtering by "none"
 * [#9100](https://github.com/netbox-community/netbox/issues/9100) - Include position field in module type YAML export
 * [#9116](https://github.com/netbox-community/netbox/issues/9116) - `assigned_to_interface` filter for IP addresses should not match FHRP group assignments
+* [#9118](https://github.com/netbox-community/netbox/issues/9118) - Fix validation error when importing VM child interfaces
 
 ---
 
