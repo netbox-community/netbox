@@ -12,6 +12,7 @@
 * [#9081](https://github.com/netbox-community/netbox/issues/9081) - Add `fhrpgroup_id` filter for IP addresses
 * [#9099](https://github.com/netbox-community/netbox/issues/9099) - Enable display of installed module serial & asset tag in module bays list
 * [#9110](https://github.com/netbox-community/netbox/issues/9110) - Add Neutrik proprietary power connectors
+* [#9123](https://github.com/netbox-community/netbox/issues/9123) - Improve appearance of SSO login providers
 
 ### Bug Fixes
 
