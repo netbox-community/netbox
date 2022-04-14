@@ -2,6 +2,10 @@
 
 ## v3.2.2 (FUTURE)
 
+### Bug Fixes
+
+* [#9133](https://github.com/netbox-community/netbox/issues/9133) - Upgrade script should require Python 3.8 or later
+
 ---
 
 ## v3.2.1 (2022-04-14)
