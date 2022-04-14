@@ -19,6 +19,7 @@ theme:
         icon: material/lightbulb
         name: Switch to Light Mode
 plugins:
+  - search
   - mkdocstrings:
       handlers:
         python:
