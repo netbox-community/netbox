@@ -124,6 +124,11 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
             return self.name.replace('{module}', module.module_bay.position)
         return self.name
 
+    def resolve_label(self, module):
+        if module:
+            return self.label.replace('{module}', module.module_bay.position)
+        return self.label
+
 
 class ConsolePortTemplate(ModularComponentTemplateModel):
     """
@@ -147,7 +152,7 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
-            label=self.label,
+            label=self.resolve_label(kwargs.get('module')),
             type=self.type,
             **kwargs
         )
@@ -175,7 +180,7 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
-            label=self.label,
+            label=self.resolve_label(kwargs.get('module')),
             type=self.type,
             **kwargs
         )
@@ -215,7 +220,7 @@ class PowerPortTemplate(ModularComponentTemplateModel):
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
-            label=self.label,
+            label=self.resolve_label(kwargs.get('module')),
             type=self.type,
             maximum_draw=self.maximum_draw,
             allocated_draw=self.allocated_draw,
@@ -286,7 +291,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
             power_port = None
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
-            label=self.label,
+            label=self.resolve_label(kwargs.get('module')),
             type=self.type,
             power_port=power_port,
             feed_leg=self.feed_leg,
@@ -326,7 +331,7 @@ class InterfaceTemplate(ModularComponentTemplateModel):
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
-            label=self.label,
+            label=self.resolve_label(kwargs.get('module')),
             type=self.type,
             mgmt_only=self.mgmt_only,
             **kwargs
@@ -397,7 +402,7 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             rear_port = None
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
-            label=self.label,
+            label=self.resolve_label(kwargs.get('module')),
             type=self.type,
             color=self.color,
             rear_port=rear_port,
@@ -437,7 +442,7 @@ class RearPortTemplate(ModularComponentTemplateModel):
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
-            label=self.label,
+            label=self.resolve_label(kwargs.get('module')),
             type=self.type,
             color=self.color,
             positions=self.positions,
