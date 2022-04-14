@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#5479](https://github.com/netbox-community/netbox/issues/5479) - Allow custom job timeouts for scripts & reports
+* [#8543](https://github.com/netbox-community/netbox/issues/8543) - Improve filtering for wireless LAN VLAN selection
 * [#8920](https://github.com/netbox-community/netbox/issues/8920) - Limit number of non-racked devices displayed
 * [#8956](https://github.com/netbox-community/netbox/issues/8956) - Retain old script/report results for configured lifetime
 * [#8973](https://github.com/netbox-community/netbox/issues/8973) - Display VLAN group count under site view
