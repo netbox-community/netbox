@@ -651,11 +651,11 @@ class InterfaceCSVForm(NetBoxModelCSVForm):
         super().__init__(data, *args, **kwargs)
 
         if data:
-            # Limit interface choices for parent, bridge and lag to device only
-            params = {}
-            if data.get('device'):
-                params[f"device__{self.fields['device'].to_field_name}"] = data.get('device')
-            if params:
+            # Limit choices for parent, bridge, and LAG interfaces to the assigned device
+            if device := data.get('device'):
+                params = {
+                    f"device__{self.fields['device'].to_field_name}": device
+                }
                 self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
                 self.fields['bridge'].queryset = self.fields['bridge'].queryset.filter(**params)
                 self.fields['lag'].queryset = self.fields['lag'].queryset.filter(**params)

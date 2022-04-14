@@ -144,11 +144,11 @@ def get_selected_values(form, field_name):
             label for value, label in choices if str(value) in filter_data or None in filter_data
         ]
 
-    if hasattr(field, 'null_option'):
-        # If the field has a `null_option` attribute set and it is selected,
-        # add it to the field's grouped choices.
-        if field.null_option is not None and None in filter_data:
-            values.append(field.null_option)
+    # If the field has a `null_option` attribute set and it is selected,
+    # add it to the field's grouped choices.
+    if getattr(field, 'null_option', None) and None in filter_data:
+        values.remove(None)
+        values.insert(0, field.null_option)
 
     return values
 

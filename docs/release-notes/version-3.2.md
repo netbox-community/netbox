@@ -1,5 +1,35 @@
 # NetBox v3.2
 
+## v3.2.1 (2022-04-14)
+
+### Enhancements
+
+* [#5479](https://github.com/netbox-community/netbox/issues/5479) - Allow custom job timeouts for scripts & reports
+* [#8543](https://github.com/netbox-community/netbox/issues/8543) - Improve filtering for wireless LAN VLAN selection
+* [#8920](https://github.com/netbox-community/netbox/issues/8920) - Limit number of non-racked devices displayed
+* [#8956](https://github.com/netbox-community/netbox/issues/8956) - Retain old script/report results for configured lifetime
+* [#8973](https://github.com/netbox-community/netbox/issues/8973) - Display VLAN group count under site view
+* [#9081](https://github.com/netbox-community/netbox/issues/9081) - Add `fhrpgroup_id` filter for IP addresses
+* [#9099](https://github.com/netbox-community/netbox/issues/9099) - Enable display of installed module serial & asset tag in module bays list
+* [#9110](https://github.com/netbox-community/netbox/issues/9110) - Add Neutrik proprietary power connectors
+* [#9123](https://github.com/netbox-community/netbox/issues/9123) - Improve appearance of SSO login providers
+
+### Bug Fixes
+
+* [#8931](https://github.com/netbox-community/netbox/issues/8931) - Copy assigned tenant when cloning a location
+* [#9055](https://github.com/netbox-community/netbox/issues/9055) - Restore ability to move inventory item to other device
+* [#9057](https://github.com/netbox-community/netbox/issues/9057) - Fix missing instance counts for module types
+* [#9061](https://github.com/netbox-community/netbox/issues/9061) - Fix general search for device components
+* [#9065](https://github.com/netbox-community/netbox/issues/9065) - Min/max VID should not be required when filtering VLAN groups
+* [#9079](https://github.com/netbox-community/netbox/issues/9079) - Fail validation when an inventory item is assigned as its own parent
+* [#9096](https://github.com/netbox-community/netbox/issues/9096) - Remove duplicate filter tag when filtering by "none"
+* [#9100](https://github.com/netbox-community/netbox/issues/9100) - Include position field in module type YAML export
+* [#9116](https://github.com/netbox-community/netbox/issues/9116) - `assigned_to_interface` filter for IP addresses should not match FHRP group assignments
+* [#9118](https://github.com/netbox-community/netbox/issues/9118) - Fix validation error when importing VM child interfaces
+* [#9128](https://github.com/netbox-community/netbox/issues/9128) - Resolve component labels per module bay position when installing modules
+
+---
+
 ## v3.2.0 (2022-04-05)
 
 !!! warning "Python 3.8 or Later Required"

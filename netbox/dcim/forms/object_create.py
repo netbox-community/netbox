@@ -1,7 +1,6 @@
 from django import forms
 
 from dcim.models import *
-from extras.models import Tag
 from netbox.forms import NetBoxModelForm
 from utilities.forms import (
     BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField,
@@ -12,6 +11,7 @@ __all__ = (
     'DeviceComponentCreateForm',
     'FrontPortCreateForm',
     'FrontPortTemplateCreateForm',
+    'InventoryItemCreateForm',
     'ModularComponentTemplateCreateForm',
     'ModuleBayCreateForm',
     'ModuleBayTemplateCreateForm',
@@ -197,6 +197,11 @@ class ModuleBayCreateForm(DeviceComponentCreateForm):
         help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
     )
     field_order = ('device', 'name_pattern', 'label_pattern', 'position_pattern')
+
+
+class InventoryItemCreateForm(ComponentCreateForm):
+    # Device is assigned by the model form
+    field_order = ('name_pattern', 'label_pattern')
 
 
 class VirtualChassisCreateForm(NetBoxModelForm):

@@ -16,6 +16,7 @@ from social_core.backends.utils import load_backends
 
 from extras.models import ObjectChange
 from extras.tables import ObjectChangeTable
+from netbox.authentication import get_auth_backend_display
 from netbox.config import get_config
 from utilities.forms import ConfirmationForm
 from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
@@ -43,9 +44,13 @@ class LoginView(View):
             logger = logging.getLogger('netbox.auth.login')
             return self.redirect_to_next(request, logger)
 
+        auth_backends = {
+            name: get_auth_backend_display(name) for name in load_backends(settings.AUTHENTICATION_BACKENDS).keys()
+        }
+
         return render(request, self.template_name, {
             'form': form,
-            'auth_backends': load_backends(settings.AUTHENTICATION_BACKENDS),
+            'auth_backends': auth_backends,
         })
 
     def post(self, request):
