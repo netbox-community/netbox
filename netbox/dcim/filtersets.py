@@ -486,6 +486,7 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
     def _inventory_items(self, queryset, name, value):
         return queryset.exclude(inventoryitemtemplates__isnull=value)
 
+
 class ModuleTypeFilterSet(NetBoxModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
