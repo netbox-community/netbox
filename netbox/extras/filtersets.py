@@ -62,7 +62,7 @@ class CustomFieldFilterSet(BaseFilterSet):
 
     class Meta:
         model = CustomField
-        fields = ['id', 'content_types', 'name', 'required', 'filter_logic', 'weight', 'description']
+        fields = ['id', 'content_types', 'name', 'group_name', 'required', 'filter_logic', 'weight', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -70,6 +70,7 @@ class CustomFieldFilterSet(BaseFilterSet):
         return queryset.filter(
             Q(name__icontains=value) |
             Q(label__icontains=value) |
+            Q(group_name__icontains=value) |
             Q(description__icontains=value)
         )
 

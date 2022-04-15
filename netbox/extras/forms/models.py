@@ -40,7 +40,9 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        ('Custom Field', ('content_types', 'name', 'label', 'type', 'object_type', 'weight', 'required', 'description')),
+        ('Custom Field', (
+            'content_types', 'name', 'label', 'group_name', 'type', 'object_type', 'weight', 'required', 'description',
+        )),
         ('Behavior', ('filter_logic',)),
         ('Values', ('default', 'choices')),
         ('Validation', ('validation_minimum', 'validation_maximum', 'validation_regex')),

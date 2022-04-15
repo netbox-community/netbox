@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models.signals import class_prepared
 from django.dispatch import receiver
@@ -116,6 +118,16 @@ class CustomFieldsMixin(models.Model):
             data[field] = field.deserialize(value)
 
         return data
+
+    def get_custom_fields_by_group(self):
+        """
+        Return a dictionary of custom field/value mappings organized by group.
+        """
+        grouped_custom_fields = defaultdict(dict)
+        for cf, value in self.get_custom_fields().items():
+            grouped_custom_fields[cf.group_name][cf] = value
+
+        return dict(grouped_custom_fields)
 
     def clean(self):
         super().clean()

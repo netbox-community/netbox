@@ -32,7 +32,7 @@ __all__ = (
 class CustomFieldFilterForm(FilterForm):
     fieldsets = (
         (None, ('q',)),
-        ('Attributes', ('type', 'content_types', 'weight', 'required')),
+        ('Attributes', ('content_types', 'type', 'group_name', 'weight', 'required')),
     )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
@@ -43,6 +43,9 @@ class CustomFieldFilterForm(FilterForm):
         choices=CustomFieldTypeChoices,
         required=False,
         label=_('Field type')
+    )
+    group_name = forms.CharField(
+        required=False
     )
     weight = forms.IntegerField(
         required=False

@@ -24,6 +24,9 @@ class CustomFieldBulkEditForm(BulkEditForm):
         queryset=CustomField.objects.all(),
         widget=forms.MultipleHiddenInput
     )
+    group_name = forms.CharField(
+        required=False
+    )
     description = forms.CharField(
         required=False
     )
@@ -35,7 +38,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
         required=False
     )
 
-    nullable_fields = ('description',)
+    nullable_fields = ('group_name', 'description',)
 
 
 class CustomLinkBulkEditForm(BulkEditForm):
