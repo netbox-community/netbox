@@ -739,13 +739,22 @@ class ModuleBayTable(DeviceComponentTable):
         linkify=True,
         verbose_name='Installed module'
     )
+    module_serial = tables.Column(
+        accessor=tables.A('installed_module__serial')
+    )
+    module_asset_tag = tables.Column(
+        accessor=tables.A('installed_module__asset_tag')
+    )
     tags = columns.TagColumn(
         url_name='dcim:modulebay_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = ModuleBay
-        fields = ('pk', 'id', 'name', 'device', 'label', 'position', 'installed_module', 'description', 'tags')
+        fields = (
+            'pk', 'id', 'name', 'device', 'label', 'position', 'installed_module', 'module_serial', 'module_asset_tag',
+            'description', 'tags',
+        )
         default_columns = ('pk', 'name', 'device', 'label', 'installed_module', 'description')
 
 
@@ -756,7 +765,10 @@ class DeviceModuleBayTable(ModuleBayTable):
 
     class Meta(DeviceComponentTable.Meta):
         model = ModuleBay
-        fields = ('pk', 'id', 'name', 'label', 'position', 'installed_module', 'description', 'tags', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'label', 'position', 'installed_module', 'module_serial', 'module_asset_tag',
+            'description', 'tags', 'actions',
+        )
         default_columns = ('pk', 'name', 'label', 'installed_module', 'description')
 
 

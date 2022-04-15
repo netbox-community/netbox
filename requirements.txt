@@ -1,4 +1,4 @@
-Django==4.0.3
+Django==4.0.4
 django-cors-headers==3.11.0
 django-debug-toolbar==3.2.4
 django-filter==21.1
@@ -18,7 +18,7 @@ gunicorn==20.1.0
 Jinja2==3.0.3
 Markdown==3.3.6
 markdown-include==0.6.0
-mkdocs-material==8.2.8
+mkdocs-material==8.2.9
 mkdocstrings==0.17.0
 netaddr==0.8.0
 Pillow==9.1.0
@@ -27,7 +27,7 @@ PyYAML==6.0
 social-auth-app-django==5.0.0
 social-auth-core==4.2.0
 svgwrite==1.4.2
-tablib==3.2.0
+tablib==3.2.1
 tzdata==2022.1
 
 # Workaround for #7401

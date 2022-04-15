@@ -43,6 +43,18 @@ changes in the database indefinitely.
 
 ---
 
+## JOBRESULT_RETENTION
+
+Default: 90
+
+The number of days to retain job results (scripts and reports). Set this to `0` to retain
+job results in the database indefinitely.
+
+!!! warning
+    If enabling indefinite job results retention, it is recommended to periodically delete old entries. Otherwise, the database may eventually exceed capacity.
+
+---
+
 ## CUSTOM_VALIDATORS
 
 This is a mapping of models to [custom validators](../customization/custom-validation.md) that have been defined locally to enforce custom validation logic. An example is provided below:

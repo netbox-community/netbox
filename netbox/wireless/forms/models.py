@@ -1,8 +1,7 @@
-from dcim.models import Device, Interface, Location, Site
-from extras.models import Tag
-from ipam.models import VLAN
+from dcim.models import Device, Interface, Location, Region, Site, SiteGroup
+from ipam.models import VLAN, VLANGroup
 from netbox.forms import NetBoxModelForm
-from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, StaticSelect
+from utilities.forms import DynamicModelChoiceField, SlugField, StaticSelect
 from wireless.models import *
 
 __all__ = (
@@ -31,22 +30,63 @@ class WirelessLANForm(NetBoxModelForm):
         queryset=WirelessLANGroup.objects.all(),
         required=False
     )
+
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'region_id': '$region',
+            'group_id': '$site_group',
+        }
+    )
+    vlan_group = DynamicModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        label='VLAN group',
+        null_option='None',
+        query_params={
+            'site': '$site'
+        },
+        initial_params={
+            'vlans': '$vlan'
+        }
+    )
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='VLAN'
+        label='VLAN',
+        query_params={
+            'site_id': '$site',
+            'group_id': '$vlan_group',
+        }
     )
 
     fieldsets = (
         ('Wireless LAN', ('ssid', 'group', 'description', 'tags')),
-        ('VLAN', ('vlan',)),
+        ('VLAN', ('region', 'site_group', 'site', 'vlan_group', 'vlan',)),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
     )
 
     class Meta:
         model = WirelessLAN
         fields = [
-            'ssid', 'group', 'description', 'vlan', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
+            'ssid', 'group', 'description', 'region', 'site_group', 'site', 'vlan_group', 'vlan', 'auth_type',
+            'auth_cipher', 'auth_psk', 'tags',
         ]
         widgets = {
             'auth_type': StaticSelect,
