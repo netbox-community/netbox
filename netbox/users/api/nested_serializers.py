@@ -23,10 +23,16 @@ class NestedGroupSerializer(WritableNestedSerializer):
 
 class NestedUserSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:user-detail')
+    display = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
         fields = ['id', 'url', 'display', 'username']
+
+    def get_display(self, obj):
+        if obj.first_name and obj.last_name:
+            return f"{obj.username} ({obj.first_name} {obj.last_name})"
+        return obj.username
 
 
 class NestedTokenSerializer(WritableNestedSerializer):
