@@ -88,8 +88,8 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomField
         fields = [
-            'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'description',
-            'required', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
+            'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
+            'description', 'required', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
             'validation_regex', 'choices', 'created', 'last_updated',
         ]
 

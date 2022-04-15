@@ -79,6 +79,11 @@ class CustomField(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         help_text='Name of the field as displayed to users (if not provided, '
                   'the field\'s name will be used)'
     )
+    group_name = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Custom fields within the same group will be displayed together"
+    )
     description = models.CharField(
         max_length=200,
         blank=True
@@ -134,7 +139,7 @@ class CustomField(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     objects = CustomFieldManager()
 
     class Meta:
-        ordering = ['weight', 'name']
+        ordering = ['group_name', 'weight', 'name']
 
     def __str__(self):
         return self.label or self.name.replace('_', ' ').capitalize()
