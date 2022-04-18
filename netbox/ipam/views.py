@@ -158,8 +158,8 @@ class RIRView(generic.ObjectView):
     queryset = RIR.objects.all()
 
     def get_extra_context(self, request, instance):
-        aggregates = Aggregate.objects.restrict(request.user, 'view').filter(
-            rir=instance
+        aggregates = Aggregate.objects.restrict(request.user, 'view').filter(rir=instance).annotate(
+            child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
         )
         aggregates_table = tables.AggregateTable(aggregates, exclude=('rir', 'utilization'))
         aggregates_table.configure(request)
