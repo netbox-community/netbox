@@ -2,6 +2,10 @@
 
 ## v3.2.2 (FUTURE)
 
+### Enhancements
+
+* [#9152](https://github.com/netbox-community/netbox/issues/9152) - Annotate related object type under custom field view
+
 ### Bug Fixes
 
 * [#9133](https://github.com/netbox-community/netbox/issues/9133) - Upgrade script should require Python 3.8 or later
