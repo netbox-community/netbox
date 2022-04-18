@@ -105,6 +105,9 @@ class WirelessLinkForm(NetBoxModelForm):
     )
     location_a = DynamicModelChoiceField(
         queryset=Location.objects.all(),
+        query_params={
+            'site_id': '$site_a',
+        },
         required=False,
         label='Location',
         initial_params={
@@ -142,6 +145,9 @@ class WirelessLinkForm(NetBoxModelForm):
     )
     location_b = DynamicModelChoiceField(
         queryset=Location.objects.all(),
+        query_params={
+            'site_id': '$site_b',
+        },
         required=False,
         label='Location',
         initial_params={
