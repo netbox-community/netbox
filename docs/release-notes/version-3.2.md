@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#9060](https://github.com/netbox-community/netbox/issues/9060) - Add device type filters for device bays, module bays, and inventory items
 * [#9152](https://github.com/netbox-community/netbox/issues/9152) - Annotate related object type under custom field view
 
 ### Bug Fixes
