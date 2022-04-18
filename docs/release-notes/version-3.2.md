@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#9133](https://github.com/netbox-community/netbox/issues/9133) - Upgrade script should require Python 3.8 or later
+* [#9156](https://github.com/netbox-community/netbox/issues/9156) - Fix loading UserConfig data from fixtures
 
 ---
 
