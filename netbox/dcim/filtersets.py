@@ -435,6 +435,10 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
         method='_device_bays',
         label='Has device bays',
     )
+    inventory_items = django_filters.BooleanFilter(
+        method='_inventory_items',
+        label='Has inventory items',
+    )
 
     class Meta:
         model = DeviceType
@@ -478,6 +482,9 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
 
     def _device_bays(self, queryset, name, value):
         return queryset.exclude(devicebaytemplates__isnull=value)
+
+    def _inventory_items(self, queryset, name, value):
+        return queryset.exclude(inventoryitemtemplates__isnull=value)
 
 
 class ModuleTypeFilterSet(NetBoxModelFilterSet):
@@ -750,6 +757,11 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
+    )
+    parent_device_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent_bay__device',
+        queryset=Device.objects.all(),
+        label='Parent Device (ID)',
     )
     platform_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Platform.objects.all(),
@@ -1090,8 +1102,8 @@ class PathEndpointFilterSet(django_filters.FilterSet):
 
 
 class ConsolePortFilterSet(
-    NetBoxModelFilterSet,
     ModularDeviceComponentFilterSet,
+    NetBoxModelFilterSet,
     CableTerminationFilterSet,
     PathEndpointFilterSet
 ):
@@ -1106,8 +1118,8 @@ class ConsolePortFilterSet(
 
 
 class ConsoleServerPortFilterSet(
-    NetBoxModelFilterSet,
     ModularDeviceComponentFilterSet,
+    NetBoxModelFilterSet,
     CableTerminationFilterSet,
     PathEndpointFilterSet
 ):
@@ -1122,8 +1134,8 @@ class ConsoleServerPortFilterSet(
 
 
 class PowerPortFilterSet(
-    NetBoxModelFilterSet,
     ModularDeviceComponentFilterSet,
+    NetBoxModelFilterSet,
     CableTerminationFilterSet,
     PathEndpointFilterSet
 ):
@@ -1138,8 +1150,8 @@ class PowerPortFilterSet(
 
 
 class PowerOutletFilterSet(
-    NetBoxModelFilterSet,
     ModularDeviceComponentFilterSet,
+    NetBoxModelFilterSet,
     CableTerminationFilterSet,
     PathEndpointFilterSet
 ):
@@ -1158,8 +1170,8 @@ class PowerOutletFilterSet(
 
 
 class InterfaceFilterSet(
-    NetBoxModelFilterSet,
     ModularDeviceComponentFilterSet,
+    NetBoxModelFilterSet,
     CableTerminationFilterSet,
     PathEndpointFilterSet
 ):
@@ -1286,8 +1298,8 @@ class InterfaceFilterSet(
 
 
 class FrontPortFilterSet(
-    NetBoxModelFilterSet,
     ModularDeviceComponentFilterSet,
+    NetBoxModelFilterSet,
     CableTerminationFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
@@ -1301,8 +1313,8 @@ class FrontPortFilterSet(
 
 
 class RearPortFilterSet(
-    NetBoxModelFilterSet,
     ModularDeviceComponentFilterSet,
+    NetBoxModelFilterSet,
     CableTerminationFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
@@ -1315,21 +1327,21 @@ class RearPortFilterSet(
         fields = ['id', 'name', 'label', 'type', 'color', 'positions', 'description']
 
 
-class ModuleBayFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet):
+class ModuleBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = ModuleBay
         fields = ['id', 'name', 'label', 'description']
 
 
-class DeviceBayFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet):
+class DeviceBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = DeviceBay
         fields = ['id', 'name', 'label', 'description']
 
 
-class InventoryItemFilterSet(NetBoxModelFilterSet, DeviceComponentFilterSet):
+class InventoryItemFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItem.objects.all(),
         label='Parent inventory item (ID)',

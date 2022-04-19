@@ -115,6 +115,18 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
         label=_('ASNs'),
         required=False
     )
+    contact_name = forms.CharField(
+        max_length=50,
+        required=False
+    )
+    contact_phone = forms.CharField(
+        max_length=20,
+        required=False
+    )
+    contact_email = forms.EmailField(
+        required=False,
+        label='Contact E-mail'
+    )
     description = forms.CharField(
         max_length=100,
         required=False
@@ -912,9 +924,33 @@ class InventoryItemTemplateBulkEditForm(BulkEditForm):
 # Device components
 #
 
+class ComponentBulkEditForm(NetBoxModelBulkEditForm):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        disabled=True,
+        widget=forms.HiddenInput()
+    )
+    module = forms.ModelChoiceField(
+        queryset=Module.objects.all(),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit module queryset to Modules which belong to the parent Device
+        if 'device' in self.initial:
+            device = Device.objects.filter(pk=self.initial['device']).first()
+            self.fields['module'].queryset = Module.objects.filter(device=device)
+        else:
+            self.fields['module'].choices = ()
+            self.fields['module'].widget.attrs['disabled'] = True
+
+
 class ConsolePortBulkEditForm(
     form_from_model(ConsolePort, ['label', 'type', 'speed', 'mark_connected', 'description']),
-    NetBoxModelBulkEditForm
+    ComponentBulkEditForm
 ):
     mark_connected = forms.NullBooleanField(
         required=False,
@@ -923,14 +959,14 @@ class ConsolePortBulkEditForm(
 
     model = ConsolePort
     fieldsets = (
-        (None, ('type', 'label', 'speed', 'description', 'mark_connected')),
+        (None, ('module', 'type', 'label', 'speed', 'description', 'mark_connected')),
     )
-    nullable_fields = ('label', 'description')
+    nullable_fields = ('module', 'label', 'description')
 
 
 class ConsoleServerPortBulkEditForm(
     form_from_model(ConsoleServerPort, ['label', 'type', 'speed', 'mark_connected', 'description']),
-    NetBoxModelBulkEditForm
+    ComponentBulkEditForm
 ):
     mark_connected = forms.NullBooleanField(
         required=False,
@@ -939,14 +975,14 @@ class ConsoleServerPortBulkEditForm(
 
     model = ConsoleServerPort
     fieldsets = (
-        (None, ('type', 'label', 'speed', 'description', 'mark_connected')),
+        (None, ('module', 'type', 'label', 'speed', 'description', 'mark_connected')),
     )
-    nullable_fields = ('label', 'description')
+    nullable_fields = ('module', 'label', 'description')
 
 
 class PowerPortBulkEditForm(
     form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected', 'description']),
-    NetBoxModelBulkEditForm
+    ComponentBulkEditForm
 ):
     mark_connected = forms.NullBooleanField(
         required=False,
@@ -955,22 +991,16 @@ class PowerPortBulkEditForm(
 
     model = PowerPort
     fieldsets = (
-        (None, ('type', 'label', 'description', 'mark_connected')),
+        (None, ('module', 'type', 'label', 'description', 'mark_connected')),
         ('Power', ('maximum_draw', 'allocated_draw')),
     )
-    nullable_fields = ('label', 'description')
+    nullable_fields = ('module', 'label', 'description')
 
 
 class PowerOutletBulkEditForm(
     form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'mark_connected', 'description']),
-    NetBoxModelBulkEditForm
+    ComponentBulkEditForm
 ):
-    device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        disabled=True,
-        widget=forms.HiddenInput()
-    )
     mark_connected = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect
@@ -978,10 +1008,10 @@ class PowerOutletBulkEditForm(
 
     model = PowerOutlet
     fieldsets = (
-        (None, ('type', 'label', 'description', 'mark_connected')),
+        (None, ('module', 'type', 'label', 'description', 'mark_connected')),
         ('Power', ('feed_leg', 'power_port')),
     )
-    nullable_fields = ('label', 'type', 'feed_leg', 'power_port', 'description')
+    nullable_fields = ('module', 'label', 'type', 'feed_leg', 'power_port', 'description')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1001,14 +1031,8 @@ class InterfaceBulkEditForm(
         'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
         'tx_power',
     ]),
-    NetBoxModelBulkEditForm
+    ComponentBulkEditForm
 ):
-    device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        disabled=True,
-        widget=forms.HiddenInput()
-    )
     enabled = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect
@@ -1059,7 +1083,7 @@ class InterfaceBulkEditForm(
 
     model = Interface
     fieldsets = (
-        (None, ('type', 'label', 'speed', 'duplex', 'description')),
+        (None, ('module', 'type', 'label', 'speed', 'duplex', 'description')),
         ('Addressing', ('vrf', 'mac_address', 'wwn')),
         ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
         ('Related Interfaces', ('parent', 'bridge', 'lag')),
@@ -1067,8 +1091,9 @@ class InterfaceBulkEditForm(
         ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width')),
     )
     nullable_fields = (
-        'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'description', 'mode',
-        'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'vrf',
+        'module', 'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'description',
+        'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans',
+        'vrf',
     )
 
     def __init__(self, *args, **kwargs):
@@ -1133,24 +1158,24 @@ class InterfaceBulkEditForm(
 
 class FrontPortBulkEditForm(
     form_from_model(FrontPort, ['label', 'type', 'color', 'mark_connected', 'description']),
-    NetBoxModelBulkEditForm
+    ComponentBulkEditForm
 ):
     model = FrontPort
     fieldsets = (
-        (None, ('type', 'label', 'color', 'description', 'mark_connected')),
+        (None, ('module', 'type', 'label', 'color', 'description', 'mark_connected')),
     )
-    nullable_fields = ('label', 'description')
+    nullable_fields = ('module', 'label', 'description')
 
 
 class RearPortBulkEditForm(
     form_from_model(RearPort, ['label', 'type', 'color', 'mark_connected', 'description']),
-    NetBoxModelBulkEditForm
+    ComponentBulkEditForm
 ):
     model = RearPort
     fieldsets = (
-        (None, ('type', 'label', 'color', 'description', 'mark_connected')),
+        (None, ('module', 'type', 'label', 'color', 'description', 'mark_connected')),
     )
-    nullable_fields = ('label', 'description')
+    nullable_fields = ('module', 'label', 'description')
 
 
 class ModuleBayBulkEditForm(
@@ -1179,6 +1204,10 @@ class InventoryItemBulkEditForm(
     form_from_model(InventoryItem, ['label', 'role', 'manufacturer', 'part_id', 'description']),
     NetBoxModelBulkEditForm
 ):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False
+    )
     role = DynamicModelChoiceField(
         queryset=InventoryItemRole.objects.all(),
         required=False
@@ -1190,7 +1219,7 @@ class InventoryItemBulkEditForm(
 
     model = InventoryItem
     fieldsets = (
-        (None, ('label', 'role', 'manufacturer', 'part_id', 'description')),
+        (None, ('device', 'label', 'role', 'manufacturer', 'part_id', 'description')),
     )
     nullable_fields = ('label', 'role', 'manufacturer', 'part_id', 'description')
 

@@ -5,6 +5,7 @@ from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGrou
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
+from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField,
@@ -48,6 +49,10 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = CustomField
         fields = '__all__'
+        help_texts = {
+            'type': "The type of data stored in this field. For object/multi-object fields, select the related object "
+                    "type below."
+        }
         widgets = {
             'type': StaticSelect(),
             'filter_logic': StaticSelect(),
@@ -215,18 +220,17 @@ class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class JournalEntryForm(BootstrapMixin, forms.ModelForm):
-    comments = CommentField()
-
+class JournalEntryForm(NetBoxModelForm):
     kind = forms.ChoiceField(
         choices=add_blank_choice(JournalEntryKindChoices),
         required=False,
         widget=StaticSelect()
     )
+    comments = CommentField()
 
     class Meta:
         model = JournalEntry
-        fields = ['assigned_object_type', 'assigned_object_id', 'kind', 'comments']
+        fields = ['assigned_object_type', 'assigned_object_id', 'kind', 'tags', 'comments']
         widgets = {
             'assigned_object_type': forms.HiddenInput,
             'assigned_object_id': forms.HiddenInput,

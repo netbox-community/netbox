@@ -345,6 +345,10 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_DC = 'dc-terminal'
     # Proprietary
     TYPE_SAF_D_GRID = 'saf-d-grid'
+    TYPE_NEUTRIK_POWERCON_20A = 'neutrik-powercon-20'
+    TYPE_NEUTRIK_POWERCON_32A = 'neutrik-powercon-32'
+    TYPE_NEUTRIK_POWERCON_TRUE1 = 'neutrik-powercon-true1'
+    TYPE_NEUTRIK_POWERCON_TRUE1_TOP = 'neutrik-powercon-true1-top'
     # Other
     TYPE_HARDWIRED = 'hardwired'
 
@@ -456,6 +460,10 @@ class PowerPortTypeChoices(ChoiceSet):
         )),
         ('Proprietary', (
             (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
+            (TYPE_NEUTRIK_POWERCON_20A, 'Neutrik powerCON (20A)'),
+            (TYPE_NEUTRIK_POWERCON_32A, 'Neutrik powerCON (32A)'),
+            (TYPE_NEUTRIK_POWERCON_TRUE1, 'Neutrik powerCON TRUE1'),
+            (TYPE_NEUTRIK_POWERCON_TRUE1_TOP, 'Neutrik powerCON TRUE1 TOP'),
         )),
         ('Other', (
             (TYPE_HARDWIRED, 'Hardwired'),
@@ -561,6 +569,10 @@ class PowerOutletTypeChoices(ChoiceSet):
     # Proprietary
     TYPE_HDOT_CX = 'hdot-cx'
     TYPE_SAF_D_GRID = 'saf-d-grid'
+    TYPE_NEUTRIK_POWERCON_20A = 'neutrik-powercon-20a'
+    TYPE_NEUTRIK_POWERCON_32A = 'neutrik-powercon-32a'
+    TYPE_NEUTRIK_POWERCON_TRUE1 = 'neutrik-powercon-true1'
+    TYPE_NEUTRIK_POWERCON_TRUE1_TOP = 'neutrik-powercon-true1-top'
     # Other
     TYPE_HARDWIRED = 'hardwired'
 
@@ -665,6 +677,10 @@ class PowerOutletTypeChoices(ChoiceSet):
         ('Proprietary', (
             (TYPE_HDOT_CX, 'HDOT Cx'),
             (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
+            (TYPE_NEUTRIK_POWERCON_20A, 'Neutrik powerCON (20A)'),
+            (TYPE_NEUTRIK_POWERCON_32A, 'Neutrik powerCON (32A)'),
+            (TYPE_NEUTRIK_POWERCON_TRUE1, 'Neutrik powerCON TRUE1'),
+            (TYPE_NEUTRIK_POWERCON_TRUE1_TOP, 'Neutrik powerCON TRUE1 TOP'),
         )),
         ('Other', (
             (TYPE_HARDWIRED, 'Hardwired'),

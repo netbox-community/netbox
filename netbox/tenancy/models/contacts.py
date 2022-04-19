@@ -105,6 +105,9 @@ class Contact(NetBoxModel):
         max_length=200,
         blank=True
     )
+    link = models.URLField(
+        blank=True
+    )
     comments = models.TextField(
         blank=True
     )

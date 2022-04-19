@@ -12,7 +12,6 @@ __all__ = (
     'ExportTemplateTable',
     'JournalEntryTable',
     'ObjectChangeTable',
-    'ObjectJournalTable',
     'TaggedItemTable',
     'TagTable',
     'WebhookTable',
@@ -210,25 +209,11 @@ class ObjectChangeTable(NetBoxTable):
         )
 
 
-class ObjectJournalTable(NetBoxTable):
-    """
-    Used for displaying a set of JournalEntries within the context of a single object.
-    """
+class JournalEntryTable(NetBoxTable):
     created = tables.DateTimeColumn(
         linkify=True,
         format=settings.SHORT_DATETIME_FORMAT
     )
-    kind = columns.ChoiceFieldColumn()
-    comments = tables.TemplateColumn(
-        template_code='{{ value|markdown|truncatewords_html:50 }}'
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = JournalEntry
-        fields = ('id', 'created', 'created_by', 'kind', 'comments', 'actions')
-
-
-class JournalEntryTable(ObjectJournalTable):
     assigned_object_type = columns.ContentTypeColumn(
         verbose_name='Object type'
     )
@@ -237,13 +222,22 @@ class JournalEntryTable(ObjectJournalTable):
         orderable=False,
         verbose_name='Object'
     )
+    kind = columns.ChoiceFieldColumn()
     comments = columns.MarkdownColumn()
+    comments_short = tables.TemplateColumn(
+        accessor=tables.A('comments'),
+        template_code='{{ value|markdown|truncatewords_html:50 }}',
+        verbose_name='Comments (Short)'
+    )
+    tags = columns.TagColumn(
+        url_name='extras:journalentry_list'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = JournalEntry
         fields = (
             'pk', 'id', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind', 'comments',
-            'actions',
+            'comments_short', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind', 'comments'

@@ -13,13 +13,16 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
 from rest_framework.utils.encoders import JSONEncoder
+import django_rq
 
 from extras.choices import *
 from extras.constants import *
 from extras.conditions import ConditionSet
 from extras.utils import FeatureQuery, image_upload
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import ExportTemplatesMixin, JobResultsMixin, WebhooksMixin
+from netbox.models.features import (
+    CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, TagsMixin, WebhooksMixin,
+)
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import render_jinja2
 
@@ -419,7 +422,7 @@ class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
         return objectchange
 
 
-class JournalEntry(WebhooksMixin, ChangeLoggedModel):
+class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin, ChangeLoggedModel):
     """
     A historical remark concerning an object; collectively, these form an object's journal. The journal is used to
     preserve historical context around an object, and complements NetBox's built-in change logging. For example, you
@@ -548,7 +551,8 @@ class JobResult(models.Model):
             job_id=uuid.uuid4()
         )
 
-        func.delay(*args, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
+        queue = django_rq.get_queue("default")
+        queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
 
         return job_result
 

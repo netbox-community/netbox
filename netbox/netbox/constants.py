@@ -67,7 +67,9 @@ DCIM_TYPES = OrderedDict(
             'url': 'dcim:site_list',
         }),
         ('rack', {
-            'queryset': Rack.objects.prefetch_related('site', 'location', 'tenant', 'role'),
+            'queryset': Rack.objects.prefetch_related('site', 'location', 'tenant', 'role').annotate(
+                device_count=count_related(Device, 'rack')
+            ),
             'filterset': RackFilterSet,
             'table': RackTable,
             'url': 'dcim:rack_list',

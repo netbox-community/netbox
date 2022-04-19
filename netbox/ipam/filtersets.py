@@ -535,6 +535,11 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         queryset=VMInterface.objects.all(),
         label='VM interface (ID)',
     )
+    fhrpgroup_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='fhrpgroup',
+        queryset=FHRPGroup.objects.all(),
+        label='FHRP group (ID)',
+    )
     assigned_to_interface = django_filters.BooleanFilter(
         method='_assigned_to_interface',
         label='Is assigned to an interface',
@@ -613,7 +618,17 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         )
 
     def _assigned_to_interface(self, queryset, name, value):
-        return queryset.exclude(assigned_object_id__isnull=value)
+        content_types = ContentType.objects.get_for_models(Interface, VMInterface).values()
+        if value:
+            return queryset.filter(
+                assigned_object_type__in=content_types,
+                assigned_object_id__isnull=False
+            )
+        else:
+            return queryset.exclude(
+                assigned_object_type__in=content_types,
+                assigned_object_id__isnull=False
+            )
 
 
 class FHRPGroupFilterSet(NetBoxModelFilterSet):

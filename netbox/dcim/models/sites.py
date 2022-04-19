@@ -367,7 +367,7 @@ class Location(NestedGroupModel):
         to='extras.ImageAttachment'
     )
 
-    clone_fields = ['site', 'parent', 'description']
+    clone_fields = ['site', 'parent', 'tenant', 'description']
 
     class Meta:
         ordering = ['site', 'name']

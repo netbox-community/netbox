@@ -7,10 +7,12 @@ from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGrou
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
+from netbox.forms.base import NetBoxModelFilterSetForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
-    add_blank_choice, APISelectMultiple, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DateTimePicker,
-    DynamicModelMultipleChoiceField, FilterForm, MultipleChoiceField, StaticSelect, BOOLEAN_WITH_BLANK_CHOICES,
+    add_blank_choice, APISelectMultiple, BOOLEAN_WITH_BLANK_CHOICES, ContentTypeChoiceField,
+    ContentTypeMultipleChoiceField, DateTimePicker, DynamicModelMultipleChoiceField, FilterForm, MultipleChoiceField,
+    StaticSelect, TagFilterField,
 )
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -237,10 +239,10 @@ class LocalConfigContextFilterForm(forms.Form):
     )
 
 
-class JournalEntryFilterForm(FilterForm):
+class JournalEntryFilterForm(NetBoxModelFilterSetForm):
     model = JournalEntry
     fieldsets = (
-        (None, ('q',)),
+        (None, ('q', 'tag')),
         ('Creation', ('created_before', 'created_after', 'created_by_id')),
         ('Attributes', ('assigned_object_type_id', 'kind'))
     )
@@ -275,6 +277,7 @@ class JournalEntryFilterForm(FilterForm):
         required=False,
         widget=StaticSelect()
     )
+    tag = TagFilterField(model)
 
 
 class ObjectChangeFilterForm(FilterForm):

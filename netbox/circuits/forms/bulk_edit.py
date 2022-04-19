@@ -1,10 +1,15 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
+from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import add_blank_choice, CommentField, DynamicModelChoiceField, SmallTextarea, StaticSelect
+from utilities.forms import (
+    add_blank_choice, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea,
+    StaticSelect,
+)
 
 __all__ = (
     'CircuitBulkEditForm',
@@ -17,7 +22,12 @@ __all__ = (
 class ProviderBulkEditForm(NetBoxModelBulkEditForm):
     asn = forms.IntegerField(
         required=False,
-        label='ASN'
+        label='ASN (legacy)'
+    )
+    asns = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        label=_('ASNs'),
+        required=False
     )
     account = forms.CharField(
         max_length=30,
@@ -45,10 +55,10 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Provider
     fieldsets = (
-        (None, ('asn', 'account', 'portal_url', 'noc_contact', 'admin_contact')),
+        (None, ('asn', 'asns', 'account', 'portal_url', 'noc_contact', 'admin_contact')),
     )
     nullable_fields = (
-        'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
+        'asn', 'asns', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
     )
 
 

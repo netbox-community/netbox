@@ -86,8 +86,10 @@ class ObjectJournalView(View):
             assigned_object_type=content_type,
             assigned_object_id=obj.pk
         )
-        journalentry_table = tables.ObjectJournalTable(journalentries)
+        journalentry_table = tables.JournalEntryTable(journalentries, user=request.user)
         journalentry_table.configure(request)
+        journalentry_table.columns.hide('assigned_object_type')
+        journalentry_table.columns.hide('assigned_object')
 
         if request.user.has_perm('extras.add_journalentry'):
             form = forms.JournalEntryForm(

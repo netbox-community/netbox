@@ -298,6 +298,10 @@ class BaseScript:
     def module(cls):
         return cls.__module__
 
+    @classproperty
+    def job_timeout(self):
+        return getattr(self.Meta, 'job_timeout', None)
+
     @classmethod
     def _get_vars(cls):
         vars = {}
@@ -414,7 +418,6 @@ def is_variable(obj):
     return isinstance(obj, ScriptVariable)
 
 
-@job('default')
 def run_script(data, request, commit=True, *args, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
@@ -478,15 +481,6 @@ def run_script(data, request, commit=True, *args, **kwargs):
     else:
         _run_script()
 
-    # Delete any previous terminal state results
-    JobResult.objects.filter(
-        obj_type=job_result.obj_type,
-        name=job_result.name,
-        status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
-    ).exclude(
-        pk=job_result.pk
-    ).delete()
-
 
 def get_scripts(use_names=False):
     """
@@ -494,7 +488,7 @@ def get_scripts(use_names=False):
     defined name in place of the actual module name.
     """
     scripts = OrderedDict()
-    # Iterate through all modules within the reports path. These are the user-created files in which reports are
+    # Iterate through all modules within the scripts path. These are the user-created files in which reports are
     # defined.
     for importer, module_name, _ in pkgutil.iter_modules([settings.SCRIPTS_ROOT]):
         # Remove cached module to ensure consistency with filesystem

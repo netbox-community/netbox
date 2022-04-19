@@ -1,11 +1,9 @@
 from django import forms
 
-from extras.models import Tag
 from netbox.forms import NetBoxModelForm
 from tenancy.models import *
 from utilities.forms import (
-    BootstrapMixin, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, SmallTextarea,
-    StaticSelect,
+    BootstrapMixin, CommentField, DynamicModelChoiceField, SlugField, SmallTextarea, StaticSelect,
 )
 
 __all__ = (
@@ -87,13 +85,13 @@ class ContactForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Contact', ('group', 'name', 'title', 'phone', 'email', 'address', 'tags')),
+        ('Contact', ('group', 'name', 'title', 'phone', 'email', 'address', 'link', 'tags')),
     )
 
     class Meta:
         model = Contact
         fields = (
-            'group', 'name', 'title', 'phone', 'email', 'address', 'comments', 'tags',
+            'group', 'name', 'title', 'phone', 'email', 'address', 'link', 'comments', 'tags',
         )
         widgets = {
             'address': SmallTextarea(attrs={'rows': 3}),

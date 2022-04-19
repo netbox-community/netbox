@@ -241,5 +241,7 @@ class InventoryItemTemplateTable(ComponentTemplateTable):
 
     class Meta(ComponentTemplateTable.Meta):
         model = InventoryItemTemplate
-        fields = ('pk', 'name', 'label', 'role', 'manufacturer', 'part_id', 'component', 'description', 'actions')
+        fields = (
+            'pk', 'name', 'label', 'parent', 'role', 'manufacturer', 'part_id', 'component', 'description', 'actions',
+        )
         empty_text = "None"

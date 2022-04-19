@@ -1,9 +1,62 @@
 # NetBox v3.2
 
-## v3.2.0 (FUTURE)
+## v3.2.2 (FUTURE)
+
+### Enhancements
+
+* [#9060](https://github.com/netbox-community/netbox/issues/9060) - Add device type filters for device bays, module bays, and inventory items
+* [#9152](https://github.com/netbox-community/netbox/issues/9152) - Annotate related object type under custom field view
+
+### Bug Fixes
+
+* [#9132](https://github.com/netbox-community/netbox/issues/9132) - Limit location options by selected site when creating a wireless link
+* [#9133](https://github.com/netbox-community/netbox/issues/9133) - Upgrade script should require Python 3.8 or later
+* [#9151](https://github.com/netbox-community/netbox/issues/9151) - Child prefix counts not annotated on aggregates list under RIR view
+* [#9156](https://github.com/netbox-community/netbox/issues/9156) - Fix loading UserConfig data from fixtures
+* [#9158](https://github.com/netbox-community/netbox/issues/9158) - Do not list tags field for CSV forms which do not support tag assignment
+
+---
+
+## v3.2.1 (2022-04-14)
+
+### Enhancements
+
+* [#5479](https://github.com/netbox-community/netbox/issues/5479) - Allow custom job timeouts for scripts & reports
+* [#8543](https://github.com/netbox-community/netbox/issues/8543) - Improve filtering for wireless LAN VLAN selection
+* [#8920](https://github.com/netbox-community/netbox/issues/8920) - Limit number of non-racked devices displayed
+* [#8956](https://github.com/netbox-community/netbox/issues/8956) - Retain old script/report results for configured lifetime
+* [#8973](https://github.com/netbox-community/netbox/issues/8973) - Display VLAN group count under site view
+* [#9081](https://github.com/netbox-community/netbox/issues/9081) - Add `fhrpgroup_id` filter for IP addresses
+* [#9099](https://github.com/netbox-community/netbox/issues/9099) - Enable display of installed module serial & asset tag in module bays list
+* [#9110](https://github.com/netbox-community/netbox/issues/9110) - Add Neutrik proprietary power connectors
+* [#9123](https://github.com/netbox-community/netbox/issues/9123) - Improve appearance of SSO login providers
+
+### Bug Fixes
+
+* [#8931](https://github.com/netbox-community/netbox/issues/8931) - Copy assigned tenant when cloning a location
+* [#9055](https://github.com/netbox-community/netbox/issues/9055) - Restore ability to move inventory item to other device
+* [#9057](https://github.com/netbox-community/netbox/issues/9057) - Fix missing instance counts for module types
+* [#9061](https://github.com/netbox-community/netbox/issues/9061) - Fix general search for device components
+* [#9065](https://github.com/netbox-community/netbox/issues/9065) - Min/max VID should not be required when filtering VLAN groups
+* [#9079](https://github.com/netbox-community/netbox/issues/9079) - Fail validation when an inventory item is assigned as its own parent
+* [#9096](https://github.com/netbox-community/netbox/issues/9096) - Remove duplicate filter tag when filtering by "none"
+* [#9100](https://github.com/netbox-community/netbox/issues/9100) - Include position field in module type YAML export
+* [#9116](https://github.com/netbox-community/netbox/issues/9116) - `assigned_to_interface` filter for IP addresses should not match FHRP group assignments
+* [#9118](https://github.com/netbox-community/netbox/issues/9118) - Fix validation error when importing VM child interfaces
+* [#9128](https://github.com/netbox-community/netbox/issues/9128) - Resolve component labels per module bay position when installing modules
+
+---
+
+## v3.2.0 (2022-04-05)
 
 !!! warning "Python 3.8 or Later Required"
     NetBox v3.2 requires Python 3.8 or later.
+
+!!! warning "Deletion of Legacy Data"
+    This release includes a database migration that will remove the `asn`, `contact_name`, `contact_phone`, and `contact_email` fields from the site model. (These fields have been superseded by the ASN and contact models introduced in NetBox v3.1.) To protect against the accidental destruction of data, the upgrade process **will fail** if any sites still have data in any of these fields. To bypass this safeguard, set the `NETBOX_DELETE_LEGACY_DATA` environment variable when running the upgrade script, which will permit the destruction of legacy data.
+
+!!! tip "Migration Scripts"
+    A set of [migration scripts](https://github.com/netbox-community/migration-scripts) is available to assist with the migration of legacy site data.
 
 ### Breaking Changes
 
@@ -142,15 +195,23 @@ Where it is desired to limit the range of available VLANs within a group, users 
 * [#8296](https://github.com/netbox-community/netbox/issues/8296) - Allow disabling custom links
 * [#8307](https://github.com/netbox-community/netbox/issues/8307) - Add `data_type` indicator to REST API serializer for custom fields
 * [#8463](https://github.com/netbox-community/netbox/issues/8463) - Change the `created` field on all change-logged models from date to datetime
+* [#8496](https://github.com/netbox-community/netbox/issues/8496) - Enable assigning multiple ASNs to a provider
 * [#8572](https://github.com/netbox-community/netbox/issues/8572) - Add a `pre_run()` method for reports
+* [#8593](https://github.com/netbox-community/netbox/issues/8593) - Add a `link` field for contacts
 * [#8649](https://github.com/netbox-community/netbox/issues/8649) - Enable customization of configuration module using `NETBOX_CONFIGURATION` environment variable
+* [#9006](https://github.com/netbox-community/netbox/issues/9006) - Enable custom fields, custom links, and tags for journal entries
 
 ### Bug Fixes (From Beta2)
 
+* [#8658](https://github.com/netbox-community/netbox/issues/8658) - Fix display of assigned components under inventory item lists
 * [#8838](https://github.com/netbox-community/netbox/issues/8838) - Fix FieldError exception during global search
 * [#8845](https://github.com/netbox-community/netbox/issues/8845) - Correct default ASN formatting in table
 * [#8869](https://github.com/netbox-community/netbox/issues/8869) - Fix NoReverseMatch exception when displaying tag w/assignments
 * [#8872](https://github.com/netbox-community/netbox/issues/8872) - Enable filtering by custom object fields
+* [#8970](https://github.com/netbox-community/netbox/issues/8970) - Permit nested inventory item templates on device types
+* [#8976](https://github.com/netbox-community/netbox/issues/8976) - Add missing `object_type` field on CustomField REST API serializer
+* [#8978](https://github.com/netbox-community/netbox/issues/8978) - Fix instantiation of front ports when provisioning a module
+* [#9007](https://github.com/netbox-community/netbox/issues/9007) - Fix FieldError exception when instantiating a device type with nested inventory items
 
 ### Other Changes
 
@@ -173,6 +234,8 @@ Where it is desired to limit the range of available VLANs within a group, users 
     * `/api/dcim/module-types/`
     * `/api/ipam/service-templates/`
     * `/api/ipam/vlan-groups/<id>/available-vlans/`
+* circuits.Provider
+    * Added `asns` field
 * circuits.ProviderNetwork
     * Added `service_id` field
 * dcim.ConsolePort
@@ -200,8 +263,14 @@ Where it is desired to limit the range of available VLANs within a group, users 
     * Added `data_type` and `object_type` fields
 * extras.CustomLink
     * Added `enabled` field
+* extras.JournalEntry
+    * Added `custom_fields` and `tags` fields
+* ipam.ASN
+    * Added `provider_count` field
 * ipam.VLANGroup
     * Added the `/availables-vlans/` endpoint
-    * Added the `min_vid` and `max_vid` fields
+    * Added `min_vid` and `max_vid` fields
+* tenancy.Contact
+    * Added `link` field
 * virtualization.VMInterface
     * Added `vrf` field

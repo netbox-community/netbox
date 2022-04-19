@@ -4,6 +4,7 @@ from django.utils.translation import gettext as _
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
+from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
 from utilities.forms import DynamicModelMultipleChoiceField, MultipleChoiceField, TagFilterField
@@ -45,7 +46,12 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     )
     asn = forms.IntegerField(
         required=False,
-        label=_('ASN')
+        label=_('ASN (legacy)')
+    )
+    asn_id = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        required=False,
+        label=_('ASNs')
     )
     tag = TagFilterField(model)
 

@@ -63,7 +63,7 @@ class ContactFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = Contact
-        fields = ['id', 'name', 'title', 'phone', 'email', 'address']
+        fields = ['id', 'name', 'title', 'phone', 'email', 'address', 'link']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -74,6 +74,7 @@ class ContactFilterSet(NetBoxModelFilterSet):
             Q(phone__icontains=value) |
             Q(email__icontains=value) |
             Q(address__icontains=value) |
+            Q(link__icontains=value) |
             Q(comments__icontains=value)
         )
 

@@ -545,7 +545,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
 
     def get(self, request):
         form, model_form = self.initialize_forms(request)
-        instance = self.alter_object(self.queryset.model, request)
+        instance = self.alter_object(self.queryset.model(), request)
 
         return render(request, self.template_name, {
             'object': instance,
@@ -557,7 +557,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
     def post(self, request):
         logger = logging.getLogger('netbox.views.ComponentCreateView')
         form, model_form = self.initialize_forms(request)
-        instance = self.alter_object(self.queryset.model, request)
+        instance = self.alter_object(self.queryset.model(), request)
 
         if form.is_valid():
             new_components = []

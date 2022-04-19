@@ -14,7 +14,7 @@ from django.views.generic import View
 
 from circuits.models import Circuit
 from extras.views import ObjectConfigContextView
-from ipam.models import ASN, IPAddress, Prefix, Service, VLAN
+from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
@@ -320,6 +320,10 @@ class SiteView(generic.ObjectView):
             'rack_count': Rack.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(site=instance).count(),
+            'vlangroup_count': VLANGroup.objects.restrict(request.user, 'view').filter(
+                scope_type=ContentType.objects.get_for_model(Site),
+                scope_id=instance.pk
+            ).count(),
             'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).count(),
             'vm_count': VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=instance).count(),
@@ -338,6 +342,7 @@ class SiteView(generic.ObjectView):
             'device_count',
             cumulative=True
         ).restrict(request.user, 'view').filter(site=instance)
+
         nonracked_devices = Device.objects.filter(
             site=instance,
             position__isnull=True,
@@ -353,7 +358,8 @@ class SiteView(generic.ObjectView):
             'stats': stats,
             'locations': locations,
             'asns': asns,
-            'nonracked_devices': nonracked_devices,
+            'nonracked_devices': nonracked_devices.order_by('-pk')[:10],
+            'total_nonracked_devices_count': nonracked_devices.count(),
         }
 
 
@@ -431,6 +437,7 @@ class LocationView(generic.ObjectView):
         ).filter(pk__in=location_ids).exclude(pk=instance.pk)
         child_locations_table = tables.LocationTable(child_locations)
         child_locations_table.configure(request)
+
         nonracked_devices = Device.objects.filter(
             location=instance,
             position__isnull=True,
@@ -441,7 +448,8 @@ class LocationView(generic.ObjectView):
             'rack_count': rack_count,
             'device_count': device_count,
             'child_locations_table': child_locations_table,
-            'nonracked_devices': nonracked_devices,
+            'nonracked_devices': nonracked_devices.order_by('-pk')[:10],
+            'total_nonracked_devices_count': nonracked_devices.count(),
         }
 
 
@@ -960,7 +968,7 @@ class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
 
 class ModuleTypeListView(generic.ObjectListView):
     queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
-        # instance_count=count_related(Module, 'module_type')
+        instance_count=count_related(Module, 'module_type')
     )
     filterset = filtersets.ModuleTypeFilterSet
     filterset_form = forms.ModuleTypeFilterForm
@@ -1066,7 +1074,7 @@ class ModuleTypeImportView(generic.ObjectImportView):
 
 class ModuleTypeBulkEditView(generic.BulkEditView):
     queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
-        # instance_count=count_related(Module, 'module_type')
+        instance_count=count_related(Module, 'module_type')
     )
     filterset = filtersets.ModuleTypeFilterSet
     table = tables.ModuleTypeTable
@@ -1075,7 +1083,7 @@ class ModuleTypeBulkEditView(generic.BulkEditView):
 
 class ModuleTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
-        # instance_count=count_related(Module, 'module_type')
+        instance_count=count_related(Module, 'module_type')
     )
     filterset = filtersets.ModuleTypeFilterSet
     table = tables.ModuleTypeTable
@@ -2077,6 +2085,14 @@ class InterfaceView(generic.ObjectView):
             orderable=False
         )
 
+        # Get bridge interfaces
+        bridge_interfaces = Interface.objects.restrict(request.user, 'view').filter(bridge=instance)
+        bridge_interfaces_tables = tables.InterfaceTable(
+            bridge_interfaces,
+            exclude=('device', 'parent'),
+            orderable=False
+        )
+
         # Get child interfaces
         child_interfaces = Interface.objects.restrict(request.user, 'view').filter(parent=instance)
         child_interfaces_tables = tables.InterfaceTable(
@@ -2101,6 +2117,7 @@ class InterfaceView(generic.ObjectView):
 
         return {
             'ipaddress_table': ipaddress_table,
+            'bridge_interfaces_table': bridge_interfaces_tables,
             'child_interfaces_table': child_interfaces_tables,
             'vlan_table': vlan_table,
         }
@@ -2504,7 +2521,7 @@ class InventoryItemEditView(generic.ObjectEditView):
 
 class InventoryItemCreateView(generic.ComponentCreateView):
     queryset = InventoryItem.objects.all()
-    form = forms.DeviceComponentCreateForm
+    form = forms.InventoryItemCreateForm
     model_form = forms.InventoryItemForm
     template_name = 'dcim/inventoryitem_create.html'
 

@@ -7,7 +7,6 @@ from timezone_field import TimeZoneFormField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from extras.models import Tag
 from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
@@ -1025,10 +1024,10 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
 
 class InventoryItemTemplateForm(BootstrapMixin, forms.ModelForm):
     parent = DynamicModelChoiceField(
-        queryset=InventoryItem.objects.all(),
+        queryset=InventoryItemTemplate.objects.all(),
         required=False,
         query_params={
-            'device_id': '$device'
+            'devicetype_id': '$device_type'
         }
     )
     role = DynamicModelChoiceField(
@@ -1048,11 +1047,6 @@ class InventoryItemTemplateForm(BootstrapMixin, forms.ModelForm):
     component_id = forms.IntegerField(
         required=False,
         widget=forms.HiddenInput
-    )
-
-    fieldsets = (
-        ('Inventory Item', ('device_type', 'parent', 'name', 'label', 'role', 'description')),
-        ('Hardware', ('manufacturer', 'part_id')),
     )
 
     class Meta:
@@ -1368,6 +1362,9 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
 
 
 class InventoryItemForm(NetBoxModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
     parent = DynamicModelChoiceField(
         queryset=InventoryItem.objects.all(),
         required=False,
@@ -1405,9 +1402,6 @@ class InventoryItemForm(NetBoxModelForm):
             'device', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
             'description', 'component_type', 'component_id', 'tags',
         ]
-        widgets = {
-            'device': forms.HiddenInput(),
-        }
 
 
 #

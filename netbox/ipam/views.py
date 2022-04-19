@@ -4,6 +4,8 @@ from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from circuits.models import Provider
+from circuits.tables import ProviderTable
 from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from dcim.tables import SiteTable
@@ -156,8 +158,8 @@ class RIRView(generic.ObjectView):
     queryset = RIR.objects.all()
 
     def get_extra_context(self, request, instance):
-        aggregates = Aggregate.objects.restrict(request.user, 'view').filter(
-            rir=instance
+        aggregates = Aggregate.objects.restrict(request.user, 'view').filter(rir=instance).annotate(
+            child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
         )
         aggregates_table = tables.AggregateTable(aggregates, exclude=('rir', 'utilization'))
         aggregates_table.configure(request)
@@ -206,6 +208,7 @@ class RIRBulkDeleteView(generic.BulkDeleteView):
 class ASNListView(generic.ObjectListView):
     queryset = ASN.objects.annotate(
         site_count=count_related(Site, 'asns'),
+        provider_count=count_related(Provider, 'asns')
     )
     filterset = filtersets.ASNFilterSet
     filterset_form = forms.ASNFilterForm
@@ -216,13 +219,21 @@ class ASNView(generic.ObjectView):
     queryset = ASN.objects.all()
 
     def get_extra_context(self, request, instance):
+        # Gather assigned Sites
         sites = instance.sites.restrict(request.user, 'view')
         sites_table = SiteTable(sites)
         sites_table.configure(request)
 
+        # Gather assigned Providers
+        providers = instance.providers.restrict(request.user, 'view')
+        providers_table = ProviderTable(providers)
+        providers_table.configure(request)
+
         return {
             'sites_table': sites_table,
-            'sites_count': sites.count()
+            'sites_count': sites.count(),
+            'providers_table': providers_table,
+            'providers_count': providers.count(),
         }
 
 
@@ -794,7 +805,7 @@ class VLANGroupView(generic.ObjectView):
         vlans_count = vlans.count()
         vlans = add_available_vlans(vlans, vlan_group=instance)
 
-        vlans_table = tables.VLANTable(vlans, exclude=('site', 'group', 'prefixes'))
+        vlans_table = tables.VLANTable(vlans, exclude=('group',))
         if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
             vlans_table.columns.show('pk')
         vlans_table.configure(request)

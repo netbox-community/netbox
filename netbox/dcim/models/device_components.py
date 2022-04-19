@@ -785,6 +785,10 @@ class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpo
         return self.type == InterfaceTypeChoices.TYPE_LAG
 
     @property
+    def is_bridge(self):
+        return self.type == InterfaceTypeChoices.TYPE_BRIDGE
+
+    @property
     def link(self):
         return self.cable or self.wireless_link
 
@@ -1066,3 +1070,12 @@ class InventoryItem(MPTTModel, ComponentModel):
 
     def get_absolute_url(self):
         return reverse('dcim:inventoryitem', kwargs={'pk': self.pk})
+
+    def clean(self):
+        super().clean()
+
+        # An InventoryItem cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({
+                "parent": "Cannot assign self as parent."
+            })

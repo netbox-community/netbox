@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(default='active', max_length=50)),
                 ('role', models.CharField(blank=True, max_length=50)),
                 ('assigned_object_id', models.PositiveIntegerField(blank=True, null=True)),
-                ('dns_name', models.CharField(blank=True, max_length=255, validators=[django.core.validators.RegexValidator(code='invalid', message='Only alphanumeric characters, hyphens, periods, and underscores are allowed in DNS names', regex='^[0-9A-Za-z._-]+$')])),
+                ('dns_name', models.CharField(blank=True, max_length=255, validators=[django.core.validators.RegexValidator(code='invalid', message='Only alphanumeric characters, asterisks, hyphens, periods, and underscores are allowed in DNS names', regex='^([0-9A-Za-z_-]+|\\*)(\\.[0-9A-Za-z_-]+)*\\.?$')])),
                 ('description', models.CharField(blank=True, max_length=200)),
             ],
             options={

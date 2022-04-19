@@ -179,7 +179,7 @@ class ReportViewSet(ViewSet):
             for r in JobResult.objects.filter(
                 obj_type=report_content_type,
                 status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
-            ).defer('data')
+            ).order_by('name', '-created').distinct('name').defer('data')
         }
 
         # Iterate through all available Reports.
@@ -236,7 +236,8 @@ class ReportViewSet(ViewSet):
             run_report,
             report.full_name,
             report_content_type,
-            request.user
+            request.user,
+            job_timeout=report.job_timeout
         )
         report.result = job_result
 
@@ -270,7 +271,7 @@ class ScriptViewSet(ViewSet):
             for r in JobResult.objects.filter(
                 obj_type=script_content_type,
                 status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
-            ).defer('data').order_by('created')
+            ).order_by('name', '-created').distinct('name').defer('data')
         }
 
         flat_list = []
@@ -320,7 +321,8 @@ class ScriptViewSet(ViewSet):
                 request.user,
                 data=data,
                 request=copy_safe_request(request),
-                commit=commit
+                commit=commit,
+                job_timeout=script.job_timeout,
             )
             script.result = job_result
             serializer = serializers.ScriptDetailSerializer(script, context={'request': request})

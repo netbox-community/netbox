@@ -331,7 +331,7 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
         ('Hardware', ('manufacturer_id', 'part_number', 'subdevice_role', 'airflow')),
         ('Components', (
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
-            'pass_through_ports',
+            'pass_through_ports', 'device_bays', 'module_bays', 'inventory_items',
         )),
     )
     manufacturer_id = DynamicModelMultipleChoiceField(
@@ -388,6 +388,27 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     pass_through_ports = forms.NullBooleanField(
         required=False,
         label='Has pass-through ports',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    device_bays = forms.NullBooleanField(
+        required=False,
+        label='Has device bays',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    module_bays = forms.NullBooleanField(
+        required=False,
+        label='Has module bays',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    inventory_items = forms.NullBooleanField(
+        required=False,
+        label='Has inventory items',
         widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )

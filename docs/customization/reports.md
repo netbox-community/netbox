@@ -85,6 +85,20 @@ As you can see, reports are completely customizable. Validation logic can be as 
 !!! warning
     Reports should never alter data: If you find yourself using the `create()`, `save()`, `update()`, or `delete()` methods on objects within reports, stop and re-evaluate what you're trying to accomplish. Note that there are no safeguards against the accidental alteration or destruction of data.
 
+## Report Attributes
+
+### `description`
+
+A human-friendly description of what your report does.
+
+### `job_timeout`
+
+Set the maximum allowed runtime for the report. If not set, `RQ_DEFAULT_TIMEOUT` will be used.
+
+!!! info "This feature was introduced in v3.2.1"
+
+## Logging
+
 The following methods are available to log results within a report:
 
 * log(message)

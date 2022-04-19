@@ -14,7 +14,7 @@ from extras.models import *
 from extras.utils import FeatureQuery
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.exceptions import SerializerNotFound
-from netbox.api.serializers import BaseModelSerializer, ValidatedModelSerializer
+from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
 from users.api.nested_serializers import NestedUserSerializer
@@ -78,15 +78,19 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         many=True
     )
     type = ChoiceField(choices=CustomFieldTypeChoices)
+    object_type = ContentTypeField(
+        queryset=ContentType.objects.all(),
+        required=False
+    )
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
     data_type = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomField
         fields = [
-            'id', 'url', 'display', 'content_types', 'type', 'data_type', 'name', 'label', 'description', 'required',
-            'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
-            'choices', 'created', 'last_updated',
+            'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'description',
+            'required', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
+            'validation_regex', 'choices', 'created', 'last_updated',
         ]
 
     def get_data_type(self, obj):
@@ -196,7 +200,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 # Journal entries
 #
 
-class JournalEntrySerializer(ValidatedModelSerializer):
+class JournalEntrySerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:journalentry-detail')
     assigned_object_type = ContentTypeField(
         queryset=ContentType.objects.all()
@@ -217,7 +221,7 @@ class JournalEntrySerializer(ValidatedModelSerializer):
         model = JournalEntry
         fields = [
             'id', 'url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'created',
-            'created_by', 'kind', 'comments',
+            'created_by', 'kind', 'comments', 'tags', 'custom_fields',
         ]
 
     def validate(self, data):

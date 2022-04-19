@@ -113,6 +113,11 @@ class ASNTable(NetBoxTable):
         url_params={'asn_id': 'pk'},
         verbose_name='Site Count'
     )
+    provider_count = columns.LinkedCountColumn(
+        viewname='circuits:provider_list',
+        url_params={'asn_id': 'pk'},
+        verbose_name='Provider Count'
+    )
     sites = tables.ManyToManyColumn(
         linkify_item=True,
         verbose_name='Sites'
@@ -125,10 +130,10 @@ class ASNTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ASN
         fields = (
-            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'tenant', 'description', 'sites', 'tags', 'created',
-            'last_updated', 'actions',
+            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'provider_count', 'tenant', 'description', 'sites', 'tags',
+            'created', 'last_updated', 'actions',
         )
-        default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'description', 'tenant')
+        default_columns = ('pk', 'asn', 'rir', 'site_count', 'provider_count', 'sites', 'description', 'tenant')
 
 
 #

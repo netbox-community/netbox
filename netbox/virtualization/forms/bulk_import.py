@@ -136,6 +136,18 @@ class VMInterfaceCSVForm(NetBoxModelCSVForm):
             'vrf',
         )
 
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+            # Limit interface choices for parent & bridge interfaces to the assigned VM
+            if virtual_machine := data.get('virtual_machine'):
+                params = {
+                    f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": virtual_machine
+                }
+                self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
+                self.fields['bridge'].queryset = self.fields['bridge'].queryset.filter(**params)
+
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data
         if 'enabled' not in self.data:
