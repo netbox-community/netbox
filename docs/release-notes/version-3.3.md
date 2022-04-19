@@ -6,6 +6,7 @@
 
 * [#8495](https://github.com/netbox-community/netbox/issues/8495) - Enable custom field grouping
 * [#8995](https://github.com/netbox-community/netbox/issues/8995) - Enable arbitrary ordering of REST API results
+* [#8878](https://github.com/netbox-community/netbox/issues/8878) - Restrict API key usage by source IP
 
 ### REST API Changes
 
