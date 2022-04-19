@@ -75,5 +75,14 @@ If successful, you will be redirected back to the NetBox UI, and will be logged 
 
 This user account has been replicated locally to NetBox, and can now be assigned groups and permissions within the NetBox admin UI.
 
-!!! note "Troubleshooting"
-    If you are redirected to the NetBox UI after authenticating, but are _not_ logged in, double-check the configured backend and app registration. The instructions in this guide pertain only to the `azuread.AzureADOAuth2` backend using a single-tenant app registration.
+## Troubleshooting
+
+### Redirect URI does not Match
+
+Azure requires that the authenticating client request a redirect URI that matches what you've configured for the app in step two. This URI **must** begin with `https://` (unless using `localhost` for the domain).
+
+If Azure complains that the requested URI starts with `http://` (not HTTPS), it's likely that your HTTP server is misconfigured or sitting behind a load balancer, so NetBox is not aware that HTTPS is being use. To force the use of an HTTPS redirect URI, set `SOCIAL_AUTH_REDIRECT_IS_HTTPS = True` in `configuration.py` per the [python-social-auth docs](https://python-social-auth.readthedocs.io/en/latest/configuration/settings.html#processing-redirects-and-urlopen).
+
+### Not Logged in After Authenticating
+
+If you are redirected to the NetBox UI after authenticating successfully, but are _not_ logged in, double-check the configured backend and app registration. The instructions in this guide pertain only to the `azuread.AzureADOAuth2` backend using a single-tenant app registration.
