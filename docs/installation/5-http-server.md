@@ -56,10 +56,12 @@ Begin by installing Apache:
 sudo apt install -y apache2
 ```
 
-Next, copy the default configuration file to `/etc/apache2/sites-available/`. Be sure to modify the `ServerName` parameter appropriately.
+Next, copy the default configuration file to `/etc/apache2/sites-available/`. Be sure to modify the `ServerName` parameter appropriately. 
+(ParameterName ServerName = Server-Name or IP-Adress)
 
 ```no-highlight
 sudo cp /opt/netbox/contrib/apache.conf /etc/apache2/sites-available/netbox.conf
+sudo nano /etc/apache2/sites-available/netbox.conf
 ```
 
 Finally, ensure that the required Apache modules are enabled, enable the `netbox` site, and reload Apache:
@@ -73,6 +75,8 @@ sudo systemctl restart apache2
 ## Confirm Connectivity
 
 At this point, you should be able to connect to the HTTPS service at the server name or IP address you provided.
+
+Open in the browser https://Servername/ or https://IP-Adress/ (depending on the netbox.conf entry) without the port 8000!
 
 !!! info
     Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You may want to make adjustments to better suit your production environment.
