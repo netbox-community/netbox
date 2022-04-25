@@ -12,7 +12,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from circuits.models import Circuit
+from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
@@ -2850,16 +2850,15 @@ class CableCreateView(generic.ObjectEditView):
 
         # Set initial site and rack based on side A termination (if not already set)
         termination_a_site = getattr(obj.termination_a.parent_object, 'site', None)
-        if termination_a_site and 'termination_b_region' not in initial_data:
-            initial_data['termination_b_region'] = termination_a_site.region
-        if termination_a_site and 'termination_b_site_group' not in initial_data:
-            initial_data['termination_b_site_group'] = termination_a_site.group
         if 'termination_b_site' not in initial_data:
             initial_data['termination_b_site'] = termination_a_site
         if 'termination_b_rack' not in initial_data:
             initial_data['termination_b_rack'] = getattr(obj.termination_a.parent_object, 'rack', None)
 
         form = self.form(instance=obj, initial=initial_data)
+
+        # Set the queryset of termination A
+        form.fields['termination_a_id'].queryset = kwargs['termination_a_type'].objects.all()
 
         return render(request, self.template_name, {
             'obj': obj,

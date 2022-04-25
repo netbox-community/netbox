@@ -21,15 +21,29 @@ class ConnectCableToDeviceForm(TenancyForm, NetBoxModelForm):
     """
     Base form for connecting a Cable to a Device component
     """
+    # Termination A
+    termination_a_id = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        label='Name',
+        disabled_indicator='_occupied'
+    )
+
+    # Termination B
     termination_b_region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         label='Region',
-        required=False
+        required=False,
+        initial_params={
+            'sites': '$termination_b_site'
+        }
     )
     termination_b_sitegroup = DynamicModelChoiceField(
         queryset=SiteGroup.objects.all(),
         label='Site group',
-        required=False
+        required=False,
+        initial_params={
+            'sites': '$termination_b_site'
+        }
     )
     termination_b_site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -73,15 +87,19 @@ class ConnectCableToDeviceForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Cable
         fields = [
-            'termination_b_region', 'termination_b_sitegroup', 'termination_b_site', 'termination_b_rack',
-            'termination_b_device', 'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color',
-            'length', 'length_unit', 'tags',
+            'termination_a_id', 'termination_b_region', 'termination_b_sitegroup', 'termination_b_site',
+            'termination_b_rack', 'termination_b_device', 'termination_b_id', 'type', 'status', 'tenant_group',
+            'tenant', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
         widgets = {
             'status': StaticSelect,
             'type': StaticSelect,
             'length_unit': StaticSelect,
         }
+
+    def clean_termination_a_id(self):
+        # Return the PK rather than the object
+        return getattr(self.cleaned_data['termination_a_id'], 'pk', None)
 
     def clean_termination_b_id(self):
         # Return the PK rather than the object
@@ -167,6 +185,14 @@ class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
 
 
 class ConnectCableToCircuitTerminationForm(TenancyForm, NetBoxModelForm):
+    # Termination A
+    termination_a_id = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        label='Side',
+        disabled_indicator='_occupied'
+    )
+
+    # Termination B
     termination_b_provider = DynamicModelChoiceField(
         queryset=Provider.objects.all(),
         label='Provider',
@@ -175,12 +201,18 @@ class ConnectCableToCircuitTerminationForm(TenancyForm, NetBoxModelForm):
     termination_b_region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         label='Region',
-        required=False
+        required=False,
+        initial_params={
+            'sites': '$termination_b_site'
+        }
     )
     termination_b_sitegroup = DynamicModelChoiceField(
         queryset=SiteGroup.objects.all(),
         label='Site group',
-        required=False
+        required=False,
+        initial_params={
+            'sites': '$termination_b_site'
+        }
     )
     termination_b_site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -210,10 +242,14 @@ class ConnectCableToCircuitTerminationForm(TenancyForm, NetBoxModelForm):
 
     class Meta(ConnectCableToDeviceForm.Meta):
         fields = [
-            'termination_b_provider', 'termination_b_region', 'termination_b_sitegroup', 'termination_b_site',
-            'termination_b_circuit', 'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color',
-            'length', 'length_unit', 'tags',
+            'termination_a_id', 'termination_b_provider', 'termination_b_region', 'termination_b_sitegroup',
+            'termination_b_site', 'termination_b_circuit', 'termination_b_id', 'type', 'status', 'tenant_group',
+            'tenant', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
+
+    def clean_termination_a_id(self):
+        # Return the PK rather than the object
+        return getattr(self.cleaned_data['termination_a_id'], 'pk', None)
 
     def clean_termination_b_id(self):
         # Return the PK rather than the object
@@ -221,15 +257,29 @@ class ConnectCableToCircuitTerminationForm(TenancyForm, NetBoxModelForm):
 
 
 class ConnectCableToPowerFeedForm(TenancyForm, NetBoxModelForm):
+    # Termination A
+    termination_a_id = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        label='Name',
+        disabled_indicator='_occupied'
+    )
+
+    # Termination B
     termination_b_region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         label='Region',
-        required=False
+        required=False,
+        initial_params={
+            'sites': '$termination_b_site'
+        }
     )
     termination_b_sitegroup = DynamicModelChoiceField(
         queryset=SiteGroup.objects.all(),
         label='Site group',
-        required=False
+        required=False,
+        initial_params={
+            'sites': '$termination_b_site'
+        }
     )
     termination_b_site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -268,10 +318,14 @@ class ConnectCableToPowerFeedForm(TenancyForm, NetBoxModelForm):
 
     class Meta(ConnectCableToDeviceForm.Meta):
         fields = [
-            'termination_b_region', 'termination_b_sitegroup', 'termination_b_site', 'termination_b_location',
-            'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label',
-            'color', 'length', 'length_unit', 'tags',
+            'termination_a_id', 'termination_b_region', 'termination_b_sitegroup', 'termination_b_site',
+            'termination_b_location', 'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'tenant_group',
+            'tenant', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
+
+    def clean_termination_a_id(self):
+        # Return the PK rather than the object
+        return getattr(self.cleaned_data['termination_a_id'], 'pk', None)
 
     def clean_termination_b_id(self):
         # Return the PK rather than the object
