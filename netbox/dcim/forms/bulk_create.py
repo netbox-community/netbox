@@ -3,7 +3,7 @@ from django import forms
 from dcim.models import *
 from extras.forms import CustomFieldsMixin
 from extras.models import Tag
-from utilities.forms import DynamicModelMultipleChoiceField, form_from_model
+from utilities.forms import DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model
 from .object_create import ComponentCreateForm
 
 __all__ = (
@@ -98,7 +98,13 @@ class RearPortBulkCreateForm(
 
 class ModuleBayBulkCreateForm(DeviceBulkAddComponentForm):
     model = ModuleBay
-    field_order = ('name_pattern', 'label_pattern', 'description', 'tags')
+    field_order = ('name_pattern', 'label_pattern', 'position_pattern', 'description', 'tags')
+
+    position_pattern = ExpandableNameField(
+        label='Position',
+        required=False,
+        help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
+    )
 
 
 class DeviceBayBulkCreateForm(DeviceBulkAddComponentForm):
