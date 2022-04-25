@@ -570,8 +570,9 @@ export class APISelect {
    * additional paginated options.
    */
   private handleScroll(): void {
+    // Floor scrollTop as chrome can return fractions on some zoom levels.
     const atBottom =
-      this.slim.slim.list.scrollTop + this.slim.slim.list.offsetHeight ===
+      Math.floor(this.slim.slim.list.scrollTop) + this.slim.slim.list.offsetHeight ===
       this.slim.slim.list.scrollHeight;
 
     if (this.atBottom && !atBottom) {

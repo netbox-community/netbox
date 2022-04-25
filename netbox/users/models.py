@@ -173,11 +173,11 @@ class UserConfig(models.Model):
 
 
 @receiver(post_save, sender=User)
-def create_userconfig(instance, created, **kwargs):
+def create_userconfig(instance, created, raw=False, **kwargs):
     """
-    Automatically create a new UserConfig when a new User is created.
+    Automatically create a new UserConfig when a new User is created. Skip this if importing a user from a fixture.
     """
-    if created:
+    if created and not raw:
         config = get_config()
         UserConfig(user=instance, data=config.DEFAULT_USER_PREFERENCES).save()
 

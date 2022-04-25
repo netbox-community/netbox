@@ -698,6 +698,9 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             DeviceBayTemplate(device_type=device_types[0], name='Device Bay 1'),
             DeviceBayTemplate(device_type=device_types[1], name='Device Bay 2'),
         ))
+        # Assigned DeviceType must have parent subdevice_role
+        inventory_item = InventoryItemTemplate(device_type=device_types[1], name='Inventory Item 1')
+        inventory_item.save()
 
     def test_model(self):
         params = {'model': ['Model 1', 'Model 2']}
@@ -783,6 +786,12 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'module_bays': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_inventory_items(self):
+        params = {'inventory_items': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'inventory_items': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):

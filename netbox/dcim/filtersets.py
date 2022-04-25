@@ -435,6 +435,10 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
         method='_device_bays',
         label='Has device bays',
     )
+    inventory_items = django_filters.BooleanFilter(
+        method='_inventory_items',
+        label='Has inventory items',
+    )
 
     class Meta:
         model = DeviceType
@@ -478,6 +482,9 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
 
     def _device_bays(self, queryset, name, value):
         return queryset.exclude(devicebaytemplates__isnull=value)
+
+    def _inventory_items(self, queryset, name, value):
+        return queryset.exclude(inventoryitemtemplates__isnull=value)
 
 
 class ModuleTypeFilterSet(NetBoxModelFilterSet):
