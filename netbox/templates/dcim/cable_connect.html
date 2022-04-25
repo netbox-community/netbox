@@ -3,7 +3,7 @@
 {% load helpers %}
 {% load form_helpers %}
 
-{% block title %}Connect {{ form.instance.termination_a.device }} {{ form.instance.termination_a }} to {{ termination_b_type|bettertitle }}{% endblock %}
+{% block title %}Connect Cable to {{ termination_b_type|bettertitle }}{% endblock %}
 
 {% block tabs %}
 <ul class="nav nav-tabs px-3">
@@ -15,7 +15,7 @@
 
 {% block content-wrapper %}
   <div class="tab-content">
-    {% with termination_a=form.instance.termination_a %}
+    {% with termination_a=form.instance.termination_a.0 %}
       {% render_errors form %}
       <form method="post">
       {% csrf_token %}
@@ -92,7 +92,7 @@
                               </div>
                           </div>
                       {% endif %}
-                      {% render_field form.termination_a_id %}
+                      {% render_field form.termination_a_ids %}
                   </div>
               </div>
           </div>
@@ -148,7 +148,7 @@
                               <input class="form-control" value="{{ termination_b_type|capfirst }}" disabled />
                           </div>
                       </div>
-                      {% render_field form.termination_b_id %}
+                      {% render_field form.termination_b_ids %}
                   </div>
               </div>
           </div>

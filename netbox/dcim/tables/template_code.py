@@ -13,14 +13,20 @@ CABLE_LENGTH = """
 {% if record.length %}{{ record.length|simplify_decimal }} {{ record.length_unit }}{% endif %}
 """
 
+CABLE_TERMINATION = """
+{{ value|join:", " }}
+"""
+
 CABLE_TERMINATION_PARENT = """
-{% if value.device %}
-    <a href="{{ value.device.get_absolute_url }}">{{ value.device }}</a>
-{% elif value.circuit %}
-    <a href="{{ value.circuit.get_absolute_url }}">{{ value.circuit }}</a>
-{% elif value.power_panel %}
-    <a href="{{ value.power_panel.get_absolute_url }}">{{ value.power_panel }}</a>
-{% endif %}
+{% with value.0 as termination %}
+  {% if termination.device %}
+    <a href="{{ termination.device.get_absolute_url }}">{{ termination.device }}</a>
+  {% elif termination.circuit %}
+    <a href="{{ termination.circuit.get_absolute_url }}">{{ termination.circuit }}</a>
+  {% elif termination.power_panel %}
+    <a href="{{ termination.power_panel.get_absolute_url }}">{{ termination.power_panel }}</a>
+  {% endif %}
+{% endwith %}
 """
 
 DEVICE_LINK = """

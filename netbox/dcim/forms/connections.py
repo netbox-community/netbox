@@ -2,7 +2,7 @@ from circuits.models import Circuit, CircuitTermination, Provider
 from dcim.models import *
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import DynamicModelChoiceField, StaticSelect
+from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect
 
 __all__ = (
     'ConnectCableToCircuitTerminationForm',
@@ -22,7 +22,7 @@ class ConnectCableToDeviceForm(TenancyForm, NetBoxModelForm):
     Base form for connecting a Cable to a Device component
     """
     # Termination A
-    termination_a_id = DynamicModelChoiceField(
+    termination_a_ids = DynamicModelMultipleChoiceField(
         queryset=Interface.objects.all(),
         label='Name',
         disabled_indicator='_occupied'
@@ -87,8 +87,8 @@ class ConnectCableToDeviceForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Cable
         fields = [
-            'termination_a_id', 'termination_b_region', 'termination_b_sitegroup', 'termination_b_site',
-            'termination_b_rack', 'termination_b_device', 'termination_b_id', 'type', 'status', 'tenant_group',
+            'termination_a_ids', 'termination_b_region', 'termination_b_sitegroup', 'termination_b_site',
+            'termination_b_rack', 'termination_b_device', 'termination_b_ids', 'type', 'status', 'tenant_group',
             'tenant', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
         widgets = {
@@ -97,17 +97,17 @@ class ConnectCableToDeviceForm(TenancyForm, NetBoxModelForm):
             'length_unit': StaticSelect,
         }
 
-    def clean_termination_a_id(self):
+    def clean_termination_a_ids(self):
         # Return the PK rather than the object
-        return getattr(self.cleaned_data['termination_a_id'], 'pk', None)
+        return [getattr(obj, 'pk') for obj in self.cleaned_data['termination_a_ids']]
 
-    def clean_termination_b_id(self):
+    def clean_termination_b_ids(self):
         # Return the PK rather than the object
-        return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
+        return [getattr(obj, 'pk') for obj in self.cleaned_data['termination_b_ids']]
 
 
 class ConnectCableToConsolePortForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
+    termination_b_ids = DynamicModelMultipleChoiceField(
         queryset=ConsolePort.objects.all(),
         label='Name',
         disabled_indicator='_occupied',
@@ -118,7 +118,7 @@ class ConnectCableToConsolePortForm(ConnectCableToDeviceForm):
 
 
 class ConnectCableToConsoleServerPortForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
+    termination_b_ids = DynamicModelMultipleChoiceField(
         queryset=ConsoleServerPort.objects.all(),
         label='Name',
         disabled_indicator='_occupied',
@@ -129,7 +129,7 @@ class ConnectCableToConsoleServerPortForm(ConnectCableToDeviceForm):
 
 
 class ConnectCableToPowerPortForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
+    termination_b_ids = DynamicModelMultipleChoiceField(
         queryset=PowerPort.objects.all(),
         label='Name',
         disabled_indicator='_occupied',
@@ -140,7 +140,7 @@ class ConnectCableToPowerPortForm(ConnectCableToDeviceForm):
 
 
 class ConnectCableToPowerOutletForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
+    termination_b_ids = DynamicModelMultipleChoiceField(
         queryset=PowerOutlet.objects.all(),
         label='Name',
         disabled_indicator='_occupied',
@@ -151,7 +151,7 @@ class ConnectCableToPowerOutletForm(ConnectCableToDeviceForm):
 
 
 class ConnectCableToInterfaceForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
+    termination_b_ids = DynamicModelMultipleChoiceField(
         queryset=Interface.objects.all(),
         label='Name',
         disabled_indicator='_occupied',
@@ -163,7 +163,7 @@ class ConnectCableToInterfaceForm(ConnectCableToDeviceForm):
 
 
 class ConnectCableToFrontPortForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
+    termination_b_ids = DynamicModelMultipleChoiceField(
         queryset=FrontPort.objects.all(),
         label='Name',
         disabled_indicator='_occupied',
@@ -174,7 +174,7 @@ class ConnectCableToFrontPortForm(ConnectCableToDeviceForm):
 
 
 class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
+    termination_b_ids = DynamicModelMultipleChoiceField(
         queryset=RearPort.objects.all(),
         label='Name',
         disabled_indicator='_occupied',
@@ -186,7 +186,7 @@ class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
 
 class ConnectCableToCircuitTerminationForm(TenancyForm, NetBoxModelForm):
     # Termination A
-    termination_a_id = DynamicModelChoiceField(
+    termination_a_ids = DynamicModelMultipleChoiceField(
         queryset=Interface.objects.all(),
         label='Side',
         disabled_indicator='_occupied'
@@ -231,7 +231,7 @@ class ConnectCableToCircuitTerminationForm(TenancyForm, NetBoxModelForm):
             'site_id': '$termination_b_site',
         }
     )
-    termination_b_id = DynamicModelChoiceField(
+    termination_b_ids = DynamicModelMultipleChoiceField(
         queryset=CircuitTermination.objects.all(),
         label='Side',
         disabled_indicator='_occupied',
@@ -242,8 +242,8 @@ class ConnectCableToCircuitTerminationForm(TenancyForm, NetBoxModelForm):
 
     class Meta(ConnectCableToDeviceForm.Meta):
         fields = [
-            'termination_a_id', 'termination_b_provider', 'termination_b_region', 'termination_b_sitegroup',
-            'termination_b_site', 'termination_b_circuit', 'termination_b_id', 'type', 'status', 'tenant_group',
+            'termination_a_ids', 'termination_b_provider', 'termination_b_region', 'termination_b_sitegroup',
+            'termination_b_site', 'termination_b_circuit', 'termination_b_ids', 'type', 'status', 'tenant_group',
             'tenant', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
 
@@ -258,7 +258,7 @@ class ConnectCableToCircuitTerminationForm(TenancyForm, NetBoxModelForm):
 
 class ConnectCableToPowerFeedForm(TenancyForm, NetBoxModelForm):
     # Termination A
-    termination_a_id = DynamicModelChoiceField(
+    termination_a_ids = DynamicModelMultipleChoiceField(
         queryset=Interface.objects.all(),
         label='Name',
         disabled_indicator='_occupied'
@@ -307,7 +307,7 @@ class ConnectCableToPowerFeedForm(TenancyForm, NetBoxModelForm):
             'location_id': '$termination_b_location',
         }
     )
-    termination_b_id = DynamicModelChoiceField(
+    termination_b_ids = DynamicModelMultipleChoiceField(
         queryset=PowerFeed.objects.all(),
         label='Name',
         disabled_indicator='_occupied',
@@ -318,8 +318,8 @@ class ConnectCableToPowerFeedForm(TenancyForm, NetBoxModelForm):
 
     class Meta(ConnectCableToDeviceForm.Meta):
         fields = [
-            'termination_a_id', 'termination_b_region', 'termination_b_sitegroup', 'termination_b_site',
-            'termination_b_location', 'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'tenant_group',
+            'termination_a_ids', 'termination_b_region', 'termination_b_sitegroup', 'termination_b_site',
+            'termination_b_location', 'termination_b_powerpanel', 'termination_b_ids', 'type', 'status', 'tenant_group',
             'tenant', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
 

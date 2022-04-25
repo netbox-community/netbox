@@ -2831,12 +2831,13 @@ class CableCreateView(generic.ObjectEditView):
 
     def alter_object(self, obj, request, url_args, url_kwargs):
         termination_a_type = url_kwargs.get('termination_a_type')
-        termination_a_id = request.GET.get('termination_a_id')
+        termination_a_ids = request.GET.get('termination_a_ids', [])
         app_label, model = request.GET.get('termination_b_type').split('.')
         self.termination_b_type = ContentType.objects.get(app_label=app_label, model=model)
 
         # Initialize Cable termination attributes
-        obj.termination_a = termination_a_type.objects.get(pk=termination_a_id)
+        obj.termination_a_type = ContentType.objects.get_for_model(termination_a_type)
+        obj.termination_a_ids = termination_a_type.objects.filter(pk__in=termination_a_ids)
         obj.termination_b_type = self.termination_b_type
 
         return obj
@@ -2844,21 +2845,19 @@ class CableCreateView(generic.ObjectEditView):
     def get(self, request, *args, **kwargs):
         obj = self.get_object(**kwargs)
         obj = self.alter_object(obj, request, args, kwargs)
+        initial_data = request.GET
 
-        # Parse initial data manually to avoid setting field values as lists
-        initial_data = {k: request.GET[k] for k in request.GET}
-
-        # Set initial site and rack based on side A termination (if not already set)
-        termination_a_site = getattr(obj.termination_a.parent_object, 'site', None)
-        if 'termination_b_site' not in initial_data:
-            initial_data['termination_b_site'] = termination_a_site
-        if 'termination_b_rack' not in initial_data:
-            initial_data['termination_b_rack'] = getattr(obj.termination_a.parent_object, 'rack', None)
-
+        # TODO
+        # # Set initial site and rack based on side A termination (if not already set)
+        # termination_a_site = getattr(obj.termination_a.parent_object, 'site', None)
+        # if 'termination_b_site' not in initial_data:
+        #     initial_data['termination_b_site'] = termination_a_site
+        # if 'termination_b_rack' not in initial_data:
+        #     initial_data['termination_b_rack'] = getattr(obj.termination_a.parent_object, 'rack', None)
         form = self.form(instance=obj, initial=initial_data)
 
         # Set the queryset of termination A
-        form.fields['termination_a_id'].queryset = kwargs['termination_a_type'].objects.all()
+        form.fields['termination_a_ids'].queryset = kwargs['termination_a_type'].objects.all()
 
         return render(request, self.template_name, {
             'obj': obj,

@@ -132,6 +132,7 @@ def serialize_object(obj, extra=None):
     implicitly excluded.
     """
     json_str = serialize('json', [obj])
+    print(json_str)
     data = json.loads(json_str)[0]['fields']
 
     # Exclude any MPTTModel fields

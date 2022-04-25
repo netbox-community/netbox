@@ -4,7 +4,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Cable
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenantColumn
-from .template_code import CABLE_LENGTH, CABLE_TERMINATION_PARENT
+from .template_code import CABLE_LENGTH, CABLE_TERMINATION, CABLE_TERMINATION_PARENT
 
 __all__ = (
     'CableTable',
@@ -28,7 +28,8 @@ class CableTable(NetBoxTable):
         linkify=True,
         verbose_name='Rack A'
     )
-    termination_a = tables.Column(
+    termination_a = tables.TemplateColumn(
+        template_code=CABLE_TERMINATION,
         accessor=Accessor('termination_a'),
         orderable=False,
         linkify=True,
@@ -46,7 +47,8 @@ class CableTable(NetBoxTable):
         linkify=True,
         verbose_name='Rack B'
     )
-    termination_b = tables.Column(
+    termination_b = tables.TemplateColumn(
+        template_code=CABLE_TERMINATION,
         accessor=Accessor('termination_b'),
         orderable=False,
         linkify=True,

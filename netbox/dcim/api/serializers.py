@@ -977,8 +977,8 @@ class CableSerializer(NetBoxModelSerializer):
     class Meta:
         model = Cable
         fields = [
-            'id', 'url', 'display', 'termination_a_type', 'termination_a_id', 'termination_a', 'termination_b_type',
-            'termination_b_id', 'termination_b', 'type', 'status', 'tenant', 'label', 'color', 'length', 'length_unit',
+            'id', 'url', 'display', 'termination_a_type', 'termination_a_ids', 'termination_a', 'termination_b_type',
+            'termination_b_ids', 'termination_b', 'type', 'status', 'tenant', 'label', 'color', 'length', 'length_unit',
             'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
@@ -986,14 +986,12 @@ class CableSerializer(NetBoxModelSerializer):
         """
         Serialize a nested representation of a termination.
         """
-        if side.lower() not in ['a', 'b']:
-            raise ValueError("Termination side must be either A or B.")
-        termination = getattr(obj, 'termination_{}'.format(side.lower()))
-        if termination is None:
-            return None
-        serializer = get_serializer_for_model(termination, prefix='Nested')
+        assert side.lower() in ('a', 'b')
+        termination_type = getattr(obj, f'termination_{side}_type').model_class()
+        termination = getattr(obj, f'termination_{side}')
+        serializer = get_serializer_for_model(termination_type, prefix='Nested')
         context = {'request': self.context['request']}
-        data = serializer(termination, context=context).data
+        data = serializer(termination, context=context, many=True).data
 
         return data
 
