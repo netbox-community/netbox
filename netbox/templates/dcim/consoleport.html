@@ -113,7 +113,7 @@
                                         <li>
                                             <a
                                                 class="dropdown-item"
-                                                href="{% url 'dcim:consoleport_connect' termination_a_id=object.pk termination_b_type='console-server-port' %}?return_url={{ object.get_absolute_url }}"
+                                                href="{% url 'dcim:consoleport_connect' %}?termination_a_id={{ object.pk }}&termination_b_type=dcim.consoleserverport&return_url={{ object.get_absolute_url }}"
                                             >
                                                 Console Server Port
                                             </a>
@@ -121,7 +121,7 @@
                                         <li>
                                             <a
                                                 class="dropdown-item"
-                                                href="{% url 'dcim:consoleport_connect' termination_a_id=object.pk termination_b_type='front-port' %}?return_url={{ object.get_absolute_url }}"
+                                                href="{% url 'dcim:consoleport_connect' %}?termination_a_id={{ object.pk }}&termination_b_type=dcim.frontport&return_url={{ object.get_absolute_url }}"
                                             >
                                                 Front Port
                                             </a>
@@ -129,7 +129,7 @@
                                         <li>
                                             <a
                                                 class="dropdown-item"
-                                                href="{% url 'dcim:consoleport_connect' termination_a_id=object.pk termination_b_type='rear-port' %}?return_url={{ object.get_absolute_url }}"
+                                                href="{% url 'dcim:consoleport_connect' %}?termination_a_id={{ object.pk }}&termination_b_type=dcim.rearport&return_url={{ object.get_absolute_url }}"
                                             >
                                                 Rear Port
                                             </a>

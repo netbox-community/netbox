@@ -117,10 +117,10 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a class="dropdown-link" href="{% url 'dcim:powerport_connect' termination_a_id=object.pk termination_b_type='power-outlet' %}?return_url={{ object.get_absolute_url }}">Power Outlet</a>
+                                        <a class="dropdown-link" href="{% url 'dcim:powerport_connect' %}?termination_a_id={{ object.pk }}&termination_b_type=dcim.poweroutlet&return_url={{ object.get_absolute_url }}">Power Outlet</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-link" href="{% url 'dcim:powerport_connect' termination_a_id=object.pk termination_b_type='power-feed' %}?return_url={{ object.get_absolute_url }}">Power Feed</a>
+                                        <a class="dropdown-link" href="{% url 'dcim:powerport_connect' %}?termination_a_id={{ object.pk }}&termination_b_type=dcim.powerfeed&return_url={{ object.get_absolute_url }}">Power Feed</a>
                                     </li>
                                 </ul>
                             </span>

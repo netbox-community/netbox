@@ -105,22 +105,22 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'dcim:frontport_connect' termination_a_id=object.pk termination_b_type='interface' %}?return_url={{ object.get_absolute_url }}">Interface</a>
+                                        <a class="dropdown-item" href="{% url 'dcim:frontport_connect' %}?termination_a_id={{ object.pk }}&termination_b_type=dcim.interface&return_url={{ object.get_absolute_url }}">Interface</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'dcim:frontport_connect' termination_a_id=object.pk termination_b_type='console-server-port' %}?return_url={{ object.get_absolute_url }}">Console Server Port</a>
+                                        <a class="dropdown-item" href="{% url 'dcim:frontport_connect' %}?termination_a_id={{ object.pk }}&termination_b_type=dcim.consoleserverport&return_url={{ object.get_absolute_url }}">Console Server Port</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'dcim:frontport_connect' termination_a_id=object.pk termination_b_type='console-port' %}?return_url={{ object.get_absolute_url }}">Console Port</a>
+                                        <a class="dropdown-item" href="{% url 'dcim:frontport_connect' %}?termination_a_id={{ object.pk }}&termination_b_type=dcim.consoleport&return_url={{ object.get_absolute_url }}">Console Port</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'dcim:frontport_connect' termination_a_id=object.pk termination_b_type='front-port' %}?return_url={{ object.get_absolute_url }}">Front Port</a>
+                                        <a class="dropdown-item" href="{% url 'dcim:frontport_connect' %}?termination_a_id={{ object.pk }}&termination_b_type=dcim.frontport&return_url={{ object.get_absolute_url }}">Front Port</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'dcim:frontport_connect' termination_a_id=object.pk termination_b_type='rear-port' %}?return_url={{ object.get_absolute_url }}">Rear Port</a>
+                                        <a class="dropdown-item" href="{% url 'dcim:frontport_connect' %}?termination_a_id={{ object.pk }}&termination_b_type=dcim.rearport&return_url={{ object.get_absolute_url }}">Rear Port</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'dcim:frontport_connect' termination_a_id=object.pk termination_b_type='circuit-termination' %}?return_url={{ object.get_absolute_url }}">Circuit Termination</a>
+                                        <a class="dropdown-item" href="{% url 'dcim:frontport_connect' %}?termination_a_id={{ object.pk }}&termination_b_type=circuits.circuittermination&return_url={{ object.get_absolute_url }}">Circuit Termination</a>
                                     </li>
                                 </ul>
                             </div>

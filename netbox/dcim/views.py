@@ -2812,16 +2812,16 @@ class CableCreateView(generic.ObjectEditView):
 
         # Set the form class based on the type of component being connected
         self.form = {
-            'console-port': forms.ConnectCableToConsolePortForm,
-            'console-server-port': forms.ConnectCableToConsoleServerPortForm,
-            'power-port': forms.ConnectCableToPowerPortForm,
-            'power-outlet': forms.ConnectCableToPowerOutletForm,
-            'interface': forms.ConnectCableToInterfaceForm,
-            'front-port': forms.ConnectCableToFrontPortForm,
-            'rear-port': forms.ConnectCableToRearPortForm,
-            'power-feed': forms.ConnectCableToPowerFeedForm,
-            'circuit-termination': forms.ConnectCableToCircuitTerminationForm,
-        }[kwargs.get('termination_b_type')]
+            'dcim.consoleport': forms.ConnectCableToConsolePortForm,
+            'dcim.consoleserverport': forms.ConnectCableToConsoleServerPortForm,
+            'dcim.powerport': forms.ConnectCableToPowerPortForm,
+            'dcim.poweroutlet': forms.ConnectCableToPowerOutletForm,
+            'dcim.interface': forms.ConnectCableToInterfaceForm,
+            'dcim.frontport': forms.ConnectCableToFrontPortForm,
+            'dcim.rearport': forms.ConnectCableToRearPortForm,
+            'dcim.powerfeed': forms.ConnectCableToPowerFeedForm,
+            'circuits.circuittermination': forms.ConnectCableToCircuitTerminationForm,
+        }[request.GET.get('termination_b_type')]
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -2831,9 +2831,9 @@ class CableCreateView(generic.ObjectEditView):
 
     def alter_object(self, obj, request, url_args, url_kwargs):
         termination_a_type = url_kwargs.get('termination_a_type')
-        termination_a_id = url_kwargs.get('termination_a_id')
-        termination_b_type_name = url_kwargs.get('termination_b_type')
-        self.termination_b_type = ContentType.objects.get(model=termination_b_type_name.replace('-', ''))
+        termination_a_id = request.GET.get('termination_a_id')
+        app_label, model = request.GET.get('termination_b_type').split('.')
+        self.termination_b_type = ContentType.objects.get(app_label=app_label, model=model)
 
         # Initialize Cable termination attributes
         obj.termination_a = termination_a_type.objects.get(pk=termination_a_id)
