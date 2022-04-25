@@ -6,9 +6,12 @@
 
 * [#9060](https://github.com/netbox-community/netbox/issues/9060) - Add device type filters for device bays, module bays, and inventory items
 * [#9152](https://github.com/netbox-community/netbox/issues/9152) - Annotate related object type under custom field view
+* [#9192](https://github.com/netbox-community/netbox/issues/9192) - Add Ubiquiti SmartPower connector type
+* [#9214](https://github.com/netbox-community/netbox/issues/9214) - Linkify cluster counts in cluster type & group tables
 
 ### Bug Fixes
 
+* [#8941](https://github.com/netbox-community/netbox/issues/8941) - Fix dynamic dropdown behavior when browser is zoomed
 * [#9132](https://github.com/netbox-community/netbox/issues/9132) - Limit location options by selected site when creating a wireless link
 * [#9133](https://github.com/netbox-community/netbox/issues/9133) - Upgrade script should require Python 3.8 or later
 * [#9151](https://github.com/netbox-community/netbox/issues/9151) - Child prefix counts not annotated on aggregates list under RIR view
