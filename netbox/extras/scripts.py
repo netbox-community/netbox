@@ -14,11 +14,9 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
 from django.utils.functional import classproperty
-from django_rq import job
 
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices, LogLevelChoices
-from extras.models import JobResult
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortTransaction

@@ -12,6 +12,7 @@
 ### Bug Fixes
 
 * [#8941](https://github.com/netbox-community/netbox/issues/8941) - Fix dynamic dropdown behavior when browser is zoomed
+* [#8959](https://github.com/netbox-community/netbox/issues/8959) - Prevent exception when refreshing scripts list (avoid race condition)
 * [#9132](https://github.com/netbox-community/netbox/issues/9132) - Limit location options by selected site when creating a wireless link
 * [#9133](https://github.com/netbox-community/netbox/issues/9133) - Upgrade script should require Python 3.8 or later
 * [#9151](https://github.com/netbox-community/netbox/issues/9151) - Child prefix counts not annotated on aggregates list under RIR view
