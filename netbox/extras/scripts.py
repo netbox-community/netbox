@@ -5,6 +5,7 @@ import os
 import pkgutil
 import sys
 import traceback
+import threading
 from collections import OrderedDict
 
 import yaml
@@ -41,6 +42,8 @@ __all__ = [
     'StringVar',
     'TextVar',
 ]
+
+lock = threading.Lock()
 
 
 #
@@ -491,11 +494,14 @@ def get_scripts(use_names=False):
     # Iterate through all modules within the scripts path. These are the user-created files in which reports are
     # defined.
     for importer, module_name, _ in pkgutil.iter_modules([settings.SCRIPTS_ROOT]):
-        # Remove cached module to ensure consistency with filesystem
-        if module_name in sys.modules:
-            del sys.modules[module_name]
+        # Use a lock as removing and loading modules is not thread safe
+        with lock:
+            # Remove cached module to ensure consistency with filesystem
+            if module_name in sys.modules:
+                del sys.modules[module_name]
 
-        module = importer.find_module(module_name).load_module(module_name)
+            module = importer.find_module(module_name).load_module(module_name)
+
         if use_names and hasattr(module, 'name'):
             module_name = module.name
         module_scripts = OrderedDict()
