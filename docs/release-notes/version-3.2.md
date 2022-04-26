@@ -20,6 +20,7 @@
 * [#9158](https://github.com/netbox-community/netbox/issues/9158) - Do not list tags field for CSV forms which do not support tag assignment
 * [#9194](https://github.com/netbox-community/netbox/issues/9194) - Support position assignment when add module bays to multiple devices
 * [#9206](https://github.com/netbox-community/netbox/issues/9206) - Show header for comments field under module & module type creation views
+* [#9222](https://github.com/netbox-community/netbox/issues/9222) - Fix circuit ID display under cable view
 
 ---
 
