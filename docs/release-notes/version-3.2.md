@@ -11,6 +11,7 @@
 
 ### Bug Fixes
 
+* [#4264](https://github.com/netbox-community/netbox/issues/4264) - Treat 0th IP as unusable for IPv6 prefixes (excluding /127s)
 * [#8941](https://github.com/netbox-community/netbox/issues/8941) - Fix dynamic dropdown behavior when browser is zoomed
 * [#8959](https://github.com/netbox-community/netbox/issues/8959) - Prevent exception when refreshing scripts list (avoid race condition)
 * [#9132](https://github.com/netbox-community/netbox/issues/9132) - Limit location options by selected site when creating a wireless link
