@@ -185,6 +185,18 @@ class TestPrefix(TestCase):
         IPAddress.objects.create(address=IPNetwork('10.0.0.4/24'))
         self.assertEqual(parent_prefix.get_first_available_ip(), '10.0.0.5/24')
 
+    def test_get_first_available_ip_ipv6(self):
+        parent_prefix = Prefix.objects.create(prefix=IPNetwork('2001:db8:500::/64'))
+        self.assertEqual(parent_prefix.get_first_available_ip(), '2001:db8:500::1/64')
+
+    def test_get_first_available_ip_ipv6_rfc3627(self):
+        parent_prefix = Prefix.objects.create(prefix=IPNetwork('2001:db8:500:4::/126'))
+        self.assertEqual(parent_prefix.get_first_available_ip(), '2001:db8:500:4::1/126')
+
+    def test_get_first_available_ip_ipv6_rfc6164(self):
+        parent_prefix = Prefix.objects.create(prefix=IPNetwork('2001:db8:500:5::/127'))
+        self.assertEqual(parent_prefix.get_first_available_ip(), '2001:db8:500:5::/127')
+
     def test_get_utilization_container(self):
         prefixes = (
             Prefix(prefix=IPNetwork('10.0.0.0/24'), status=PrefixStatusChoices.STATUS_CONTAINER),
