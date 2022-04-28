@@ -385,6 +385,12 @@ class ModuleTypeForm(NetBoxModelForm):
     )
     comments = CommentField()
 
+    fieldsets = (
+        ('Module Type', (
+            'manufacturer', 'model', 'part_number', 'tags',
+        )),
+    )
+
     class Meta:
         model = ModuleType
         fields = [
@@ -625,6 +631,15 @@ class ModuleForm(NetBoxModelForm):
         required=False,
         initial=True,
         help_text="Automatically populate components associated with this module type"
+    )
+
+    fieldsets = (
+        ('Module', (
+            'device', 'module_bay', 'manufacturer', 'module_type', 'tags',
+        )),
+        ('Hardware', (
+            'serial', 'asset_tag', 'replicate_components',
+        )),
     )
 
     class Meta:

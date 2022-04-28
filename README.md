@@ -49,7 +49,7 @@ NetBox runs as a web application atop the [Django](https://www.djangoproject.com
 Python framework with a [PostgreSQL](https://www.postgresql.org/) database. For a
 complete list of requirements, see `requirements.txt`. The code is available [on GitHub](https://github.com/netbox-community/netbox).
 
-The complete documentation for NetBox can be found at [Read the Docs](https://netbox.readthedocs.io/en/stable/). A public demo instance is available at https://demo.netbox.dev.
+The complete documentation for NetBox can be found at [docs.netbox.dev](https://docs.netbox.dev/). A public demo instance is available at https://demo.netbox.dev.
 
 <div align="center">
   <h4>Thank you to our sponsors!</h4>
@@ -71,7 +71,7 @@ The complete documentation for NetBox can be found at [Read the Docs](https://ne
 
 ### Installation
 
-Please see [the documentation](https://netbox.readthedocs.io/en/stable/) for
+Please see [the documentation](https://docs.netbox.dev/) for
 instructions on installing NetBox. To upgrade NetBox, please download the
 [latest release](https://github.com/netbox-community/netbox/releases) and
 run `upgrade.sh`.

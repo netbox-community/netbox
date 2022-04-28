@@ -77,7 +77,7 @@ class ComponentModel(NetBoxModel):
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
         objectchange.related_object = self.device
-        return super().to_objectchange(action)
+        return objectchange
 
     @property
     def parent_object(self):

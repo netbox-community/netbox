@@ -507,16 +507,20 @@ class Prefix(GetAvailablePrefixesMixin, NetBoxModel):
             child_ranges.add(iprange.range)
         available_ips = prefix - child_ips - child_ranges
 
-        # IPv6, pool, or IPv4 /31-/32 sets are fully usable
-        if self.family == 6 or self.is_pool or (self.family == 4 and self.prefix.prefixlen >= 31):
+        # IPv6 /127's, pool, or IPv4 /31-/32 sets are fully usable
+        if (self.family == 6 and self.prefix.prefixlen >= 127) or self.is_pool or (self.family == 4 and self.prefix.prefixlen >= 31):
             return available_ips
 
-        # For "normal" IPv4 prefixes, omit first and last addresses
-        available_ips -= netaddr.IPSet([
-            netaddr.IPAddress(self.prefix.first),
-            netaddr.IPAddress(self.prefix.last),
-        ])
-
+        if self.family == 4:
+            # For "normal" IPv4 prefixes, omit first and last addresses
+            available_ips -= netaddr.IPSet([
+                netaddr.IPAddress(self.prefix.first),
+                netaddr.IPAddress(self.prefix.last),
+            ])
+        else:
+            # For IPv6 prefixes, omit the Subnet-Router anycast address
+            # per RFC 4291
+            available_ips -= netaddr.IPSet([netaddr.IPAddress(self.prefix.first)])
         return available_ips
 
     def get_first_available_ip(self):

@@ -14,7 +14,9 @@ class ClusterTypeTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    cluster_count = tables.Column(
+    cluster_count = columns.LinkedCountColumn(
+        viewname='virtualization:cluster_list',
+        url_params={'type_id': 'pk'},
         verbose_name='Clusters'
     )
     tags = columns.TagColumn(
@@ -33,7 +35,9 @@ class ClusterGroupTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    cluster_count = tables.Column(
+    cluster_count = columns.LinkedCountColumn(
+        viewname='virtualization:cluster_list',
+        url_params={'group_id': 'pk'},
         verbose_name='Clusters'
     )
     contacts = tables.ManyToManyColumn(

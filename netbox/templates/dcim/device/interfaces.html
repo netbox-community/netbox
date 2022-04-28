@@ -4,44 +4,46 @@
 {% load static %}
 
 {% block content %}
-  <form method="post">
-    {% csrf_token %}
-    <div class="row mb-3 justify-content-between">
-      <div class="col col-12 col-lg-4 my-3 my-lg-0 d-flex noprint table-controls">
-        <div class="input-group input-group-sm">
-          <input
-              type="text"
-              name="q"
-              class="form-control"
-              placeholder="Quick search"
-              hx-get="{{ request.full_path }}"
-              hx-target="#object_list"
-              hx-trigger="keyup changed delay:500ms"
-          />
-        </div>
-      </div>
-      <div class="col col-md-3 mb-0 d-flex noprint table-controls">
-        <div class="input-group input-group-sm justify-content-end">
-          {% if request.user.is_authenticated %}
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-dark"
-                data-bs-toggle="modal"
-                data-bs-target="#DeviceInterfaceTable_config"
-                title="Configure Table">
-                <i class="mdi mdi-cog"></i> Configure Table
-            </button>
-          {% endif %}
-          <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="mdi mdi-eye"></i>
-          </button>
-          <ul class="dropdown-menu">
-            <button type="button" class="dropdown-item toggle-enabled" data-state="show">Hide Enabled</button>
-            <button type="button" class="dropdown-item toggle-disabled" data-state="show">Hide Disabled</button>
-          </ul>
-        </div>
+  <div class="row mb-3 justify-content-between">
+    <div class="col col-12 col-lg-4 my-3 my-lg-0 d-flex noprint table-controls">
+      <div class="input-group input-group-sm">
+        <input
+            type="text"
+            name="q"
+            class="form-control"
+            placeholder="Quick search"
+            hx-get="{{ request.full_path }}"
+            hx-target="#object_list"
+            hx-trigger="keyup changed delay:500ms"
+        />
       </div>
     </div>
+    <div class="col col-md-3 mb-0 d-flex noprint table-controls">
+      <div class="input-group input-group-sm justify-content-end">
+        {% if request.user.is_authenticated %}
+          <button
+              type="button"
+              class="btn btn-sm btn-outline-dark"
+              data-bs-toggle="modal"
+              data-bs-target="#DeviceInterfaceTable_config"
+              title="Configure Table">
+              <i class="mdi mdi-cog"></i> Configure Table
+          </button>
+        {% endif %}
+        <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="mdi mdi-eye"></i>
+        </button>
+        <ul class="dropdown-menu">
+          <button type="button" class="dropdown-item toggle-enabled" data-state="show">Hide Enabled</button>
+          <button type="button" class="dropdown-item toggle-disabled" data-state="show">Hide Disabled</button>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+
 
     <div class="card">
       <div class="card-body" id="object_list">

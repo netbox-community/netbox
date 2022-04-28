@@ -26,7 +26,7 @@ django.utils.encoding.force_text = force_str
 # Environment setup
 #
 
-VERSION = '3.2.1'
+VERSION = '3.2.2'
 
 # Hostname
 HOSTNAME = platform.node()

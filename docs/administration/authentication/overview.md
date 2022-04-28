@@ -4,7 +4,7 @@
 
 Local user accounts and groups can be created in NetBox under the "Authentication and Authorization" section of the administrative user interface. This interface is available only to users with the "staff" permission enabled.
 
-At a minimum, each user account must have a username and password set. User accounts may also denote a first name, last name, and email address. [Permissions](./permissions.md) may also be assigned to users and/or groups within the admin UI.
+At a minimum, each user account must have a username and password set. User accounts may also denote a first name, last name, and email address. [Permissions](../permissions.md) may also be assigned to users and/or groups within the admin UI.
 
 ## Remote Authentication
 
@@ -16,7 +16,7 @@ NetBox may be configured to provide user authenticate via a remote backend in ad
 REMOTE_AUTH_BACKEND = 'netbox.authentication.LDAPBackend'
 ```
 
-NetBox includes an authentication backend which supports LDAP. See the [LDAP installation docs](../installation/6-ldap.md) for more detail about this backend.
+NetBox includes an authentication backend which supports LDAP. See the [LDAP installation docs](../../installation/6-ldap.md) for more detail about this backend.
 
 ### HTTP Header Authentication
 

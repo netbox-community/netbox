@@ -61,6 +61,8 @@ class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
     """
     Base form for creating a NetBox objects from CSV data. Used for bulk importing.
     """
+    tags = None  # Temporary fix in lieu of tag import support (see #9158)
+
     def _get_form_field(self, customfield):
         return customfield.to_form_field(for_csv_import=True)
 
