@@ -81,34 +81,27 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
 
     # TODO: Update link peer fields
     # Cache the Cable on its termination points
-    for term in instance.termination_a:
-        if term.cable != instance:
+    for term in instance.terminations.all():
+        if term.termination.cable != instance:
             logger.debug(f"Updating termination A for cable {instance}: {term}")
-            term.cable = instance
-            # term._link_peer = instance.termination_b
-            term.save()
-    for term in instance.termination_b:
-        if term.cable != instance:
-            logger.debug(f"Updating termination B for cable {instance}")
-            term.cable = instance
-            # term._link_peer = instance.termination_a
+            term.termination.cable = instance
             term.save()
 
-    # Create/update cable paths
-    if created:
-        for termination in [*instance.termination_a, *instance.termination_b]:
-            if isinstance(termination, PathEndpoint):
-                create_cablepath(termination)
-            else:
-                rebuild_paths(termination)
-    elif instance.status != instance._orig_status:
-        # We currently don't support modifying either termination of an existing Cable. (This
-        # may change in the future.) However, we do need to capture status changes and update
-        # any CablePaths accordingly.
-        if instance.status != LinkStatusChoices.STATUS_CONNECTED:
-            CablePath.objects.filter(path__contains=instance).update(is_active=False)
-        else:
-            rebuild_paths(instance)
+    # # Create/update cable paths
+    # if created:
+    #     for term in instance.terminations.all():
+    #         if isinstance(term.termination, PathEndpoint):
+    #             create_cablepath(term.termination)
+    #         else:
+    #             rebuild_paths(term.termination)
+    # elif instance.status != instance._orig_status:
+    #     # We currently don't support modifying either termination of an existing Cable. (This
+    #     # may change in the future.) However, we do need to capture status changes and update
+    #     # any CablePaths accordingly.
+    #     if instance.status != LinkStatusChoices.STATUS_CONNECTED:
+    #         CablePath.objects.filter(path__contains=instance).update(is_active=False)
+    #     else:
+    #         rebuild_paths(instance)
 
 
 @receiver(post_delete, sender=Cable)

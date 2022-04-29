@@ -1,29 +1,29 @@
 {% load helpers %}
 <table class="table table-hover panel-body attr-table">
-  {% if termination.0.device %}
+  {% if terminations.0.device %}
     {# Device component #}
     <tr>
       <td>Device</td>
-      <td>{{ termination.0.device|linkify }}</td>
+      <td>{{ terminations.0.device|linkify }}</td>
     </tr>
     <tr>
       <td>Site</td>
-      <td>{{ termination.0.device.site|linkify }}</td>
+      <td>{{ terminations.0.device.site|linkify }}</td>
     </tr>
-    {% if termination.0.device.rack %}
+    {% if terminations.0.device.rack %}
       <tr>
         <td>Rack</td>
-        <td>{{ termination.0.device.rack|linkify }}</td>
+        <td>{{ terminations.0.device.rack|linkify }}</td>
       </tr>
     {% endif %}
     <tr>
       <td>Type</td>
-      <td>{{ termination.0|meta:"verbose_name"|capfirst }}</td>
+      <td>{{ terminations.0|meta:"verbose_name"|capfirst }}</td>
     </tr>
     <tr>
-      <td>Component(s)</td>
+      <td>Name(s)</td>
       <td>
-        {% for term in termination %}
+        {% for term in terminations %}
           {{ term|linkify }}{% if not forloop.last %},{% endif %}
         {% endfor %}
       </td>
@@ -32,12 +32,12 @@
     {# Circuit termination #}
     <tr>
       <td>Provider</td>
-      <td>{{ termination.0.circuit.provider|linkify }}</td>
+      <td>{{ terminations.0.circuit.provider|linkify }}</td>
     </tr>
     <tr>
       <td>Circuit</td>
       <td>
-        {% for term in termination %}
+        {% for term in terminations %}
           {{ term.circuit|linkify }} ({{ term }}){% if not forloop.last %},{% endif %}
         {% endfor %}
       </td>

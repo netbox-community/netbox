@@ -168,6 +168,16 @@ class Cable(NetBoxModel):
     def get_status_color(self):
         return LinkStatusChoices.colors.get(self.status)
 
+    def get_a_terminations(self):
+        return [
+            term.termination for term in CableTermination.objects.filter(cable=self, cable_end='A')
+        ]
+
+    def get_b_terminations(self):
+        return [
+            term.termination for term in CableTermination.objects.filter(cable=self, cable_end='B')
+        ]
+
 
 class CableTermination(models.Model):
     """

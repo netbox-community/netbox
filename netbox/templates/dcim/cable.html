@@ -63,13 +63,13 @@
       <div class="card">
         <h5 class="card-header">Termination A</h5>
         <div class="card-body">
-          {% include 'dcim/inc/cable_termination.html' with termination=object.termination_a %}
+          {% include 'dcim/inc/cable_termination.html' with terminations=object.get_a_terminations %}
         </div>
       </div>
       <div class="card">
         <h5 class="card-header">Termination B</h5>
         <div class="card-body">
-          {% include 'dcim/inc/cable_termination.html' with termination=object.termination_b %}
+          {% include 'dcim/inc/cable_termination.html' with terminations=object.get_b_terminations %}
         </div>
       </div>
       {% plugin_right_page object %}

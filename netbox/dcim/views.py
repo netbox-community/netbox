@@ -2829,23 +2829,13 @@ class CableCreateView(generic.ObjectEditView):
         # Always return a new instance
         return self.queryset.model()
 
-    def alter_object(self, obj, request, url_args, url_kwargs):
-        termination_a_type = url_kwargs.get('termination_a_type')
-        termination_a_ids = request.GET.get('termination_a_ids', [])
-        app_label, model = request.GET.get('termination_b_type').split('.')
-        self.termination_b_type = ContentType.objects.get(app_label=app_label, model=model)
-
-        # Initialize Cable termination attributes
-        obj.termination_a_type = ContentType.objects.get_for_model(termination_a_type)
-        obj.termination_a_ids = termination_a_type.objects.filter(pk__in=termination_a_ids)
-        obj.termination_b_type = self.termination_b_type
-
-        return obj
-
     def get(self, request, *args, **kwargs):
         obj = self.get_object(**kwargs)
         obj = self.alter_object(obj, request, args, kwargs)
         initial_data = request.GET
+
+        app_label, model = request.GET.get('termination_b_type').split('.')
+        termination_b_type = ContentType.objects.get(app_label=app_label, model=model)
 
         # TODO
         # # Set initial site and rack based on side A termination (if not already set)
@@ -2857,12 +2847,17 @@ class CableCreateView(generic.ObjectEditView):
         form = self.form(instance=obj, initial=initial_data)
 
         # Set the queryset of termination A
-        form.fields['termination_a_ids'].queryset = kwargs['termination_a_type'].objects.all()
+        form.fields['a_terminations'].queryset = kwargs['termination_a_type'].objects.all()
+
+        # TODO Find a better way to infer the near-end parent object
+        termination_a = kwargs['termination_a_type'].objects.filter(pk__in=initial_data['a_terminations']).first()
 
         return render(request, self.template_name, {
             'obj': obj,
             'obj_type': Cable._meta.verbose_name,
-            'termination_b_type': self.termination_b_type.name,
+            'termination_a_type': kwargs['termination_a_type']._meta.model_name,
+            'termination_a': termination_a,
+            'termination_b_type': termination_b_type.name,
             'form': form,
             'return_url': self.get_return_url(request, obj),
         })
