@@ -83,6 +83,11 @@ class ConnectCableToDeviceForm(TenancyForm, NetBoxModelForm):
             'rack_id': '$termination_b_rack',
         }
     )
+    termination_b_ids = DynamicModelMultipleChoiceField(
+        queryset=Interface.objects.all(),
+        label='Name',
+        disabled_indicator='_occupied'
+    )
 
     class Meta:
         model = Cable

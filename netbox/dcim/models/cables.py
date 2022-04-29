@@ -39,9 +39,10 @@ class Cable(NetBoxModel):
         on_delete=models.PROTECT,
         related_name='+'
     )
-    termination_a_ids = ArrayField(
-        base_field=models.PositiveBigIntegerField(),
-        null=True
+    termination_a_id = models.PositiveBigIntegerField()
+    termination_a = GenericForeignKey(
+        ct_field='termination_a_type',
+        fk_field='termination_a_id'
     )
     termination_b_type = models.ForeignKey(
         to=ContentType,
@@ -49,9 +50,10 @@ class Cable(NetBoxModel):
         on_delete=models.PROTECT,
         related_name='+'
     )
-    termination_b_ids = ArrayField(
-        base_field=models.PositiveBigIntegerField(),
-        null=True
+    termination_b_id = models.PositiveBigIntegerField()
+    termination_b = GenericForeignKey(
+        ct_field='termination_b_type',
+        fk_field='termination_b_id'
     )
     type = models.CharField(
         max_length=50,
@@ -114,6 +116,10 @@ class Cable(NetBoxModel):
 
     class Meta:
         ordering = ['pk']
+        unique_together = (
+            ('termination_a_type', 'termination_a_id'),
+            ('termination_b_type', 'termination_b_id'),
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
