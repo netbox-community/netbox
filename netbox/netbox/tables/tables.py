@@ -97,7 +97,7 @@ class BaseTable(tables.Table):
                             break
                     if prefetch_path:
                         prefetch_fields.append('__'.join(prefetch_path))
-            self.data.data = self.data.data.prefetch_related(None).prefetch_related(*prefetch_fields)
+            self.data.data = self.data.data.prefetch_related(*prefetch_fields)
 
     def _get_columns(self, visible=True):
         columns = []
