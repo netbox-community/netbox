@@ -1,6 +1,10 @@
 # NetBox v3.2
 
-## v3.2.2 (FUTURE)
+## v3.2.3 (FUTURE)
+
+---
+
+## v3.2.2 (2022-04-28)
 
 ### Enhancements
 
@@ -11,15 +15,19 @@
 
 ### Bug Fixes
 
+* [#4264](https://github.com/netbox-community/netbox/issues/4264) - Treat 0th IP as unusable for IPv6 prefixes (excluding /127s)
 * [#8941](https://github.com/netbox-community/netbox/issues/8941) - Fix dynamic dropdown behavior when browser is zoomed
 * [#8959](https://github.com/netbox-community/netbox/issues/8959) - Prevent exception when refreshing scripts list (avoid race condition)
 * [#9132](https://github.com/netbox-community/netbox/issues/9132) - Limit location options by selected site when creating a wireless link
 * [#9133](https://github.com/netbox-community/netbox/issues/9133) - Upgrade script should require Python 3.8 or later
+* [#9138](https://github.com/netbox-community/netbox/issues/9138) - Avoid inadvertent form submission when utilizing quick search field on object lists
 * [#9151](https://github.com/netbox-community/netbox/issues/9151) - Child prefix counts not annotated on aggregates list under RIR view
 * [#9156](https://github.com/netbox-community/netbox/issues/9156) - Fix loading UserConfig data from fixtures
 * [#9158](https://github.com/netbox-community/netbox/issues/9158) - Do not list tags field for CSV forms which do not support tag assignment
 * [#9194](https://github.com/netbox-community/netbox/issues/9194) - Support position assignment when add module bays to multiple devices
 * [#9206](https://github.com/netbox-community/netbox/issues/9206) - Show header for comments field under module & module type creation views
+* [#9222](https://github.com/netbox-community/netbox/issues/9222) - Fix circuit ID display under cable view
+* [#9227](https://github.com/netbox-community/netbox/issues/9227) - Fix related object assignment when recording change record for interfaces
 
 ---
 
