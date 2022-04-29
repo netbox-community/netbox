@@ -2,7 +2,6 @@ from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.db.models import Sum
@@ -22,6 +21,7 @@ from .device_components import FrontPort, RearPort
 __all__ = (
     'Cable',
     'CablePath',
+    'CableTermination',
 )
 
 
@@ -33,28 +33,6 @@ class Cable(NetBoxModel):
     """
     A physical connection between two endpoints.
     """
-    termination_a_type = models.ForeignKey(
-        to=ContentType,
-        limit_choices_to=CABLE_TERMINATION_MODELS,
-        on_delete=models.PROTECT,
-        related_name='+'
-    )
-    termination_a_id = models.PositiveBigIntegerField()
-    termination_a = GenericForeignKey(
-        ct_field='termination_a_type',
-        fk_field='termination_a_id'
-    )
-    termination_b_type = models.ForeignKey(
-        to=ContentType,
-        limit_choices_to=CABLE_TERMINATION_MODELS,
-        on_delete=models.PROTECT,
-        related_name='+'
-    )
-    termination_b_id = models.PositiveBigIntegerField()
-    termination_b = GenericForeignKey(
-        ct_field='termination_b_type',
-        fk_field='termination_b_id'
-    )
     type = models.CharField(
         max_length=50,
         choices=CableTypeChoices,
@@ -115,11 +93,7 @@ class Cable(NetBoxModel):
     )
 
     class Meta:
-        ordering = ['pk']
-        unique_together = (
-            ('termination_a_type', 'termination_a_id'),
-            ('termination_b_type', 'termination_b_id'),
-        )
+        ordering = ('pk',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -130,19 +104,19 @@ class Cable(NetBoxModel):
         # Cache the original status so we can check later if it's been changed
         self._orig_status = self.status
 
-    @classmethod
-    def from_db(cls, db, field_names, values):
-        """
-        Cache the original A and B terminations of existing Cable instances for later reference inside clean().
-        """
-        instance = super().from_db(db, field_names, values)
-
-        instance._orig_termination_a_type_id = instance.termination_a_type_id
-        instance._orig_termination_a_ids = instance.termination_a_ids
-        instance._orig_termination_b_type_id = instance.termination_b_type_id
-        instance._orig_termination_b_ids = instance.termination_b_ids
-
-        return instance
+    # @classmethod
+    # def from_db(cls, db, field_names, values):
+    #     """
+    #     Cache the original A and B terminations of existing Cable instances for later reference inside clean().
+    #     """
+    #     instance = super().from_db(db, field_names, values)
+    #
+    #     instance._orig_termination_a_type_id = instance.termination_a_type_id
+    #     instance._orig_termination_a_ids = instance.termination_a_ids
+    #     instance._orig_termination_b_type_id = instance.termination_b_type_id
+    #     instance._orig_termination_b_ids = instance.termination_b_ids
+    #
+    #     return instance
 
     def __str__(self):
         pk = self.pk or self._pk
@@ -151,81 +125,8 @@ class Cable(NetBoxModel):
     def get_absolute_url(self):
         return reverse('dcim:cable', args=[self.pk])
 
-    @property
-    def termination_a(self):
-        if not hasattr(self, 'termination_a_type') or not self.termination_a_ids:
-            return []
-        return list(self.termination_a_type.model_class().objects.filter(pk__in=self.termination_a_ids))
-
-    @property
-    def termination_b(self):
-        if not hasattr(self, 'termination_b_type') or not self.termination_b_ids:
-            return []
-        return list(self.termination_b_type.model_class().objects.filter(pk__in=self.termination_b_ids))
-
     def clean(self):
-        from circuits.models import CircuitTermination
-
         super().clean()
-
-        # Validate that termination A exists
-        if not hasattr(self, 'termination_a_type'):
-            raise ValidationError('Termination A type has not been specified')
-        model = self.termination_a_type.model_class()
-        if model.objects.filter(pk__in=self.termination_a_ids).count() != len(self.termination_a_ids):
-            raise ValidationError({
-                'termination_a': 'Invalid ID for type {}'.format(self.termination_a_type)
-            })
-
-        # Validate that termination B exists
-        if not hasattr(self, 'termination_b_type'):
-            raise ValidationError('Termination B type has not been specified')
-        model = self.termination_a_type.model_class()
-        if model.objects.filter(pk__in=self.termination_b_ids).count() != len(self.termination_b_ids):
-            raise ValidationError({
-                'termination_b': 'Invalid ID for type {}'.format(self.termination_b_type)
-            })
-
-        # If editing an existing Cable instance, check that neither termination has been modified.
-        if self.pk:
-            err_msg = 'Cable termination points may not be modified. Delete and recreate the cable instead.'
-            if (
-                self.termination_a_type_id != self._orig_termination_a_type_id or
-                set(self.termination_a_ids) != set(self._orig_termination_a_ids)
-            ):
-                raise ValidationError({
-                    'termination_a': err_msg
-                })
-            if (
-                self.termination_b_type_id != self._orig_termination_b_type_id or
-                set(self.termination_b_ids) != set(self._orig_termination_b_ids)
-            ):
-                raise ValidationError({
-                    'termination_b': err_msg
-                })
-
-        type_a = self.termination_a_type.model
-        type_b = self.termination_b_type.model
-
-        # Validate interface types
-        if type_a == 'interface':
-            for term in self.termination_a:
-                if term.type in NONCONNECTABLE_IFACE_TYPES:
-                    raise ValidationError({
-                        'termination_a_id': f'Cables cannot be terminated to {term.get_type_display()} interfaces'
-                    })
-        if type_a == 'interface':
-            for term in self.termination_b:
-                if term.type in NONCONNECTABLE_IFACE_TYPES:
-                    raise ValidationError({
-                        'termination_b_id': f'Cables cannot be terminated to {term.get_type_display()} interfaces'
-                    })
-
-        # Check that termination types are compatible
-        if type_b not in COMPATIBLE_TERMINATION_TYPES.get(type_a):
-            raise ValidationError(
-                f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
-            )
 
         # TODO: Is this validation still necessary?
         # # Check that two connected RearPorts have the same number of positions (if both are >1)
@@ -237,38 +138,6 @@ class Cable(NetBoxModel):
         #                 f"{self.termination_b} has {self.termination_b.positions}. "
         #                 f"Both terminations must have the same number of positions (if greater than one)."
         #             )
-
-        # A termination point cannot be connected to itself
-        if set(self.termination_a).intersection(self.termination_b):
-            raise ValidationError(f"Cannot connect {self.termination_a_type} to itself")
-
-        # TODO
-        # # A front port cannot be connected to its corresponding rear port
-        # if (
-        #     type_a in ['frontport', 'rearport'] and
-        #     type_b in ['frontport', 'rearport'] and
-        #     (
-        #         getattr(self.termination_a, 'rear_port', None) == self.termination_b or
-        #         getattr(self.termination_b, 'rear_port', None) == self.termination_a
-        #     )
-        # ):
-        #     raise ValidationError("A front port cannot be connected to it corresponding rear port")
-
-        # TODO
-        # # A CircuitTermination attached to a ProviderNetwork cannot have a Cable
-        # if isinstance(self.termination_a, CircuitTermination) and self.termination_a.provider_network is not None:
-        #     raise ValidationError({
-        #         'termination_a_id': "Circuit terminations attached to a provider network may not be cabled."
-        #     })
-        # if isinstance(self.termination_b, CircuitTermination) and self.termination_b.provider_network is not None:
-        #     raise ValidationError({
-        #         'termination_b_id': "Circuit terminations attached to a provider network may not be cabled."
-        #     })
-
-        # Check for an existing Cable connected to either termination object
-        for term in [*self.termination_a, *self.termination_b]:
-            if term.cable not in (None, self):
-                raise ValidationError(f'{term} already has a cable attached (#{term.cable_id})')
 
         # Validate length and length_unit
         if self.length is not None and not self.length_unit:
@@ -284,11 +153,12 @@ class Cable(NetBoxModel):
         else:
             self._abs_length = None
 
-        # Store the parent Device for the A and B terminations (if applicable) to enable filtering
-        if hasattr(self.termination_a[0], 'device'):
-            self._termination_a_device = self.termination_a[0].device
-        if hasattr(self.termination_b[0], 'device'):
-            self._termination_b_device = self.termination_b[0].device
+        # TODO: Move to CableTermination
+        # # Store the parent Device for the A and B terminations (if applicable) to enable filtering
+        # if hasattr(self.termination_a[0], 'device'):
+        #     self._termination_a_device = self.termination_a[0].device
+        # if hasattr(self.termination_b[0], 'device'):
+        #     self._termination_b_device = self.termination_b[0].device
 
         super().save(*args, **kwargs)
 
@@ -297,6 +167,79 @@ class Cable(NetBoxModel):
 
     def get_status_color(self):
         return LinkStatusChoices.colors.get(self.status)
+
+
+class CableTermination(models.Model):
+    """
+    A mapping between side A or B of a Cable and a terminating object (e.g. an Interface or CircuitTermination).
+    """
+    cable = models.ForeignKey(
+        to='dcim.Cable',
+        on_delete=models.CASCADE,
+        related_name='terminations'
+    )
+    cable_end = models.CharField(
+        max_length=1,
+        choices=CableEndChoices,
+        verbose_name='End'
+    )
+    termination_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to=CABLE_TERMINATION_MODELS,
+        on_delete=models.PROTECT,
+        related_name='+'
+    )
+    termination_id = models.PositiveBigIntegerField()
+    termination = GenericForeignKey(
+        ct_field='termination_type',
+        fk_field='termination_id'
+    )
+
+    class Meta:
+        ordering = ['pk']
+        constraints = (
+            models.UniqueConstraint(
+                fields=('termination_type', 'termination_id'),
+                name='unique_termination'
+            ),
+        )
+
+    def __str__(self):
+        return f'Cable {self.cable} to {self.termination}'
+
+    def clean(self):
+        super().clean()
+
+        # Validate interface type (if applicable)
+        if self.termination_type.model == 'interface' and self.termination.type in NONCONNECTABLE_IFACE_TYPES:
+            raise ValidationError({
+                'termination': f'Cables cannot be terminated to {self.termination.get_type_display()} interfaces'
+            })
+
+        # A CircuitTermination attached to a ProviderNetwork cannot have a Cable
+        if self.termination_type.model == 'circuittermination' and self.termination.provider_network is not None:
+            raise ValidationError({
+                'termination': "Circuit terminations attached to a provider network may not be cabled."
+            })
+
+        # TODO
+        # # A front port cannot be connected to its corresponding rear port
+        # if (
+        #     type_a in ['frontport', 'rearport'] and
+        #     type_b in ['frontport', 'rearport'] and
+        #     (
+        #         getattr(self.termination_a, 'rear_port', None) == self.termination_b or
+        #         getattr(self.termination_b, 'rear_port', None) == self.termination_a
+        #     )
+        # ):
+        #     raise ValidationError("A front port cannot be connected to it corresponding rear port")
+
+        # TODO
+        # # Check that termination types are compatible
+        # if type_b not in COMPATIBLE_TERMINATION_TYPES.get(type_a):
+        #     raise ValidationError(
+        #         f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
+        #     )
 
 
 class CablePath(models.Model):

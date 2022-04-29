@@ -12,7 +12,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from circuits.models import Circuit, CircuitTermination
+from circuits.models import Circuit
 from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
@@ -2738,7 +2738,7 @@ class DeviceBulkAddInventoryItemView(generic.BulkComponentCreateView):
 #
 
 class CableListView(generic.ObjectListView):
-    queryset = Cable.objects.all()
+    queryset = Cable.objects.prefetch_related('terminations__termination')
     filterset = filtersets.CableFilterSet
     filterset_form = forms.CableFilterForm
     table = tables.CableTable

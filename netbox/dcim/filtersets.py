@@ -1498,10 +1498,10 @@ class VirtualChassisFilterSet(NetBoxModelFilterSet):
 
 
 class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
-    termination_a_type = ContentTypeFilter()
-    termination_a_id = MultiValueNumberFilter()
-    termination_b_type = ContentTypeFilter()
-    termination_b_id = MultiValueNumberFilter()
+    # termination_a_type = ContentTypeFilter()
+    # termination_a_id = MultiValueNumberFilter()
+    # termination_b_type = ContentTypeFilter()
+    # termination_b_id = MultiValueNumberFilter()
     type = django_filters.MultipleChoiceFilter(
         choices=CableTypeChoices
     )
@@ -1537,7 +1537,7 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = Cable
-        fields = ['id', 'label', 'length', 'length_unit', 'termination_a_id', 'termination_b_id']
+        fields = ['id', 'label', 'length', 'length_unit']
 
     def search(self, queryset, name, value):
         if not value.strip():
