@@ -1065,31 +1065,38 @@ class Module(NetBoxModel, ConfigContextModel):
 
         super().save(*args, **kwargs)
 
+        adopt_components = getattr(self, '_adopt_components', False)
+        disable_replication = getattr(self, '_disable_replication', False)
+
         # If this is a new Module and component replication has not been disabled, instantiate all its
         # related components per the ModuleType definition
-        if is_new and not getattr(self, '_disable_replication', False):
-            ConsolePort.objects.bulk_create(
-                [x.instantiate(device=self.device, module=self) for x in self.module_type.consoleporttemplates.all()]
-            )
-            ConsoleServerPort.objects.bulk_create(
-                [x.instantiate(device=self.device, module=self) for x in self.module_type.consoleserverporttemplates.all()]
-            )
-            PowerPort.objects.bulk_create(
-                [x.instantiate(device=self.device, module=self) for x in self.module_type.powerporttemplates.all()]
-            )
-            PowerOutlet.objects.bulk_create(
-                [x.instantiate(device=self.device, module=self) for x in self.module_type.poweroutlettemplates.all()]
-            )
-            Interface.objects.bulk_create(
-                [x.instantiate(device=self.device, module=self) for x in self.module_type.interfacetemplates.all()]
-            )
-            RearPort.objects.bulk_create(
-                [x.instantiate(device=self.device, module=self) for x in self.module_type.rearporttemplates.all()]
-            )
-            FrontPort.objects.bulk_create(
-                [x.instantiate(device=self.device, module=self) for x in self.module_type.frontporttemplates.all()]
-            )
+        if is_new and not disable_replication:
+            # Iterate all component templates
+            for templates, component_attribute in [
+                ("consoleporttemplates", "consoleports"),
+                ("consoleserverporttemplates", "consoleserverports"),
+                ("interfacetemplates", "interfaces"),
+                ("powerporttemplates", "powerports"),
+                ("poweroutlettemplates", "poweroutlets"),
+                ("rearporttemplates", "rearports"),
+                ("frontporttemplates", "frontports")
+            ]:
+                # Get the template for the module type.
+                for template in getattr(self.module_type, templates).all():
+                    template_instance = template.instantiate(device=self.device, module=self)
 
+                    if adopt_components:
+                        existing_item = getattr(self.device, component_attribute).filter(name=template_instance.name).first()
+
+                        # Check if there's a component with the same name already
+                        if existing_item:
+                            # Assign it to the module
+                            existing_item.module = self
+                            existing_item.save()
+                            continue
+                        
+                    # If we are not adopting components or the component doesn't already exist
+                    template_instance.save()
 
 #
 # Virtual chassis
