@@ -91,7 +91,7 @@ class IPAddressRoleChoices(ChoiceSet):
         (ROLE_VRRP, 'VRRP', 'green'),
         (ROLE_HSRP, 'HSRP', 'green'),
         (ROLE_GLBP, 'GLBP', 'green'),
-        (ROLE_CARP, 'CARP'), 'green',
+        (ROLE_CARP, 'CARP', 'green'),
     )
 
 
