@@ -5,7 +5,7 @@ from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
 from .choices import LinkStatusChoices
-from .models import Cable, CablePath, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
+from .models import Cable, CablePath, CableTermination, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
 from .utils import create_cablepath, rebuild_paths
 
 
@@ -80,12 +80,6 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
         return
 
     # TODO: Update link peer fields
-    # Cache the Cable on its termination points
-    for term in instance.terminations.all():
-        if term.termination.cable != instance:
-            logger.debug(f"Updating termination A for cable {instance}: {term}")
-            term.termination.cable = instance
-            term.save()
 
     # # Create/update cable paths
     # if created:
@@ -104,6 +98,19 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
     #         rebuild_paths(instance)
 
 
+@receiver(post_save, sender=CableTermination)
+def cache_cable_on_endpoints(instance, created, raw=False, **kwargs):
+    if not raw:
+        model = instance.termination_type.model_class()
+        model.objects.filter(pk=instance.termination_id).update(cable=instance.cable)
+
+
+@receiver(post_delete, sender=CableTermination)
+def clear_cable_on_endpoints(instance, **kwargs):
+    model = instance.termination_type.model_class()
+    model.objects.filter(pk=instance.termination_id).update(cable=None)
+
+
 @receiver(post_delete, sender=Cable)
 def nullify_connected_endpoints(instance, **kwargs):
     """
@@ -111,15 +118,15 @@ def nullify_connected_endpoints(instance, **kwargs):
     """
     logger = logging.getLogger('netbox.dcim.cable')
 
-    # Disassociate the Cable from its termination points
-    if instance.termination_a:
-        logger.debug(f"Nullifying termination A for cable {instance}")
-        model = instance.termination_a_type.model_class()
-        model.objects.filter(pk__in=instance.termination_a_ids).update(_link_peer_type=None, _link_peer_id=None)
-    if instance.termination_b:
-        logger.debug(f"Nullifying termination B for cable {instance}")
-        model = instance.termination_b_type.model_class()
-        model.objects.filter(pk__in=instance.termination_b_ids).update(_link_peer_type=None, _link_peer_id=None)
+    # # Disassociate the Cable from its termination points
+    # if instance.termination_a:
+    #     logger.debug(f"Nullifying termination A for cable {instance}")
+    #     model = instance.termination_a_type.model_class()
+    #     model.objects.filter(pk__in=instance.termination_a_ids).update(_link_peer_type=None, _link_peer_id=None)
+    # if instance.termination_b:
+    #     logger.debug(f"Nullifying termination B for cable {instance}")
+    #     model = instance.termination_b_type.model_class()
+    #     model.objects.filter(pk__in=instance.termination_b_ids).update(_link_peer_type=None, _link_peer_id=None)
 
     # Delete and retrace any dependent cable paths
     for cablepath in CablePath.objects.filter(path__contains=instance):
