@@ -1097,10 +1097,10 @@ class Module(NetBoxModel, ConfigContextModel):
                             existing_item.module = self
                             update_instances.append(existing_item)
                             continue
-                        
+
                     # If we are not adopting components or the component doesn't already exist
                     create_instances.append(template_instance)
-                
+
                 component_model.objects.bulk_create(create_instances)
                 component_model.objects.bulk_update(update_instances, ['module'])
 
