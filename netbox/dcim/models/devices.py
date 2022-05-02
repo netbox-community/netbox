@@ -1072,15 +1072,18 @@ class Module(NetBoxModel, ConfigContextModel):
         # related components per the ModuleType definition
         if is_new and not disable_replication:
             # Iterate all component templates
-            for templates, component_attribute in [
-                ("consoleporttemplates", "consoleports"),
-                ("consoleserverporttemplates", "consoleserverports"),
-                ("interfacetemplates", "interfaces"),
-                ("powerporttemplates", "powerports"),
-                ("poweroutlettemplates", "poweroutlets"),
-                ("rearporttemplates", "rearports"),
-                ("frontporttemplates", "frontports")
+            for templates, component_attribute, component_model in [
+                ("consoleporttemplates", "consoleports", ConsolePort),
+                ("consoleserverporttemplates", "consoleserverports", ConsoleServerPort),
+                ("interfacetemplates", "interfaces", Interface),
+                ("powerporttemplates", "powerports", PowerPort),
+                ("poweroutlettemplates", "poweroutlets", PowerOutlet),
+                ("rearporttemplates", "rearports", RearPort),
+                ("frontporttemplates", "frontports", FrontPort)
             ]:
+                create_instances = []
+                update_instances = []
+
                 # Get the template for the module type.
                 for template in getattr(self.module_type, templates).all():
                     template_instance = template.instantiate(device=self.device, module=self)
@@ -1092,11 +1095,15 @@ class Module(NetBoxModel, ConfigContextModel):
                         if existing_item:
                             # Assign it to the module
                             existing_item.module = self
-                            existing_item.save()
+                            update_instances.append(existing_item)
                             continue
                         
                     # If we are not adopting components or the component doesn't already exist
-                    template_instance.save()
+                    create_instances.append(template_instance)
+                
+                component_model.objects.bulk_create(create_instances)
+                component_model.objects.bulk_update(update_instances, ['module'])
+
 
 #
 # Virtual chassis
