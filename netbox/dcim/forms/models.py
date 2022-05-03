@@ -618,12 +618,6 @@ class DeviceAssignForm(BootstrapMixin, forms.Form):
     )
 
 
-class CableForm(TenancyForm, CustomFieldModelForm):
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-
-
 class ModuleForm(NetBoxModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),

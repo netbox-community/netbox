@@ -212,19 +212,19 @@ class DeviceTable(NetBoxTable):
         )
 
 
-class DeviceAssignTable(BaseTable):
+class DeviceAssignTable(NetBoxTable):
     name = tables.TemplateColumn(
         template_code=DEVICE_ASSIGN_LINK,
         verbose_name='Name'
     )
-    status = ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn()
     tenant = tables.TemplateColumn(
         template_code=DEVICE_ASSIGN_TENANT
     )
     site = tables.Column()
     location = tables.Column()
     rack = tables.Column()
-    device_role = ColoredLabelColumn(
+    device_role = columns.ColoredLabelColumn(
         verbose_name='Role'
     )
     manufacturer = tables.Column(
@@ -238,7 +238,7 @@ class DeviceAssignTable(BaseTable):
         verbose_name='IP Address'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(NetBoxTable.Meta):
         model = Device
         fields = (
             'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',
