@@ -210,7 +210,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
     model = Rack
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Location', ('region_id', 'site_id', 'site_group_id', 'location_id')),
+        ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id')),
         ('Function', ('status', 'role_id')),
         ('Hardware', ('type', 'width', 'serial', 'asset_tag')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
