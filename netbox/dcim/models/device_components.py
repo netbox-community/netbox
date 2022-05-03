@@ -159,7 +159,7 @@ class LinkTermination(models.Model):
 
     @property
     def parent_object(self):
-        raise NotImplementedError("CableTermination models must implement parent_object()")
+        raise NotImplementedError(f"{self.__class__.__name__} models must declare a parent_object property")
 
     @property
     def link(self):

@@ -2846,17 +2846,20 @@ class CableCreateView(generic.ObjectEditView):
         #     initial_data['termination_b_rack'] = getattr(obj.termination_a.parent_object, 'rack', None)
         form = self.form(instance=obj, initial=initial_data)
 
+        # TODO Find a better way to infer the near-end parent object
+        termination_a = kwargs['termination_a_type'].objects.filter(pk=int(initial_data['a_terminations'])).first()
+
         # Set the queryset of termination A
         form.fields['a_terminations'].queryset = kwargs['termination_a_type'].objects.all()
-
-        # TODO Find a better way to infer the near-end parent object
-        termination_a = kwargs['termination_a_type'].objects.filter(pk__in=initial_data['a_terminations']).first()
+        form.fields['a_terminations'].widget.add_query_params({
+            'device_id': termination_a.device_id,
+        })
 
         return render(request, self.template_name, {
             'obj': obj,
             'obj_type': Cable._meta.verbose_name,
             'termination_a_type': kwargs['termination_a_type']._meta.model_name,
-            'termination_a': termination_a,
+            'termination_a_parent': termination_a.parent_object,
             'termination_b_type': termination_b_type.name,
             'form': form,
             'return_url': self.get_return_url(request, obj),
