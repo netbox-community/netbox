@@ -30,8 +30,8 @@ class NestedUserSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'username']
 
     def get_display(self, obj):
-        if obj.first_name and obj.last_name:
-            return f"{obj.username} ({obj.first_name} {obj.last_name})"
+        if full_name := obj.get_full_name():
+            return f"{obj.username} ({full_name})"
         return obj.username
 
 
