@@ -44,7 +44,8 @@ class BaseCableConnectionForm(TenancyForm, NetBoxModelForm):
         ])
 
         if commit:
-            CableTermination.objects.bulk_create(terminations)
+            for ct in terminations:
+                ct.save()
         else:
             instance.terminations = [
                 *self.cleaned_data['a_terminations'],
