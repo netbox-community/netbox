@@ -79,15 +79,30 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
         logger.debug(f"Skipping endpoint updates for imported cable {instance}")
         return
 
-    # TODO: Update link peer fields
+    # Save any new CableTerminations
+    CableTermination.objects.bulk_create([
+        term for term in instance.terminations if not term.pk
+    ])
 
-    # # Create/update cable paths
-    # if created:
-    #     for term in instance.terminations.all():
-    #         if isinstance(term.termination, PathEndpoint):
-    #             create_cablepath(term.termination)
-    #         else:
-    #             rebuild_paths(term.termination)
+    # TODO: Update link peers
+    # Set cable on terminating endpoints
+    _terms = {
+        'A': [],
+        'B': [],
+    }
+    for term in instance.terminations:
+        if term.termination.cable != instance:
+            term.termination.cable = instance
+            term.termination.save()
+        _terms[term.cable_end].append(term)
+
+    # Create/update cable paths
+    if created:
+        for terms in _terms.values():
+            if isinstance(terms[0].termination, PathEndpoint):
+                create_cablepath(terms)
+            else:
+                rebuild_paths(terms)
     # elif instance.status != instance._orig_status:
     #     # We currently don't support modifying either termination of an existing Cable. (This
     #     # may change in the future.) However, we do need to capture status changes and update
@@ -98,17 +113,17 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
     #         rebuild_paths(instance)
 
 
-@receiver(post_save, sender=CableTermination)
-def cache_cable_on_endpoints(instance, created, raw=False, **kwargs):
-    if not raw:
-        model = instance.termination_type.model_class()
-        model.objects.filter(pk=instance.termination_id).update(cable=instance.cable)
-
-
-@receiver(post_delete, sender=CableTermination)
-def clear_cable_on_endpoints(instance, **kwargs):
-    model = instance.termination_type.model_class()
-    model.objects.filter(pk=instance.termination_id).update(cable=None)
+# @receiver(post_save, sender=CableTermination)
+# def cache_cable_on_endpoints(instance, created, raw=False, **kwargs):
+#     if not raw:
+#         model = instance.termination_type.model_class()
+#         model.objects.filter(pk=instance.termination_id).update(cable=instance.cable)
+#
+#
+# @receiver(post_delete, sender=CableTermination)
+# def clear_cable_on_endpoints(instance, **kwargs):
+#     model = instance.termination_type.model_class()
+#     model.objects.filter(pk=instance.termination_id).update(cable=None)
 
 
 @receiver(post_delete, sender=Cable)
@@ -129,15 +144,17 @@ def nullify_connected_endpoints(instance, **kwargs):
     #     model.objects.filter(pk__in=instance.termination_b_ids).update(_link_peer_type=None, _link_peer_id=None)
 
     # Delete and retrace any dependent cable paths
-    for cablepath in CablePath.objects.filter(path__contains=instance):
-        cp = CablePath.from_origin(cablepath.origin)
-        if cp:
-            CablePath.objects.filter(pk=cablepath.pk).update(
-                _nodes=cp._nodes,
-                destination_type=ContentType.objects.get_for_model(cp.destination) if cp.destination else None,
-                destination_id=cp.destination.pk if cp.destination else None,
-                is_active=cp.is_active,
-                is_split=cp.is_split
-            )
-        else:
-            cablepath.delete()
+    for cablepath in CablePath.objects.filter(_nodes__contains=instance):
+        cablepath.delete()
+        # TODO: Create new traces
+        # cp = CablePath.from_origin(cablepath.origin)
+        # if cp:
+        #     CablePath.objects.filter(pk=cablepath.pk).update(
+        #         _nodes=cp._nodes,
+        #         destination_type=ContentType.objects.get_for_model(cp.destination) if cp.destination else None,
+        #         destination_id=cp.destination.pk if cp.destination else None,
+        #         is_active=cp.is_active,
+        #         is_split=cp.is_split
+        #     )
+        # else:
+        #     cablepath.delete()

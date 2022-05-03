@@ -92,10 +92,12 @@ class Cable(NetBoxModel):
         null=True
     )
 
+    terminations = []
+
     class Meta:
         ordering = ('pk',)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, terminations=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         # A copy of the PK to be used by __str__ in case the object is deleted
@@ -104,19 +106,29 @@ class Cable(NetBoxModel):
         # Cache the original status so we can check later if it's been changed
         self._orig_status = self.status
 
-    # @classmethod
-    # def from_db(cls, db, field_names, values):
-    #     """
-    #     Cache the original A and B terminations of existing Cable instances for later reference inside clean().
-    #     """
-    #     instance = super().from_db(db, field_names, values)
-    #
-    #     instance._orig_termination_a_type_id = instance.termination_a_type_id
-    #     instance._orig_termination_a_ids = instance.termination_a_ids
-    #     instance._orig_termination_b_type_id = instance.termination_b_type_id
-    #     instance._orig_termination_b_ids = instance.termination_b_ids
-    #
-    #     return instance
+        # Assign associated CableTerminations (if any)
+        if terminations:
+            assert type(terminations) is list
+            assert self.pk is None
+            for t in terminations:
+                t.cable = self
+                self.terminations.append(t)
+
+    @classmethod
+    def from_db(cls, db, field_names, values):
+        """
+        Cache the original A and B terminations of existing Cable instances for later reference inside clean().
+        """
+        instance = super().from_db(db, field_names, values)
+
+        instance.terminations = CableTermination.objects.filter(cable=instance)
+
+        # instance._orig_termination_a_type_id = instance.termination_a_type_id
+        # instance._orig_termination_a_ids = instance.termination_a_ids
+        # instance._orig_termination_b_type_id = instance.termination_b_type_id
+        # instance._orig_termination_b_ids = instance.termination_b_ids
+
+        return instance
 
     def __str__(self):
         pk = self.pk or self._pk
@@ -186,7 +198,7 @@ class CableTermination(models.Model):
     cable = models.ForeignKey(
         to='dcim.Cable',
         on_delete=models.CASCADE,
-        related_name='terminations'
+        related_name='+'
     )
     cable_end = models.CharField(
         max_length=1,
@@ -296,59 +308,80 @@ class CablePath(models.Model):
         return f"Path #{self.pk}: {len(self.path)} nodes{status}"
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
 
         # Save the flattened nodes list
         self._nodes = flatten_path(self.path)
 
-        # TODO
-        # Record a direct reference to this CablePath on its originating object
-        # model = self.origin._meta.model
-        # model.objects.filter(pk=self.origin.pk).update(_path=self.pk)
+        super().save(*args, **kwargs)
+
+        # Record a direct reference to this CablePath on its originating object(s)
+        origins = [path_node_to_object(n) for n in self.path[0]]
+        origin_model = origins[0]._meta.model
+        origin_ids = [o.id for o in origins]
+        origin_model.objects.filter(pk__in=origin_ids).update(_path=self.pk)
 
     @property
     def segment_count(self):
         return int(len(self.path) / 3)
 
     @classmethod
-    def from_origin(cls, origin):
+    def from_origin(cls, terminations):
         """
         Create a new CablePath instance as traced from the given path origin.
         """
         from circuits.models import CircuitTermination
 
-        if origin is None or origin.link is None:
+        if not terminations or terminations[0].termination.link is None:
             return None
 
-        destination = None
         path = []
         position_stack = []
         is_active = True
         is_split = False
 
-        node = origin
+        # Start building the path from its originating CableTerminations
+        path.append([
+            object_to_path_node(t.termination) for t in terminations
+        ])
+
+        node = terminations[0].termination
         while node.link is not None:
             if hasattr(node.link, 'status') and node.link.status != LinkStatusChoices.STATUS_CONNECTED:
                 is_active = False
 
+            # Append the cable
+            path.append([object_to_path_node(node.link)])
+
             # Follow the link to its far-end termination
-            path.append(object_to_path_node(node.link))
-            peer_termination = node.get_link_peer()
+            if terminations[0].cable_end == 'A':
+                peer_terminations = CableTermination.objects.filter(cable=terminations[0].cable, cable_end='B')
+            else:
+                peer_terminations = CableTermination.objects.filter(cable=terminations[0].cable, cable_end='A')
 
-            # Follow a FrontPort to its corresponding RearPort
-            if isinstance(peer_termination, FrontPort):
-                path.append(object_to_path_node(peer_termination))
-                node = peer_termination.rear_port
+            # Follow FrontPorts to their corresponding RearPorts
+            if isinstance(peer_terminations[0].termination, FrontPort):
+                path.append([
+                    object_to_path_node(t.termination) for t in peer_terminations
+                ])
+                terminations = CableTermination.objects.filter(
+                    termination_type=ContentType.objects.get_for_model(RearPort),
+                    termination_id__in=[t.termination_id for t in peer_terminations]
+                )
+                node = terminations[0].termination
                 if node.positions > 1:
-                    position_stack.append(peer_termination.rear_port_position)
-                path.append(object_to_path_node(node))
+                    position_stack.append(node.rear_port_position)
+                path.append([
+                    object_to_path_node(t.termination) for t in terminations
+                ])
 
-            # Follow a RearPort to its corresponding FrontPort (if any)
-            elif isinstance(peer_termination, RearPort):
-                path.append(object_to_path_node(peer_termination))
+            # Follow RearPorts to their corresponding FrontPorts (if any)
+            elif isinstance(peer_terminations[0], RearPort):
+                path.append([
+                    object_to_path_node(t.termination) for t in peer_terminations
+                ])
 
                 # Determine the peer FrontPort's position
-                if peer_termination.positions == 1:
+                if peer_terminations[0].termination.positions == 1:
                     position = 1
                 elif position_stack:
                     position = position_stack.pop()
@@ -357,41 +390,55 @@ class CablePath(models.Model):
                     is_split = True
                     break
 
-                try:
-                    node = FrontPort.objects.get(rear_port=peer_termination, rear_port_position=position)
-                    path.append(object_to_path_node(node))
-                except ObjectDoesNotExist:
-                    # No corresponding FrontPort found for the RearPort
-                    break
+                # Map FrontPorts to their corresponding RearPorts
+                terminations = FrontPort.objects.filter(
+                    rear_port_id__in=[t.rear_port_id for t in peer_terminations],
+                    rear_port_position=position
+                )
+                if terminations:
+                    path.append([
+                        object_to_path_node(t.termination) for t in terminations
+                    ])
 
             # Follow a CircuitTermination to its corresponding CircuitTermination (A to Z or vice versa)
-            elif isinstance(peer_termination, CircuitTermination):
-                path.append(object_to_path_node(peer_termination))
-                # Get peer CircuitTermination
-                node = peer_termination.get_peer_termination()
-                if node:
-                    path.append(object_to_path_node(node))
-                    if node.provider_network:
-                        destination = node.provider_network
-                        break
-                    elif node.site and not node.cable:
-                        destination = node.site
-                        break
+            elif isinstance(peer_terminations[0], CircuitTermination):
+                path.append([
+                    object_to_path_node(t.termination) for t in peer_terminations
+                ])
+
+                # Get peer CircuitTerminations
+                term_side = 'Z' if peer_terminations[0].termination == 'A' else 'Z'
+                terminations = CircuitTermination.objects.filter(
+                    circuit=peer_terminations[0].circuit,
+                    term_side=term_side
+                )
+                # Tracing across multiple circuits not currently supported
+                if len(terminations) > 1:
+                    is_split = True
+                    break
+                elif terminations:
+                    path.append([
+                        object_to_path_node(t.termination) for t in terminations
+                    ])
+                    # TODO
+                    # if node.provider_network:
+                    #     destination = node.provider_network
+                    #     break
+                    # elif node.site and not node.cable:
+                    #     destination = node.site
+                    #     break
                 else:
                     # No peer CircuitTermination exists; halt the trace
                     break
 
             # Anything else marks the end of the path
             else:
-                destination = peer_termination
+                path.append([
+                    object_to_path_node(t.termination) for t in peer_terminations
+                ])
                 break
 
-        if destination is None:
-            is_active = False
-
         return cls(
-            origin=origin,
-            destination=destination,
             path=path,
             is_active=is_active,
             is_split=is_split
