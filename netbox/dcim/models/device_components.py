@@ -229,7 +229,7 @@ class PathEndpoint(models.Model):
         Caching accessor for the attached CablePath's destination (if any)
         """
         if not hasattr(self, '_connected_endpoint'):
-            self._connected_endpoint = self._path.destination if self._path else None
+            self._connected_endpoint = self._path.get_destination()
         return self._connected_endpoint
 
 

@@ -37,14 +37,13 @@ class HomeView(View):
             return redirect("login")
 
         connected_consoleports = ConsolePort.objects.restrict(request.user, 'view').prefetch_related('_path').filter(
-            _path__destination_id__isnull=False
+            _path__is_active=True
         )
         connected_powerports = PowerPort.objects.restrict(request.user, 'view').prefetch_related('_path').filter(
-            _path__destination_id__isnull=False
+            _path__is_active=True
         )
         connected_interfaces = Interface.objects.restrict(request.user, 'view').prefetch_related('_path').filter(
-            _path__destination_id__isnull=False,
-            pk__lt=F('_path__destination_id')
+            _path__is_active=True
         )
 
         def build_stats():

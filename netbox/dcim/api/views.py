@@ -546,7 +546,7 @@ class ModuleViewSet(NetBoxModelViewSet):
 
 class ConsolePortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = ConsolePort.objects.prefetch_related(
-        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path', 'cable', '_link_peer', 'tags'
     )
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filtersets.ConsolePortFilterSet
@@ -555,7 +555,7 @@ class ConsolePortViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class ConsoleServerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = ConsoleServerPort.objects.prefetch_related(
-        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path', 'cable', '_link_peer', 'tags'
     )
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filtersets.ConsoleServerPortFilterSet
@@ -564,7 +564,7 @@ class ConsoleServerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class PowerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = PowerPort.objects.prefetch_related(
-        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path', 'cable', '_link_peer', 'tags'
     )
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filtersets.PowerPortFilterSet
@@ -573,7 +573,7 @@ class PowerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = PowerOutlet.objects.prefetch_related(
-        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path', 'cable', '_link_peer', 'tags'
     )
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filtersets.PowerOutletFilterSet
@@ -582,7 +582,7 @@ class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        'device', 'module__module_bay', 'parent', 'bridge', 'lag', '_path__destination', 'cable', '_link_peer',
+        'device', 'module__module_bay', 'parent', 'bridge', 'lag', '_path', 'cable', '_link_peer',
         'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'vrf', 'ip_addresses', 'fhrp_group_assignments', 'tags'
     )
     serializer_class = serializers.InterfaceSerializer
@@ -685,7 +685,7 @@ class PowerPanelViewSet(NetBoxModelViewSet):
 
 class PowerFeedViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = PowerFeed.objects.prefetch_related(
-        'power_panel', 'rack', '_path__destination', 'cable', '_link_peer', 'tags'
+        'power_panel', 'rack', '_path', 'cable', '_link_peer', 'tags'
     )
     serializer_class = serializers.PowerFeedSerializer
     filterset_class = filtersets.PowerFeedFilterSet

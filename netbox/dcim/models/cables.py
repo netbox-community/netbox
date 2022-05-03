@@ -9,8 +9,8 @@ from django.urls import reverse
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.fields import PathField
-from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_object
+from dcim.fields import MultiNodePathField, PathField
+from dcim.utils import decompile_path_node, flatten_path, object_to_path_node, path_node_to_object
 from netbox.models import NetBoxModel
 from utilities.fields import ColorField
 from utilities.utils import to_meters
@@ -276,57 +276,39 @@ class CablePath(models.Model):
     `is_active` is set to True only if 1) `destination` is not null, and 2) every Cable within the path has a status of
     "connected".
     """
-    origin_type = models.ForeignKey(
-        to=ContentType,
-        on_delete=models.CASCADE,
-        related_name='+'
-    )
-    origin_id = models.PositiveBigIntegerField()
-    origin = GenericForeignKey(
-        ct_field='origin_type',
-        fk_field='origin_id'
-    )
-    destination_type = models.ForeignKey(
-        to=ContentType,
-        on_delete=models.CASCADE,
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    destination_id = models.PositiveBigIntegerField(
-        blank=True,
-        null=True
-    )
-    destination = GenericForeignKey(
-        ct_field='destination_type',
-        fk_field='destination_id'
-    )
-    path = PathField()
+    path = MultiNodePathField()
     is_active = models.BooleanField(
+        default=False
+    )
+    is_complete = models.BooleanField(
         default=False
     )
     is_split = models.BooleanField(
         default=False
     )
+    _nodes = PathField()
 
     class Meta:
-        unique_together = ('origin_type', 'origin_id')
+        pass
 
     def __str__(self):
         status = ' (active)' if self.is_active else ' (split)' if self.is_split else ''
-        return f"Path #{self.pk}: {self.origin} to {self.destination} via {len(self.path)} nodes{status}"
+        return f"Path #{self.pk}: {len(self.path)} nodes{status}"
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
+        # Save the flattened nodes list
+        self._nodes = flatten_path(self.path)
+
+        # TODO
         # Record a direct reference to this CablePath on its originating object
-        model = self.origin._meta.model
-        model.objects.filter(pk=self.origin.pk).update(_path=self.pk)
+        # model = self.origin._meta.model
+        # model.objects.filter(pk=self.origin.pk).update(_path=self.pk)
 
     @property
     def segment_count(self):
-        total_length = 1 + len(self.path) + (1 if self.destination else 0)
-        return int(total_length / 3)
+        return int(len(self.path) / 3)
 
     @classmethod
     def from_origin(cls, origin):
@@ -421,7 +403,7 @@ class CablePath(models.Model):
         """
         # Compile a list of IDs to prefetch for each type of model in the path
         to_prefetch = defaultdict(list)
-        for node in self.path:
+        for node in self._nodes:
             ct_id, object_id = decompile_path_node(node)
             to_prefetch[ct_id].append(object_id)
 
@@ -438,18 +420,30 @@ class CablePath(models.Model):
 
         # Replicate the path using the prefetched objects.
         path = []
-        for node in self.path:
-            ct_id, object_id = decompile_path_node(node)
-            path.append(prefetched[ct_id][object_id])
+        for step in self.path:
+            nodes = []
+            for node in step:
+                ct_id, object_id = decompile_path_node(node)
+                nodes.append(prefetched[ct_id][object_id])
+            path.append(nodes)
 
         return path
 
+    def get_destination(self):
+        if not self.is_complete:
+            return None
+        return [
+            path_node_to_object(node) for node in self.path[-1]
+        ]
+
     @property
-    def last_node(self):
+    def last_nodes(self):
         """
         Return either the destination or the last node within the path.
         """
-        return self.destination or path_node_to_object(self.path[-1])
+        return [
+            path_node_to_object(node) for node in self.path[-1]
+        ]
 
     def get_cable_ids(self):
         """
@@ -458,7 +452,7 @@ class CablePath(models.Model):
         cable_ct = ContentType.objects.get_for_model(Cable).pk
         cable_ids = []
 
-        for node in self.path:
+        for node in self._nodes:
             ct, id = decompile_path_node(node)
             if ct == cable_ct:
                 cable_ids.append(id)
@@ -481,6 +475,6 @@ class CablePath(models.Model):
         """
         Return all available next segments in a split cable path.
         """
-        rearport = path_node_to_object(self.path[-1])
+        rearport = path_node_to_object(self._nodes[-1])
 
         return FrontPort.objects.filter(rear_port=rearport)

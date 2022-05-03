@@ -133,7 +133,7 @@ def nullify_connected_endpoints(instance, **kwargs):
         cp = CablePath.from_origin(cablepath.origin)
         if cp:
             CablePath.objects.filter(pk=cablepath.pk).update(
-                path=cp.path,
+                _nodes=cp._nodes,
                 destination_type=ContentType.objects.get_for_model(cp.destination) if cp.destination else None,
                 destination_id=cp.destination.pk if cp.destination else None,
                 is_active=cp.is_active,
