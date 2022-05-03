@@ -23,7 +23,6 @@ class NestedGroupSerializer(WritableNestedSerializer):
 
 class NestedUserSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:user-detail')
-    display = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
