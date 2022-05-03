@@ -44,6 +44,11 @@ class UserSerializer(ValidatedModelSerializer):
         user.save()
 
         return user
+    
+    def get_display(self, obj):
+        if full_name := obj.get_full_name():
+            return f"{obj.username} ({full_name})"
+        return obj.username
 
 
 class GroupSerializer(ValidatedModelSerializer):
