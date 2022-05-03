@@ -1068,41 +1068,44 @@ class Module(NetBoxModel, ConfigContextModel):
         adopt_components = getattr(self, '_adopt_components', False)
         disable_replication = getattr(self, '_disable_replication', False)
 
-        # If this is a new Module and component replication has not been disabled, instantiate all its
-        # related components per the ModuleType definition
-        if is_new and not disable_replication:
-            # Iterate all component templates
-            for templates, component_attribute, component_model in [
-                ("consoleporttemplates", "consoleports", ConsolePort),
-                ("consoleserverporttemplates", "consoleserverports", ConsoleServerPort),
-                ("interfacetemplates", "interfaces", Interface),
-                ("powerporttemplates", "powerports", PowerPort),
-                ("poweroutlettemplates", "poweroutlets", PowerOutlet),
-                ("rearporttemplates", "rearports", RearPort),
-                ("frontporttemplates", "frontports", FrontPort)
-            ]:
-                create_instances = []
-                update_instances = []
+        # We skip adding components if the module is being edited or
+        # both replication and component adoption is disabled
+        if not is_new or (disable_replication and not adopt_components):
+            return
 
-                # Get the template for the module type.
-                for template in getattr(self.module_type, templates).all():
-                    template_instance = template.instantiate(device=self.device, module=self)
+        # Iterate all component types
+        for templates, component_attribute, component_model in [
+            ("consoleporttemplates", "consoleports", ConsolePort),
+            ("consoleserverporttemplates", "consoleserverports", ConsoleServerPort),
+            ("interfacetemplates", "interfaces", Interface),
+            ("powerporttemplates", "powerports", PowerPort),
+            ("poweroutlettemplates", "poweroutlets", PowerOutlet),
+            ("rearporttemplates", "rearports", RearPort),
+            ("frontporttemplates", "frontports", FrontPort)
+        ]:
+            create_instances = []
+            update_instances = []
 
-                    if adopt_components:
-                        existing_item = getattr(self.device, component_attribute).filter(name=template_instance.name).first()
+            # Get the template for the module type.
+            for template in getattr(self.module_type, templates).all():
+                template_instance = template.instantiate(device=self.device, module=self)
 
-                        # Check if there's a component with the same name already
-                        if existing_item:
-                            # Assign it to the module
-                            existing_item.module = self
-                            update_instances.append(existing_item)
-                            continue
+                if adopt_components:
+                    existing_item = getattr(self.device, component_attribute).filter(name=template_instance.name).first()
 
-                    # If we are not adopting components or the component doesn't already exist
+                    # Check if there's a component with the same name already
+                    if existing_item:
+                        # Assign it to the module
+                        existing_item.module = self
+                        update_instances.append(existing_item)
+                        continue
+
+                # Only create new components if replication is enabled
+                if not disable_replication:
                     create_instances.append(template_instance)
 
-                component_model.objects.bulk_create(create_instances)
-                component_model.objects.bulk_update(update_instances, ['module'])
+            component_model.objects.bulk_create(create_instances)
+            component_model.objects.bulk_update(update_instances, ['module'])
 
 
 #
