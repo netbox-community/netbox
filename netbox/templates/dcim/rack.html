@@ -39,9 +39,9 @@
                         <th scope="row">Site</th>
                         <td>
                             {% if object.site.region %}
-                                <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
+                                {{ object.site.region|linkify }} /
                             {% endif %}
-                            <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+                            {{ object.site|linkify }}
                         </td>
                     </tr>
                     <tr>
@@ -49,9 +49,9 @@
                         <td>
                             {% if object.location %}
                                 {% for location in object.location.get_ancestors %}
-                                    <a href="{{ location.get_absolute_url }}">{{ location }}</a> /
+                                    {{ location|linkify }} /
                                 {% endfor %}
-                                <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
+                                {{ object.location|linkify }}
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
@@ -64,31 +64,19 @@
                     <tr>
                         <th scope="row">Tenant</th>
                         <td>
-                            {% if object.tenant %}
-                                {% if object.tenant.group %}
-                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
-                                {% endif %}
-                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
+                            {% if object.tenant.group %}
+                                {{ object.tenant.group|linkify }} /
                             {% endif %}
+                            {{ object.tenant|linkify|placeholder }}
                         </td>
                     </tr>
                      <tr>
                         <th scope="row">Status</th>
-                        <td>
-                            <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                        </td>
+                        <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
                     </tr>
                     <tr>
                         <th scope="row">Role</th>
-                        <td>
-                            {% if object.role %}
-                                <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
-                            {% endif %}
-                        </td>
+                        <td>{{ object.role|linkify|placeholder }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Serial Number</th>
@@ -181,18 +169,10 @@
                         </tr>
                         {% for powerfeed in power_feeds %}
                             <tr>
-                                <td>
-                                    <a href="{{ powerfeed.power_panel.get_absolute_url }}">{{ powerfeed.power_panel.name }}</a>
-
-                                <td>
-                                    <a href="{{ powerfeed.get_absolute_url }}">{{ powerfeed.name }}</a>
-                                </td>
-                                <td>
-                                    <span class="badge bg-{{ powerfeed.get_status_class }}">{{ powerfeed.get_status_display }}</span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-{{ powerfeed.get_type_class }}">{{ powerfeed.get_type_display }}</span>
-                                </td>
+                                <td>{{ powerfeed.power_panel|linkify }}</td>
+                                <td>{{ powerfeed|linkify }}</td>
+                                <td>{% badge powerfeed.get_status_display bg_color=powerfeed.get_status_color %}</td>
+                                <td>{% badge powerfeed.get_type_display bg_color=powerfeed.get_type_color %}</td>
                                 {% with power_port=powerfeed.connected_endpoint %}
                                     {% if power_port %}
                                         <td>{% utilization_graph power_port.get_power_draw.allocated|percentage:powerfeed.available_power %}</td>
@@ -222,16 +202,8 @@
                     </tr>
                     {% for resv in reservations %}
                         <tr>
-                            <td>
-                                <a href="{{ resv.get_absolute_url }}">{{ resv.unit_list }}</a>
-                            </td>
-                            <td>
-                                {% if resv.tenant %}
-                                    <a href="{{ resv.tenant.get_absolute_url }}">{{ resv.tenant }}</a>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
+                            <td>{{ resv|linkify:"unit_list" }}</td>
+                            <td>{{ resv.tenant|linkify|placeholder }}</td>
                             <td>
                                 {{ resv.description }}<br />
                                 <small>{{ resv.user }} &middot; {{ resv.created|annotated_date }}</small>
@@ -288,50 +260,7 @@
               </div>
             </div>
         </div>
-        <div class="card">
-            <h5 class="card-header">
-                Non-Racked Devices
-            </h5>
-            <div class="card-body">
-            {% if nonracked_devices %}
-                <table class="table table-hover">
-                    <tr>
-                        <th>Name</th>
-                        <th>Role</th>
-                        <th>Type</th>
-                        <th colspan="2">Parent Device</th>
-                    </tr>
-                    {% for device in nonracked_devices %}
-                    <tr{% if device.device_type.u_height %} class="warning"{% endif %}>
-                        <td>
-                            <a href="{% url 'dcim:device' pk=device.pk %}">{{ device }}</a>
-                        </td>
-                        <td>{{ device.device_role }}</td>
-                        <td>{{ device.device_type }}</td>
-                        {% if device.parent_bay %}
-                            <td><a href="{{ device.parent_bay.device.get_absolute_url }}">{{ device.parent_bay.device }}</a></td>
-                            <td>{{ device.parent_bay }}</td>
-                        {% else %}
-                            <td colspan="2" class="text-muted">&mdash;</td>
-                        {% endif %}
-                    </tr>
-                    {% endfor %}
-                </table>
-            {% else %}
-                <div class="text-muted">
-                    None
-                </div>
-            {% endif %}
-            </div>
-            {% if perms.dcim.add_device %}
-                <div class="card-footer text-end noprint">
-                    <a href="{% url 'dcim:device_add' %}?site={{ object.site.pk }}&rack={{ object.pk }}" class="btn btn-primary btn-sm">
-                        <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-                        Add a Non-Racked Device
-                    </a>
-                </div>
-            {% endif %}
-        </div>
+        {% include 'dcim/inc/nonracked_devices.html' %}
         {% include 'inc/panels/contacts.html' %}
         {% plugin_right_page object %}
     </div>

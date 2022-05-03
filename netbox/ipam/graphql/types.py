@@ -2,7 +2,7 @@ import graphene
 
 from ipam import filtersets, models
 from netbox.graphql.scalars import BigInt
-from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
 
 __all__ = (
     'ASNType',
@@ -16,13 +16,14 @@ __all__ = (
     'RoleType',
     'RouteTargetType',
     'ServiceType',
+    'ServiceTemplateType',
     'VLANType',
     'VLANGroupType',
     'VRFType',
 )
 
 
-class ASNType(PrimaryObjectType):
+class ASNType(NetBoxObjectType):
     asn = graphene.Field(BigInt)
 
     class Meta:
@@ -31,7 +32,7 @@ class ASNType(PrimaryObjectType):
         filterset_class = filtersets.ASNFilterSet
 
 
-class AggregateType(PrimaryObjectType):
+class AggregateType(NetBoxObjectType):
 
     class Meta:
         model = models.Aggregate
@@ -39,7 +40,7 @@ class AggregateType(PrimaryObjectType):
         filterset_class = filtersets.AggregateFilterSet
 
 
-class FHRPGroupType(PrimaryObjectType):
+class FHRPGroupType(NetBoxObjectType):
 
     class Meta:
         model = models.FHRPGroup
@@ -58,7 +59,7 @@ class FHRPGroupAssignmentType(BaseObjectType):
         filterset_class = filtersets.FHRPGroupAssignmentFilterSet
 
 
-class IPAddressType(PrimaryObjectType):
+class IPAddressType(NetBoxObjectType):
 
     class Meta:
         model = models.IPAddress
@@ -69,7 +70,7 @@ class IPAddressType(PrimaryObjectType):
         return self.role or None
 
 
-class IPRangeType(PrimaryObjectType):
+class IPRangeType(NetBoxObjectType):
 
     class Meta:
         model = models.IPRange
@@ -80,7 +81,7 @@ class IPRangeType(PrimaryObjectType):
         return self.role or None
 
 
-class PrefixType(PrimaryObjectType):
+class PrefixType(NetBoxObjectType):
 
     class Meta:
         model = models.Prefix
@@ -104,7 +105,7 @@ class RoleType(OrganizationalObjectType):
         filterset_class = filtersets.RoleFilterSet
 
 
-class RouteTargetType(PrimaryObjectType):
+class RouteTargetType(NetBoxObjectType):
 
     class Meta:
         model = models.RouteTarget
@@ -112,7 +113,7 @@ class RouteTargetType(PrimaryObjectType):
         filterset_class = filtersets.RouteTargetFilterSet
 
 
-class ServiceType(PrimaryObjectType):
+class ServiceType(NetBoxObjectType):
 
     class Meta:
         model = models.Service
@@ -120,7 +121,15 @@ class ServiceType(PrimaryObjectType):
         filterset_class = filtersets.ServiceFilterSet
 
 
-class VLANType(PrimaryObjectType):
+class ServiceTemplateType(NetBoxObjectType):
+
+    class Meta:
+        model = models.ServiceTemplate
+        fields = '__all__'
+        filterset_class = filtersets.ServiceTemplateFilterSet
+
+
+class VLANType(NetBoxObjectType):
 
     class Meta:
         model = models.VLAN
@@ -136,7 +145,7 @@ class VLANGroupType(OrganizationalObjectType):
         filterset_class = filtersets.VLANGroupFilterSet
 
 
-class VRFType(PrimaryObjectType):
+class VRFType(NetBoxObjectType):
 
     class Meta:
         model = models.VRF

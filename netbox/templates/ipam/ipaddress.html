@@ -36,21 +36,15 @@
                   <tr>
                       <th scope="row">Tenant</th>
                       <td>
-                          {% if object.tenant %}
-                              {% if object.tenant.group %}
-                                  <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
-                              {% endif %}
-                              <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                          {% else %}
-                              <span class="text-muted">None</span>
+                          {% if object.tenant.group %}
+                              {{ object.tenant.group|linkify }} /
                           {% endif %}
+                          {{ object.tenant|linkify|placeholder }}
                       </td>
                   </tr>
                   <tr>
                       <th scope="row">Status</th>
-                      <td>
-                          <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                      </td>
+                      <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
                   </tr>
                   <tr>
                       <th scope="row">Role</th>
@@ -75,9 +69,9 @@
                       <td>
                         {% if object.assigned_object %}
                           {% if object.assigned_object.parent_object %}
-                            <a href="{{ object.assigned_object.parent_object.get_absolute_url }}">{{ object.assigned_object.parent_object }}</a> /
+                            {{ object.assigned_object.parent_object|linkify }} /
                           {% endif %}
-                          <a href="{{ object.assigned_object.get_absolute_url }}">{{ object.assigned_object }}
+                          {{ object.assigned_object|linkify }}
                         {% else %}
                           <span class="text-muted">&mdash;</span>
                         {% endif %}
@@ -87,9 +81,9 @@
                       <th scope="row">NAT (inside)</th>
                       <td>
                           {% if object.nat_inside %}
-                              <a href="{{ object.nat_inside.get_absolute_url }}">{{ object.nat_inside }}</a>
+                              {{ object.nat_inside|linkify }}
                               {% if object.nat_inside.assigned_object %}
-                                  (<a href="{{ object.nat_inside.assigned_object.parent_object.get_absolute_url }}">{{ object.nat_inside.assigned_object.parent_object }}</a>)
+                                  ({{ object.nat_inside.assigned_object.parent_object|linkify }})
                               {% endif %}
                           {% else %}
                               <span class="text-muted">None</span>
@@ -98,13 +92,7 @@
                   </tr>
                   <tr>
                       <th scope="row">NAT (outside)</th>
-                      <td>
-                          {% if object.nat_outside %}
-                              <a href="{{ object.nat_outside.get_absolute_url }}">{{ object.nat_outside }}</a>
-                          {% else %}
-                              <span class="text-muted">None</span>
-                          {% endif %}
-                      </td>
+                      <td>{{ object.nat_outside|linkify|placeholder }}</td>
                   </tr>
               </table>
           </div>

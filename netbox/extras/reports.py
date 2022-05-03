@@ -84,15 +84,6 @@ def run_report(job_result, *args, **kwargs):
         job_result.save()
         logging.error(f"Error during execution of report {job_result.name}")
 
-    # Delete any previous terminal state results
-    JobResult.objects.filter(
-        obj_type=job_result.obj_type,
-        name=job_result.name,
-        status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
-    ).exclude(
-        pk=job_result.pk
-    ).delete()
-
 
 class Report(object):
     """
@@ -119,6 +110,7 @@ class Report(object):
     }
     """
     description = None
+    job_timeout = None
 
     def __init__(self):
 
@@ -167,8 +159,8 @@ class Report(object):
         """
         Log a message from a test method. Do not call this method directly; use one of the log_* wrappers below.
         """
-        if level not in LogLevelChoices.as_dict():
-            raise Exception("Unknown logging level: {}".format(level))
+        if level not in LogLevelChoices.values():
+            raise Exception(f"Unknown logging level: {level}")
         self._results[self.active_test]['log'].append((
             timezone.now().isoformat(),
             level,
@@ -226,6 +218,9 @@ class Report(object):
         job_result.status = JobResultStatusChoices.STATUS_RUNNING
         job_result.save()
 
+        # Perform any post-run tasks
+        self.pre_run()
+
         try:
 
             for method_name in self.test_methods:
@@ -253,8 +248,14 @@ class Report(object):
         # Perform any post-run tasks
         self.post_run()
 
+    def pre_run(self):
+        """
+        Extend this method to include any tasks which should execute *before* the report is run.
+        """
+        pass
+
     def post_run(self):
         """
-        Extend this method to include any tasks which should execute after the report has been run.
+        Extend this method to include any tasks which should execute *after* the report is run.
         """
         pass

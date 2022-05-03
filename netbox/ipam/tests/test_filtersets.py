@@ -771,6 +771,12 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         VMInterface.objects.bulk_create(vminterfaces)
 
+        fhrp_groups = (
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=101),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=102),
+        )
+        FHRPGroup.objects.bulk_create(fhrp_groups)
+
         tenant_groups = (
             TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
             TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
@@ -791,18 +797,22 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
             IPAddress(address='10.0.0.2/24', tenant=tenants[0], vrf=vrfs[0], assigned_object=interfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
             IPAddress(address='10.0.0.3/24', tenant=tenants[1], vrf=vrfs[1], assigned_object=interfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
             IPAddress(address='10.0.0.4/24', tenant=tenants[2], vrf=vrfs[2], assigned_object=interfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
+            IPAddress(address='10.0.0.5/24', tenant=None, vrf=None, assigned_object=fhrp_groups[0], status=IPAddressStatusChoices.STATUS_ACTIVE),
             IPAddress(address='10.0.0.1/25', tenant=None, vrf=None, assigned_object=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
             IPAddress(address='2001:db8::1/64', tenant=None, vrf=None, assigned_object=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a', description='foobar2'),
             IPAddress(address='2001:db8::2/64', tenant=tenants[0], vrf=vrfs[0], assigned_object=vminterfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
             IPAddress(address='2001:db8::3/64', tenant=tenants[1], vrf=vrfs[1], assigned_object=vminterfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
             IPAddress(address='2001:db8::4/64', tenant=tenants[2], vrf=vrfs[2], assigned_object=vminterfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
+            IPAddress(address='2001:db8::5/64', tenant=None, vrf=None, assigned_object=fhrp_groups[1], status=IPAddressStatusChoices.STATUS_ACTIVE),
             IPAddress(address='2001:db8::1/65', tenant=None, vrf=None, assigned_object=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
         )
         IPAddress.objects.bulk_create(ipaddresses)
 
     def test_family(self):
+        params = {'family': '4'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'family': '6'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_dns_name(self):
         params = {'dns_name': ['ipaddress-a', 'ipaddress-b']}
@@ -814,9 +824,9 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_parent(self):
         params = {'parent': '10.0.0.0/24'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'parent': '2001:db8::/64'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_filter_address(self):
         # Check IPv4 and IPv6, with and without a mask
@@ -835,7 +845,7 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_mask_length(self):
         params = {'mask_length': '24'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_vrf(self):
         vrfs = VRF.objects.all()[:2]
@@ -872,11 +882,16 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'vminterface': ['Interface 1', 'Interface 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_fhrpgroup(self):
+        fhrp_groups = FHRPGroup.objects.all()[:2]
+        params = {'fhrpgroup_id': [fhrp_groups[0].pk, fhrp_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_assigned_to_interface(self):
         params = {'assigned_to_interface': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'assigned_to_interface': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_status(self):
         params = {'status': [PrefixStatusChoices.STATUS_DEPRECATED, PrefixStatusChoices.STATUS_RESERVED]}
@@ -1337,6 +1352,35 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         vm_id = VirtualMachine.objects.first().pk
         params = {'available_on_virtualmachine': vm_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)  # 5 scoped + 1 global
+
+
+class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ServiceTemplate.objects.all()
+    filterset = ServiceTemplateFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        service_templates = (
+            ServiceTemplate(name='Service Template 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1001]),
+            ServiceTemplate(name='Service Template 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1002]),
+            ServiceTemplate(name='Service Template 3', protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[1003]),
+            ServiceTemplate(name='Service Template 4', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2001]),
+            ServiceTemplate(name='Service Template 5', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2002]),
+            ServiceTemplate(name='Service Template 6', protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[2003]),
+        )
+        ServiceTemplate.objects.bulk_create(service_templates)
+
+    def test_name(self):
+        params = {'name': ['Service Template 1', 'Service Template 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_protocol(self):
+        params = {'protocol': ServiceProtocolChoices.PROTOCOL_TCP}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_port(self):
+        params = {'port': '1001'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):

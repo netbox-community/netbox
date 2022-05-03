@@ -16,13 +16,7 @@
                     </tr>
                     <tr>
                         <td>Group</td>
-                        <td>
-                            {% if object.group %}
-                                <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
-                            {% endif %}
-                        </td>
+                        <td>{{ object.group|linkify|placeholder }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Description</th>
@@ -30,13 +24,7 @@
                     </tr>
                     <tr>
                         <th scope="row">VLAN</th>
-                        <td>
-                            {% if object.vlan %}
-                                <a href="{{ object.vlan.get_absolute_url }}">{{ object.vlan }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
-                            {% endif %}
-                        </td>
+                        <td>{{ object.vlan|linkify|placeholder }}</td>
                     </tr>
                 </table>
             </div>

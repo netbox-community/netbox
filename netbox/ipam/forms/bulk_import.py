@@ -2,10 +2,10 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 
 from dcim.models import Device, Interface, Site
-from extras.forms import CustomFieldModelCSVForm
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
+from netbox.forms import NetBoxModelCSVForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField
 from virtualization.models import VirtualMachine, VMInterface
@@ -21,13 +21,14 @@ __all__ = (
     'RoleCSVForm',
     'RouteTargetCSVForm',
     'ServiceCSVForm',
+    'ServiceTemplateCSVForm',
     'VLANCSVForm',
     'VLANGroupCSVForm',
     'VRFCSVForm',
 )
 
 
-class VRFCSVForm(CustomFieldModelCSVForm):
+class VRFCSVForm(NetBoxModelCSVForm):
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -40,7 +41,7 @@ class VRFCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'rd', 'tenant', 'enforce_unique', 'description')
 
 
-class RouteTargetCSVForm(CustomFieldModelCSVForm):
+class RouteTargetCSVForm(NetBoxModelCSVForm):
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -53,7 +54,7 @@ class RouteTargetCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'description', 'tenant')
 
 
-class RIRCSVForm(CustomFieldModelCSVForm):
+class RIRCSVForm(NetBoxModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -64,7 +65,7 @@ class RIRCSVForm(CustomFieldModelCSVForm):
         }
 
 
-class AggregateCSVForm(CustomFieldModelCSVForm):
+class AggregateCSVForm(NetBoxModelCSVForm):
     rir = CSVModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
@@ -82,7 +83,7 @@ class AggregateCSVForm(CustomFieldModelCSVForm):
         fields = ('prefix', 'rir', 'tenant', 'date_added', 'description')
 
 
-class ASNCSVForm(CustomFieldModelCSVForm):
+class ASNCSVForm(NetBoxModelCSVForm):
     rir = CSVModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
@@ -101,7 +102,7 @@ class ASNCSVForm(CustomFieldModelCSVForm):
         help_texts = {}
 
 
-class RoleCSVForm(CustomFieldModelCSVForm):
+class RoleCSVForm(NetBoxModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -109,7 +110,7 @@ class RoleCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'weight', 'description')
 
 
-class PrefixCSVForm(CustomFieldModelCSVForm):
+class PrefixCSVForm(NetBoxModelCSVForm):
     vrf = CSVModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='name',
@@ -173,7 +174,7 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
                 self.fields['vlan'].queryset = self.fields['vlan'].queryset.filter(**params)
 
 
-class IPRangeCSVForm(CustomFieldModelCSVForm):
+class IPRangeCSVForm(NetBoxModelCSVForm):
     vrf = CSVModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='name',
@@ -204,7 +205,7 @@ class IPRangeCSVForm(CustomFieldModelCSVForm):
         )
 
 
-class IPAddressCSVForm(CustomFieldModelCSVForm):
+class IPAddressCSVForm(NetBoxModelCSVForm):
     vrf = CSVModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='name',
@@ -311,7 +312,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         return ipaddress
 
 
-class FHRPGroupCSVForm(CustomFieldModelCSVForm):
+class FHRPGroupCSVForm(NetBoxModelCSVForm):
     protocol = CSVChoiceField(
         choices=FHRPGroupProtocolChoices
     )
@@ -325,23 +326,35 @@ class FHRPGroupCSVForm(CustomFieldModelCSVForm):
         fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'description')
 
 
-class VLANGroupCSVForm(CustomFieldModelCSVForm):
+class VLANGroupCSVForm(NetBoxModelCSVForm):
     slug = SlugField()
     scope_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False,
         label='Scope type (app & model)'
     )
+    min_vid = forms.IntegerField(
+        min_value=VLAN_VID_MIN,
+        max_value=VLAN_VID_MAX,
+        required=False,
+        label=f'Minimum child VLAN VID (default: {VLAN_VID_MIN})'
+    )
+    max_vid = forms.IntegerField(
+        min_value=VLAN_VID_MIN,
+        max_value=VLAN_VID_MAX,
+        required=False,
+        label=f'Maximum child VLAN VID (default: {VLAN_VID_MIN})'
+    )
 
     class Meta:
         model = VLANGroup
-        fields = ('name', 'slug', 'scope_type', 'scope_id', 'description')
+        fields = ('name', 'slug', 'scope_type', 'scope_id', 'min_vid', 'max_vid', 'description')
         labels = {
             'scope_id': 'Scope ID',
         }
 
 
-class VLANCSVForm(CustomFieldModelCSVForm):
+class VLANCSVForm(NetBoxModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -380,7 +393,18 @@ class VLANCSVForm(CustomFieldModelCSVForm):
         }
 
 
-class ServiceCSVForm(CustomFieldModelCSVForm):
+class ServiceTemplateCSVForm(NetBoxModelCSVForm):
+    protocol = CSVChoiceField(
+        choices=ServiceProtocolChoices,
+        help_text='IP protocol'
+    )
+
+    class Meta:
+        model = ServiceTemplate
+        fields = ('name', 'protocol', 'ports', 'description')
+
+
+class ServiceCSVForm(NetBoxModelCSVForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         required=False,

@@ -43,6 +43,18 @@ changes in the database indefinitely.
 
 ---
 
+## JOBRESULT_RETENTION
+
+Default: 90
+
+The number of days to retain job results (scripts and reports). Set this to `0` to retain
+job results in the database indefinitely.
+
+!!! warning
+    If enabling indefinite job results retention, it is recommended to periodically delete old entries. Otherwise, the database may eventually exceed capacity.
+
+---
+
 ## CUSTOM_VALIDATORS
 
 This is a mapping of models to [custom validators](../customization/custom-validation.md) that have been defined locally to enforce custom validation logic. An example is provided below:
@@ -63,6 +75,22 @@ CUSTOM_VALIDATORS = {
     ]
 }
 ```
+
+---
+
+## DEFAULT_USER_PREFERENCES
+
+This is a dictionary defining the default preferences to be set for newly-created user accounts. For example, to set the default page size for all users to 100, define the following:
+
+```python
+DEFAULT_USER_PREFERENCES = {
+    "pagination": {
+        "per_page": 100
+    }
+}
+```
+
+For a complete list of available preferences, log into NetBox and navigate to `/user/preferences/`. A period in a preference name indicates a level of nesting in the JSON data. The example above maps to `pagination.per_page`.
 
 ---
 

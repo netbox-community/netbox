@@ -14,12 +14,19 @@ from django.core.validators import URLValidator
 
 from netbox.config import PARAMS
 
+# Monkey patch to fix Django 4.0 support for graphene-django (see
+# https://github.com/graphql-python/graphene-django/issues/1284)
+# TODO: Remove this when graphene-django 2.16 becomes available
+import django
+from django.utils.encoding import force_str
+django.utils.encoding.force_text = force_str
+
 
 #
 # Environment setup
 #
 
-VERSION = '3.1.10-dev'
+VERSION = '3.2.3-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -28,13 +35,9 @@ HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Validate Python version
-if sys.version_info < (3, 7):
-    raise RuntimeError(
-        f"NetBox requires Python 3.7 or later. (Currently installed: Python {platform.python_version()})"
-    )
 if sys.version_info < (3, 8):
-    warnings.warn(
-        f"NetBox v3.2 will require Python 3.8 or later. (Currently installed: Python {platform.python_version()})"
+    raise RuntimeError(
+        f"NetBox requires Python 3.8 or later. (Currently installed: Python {platform.python_version()})"
     )
 
 
@@ -43,31 +46,21 @@ if sys.version_info < (3, 8):
 #
 
 # Import configuration parameters
+config_path = os.getenv('NETBOX_CONFIGURATION', 'netbox.configuration')
 try:
-    from netbox import configuration
+    configuration = importlib.import_module(config_path)
 except ModuleNotFoundError as e:
-    if getattr(e, 'name') == 'configuration':
+    if getattr(e, 'name') == config_path:
         raise ImproperlyConfigured(
-            "Configuration file is not present. Please define netbox/netbox/configuration.py per the documentation."
+            f"Specified configuration module ({config_path}) not found. Please define netbox/netbox/configuration.py "
+            f"per the documentation, or specify an alternate module in the NETBOX_CONFIGURATION environment variable."
         )
     raise
-
-# Warn on removed config parameters
-if hasattr(configuration, 'CACHE_TIMEOUT'):
-    warnings.warn(
-        "The CACHE_TIMEOUT configuration parameter was removed in v3.0.0 and no longer has any effect."
-    )
-if hasattr(configuration, 'RELEASE_CHECK_TIMEOUT'):
-    warnings.warn(
-        "The RELEASE_CHECK_TIMEOUT configuration parameter was removed in v3.0.0 and no longer has any effect."
-    )
 
 # Enforce required configuration parameters
 for parameter in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS']:
     if not hasattr(configuration, parameter):
-        raise ImproperlyConfigured(
-            "Required parameter {} is missing from configuration.py.".format(parameter)
-        )
+        raise ImproperlyConfigured(f"Required parameter {parameter} is missing from configuration.")
 
 # Set required parameters
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')
@@ -77,12 +70,14 @@ SECRET_KEY = getattr(configuration, 'SECRET_KEY')
 
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
+AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [])
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
+CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
 DATE_FORMAT = getattr(configuration, 'DATE_FORMAT', 'N j, Y')
 DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
 DEBUG = getattr(configuration, 'DEBUG', False)
@@ -90,6 +85,7 @@ DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
+FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 LOGGING = getattr(configuration, 'LOGGING', {})
@@ -353,6 +349,10 @@ TEMPLATES = [
         'DIRS': [TEMPLATES_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
+            'builtins': [
+                'utilities.templatetags.builtins.filters',
+                'utilities.templatetags.builtins.tags',
+            ],
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -374,7 +374,9 @@ AUTHENTICATION_BACKENDS = [
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 USE_I18N = True
+USE_L10N = False
 USE_TZ = True
+USE_DEPRECATED_PYTZ = True
 
 # WSGI
 WSGI_APPLICATION = 'netbox.wsgi.application'
@@ -406,9 +408,7 @@ MESSAGE_TAGS = {
 LOGIN_URL = f'/{BASE_PATH}login/'
 LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 
-CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
-
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
 # by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.

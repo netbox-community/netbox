@@ -2,7 +2,7 @@
 
 Custom links allow users to display arbitrary hyperlinks to external content within NetBox object views. These are helpful for cross-referencing related records in systems outside NetBox. For example, you might create a custom link on the device view which links to the current device in a Network Monitoring System (NMS).
 
-Custom links are created by navigating to Customization > Custom Links. Each link is associated with a particular NetBox object type (site, device, prefix, etc.) and will be displayed on relevant views. Each link has display text and a URL, and data from the Netbox item being viewed can be included in the link using [Jinja2 template code](https://jinja2docs.readthedocs.io/en/stable/) through the variable `obj`, and custom fields through `obj.cf`.
+Custom links are created by navigating to Customization > Custom Links. Each link is associated with a particular NetBox object type (site, device, prefix, etc.) and will be displayed on relevant views. Each link has display text and a URL, and data from the NetBox item being viewed can be included in the link using [Jinja2 template code](https://jinja2docs.readthedocs.io/en/stable/) through the variable `obj`, and custom fields through `obj.cf`.
 
 For example, you might define a link like this:
 
@@ -15,7 +15,7 @@ When viewing a device named Router4, this link would render as:
 <a href="https://nms.example.com/nodes/?name=Router4">View NMS</a>
 ```
 
-Custom links appear as buttons in the top right corner of the page. Numeric weighting can be used to influence the ordering of links.
+Custom links appear as buttons in the top right corner of the page. Numeric weighting can be used to influence the ordering of links, and each link can be enabled or disabled individually.
 
 !!! warning
     Custom links rely on user-created code to generate arbitrary HTML output, which may be dangerous. Only grant permission to create or modify custom links to trusted users.
@@ -24,13 +24,18 @@ Custom links appear as buttons in the top right corner of the page. Numeric weig
 
 The following context data is available within the template when rendering a custom link's text or URL.
 
-| Variable | Description |
-|----------|-------------|
-| `obj`      | The NetBox object being displayed |
-| `debug`    | A boolean indicating whether debugging is enabled |
-| `request`  | The current WSGI request |
-| `user`     | The current user (if authenticated) |
-| `perms`    | The [permissions](https://docs.djangoproject.com/en/stable/topics/auth/default/#permissions) assigned to the user |
+| Variable  | Description                                                                                                       |
+|-----------|-------------------------------------------------------------------------------------------------------------------|
+| `object`  | The NetBox object being displayed                                                                                 |
+| `obj`     | Same as `object`; maintained for backward compatability until NetBox v3.5                                         |
+| `debug`   | A boolean indicating whether debugging is enabled                                                                 |
+| `request` | The current WSGI request                                                                                          |
+| `user`    | The current user (if authenticated)                                                                               |
+| `perms`   | The [permissions](https://docs.djangoproject.com/en/stable/topics/auth/default/#permissions) assigned to the user |
+
+While most of the context variables listed above will have consistent attributes, the object will be an instance of the specific object being viewed when the link is rendered. Different models have different fields and properties, so you may need to some research to determine the attributes available for use within your template for a specific object type.
+
+Checking the REST API representation of an object is generally a convenient way to determine what attributes are available. You can also reference the NetBox source code directly for a comprehensive list.
 
 ## Conditional Rendering
 

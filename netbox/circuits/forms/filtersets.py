@@ -4,9 +4,10 @@ from django.utils.translation import gettext as _
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
-from extras.forms import CustomFieldModelFilterForm
-from tenancy.forms import TenancyFilterForm
-from utilities.forms import DynamicModelMultipleChoiceField, StaticSelectMultiple, TagFilterField
+from ipam.models import ASN
+from netbox.forms import NetBoxModelFilterSetForm
+from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
+from utilities.forms import DynamicModelMultipleChoiceField, MultipleChoiceField, TagFilterField
 
 __all__ = (
     'CircuitFilterForm',
@@ -16,13 +17,14 @@ __all__ = (
 )
 
 
-class ProviderFilterForm(CustomFieldModelFilterForm):
+class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Provider
-    field_groups = [
-        ['q', 'tag'],
-        ['region_id', 'site_group_id', 'site_id'],
-        ['asn'],
-    ]
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Location', ('region_id', 'site_group_id', 'site_id')),
+        ('ASN', ('asn',)),
+        ('Contacts', ('contact', 'contact_role')),
+    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -44,39 +46,49 @@ class ProviderFilterForm(CustomFieldModelFilterForm):
     )
     asn = forms.IntegerField(
         required=False,
-        label=_('ASN')
+        label=_('ASN (legacy)')
+    )
+    asn_id = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        required=False,
+        label=_('ASNs')
     )
     tag = TagFilterField(model)
 
 
-class ProviderNetworkFilterForm(CustomFieldModelFilterForm):
+class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
     model = ProviderNetwork
-    field_groups = (
-        ('q', 'tag'),
-        ('provider_id',),
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Attributes', ('provider_id', 'service_id')),
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         required=False,
         label=_('Provider')
     )
+    service_id = forms.CharField(
+        max_length=100,
+        required=False
+    )
     tag = TagFilterField(model)
 
 
-class CircuitTypeFilterForm(CustomFieldModelFilterForm):
+class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
     model = CircuitType
     tag = TagFilterField(model)
 
 
-class CircuitFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Circuit
-    field_groups = [
-        ['q', 'tag'],
-        ['provider_id', 'provider_network_id'],
-        ['type_id', 'status', 'commit_rate'],
-        ['region_id', 'site_group_id', 'site_id'],
-        ['tenant_group_id', 'tenant_id'],
-    ]
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Provider', ('provider_id', 'provider_network_id')),
+        ('Attributes', ('type_id', 'status', 'commit_rate')),
+        ('Location', ('region_id', 'site_group_id', 'site_id')),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Contacts', ('contact', 'contact_role')),
+    )
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         required=False,
@@ -95,10 +107,9 @@ class CircuitFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         },
         label=_('Provider network')
     )
-    status = forms.MultipleChoiceField(
+    status = MultipleChoiceField(
         choices=CircuitStatusChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),

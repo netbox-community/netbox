@@ -85,6 +85,20 @@ As you can see, reports are completely customizable. Validation logic can be as 
 !!! warning
     Reports should never alter data: If you find yourself using the `create()`, `save()`, `update()`, or `delete()` methods on objects within reports, stop and re-evaluate what you're trying to accomplish. Note that there are no safeguards against the accidental alteration or destruction of data.
 
+## Report Attributes
+
+### `description`
+
+A human-friendly description of what your report does.
+
+### `job_timeout`
+
+Set the maximum allowed runtime for the report. If not set, `RQ_DEFAULT_TIMEOUT` will be used.
+
+!!! info "This feature was introduced in v3.2.1"
+
+## Logging
+
 The following methods are available to log results within a report:
 
 * log(message)
@@ -95,7 +109,7 @@ The following methods are available to log results within a report:
 
 The recording of one or more failure messages will automatically flag a report as failed. It is advised to log a success for each object that is evaluated so that the results will reflect how many objects are being reported on. (The inclusion of a log message is optional for successes.) Messages recorded with `log()` will appear in a report's results but are not associated with a particular object or status. Log messages also support using markdown syntax and will be rendered on the report result page.
 
-To perform additional tasks, such as sending an email or calling a webhook, after a report has been run, extend the `post_run()` method. The status of the report is available as `self.failed` and the results object is `self.result`.
+To perform additional tasks, such as sending an email or calling a webhook, before or after a report is run, extend the `pre_run()` and/or `post_run()` methods, respectively. The status of a completed report is available as `self.failed` and the results object is `self.result`.
 
 By default, reports within a module are ordered alphabetically in the reports list page. To return reports in a specific order, you can define the `report_order` variable at the end of your module. The `report_order` variable is a tuple which contains each Report class in the desired order. Any reports that are omitted from this list will be listed last.
 

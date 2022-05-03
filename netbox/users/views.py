@@ -10,16 +10,16 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.http import is_safe_url
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 from social_core.backends.utils import load_backends
 
 from extras.models import ObjectChange
 from extras.tables import ObjectChangeTable
+from netbox.authentication import get_auth_backend_display
 from netbox.config import get_config
 from utilities.forms import ConfirmationForm
-from .forms import LoginForm, PasswordChangeForm, TokenForm
+from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
 from .models import Token
 
 
@@ -44,9 +44,13 @@ class LoginView(View):
             logger = logging.getLogger('netbox.auth.login')
             return self.redirect_to_next(request, logger)
 
+        auth_backends = {
+            name: get_auth_backend_display(name) for name in load_backends(settings.AUTHENTICATION_BACKENDS).keys()
+        }
+
         return render(request, self.template_name, {
             'form': form,
-            'auth_backends': load_backends(settings.AUTHENTICATION_BACKENDS),
+            'auth_backends': auth_backends,
         })
 
     def post(self, request):
@@ -78,17 +82,17 @@ class LoginView(View):
         })
 
     def redirect_to_next(self, request, logger):
-        if request.method == "POST":
-            redirect_to = request.POST.get('next', settings.LOGIN_REDIRECT_URL)
+        data = request.POST if request.method == "POST" else request.GET
+        redirect_url = data.get('next', settings.LOGIN_REDIRECT_URL)
+
+        if redirect_url and redirect_url.startswith('/'):
+            logger.debug(f"Redirecting user to {redirect_url}")
         else:
-            redirect_to = request.GET.get('next', settings.LOGIN_REDIRECT_URL)
+            if redirect_url:
+                logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_url}")
+            redirect_url = reverse('home')
 
-        if redirect_to and not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
-            logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_to}")
-            redirect_to = reverse('home')
-
-        logger.debug(f"Redirecting user to {redirect_to}")
-        return HttpResponseRedirect(redirect_to)
+        return HttpResponseRedirect(redirect_url)
 
 
 class LogoutView(View):
@@ -137,32 +141,28 @@ class UserConfigView(LoginRequiredMixin, View):
     template_name = 'users/preferences.html'
 
     def get(self, request):
+        userconfig = request.user.config
+        form = UserConfigForm(instance=userconfig)
 
         return render(request, self.template_name, {
-            'preferences': request.user.config.all(),
+            'form': form,
             'active_tab': 'preferences',
         })
 
     def post(self, request):
         userconfig = request.user.config
-        data = userconfig.all()
+        form = UserConfigForm(request.POST, instance=userconfig)
 
-        # Delete selected preferences
-        if "_delete" in request.POST:
-            for key in request.POST.getlist('pk'):
-                if key in data:
-                    userconfig.clear(key)
-        # Update specific values
-        elif "_update" in request.POST:
-            for key in request.POST:
-                if not key.startswith('_') and not key.startswith('csrf'):
-                    for value in request.POST.getlist(key):
-                        userconfig.set(key, value)
+        if form.is_valid():
+            form.save()
 
-        userconfig.save()
-        messages.success(request, "Your preferences have been updated.")
+            messages.success(request, "Your preferences have been updated.")
+            return redirect('user:preferences')
 
-        return redirect('user:preferences')
+        return render(request, self.template_name, {
+            'form': form,
+            'active_tab': 'preferences',
+        })
 
 
 class ChangePasswordView(LoginRequiredMixin, View):
@@ -223,8 +223,7 @@ class TokenEditView(LoginRequiredMixin, View):
         form = TokenForm(instance=token)
 
         return render(request, 'generic/object_edit.html', {
-            'obj': token,
-            'obj_type': token._meta.verbose_name,
+            'object': token,
             'form': form,
             'return_url': reverse('user:token_list'),
         })
@@ -252,8 +251,7 @@ class TokenEditView(LoginRequiredMixin, View):
                 return redirect('user:token_list')
 
         return render(request, 'generic/object_edit.html', {
-            'obj': token,
-            'obj_type': token._meta.verbose_name,
+            'object': token,
             'form': form,
             'return_url': reverse('user:token_list'),
         })
@@ -270,8 +268,7 @@ class TokenDeleteView(LoginRequiredMixin, View):
         form = ConfirmationForm(initial=initial_data)
 
         return render(request, 'generic/object_delete.html', {
-            'obj': token,
-            'obj_type': token._meta.verbose_name,
+            'object': token,
             'form': form,
             'return_url': reverse('user:token_list'),
         })
@@ -286,8 +283,7 @@ class TokenDeleteView(LoginRequiredMixin, View):
             return redirect('user:token_list')
 
         return render(request, 'generic/object_delete.html', {
-            'obj': token,
-            'obj_type': token._meta.verbose_name,
+            'object': token,
             'form': form,
             'return_url': reverse('user:token_list'),
         })

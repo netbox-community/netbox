@@ -4,20 +4,35 @@
 {% load render_table from django_tables2 %}
 {% load static %}
 
-{% block title %}{{ content_type.model_class|meta:"verbose_name_plural"|bettertitle }}{% endblock %}
+{% comment %}
+Blocks:
+  extra_controls: Additional action buttons
+  bulk_buttons: Additional bulk action buttons to display beneath the objects
+    list
+
+Context:
+  model: The model class being listed
+  table: The table class used for rendering the list of objects
+  actions: A list of buttons to display. This template checks for add, import,
+    export, bulk_edit, and bulk_delete.
+  filter_form: The bound filterset form for filtering the objects list (optional)
+  return_url: Return URL to use for bulk actions (optional)
+{% endcomment %}
+
+{% block title %}{{ model|meta:"verbose_name_plural"|bettertitle }}{% endblock %}
 
 {% block controls %}
   <div class="controls">
     <div class="control-group">
       {% block extra_controls %}{% endblock %}
-      {% if permissions.add and 'add' in action_buttons %}
-          {% add_button content_type.model_class|validated_viewname:"add" %}
+      {% if 'add' in actions %}
+          {% add_button model %}
       {% endif %}
-      {% if permissions.add and 'import' in action_buttons %}
-          {% import_button content_type.model_class|validated_viewname:"import" %}
+      {% if 'import' in actions %}
+          {% import_button model %}
       {% endif %}
-      {% if 'export' in action_buttons %}
-          {% export_button content_type %}
+      {% if 'export' in actions %}
+          {% export_button model %}
       {% endif %}
     </div>
   </div>
@@ -25,22 +40,19 @@
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
-    {% block tab_items %}
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
+        Results {% badge table.page.paginator.count %}
+      </button>
+    </li>
+    {% if filter_form %}
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
-          Records
-          {% badge table.page.paginator.count %}
+        <button class="nav-link" id="filters-form-tab" data-bs-toggle="tab" data-bs-target="#filters-form" type="button" role="tab" aria-controls="object-list" aria-selected="false">
+          Filters
+          {% if filter_form %}{% badge filter_form.changed_data|length bg_color="primary" %}{% endif %}
         </button>
       </li>
-      {% if filter_form %}
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="filters-form-tab" data-bs-toggle="tab" data-bs-target="#filters-form" type="button" role="tab" aria-controls="object-list" aria-selected="false">
-            Filters
-            {% if filter_form %}{% badge filter_form.changed_data|length bg_class="primary" %}{% endif %}
-          </button>
-        </li>
-      {% endif %}
-    {% endblock tab_items %}
+    {% endif %}
   </ul>
 {% endblock tabs %}
 
@@ -57,33 +69,27 @@
 
       {# "Select all" form #}
       {% if table.paginator.num_pages > 1 %}
-        {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
-          <div id="select-all-box" class="d-none card noprint">
-            <form method="post" class="form col-md-12">
-              {% csrf_token %}
-              <div class="card-body">
-                <div class="float-end">
-                  {% if bulk_edit_url and permissions.change %}
-                    <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm" disabled>
-                      <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit All
-                    </button>
-                  {% endif %}
-                  {% if bulk_delete_url and permissions.delete %}
-                    <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm" disabled>
-                      <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete All
-                    </button>
-                  {% endif %}
-                </div>
-                <div class="form-check">
-                  <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
-                  <label for="select-all" class="form-check-label">
-                    Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query
-                  </label>
-                </div>
+        <div id="select-all-box" class="d-none card noprint">
+          <form method="post" class="form col-md-12">
+            {% csrf_token %}
+            <div class="card-body">
+              <div class="float-end">
+                {% if 'bulk_edit' in actions %}
+                  {% bulk_edit_button model query_params=request.GET %}
+                {% endif %}
+                {% if 'bulk_delete' in actions %}
+                  {% bulk_delete_button model query_params=request.GET %}
+                {% endif %}
               </div>
-            </form>
-          </div>
-        {% endwith %}
+              <div class="form-check">
+                <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
+                <label for="select-all" class="form-check-label">
+                  Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
       {% endif %}
 
       {# Object table controls #}
@@ -101,25 +107,18 @@
         </div>
 
         {# Form buttons #}
-        {% if permissions.change or permissions.delete %}
-          {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
-            <div class="noprint bulk-buttons">
-              <div class="bulk-button-group">
-                {% block bulk_buttons %}{% endblock %}
-                {% if bulk_edit_url and permissions.change %}
-                  <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
-                    <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
-                  </button>
-                {% endif %}
-                {% if bulk_delete_url and permissions.delete %}
-                  <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
-                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete Selected
-                  </button>
-                {% endif %}
-              </div>
-            </div>
-          {% endwith %}
-        {% endif %}
+        <div class="noprint bulk-buttons">
+          <div class="bulk-button-group">
+            {% block bulk_buttons %}
+              {% if 'bulk_edit' in actions %}
+                {% bulk_edit_button model query_params=request.GET %}
+              {% endif %}
+              {% if 'bulk_delete' in actions %}
+                {% bulk_delete_button model query_params=request.GET %}
+              {% endif %}
+            {% endblock %}
+          </div>
+        </div>
 
       </form>
 

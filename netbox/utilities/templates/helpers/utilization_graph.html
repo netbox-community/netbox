@@ -12,10 +12,10 @@
       class="progress-bar {{ bar_class }}"
       style="width: {{ utilization }}%;"
     >
-      {% if utilization >= 25 %}{{ utilization }}%{% endif %}
+      {% if utilization >= 25 %}{{ utilization|floatformat:0 }}%{% endif %}
     </div>
     {% if utilization < 25 %}
-      <span class="ps-1">{{ utilization }}%</span>
+      <span class="ps-1">{{ utilization|floatformat:0 }}%</span>
     {% endif %}
   </div>
 {% endif %}

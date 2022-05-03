@@ -35,8 +35,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = []
+    nullable_fields = ('description',)
 
 
 class CustomLinkBulkEditForm(BulkEditForm):
@@ -48,6 +47,10 @@ class CustomLinkBulkEditForm(BulkEditForm):
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_links'),
         required=False
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
     )
     new_window = forms.NullBooleanField(
         required=False,
@@ -61,9 +64,6 @@ class CustomLinkBulkEditForm(BulkEditForm):
         required=False,
         widget=StaticSelect()
     )
-
-    class Meta:
-        nullable_fields = []
 
 
 class ExportTemplateBulkEditForm(BulkEditForm):
@@ -93,8 +93,7 @@ class ExportTemplateBulkEditForm(BulkEditForm):
         widget=BulkEditNullBooleanSelect()
     )
 
-    class Meta:
-        nullable_fields = ['description', 'mime_type', 'file_extension']
+    nullable_fields = ('description', 'mime_type', 'file_extension')
 
 
 class WebhookBulkEditForm(BulkEditForm):
@@ -140,8 +139,7 @@ class WebhookBulkEditForm(BulkEditForm):
         label='CA file path'
     )
 
-    class Meta:
-        nullable_fields = ['secret', 'conditions', 'ca_file_path']
+    nullable_fields = ('secret', 'conditions', 'ca_file_path')
 
 
 class TagBulkEditForm(BulkEditForm):
@@ -157,8 +155,7 @@ class TagBulkEditForm(BulkEditForm):
         required=False
     )
 
-    class Meta:
-        nullable_fields = ['description']
+    nullable_fields = ('description',)
 
 
 class ConfigContextBulkEditForm(BulkEditForm):
@@ -179,10 +176,7 @@ class ConfigContextBulkEditForm(BulkEditForm):
         max_length=100
     )
 
-    class Meta:
-        nullable_fields = [
-            'description',
-        ]
+    nullable_fields = ('description',)
 
 
 class JournalEntryBulkEditForm(BulkEditForm):
@@ -198,6 +192,3 @@ class JournalEntryBulkEditForm(BulkEditForm):
         required=False,
         widget=forms.Textarea()
     )
-
-    class Meta:
-        nullable_fields = []

@@ -5,9 +5,9 @@ from django.core.exceptions import ValidationError
 from dcim.forms.common import InterfaceCommonForm
 from dcim.forms.models import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
-from extras.forms import CustomFieldModelForm
 from extras.models import Tag
-from ipam.models import IPAddress, VLAN, VLANGroup
+from ipam.models import IPAddress, VLAN, VLANGroup, VRF
+from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import (
     BootstrapMixin, CommentField, ConfirmationForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
@@ -26,12 +26,8 @@ __all__ = (
 )
 
 
-class ClusterTypeForm(CustomFieldModelForm):
+class ClusterTypeForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = ClusterType
@@ -40,12 +36,8 @@ class ClusterTypeForm(CustomFieldModelForm):
         )
 
 
-class ClusterGroupForm(CustomFieldModelForm):
+class ClusterGroupForm(NetBoxModelForm):
     slug = SlugField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = ClusterGroup
@@ -54,7 +46,7 @@ class ClusterGroupForm(CustomFieldModelForm):
         )
 
 
-class ClusterForm(TenancyForm, CustomFieldModelForm):
+class ClusterForm(TenancyForm, NetBoxModelForm):
     type = DynamicModelChoiceField(
         queryset=ClusterType.objects.all()
     )
@@ -85,19 +77,16 @@ class ClusterForm(TenancyForm, CustomFieldModelForm):
         }
     )
     comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
+
+    fieldsets = (
+        ('Cluster', ('name', 'type', 'group', 'region', 'site_group', 'site', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
     )
 
     class Meta:
         model = Cluster
         fields = (
             'name', 'type', 'group', 'tenant', 'region', 'site_group', 'site', 'comments', 'tags',
-        )
-        fieldsets = (
-            ('Cluster', ('name', 'type', 'group', 'region', 'site_group', 'site', 'tags')),
-            ('Tenancy', ('tenant_group', 'tenant')),
         )
 
 
@@ -171,7 +160,7 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
     )
 
 
-class VirtualMachineForm(TenancyForm, CustomFieldModelForm):
+class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -201,9 +190,14 @@ class VirtualMachineForm(TenancyForm, CustomFieldModelForm):
         required=False,
         label=''
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
+
+    fieldsets = (
+        ('Virtual Machine', ('name', 'role', 'status', 'tags')),
+        ('Cluster', ('cluster_group', 'cluster')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+        ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
+        ('Resources', ('vcpus', 'memory', 'disk')),
+        ('Config Context', ('local_context_data',)),
     )
 
     class Meta:
@@ -212,14 +206,6 @@ class VirtualMachineForm(TenancyForm, CustomFieldModelForm):
             'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4',
             'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'tags', 'local_context_data',
         ]
-        fieldsets = (
-            ('Virtual Machine', ('name', 'role', 'status', 'tags')),
-            ('Cluster', ('cluster_group', 'cluster')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-            ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
-            ('Resources', ('vcpus', 'memory', 'disk')),
-            ('Config Context', ('local_context_data',)),
-        )
         help_texts = {
             'local_context_data': "Local config context data overwrites all sources contexts in the final rendered "
                                   "config context",
@@ -271,16 +257,22 @@ class VirtualMachineForm(TenancyForm, CustomFieldModelForm):
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
 
-class VMInterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
+class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
-        label='Parent interface'
+        label='Parent interface',
+        query_params={
+            'virtual_machine_id': '$virtual_machine',
+        }
     )
     bridge = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
-        label='Bridged interface'
+        label='Bridged interface',
+        query_params={
+            'virtual_machine_id': '$virtual_machine',
+        }
     )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
@@ -293,6 +285,7 @@ class VMInterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
         label='Untagged VLAN',
         query_params={
             'group_id': '$vlan_group',
+            'available_on_virtualmachine': '$virtual_machine',
         }
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
@@ -301,18 +294,20 @@ class VMInterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
         label='Tagged VLANs',
         query_params={
             'group_id': '$vlan_group',
+            'available_on_virtualmachine': '$virtual_machine',
         }
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
+    vrf = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
     )
 
     class Meta:
         model = VMInterface
         fields = [
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
-            'tags', 'untagged_vlan', 'tagged_vlans',
+            'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
         ]
         widgets = {
             'virtual_machine': forms.HiddenInput(),
@@ -324,15 +319,3 @@ class VMInterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
         help_texts = {
             'mode': INTERFACE_MODE_HELP_TEXT,
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        vm_id = self.initial.get('virtual_machine') or self.data.get('virtual_machine')
-
-        # Restrict parent interface assignment by VM
-        self.fields['parent'].widget.add_query_param('virtual_machine_id', vm_id)
-        self.fields['bridge'].widget.add_query_param('virtual_machine_id', vm_id)
-
-        # Limit VLAN choices by virtual machine
-        self.fields['untagged_vlan'].widget.add_query_param('available_on_virtualmachine', vm_id)
-        self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)

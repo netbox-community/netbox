@@ -6,6 +6,7 @@ from utilities.choices import ChoiceSet
 #
 
 class SiteStatusChoices(ChoiceSet):
+    key = 'Site.status'
 
     STATUS_PLANNED = 'planned'
     STATUS_STAGING = 'staging'
@@ -13,21 +14,13 @@ class SiteStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONING = 'decommissioning'
     STATUS_RETIRED = 'retired'
 
-    CHOICES = (
-        (STATUS_PLANNED, 'Planned'),
-        (STATUS_STAGING, 'Staging'),
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning'),
-        (STATUS_RETIRED, 'Retired'),
-    )
-
-    CSS_CLASSES = {
-        STATUS_PLANNED: 'info',
-        STATUS_STAGING: 'primary',
-        STATUS_ACTIVE: 'success',
-        STATUS_DECOMMISSIONING: 'warning',
-        STATUS_RETIRED: 'danger',
-    }
+    CHOICES = [
+        (STATUS_PLANNED, 'Planned', 'cyan'),
+        (STATUS_STAGING, 'Staging', 'blue'),
+        (STATUS_ACTIVE, 'Active', 'green'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
+        (STATUS_RETIRED, 'Retired', 'red'),
+    ]
 
 
 #
@@ -67,6 +60,7 @@ class RackWidthChoices(ChoiceSet):
 
 
 class RackStatusChoices(ChoiceSet):
+    key = 'Rack.status'
 
     STATUS_RESERVED = 'reserved'
     STATUS_AVAILABLE = 'available'
@@ -74,21 +68,13 @@ class RackStatusChoices(ChoiceSet):
     STATUS_ACTIVE = 'active'
     STATUS_DEPRECATED = 'deprecated'
 
-    CHOICES = (
-        (STATUS_RESERVED, 'Reserved'),
-        (STATUS_AVAILABLE, 'Available'),
-        (STATUS_PLANNED, 'Planned'),
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_DEPRECATED, 'Deprecated'),
-    )
-
-    CSS_CLASSES = {
-        STATUS_RESERVED: 'warning',
-        STATUS_AVAILABLE: 'success',
-        STATUS_PLANNED: 'info',
-        STATUS_ACTIVE: 'primary',
-        STATUS_DEPRECATED: 'danger',
-    }
+    CHOICES = [
+        (STATUS_RESERVED, 'Reserved', 'yellow'),
+        (STATUS_AVAILABLE, 'Available', 'green'),
+        (STATUS_PLANNED, 'Planned', 'cyan'),
+        (STATUS_ACTIVE, 'Active', 'blue'),
+        (STATUS_DEPRECATED, 'Deprecated', 'red'),
+    ]
 
 
 class RackDimensionUnitChoices(ChoiceSet):
@@ -144,6 +130,7 @@ class DeviceFaceChoices(ChoiceSet):
 
 
 class DeviceStatusChoices(ChoiceSet):
+    key = 'Device.status'
 
     STATUS_OFFLINE = 'offline'
     STATUS_ACTIVE = 'active'
@@ -153,25 +140,15 @@ class DeviceStatusChoices(ChoiceSet):
     STATUS_INVENTORY = 'inventory'
     STATUS_DECOMMISSIONING = 'decommissioning'
 
-    CHOICES = (
-        (STATUS_OFFLINE, 'Offline'),
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_PLANNED, 'Planned'),
-        (STATUS_STAGED, 'Staged'),
-        (STATUS_FAILED, 'Failed'),
-        (STATUS_INVENTORY, 'Inventory'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning'),
-    )
-
-    CSS_CLASSES = {
-        STATUS_OFFLINE: 'warning',
-        STATUS_ACTIVE: 'success',
-        STATUS_PLANNED: 'info',
-        STATUS_STAGED: 'primary',
-        STATUS_FAILED: 'danger',
-        STATUS_INVENTORY: 'secondary',
-        STATUS_DECOMMISSIONING: 'warning',
-    }
+    CHOICES = [
+        (STATUS_OFFLINE, 'Offline', 'gray'),
+        (STATUS_ACTIVE, 'Active', 'green'),
+        (STATUS_PLANNED, 'Planned', 'cyan'),
+        (STATUS_STAGED, 'Staged', 'blue'),
+        (STATUS_FAILED, 'Failed', 'red'),
+        (STATUS_INVENTORY, 'Inventory', 'purple'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
+    ]
 
 
 class DeviceAirflowChoices(ChoiceSet):
@@ -368,6 +345,11 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_DC = 'dc-terminal'
     # Proprietary
     TYPE_SAF_D_GRID = 'saf-d-grid'
+    TYPE_NEUTRIK_POWERCON_20A = 'neutrik-powercon-20'
+    TYPE_NEUTRIK_POWERCON_32A = 'neutrik-powercon-32'
+    TYPE_NEUTRIK_POWERCON_TRUE1 = 'neutrik-powercon-true1'
+    TYPE_NEUTRIK_POWERCON_TRUE1_TOP = 'neutrik-powercon-true1-top'
+    TYPE_UBIQUITI_SMARTPOWER = 'ubiquiti-smartpower'
     # Other
     TYPE_HARDWIRED = 'hardwired'
 
@@ -479,6 +461,11 @@ class PowerPortTypeChoices(ChoiceSet):
         )),
         ('Proprietary', (
             (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
+            (TYPE_NEUTRIK_POWERCON_20A, 'Neutrik powerCON (20A)'),
+            (TYPE_NEUTRIK_POWERCON_32A, 'Neutrik powerCON (32A)'),
+            (TYPE_NEUTRIK_POWERCON_TRUE1, 'Neutrik powerCON TRUE1'),
+            (TYPE_NEUTRIK_POWERCON_TRUE1_TOP, 'Neutrik powerCON TRUE1 TOP'),
+            (TYPE_UBIQUITI_SMARTPOWER, 'Ubiquiti SmartPower'),
         )),
         ('Other', (
             (TYPE_HARDWIRED, 'Hardwired'),
@@ -584,6 +571,10 @@ class PowerOutletTypeChoices(ChoiceSet):
     # Proprietary
     TYPE_HDOT_CX = 'hdot-cx'
     TYPE_SAF_D_GRID = 'saf-d-grid'
+    TYPE_NEUTRIK_POWERCON_20A = 'neutrik-powercon-20a'
+    TYPE_NEUTRIK_POWERCON_32A = 'neutrik-powercon-32a'
+    TYPE_NEUTRIK_POWERCON_TRUE1 = 'neutrik-powercon-true1'
+    TYPE_NEUTRIK_POWERCON_TRUE1_TOP = 'neutrik-powercon-true1-top'
     # Other
     TYPE_HARDWIRED = 'hardwired'
 
@@ -688,6 +679,10 @@ class PowerOutletTypeChoices(ChoiceSet):
         ('Proprietary', (
             (TYPE_HDOT_CX, 'HDOT Cx'),
             (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
+            (TYPE_NEUTRIK_POWERCON_20A, 'Neutrik powerCON (20A)'),
+            (TYPE_NEUTRIK_POWERCON_32A, 'Neutrik powerCON (32A)'),
+            (TYPE_NEUTRIK_POWERCON_TRUE1, 'Neutrik powerCON TRUE1'),
+            (TYPE_NEUTRIK_POWERCON_TRUE1_TOP, 'Neutrik powerCON TRUE1 TOP'),
         )),
         ('Other', (
             (TYPE_HARDWIRED, 'Hardwired'),
@@ -974,6 +969,19 @@ class InterfaceTypeChoices(ChoiceSet):
     )
 
 
+class InterfaceDuplexChoices(ChoiceSet):
+
+    DUPLEX_HALF = 'half'
+    DUPLEX_FULL = 'full'
+    DUPLEX_AUTO = 'auto'
+
+    CHOICES = (
+        (DUPLEX_HALF, 'Half'),
+        (DUPLEX_FULL, 'Full'),
+        (DUPLEX_AUTO, 'Auto'),
+    )
+
+
 class InterfaceModeChoices(ChoiceSet):
 
     MODE_ACCESS = 'access'
@@ -1164,16 +1172,10 @@ class LinkStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONING = 'decommissioning'
 
     CHOICES = (
-        (STATUS_CONNECTED, 'Connected'),
-        (STATUS_PLANNED, 'Planned'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning'),
+        (STATUS_CONNECTED, 'Connected', 'green'),
+        (STATUS_PLANNED, 'Planned', 'blue'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
     )
-
-    CSS_CLASSES = {
-        STATUS_CONNECTED: 'success',
-        STATUS_PLANNED: 'info',
-        STATUS_DECOMMISSIONING: 'warning',
-    }
 
 
 class CableLengthUnitChoices(ChoiceSet):
@@ -1203,25 +1205,19 @@ class CableLengthUnitChoices(ChoiceSet):
 #
 
 class PowerFeedStatusChoices(ChoiceSet):
+    key = 'PowerFeed.status'
 
     STATUS_OFFLINE = 'offline'
     STATUS_ACTIVE = 'active'
     STATUS_PLANNED = 'planned'
     STATUS_FAILED = 'failed'
 
-    CHOICES = (
-        (STATUS_OFFLINE, 'Offline'),
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_PLANNED, 'Planned'),
-        (STATUS_FAILED, 'Failed'),
-    )
-
-    CSS_CLASSES = {
-        STATUS_OFFLINE: 'warning',
-        STATUS_ACTIVE: 'success',
-        STATUS_PLANNED: 'info',
-        STATUS_FAILED: 'danger',
-    }
+    CHOICES = [
+        (STATUS_OFFLINE, 'Offline', 'gray'),
+        (STATUS_ACTIVE, 'Active', 'green'),
+        (STATUS_PLANNED, 'Planned', 'blue'),
+        (STATUS_FAILED, 'Failed', 'red'),
+    ]
 
 
 class PowerFeedTypeChoices(ChoiceSet):
@@ -1230,14 +1226,9 @@ class PowerFeedTypeChoices(ChoiceSet):
     TYPE_REDUNDANT = 'redundant'
 
     CHOICES = (
-        (TYPE_PRIMARY, 'Primary'),
-        (TYPE_REDUNDANT, 'Redundant'),
+        (TYPE_PRIMARY, 'Primary', 'green'),
+        (TYPE_REDUNDANT, 'Redundant', 'cyan'),
     )
-
-    CSS_CLASSES = {
-        TYPE_PRIMARY: 'success',
-        TYPE_REDUNDANT: 'info',
-    }
 
 
 class PowerFeedSupplyChoices(ChoiceSet):

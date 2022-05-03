@@ -3,8 +3,8 @@ from django import forms
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
-from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
-from ipam.models import VLAN
+from ipam.models import VLAN, VRF
+from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, DynamicModelChoiceField,
@@ -23,39 +23,33 @@ __all__ = (
 )
 
 
-class ClusterTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ClusterType.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
+class ClusterTypeBulkEditForm(NetBoxModelBulkEditForm):
     description = forms.CharField(
         max_length=200,
         required=False
     )
 
-    class Meta:
-        nullable_fields = ['description']
-
-
-class ClusterGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ClusterGroup.objects.all(),
-        widget=forms.MultipleHiddenInput
+    model = ClusterType
+    fieldsets = (
+        (None, ('description',)),
     )
+    nullable_fields = ('description',)
+
+
+class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
     description = forms.CharField(
         max_length=200,
         required=False
     )
 
-    class Meta:
-        nullable_fields = ['description']
-
-
-class ClusterBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Cluster.objects.all(),
-        widget=forms.MultipleHiddenInput()
+    model = ClusterGroup
+    fieldsets = (
+        (None, ('description',)),
     )
+    nullable_fields = ('description',)
+
+
+class ClusterBulkEditForm(NetBoxModelBulkEditForm):
     type = DynamicModelChoiceField(
         queryset=ClusterType.objects.all(),
         required=False
@@ -89,17 +83,17 @@ class ClusterBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         label='Comments'
     )
 
-    class Meta:
-        nullable_fields = [
-            'group', 'site', 'comments', 'tenant',
-        ]
-
-
-class VirtualMachineBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        widget=forms.MultipleHiddenInput()
+    model = Cluster
+    fieldsets = (
+        (None, ('type', 'group', 'tenant',)),
+        ('Site', ('region', 'site_group', 'site',)),
     )
+    nullable_fields = (
+        'group', 'site', 'comments', 'tenant',
+    )
+
+
+class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(VirtualMachineStatusChoices),
         required=False,
@@ -144,17 +138,17 @@ class VirtualMachineBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm
         label='Comments'
     )
 
-    class Meta:
-        nullable_fields = [
-            'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
-        ]
-
-
-class VMInterfaceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=VMInterface.objects.all(),
-        widget=forms.MultipleHiddenInput()
+    model = VirtualMachine
+    fieldsets = (
+        (None, ('cluster', 'status', 'role', 'tenant', 'platform')),
+        ('Resources', ('vcpus', 'memory', 'disk'))
     )
+    nullable_fields = (
+        'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+    )
+
+
+class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
     virtual_machine = forms.ModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
@@ -196,11 +190,21 @@ class VMInterfaceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         queryset=VLAN.objects.all(),
         required=False
     )
+    vrf = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
+    )
 
-    class Meta:
-        nullable_fields = [
-            'parent', 'bridge', 'mtu', 'description',
-        ]
+    model = VMInterface
+    fieldsets = (
+        (None, ('mtu', 'enabled', 'vrf', 'description')),
+        ('Related Interfaces', ('parent', 'bridge')),
+        ('802.1Q Switching', ('mode', 'untagged_vlan', 'tagged_vlans')),
+    )
+    nullable_fields = (
+        'parent', 'bridge', 'mtu', 'vrf', 'description',
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

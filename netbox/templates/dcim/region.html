@@ -37,13 +37,7 @@
           </tr>
           <tr>
             <th scope="row">Parent</th>
-            <td>
-              {% if object.parent %}
-                <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
-              {% else %}
-                <span class="text-muted">&mdash;</span>
-              {% endif %}
-            </td>
+            <td>{{ object.parent|linkify|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">Sites</th>

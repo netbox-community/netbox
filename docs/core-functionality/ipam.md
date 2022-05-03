@@ -21,6 +21,7 @@
 ---
 
 {!models/ipam/fhrpgroup.md!}
+{!models/ipam/fhrpgroupassignment.md!}
 
 ---
 

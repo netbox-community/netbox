@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.fields import Field
 
+from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 
 
@@ -44,9 +45,20 @@ class CustomFieldsDataField(Field):
         return self._custom_fields
 
     def to_representation(self, obj):
-        return {
-            cf.name: obj.get(cf.name) for cf in self._get_custom_fields()
-        }
+        # TODO: Fix circular import
+        from utilities.api import get_serializer_for_model
+        data = {}
+        for cf in self._get_custom_fields():
+            value = cf.deserialize(obj.get(cf.name))
+            if value is not None and cf.type == CustomFieldTypeChoices.TYPE_OBJECT:
+                serializer = get_serializer_for_model(cf.object_type.model_class(), prefix='Nested')
+                value = serializer(value, context=self.parent.context).data
+            elif value is not None and cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+                serializer = get_serializer_for_model(cf.object_type.model_class(), prefix='Nested')
+                value = serializer(value, many=True, context=self.parent.context).data
+            data[cf.name] = value
+
+        return data
 
     def to_internal_value(self, data):
         # If updating an existing instance, start with existing custom_field_data

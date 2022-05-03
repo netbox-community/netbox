@@ -5,6 +5,7 @@ import os
 import pkgutil
 import sys
 import traceback
+import threading
 from collections import OrderedDict
 
 import yaml
@@ -13,11 +14,9 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
 from django.utils.functional import classproperty
-from django_rq import job
 
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices, LogLevelChoices
-from extras.models import JobResult
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortTransaction
@@ -41,6 +40,8 @@ __all__ = [
     'StringVar',
     'TextVar',
 ]
+
+lock = threading.Lock()
 
 
 #
@@ -259,6 +260,10 @@ class BaseScript:
     Base model for custom scripts. User classes should inherit from this model if they want to extend Script
     functionality for use in other subclasses.
     """
+
+    # Prevent django from instantiating the class on all accesses
+    do_not_call_in_templates = True
+
     class Meta:
         pass
 
@@ -280,7 +285,7 @@ class BaseScript:
 
     @classproperty
     def name(self):
-        return getattr(self.Meta, 'name', self.__class__.__name__)
+        return getattr(self.Meta, 'name', self.__name__)
 
     @classproperty
     def full_name(self):
@@ -293,6 +298,10 @@ class BaseScript:
     @classmethod
     def module(cls):
         return cls.__module__
+
+    @classproperty
+    def job_timeout(self):
+        return getattr(self.Meta, 'job_timeout', None)
 
     @classmethod
     def _get_vars(cls):
@@ -410,7 +419,6 @@ def is_variable(obj):
     return isinstance(obj, ScriptVariable)
 
 
-@job('default')
 def run_script(data, request, commit=True, *args, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
@@ -474,15 +482,6 @@ def run_script(data, request, commit=True, *args, **kwargs):
     else:
         _run_script()
 
-    # Delete any previous terminal state results
-    JobResult.objects.filter(
-        obj_type=job_result.obj_type,
-        name=job_result.name,
-        status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
-    ).exclude(
-        pk=job_result.pk
-    ).delete()
-
 
 def get_scripts(use_names=False):
     """
@@ -490,14 +489,17 @@ def get_scripts(use_names=False):
     defined name in place of the actual module name.
     """
     scripts = OrderedDict()
-    # Iterate through all modules within the reports path. These are the user-created files in which reports are
+    # Iterate through all modules within the scripts path. These are the user-created files in which reports are
     # defined.
     for importer, module_name, _ in pkgutil.iter_modules([settings.SCRIPTS_ROOT]):
-        # Remove cached module to ensure consistency with filesystem
-        if module_name in sys.modules:
-            del sys.modules[module_name]
+        # Use a lock as removing and loading modules is not thread safe
+        with lock:
+            # Remove cached module to ensure consistency with filesystem
+            if module_name in sys.modules:
+                del sys.modules[module_name]
 
-        module = importer.find_module(module_name).load_module(module_name)
+            module = importer.find_module(module_name).load_module(module_name)
+
         if use_names and hasattr(module, 'name'):
             module_name = module.name
         module_scripts = OrderedDict()

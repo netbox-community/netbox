@@ -7,21 +7,22 @@
       {% for field in filter_form.hidden_fields %}
         {{ field }}
       {% endfor %}
-      {% if filter_form.field_groups %}
-        {# List filters by group #}
-        {% for group in filter_form.field_groups %}
-          <div class="col col-12">
-            {% for name in group %}
-              {% with field=filter_form|get_item:name %}
-                {% render_field field %}
-              {% endwith %}
-            {% endfor %}
-          </div>
-          {% if not forloop.last %}
-            <hr class="card-divider mt-0" />
+      {# List filters by group #}
+      {% for heading, fields in filter_form.fieldsets %}
+        <div class="col col-12">
+          {% if heading %}
+            <h6>{{ heading }}</h6>
           {% endif %}
-        {% endfor %}
-      {% else %}
+          {% for name in fields %}
+            {% with field=filter_form|get_item:name %}
+              {% render_field field %}
+            {% endwith %}
+          {% endfor %}
+        </div>
+        {% if not forloop.last %}
+          <hr class="card-divider mt-0" />
+        {% endif %}
+      {% empty %}
         {# List all non-customfield filters as declared in the form class #}
         {% for field in filter_form.visible_fields %}
           {% if not filter_form.custom_fields or field.name not in filter_form.custom_fields %}
@@ -30,7 +31,7 @@
             </div>
           {% endif %}
         {% endfor %}
-      {% endif %}
+      {% endfor %}
       {% if filter_form.custom_fields %}
         {# List all custom field filters #}
         <hr class="card-divider mt-0" />

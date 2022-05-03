@@ -4,10 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
-from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet
+from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
-from virtualization.models import Cluster, ClusterGroup
+from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
 from .models import *
 
@@ -82,7 +82,9 @@ class CustomLinkFilterSet(BaseFilterSet):
 
     class Meta:
         model = CustomLink
-        fields = ['id', 'content_type', 'name', 'link_text', 'link_url', 'weight', 'group_name', 'new_window']
+        fields = [
+            'id', 'content_type', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name', 'new_window',
+        ]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -132,11 +134,7 @@ class ImageAttachmentFilterSet(BaseFilterSet):
         return queryset.filter(name__icontains=value)
 
 
-class JournalEntryFilterSet(ChangeLoggedModelFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class JournalEntryFilterSet(NetBoxModelFilterSet):
     created = django_filters.DateTimeFromToRangeFilter()
     assigned_object_type = ContentTypeFilter()
     created_by_id = django_filters.ModelMultipleChoiceFilter(
@@ -279,6 +277,17 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         queryset=Platform.objects.all(),
         to_field_name='slug',
         label='Platform (slug)',
+    )
+    cluster_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='cluster_types',
+        queryset=ClusterType.objects.all(),
+        label='Cluster type',
+    )
+    cluster_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='cluster_types__slug',
+        queryset=ClusterType.objects.all(),
+        to_field_name='slug',
+        label='Cluster type (slug)',
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster_groups',

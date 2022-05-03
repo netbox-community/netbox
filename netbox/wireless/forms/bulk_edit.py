@@ -1,8 +1,8 @@
 from django import forms
 
 from dcim.choices import LinkStatusChoices
-from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.models import VLAN
+from netbox.forms import NetBoxModelBulkEditForm
 from utilities.forms import add_blank_choice, DynamicModelChoiceField
 from wireless.choices import *
 from wireless.constants import SSID_MAX_LENGTH
@@ -15,11 +15,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=WirelessLANGroup.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
+class WirelessLANGroupBulkEditForm(NetBoxModelBulkEditForm):
     parent = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
@@ -29,15 +25,14 @@ class WirelessLANGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditFo
         required=False
     )
 
-    class Meta:
-        nullable_fields = ['parent', 'description']
-
-
-class WirelessLANBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=WirelessLAN.objects.all(),
-        widget=forms.MultipleHiddenInput
+    model = WirelessLANGroup
+    fieldsets = (
+        (None, ('parent', 'description')),
     )
+    nullable_fields = ('parent', 'description')
+
+
+class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
     group = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
@@ -68,15 +63,17 @@ class WirelessLANBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         label='Pre-shared key'
     )
 
-    class Meta:
-        nullable_fields = ['ssid', 'group', 'vlan', 'description', 'auth_type', 'auth_cipher', 'auth_psk']
-
-
-class WirelessLinkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=WirelessLink.objects.all(),
-        widget=forms.MultipleHiddenInput
+    model = WirelessLAN
+    fieldsets = (
+        (None, ('group', 'vlan', 'ssid', 'description')),
+        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
     )
+    nullable_fields = (
+        'ssid', 'group', 'vlan', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
+    )
+
+
+class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
     ssid = forms.CharField(
         max_length=SSID_MAX_LENGTH,
         required=False,
@@ -102,5 +99,11 @@ class WirelessLinkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         label='Pre-shared key'
     )
 
-    class Meta:
-        nullable_fields = ['ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk']
+    model = WirelessLink
+    fieldsets = (
+        (None, ('ssid', 'status', 'description')),
+        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk'))
+    )
+    nullable_fields = (
+        'ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
+    )

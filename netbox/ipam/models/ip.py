@@ -9,8 +9,7 @@ from django.utils.functional import cached_property
 
 from dcim.fields import ASNField
 from dcim.models import Device
-from extras.utils import extras_features
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, NetBoxModel
 from ipam.choices import *
 from ipam.constants import *
 from ipam.fields import IPNetworkField, IPAddressField
@@ -54,7 +53,6 @@ class GetAvailablePrefixesMixin:
         return available_prefixes.iter_cidrs()[0]
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RIR(OrganizationalModel):
     """
     A Regional Internet Registry (RIR) is responsible for the allocation of a large portion of the global IP address
@@ -90,8 +88,7 @@ class RIR(OrganizationalModel):
         return reverse('ipam:rir', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class ASN(PrimaryModel):
+class ASN(NetBoxModel):
     """
     An autonomous system (AS) number is typically used to represent an independent routing domain. A site can have
     one or more ASNs assigned to it.
@@ -150,8 +147,7 @@ class ASN(PrimaryModel):
             return self.asn
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
+class Aggregate(GetAvailablePrefixesMixin, NetBoxModel):
     """
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
     the hierarchy and track the overall utilization of available address space. Each Aggregate is assigned to a RIR.
@@ -248,12 +244,11 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
         """
         queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(self.prefix))
         child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
-        utilization = int(float(child_prefixes.size) / self.prefix.size * 100)
+        utilization = float(child_prefixes.size) / self.prefix.size * 100
 
         return min(utilization, 100)
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Role(OrganizationalModel):
     """
     A Role represents the functional role of a Prefix or VLAN; for example, "Customer," "Infrastructure," or
@@ -285,8 +280,7 @@ class Role(OrganizationalModel):
         return reverse('ipam:role', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
+class Prefix(GetAvailablePrefixesMixin, NetBoxModel):
     """
     A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
     VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role. A Prefix can also be
@@ -443,8 +437,8 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
             self.prefix.prefixlen = value
     prefix_length = property(fset=_set_prefix_length)
 
-    def get_status_class(self):
-        return PrefixStatusChoices.CSS_CLASSES.get(self.status)
+    def get_status_color(self):
+        return PrefixStatusChoices.colors.get(self.status)
 
     def get_parents(self, include_self=False):
         """
@@ -513,16 +507,20 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
             child_ranges.add(iprange.range)
         available_ips = prefix - child_ips - child_ranges
 
-        # IPv6, pool, or IPv4 /31-/32 sets are fully usable
-        if self.family == 6 or self.is_pool or (self.family == 4 and self.prefix.prefixlen >= 31):
+        # IPv6 /127's, pool, or IPv4 /31-/32 sets are fully usable
+        if (self.family == 6 and self.prefix.prefixlen >= 127) or self.is_pool or (self.family == 4 and self.prefix.prefixlen >= 31):
             return available_ips
 
-        # For "normal" IPv4 prefixes, omit first and last addresses
-        available_ips -= netaddr.IPSet([
-            netaddr.IPAddress(self.prefix.first),
-            netaddr.IPAddress(self.prefix.last),
-        ])
-
+        if self.family == 4:
+            # For "normal" IPv4 prefixes, omit first and last addresses
+            available_ips -= netaddr.IPSet([
+                netaddr.IPAddress(self.prefix.first),
+                netaddr.IPAddress(self.prefix.last),
+            ])
+        else:
+            # For IPv6 prefixes, omit the Subnet-Router anycast address
+            # per RFC 4291
+            available_ips -= netaddr.IPSet([netaddr.IPAddress(self.prefix.first)])
         return available_ips
 
     def get_first_available_ip(self):
@@ -548,7 +546,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
                 vrf=self.vrf
             )
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
-            utilization = int(float(child_prefixes.size) / self.prefix.size * 100)
+            utilization = float(child_prefixes.size) / self.prefix.size * 100
         else:
             # Compile an IPSet to avoid counting duplicate IPs
             child_ips = netaddr.IPSet(
@@ -558,13 +556,12 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
             prefix_size = self.prefix.size
             if self.prefix.version == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
                 prefix_size -= 2
-            utilization = int(float(child_ips.size) / prefix_size * 100)
+            utilization = float(child_ips.size) / prefix_size * 100
 
         return min(utilization, 100)
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class IPRange(PrimaryModel):
+class IPRange(NetBoxModel):
     """
     A range of IP addresses, defined by start and end addresses.
     """
@@ -713,8 +710,8 @@ class IPRange(PrimaryModel):
         self.end_address.prefixlen = value
     prefix_length = property(fset=_set_prefix_length)
 
-    def get_status_class(self):
-        return IPRangeStatusChoices.CSS_CLASSES.get(self.status)
+    def get_status_color(self):
+        return IPRangeStatusChoices.colors.get(self.status)
 
     def get_child_ips(self):
         """
@@ -759,8 +756,7 @@ class IPRange(PrimaryModel):
         return int(float(child_count) / self.size * 100)
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class IPAddress(PrimaryModel):
+class IPAddress(NetBoxModel):
     """
     An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is
     configured in the real world. (Typically, only loopback interfaces are configured with /32 or /128 masks.) Like
@@ -809,7 +805,7 @@ class IPAddress(PrimaryModel):
         blank=True,
         null=True
     )
-    assigned_object_id = models.PositiveIntegerField(
+    assigned_object_id = models.PositiveBigIntegerField(
         blank=True,
         null=True
     )
@@ -912,8 +908,9 @@ class IPAddress(PrimaryModel):
         super().save(*args, **kwargs)
 
     def to_objectchange(self, action):
-        # Annotate the assigned object, if any
-        return super().to_objectchange(action, related_object=self.assigned_object)
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.assigned_object
+        return objectchange
 
     @property
     def family(self):
@@ -930,8 +927,8 @@ class IPAddress(PrimaryModel):
             self.address.prefixlen = value
     mask_length = property(fset=_set_mask_length)
 
-    def get_status_class(self):
-        return IPAddressStatusChoices.CSS_CLASSES.get(self.status)
+    def get_status_color(self):
+        return IPAddressStatusChoices.colors.get(self.status)
 
-    def get_role_class(self):
-        return IPAddressRoleChoices.CSS_CLASSES.get(self.role)
+    def get_role_color(self):
+        return IPAddressRoleChoices.colors.get(self.role)

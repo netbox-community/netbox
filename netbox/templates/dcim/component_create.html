@@ -1,0 +1,9 @@
+{% extends 'generic/object_edit.html' %}
+{% load form_helpers %}
+
+{% block form %}
+  {% block replication_fields %}
+    {% render_form replication_form %}
+  {% endblock replication_fields %}
+  {{ block.super }}
+{% endblock form %}

@@ -35,7 +35,8 @@ class Command(BaseCommand):
                         run_report,
                         report.full_name,
                         report_content_type,
-                        None
+                        None,
+                        job_timeout=report.job_timeout
                     )
 
                     # Wait on the job to finish

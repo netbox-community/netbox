@@ -6,7 +6,7 @@
 {% block breadcrumbs %}
   {{ block.super }}
   {% for location in object.get_ancestors %}
-    <li class="breadcrumb-item"><a href="{{ location.get_absolute_url }}">{{ location }}</a></li>
+    <li class="breadcrumb-item">{{ location|linkify }}</li>
   {% endfor %}
 {% endblock %}
 
@@ -37,30 +37,20 @@
           </tr>
           <tr>
             <th scope="row">Site</th>
-            <td><a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a></td>
+            <td>{{ object.site|linkify }}</td>
           </tr>
           <tr>
             <th scope="row">Parent</th>
-            <td>
-              {% if object.parent %}
-                <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
-              {% else %}
-                <span class="text-muted">&mdash;</span>
-              {% endif %}
-            </td>
+            <td>{{ object.parent|linkify|placeholder }}</td>
           </tr>
           <tr>
-              <th scope="row">Tenant</th>
-              <td>
-                  {% if object.tenant %}
-                      {% if object.tenant.group %}
-                          <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
-                      {% endif %}
-                      <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                  {% else %}
-                      <span class="text-muted">None</span>
-                  {% endif %}
-              </td>
+            <th scope="row">Tenant</th>
+            <td>
+              {% if object.tenant.group %}
+                {{ object.tenant.group|linkify }} /
+              {% endif %}
+              {{ object.tenant|linkify|placeholder }}
+            </td>
           </tr>
           <tr>
             <th scope="row">Racks</th>
@@ -90,6 +80,7 @@
 	<div class="col col-md-6">
     {% include 'inc/panels/custom_fields.html' %}
     {% include 'inc/panels/contacts.html' %}
+    {% include 'dcim/inc/nonracked_devices.html' %}
     {% include 'inc/panels/image_attachments.html' %}
     {% plugin_right_page object %}
 	</div>

@@ -1,7 +1,7 @@
 from circuits.models import Circuit, CircuitTermination, Provider
 from dcim.models import *
-from extras.forms import CustomFieldModelForm
 from extras.models import Tag
+from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect
 
@@ -18,7 +18,7 @@ __all__ = (
 )
 
 
-class ConnectCableToDeviceForm(TenancyForm, CustomFieldModelForm):
+class ConnectCableToDeviceForm(TenancyForm, NetBoxModelForm):
     """
     Base form for connecting a Cable to a Device component
     """
@@ -69,10 +69,6 @@ class ConnectCableToDeviceForm(TenancyForm, CustomFieldModelForm):
             'location_id': '$termination_b_location',
             'rack_id': '$termination_b_rack',
         }
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     class Meta:
@@ -171,7 +167,7 @@ class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
     )
 
 
-class ConnectCableToCircuitTerminationForm(TenancyForm, CustomFieldModelForm):
+class ConnectCableToCircuitTerminationForm(TenancyForm, NetBoxModelForm):
     termination_b_provider = DynamicModelChoiceField(
         queryset=Provider.objects.all(),
         label='Provider',
@@ -212,10 +208,6 @@ class ConnectCableToCircuitTerminationForm(TenancyForm, CustomFieldModelForm):
             'circuit_id': '$termination_b_circuit'
         }
     )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
 
     class Meta(ConnectCableToDeviceForm.Meta):
         fields = [
@@ -229,7 +221,7 @@ class ConnectCableToCircuitTerminationForm(TenancyForm, CustomFieldModelForm):
         return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
 
 
-class ConnectCableToPowerFeedForm(TenancyForm, CustomFieldModelForm):
+class ConnectCableToPowerFeedForm(TenancyForm, NetBoxModelForm):
     termination_b_region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         label='Region',
@@ -273,10 +265,6 @@ class ConnectCableToPowerFeedForm(TenancyForm, CustomFieldModelForm):
         query_params={
             'power_panel_id': '$termination_b_powerpanel'
         }
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
 
     class Meta(ConnectCableToDeviceForm.Meta):

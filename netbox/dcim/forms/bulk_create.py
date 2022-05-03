@@ -3,8 +3,8 @@ from django import forms
 from dcim.models import *
 from extras.forms import CustomFieldsMixin
 from extras.models import Tag
-from utilities.forms import DynamicModelMultipleChoiceField, form_from_model
-from .object_create import ComponentForm
+from utilities.forms import DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model
+from .object_create import ComponentCreateForm
 
 __all__ = (
     'ConsolePortBulkCreateForm',
@@ -13,6 +13,7 @@ __all__ = (
     # 'FrontPortBulkCreateForm',
     'InterfaceBulkCreateForm',
     'InventoryItemBulkCreateForm',
+    'ModuleBayBulkCreateForm',
     'PowerOutletBulkCreateForm',
     'PowerPortBulkCreateForm',
     'RearPortBulkCreateForm',
@@ -23,7 +24,7 @@ __all__ = (
 # Device components
 #
 
-class DeviceBulkAddComponentForm(CustomFieldsMixin, ComponentForm):
+class DeviceBulkAddComponentForm(CustomFieldsMixin, ComponentCreateForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -71,12 +72,12 @@ class PowerOutletBulkCreateForm(
 
 
 class InterfaceBulkCreateForm(
-    form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only', 'mark_connected']),
+    form_from_model(Interface, ['type', 'enabled', 'speed', 'duplex', 'mtu', 'mgmt_only', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = Interface
     field_order = (
-        'name_pattern', 'label_pattern', 'type', 'enabled', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'tags',
+        'name_pattern', 'label_pattern', 'type', 'enabled', 'speed', 'duplex', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'tags',
     )
 
 
@@ -95,17 +96,28 @@ class RearPortBulkCreateForm(
     field_order = ('name_pattern', 'label_pattern', 'type', 'positions', 'mark_connected', 'description', 'tags')
 
 
+class ModuleBayBulkCreateForm(DeviceBulkAddComponentForm):
+    model = ModuleBay
+    field_order = ('name_pattern', 'label_pattern', 'position_pattern', 'description', 'tags')
+
+    position_pattern = ExpandableNameField(
+        label='Position',
+        required=False,
+        help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
+    )
+
+
 class DeviceBayBulkCreateForm(DeviceBulkAddComponentForm):
     model = DeviceBay
     field_order = ('name_pattern', 'label_pattern', 'description', 'tags')
 
 
 class InventoryItemBulkCreateForm(
-    form_from_model(InventoryItem, ['manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered']),
+    form_from_model(InventoryItem, ['role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered']),
     DeviceBulkAddComponentForm
 ):
     model = InventoryItem
     field_order = (
-        'name_pattern', 'label_pattern', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
-        'tags',
+        'name_pattern', 'label_pattern', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered',
+        'description', 'tags',
     )

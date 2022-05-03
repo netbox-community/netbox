@@ -308,6 +308,11 @@ class DeviceTestCase(TestCase):
             rear_port_position=2
         ).save()
 
+        ModuleBayTemplate(
+            device_type=self.device_type,
+            name='Module Bay 1'
+        ).save()
+
         DeviceBayTemplate(
             device_type=self.device_type,
             name='Device Bay 1'
@@ -369,6 +374,11 @@ class DeviceTestCase(TestCase):
             type=PortTypeChoices.TYPE_8P8C,
             rear_port=rp,
             rear_port_position=2
+        )
+
+        ModuleBay.objects.get(
+            device=d,
+            name='Module Bay 1'
         )
 
         DeviceBay.objects.get(

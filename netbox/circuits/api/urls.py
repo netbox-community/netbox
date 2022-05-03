@@ -1,8 +1,8 @@
-from netbox.api import OrderedDefaultRouter
+from netbox.api import NetBoxRouter
 from . import views
 
 
-router = OrderedDefaultRouter()
+router = NetBoxRouter()
 router.APIRootView = views.CircuitsRootView
 
 # Providers

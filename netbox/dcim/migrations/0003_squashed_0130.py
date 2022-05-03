@@ -165,7 +165,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='frontporttemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='frontporttemplates', to='dcim.devicetype'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
         ),
         migrations.AddField(
             model_name='frontporttemplate',
@@ -185,7 +185,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='frontport',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='frontports', to='dcim.device'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
         ),
         migrations.AddField(
             model_name='frontport',
@@ -210,12 +210,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='devicebaytemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='devicebaytemplates', to='dcim.devicetype'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
         ),
         migrations.AddField(
             model_name='devicebay',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='devicebays', to='dcim.device'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
         ),
         migrations.AddField(
             model_name='devicebay',
@@ -290,7 +290,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='consoleserverporttemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='consoleserverporttemplates', to='dcim.devicetype'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
         ),
         migrations.AddField(
             model_name='consoleserverport',
@@ -310,7 +310,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='consoleserverport',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='consoleserverports', to='dcim.device'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
         ),
         migrations.AddField(
             model_name='consoleserverport',
@@ -320,7 +320,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='consoleporttemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='consoleporttemplates', to='dcim.devicetype'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
         ),
         migrations.AddField(
             model_name='consoleport',
@@ -340,7 +340,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='consoleport',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='consoleports', to='dcim.device'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
         ),
         migrations.AddField(
             model_name='consoleport',

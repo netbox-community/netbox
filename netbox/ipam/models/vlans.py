@@ -6,11 +6,10 @@ from django.db import models
 from django.urls import reverse
 
 from dcim.models import Interface
-from extras.utils import extras_features
 from ipam.choices import *
 from ipam.constants import *
 from ipam.querysets import VLANQuerySet
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, NetBoxModel
 from virtualization.models import VMInterface
 
 
@@ -20,7 +19,6 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class VLANGroup(OrganizationalModel):
     """
     A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
@@ -45,6 +43,24 @@ class VLANGroup(OrganizationalModel):
     scope = GenericForeignKey(
         ct_field='scope_type',
         fk_field='scope_id'
+    )
+    min_vid = models.PositiveSmallIntegerField(
+        verbose_name='Minimum VLAN ID',
+        default=VLAN_VID_MIN,
+        validators=(
+            MinValueValidator(VLAN_VID_MIN),
+            MaxValueValidator(VLAN_VID_MAX)
+        ),
+        help_text='Lowest permissible ID of a child VLAN'
+    )
+    max_vid = models.PositiveSmallIntegerField(
+        verbose_name='Maximum VLAN ID',
+        default=VLAN_VID_MAX,
+        validators=(
+            MinValueValidator(VLAN_VID_MIN),
+            MaxValueValidator(VLAN_VID_MAX)
+        ),
+        help_text='Highest permissible ID of a child VLAN'
     )
     description = models.CharField(
         max_length=200,
@@ -75,19 +91,32 @@ class VLANGroup(OrganizationalModel):
         if self.scope_id and not self.scope_type:
             raise ValidationError("Cannot set scope_id without scope_type.")
 
+        # Validate min/max child VID limits
+        if self.max_vid < self.min_vid:
+            raise ValidationError({
+                'max_vid': "Maximum child VID must be greater than or equal to minimum child VID"
+            })
+
+    def get_available_vids(self):
+        """
+        Return all available VLANs within this group.
+        """
+        available_vlans = {vid for vid in range(self.min_vid, self.max_vid + 1)}
+        available_vlans -= set(VLAN.objects.filter(group=self).values_list('vid', flat=True))
+
+        return sorted(available_vlans)
+
     def get_next_available_vid(self):
         """
         Return the first available VLAN ID (1-4094) in the group.
         """
-        vlan_ids = VLAN.objects.filter(group=self).values_list('vid', flat=True)
-        for i in range(1, 4095):
-            if i not in vlan_ids:
-                return i
+        available_vids = self.get_available_vids()
+        if available_vids:
+            return available_vids[0]
         return None
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class VLAN(PrimaryModel):
+class VLAN(NetBoxModel):
     """
     A VLAN is a distinct layer two forwarding domain identified by a 12-bit integer (1-4094). Each VLAN must be assigned
     to a Site, however VLAN IDs need not be unique within a Site. A VLAN may optionally be assigned to a VLANGroup,
@@ -112,7 +141,10 @@ class VLAN(PrimaryModel):
     )
     vid = models.PositiveSmallIntegerField(
         verbose_name='ID',
-        validators=[MinValueValidator(1), MaxValueValidator(4094)]
+        validators=(
+            MinValueValidator(VLAN_VID_MIN),
+            MaxValueValidator(VLAN_VID_MAX)
+        )
     )
     name = models.CharField(
         max_length=64
@@ -172,8 +204,15 @@ class VLAN(PrimaryModel):
                          f"site {self.site}."
             })
 
-    def get_status_class(self):
-        return VLANStatusChoices.CSS_CLASSES.get(self.status)
+        # Validate group min/max VIDs
+        if self.group and not self.group.min_vid <= self.vid <= self.group.max_vid:
+            raise ValidationError({
+                'vid': f"VID must be between {self.group.min_vid} and {self.group.max_vid} for VLANs in group "
+                       f"{self.group}"
+            })
+
+    def get_status_color(self):
+        return VLANStatusChoices.colors.get(self.status)
 
     def get_interfaces(self):
         # Return all device interfaces assigned to this VLAN

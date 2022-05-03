@@ -6,11 +6,11 @@ Prior to upgrading your NetBox instance, be sure to carefully review all [releas
 
 ## Update Dependencies to Required Versions
 
-NetBox v3.0 and later requires the following:
+NetBox v3.0 and later require the following:
 
 | Dependency | Minimum Version |
 |------------|-----------------|
-| Python     | 3.7             |
+| Python     | 3.8             |
 | PostgreSQL | 10              |
 | Redis      | 4.0             |
 
@@ -67,6 +67,11 @@ sudo git checkout master
 sudo git pull origin master
 ```
 
+!!! info "Checking out an older release"
+    If you need to upgrade to an older version rather than the current stable release, you can check out any valid [git tag](https://github.com/netbox-community/netbox/tags), each of which represents a release. For example, to checkout the code for NetBox v2.11.11, do:
+
+        sudo git checkout v2.11.11
+
 ## Run the Upgrade Script
 
 Once the new code is in place, verify that any optional Python packages required by your deployment (e.g. `napalm` or `django-auth-ldap`) are listed in `local_requirements.txt`. Then, run the upgrade script:
@@ -76,10 +81,10 @@ sudo ./upgrade.sh
 ```
 
 !!! warning
-    If the default version of Python is not at least 3.7, you'll need to pass the path to a supported Python version as an environment variable when calling the upgrade script. For example:
+    If the default version of Python is not at least 3.8, you'll need to pass the path to a supported Python version as an environment variable when calling the upgrade script. For example:
 
     ```no-highlight
-    sudo PYTHON=/usr/bin/python3.7 ./upgrade.sh
+    sudo PYTHON=/usr/bin/python3.8 ./upgrade.sh
     ```
 
 This script performs the following actions:

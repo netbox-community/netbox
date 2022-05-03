@@ -26,16 +26,12 @@
           </tr>
           <tr>
             <th scope="row">Tenant</th>
-            <td>
-              {% if object.tenant %}
+              <td>
                 {% if object.tenant.group %}
-                  <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                  {{ object.tenant.group|linkify }} /
                 {% endif %}
-                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-              {% else %}
-                <span class="text-muted">None</span>
-              {% endif %}
-            </td>
+                {{ object.tenant|linkify|placeholder }}
+              </td>
           </tr>
           <tr>
             <th scope="row">Aggregate</th>
@@ -52,9 +48,9 @@
             <td>
               {% if object.site %}
                 {% if object.site.region %}
-                  <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
+                  {{ object.site.region|linkify }} /
                 {% endif %}
-                <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+                {{ object.site|linkify }}
               {% else %}
                 <span class="text-muted">None</span>
               {% endif %}
@@ -65,9 +61,9 @@
             <td>
               {% if object.vlan %}
                 {% if object.vlan.group %}
-                  <a href="{{ object.vlan.group.get_absolute_url }}">{{ object.vlan.group }}</a> /
+                  {{ object.vlan.group|linkify }} /
                 {% endif %}
-                <a href="{% url 'ipam:vlan' pk=object.vlan.pk %}">{{ object.vlan }}</a>
+                {{ object.vlan|linkify }}
               {% else %}
                 <span class="text-muted">None</span>
               {% endif %}
@@ -75,19 +71,11 @@
           </tr>
           <tr>
             <th scope="row">Status</th>
-            <td>
-              <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-            </td>
+            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
           </tr>
           <tr>
             <th scope="row">Role</th>
-            <td>
-              {% if object.role %}
-                <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
-              {% else %}
-                <span class="text-muted">None</span>
-              {% endif %}
-            </td>
+            <td>{{ object.role|linkify|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">Description</th>

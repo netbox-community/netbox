@@ -19,21 +19,15 @@
                         </tr>
                         <tr>
                             <th scope="row">Status</th>
-                            <td>
-                                <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                            </td>
+                            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
                         </tr>
                         <tr>
                             <th scope="row">Tenant</th>
                             <td>
-                                {% if object.tenant %}
-                                    {% if object.tenant.group %}
-                                        <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
-                                    {% endif %}
-                                    <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                                {% else %}
-                                    <span class="text-muted">None</span>
+                                {% if object.tenant.group %}
+                                    {{ object.tenant.group|linkify }} /
                                 {% endif %}
+                                {{ object.tenant|linkify|placeholder }}
                             </td>
                         </tr>
                         <tr>

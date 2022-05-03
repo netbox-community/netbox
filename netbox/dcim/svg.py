@@ -146,10 +146,10 @@ class RackElevationSVG:
                 class_='device-image'
             )
             image.fit(scale='slice')
-            drawing.add(image)
-            drawing.add(drawing.text(get_device_name(device), insert=text, stroke='black',
-                        stroke_width='0.2em', stroke_linejoin='round', class_='device-image-label'))
-            drawing.add(drawing.text(get_device_name(device), insert=text, fill='white', class_='device-image-label'))
+            link.add(image)
+            link.add(drawing.text(get_device_name(device), insert=text, stroke='black',
+                     stroke_width='0.2em', stroke_linejoin='round', class_='device-image-label'))
+            link.add(drawing.text(get_device_name(device), insert=text, fill='white', class_='device-image-label'))
 
     @staticmethod
     def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_, reservation):

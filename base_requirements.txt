@@ -1,6 +1,6 @@
 # The Python web framework on which NetBox is built
 # https://github.com/django/django
-Django<4.0
+Django
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/OttoYiu/django-cors-headers
@@ -82,8 +82,12 @@ markdown-include
 # https://github.com/squidfunk/mkdocs-material
 mkdocs-material
 
+# Introspection for embedded code
+# https://github.com/mkdocstrings/mkdocstrings
+mkdocstrings[python-legacy]
+
 # Library for manipulating IP prefixes and addresses
-# https://github.com/drkjam/netaddr
+# https://github.com/netaddr/netaddr
 netaddr
 
 # Fork of PIL (Python Imaging Library) for image processing
@@ -113,3 +117,7 @@ svgwrite
 # Tabular dataset library (for table-based exports)
 # https://github.com/jazzband/tablib
 tablib
+
+# Timezone data (required by django-timezone-field on Python 3.9+)
+# https://github.com/python/tzdata
+tzdata

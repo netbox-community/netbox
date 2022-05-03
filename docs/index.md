@@ -1,7 +1,5 @@
 ![NetBox](netbox_logo.svg "NetBox logo"){style="height: 100px; margin-bottom: 3em"}
 
-:loudspeaker: The **[2022 NetBox community survey](https://forms.gle/KR8YbR8GiJ9EYXM28)** is now open! We collect this feedback and demographic data from NetBox users around the world to help shape the project's long-term development goals. Please take a few minutes to share your responses!
-
 # What is NetBox?
 
 NetBox is an infrastructure resource modeling (IRM) application designed to empower network automation. Initially conceived by the network engineering team at [DigitalOcean](https://www.digitalocean.com/), NetBox was developed specifically to address the needs of network and infrastructure engineers. NetBox is made available as open source under the Apache 2 license. It encompasses the following aspects of network management:
@@ -56,7 +54,7 @@ NetBox is built on the [Django](https://djangoproject.com/) Python framework and
 
 ## Supported Python Versions
 
-NetBox supports Python 3.7, 3.8, and 3.9 environments currently. (Support for Python 3.6 was removed in NetBox v3.0.)
+NetBox supports Python 3.8, 3.9, and 3.10 environments.
 
 ## Getting Started
 

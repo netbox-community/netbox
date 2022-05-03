@@ -4,6 +4,7 @@ from circuits.choices import *
 from circuits.filtersets import *
 from circuits.models import *
 from dcim.models import Cable, Region, Site, SiteGroup
+from ipam.models import ASN, RIR
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import ChangeLoggedFilterSetTests
 
@@ -15,6 +16,14 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
     @classmethod
     def setUpTestData(cls):
 
+        rir = RIR.objects.create(name='RFC 6996', is_private=True)
+        asns = (
+            ASN(asn=64512, rir=rir),
+            ASN(asn=64513, rir=rir),
+            ASN(asn=64514, rir=rir),
+        )
+        ASN.objects.bulk_create(asns)
+
         providers = (
             Provider(name='Provider 1', slug='provider-1', asn=65001, account='1234'),
             Provider(name='Provider 2', slug='provider-2', asn=65002, account='2345'),
@@ -23,6 +32,9 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
             Provider(name='Provider 5', slug='provider-5', asn=65005, account='5678'),
         )
         Provider.objects.bulk_create(providers)
+        providers[0].asns.set([asns[0]])
+        providers[1].asns.set([asns[1]])
+        providers[2].asns.set([asns[2]])
 
         regions = (
             Region(name='Test Region 1', slug='test-region-1'),
@@ -70,8 +82,13 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'slug': ['provider-1', 'provider-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_asn(self):
+    def test_asn(self):  # Legacy field
         params = {'asn': ['65001', '65002']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_asn_id(self):  # ASN object assignment
+        asns = ASN.objects.all()[:2]
+        params = {'asn_id': [asns[0].pk, asns[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_account(self):

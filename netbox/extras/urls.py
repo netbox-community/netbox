@@ -1,6 +1,7 @@
 from django.urls import path
 
 from extras import models, views
+from netbox.views.generic import ObjectChangeLogView
 
 
 app_name = 'extras'
@@ -15,7 +16,7 @@ urlpatterns = [
     path('custom-fields/<int:pk>/', views.CustomFieldView.as_view(), name='customfield'),
     path('custom-fields/<int:pk>/edit/', views.CustomFieldEditView.as_view(), name='customfield_edit'),
     path('custom-fields/<int:pk>/delete/', views.CustomFieldDeleteView.as_view(), name='customfield_delete'),
-    path('custom-fields/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='customfield_changelog',
+    path('custom-fields/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='customfield_changelog',
          kwargs={'model': models.CustomField}),
 
     # Custom links
@@ -27,7 +28,7 @@ urlpatterns = [
     path('custom-links/<int:pk>/', views.CustomLinkView.as_view(), name='customlink'),
     path('custom-links/<int:pk>/edit/', views.CustomLinkEditView.as_view(), name='customlink_edit'),
     path('custom-links/<int:pk>/delete/', views.CustomLinkDeleteView.as_view(), name='customlink_delete'),
-    path('custom-links/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='customlink_changelog',
+    path('custom-links/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='customlink_changelog',
          kwargs={'model': models.CustomLink}),
 
     # Export templates
@@ -39,7 +40,7 @@ urlpatterns = [
     path('export-templates/<int:pk>/', views.ExportTemplateView.as_view(), name='exporttemplate'),
     path('export-templates/<int:pk>/edit/', views.ExportTemplateEditView.as_view(), name='exporttemplate_edit'),
     path('export-templates/<int:pk>/delete/', views.ExportTemplateDeleteView.as_view(), name='exporttemplate_delete'),
-    path('export-templates/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='exporttemplate_changelog',
+    path('export-templates/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='exporttemplate_changelog',
          kwargs={'model': models.ExportTemplate}),
 
     # Webhooks
@@ -51,7 +52,7 @@ urlpatterns = [
     path('webhooks/<int:pk>/', views.WebhookView.as_view(), name='webhook'),
     path('webhooks/<int:pk>/edit/', views.WebhookEditView.as_view(), name='webhook_edit'),
     path('webhooks/<int:pk>/delete/', views.WebhookDeleteView.as_view(), name='webhook_delete'),
-    path('webhooks/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='webhook_changelog',
+    path('webhooks/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='webhook_changelog',
          kwargs={'model': models.Webhook}),
 
     # Tags
@@ -63,7 +64,7 @@ urlpatterns = [
     path('tags/<int:pk>/', views.TagView.as_view(), name='tag'),
     path('tags/<int:pk>/edit/', views.TagEditView.as_view(), name='tag_edit'),
     path('tags/<int:pk>/delete/', views.TagDeleteView.as_view(), name='tag_delete'),
-    path('tags/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='tag_changelog',
+    path('tags/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='tag_changelog',
          kwargs={'model': models.Tag}),
 
     # Config contexts
@@ -74,7 +75,7 @@ urlpatterns = [
     path('config-contexts/<int:pk>/', views.ConfigContextView.as_view(), name='configcontext'),
     path('config-contexts/<int:pk>/edit/', views.ConfigContextEditView.as_view(), name='configcontext_edit'),
     path('config-contexts/<int:pk>/delete/', views.ConfigContextDeleteView.as_view(), name='configcontext_delete'),
-    path('config-contexts/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='configcontext_changelog',
+    path('config-contexts/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='configcontext_changelog',
          kwargs={'model': models.ConfigContext}),
 
     # Image attachments
@@ -90,7 +91,7 @@ urlpatterns = [
     path('journal-entries/<int:pk>/', views.JournalEntryView.as_view(), name='journalentry'),
     path('journal-entries/<int:pk>/edit/', views.JournalEntryEditView.as_view(), name='journalentry_edit'),
     path('journal-entries/<int:pk>/delete/', views.JournalEntryDeleteView.as_view(), name='journalentry_delete'),
-    path('journal-entries/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='journalentry_changelog',
+    path('journal-entries/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='journalentry_changelog',
          kwargs={'model': models.JournalEntry}),
 
     # Change logging

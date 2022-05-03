@@ -2,10 +2,12 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
-from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterForm
-from tenancy.forms import TenancyFilterForm
+from extras.forms import LocalConfigContextFilterForm
+from ipam.models import VRF
+from netbox.forms import NetBoxModelFilterSetForm
+from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import (
-    DynamicModelMultipleChoiceField, StaticSelect, StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    DynamicModelMultipleChoiceField, MultipleChoiceField, StaticSelect, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.choices import *
 from virtualization.models import *
@@ -19,24 +21,25 @@ __all__ = (
 )
 
 
-class ClusterTypeFilterForm(CustomFieldModelFilterForm):
+class ClusterTypeFilterForm(NetBoxModelFilterSetForm):
     model = ClusterType
     tag = TagFilterField(model)
 
 
-class ClusterGroupFilterForm(CustomFieldModelFilterForm):
+class ClusterGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = ClusterGroup
     tag = TagFilterField(model)
 
 
-class ClusterFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Cluster
-    field_groups = [
-        ['q', 'tag'],
-        ['group_id', 'type_id'],
-        ['region_id', 'site_group_id', 'site_id'],
-        ['tenant_group_id', 'tenant_id'],
-    ]
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Attributes', ('group_id', 'type_id')),
+        ('Location', ('region_id', 'site_group_id', 'site_id')),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Contacts', ('contact', 'contact_role')),
+    )
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
@@ -71,15 +74,21 @@ class ClusterFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
+class VirtualMachineFilterForm(
+    LocalConfigContextFilterForm,
+    TenancyFilterForm,
+    ContactModelFilterForm,
+    NetBoxModelFilterSetForm
+):
     model = VirtualMachine
-    field_groups = [
-        ['q', 'tag'],
-        ['cluster_group_id', 'cluster_type_id', 'cluster_id'],
-        ['region_id', 'site_group_id', 'site_id'],
-        ['status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data'],
-        ['tenant_group_id', 'tenant_id'],
-    ]
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Cluster', ('cluster_group_id', 'cluster_type_id', 'cluster_id')),
+        ('Location', ('region_id', 'site_group_id', 'site_id')),
+        ('Attriubtes', ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data')),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Contacts', ('contact', 'contact_role')),
+    )
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -126,10 +135,9 @@ class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, 
         },
         label=_('Role')
     )
-    status = forms.MultipleChoiceField(
+    status = MultipleChoiceField(
         choices=VirtualMachineStatusChoices,
-        required=False,
-        widget=StaticSelectMultiple()
+        required=False
     )
     platform_id = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
@@ -151,13 +159,13 @@ class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, 
     tag = TagFilterField(model)
 
 
-class VMInterfaceFilterForm(CustomFieldModelFilterForm):
+class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     model = VMInterface
-    field_groups = [
-        ['q', 'tag'],
-        ['cluster_id', 'virtual_machine_id'],
-        ['enabled', 'mac_address'],
-    ]
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Virtual Machine', ('cluster_id', 'virtual_machine_id')),
+        ('Attributes', ('enabled', 'mac_address', 'vrf_id')),
+    )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
@@ -180,5 +188,10 @@ class VMInterfaceFilterForm(CustomFieldModelFilterForm):
     mac_address = forms.CharField(
         required=False,
         label='MAC address'
+    )
+    vrf_id = DynamicModelMultipleChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
     )
     tag = TagFilterField(model)

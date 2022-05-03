@@ -14,13 +14,15 @@ from extras.models import *
 from extras.utils import FeatureQuery
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.exceptions import SerializerNotFound
-from netbox.api.serializers import BaseModelSerializer, ValidatedModelSerializer
+from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import get_serializer_for_model
-from virtualization.api.nested_serializers import NestedClusterGroupSerializer, NestedClusterSerializer
-from virtualization.models import Cluster, ClusterGroup
+from virtualization.api.nested_serializers import (
+    NestedClusterGroupSerializer, NestedClusterSerializer, NestedClusterTypeSerializer,
+)
+from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .nested_serializers import *
 
 __all__ = (
@@ -76,15 +78,32 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         many=True
     )
     type = ChoiceField(choices=CustomFieldTypeChoices)
+    object_type = ContentTypeField(
+        queryset=ContentType.objects.all(),
+        required=False
+    )
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
+    data_type = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomField
         fields = [
-            'id', 'url', 'display', 'content_types', 'type', 'name', 'label', 'description', 'required', 'filter_logic',
-            'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'description',
+            'required', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
+            'validation_regex', 'choices', 'created', 'last_updated',
         ]
+
+    def get_data_type(self, obj):
+        types = CustomFieldTypeChoices
+        if obj.type == types.TYPE_INTEGER:
+            return 'integer'
+        if obj.type == types.TYPE_BOOLEAN:
+            return 'boolean'
+        if obj.type in (types.TYPE_JSON, types.TYPE_OBJECT):
+            return 'object'
+        if obj.type in (types.TYPE_MULTISELECT, types.TYPE_MULTIOBJECT):
+            return 'array'
+        return 'string'
 
 
 #
@@ -100,7 +119,7 @@ class CustomLinkSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomLink
         fields = [
-            'id', 'url', 'display', 'content_type', 'name', 'link_text', 'link_url', 'weight', 'group_name',
+            'id', 'url', 'display', 'content_type', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
             'button_class', 'new_window', 'created', 'last_updated',
         ]
 
@@ -181,7 +200,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 # Journal entries
 #
 
-class JournalEntrySerializer(ValidatedModelSerializer):
+class JournalEntrySerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:journalentry-detail')
     assigned_object_type = ContentTypeField(
         queryset=ContentType.objects.all()
@@ -202,7 +221,7 @@ class JournalEntrySerializer(ValidatedModelSerializer):
         model = JournalEntry
         fields = [
             'id', 'url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'created',
-            'created_by', 'kind', 'comments',
+            'created_by', 'kind', 'comments', 'tags', 'custom_fields',
         ]
 
     def validate(self, data):
@@ -270,6 +289,12 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
+    cluster_types = SerializedPKRelatedField(
+        queryset=ClusterType.objects.all(),
+        serializer=NestedClusterTypeSerializer,
+        required=False,
+        many=True
+    )
     cluster_groups = SerializedPKRelatedField(
         queryset=ClusterGroup.objects.all(),
         serializer=NestedClusterGroupSerializer,
@@ -305,8 +330,8 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         model = ConfigContext
         fields = [
             'id', 'url', 'display', 'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites',
-            'device_types', 'roles', 'platforms', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags',
-            'data', 'created', 'last_updated',
+            'device_types', 'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
+            'tenants', 'tags', 'data', 'created', 'last_updated',
         ]
 
 

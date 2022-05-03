@@ -9,6 +9,7 @@ from django.db import DEFAULT_DB_ALIAS
 from django.utils import timezone
 from packaging import version
 
+from extras.models import JobResult
 from extras.models import ObjectChange
 from netbox.config import Config
 
@@ -61,6 +62,33 @@ class Command(BaseCommand):
         elif options['verbosity']:
             self.stdout.write(
                 f"\tSkipping: No retention period specified (CHANGELOG_RETENTION = {config.CHANGELOG_RETENTION})"
+            )
+
+        # Delete expired JobResults
+        if options['verbosity']:
+            self.stdout.write("[*] Checking for expired jobresult records")
+        if config.JOBRESULT_RETENTION:
+            cutoff = timezone.now() - timedelta(days=config.JOBRESULT_RETENTION)
+            if options['verbosity'] >= 2:
+                self.stdout.write(f"\tRetention period: {config.JOBRESULT_RETENTION} days")
+                self.stdout.write(f"\tCut-off time: {cutoff}")
+            expired_records = JobResult.objects.filter(created__lt=cutoff).count()
+            if expired_records:
+                if options['verbosity']:
+                    self.stdout.write(
+                        f"\tDeleting {expired_records} expired records... ",
+                        self.style.WARNING,
+                        ending=""
+                    )
+                    self.stdout.flush()
+                JobResult.objects.filter(created__lt=cutoff)._raw_delete(using=DEFAULT_DB_ALIAS)
+                if options['verbosity']:
+                    self.stdout.write("Done.", self.style.SUCCESS)
+            elif options['verbosity']:
+                self.stdout.write("\tNo expired records found.", self.style.SUCCESS)
+        elif options['verbosity']:
+            self.stdout.write(
+                f"\tSkipping: No retention period specified (JOBRESULT_RETENTION = {config.JOBRESULT_RETENTION})"
             )
 
         # Check for new releases (if enabled)

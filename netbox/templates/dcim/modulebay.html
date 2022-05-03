@@ -1,0 +1,90 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item">
+    <a href="{% url 'dcim:device_modulebays' pk=object.device.pk %}">{{ object.device }}</a>
+  </li>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Module Bay</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Device</th>
+              <td>
+                <a href="{% url 'dcim:device_modulebays' pk=object.device.pk %}">{{ object.device }}</a>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Label</th>
+              <td>{{ object.label|placeholder }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Position</th>
+                <td>{{ object.position|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      {% include 'inc/panels/custom_fields.html' %}
+      <div class="card">
+        <h5 class="card-header">Installed Module</h5>
+        <div class="card-body">
+        {% if object.installed_module %}
+          {% with module=object.installed_module %}
+            <table class="table table-hover attr-table">
+              <tr>
+                <th scope="row">Module</th>
+                <td>{{ module|linkify }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Manufacturer</th>
+                <td>{{ module.module_type.manufacturer|linkify }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Module Type</th>
+                <td>{{ module.module_type|linkify }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Serial Number</th>
+                <td class="font-monospace">{{ module.serial|placeholder }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Asset Tag</th>
+                <td class="font-monospace">{{ module.asset_tag|placeholder }}</td>
+              </tr>
+            </table>
+          {% endwith %}
+        {% else %}
+          <div class="text-muted">None</div>
+        {% endif %}
+        </div>
+      </div>
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

@@ -295,7 +295,7 @@ This release upgrades the Django framework to version 2.2.
 
 #### Python 3 Required
 
-As promised, Python 2 support has been completed removed. Python 3.5 or higher is now required to run NetBox. Please see [our Python 3 migration guide](https://netbox.readthedocs.io/en/stable/installation/migrating-to-python3/) for assistance with upgrading.
+As promised, Python 2 support has been completed removed. Python 3.5 or higher is now required to run NetBox. Please see [our Python 3 migration guide](https://docs.netbox.dev/en/stable/installation/migrating-to-python3/) for assistance with upgrading.
 
 #### Removed Deprecated User Activity Log
 

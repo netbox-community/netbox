@@ -22,7 +22,7 @@
           <tr>
             <td>{{ forloop.counter }}</td>
             <td>{% log_level log.status %}</td>
-            <td class="rendered-markdown">{{ log.message|render_markdown }}</td>
+            <td class="rendered-markdown">{{ log.message|markdown }}</td>
           </tr>
         {% empty %}
           <tr>

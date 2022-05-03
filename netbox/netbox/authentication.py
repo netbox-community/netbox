@@ -13,8 +13,46 @@ from utilities.permissions import permission_is_exempt, resolve_permission, reso
 
 UserModel = get_user_model()
 
+AUTH_BACKEND_ATTRS = {
+    # backend name: title, MDI icon name
+    'amazon': ('Amazon AWS', 'aws'),
+    'apple': ('Apple', 'apple'),
+    'auth0': ('Auth0', None),
+    'azuread-oauth2': ('Microsoft Azure AD', 'microsoft'),
+    'azuread-b2c-oauth2': ('Microsoft Azure AD', 'microsoft'),
+    'azuread-tenant-oauth2': ('Microsoft Azure AD', 'microsoft'),
+    'bitbucket': ('BitBucket', 'bitbucket'),
+    'bitbucket-oauth2': ('BitBucket', 'bitbucket'),
+    'digitalocean': ('DigitalOcean', 'digital-ocean'),
+    'docker': ('Docker', 'docker'),
+    'github': ('GitHub', 'docker'),
+    'github-app': ('GitHub', 'github'),
+    'github-org': ('GitHub', 'github'),
+    'github-team': ('GitHub', 'github'),
+    'github-enterprise': ('GitHub Enterprise', 'github'),
+    'github-enterprise-org': ('GitHub Enterprise', 'github'),
+    'github-enterprise-team': ('GitHub Enterprise', 'github'),
+    'gitlab': ('GitLab', 'gitlab'),
+    'google-oauth2': ('Google', 'google'),
+    'google-openidconnect': ('Google', 'google'),
+    'hubspot': ('HubSpot', 'hubspot'),
+    'keycloak': ('Keycloak', None),
+    'microsoft-graph': ('Microsoft Graph', 'microsoft'),
+    'okta': ('Okta', None),
+    'okta-openidconnect': ('Okta (OIDC)', None),
+    'salesforce-oauth2': ('Salesforce', 'salesforce'),
+}
 
-class ObjectPermissionMixin():
+
+def get_auth_backend_display(name):
+    """
+    Return the user-friendly name and icon name for a remote authentication backend, if known. Defaults to the
+    raw backend name and no icon.
+    """
+    return AUTH_BACKEND_ATTRS.get(name, (name, None))
+
+
+class ObjectPermissionMixin:
 
     def get_all_permissions(self, user_obj, obj=None):
         if not user_obj.is_active or user_obj.is_anonymous:

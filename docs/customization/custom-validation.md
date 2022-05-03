@@ -105,11 +105,11 @@ from my_validators import Validator1, Validator2, Validator3
 
 CUSTOM_VALIDATORS = {
     'dcim.site': (
-        Validator1,
-        Validator2,
+        Validator1(),
+        Validator2(),
     ),
     'dcim.device': (
-        Validator3,
+        Validator3(),
     )
 }
 ```
