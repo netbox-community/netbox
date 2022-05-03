@@ -31,7 +31,9 @@ class ManufacturerTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    devicetype_count = tables.Column(
+    devicetype_count = columns.LinkedCountColumn(
+        viewname='dcim:devicetype_list',
+        url_params={'manufacturer_id': 'pk'},
         verbose_name='Device Types'
     )
     inventoryitem_count = tables.Column(
