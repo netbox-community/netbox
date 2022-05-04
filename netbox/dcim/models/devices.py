@@ -1086,13 +1086,17 @@ class Module(NetBoxModel, ConfigContextModel):
             create_instances = []
             update_instances = []
 
+            # Prefetch installed components
+            installed_components = {
+                component.name: component for component in getattr(self.device, component_attribute).filter(module__isnull=True)
+            }
+
             # Get the template for the module type.
             for template in getattr(self.module_type, templates).all():
                 template_instance = template.instantiate(device=self.device, module=self)
 
                 if adopt_components:
-                    existing_item = getattr(self.device, component_attribute).filter(
-                        module__isnull=True, name=template_instance.name).first()
+                    existing_item = installed_components.get(template_instance.name)
 
                     # Check if there's a component with the same name already
                     if existing_item:
