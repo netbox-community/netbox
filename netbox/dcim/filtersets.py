@@ -346,6 +346,19 @@ class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='rack__site__region',
+        lookup_expr='in',
+        label='Region (ID)',
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='rack__site__region',
+        lookup_expr='in',
+        to_field_name='slug',
+        label='Region (slug)',
+    )
     site_group_id = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='rack__site__group',
