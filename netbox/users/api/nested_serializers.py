@@ -28,6 +28,11 @@ class NestedUserSerializer(WritableNestedSerializer):
         model = User
         fields = ['id', 'url', 'display', 'username']
 
+    def get_display(self, obj):
+        if full_name := obj.get_full_name():
+            return f"{obj.username} ({full_name})"
+        return obj.username
+
 
 class NestedTokenSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:token-detail')
