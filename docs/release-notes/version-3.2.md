@@ -2,6 +2,14 @@
 
 ## v3.2.3 (FUTURE)
 
+### Enhancements
+
+* [#9278](https://github.com/netbox-community/netbox/issues/9278) - Linkify device types count under manufacturers list
+
+### Bug Fixes
+
+* [#9267](https://github.com/netbox-community/netbox/issues/9267) - Remove invalid entry in IP address role choices
+
 ---
 
 ## v3.2.2 (2022-04-28)
