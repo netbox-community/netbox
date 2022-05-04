@@ -1869,6 +1869,54 @@ class ModuleTestCase(
         self.assertHttpStatus(self.client.post(**request), 302)
         self.assertEqual(Interface.objects.filter(device=device).count(), 5)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_module_component_adoption(self):
+        self.add_permissions('dcim.add_module')
+
+        interface_name = "Interface-1"
+
+        # Add an interface to the ModuleType
+        module_type = ModuleType.objects.first()
+        InterfaceTemplate(module_type=module_type, name=interface_name).save()
+
+        form_data = self.form_data.copy()
+        device = Device.objects.get(pk=form_data['device'])
+
+        # Create a module with replicated components
+        form_data['module_bay'] = ModuleBay.objects.filter(device=device)[0]
+        form_data['replicate_components'] = True
+        request = {
+            'path': self._get_url('add'),
+            'data': post_data(form_data),
+        }
+        self.assertHttpStatus(self.client.post(**request), 302)
+
+        # Check that the interface was created
+        initial_interface = Interface.objects.filter(device=device, name=interface_name).first()
+        self.assertIsNotNone(initial_interface)
+        
+        # Save the module id associated with the interface
+        initial_module_id = initial_interface.module.id
+
+        # Create a second module (in the next bay) with adopted components
+        # The module id of the interface should change
+        form_data['module_bay'] = ModuleBay.objects.filter(device=device)[1]
+        form_data['replicate_components'] = False
+        form_data['adopt_components'] = True
+        request = {
+            'path': self._get_url('add'),
+            'data': post_data(form_data),
+        }
+
+        self.assertHttpStatus(self.client.post(**request), 302)
+
+        # Re-retrieve interface to get new module id
+        initial_interface.refresh_from_db()
+        updated_module_id = initial_interface.module.id
+
+        # Check that the module id has changed
+        self.assertNotEqual(initial_module_id, updated_module_id)
+
 
 class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ConsolePort
