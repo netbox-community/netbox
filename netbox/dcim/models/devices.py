@@ -1091,7 +1091,8 @@ class Module(NetBoxModel, ConfigContextModel):
                 template_instance = template.instantiate(device=self.device, module=self)
 
                 if adopt_components:
-                    existing_item = getattr(self.device, component_attribute).filter(name=template_instance.name).first()
+                    existing_item = getattr(self.device, component_attribute).filter(
+                        module__isnull=True, name=template_instance.name).first()
 
                     # Check if there's a component with the same name already
                     if existing_item:
