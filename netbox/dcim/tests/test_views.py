@@ -1894,7 +1894,7 @@ class ModuleTestCase(
         # Check that the interface was created
         initial_interface = Interface.objects.filter(device=device, name=interface_name).first()
         self.assertIsNotNone(initial_interface)
-        
+
         # Save the module id associated with the interface
         initial_module_id = initial_interface.module.id
 
