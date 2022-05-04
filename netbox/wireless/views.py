@@ -29,7 +29,7 @@ class WirelessLANGroupView(generic.ObjectView):
         wirelesslans = WirelessLAN.objects.restrict(request.user, 'view').filter(
             group=instance
         )
-        wirelesslans_table = tables.WirelessLANTable(wirelesslans, exclude=('group',))
+        wirelesslans_table = tables.WirelessLANTable(wirelesslans, user=request.user, exclude=('group',))
         wirelesslans_table.configure(request)
 
         return {
@@ -97,7 +97,7 @@ class WirelessLANView(generic.ObjectView):
         attached_interfaces = Interface.objects.restrict(request.user, 'view').filter(
             wireless_lans=instance
         )
-        interfaces_table = tables.WirelessLANInterfacesTable(attached_interfaces)
+        interfaces_table = tables.WirelessLANInterfacesTable(attached_interfaces, user=request.user)
         interfaces_table.configure(request)
 
         return {
