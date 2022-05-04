@@ -210,7 +210,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
     model = Rack
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Location', ('region_id', 'site_id', 'location_id')),
+        ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id')),
         ('Function', ('status', 'role_id')),
         ('Hardware', ('type', 'width', 'serial', 'asset_tag')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
@@ -228,6 +228,11 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
             'region_id': '$region_id'
         },
         label=_('Site')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
@@ -282,7 +287,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'tag')),
         ('User', ('user_id',)),
-        ('Rack', ('region_id', 'site_id', 'location_id')),
+        ('Rack', ('region_id', 'site_group_id', 'site_id', 'location_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
     )
     region_id = DynamicModelMultipleChoiceField(
@@ -297,6 +302,11 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
             'region_id': '$region_id'
         },
         label=_('Site')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.prefetch_related('site'),
