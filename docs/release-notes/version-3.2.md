@@ -4,6 +4,9 @@
 
 ### Enhancements
 
+* [#8894](https://github.com/netbox-community/netbox/issues/8894) - Include full names when listing users
+* [#8998](https://github.com/netbox-community/netbox/issues/8998) - Enable filtering racks & reservations by site group
+* [#9122](https://github.com/netbox-community/netbox/issues/9122) - Introduce `clearcache` management command & clear cache during upgrade
 * [#9278](https://github.com/netbox-community/netbox/issues/9278) - Linkify device types count under manufacturers list
 
 ### Bug Fixes
