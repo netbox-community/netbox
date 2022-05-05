@@ -4,6 +4,10 @@ import { previousPkCheckState } from '../stores';
 
 type PreviousPkCheckState = { element: Nullable<HTMLInputElement> };
 
+function preventTextHighlight(): void {
+  return
+}
+
 function updatePreviousPkCheckState(eventTargetElement: HTMLInputElement, state: StateManager<PreviousPkCheckState>): void {
   console.log(state)
   state.set('element', eventTargetElement);
