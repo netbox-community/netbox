@@ -1882,25 +1882,16 @@ class ModuleTestCase(
         form_data = self.form_data.copy()
         device = Device.objects.get(pk=form_data['device'])
 
-        # Create a module with replicated components
-        form_data['module_bay'] = ModuleBay.objects.filter(device=device)[0]
-        form_data['replicate_components'] = True
-        request = {
-            'path': self._get_url('add'),
-            'data': post_data(form_data),
-        }
-        self.assertHttpStatus(self.client.post(**request), 302)
+        # Create an interface to be adopted
+        interface = Interface(device=device, name=interface_name, type=InterfaceTypeChoices.TYPE_10GE_FIXED)
+        interface.save()
 
-        # Check that the interface was created
-        initial_interface = Interface.objects.filter(device=device, name=interface_name).first()
-        self.assertIsNotNone(initial_interface)
+        # Ensure that interface is created with no module
+        self.assertIsNone(interface.module)
 
-        # Save the module id associated with the interface
-        initial_module_id = initial_interface.module.id
-
-        # Create a second module (in the next bay) with adopted components
-        # The module id of the interface should change
-        form_data['module_bay'] = ModuleBay.objects.filter(device=device)[1]
+        # Create a module with adopted components
+        form_data['module_bay'] = ModuleBay.objects.filter(device=device).first()
+        form_data['module_type'] = module_type
         form_data['replicate_components'] = False
         form_data['adopt_components'] = True
         request = {
@@ -1911,11 +1902,10 @@ class ModuleTestCase(
         self.assertHttpStatus(self.client.post(**request), 302)
 
         # Re-retrieve interface to get new module id
-        initial_interface.refresh_from_db()
-        updated_module_id = initial_interface.module.id
+        interface.refresh_from_db()
 
-        # Check that the module id has changed
-        self.assertNotEqual(initial_module_id, updated_module_id)
+        # Check that the Interface now has a module
+        self.assertIsNotNone(interface.module)
 
 
 class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
