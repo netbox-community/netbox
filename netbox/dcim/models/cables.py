@@ -2,14 +2,14 @@ from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.fields import MultiNodePathField, PathField
+from dcim.fields import PathField
 from dcim.utils import decompile_path_node, flatten_path, object_to_path_node, path_node_to_object
 from netbox.models import NetBoxModel
 from utilities.fields import ColorField
@@ -288,7 +288,9 @@ class CablePath(models.Model):
     `is_active` is set to True only if 1) `destination` is not null, and 2) every Cable within the path has a status of
     "connected".
     """
-    path = MultiNodePathField()
+    path = models.JSONField(
+        default=list
+    )
     is_active = models.BooleanField(
         default=False
     )

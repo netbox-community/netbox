@@ -10,7 +10,6 @@ from .lookups import PathContains
 __all__ = (
     'ASNField',
     'MACAddressField',
-    'MultiNodePathField',
     'PathField',
     'WWNField',
 )
@@ -102,18 +101,6 @@ class PathField(ArrayField):
     """
     def __init__(self, **kwargs):
         kwargs['base_field'] = models.CharField(max_length=40)
-        super().__init__(**kwargs)
-
-
-class MultiNodePathField(ArrayField):
-    """
-    A two-dimensional ArrayField which represents a path, with one or more nodes at each hop. Each node is
-    identified by a (type, ID) tuple.
-    """
-    def __init__(self, **kwargs):
-        kwargs['base_field'] = ArrayField(
-            base_field=models.CharField(max_length=40)
-        )
         super().__init__(**kwargs)
 
 

@@ -18,8 +18,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cablepath',
             name='path',
-            field=dcim.fields.MultiNodePathField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=40), size=None), default=[], size=None),
-            preserve_default=False,
+            field=models.JSONField(default=list),
         ),
         migrations.AddField(
             model_name='cablepath',
