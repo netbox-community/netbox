@@ -92,8 +92,6 @@ class Cable(NetBoxModel):
         null=True
     )
 
-    terminations = []
-
     class Meta:
         ordering = ('pk',)
 
@@ -112,7 +110,9 @@ class Cable(NetBoxModel):
             assert self.pk is None
             for t in terminations:
                 t.cable = self
-                self.terminations.append(t)
+            self.terminations = terminations
+        else:
+            self.terminations = []
 
     @classmethod
     def from_db(cls, db, field_names, values):
