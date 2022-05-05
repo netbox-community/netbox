@@ -338,6 +338,7 @@ class CablePath(models.Model):
 
         path = []
         position_stack = []
+        is_complete = False
         is_active = True
         is_split = False
 
@@ -369,11 +370,12 @@ class CablePath(models.Model):
                     termination_type=ContentType.objects.get_for_model(RearPort),
                     termination_id__in=[t.termination_id for t in peer_terminations]
                 )
-                node = terminations[0].termination
+                rear_ports = RearPort.objects.filter(pk__in=[t.termination.rear_port_id for t in peer_terminations])
+                node = rear_ports[0]
                 if node.positions > 1:
                     position_stack.append(node.rear_port_position)
                 path.append([
-                    object_to_path_node(t.termination) for t in terminations
+                    object_to_path_node(rp) for rp in rear_ports
                 ])
 
             # Follow RearPorts to their corresponding FrontPorts (if any)
@@ -438,10 +440,12 @@ class CablePath(models.Model):
                 path.append([
                     object_to_path_node(t.termination) for t in peer_terminations
                 ])
+                is_complete = True
                 break
 
         return cls(
             path=path,
+            is_complete=is_complete,
             is_active=is_active,
             is_split=is_split
         )
