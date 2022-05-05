@@ -14,10 +14,11 @@ function updatePreviousPkCheckState(eventTargetElement: HTMLInputElement, state:
 
 function toggleCheckboxRange(eventTargetElement: HTMLInputElement, previousStateElement: HTMLInputElement, elementList: Generator): void{
   let changePkCheckboxState = false
-  for(let element of elementList){
+  for(const element of elementList){
+    const typedElement = element as HTMLInputElement
     //Change loop's current checkbox state to eventTargetElement checkbox state
     if(changePkCheckboxState === true){
-      element.checked = eventTargetElement.checked;
+      typedElement.checked = eventTargetElement.checked;
     }
     //The previously clicked checkbox was above the shift clicked checkbox 
     if(element === previousStateElement){
@@ -26,7 +27,7 @@ function toggleCheckboxRange(eventTargetElement: HTMLInputElement, previousState
         return 
       }
       changePkCheckboxState = true;
-      element.checked = eventTargetElement.checked;
+      typedElement.checked = eventTargetElement.checked;
     }
     //The previously clicked checkbox was below the shift clicked checkbox 
     if(element === eventTargetElement){
