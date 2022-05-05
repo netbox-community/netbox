@@ -633,12 +633,18 @@ class ModuleForm(NetBoxModelForm):
         help_text="Automatically populate components associated with this module type"
     )
 
+    adopt_components = forms.BooleanField(
+        required=False,
+        initial=False,
+        help_text="Adopt already existing components"
+    )
+
     fieldsets = (
         ('Module', (
             'device', 'module_bay', 'manufacturer', 'module_type', 'tags',
         )),
         ('Hardware', (
-            'serial', 'asset_tag', 'replicate_components',
+            'serial', 'asset_tag', 'replicate_components', 'adopt_components',
         )),
     )
 
@@ -646,7 +652,7 @@ class ModuleForm(NetBoxModelForm):
         model = Module
         fields = [
             'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag', 'tags',
-            'replicate_components', 'comments',
+            'replicate_components', 'adopt_components', 'comments',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -655,12 +661,17 @@ class ModuleForm(NetBoxModelForm):
         if self.instance.pk:
             self.fields['replicate_components'].initial = False
             self.fields['replicate_components'].disabled = True
+            self.fields['adopt_components'].initial = False
+            self.fields['adopt_components'].disabled = True
 
     def save(self, *args, **kwargs):
 
         # If replicate_components is False, disable automatic component replication on the instance
         if self.instance.pk or not self.cleaned_data['replicate_components']:
             self.instance._disable_replication = True
+
+        if self.cleaned_data['adopt_components']:
+            self.instance._adopt_components = True
 
         return super().save(*args, **kwargs)
 
