@@ -9,7 +9,6 @@ function preventTextHighlight(): void {
 }
 
 function updatePreviousPkCheckState(eventTargetElement: HTMLInputElement, state: StateManager<PreviousPkCheckState>): void {
-  console.log(state)
   state.set('element', eventTargetElement);
 }
 
@@ -55,8 +54,14 @@ export function initSelectMultiple(): void {
   const checkboxElements = getElements<HTMLInputElement>('input[type="checkbox"][name="pk"]');
   for (const element of checkboxElements) {
     element.addEventListener('click', (event) => {
+      //Prevents shift+click from selecting table text
+      document.addEventListener('selectstart', preventTextHighlight)
+      //Stop propogation to avoid event firing multiple times
       event.stopPropagation();
-      updatePreviousPkCheckState(event.target as HTMLInputElement, previousPkCheckState);
+      //Main logic for multi select
+      handlePkCheck(event, previousPkCheckState);
+      //Re-enables user's ability to select table text
+      document.removeEventListener('selectstart', preventTextHighlight)
     });
   }
 }
