@@ -1,7 +1,7 @@
 import { createState } from '../state';
 
-export const previousPKCheckState = createState<{ hidden: boolean }>(
-  { hidden: false },
-  { persist: false },
+export const previousPkCheckState = createState<{ element: Nullable<HTMLInputElement> }>(
+  { element: null},
+  { persist: false }
 );
 
