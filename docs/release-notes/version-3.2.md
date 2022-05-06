@@ -14,6 +14,7 @@
 ### Bug Fixes
 
 * [#9267](https://github.com/netbox-community/netbox/issues/9267) - Remove invalid entry in IP address role choices
+* [#9311](https://github.com/netbox-community/netbox/issues/9311) - Permit creating contact assignment without a priority via the REST API
 
 ---
 
