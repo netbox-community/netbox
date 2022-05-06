@@ -190,7 +190,7 @@ class DeviceTable(NetBoxTable):
         verbose_name='VC Priority'
     )
     comments = columns.MarkdownColumn()
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(

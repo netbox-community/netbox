@@ -40,7 +40,7 @@ class ClusterGroupTable(NetBoxTable):
         url_params={'group_id': 'pk'},
         verbose_name='Clusters'
     )
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(
@@ -83,7 +83,7 @@ class ClusterTable(NetBoxTable):
         verbose_name='VMs'
     )
     comments = columns.MarkdownColumn()
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(

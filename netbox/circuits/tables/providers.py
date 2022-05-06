@@ -14,7 +14,7 @@ class ProviderTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    asns = tables.ManyToManyColumn(
+    asns = columns.ManyToManyColumn(
         linkify_item=True,
         verbose_name='ASNs'
     )
@@ -31,7 +31,7 @@ class ProviderTable(NetBoxTable):
         verbose_name='Circuits'
     )
     comments = columns.MarkdownColumn()
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(

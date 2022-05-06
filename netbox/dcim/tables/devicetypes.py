@@ -43,7 +43,7 @@ class ManufacturerTable(NetBoxTable):
         verbose_name='Platforms'
     )
     slug = tables.Column()
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(
