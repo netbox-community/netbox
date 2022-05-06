@@ -4,10 +4,20 @@ import { previousPkCheckState } from '../stores';
 
 type PreviousPkCheckState = { element: Nullable<HTMLInputElement> };
 
+/**
+ * If there is a text selection, removes it.
+ */
 function removeTextSelection(): void {
   window.getSelection()?.removeAllRanges();
 }
 
+/**
+ * Sets the state object passed in to the eventTargetElement object passed in.
+ * 
+ * @param eventTargetElement HTML Input Element, retrieved from getting the target of the
+ * event passed in from handlePkCheck() 
+ * @param state PreviousPkCheckState object.
+ */
 function updatePreviousPkCheckState(
   eventTargetElement: HTMLInputElement,
   state: StateManager<PreviousPkCheckState>,
@@ -15,6 +25,14 @@ function updatePreviousPkCheckState(
   state.set('element', eventTargetElement);
 }
 
+/**
+ * For all checkboxes between eventTargetElement and previousStateElement in elementList, toggle
+ * "checked" value to eventTargetElement.checked 
+ * 
+ * @param eventTargetElement HTML Input Element, retrieved from getting the target of the
+ * event passed in from handlePkCheck() 
+ * @param state PreviousPkCheckState object.
+ */
 function toggleCheckboxRange(
   eventTargetElement: HTMLInputElement,
   previousStateElement: HTMLInputElement,
@@ -47,6 +65,14 @@ function toggleCheckboxRange(
   }
 }
 
+
+/**
+ * IF the shift key is pressed and there is state is not null, toggleCheckboxRange between the 
+ * event target element and the state element.
+ * 
+ * @param event Mouse event.
+ * @param state PreviousPkCheckState object.
+ */
 function handlePkCheck(event: MouseEvent, state: StateManager<PreviousPkCheckState>): void {
   const eventTargetElement = event.target as HTMLInputElement;
   const previousStateElement = state.get('element');
@@ -64,6 +90,9 @@ function handlePkCheck(event: MouseEvent, state: StateManager<PreviousPkCheckSta
   toggleCheckboxRange(eventTargetElement, previousStateElement, checkboxList);
 }
 
+/**
+ * Initialize table select all elements.
+ */
 export function initSelectMultiple(): void {
   const checkboxElements = getElements<HTMLInputElement>('input[type="checkbox"][name="pk"]');
   for (const element of checkboxElements) {
