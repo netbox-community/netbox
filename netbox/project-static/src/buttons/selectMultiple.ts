@@ -13,9 +13,9 @@ function removeTextSelection(): void {
 
 /**
  * Sets the state object passed in to the eventTargetElement object passed in.
- * 
+ *
  * @param eventTargetElement HTML Input Element, retrieved from getting the target of the
- * event passed in from handlePkCheck() 
+ * event passed in from handlePkCheck()
  * @param state PreviousPkCheckState object.
  */
 function updatePreviousPkCheckState(
@@ -27,10 +27,10 @@ function updatePreviousPkCheckState(
 
 /**
  * For all checkboxes between eventTargetElement and previousStateElement in elementList, toggle
- * "checked" value to eventTargetElement.checked 
- * 
+ * "checked" value to eventTargetElement.checked
+ *
  * @param eventTargetElement HTML Input Element, retrieved from getting the target of the
- * event passed in from handlePkCheck() 
+ * event passed in from handlePkCheck()
  * @param state PreviousPkCheckState object.
  */
 function toggleCheckboxRange(
@@ -65,11 +65,10 @@ function toggleCheckboxRange(
   }
 }
 
-
 /**
- * IF the shift key is pressed and there is state is not null, toggleCheckboxRange between the 
+ * IF the shift key is pressed and there is state is not null, toggleCheckboxRange between the
  * event target element and the state element.
- * 
+ *
  * @param event Mouse event.
  * @param state PreviousPkCheckState object.
  */
