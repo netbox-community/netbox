@@ -330,6 +330,8 @@ class CablePath(models.Model):
     def from_origin(cls, terminations):
         """
         Create a new CablePath instance as traced from the given path origin.
+
+        :param terminations: An iterable of one or more CableTermination objects.
         """
         from circuits.models import CircuitTermination
 
@@ -348,7 +350,7 @@ class CablePath(models.Model):
         ])
 
         node = terminations[0].termination
-        while node.link is not None:
+        while terminations and node.link is not None:
             if hasattr(node.link, 'status') and node.link.status != LinkStatusChoices.STATUS_CONNECTED:
                 is_active = False
 
@@ -371,9 +373,10 @@ class CablePath(models.Model):
                     termination_id__in=[t.termination_id for t in peer_terminations]
                 )
                 rear_ports = RearPort.objects.filter(pk__in=[t.termination.rear_port_id for t in peer_terminations])
+                # TODO: We're assuming that each of the front-to-rear mapping use equivalent positions.
                 node = rear_ports[0]
-                if node.positions > 1:
-                    position_stack.append(node.rear_port_position)
+                if rear_ports[0].positions > 1:
+                    position_stack.append(peer_terminations[0].termination.rear_port_position)
                 path.append([
                     object_to_path_node(rp) for rp in rear_ports
                 ])
@@ -395,9 +398,13 @@ class CablePath(models.Model):
                     break
 
                 # Map FrontPorts to their corresponding RearPorts
-                terminations = FrontPort.objects.filter(
+                front_ports = FrontPort.objects.filter(
                     rear_port_id__in=[t.rear_port_id for t in peer_terminations],
                     rear_port_position=position
+                )
+                terminations = CableTermination.objects.filter(
+                    termination_type=ContentType.objects.get_for_model(FrontPort),
+                    termination_id__in=[fp.pk for fp in front_ports]
                 )
                 if terminations:
                     path.append([

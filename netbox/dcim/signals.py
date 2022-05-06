@@ -1,3 +1,4 @@
+from collections import defaultdict
 import logging
 
 from django.contrib.contenttypes.models import ContentType
@@ -84,25 +85,26 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
         term for term in instance.terminations if not term.pk
     ])
 
+    # Split terminations into A/B sets
+    _terms = defaultdict(list)
+    for term in instance.terminations:
+        _terms[term.cable_end].append(term)
+
     # TODO: Update link peers
     # Set cable on terminating endpoints
-    _terms = {
-        'A': [],
-        'B': [],
-    }
     for term in instance.terminations:
         if term.termination.cable != instance:
             term.termination.cable = instance
             term.termination.save()
-        _terms[term.cable_end].append(term)
 
     # Create/update cable paths
     if created:
         for terms in _terms.values():
+            # Examine type of first termination to determine object type (all must be the same)
             if isinstance(terms[0].termination, PathEndpoint):
                 create_cablepath(terms)
-            else:
-                rebuild_paths(terms)
+            # else:
+            #     rebuild_paths(terms)
     # elif instance.status != instance._orig_status:
     #     # We currently don't support modifying either termination of an existing Cable. (This
     #     # may change in the future.) However, we do need to capture status changes and update

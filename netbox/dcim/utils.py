@@ -39,13 +39,15 @@ def flatten_path(path):
     return ret
 
 
-def create_cablepath(node):
+def create_cablepath(terminations):
     """
-    Create CablePaths for all paths originating from the specified node.
+    Create CablePaths for all paths originating from the specified set of nodes.
+
+    :param terminations: Iterable of CableTermination objects
     """
     from dcim.models import CablePath
 
-    cp = CablePath.from_origin(node)
+    cp = CablePath.from_origin(terminations)
     if cp:
         cp.save()
 
