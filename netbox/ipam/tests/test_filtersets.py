@@ -1024,6 +1024,24 @@ class FHRPGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'priority': [10, 20]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_device(self):
+        device = Device.objects.all()[0]
+
+        params = {'device': [device.name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+        params = {'device_id': [device.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_virtual_machine(self):
+        vm = VirtualMachine.objects.all()[0]
+
+        params = {'virtual_machine': [vm.name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+        params = {'virtual_machine_id': [vm.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
 
 class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VLANGroup.objects.all()

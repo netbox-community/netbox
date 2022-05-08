@@ -681,10 +681,52 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
         queryset=FHRPGroup.objects.all(),
         label='Group (ID)',
     )
+    device = MultiValueCharFilter(
+        method='filter_device',
+        field_name='name',
+        label='Device (name)',
+    )
+    device_id = MultiValueNumberFilter(
+        method='filter_device',
+        field_name='pk',
+        label='Device (ID)',
+    )
+    virtual_machine = MultiValueCharFilter(
+        method='filter_virtual_machine',
+        field_name='name',
+        label='Virtual machine (name)',
+    )
+    virtual_machine_id = MultiValueNumberFilter(
+        method='filter_virtual_machine',
+        field_name='pk',
+        label='Virtual machine (ID)',
+    )
 
     class Meta:
         model = FHRPGroupAssignment
         fields = ['id', 'group_id', 'interface_type', 'interface_id', 'priority']
+
+    def filter_device(self, queryset, name, value):
+        devices = Device.objects.filter(**{'{}__in'.format(name): value})
+        if not devices.exists():
+            return queryset.none()
+        interface_ids = []
+        for device in devices:
+            interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
+        return queryset.filter(
+            Q(interface_type=ContentType.objects.get_for_model(Interface), interface_id__in=interface_ids)
+        )
+
+    def filter_virtual_machine(self, queryset, name, value):
+        virtual_machines = VirtualMachine.objects.filter(**{'{}__in'.format(name): value})
+        if not virtual_machines.exists():
+            return queryset.none()
+        interface_ids = []
+        for vm in virtual_machines:
+            interface_ids.extend(vm.interfaces.values_list('id', flat=True))
+        return queryset.filter(
+            Q(interface_type=ContentType.objects.get_for_model(VMInterface), interface_id__in=interface_ids)
+        )
 
 
 class VLANGroupFilterSet(OrganizationalModelFilterSet):
