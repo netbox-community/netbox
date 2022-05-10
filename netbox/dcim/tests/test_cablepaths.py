@@ -550,8 +550,8 @@ class CablePathTestCase(TestCase):
         cable3.delete()
 
         # Check for four partial paths; one from each interface
-        self.assertEqual(CablePath.objects.filter(destination_id__isnull=True).count(), 4)
-        self.assertEqual(CablePath.objects.filter(destination_id__isnull=False).count(), 0)
+        self.assertEqual(CablePath.objects.filter(is_complete=False).count(), 4)
+        self.assertEqual(CablePath.objects.filter(is_complete=True).count(), 0)
 
     def test_204_multiple_paths_via_multiple_pass_throughs(self):
         """
@@ -677,8 +677,8 @@ class CablePathTestCase(TestCase):
         cable5.delete()
 
         # Check for two complete paths (IF1 <--> IF2) and two partial (IF3 <--> IF4)
-        self.assertEqual(CablePath.objects.filter(destination_id__isnull=True).count(), 2)
-        self.assertEqual(CablePath.objects.filter(destination_id__isnull=False).count(), 2)
+        self.assertEqual(CablePath.objects.filter(is_complete=False).count(), 2)
+        self.assertEqual(CablePath.objects.filter(is_complete=True).count(), 2)
 
     def test_205_multiple_paths_via_patched_pass_throughs(self):
         """
@@ -780,8 +780,8 @@ class CablePathTestCase(TestCase):
         cable3.delete()
 
         # Check for four partial paths; one from each interface
-        self.assertEqual(CablePath.objects.filter(destination_id__isnull=True).count(), 4)
-        self.assertEqual(CablePath.objects.filter(destination_id__isnull=False).count(), 0)
+        self.assertEqual(CablePath.objects.filter(is_complete=False).count(), 4)
+        self.assertEqual(CablePath.objects.filter(is_complete=True).count(), 0)
 
     def test_206_unidirectional_split_paths(self):
         """
