@@ -52,16 +52,17 @@ def create_cablepath(terminations):
         cp.save()
 
 
-def rebuild_paths(obj):
+def rebuild_paths(terminations):
     """
     Rebuild all CablePaths which traverse the specified node
     """
     from dcim.models import CablePath
 
-    cable_paths = CablePath.objects.filter(path__contains=obj)
+    for obj in terminations:
+        cable_paths = CablePath.objects.filter(_nodes__contains=obj)
 
-    with transaction.atomic():
-        for cp in cable_paths:
-            cp.delete()
-            if cp.origin:
-                create_cablepath(cp.origin)
+        with transaction.atomic():
+            for cp in cable_paths:
+                cp.delete()
+                origins = [path_node_to_object(node) for node in cp.path[0]]
+                create_cablepath(origins)

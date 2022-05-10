@@ -100,8 +100,8 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
             # Examine type of first termination to determine object type (all must be the same)
             if isinstance(terms[0], PathEndpoint):
                 create_cablepath(terms)
-            # else:
-            #     rebuild_paths(terms)
+            else:
+                rebuild_paths(terms)
     # elif instance.status != instance._orig_status:
     #     # We currently don't support modifying either termination of an existing Cable. (This
     #     # may change in the future.) However, we do need to capture status changes and update
