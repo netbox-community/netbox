@@ -346,7 +346,7 @@ class CablePath(models.Model):
 
             # Terminations must all be of the same type and belong to the same parent
             assert all(isinstance(t, type(terminations[0])) for t in terminations[1:])
-            assert all(t.parent is terminations[0].parent for t in terminations[1:])
+            assert all(t.parent_object == terminations[0].parent_object for t in terminations[1:])
 
             # Step 1: Record the near-end termination object(s)
             path.append([
@@ -355,7 +355,7 @@ class CablePath(models.Model):
 
             # Step 2: Determine the attached link (Cable or WirelessLink), if any
             link = terminations[0].link
-            assert all(t.link is link for t in terminations[1:])
+            assert all(t.link == link for t in terminations[1:])
             if link is None and len(path) == 1:
                 # If this is the start of the path and no link exists, return None
                 return None
@@ -399,33 +399,29 @@ class CablePath(models.Model):
                 rear_ports = RearPort.objects.filter(
                     pk__in=[t.rear_port_id for t in remote_terminations]
                 )
-                # RearPorts must have the same number of positions
-                rp_position_count = rear_ports[0].positions
-                assert all(rp.positions == rp_position_count for rp in terminations[1:])
-                # Push position to stack if >1
-                if rp_position_count > 1:
-                    position_stack.append(remote_terminations[0].rear_port_position)
+                if len(rear_ports) > 1:
+                    assert all(rp.positions == 1 for rp in rear_ports)
+                elif rear_ports[0].positions > 1:
+                    position_stack.append([fp.rear_port_position for fp in remote_terminations])
 
                 terminations = rear_ports
 
             elif isinstance(remote_terminations[0], RearPort):
-                # If the RearPort has multiple positions, pop the current position from the stack
-                rp_position_count = remote_terminations[0].positions
-                assert all(rp.positions == rp_position_count for rp in remote_terminations[1:])
-                if rp_position_count == 1:
-                    position = 1
+
+                if len(remote_terminations) > 1 or remote_terminations[0].positions == 1:
+                    front_ports = FrontPort.objects.filter(
+                        rear_port_id__in=[rp.pk for rp in remote_terminations],
+                        rear_port_position=1
+                    )
                 elif position_stack:
-                    position = position_stack.pop()
+                    front_ports = FrontPort.objects.filter(
+                        rear_port_id=remote_terminations[0].pk,
+                        rear_port_position__in=position_stack.pop()
+                    )
                 else:
                     # No position indicated: path has split, so we stop at the RearPorts
                     is_split = True
                     break
-
-                # Follow RearPorts to their corresponding FrontPorts (if any)
-                front_ports = FrontPort.objects.filter(
-                    rear_port_id__in=[t.pk for t in remote_terminations],
-                    rear_port_position=position
-                )
 
                 terminations = front_ports
 
