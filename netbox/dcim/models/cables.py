@@ -435,20 +435,22 @@ class CablePath(models.Model):
                 assert all(ct.term_side == term_side for ct in remote_terminations[1:])
                 circuit_termination = CircuitTermination.objects.filter(
                     circuit=remote_terminations[0].circuit,
-                    term_side='Z' if term_side == 'A' else 'Z'
+                    term_side='Z' if term_side == 'A' else 'A'
                 ).first()
                 if circuit_termination is None:
                     break
                 elif circuit_termination.provider_network:
                     # Circuit terminates to a ProviderNetwork
-                    path.append([
-                        object_to_path_node(circuit_termination.provider_network)
+                    path.extend([
+                        [object_to_path_node(circuit_termination)],
+                        [object_to_path_node(circuit_termination.provider_network)],
                     ])
                     break
                 elif circuit_termination.site and not circuit_termination.cable:
                     # Circuit terminates to a Site
-                    path.append([
-                        object_to_path_node(circuit_termination.site)
+                    path.extend([
+                        [object_to_path_node(circuit_termination)],
+                        [object_to_path_node(circuit_termination.site)],
                     ])
                     break
 

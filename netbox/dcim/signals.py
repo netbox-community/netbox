@@ -102,14 +102,14 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
                 create_cablepath(terms)
             else:
                 rebuild_paths(terms)
-    # elif instance.status != instance._orig_status:
-    #     # We currently don't support modifying either termination of an existing Cable. (This
-    #     # may change in the future.) However, we do need to capture status changes and update
-    #     # any CablePaths accordingly.
-    #     if instance.status != LinkStatusChoices.STATUS_CONNECTED:
-    #         CablePath.objects.filter(path__contains=instance).update(is_active=False)
-    #     else:
-    #         rebuild_paths(instance)
+    elif instance.status != instance._orig_status:
+        # We currently don't support modifying either termination of an existing Cable. (This
+        # may change in the future.) However, we do need to capture status changes and update
+        # any CablePaths accordingly.
+        if instance.status != LinkStatusChoices.STATUS_CONNECTED:
+            CablePath.objects.filter(_nodes__contains=instance).update(is_active=False)
+        else:
+            rebuild_paths([instance])
 
 
 # @receiver(post_save, sender=CableTermination)

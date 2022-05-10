@@ -385,7 +385,6 @@ class CablePathTestCase(TestCase):
         )
         self.assertPathExists(
             (interface2, cable2, frontport1_2, rearport1, cable3, rearport2, frontport2_2),
-            is_active=False,
             is_complete=False
         )
         self.assertEqual(CablePath.objects.count(), 2)
@@ -427,8 +426,8 @@ class CablePathTestCase(TestCase):
         cable3.delete()
 
         # Check for four partial paths; one from each interface
-        self.assertEqual(CablePath.objects.filter(destination_id__isnull=True).count(), 4)
-        self.assertEqual(CablePath.objects.filter(destination_id__isnull=False).count(), 0)
+        self.assertEqual(CablePath.objects.filter(is_complete=False).count(), 4)
+        self.assertEqual(CablePath.objects.filter(is_complete=True).count(), 0)
         interface1.refresh_from_db()
         interface2.refresh_from_db()
         interface3.refresh_from_db()
@@ -1116,8 +1115,8 @@ class CablePathTestCase(TestCase):
         cable4.delete()
 
         # Check for four partial paths; one from each interface
-        self.assertEqual(CablePath.objects.filter(destination_id__isnull=True).count(), 4)
-        self.assertEqual(CablePath.objects.filter(destination_id__isnull=False).count(), 0)
+        self.assertEqual(CablePath.objects.filter(is_complete=False).count(), 4)
+        self.assertEqual(CablePath.objects.filter(is_complete=True).count(), 0)
 
     def test_213_multiple_circuits_to_interface(self):
         """
