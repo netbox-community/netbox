@@ -85,23 +85,20 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
         term for term in instance.terminations if not term.pk
     ])
 
-    # Split terminations into A/B sets
-    _terms = defaultdict(list)
-    for term in instance.terminations:
-        _terms[term.cable_end].append(term)
-
+    # Split terminations into A/B sets and save link assignments
     # TODO: Update link peers
-    # Set cable on terminating endpoints
-    for term in instance.terminations:
-        if term.termination.cable != instance:
-            term.termination.cable = instance
-            term.termination.save()
+    _terms = defaultdict(list)
+    for t in instance.terminations:
+        if t.termination.cable != instance:
+            t.termination.cable = instance
+            t.termination.save()
+        _terms[t.cable_end].append(t.termination)
 
     # Create/update cable paths
     if created:
         for terms in _terms.values():
             # Examine type of first termination to determine object type (all must be the same)
-            if isinstance(terms[0].termination, PathEndpoint):
+            if isinstance(terms[0], PathEndpoint):
                 create_cablepath(terms)
             # else:
             #     rebuild_paths(terms)
