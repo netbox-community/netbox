@@ -718,7 +718,7 @@ class ModuleForm(NetBoxModelForm):
                     raise forms.ValidationError(
                         f"Cannot adopt {template.component_model.__name__} '{resolved_name}' as it already belongs to a module"
                     )
-                
+
                 # If we are not adopting components we error if the component exists
                 if not adopt_components and resolved_name in installed_components:
                     raise forms.ValidationError(
