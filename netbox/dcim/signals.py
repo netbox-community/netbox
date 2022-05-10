@@ -126,34 +126,18 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
 
 
 @receiver(post_delete, sender=Cable)
+def retrace_cable_paths(instance, **kwargs):
+    """
+    When a Cable is deleted, check for and update its connected endpoints
+    """
+    for cablepath in CablePath.objects.filter(_nodes__contains=instance):
+        cablepath.retrace()
+
+
+@receiver(post_delete, sender=CableTermination)
 def nullify_connected_endpoints(instance, **kwargs):
     """
-    When a Cable is deleted, check for and update its two connected endpoints
+    Disassociate the Cable from the termination object.
     """
-    logger = logging.getLogger('netbox.dcim.cable')
-
-    # # Disassociate the Cable from its termination points
-    # if instance.termination_a:
-    #     logger.debug(f"Nullifying termination A for cable {instance}")
-    #     model = instance.termination_a_type.model_class()
-    #     model.objects.filter(pk__in=instance.termination_a_ids).update(_link_peer_type=None, _link_peer_id=None)
-    # if instance.termination_b:
-    #     logger.debug(f"Nullifying termination B for cable {instance}")
-    #     model = instance.termination_b_type.model_class()
-    #     model.objects.filter(pk__in=instance.termination_b_ids).update(_link_peer_type=None, _link_peer_id=None)
-
-    # Delete and retrace any dependent cable paths
-    for cablepath in CablePath.objects.filter(_nodes__contains=instance):
-        cablepath.delete()
-        # TODO: Create new traces
-        # cp = CablePath.from_origin(cablepath.origin)
-        # if cp:
-        #     CablePath.objects.filter(pk=cablepath.pk).update(
-        #         _nodes=cp._nodes,
-        #         destination_type=ContentType.objects.get_for_model(cp.destination) if cp.destination else None,
-        #         destination_id=cp.destination.pk if cp.destination else None,
-        #         is_active=cp.is_active,
-        #         is_split=cp.is_split
-        #     )
-        # else:
-        #     cablepath.delete()
+    model = instance.termination_type.model_class()
+    model.objects.filter(pk=instance.termination_id).update(_link_peer_type=None, _link_peer_id=None)

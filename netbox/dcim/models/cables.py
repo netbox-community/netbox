@@ -356,8 +356,11 @@ class CablePath(models.Model):
             # Step 2: Determine the attached link (Cable or WirelessLink), if any
             link = terminations[0].link
             assert all(t.link is link for t in terminations[1:])
-            if link is None:
-                # No attached link; abort
+            if link is None and len(path) == 1:
+                # If this is the start of the path and no link exists, return None
+                return None
+            elif link is None:
+                # Otherwise, halt the trace if no link exists
                 break
             assert type(link) in (Cable, WirelessLink)
 
@@ -462,6 +465,22 @@ class CablePath(models.Model):
             is_active=is_active,
             is_split=is_split
         )
+
+    def retrace(self):
+        """
+        Retrace the path from the currently-defined originating termination(s)
+        """
+        _new = self.from_origin([
+            path_node_to_object(node) for node in self.path[0]
+        ])
+        if _new:
+            self.path = _new.path
+            self.is_complete = _new.is_complete
+            self.is_active = _new.is_active
+            self.is_split = _new.is_split
+            self.save()
+        else:
+            self.delete()
 
     def get_path(self):
         """
