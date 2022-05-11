@@ -2,7 +2,6 @@ import platform
 import sys
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db.models import F
 from django.http import HttpResponseServerError
@@ -11,9 +10,10 @@ from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
 from django.urls import reverse
 from django.views.decorators.csrf import requires_csrf_token
-from django.views.defaults import ERROR_500_TEMPLATE_NAME
+from django.views.defaults import ERROR_500_TEMPLATE_NAME, page_not_found
 from django.views.generic import View
 from packaging import version
+from sentry_sdk import capture_message
 
 from circuits.models import Circuit, Provider
 from dcim.models import (
@@ -190,11 +190,19 @@ class StaticMediaFailureView(View):
     """
     Display a user-friendly error message with troubleshooting tips when a static media file fails to load.
     """
-
     def get(self, request):
         return render(request, 'media_failure.html', {
             'filename': request.GET.get('filename')
         })
+
+
+def handler_404(request, exception):
+    """
+    Wrap Django's default 404 handler to enable Sentry reporting.
+    """
+    capture_message("Page not found", level="error")
+
+    return page_not_found(request, exception)
 
 
 @requires_csrf_token

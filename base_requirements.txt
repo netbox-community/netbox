@@ -102,6 +102,10 @@ psycopg2-binary
 # https://github.com/yaml/pyyaml
 PyYAML
 
+# Sentry SDK
+# https://github.com/getsentry/sentry-python
+sentry-sdk
+
 # Social authentication framework
 # https://github.com/python-social-auth/social-core
 social-auth-core

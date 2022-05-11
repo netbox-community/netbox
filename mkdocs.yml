@@ -123,6 +123,7 @@ nav:
             - Microsoft Azure AD: 'administration/authentication/microsoft-azure-ad.md'
             - Okta: 'administration/authentication/okta.md'
         - Permissions: 'administration/permissions.md'
+        - Error Reporting: 'administration/error-reporting.md'
         - Housekeeping: 'administration/housekeeping.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
