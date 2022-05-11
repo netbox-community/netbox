@@ -718,7 +718,7 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
         )
 
     def filter_virtual_machine(self, queryset, name, value):
-        virtual_machines = VirtualMachine.objects.filter(**{'f{name}__in': value})
+        virtual_machines = VirtualMachine.objects.filter(**{f'{name}__in': value})
         if not virtual_machines.exists():
             return queryset.none()
         interface_ids = []
