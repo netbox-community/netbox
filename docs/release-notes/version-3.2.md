@@ -11,6 +11,7 @@
 * [#9278](https://github.com/netbox-community/netbox/issues/9278) - Linkify device types count under manufacturers list
 * [#9280](https://github.com/netbox-community/netbox/issues/9280) - Allow adopting existing components when installing a module
 * [#9314](https://github.com/netbox-community/netbox/issues/9314) - Add device and VM filters for FHRP group assignments
+* [#9340](https://github.com/netbox-community/netbox/issues/9340) - Introduce support for error reporting via Sentry
 
 ### Bug Fixes
 

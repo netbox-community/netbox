@@ -8,9 +8,11 @@ import sys
 import warnings
 from urllib.parse import urlsplit
 
+import sentry_sdk
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from netbox.config import PARAMS
 
@@ -113,6 +115,9 @@ REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, 'REMOTE_AUTH_GROUP_SEPARATO
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
+SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', None)
+SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
+SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
@@ -426,6 +431,26 @@ EXEMPT_PATHS = (
     f'/{BASE_PATH}oauth/',
     f'/{BASE_PATH}metrics',
 )
+
+
+#
+# Sentry
+#
+
+if SENTRY_ENABLED:
+    if not SENTRY_DSN:
+        raise ImproperlyConfigured("SENTRY_ENABLED is True but SENTRY_DSN has not been defined.")
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        release=VERSION,
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=1.0,
+        send_default_pii=True,
+        http_proxy=HTTP_PROXIES.get('http') if HTTP_PROXIES else None,
+        https_proxy=HTTP_PROXIES.get('https') if HTTP_PROXIES else None
+    )
+    for k, v in SENTRY_TAGS.items():
+        sentry_sdk.set_tag(k, v)
 
 
 #
