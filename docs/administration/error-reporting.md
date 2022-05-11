@@ -25,3 +25,5 @@ SENTRY_TAGS = {
 ```
 
 Once the configuration has been saved, restart the NetBox service.
+
+To test Sentry operation, try generating a 404 (page not found) error by navigating to an invalid URL, such as `https://netbox/404-error-testing`. After receiving a 404 response from the NetBox server, you should see the issue appear shortly in Sentry.
