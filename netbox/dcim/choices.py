@@ -575,6 +575,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEUTRIK_POWERCON_32A = 'neutrik-powercon-32a'
     TYPE_NEUTRIK_POWERCON_TRUE1 = 'neutrik-powercon-true1'
     TYPE_NEUTRIK_POWERCON_TRUE1_TOP = 'neutrik-powercon-true1-top'
+    TYPE_UBIQUITI_SMARTPOWER = 'ubiquiti-smartpower'
     # Other
     TYPE_HARDWIRED = 'hardwired'
 
@@ -683,6 +684,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEUTRIK_POWERCON_32A, 'Neutrik powerCON (32A)'),
             (TYPE_NEUTRIK_POWERCON_TRUE1, 'Neutrik powerCON TRUE1'),
             (TYPE_NEUTRIK_POWERCON_TRUE1_TOP, 'Neutrik powerCON TRUE1 TOP'),
+            (TYPE_UBIQUITI_SMARTPOWER, 'Ubiquiti SmartPower'),
         )),
         ('Other', (
             (TYPE_HARDWIRED, 'Hardwired'),
