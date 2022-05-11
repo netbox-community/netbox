@@ -585,7 +585,7 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'role', 'tenant',
+            'vrf', 'tenant',
         )
 
     def get_extra_context(self, request, instance):
