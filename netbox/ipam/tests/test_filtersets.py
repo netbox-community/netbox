@@ -1026,7 +1026,6 @@ class FHRPGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_device(self):
         device = Device.objects.first()
-
         params = {'device': [device.name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'device_id': [device.pk]}
