@@ -315,7 +315,16 @@ class ModuleTypeSerializer(NetBoxModelSerializer):
 
 class ConsolePortTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleporttemplate-detail')
-    device_type = NestedDeviceTypeSerializer()
+    device_type = NestedDeviceTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = NestedModuleTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
     type = ChoiceField(
         choices=ConsolePortTypeChoices,
         allow_blank=True,
@@ -325,13 +334,23 @@ class ConsolePortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'description', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'description', 'created',
+            'last_updated',
         ]
 
 
 class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleserverporttemplate-detail')
-    device_type = NestedDeviceTypeSerializer()
+    device_type = NestedDeviceTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = NestedModuleTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
     type = ChoiceField(
         choices=ConsolePortTypeChoices,
         allow_blank=True,
@@ -341,13 +360,23 @@ class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'description', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'description', 'created',
+            'last_updated',
         ]
 
 
 class PowerPortTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerporttemplate-detail')
-    device_type = NestedDeviceTypeSerializer()
+    device_type = NestedDeviceTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = NestedModuleTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
     type = ChoiceField(
         choices=PowerPortTypeChoices,
         allow_blank=True,
@@ -357,14 +386,23 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw',
-            'description', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'maximum_draw',
+            'allocated_draw', 'description', 'created', 'last_updated',
         ]
 
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:poweroutlettemplate-detail')
-    device_type = NestedDeviceTypeSerializer()
+    device_type = NestedDeviceTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = NestedModuleTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
     type = ChoiceField(
         choices=PowerOutletTypeChoices,
         allow_blank=True,
@@ -383,48 +421,75 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg',
+            'description', 'created', 'last_updated',
         ]
 
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interfacetemplate-detail')
-    device_type = NestedDeviceTypeSerializer()
+    device_type = NestedDeviceTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = NestedModuleTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
     type = ChoiceField(choices=InterfaceTypeChoices)
 
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'mgmt_only', 'description', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description',
+            'created', 'last_updated',
         ]
 
 
 class RearPortTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearporttemplate-detail')
-    device_type = NestedDeviceTypeSerializer()
+    device_type = NestedDeviceTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = NestedModuleTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
     type = ChoiceField(choices=PortTypeChoices)
 
     class Meta:
         model = RearPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'color', 'positions', 'description',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions',
+            'description', 'created', 'last_updated',
         ]
 
 
 class FrontPortTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:frontporttemplate-detail')
-    device_type = NestedDeviceTypeSerializer()
+    device_type = NestedDeviceTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = NestedModuleTypeSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
     type = ChoiceField(choices=PortTypeChoices)
     rear_port = NestedRearPortTemplateSerializer()
 
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
-            'description', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port',
+            'rear_port_position', 'description', 'created', 'last_updated',
         ]
 
 

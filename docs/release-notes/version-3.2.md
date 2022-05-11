@@ -17,6 +17,7 @@
 * [#9306](https://github.com/netbox-community/netbox/issues/9306) - Include VC master interfaces when selecting a LAG/bridge for a VC member interface
 * [#9311](https://github.com/netbox-community/netbox/issues/9311) - Permit creating contact assignment without a priority via the REST API
 * [#9313](https://github.com/netbox-community/netbox/issues/9313) - Remove HTML code from CSV output of many-to-many relationships
+* [#9330](https://github.com/netbox-community/netbox/issues/9330) - Add missing `module_type` field to REST API serializers for modular device component templates
 
 ---
 
