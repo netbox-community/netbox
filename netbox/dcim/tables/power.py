@@ -26,7 +26,7 @@ class PowerPanelTable(NetBoxTable):
         url_params={'power_panel_id': 'pk'},
         verbose_name='Feeds'
     )
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(

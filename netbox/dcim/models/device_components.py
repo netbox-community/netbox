@@ -543,7 +543,8 @@ class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpo
     )
     speed = models.PositiveIntegerField(
         blank=True,
-        null=True
+        null=True,
+        verbose_name='Speed (Kbps)'
     )
     duplex = models.CharField(
         max_length=50,

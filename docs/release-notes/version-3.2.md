@@ -2,6 +2,25 @@
 
 ## v3.2.3 (FUTURE)
 
+### Enhancements
+
+* [#8894](https://github.com/netbox-community/netbox/issues/8894) - Include full names when listing users
+* [#8998](https://github.com/netbox-community/netbox/issues/8998) - Enable filtering racks & reservations by site group
+* [#9122](https://github.com/netbox-community/netbox/issues/9122) - Introduce `clearcache` management command & clear cache during upgrade
+* [#9260](https://github.com/netbox-community/netbox/issues/9260) - Apply user preferences to tables under object detail views
+* [#9278](https://github.com/netbox-community/netbox/issues/9278) - Linkify device types count under manufacturers list
+* [#9280](https://github.com/netbox-community/netbox/issues/9280) - Allow adopting existing components when installing a module
+* [#9314](https://github.com/netbox-community/netbox/issues/9314) - Add device and VM filters for FHRP group assignments
+
+### Bug Fixes
+
+* [#9190](https://github.com/netbox-community/netbox/issues/9190) - Prevent exception when attempting to instantiate module components which already exist on the parent device
+* [#9267](https://github.com/netbox-community/netbox/issues/9267) - Remove invalid entry in IP address role choices
+* [#9306](https://github.com/netbox-community/netbox/issues/9306) - Include VC master interfaces when selecting a LAG/bridge for a VC member interface
+* [#9311](https://github.com/netbox-community/netbox/issues/9311) - Permit creating contact assignment without a priority via the REST API
+* [#9313](https://github.com/netbox-community/netbox/issues/9313) - Remove HTML code from CSV output of many-to-many relationships
+* [#9330](https://github.com/netbox-community/netbox/issues/9330) - Add missing `module_type` field to REST API serializers for modular device component templates
+
 ---
 
 ## v3.2.2 (2022-04-28)

@@ -121,12 +121,12 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
 
     def resolve_name(self, module):
         if module:
-            return self.name.replace('{module}', module.module_bay.position)
+            return self.name.replace(MODULE_TOKEN, module.module_bay.position)
         return self.name
 
     def resolve_label(self, module):
         if module:
-            return self.label.replace('{module}', module.module_bay.position)
+            return self.label.replace(MODULE_TOKEN, module.module_bay.position)
         return self.label
 
 

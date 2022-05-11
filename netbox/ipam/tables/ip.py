@@ -118,7 +118,7 @@ class ASNTable(NetBoxTable):
         url_params={'asn_id': 'pk'},
         verbose_name='Provider Count'
     )
-    sites = tables.ManyToManyColumn(
+    sites = columns.ManyToManyColumn(
         linkify_item=True,
         verbose_name='Sites'
     )

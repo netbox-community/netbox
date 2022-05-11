@@ -161,7 +161,7 @@ class RIRView(generic.ObjectView):
         aggregates = Aggregate.objects.restrict(request.user, 'view').filter(rir=instance).annotate(
             child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
         )
-        aggregates_table = tables.AggregateTable(aggregates, exclude=('rir', 'utilization'))
+        aggregates_table = tables.AggregateTable(aggregates, user=request.user, exclude=('rir', 'utilization'))
         aggregates_table.configure(request)
 
         return {
@@ -221,12 +221,12 @@ class ASNView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         # Gather assigned Sites
         sites = instance.sites.restrict(request.user, 'view')
-        sites_table = SiteTable(sites)
+        sites_table = SiteTable(sites, user=request.user)
         sites_table.configure(request)
 
         # Gather assigned Providers
         providers = instance.providers.restrict(request.user, 'view')
-        providers_table = ProviderTable(providers)
+        providers_table = ProviderTable(providers, user=request.user)
         providers_table.configure(request)
 
         return {
@@ -366,7 +366,7 @@ class RoleView(generic.ObjectView):
             role=instance
         )
 
-        prefixes_table = tables.PrefixTable(prefixes, exclude=('role', 'utilization'))
+        prefixes_table = tables.PrefixTable(prefixes, user=request.user, exclude=('role', 'utilization'))
         prefixes_table.configure(request)
 
         return {
@@ -805,7 +805,7 @@ class VLANGroupView(generic.ObjectView):
         vlans_count = vlans.count()
         vlans = add_available_vlans(vlans, vlan_group=instance)
 
-        vlans_table = tables.VLANTable(vlans, exclude=('group',))
+        vlans_table = tables.VLANTable(vlans, user=request.user, exclude=('group',))
         if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
             vlans_table.columns.show('pk')
         vlans_table.configure(request)

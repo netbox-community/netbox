@@ -523,6 +523,9 @@ class ConsolePortTemplateTest(APIViewTestCases.APIViewTestCase):
         devicetype = DeviceType.objects.create(
             manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
         )
+        moduletype = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Module Type 1'
+        )
 
         console_port_templates = (
             ConsolePortTemplate(device_type=devicetype, name='Console Port Template 1'),
@@ -541,8 +544,12 @@ class ConsolePortTemplateTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Console Port Template 5',
             },
             {
-                'device_type': devicetype.pk,
+                'module_type': moduletype.pk,
                 'name': 'Console Port Template 6',
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Console Port Template 7',
             },
         ]
 
@@ -559,6 +566,9 @@ class ConsoleServerPortTemplateTest(APIViewTestCases.APIViewTestCase):
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         devicetype = DeviceType.objects.create(
             manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        moduletype = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Module Type 1'
         )
 
         console_server_port_templates = (
@@ -578,8 +588,12 @@ class ConsoleServerPortTemplateTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Console Server Port Template 5',
             },
             {
-                'device_type': devicetype.pk,
+                'module_type': moduletype.pk,
                 'name': 'Console Server Port Template 6',
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Console Server Port Template 7',
             },
         ]
 
@@ -596,6 +610,9 @@ class PowerPortTemplateTest(APIViewTestCases.APIViewTestCase):
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         devicetype = DeviceType.objects.create(
             manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        moduletype = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Module Type 1'
         )
 
         power_port_templates = (
@@ -615,8 +632,12 @@ class PowerPortTemplateTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Power Port Template 5',
             },
             {
-                'device_type': devicetype.pk,
+                'module_type': moduletype.pk,
                 'name': 'Power Port Template 6',
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Power Port Template 7',
             },
         ]
 
@@ -633,6 +654,9 @@ class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         devicetype = DeviceType.objects.create(
             manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        moduletype = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Module Type 1'
         )
 
         power_port_templates = (
@@ -664,6 +688,14 @@ class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Power Outlet Template 6',
                 'power_port': None,
             },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Power Outlet Template 7',
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Power Outlet Template 8',
+            },
         ]
 
 
@@ -679,6 +711,9 @@ class InterfaceTemplateTest(APIViewTestCases.APIViewTestCase):
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         devicetype = DeviceType.objects.create(
             manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        moduletype = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Module Type 1'
         )
 
         interface_templates = (
@@ -700,8 +735,13 @@ class InterfaceTemplateTest(APIViewTestCases.APIViewTestCase):
                 'type': '1000base-t',
             },
             {
-                'device_type': devicetype.pk,
+                'module_type': moduletype.pk,
                 'name': 'Interface Template 6',
+                'type': '1000base-t',
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Interface Template 7',
                 'type': '1000base-t',
             },
         ]
@@ -720,14 +760,19 @@ class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
         devicetype = DeviceType.objects.create(
             manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
         )
+        moduletype = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Module Type 1'
+        )
 
         rear_port_templates = (
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 1', type=PortTypeChoices.TYPE_8P8C),
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 2', type=PortTypeChoices.TYPE_8P8C),
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 3', type=PortTypeChoices.TYPE_8P8C),
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 4', type=PortTypeChoices.TYPE_8P8C),
-            RearPortTemplate(device_type=devicetype, name='Rear Port Template 5', type=PortTypeChoices.TYPE_8P8C),
-            RearPortTemplate(device_type=devicetype, name='Rear Port Template 6', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(module_type=moduletype, name='Rear Port Template 5', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(module_type=moduletype, name='Rear Port Template 6', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(module_type=moduletype, name='Rear Port Template 7', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(module_type=moduletype, name='Rear Port Template 8', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPortTemplate.objects.bulk_create(rear_port_templates)
 
@@ -745,15 +790,28 @@ class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
                 rear_port=rear_port_templates[1]
             ),
             FrontPortTemplate(
-                device_type=devicetype,
-                name='Front Port Template 3',
+                module_type=moduletype,
+                name='Front Port Template 5',
                 type=PortTypeChoices.TYPE_8P8C,
-                rear_port=rear_port_templates[2]
+                rear_port=rear_port_templates[4]
+            ),
+            FrontPortTemplate(
+                module_type=moduletype,
+                name='Front Port Template 6',
+                type=PortTypeChoices.TYPE_8P8C,
+                rear_port=rear_port_templates[5]
             ),
         )
         FrontPortTemplate.objects.bulk_create(front_port_templates)
 
         cls.create_data = [
+            {
+                'device_type': devicetype.pk,
+                'name': 'Front Port Template 3',
+                'type': PortTypeChoices.TYPE_8P8C,
+                'rear_port': rear_port_templates[2].pk,
+                'rear_port_position': 1,
+            },
             {
                 'device_type': devicetype.pk,
                 'name': 'Front Port Template 4',
@@ -762,17 +820,17 @@ class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
                 'rear_port_position': 1,
             },
             {
-                'device_type': devicetype.pk,
-                'name': 'Front Port Template 5',
+                'module_type': moduletype.pk,
+                'name': 'Front Port Template 7',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_port_templates[4].pk,
+                'rear_port': rear_port_templates[6].pk,
                 'rear_port_position': 1,
             },
             {
-                'device_type': devicetype.pk,
-                'name': 'Front Port Template 6',
+                'module_type': moduletype.pk,
+                'name': 'Front Port Template 8',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_port_templates[5].pk,
+                'rear_port': rear_port_templates[7].pk,
                 'rear_port_position': 1,
             },
         ]
@@ -790,6 +848,9 @@ class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         devicetype = DeviceType.objects.create(
             manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        moduletype = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Module Type 1'
         )
 
         rear_port_templates = (
@@ -811,8 +872,13 @@ class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
                 'type': PortTypeChoices.TYPE_8P8C,
             },
             {
-                'device_type': devicetype.pk,
+                'module_type': moduletype.pk,
                 'name': 'Rear Port Template 6',
+                'type': PortTypeChoices.TYPE_8P8C,
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Rear Port Template 7',
                 'type': PortTypeChoices.TYPE_8P8C,
             },
         ]

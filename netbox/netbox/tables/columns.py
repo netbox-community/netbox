@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
-from django.urls import NoReverseMatch, reverse
+from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
 from django_tables2.columns import library
@@ -27,6 +27,7 @@ __all__ = (
     'CustomLinkColumn',
     'LinkedCountColumn',
     'MarkdownColumn',
+    'ManyToManyColumn',
     'MPTTColumn',
     'TagColumn',
     'TemplateColumn',
@@ -35,6 +36,10 @@ __all__ = (
 )
 
 
+#
+# Django-tables2 overrides
+#
+
 @library.register
 class DateColumn(tables.DateColumn):
     """
@@ -42,7 +47,6 @@ class DateColumn(tables.DateColumn):
     tables and null when exporting data. It is registered in the tables library to use this class instead of the
     default, making this behavior consistent in all fields of type DateField.
     """
-
     def value(self, value):
         return value
 
@@ -59,7 +63,6 @@ class DateTimeColumn(tables.DateTimeColumn):
     tables and null when exporting data. It is registered in the tables library to use this class instead of the
     default, making this behavior consistent in all fields of type DateTimeField.
     """
-
     def value(self, value):
         if value:
             return date_format(value, format="SHORT_DATETIME_FORMAT")
@@ -70,6 +73,39 @@ class DateTimeColumn(tables.DateTimeColumn):
         if isinstance(field, DateTimeField):
             return cls(**kwargs)
 
+
+class ManyToManyColumn(tables.ManyToManyColumn):
+    """
+    Overrides django-tables2's stock ManyToManyColumn to ensure that value() returns only plaintext data.
+    """
+    def value(self, value):
+        items = [self.transform(item) for item in self.filter(value)]
+        return self.separator.join(items)
+
+
+class TemplateColumn(tables.TemplateColumn):
+    """
+    Overrides django-tables2's stock TemplateColumn class to render a placeholder symbol if the returned value
+    is an empty string.
+    """
+    PLACEHOLDER = mark_safe('&mdash;')
+
+    def render(self, *args, **kwargs):
+        ret = super().render(*args, **kwargs)
+        if not ret.strip():
+            return self.PLACEHOLDER
+        return ret
+
+    def value(self, **kwargs):
+        ret = super().value(**kwargs)
+        if ret == self.PLACEHOLDER:
+            return ''
+        return ret
+
+
+#
+# Custom columns
+#
 
 class ToggleColumn(tables.CheckBoxColumn):
     """
@@ -110,26 +146,6 @@ class BooleanColumn(tables.Column):
 
     def value(self, value):
         return str(value)
-
-
-class TemplateColumn(tables.TemplateColumn):
-    """
-    Overrides django-tables2's stock TemplateColumn class to render a placeholder symbol if the returned value
-    is an empty string.
-    """
-    PLACEHOLDER = mark_safe('&mdash;')
-
-    def render(self, *args, **kwargs):
-        ret = super().render(*args, **kwargs)
-        if not ret.strip():
-            return self.PLACEHOLDER
-        return ret
-
-    def value(self, **kwargs):
-        ret = super().value(**kwargs)
-        if ret == self.PLACEHOLDER:
-            return ''
-        return ret
 
 
 @dataclass

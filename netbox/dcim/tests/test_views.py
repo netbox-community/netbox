@@ -1869,6 +1869,44 @@ class ModuleTestCase(
         self.assertHttpStatus(self.client.post(**request), 302)
         self.assertEqual(Interface.objects.filter(device=device).count(), 5)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_module_component_adoption(self):
+        self.add_permissions('dcim.add_module')
+
+        interface_name = "Interface-1"
+
+        # Add an interface to the ModuleType
+        module_type = ModuleType.objects.first()
+        InterfaceTemplate(module_type=module_type, name=interface_name).save()
+
+        form_data = self.form_data.copy()
+        device = Device.objects.get(pk=form_data['device'])
+
+        # Create an interface to be adopted
+        interface = Interface(device=device, name=interface_name, type=InterfaceTypeChoices.TYPE_10GE_FIXED)
+        interface.save()
+
+        # Ensure that interface is created with no module
+        self.assertIsNone(interface.module)
+
+        # Create a module with adopted components
+        form_data['module_bay'] = ModuleBay.objects.filter(device=device).first()
+        form_data['module_type'] = module_type
+        form_data['replicate_components'] = False
+        form_data['adopt_components'] = True
+        request = {
+            'path': self._get_url('add'),
+            'data': post_data(form_data),
+        }
+
+        self.assertHttpStatus(self.client.post(**request), 302)
+
+        # Re-retrieve interface to get new module id
+        interface.refresh_from_db()
+
+        # Check that the Interface now has a module
+        self.assertIsNotNone(interface.module)
+
 
 class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ConsolePort

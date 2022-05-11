@@ -26,7 +26,7 @@ class RegionTable(NetBoxTable):
         url_params={'region_id': 'pk'},
         verbose_name='Sites'
     )
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(
@@ -55,7 +55,7 @@ class SiteGroupTable(NetBoxTable):
         url_params={'group_id': 'pk'},
         verbose_name='Sites'
     )
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(
@@ -86,7 +86,7 @@ class SiteTable(NetBoxTable):
     group = tables.Column(
         linkify=True
     )
-    asns = tables.ManyToManyColumn(
+    asns = columns.ManyToManyColumn(
         linkify_item=True,
         verbose_name='ASNs'
     )
@@ -98,7 +98,7 @@ class SiteTable(NetBoxTable):
     )
     tenant = TenantColumn()
     comments = columns.MarkdownColumn()
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(
@@ -137,7 +137,7 @@ class LocationTable(NetBoxTable):
         url_params={'location_id': 'pk'},
         verbose_name='Devices'
     )
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(

@@ -39,7 +39,7 @@ class ClusterTypeView(generic.ObjectView):
             device_count=count_related(Device, 'cluster'),
             vm_count=count_related(VirtualMachine, 'cluster')
         )
-        clusters_table = tables.ClusterTable(clusters, exclude=('type',))
+        clusters_table = tables.ClusterTable(clusters, user=request.user, exclude=('type',))
         clusters_table.configure(request)
 
         return {
@@ -101,7 +101,7 @@ class ClusterGroupView(generic.ObjectView):
             device_count=count_related(Device, 'cluster'),
             vm_count=count_related(VirtualMachine, 'cluster')
         )
-        clusters_table = tables.ClusterTable(clusters, exclude=('group',))
+        clusters_table = tables.ClusterTable(clusters, user=request.user, exclude=('group',))
         clusters_table.configure(request)
 
         return {
