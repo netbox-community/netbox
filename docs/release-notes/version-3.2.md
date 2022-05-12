@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#8805](https://github.com/netbox-community/netbox/issues/8805) - Add "mixed" option for device airflow indication
 * [#8894](https://github.com/netbox-community/netbox/issues/8894) - Include full names when listing users
 * [#8998](https://github.com/netbox-community/netbox/issues/8998) - Enable filtering racks & reservations by site group
 * [#9122](https://github.com/netbox-community/netbox/issues/9122) - Introduce `clearcache` management command & clear cache during upgrade

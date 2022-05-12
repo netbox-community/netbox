@@ -159,6 +159,7 @@ class DeviceAirflowChoices(ChoiceSet):
     AIRFLOW_RIGHT_TO_LEFT = 'right-to-left'
     AIRFLOW_SIDE_TO_REAR = 'side-to-rear'
     AIRFLOW_PASSIVE = 'passive'
+    AIRFLOW_MIXED = 'mixed'
 
     CHOICES = (
         (AIRFLOW_FRONT_TO_REAR, 'Front to rear'),
@@ -167,6 +168,7 @@ class DeviceAirflowChoices(ChoiceSet):
         (AIRFLOW_RIGHT_TO_LEFT, 'Right to left'),
         (AIRFLOW_SIDE_TO_REAR, 'Side to rear'),
         (AIRFLOW_PASSIVE, 'Passive'),
+        (AIRFLOW_MIXED, 'Mixed'),
     )
 
 
