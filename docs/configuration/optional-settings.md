@@ -404,42 +404,6 @@ The file path to the location where [custom scripts](../customization/custom-scr
 
 ---
 
-## SENTRY_DSN
-
-Default: None
-
-Defines a Sentry data source name (DSN) for automated error reporting. `SENTRY_ENABLED` must be True for this parameter to take effect. For example:
-
-```
-SENTRY_DSN = "https://examplePublicKey@o0.ingest.sentry.io/0"
-```
-
----
-
-## SENTRY_ENABLED
-
-Default: False
-
-Set to True to enable automatic error reporting via [Sentry](https://sentry.io/). Requires `SENTRY_DSN` to be defined.
-
----
-
-## SENTRY_TAGS
-
-An optional dictionary of tag names and values to apply to Sentry error reports. `SENTRY_ENABLED` must be True for this parameter to take effect. For example:
-
-```
-SENTRY_TAGS = {
-    "custom.foo": "123",
-    "custom.bar": "abc",
-}
-```
-
-!!! warning "Reserved tag prefixes"
-    Avoid using any tag names which begin with `netbox.`, as this prefix is reserved by the NetBox application.
-
----
-
 ## SESSION_COOKIE_NAME
 
 Default: `sessionid`

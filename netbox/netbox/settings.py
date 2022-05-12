@@ -72,6 +72,9 @@ DATABASE = getattr(configuration, 'DATABASE')
 REDIS = getattr(configuration, 'REDIS')
 SECRET_KEY = getattr(configuration, 'SECRET_KEY')
 
+# Calculate a unique deployment ID from the secret key
+DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
+
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
 AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [])
@@ -119,6 +122,8 @@ RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', DEFAULT_SENTRY_DSN)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
+SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
+SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
@@ -442,23 +447,27 @@ EXEMPT_PATHS = (
 if SENTRY_ENABLED:
     if not SENTRY_DSN:
         raise ImproperlyConfigured("SENTRY_ENABLED is True but SENTRY_DSN has not been defined.")
+    # If using the default DSN, force sampling rates
+    if SENTRY_DSN == DEFAULT_SENTRY_DSN:
+        SENTRY_SAMPLE_RATE = 1.0
+        SENTRY_TRACES_SAMPLE_RATE = 0
+    # Initialize the SDK
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         release=VERSION,
         integrations=[DjangoIntegration()],
-        traces_sample_rate=1.0,
+        sample_rate=SENTRY_SAMPLE_RATE,
+        traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
         send_default_pii=True,
         http_proxy=HTTP_PROXIES.get('http') if HTTP_PROXIES else None,
         https_proxy=HTTP_PROXIES.get('https') if HTTP_PROXIES else None
     )
+    # Assign any configured tags
     for k, v in SENTRY_TAGS.items():
         sentry_sdk.set_tag(k, v)
     # If using the default DSN, append a unique deployment ID tag for error correlation
     if SENTRY_DSN == DEFAULT_SENTRY_DSN:
-        sentry_sdk.set_tag(
-            'netbox.deployment_id',
-            hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
-        )
+        sentry_sdk.set_tag('netbox.deployment_id', DEPLOYMENT_ID)
 
 
 #

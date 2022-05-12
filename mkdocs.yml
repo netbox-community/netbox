@@ -73,6 +73,7 @@ nav:
         - Required Settings: 'configuration/required-settings.md'
         - Optional Settings: 'configuration/optional-settings.md'
         - Dynamic Settings: 'configuration/dynamic-settings.md'
+        - Error Reporting: 'configuration/error-reporting.md'
         - Remote Authentication: 'configuration/remote-authentication.md'
     - Core Functionality:
         - IP Address Management: 'core-functionality/ipam.md'
