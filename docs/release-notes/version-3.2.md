@@ -7,6 +7,7 @@
 * [#8894](https://github.com/netbox-community/netbox/issues/8894) - Include full names when listing users
 * [#8998](https://github.com/netbox-community/netbox/issues/8998) - Enable filtering racks & reservations by site group
 * [#9122](https://github.com/netbox-community/netbox/issues/9122) - Introduce `clearcache` management command & clear cache during upgrade
+* [#9221](https://github.com/netbox-community/netbox/issues/9221) - Add definition list support for Markdown
 * [#9260](https://github.com/netbox-community/netbox/issues/9260) - Apply user preferences to tables under object detail views
 * [#9278](https://github.com/netbox-community/netbox/issues/9278) - Linkify device types count under manufacturers list
 * [#9280](https://github.com/netbox-community/netbox/issues/9280) - Allow adopting existing components when installing a module
