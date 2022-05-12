@@ -96,7 +96,7 @@ class Cable(NetBoxModel):
     class Meta:
         ordering = ('pk',)
 
-    def __init__(self, *args, terminations=None, **kwargs):
+    def __init__(self, *args, a_terminations=None, b_terminations=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         # A copy of the PK to be used by __str__ in case the object is deleted
@@ -106,11 +106,17 @@ class Cable(NetBoxModel):
         self._orig_status = self.status
 
         # Assign associated CableTerminations (if any)
+        terminations = []
+        if a_terminations and type(a_terminations) is list:
+            terminations.extend([
+                CableTermination(cable=self, cable_end='A', termination=t) for t in a_terminations
+            ])
+        if b_terminations and type(b_terminations) is list:
+            terminations.extend([
+                CableTermination(cable=self, cable_end='B', termination=t) for t in b_terminations
+            ])
         if terminations:
-            assert type(terminations) is list
             assert self.pk is None
-            for t in terminations:
-                t.cable = self
             self.terminations = terminations
         else:
             self.terminations = []
