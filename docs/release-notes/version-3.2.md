@@ -12,6 +12,7 @@
 * [#9280](https://github.com/netbox-community/netbox/issues/9280) - Allow adopting existing components when installing a module
 * [#9314](https://github.com/netbox-community/netbox/issues/9314) - Add device and VM filters for FHRP group assignments
 * [#9340](https://github.com/netbox-community/netbox/issues/9340) - Introduce support for error reporting via Sentry
+* [#9343](https://github.com/netbox-community/netbox/issues/9343) - Add Ubiquiti SmartPower power outlet type
 
 ### Bug Fixes
 
