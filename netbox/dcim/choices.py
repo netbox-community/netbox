@@ -159,6 +159,7 @@ class DeviceAirflowChoices(ChoiceSet):
     AIRFLOW_RIGHT_TO_LEFT = 'right-to-left'
     AIRFLOW_SIDE_TO_REAR = 'side-to-rear'
     AIRFLOW_PASSIVE = 'passive'
+    AIRFLOW_MIXED = 'mixed'
 
     CHOICES = (
         (AIRFLOW_FRONT_TO_REAR, 'Front to rear'),
@@ -167,6 +168,7 @@ class DeviceAirflowChoices(ChoiceSet):
         (AIRFLOW_RIGHT_TO_LEFT, 'Right to left'),
         (AIRFLOW_SIDE_TO_REAR, 'Side to rear'),
         (AIRFLOW_PASSIVE, 'Passive'),
+        (AIRFLOW_MIXED, 'Mixed'),
     )
 
 
@@ -575,6 +577,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEUTRIK_POWERCON_32A = 'neutrik-powercon-32a'
     TYPE_NEUTRIK_POWERCON_TRUE1 = 'neutrik-powercon-true1'
     TYPE_NEUTRIK_POWERCON_TRUE1_TOP = 'neutrik-powercon-true1-top'
+    TYPE_UBIQUITI_SMARTPOWER = 'ubiquiti-smartpower'
     # Other
     TYPE_HARDWIRED = 'hardwired'
 
@@ -683,6 +686,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEUTRIK_POWERCON_32A, 'Neutrik powerCON (32A)'),
             (TYPE_NEUTRIK_POWERCON_TRUE1, 'Neutrik powerCON TRUE1'),
             (TYPE_NEUTRIK_POWERCON_TRUE1_TOP, 'Neutrik powerCON TRUE1 TOP'),
+            (TYPE_UBIQUITI_SMARTPOWER, 'Ubiquiti SmartPower'),
         )),
         ('Other', (
             (TYPE_HARDWIRED, 'Hardwired'),

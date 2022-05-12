@@ -69,7 +69,7 @@ class RackTable(NetBoxTable):
         orderable=False,
         verbose_name='Power'
     )
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(

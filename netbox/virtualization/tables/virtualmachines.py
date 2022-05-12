@@ -78,7 +78,7 @@ class VMInterfaceTable(BaseInterfaceTable):
     vrf = tables.Column(
         linkify=True
     )
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(

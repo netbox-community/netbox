@@ -633,12 +633,18 @@ class ModuleForm(NetBoxModelForm):
         help_text="Automatically populate components associated with this module type"
     )
 
+    adopt_components = forms.BooleanField(
+        required=False,
+        initial=False,
+        help_text="Adopt already existing components"
+    )
+
     fieldsets = (
         ('Module', (
             'device', 'module_bay', 'manufacturer', 'module_type', 'tags',
         )),
         ('Hardware', (
-            'serial', 'asset_tag', 'replicate_components',
+            'serial', 'asset_tag', 'replicate_components', 'adopt_components',
         )),
     )
 
@@ -646,7 +652,7 @@ class ModuleForm(NetBoxModelForm):
         model = Module
         fields = [
             'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag', 'tags',
-            'replicate_components', 'comments',
+            'replicate_components', 'adopt_components', 'comments',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -655,6 +661,8 @@ class ModuleForm(NetBoxModelForm):
         if self.instance.pk:
             self.fields['replicate_components'].initial = False
             self.fields['replicate_components'].disabled = True
+            self.fields['adopt_components'].initial = False
+            self.fields['adopt_components'].disabled = True
 
     def save(self, *args, **kwargs):
 
@@ -662,7 +670,61 @@ class ModuleForm(NetBoxModelForm):
         if self.instance.pk or not self.cleaned_data['replicate_components']:
             self.instance._disable_replication = True
 
+        if self.cleaned_data['adopt_components']:
+            self.instance._adopt_components = True
+
         return super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        replicate_components = self.cleaned_data.get("replicate_components")
+        adopt_components = self.cleaned_data.get("adopt_components")
+        device = self.cleaned_data['device']
+        module_type = self.cleaned_data['module_type']
+        module_bay = self.cleaned_data['module_bay']
+
+        # Bail out if we are not installing a new module or if we are not replicating components
+        if self.instance.pk or not replicate_components:
+            return
+
+        for templates, component_attribute in [
+                ("consoleporttemplates", "consoleports"),
+                ("consoleserverporttemplates", "consoleserverports"),
+                ("interfacetemplates", "interfaces"),
+                ("powerporttemplates", "powerports"),
+                ("poweroutlettemplates", "poweroutlets"),
+                ("rearporttemplates", "rearports"),
+                ("frontporttemplates", "frontports")
+        ]:
+            # Prefetch installed components
+            installed_components = {
+                component.name: component for component in getattr(device, component_attribute).all()
+            }
+
+            # Get the templates for the module type.
+            for template in getattr(module_type, templates).all():
+                # Installing modules with placeholders require that the bay has a position value
+                if MODULE_TOKEN in template.name and not module_bay.position:
+                    raise forms.ValidationError(
+                        "Cannot install module with placeholder values in a module bay with no position defined"
+                    )
+
+                resolved_name = template.name.replace(MODULE_TOKEN, module_bay.position)
+                existing_item = installed_components.get(resolved_name)
+
+                # It is not possible to adopt components already belonging to a module
+                if adopt_components and existing_item and existing_item.module:
+                    raise forms.ValidationError(
+                        f"Cannot adopt {template.component_model.__name__} '{resolved_name}' as it already belongs "
+                        f"to a module"
+                    )
+
+                # If we are not adopting components we error if the component exists
+                if not adopt_components and resolved_name in installed_components:
+                    raise forms.ValidationError(
+                        f"{template.component_model.__name__} - {resolved_name} already exists"
+                    )
 
 
 class CableForm(TenancyForm, NetBoxModelForm):
@@ -1283,6 +1345,16 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
             'rf_channel_frequency': "Populated by selected channel (if set)",
             'rf_channel_width': "Populated by selected channel (if set)",
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Restrict LAG/bridge interface assignment by device/VC
+        device_id = self.data['device'] if self.is_bound else self.initial.get('device')
+        device = Device.objects.filter(pk=device_id).first()
+        if device and device.virtual_chassis and device.virtual_chassis.master:
+            self.fields['lag'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
+            self.fields['bridge'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
 
 
 class FrontPortForm(NetBoxModelForm):

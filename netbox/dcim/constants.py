@@ -62,6 +62,8 @@ POWERFEED_MAX_UTILIZATION_DEFAULT = 80  # Percentage
 # Device components
 #
 
+MODULE_TOKEN = '{module}'
+
 MODULAR_COMPONENT_TEMPLATE_MODELS = Q(
     app_label='dcim',
     model__in=(

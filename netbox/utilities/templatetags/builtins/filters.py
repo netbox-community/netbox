@@ -150,15 +150,15 @@ def render_markdown(value):
     value = strip_tags(value)
 
     # Sanitize Markdown links
-    pattern = fr'\[([^\]]+)\]\((?!({schemes})).*:(.+)\)'
+    pattern = fr'\[([^\]]+)\]\(\s*(?!({schemes})).*:(.+)\)'
     value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
 
     # Sanitize Markdown reference links
-    pattern = fr'\[(.+)\]:\s*(?!({schemes}))\w*:(.+)'
+    pattern = fr'\[([^\]]+)\]:\s*(?!({schemes}))\w*:(.+)'
     value = re.sub(pattern, '[\\1]: \\3', value, flags=re.IGNORECASE)
 
     # Render Markdown
-    html = markdown(value, extensions=['fenced_code', 'tables', StrikethroughExtension()])
+    html = markdown(value, extensions=['def_list', 'fenced_code', 'tables', StrikethroughExtension()])
 
     # If the string is not empty wrap it in rendered-markdown to style tables
     if html:

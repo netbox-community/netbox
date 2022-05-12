@@ -166,7 +166,7 @@ class RegionView(generic.ObjectView):
         sites = Site.objects.restrict(request.user, 'view').filter(
             region=instance
         )
-        sites_table = tables.SiteTable(sites, exclude=('region',))
+        sites_table = tables.SiteTable(sites, user=request.user, exclude=('region',))
         sites_table.configure(request)
 
         return {
@@ -251,7 +251,7 @@ class SiteGroupView(generic.ObjectView):
         sites = Site.objects.restrict(request.user, 'view').filter(
             group=instance
         )
-        sites_table = tables.SiteTable(sites, exclude=('group',))
+        sites_table = tables.SiteTable(sites, user=request.user, exclude=('group',))
         sites_table.configure(request)
 
         return {
@@ -435,7 +435,7 @@ class LocationView(generic.ObjectView):
             'rack_count',
             cumulative=True
         ).filter(pk__in=location_ids).exclude(pk=instance.pk)
-        child_locations_table = tables.LocationTable(child_locations)
+        child_locations_table = tables.LocationTable(child_locations, user=request.user)
         child_locations_table.configure(request)
 
         nonracked_devices = Device.objects.filter(
@@ -514,7 +514,9 @@ class RackRoleView(generic.ObjectView):
             role=instance
         )
 
-        racks_table = tables.RackTable(racks, exclude=('role', 'get_utilization', 'get_power_utilization'))
+        racks_table = tables.RackTable(racks, user=request.user, exclude=(
+            'role', 'get_utilization', 'get_power_utilization',
+        ))
         racks_table.configure(request)
 
         return {
@@ -767,7 +769,7 @@ class ManufacturerView(generic.ObjectView):
             manufacturer=instance
         )
 
-        devicetypes_table = tables.DeviceTypeTable(device_types, exclude=('manufacturer',))
+        devicetypes_table = tables.DeviceTypeTable(device_types, user=request.user, exclude=('manufacturer',))
         devicetypes_table.configure(request)
 
         return {
@@ -1480,7 +1482,7 @@ class DeviceRoleView(generic.ObjectView):
         devices = Device.objects.restrict(request.user, 'view').filter(
             device_role=instance
         )
-        devices_table = tables.DeviceTable(devices, exclude=('device_role',))
+        devices_table = tables.DeviceTable(devices, user=request.user, exclude=('device_role',))
         devices_table.configure(request)
 
         return {
@@ -1544,7 +1546,7 @@ class PlatformView(generic.ObjectView):
         devices = Device.objects.restrict(request.user, 'view').filter(
             platform=instance
         )
-        devices_table = tables.DeviceTable(devices, exclude=('platform',))
+        devices_table = tables.DeviceTable(devices, user=request.user, exclude=('platform',))
         devices_table.configure(request)
 
         return {

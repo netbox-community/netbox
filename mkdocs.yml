@@ -73,6 +73,7 @@ nav:
         - Required Settings: 'configuration/required-settings.md'
         - Optional Settings: 'configuration/optional-settings.md'
         - Dynamic Settings: 'configuration/dynamic-settings.md'
+        - Error Reporting: 'configuration/error-reporting.md'
         - Remote Authentication: 'configuration/remote-authentication.md'
     - Core Functionality:
         - IP Address Management: 'core-functionality/ipam.md'
@@ -123,6 +124,7 @@ nav:
             - Microsoft Azure AD: 'administration/authentication/microsoft-azure-ad.md'
             - Okta: 'administration/authentication/okta.md'
         - Permissions: 'administration/permissions.md'
+        - Error Reporting: 'administration/error-reporting.md'
         - Housekeeping: 'administration/housekeeping.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'

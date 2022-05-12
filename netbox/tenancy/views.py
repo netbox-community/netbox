@@ -35,7 +35,7 @@ class TenantGroupView(generic.ObjectView):
         tenants = Tenant.objects.restrict(request.user, 'view').filter(
             group=instance
         )
-        tenants_table = tables.TenantTable(tenants, exclude=('group',))
+        tenants_table = tables.TenantTable(tenants, user=request.user, exclude=('group',))
         tenants_table.configure(request)
 
         return {
@@ -184,7 +184,7 @@ class ContactGroupView(generic.ObjectView):
         contacts = Contact.objects.restrict(request.user, 'view').filter(
             group=instance
         )
-        contacts_table = tables.ContactTable(contacts, exclude=('group',))
+        contacts_table = tables.ContactTable(contacts, user=request.user, exclude=('group',))
         contacts_table.configure(request)
 
         return {
@@ -250,7 +250,7 @@ class ContactRoleView(generic.ObjectView):
         contact_assignments = ContactAssignment.objects.restrict(request.user, 'view').filter(
             role=instance
         )
-        contacts_table = tables.ContactAssignmentTable(contact_assignments)
+        contacts_table = tables.ContactAssignmentTable(contact_assignments, user=request.user)
         contacts_table.columns.hide('role')
         contacts_table.configure(request)
 
@@ -307,7 +307,7 @@ class ContactView(generic.ObjectView):
         contact_assignments = ContactAssignment.objects.restrict(request.user, 'view').filter(
             contact=instance
         )
-        assignments_table = tables.ContactAssignmentTable(contact_assignments)
+        assignments_table = tables.ContactAssignmentTable(contact_assignments, user=request.user)
         assignments_table.columns.hide('contact')
         assignments_table.configure(request)
 

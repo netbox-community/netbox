@@ -38,7 +38,7 @@ class TenantTable(NetBoxTable):
         linkify=True
     )
     comments = columns.MarkdownColumn()
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(

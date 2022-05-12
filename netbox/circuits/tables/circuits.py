@@ -59,7 +59,7 @@ class CircuitTable(NetBoxTable):
     )
     commit_rate = CommitRateColumn()
     comments = columns.MarkdownColumn()
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(
