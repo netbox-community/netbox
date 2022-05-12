@@ -18,6 +18,7 @@
 
 * [#9190](https://github.com/netbox-community/netbox/issues/9190) - Prevent exception when attempting to instantiate module components which already exist on the parent device
 * [#9267](https://github.com/netbox-community/netbox/issues/9267) - Remove invalid entry in IP address role choices
+* [#9296](https://github.com/netbox-community/netbox/issues/9296) - Improve Markdown link sanitization
 * [#9306](https://github.com/netbox-community/netbox/issues/9306) - Include VC master interfaces when selecting a LAG/bridge for a VC member interface
 * [#9311](https://github.com/netbox-community/netbox/issues/9311) - Permit creating contact assignment without a priority via the REST API
 * [#9313](https://github.com/netbox-community/netbox/issues/9313) - Remove HTML code from CSV output of many-to-many relationships

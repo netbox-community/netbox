@@ -150,11 +150,11 @@ def render_markdown(value):
     value = strip_tags(value)
 
     # Sanitize Markdown links
-    pattern = fr'\[([^\]]+)\]\((?!({schemes})).*:(.+)\)'
+    pattern = fr'\[([^\]]+)\]\(\s*(?!({schemes})).*:(.+)\)'
     value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
 
     # Sanitize Markdown reference links
-    pattern = fr'\[(.+)\]:\s*(?!({schemes}))\w*:(.+)'
+    pattern = fr'\[([^\]]+)\]:\s*(?!({schemes}))\w*:(.+)'
     value = re.sub(pattern, '[\\1]: \\3', value, flags=re.IGNORECASE)
 
     # Render Markdown
