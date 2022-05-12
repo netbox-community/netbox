@@ -426,7 +426,7 @@ Set to True to enable automatic error reporting via [Sentry](https://sentry.io/)
 
 ## SENTRY_TAGS
 
-An optional dictionary of tags to apply to Sentry error reports. `SENTRY_ENABLED` must be True for this parameter to take effect. For example:
+An optional dictionary of tag names and values to apply to Sentry error reports. `SENTRY_ENABLED` must be True for this parameter to take effect. For example:
 
 ```
 SENTRY_TAGS = {
@@ -434,6 +434,9 @@ SENTRY_TAGS = {
     "custom.bar": "abc",
 }
 ```
+
+!!! warning "Reserved tag prefixes"
+    Avoid using any tag names which begin with `netbox.`, as this prefix is reserved by the NetBox application.
 
 ---
 

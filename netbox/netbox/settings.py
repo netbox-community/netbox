@@ -1,3 +1,4 @@
+import hashlib
 import importlib
 import logging
 import os
@@ -42,6 +43,7 @@ if sys.version_info < (3, 8):
         f"NetBox requires Python 3.8 or later. (Currently installed: Python {platform.python_version()})"
     )
 
+DEFAULT_SENTRY_DSN = 'https://198cf560b29d4054ab8e583a1d10ea58@o1242133.ingest.sentry.io/6396485'
 
 #
 # Configuration import
@@ -115,7 +117,7 @@ REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, 'REMOTE_AUTH_GROUP_SEPARATO
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
-SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', None)
+SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', DEFAULT_SENTRY_DSN)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
@@ -451,6 +453,12 @@ if SENTRY_ENABLED:
     )
     for k, v in SENTRY_TAGS.items():
         sentry_sdk.set_tag(k, v)
+    # If using the default DSN, append a unique deployment ID tag for error correlation
+    if SENTRY_DSN == DEFAULT_SENTRY_DSN:
+        sentry_sdk.set_tag(
+            'netbox.deployment_id',
+            hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
+        )
 
 
 #
