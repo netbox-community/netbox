@@ -55,9 +55,9 @@ class Mixins:
             self.assertHttpStatus(response, status.HTTP_200_OK)
             self.assertEqual(len(response.data), 1)
             segment1 = response.data[0]
-            self.assertEqual(segment1[0]['name'], obj.name)
+            self.assertEqual(segment1[0][0]['name'], obj.name)
             self.assertEqual(segment1[1]['label'], cable.label)
-            self.assertEqual(segment1[2]['name'], peer_obj.name)
+            self.assertEqual(segment1[2][0]['name'], peer_obj.name)
 
 
 class RegionTest(APIViewTestCases.APIViewTestCase):

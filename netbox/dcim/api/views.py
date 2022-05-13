@@ -68,15 +68,15 @@ class PathEndpointMixin(object):
                 break
 
             # Serialize each object
-            serializer_a = get_serializer_for_model(near_end, prefix='Nested')
-            x = serializer_a(near_end, context={'request': request}).data
+            serializer_a = get_serializer_for_model(near_end[0], prefix='Nested')
+            x = serializer_a(near_end, many=True, context={'request': request}).data
             if cable is not None:
-                y = serializers.TracedCableSerializer(cable, context={'request': request}).data
+                y = serializers.TracedCableSerializer(cable[0], context={'request': request}).data
             else:
                 y = None
             if far_end is not None:
-                serializer_b = get_serializer_for_model(far_end, prefix='Nested')
-                z = serializer_b(far_end, context={'request': request}).data
+                serializer_b = get_serializer_for_model(far_end[0], prefix='Nested')
+                z = serializer_b(far_end, many=True, context={'request': request}).data
             else:
                 z = None
 
@@ -745,13 +745,13 @@ class ConnectedDeviceViewSet(ViewSet):
             device=peer_device,
             name=peer_interface_name
         )
-        endpoint = peer_interface.connected_endpoint
+        endpoints = peer_interface.connected_endpoints
 
         # If an Interface, return the parent device
-        if type(endpoint) is Interface:
+        if endpoints and type(endpoints[0]) is Interface:
             device = get_object_or_404(
                 Device.objects.restrict(request.user, 'view'),
-                pk=endpoint.device_id
+                pk=endpoints[0].device_id
             )
             return Response(serializers.DeviceSerializer(device, context={'request': request}).data)
 

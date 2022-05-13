@@ -2883,14 +2883,14 @@ class CableBulkImportView(generic.BulkImportView):
 
 
 class CableBulkEditView(generic.BulkEditView):
-    queryset = Cable.objects.prefetch_related('termination_a', 'termination_b')
+    queryset = Cable.objects.prefetch_related('terminations')
     filterset = filtersets.CableFilterSet
     table = tables.CableTable
     form = forms.CableBulkEditForm
 
 
 class CableBulkDeleteView(generic.BulkDeleteView):
-    queryset = Cable.objects.prefetch_related('termination_a', 'termination_b')
+    queryset = Cable.objects.prefetch_related('terminations')
     filterset = filtersets.CableFilterSet
     table = tables.CableTable
 

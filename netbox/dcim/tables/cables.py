@@ -11,7 +11,7 @@ __all__ = (
 )
 
 
-class CableTerminationColumn(tables.TemplateColumn):
+class CableTerminationsColumn(tables.TemplateColumn):
 
     def __init__(self, cable_end, *args, **kwargs):
         template_code = """
@@ -24,7 +24,7 @@ class CableTerminationColumn(tables.TemplateColumn):
         super().__init__(template_code=template_code, *args, **kwargs)
 
     def value(self, value):
-        return ', '.join(value.all())
+        return ', '.join([str(t.termination) for t in value.all()])
 
 
 #
@@ -56,15 +56,17 @@ class CableTable(NetBoxTable):
     #     linkify=True,
     #     verbose_name='Rack B'
     # )
-    a_terminations = CableTerminationColumn(
+    a_terminations = CableTerminationsColumn(
         cable_end='A',
         accessor=Accessor('terminations'),
-        orderable=False
+        orderable=False,
+        verbose_name='A Side'
     )
-    b_terminations = CableTerminationColumn(
+    b_terminations = CableTerminationsColumn(
         cable_end='B',
         accessor=Accessor('terminations'),
-        orderable=False
+        orderable=False,
+        verbose_name='B Side'
     )
     status = columns.ChoiceFieldColumn()
     tenant = TenantColumn()

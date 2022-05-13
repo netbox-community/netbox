@@ -3668,7 +3668,10 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_termination_ids(self):
-        interface_ids = Cable.objects.values_list('termination_a_id', flat=True)[:3]
+        interface_ids = CableTermination.objects.filter(
+            cable__in=Cable.objects.all()[:3],
+            cable_end='A'
+        ).values_list('termination_id', flat=True)
         params = {
             'termination_a_type': 'dcim.interface',
             'termination_a_id': list(interface_ids),
