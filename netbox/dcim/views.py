@@ -2792,8 +2792,8 @@ class PathTraceView(generic.ObjectView):
         total_length, is_definitive = path.get_total_length() if path else (None, False)
 
         # Determine the path to the SVG trace image
-        api_viewname = f"{path.origin._meta.app_label}-api:{path.origin._meta.model_name}-trace"
-        svg_url = f"{reverse(api_viewname, kwargs={'pk': path.origin.pk})}?render=svg"
+        api_viewname = f"{path.origin_type.app_label}-api:{path.origin_type.model}-trace"
+        svg_url = f"{reverse(api_viewname, kwargs={'pk': path.origins[0].pk})}?render=svg"
 
         return {
             'path': path,

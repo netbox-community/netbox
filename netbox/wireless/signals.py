@@ -36,7 +36,7 @@ def update_connected_interfaces(instance, created, raw=False, **kwargs):
     # Create/update cable paths
     if created:
         for interface in (instance.interface_a, instance.interface_b):
-            create_cablepath(interface)
+            create_cablepath([interface])
 
 
 @receiver(post_delete, sender=WirelessLink)
