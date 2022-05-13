@@ -2,6 +2,11 @@
 
 ## v3.2.4 (FUTURE)
 
+### Bug Fixes
+
+* [#9094](https://github.com/netbox-community/netbox/issues/9094) - Fix partial address search within Prefix and Aggregate filters
+
+
 ---
 
 ## v3.2.3 (2022-05-12)
