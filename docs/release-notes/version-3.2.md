@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#8374](https://github.com/netbox-community/netbox/issues/8374) - Display device type and asset tag if name is blank but asset tag is populated
 * [#8922](https://github.com/netbox-community/netbox/issues/8922) - Add service list to IP address view
 
 ### Bug Fixes
