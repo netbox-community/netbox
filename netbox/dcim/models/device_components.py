@@ -224,13 +224,13 @@ class PathEndpoint(models.Model):
         return self._path
 
     @property
-    def connected_endpoint(self):
+    def connected_endpoints(self):
         """
         Caching accessor for the attached CablePath's destination (if any)
         """
-        if not hasattr(self, '_connected_endpoint'):
-            self._connected_endpoint = self._path.get_destination()
-        return self._connected_endpoint
+        if not hasattr(self, '_connected_endpoints'):
+            self._connected_endpoints = self._path.get_destination() if self._path else []
+        return self._connected_endpoints
 
 
 #

@@ -93,7 +93,7 @@ class PassThroughPortMixin(object):
         Return all CablePaths which traverse a given pass-through port.
         """
         obj = get_object_or_404(self.queryset, pk=pk)
-        cablepaths = CablePath.objects.filter(_nodes__contains=obj).prefetch_related('origin', 'destination')
+        cablepaths = CablePath.objects.filter(_nodes__contains=obj)
         serializer = serializers.CablePathSerializer(cablepaths, context={'request': request}, many=True)
 
         return Response(serializer.data)

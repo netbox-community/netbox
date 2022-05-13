@@ -45,7 +45,7 @@ class Mixins:
                 device=peer_device,
                 name='Peer Termination'
             )
-            cable = Cable(termination_a=obj, b_terminations=[peer_obj], label='Cable 1')
+            cable = Cable(a_terminations=[obj], b_terminations=[peer_obj], label='Cable 1')
             cable.save()
 
             self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
