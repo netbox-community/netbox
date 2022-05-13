@@ -2,6 +2,10 @@
 
 ## v3.2.4 (FUTURE)
 
+### Enhancements
+
+* [#8922](https://github.com/netbox-community/netbox/issues/8922) - Add service list to IP address view
+
 ### Bug Fixes
 
 * [#9094](https://github.com/netbox-community/netbox/issues/9094) - Fix partial address search within Prefix and Aggregate filters

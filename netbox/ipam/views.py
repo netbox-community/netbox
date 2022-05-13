@@ -674,11 +674,14 @@ class IPAddressView(generic.ObjectView):
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
         related_ips_table.configure(request)
 
+        services = Service.objects.restrict(request.user, 'view').filter(ipaddresses=instance)
+
         return {
             'parent_prefixes_table': parent_prefixes_table,
             'duplicate_ips_table': duplicate_ips_table,
             'more_duplicate_ips': duplicate_ips.count() > 10,
             'related_ips_table': related_ips_table,
+            'services': services,
         }
 
 
