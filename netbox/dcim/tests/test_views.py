@@ -1960,7 +1960,7 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             device=consoleport.device,
             name='Console Server Port 1'
         )
-        Cable(termination_a=consoleport, termination_b=consoleserverport).save()
+        Cable(a_terminations=[consoleport], b_terminations=[consoleserverport]).save()
 
         response = self.client.get(reverse('dcim:consoleport_trace', kwargs={'pk': consoleport.pk}))
         self.assertHttpStatus(response, 200)
@@ -2016,7 +2016,7 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             device=consoleserverport.device,
             name='Console Port 1'
         )
-        Cable(termination_a=consoleserverport, termination_b=consoleport).save()
+        Cable(a_terminations=[consoleserverport], b_terminations=[consoleport]).save()
 
         response = self.client.get(reverse('dcim:consoleserverport_trace', kwargs={'pk': consoleserverport.pk}))
         self.assertHttpStatus(response, 200)
@@ -2078,7 +2078,7 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             device=powerport.device,
             name='Power Outlet 1'
         )
-        Cable(termination_a=powerport, termination_b=poweroutlet).save()
+        Cable(a_terminations=[powerport], b_terminations=[poweroutlet]).save()
 
         response = self.client.get(reverse('dcim:powerport_trace', kwargs={'pk': powerport.pk}))
         self.assertHttpStatus(response, 200)
@@ -2143,7 +2143,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
     def test_trace(self):
         poweroutlet = PowerOutlet.objects.first()
         powerport = PowerPort.objects.first()
-        Cable(termination_a=poweroutlet, termination_b=powerport).save()
+        Cable(a_terminations=[poweroutlet], b_terminations=[powerport]).save()
 
         response = self.client.get(reverse('dcim:poweroutlet_trace', kwargs={'pk': poweroutlet.pk}))
         self.assertHttpStatus(response, 200)
@@ -2261,7 +2261,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         interface1, interface2 = Interface.objects.all()[:2]
-        Cable(termination_a=interface1, termination_b=interface2).save()
+        Cable(a_terminations=[interface1], b_terminations=[interface2]).save()
 
         response = self.client.get(reverse('dcim:interface_trace', kwargs={'pk': interface1.pk}))
         self.assertHttpStatus(response, 200)
@@ -2332,7 +2332,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             device=frontport.device,
             name='Interface 1'
         )
-        Cable(termination_a=frontport, termination_b=interface).save()
+        Cable(a_terminations=[frontport], b_terminations=[interface]).save()
 
         response = self.client.get(reverse('dcim:frontport_trace', kwargs={'pk': frontport.pk}))
         self.assertHttpStatus(response, 200)
@@ -2390,7 +2390,7 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             device=rearport.device,
             name='Interface 1'
         )
-        Cable(termination_a=rearport, termination_b=interface).save()
+        Cable(a_terminations=[rearport], b_terminations=[interface]).save()
 
         response = self.client.get(reverse('dcim:rearport_trace', kwargs={'pk': rearport.pk}))
         self.assertHttpStatus(response, 200)
@@ -2623,9 +2623,9 @@ class CableTestCase(
         )
         Interface.objects.bulk_create(interfaces)
 
-        Cable(termination_a=interfaces[0], termination_b=interfaces[3], type=CableTypeChoices.TYPE_CAT6).save()
-        Cable(termination_a=interfaces[1], termination_b=interfaces[4], type=CableTypeChoices.TYPE_CAT6).save()
-        Cable(termination_a=interfaces[2], termination_b=interfaces[5], type=CableTypeChoices.TYPE_CAT6).save()
+        Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[3]], type=CableTypeChoices.TYPE_CAT6).save()
+        Cable(a_terminations=[interfaces[1]], b_terminations=[interfaces[4]], type=CableTypeChoices.TYPE_CAT6).save()
+        Cable(a_terminations=[interfaces[2]], b_terminations=[interfaces[5]], type=CableTypeChoices.TYPE_CAT6).save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -2857,7 +2857,7 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             device=device,
             name='Power Port 1'
         )
-        Cable(termination_a=powerfeed, termination_b=powerport).save()
+        Cable(a_terminations=[powerfeed], b_terminations=[powerport]).save()
 
         response = self.client.get(reverse('dcim:powerfeed_trace', kwargs={'pk': powerfeed.pk}))
         self.assertHttpStatus(response, 200)

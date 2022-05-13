@@ -45,7 +45,7 @@ class Mixins:
                 device=peer_device,
                 name='Peer Termination'
             )
-            cable = Cable(termination_a=obj, termination_b=peer_obj, label='Cable 1')
+            cable = Cable(termination_a=obj, b_terminations=[peer_obj], label='Cable 1')
             cable.save()
 
             self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
@@ -1879,9 +1879,9 @@ class CableTest(APIViewTestCases.APIViewTestCase):
         Interface.objects.bulk_create(interfaces)
 
         cables = (
-            Cable(termination_a=interfaces[0], termination_b=interfaces[10], label='Cable 1'),
-            Cable(termination_a=interfaces[1], termination_b=interfaces[11], label='Cable 2'),
-            Cable(termination_a=interfaces[2], termination_b=interfaces[12], label='Cable 3'),
+            Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[10]], label='Cable 1'),
+            Cable(a_terminations=[interfaces[1]], b_terminations=[interfaces[11]], label='Cable 2'),
+            Cable(a_terminations=[interfaces[2]], b_terminations=[interfaces[12]], label='Cable 3'),
         )
         for cable in cables:
             cable.save()
@@ -1931,7 +1931,7 @@ class ConnectedDeviceTest(APITestCase):
         self.interface2 = Interface.objects.create(device=self.device2, name='eth0')
         self.interface3 = Interface.objects.create(device=self.device1, name='eth1')  # Not connected
 
-        cable = Cable(termination_a=self.interface1, termination_b=self.interface2)
+        cable = Cable(a_terminations=[self.interface1], b_terminations=[self.interface2])
         cable.save()
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
