@@ -47,7 +47,7 @@ class BaseCableConnectionForm(TenancyForm, NetBoxModelForm):
             for ct in terminations:
                 ct.save()
         else:
-            instance.terminations = [
+            instance._terminations = [
                 *self.cleaned_data['a_terminations'],
                 *self.cleaned_data['b_terminations'],
             ]

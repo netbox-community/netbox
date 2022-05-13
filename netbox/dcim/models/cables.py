@@ -117,9 +117,9 @@ class Cable(NetBoxModel):
             ])
         if terminations:
             assert self.pk is None
-            self.terminations = terminations
+            self._terminations = terminations
         else:
-            self.terminations = []
+            self._terminations = []
 
     @classmethod
     def from_db(cls, db, field_names, values):
@@ -127,8 +127,6 @@ class Cable(NetBoxModel):
         Cache the original A and B terminations of existing Cable instances for later reference inside clean().
         """
         instance = super().from_db(db, field_names, values)
-
-        instance.terminations = CableTermination.objects.filter(cable=instance)
 
         # instance._orig_termination_a_type_id = instance.termination_a_type_id
         # instance._orig_termination_a_ids = instance.termination_a_ids
@@ -205,7 +203,7 @@ class CableTermination(models.Model):
     cable = models.ForeignKey(
         to='dcim.Cable',
         on_delete=models.CASCADE,
-        related_name='+'
+        related_name='terminations'
     )
     cable_end = models.CharField(
         max_length=1,

@@ -82,13 +82,13 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
 
     # Save any new CableTerminations
     CableTermination.objects.bulk_create([
-        term for term in instance.terminations if not term.pk
+        term for term in instance._terminations if not term.pk
     ])
 
     # Split terminations into A/B sets and save link assignments
     # TODO: Update link peers
     _terms = defaultdict(list)
-    for t in instance.terminations:
+    for t in instance._terminations:
         if t.termination.cable != instance:
             t.termination.cable = instance
             t.termination.save()
