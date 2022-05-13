@@ -194,20 +194,22 @@ class PathEndpoint(models.Model):
         origin = self
         path = []
 
-        # Construct the complete path
+        # Construct the complete path (including e.g. bridged interfaces)
         while origin is not None:
 
             if origin._path is None:
                 break
 
-            path.extend([origin, *origin._path.get_path()])
-            while (len(path) + 1) % 3:
+            path.extend(*origin._path.get_path())
+            while (len(path)) % 3:
                 # Pad to ensure we have complete three-tuples (e.g. for paths that end at a non-connected FrontPort)
-                path.append(None)
-            path.append(origin._path.destination)
+                # by inserting empty entries immediately prior to the path's destination node(s)
+                path.insert(-1, [None])
 
-            # Check for bridge interface to continue the trace
-            origin = getattr(origin._path.destination, 'bridge', None)
+            # TODO: Add bridging support
+            # # Check for bridge interface to continue the trace
+            # origin = getattr(origin._path.destination, 'bridge', None)
+            origin = None
 
         # Return the path as a list of three-tuples (A termination, cable, B termination)
         return list(zip(*[iter(path)] * 3))
