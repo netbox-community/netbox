@@ -200,7 +200,7 @@ class PathEndpoint(models.Model):
             if origin._path is None:
                 break
 
-            path.extend(*origin._path.get_path())
+            path.extend(origin._path.path_objects)
             while (len(path)) % 3:
                 # Pad to ensure we have complete three-tuples (e.g. for paths that end at a non-connected FrontPort)
                 # by inserting empty entries immediately prior to the path's destination node(s)
@@ -231,7 +231,7 @@ class PathEndpoint(models.Model):
         Caching accessor for the attached CablePath's destination (if any)
         """
         if not hasattr(self, '_connected_endpoints'):
-            self._connected_endpoints = self._path.get_destination() if self._path else []
+            self._connected_endpoints = self._path.destinations if self._path else []
         return self._connected_endpoints
 
 

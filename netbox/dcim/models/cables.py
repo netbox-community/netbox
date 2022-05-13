@@ -324,10 +324,54 @@ class CablePath(models.Model):
         super().save(*args, **kwargs)
 
         # Record a direct reference to this CablePath on its originating object(s)
-        origins = [path_node_to_object(n) for n in self.path[0]]
-        origin_model = origins[0]._meta.model
-        origin_ids = [o.id for o in origins]
+        origin_model = self.origins[0]._meta.model
+        origin_ids = [o.id for o in self.origins]
         origin_model.objects.filter(pk__in=origin_ids).update(_path=self.pk)
+
+    @property
+    def origin_type(self):
+        ct_id, _ = decompile_path_node(self.path[0][0])
+        return ContentType.objects.get_for_id(ct_id)
+
+    @property
+    def destination_type(self):
+        if not self.is_complete:
+            return None
+        ct_id, _ = decompile_path_node(self.path[-1][0])
+        return ContentType.objects.get_for_id(ct_id)
+
+    @property
+    def path_objects(self):
+        """
+        Cache and return the complete path as lists of objects, derived from their annotation within the path.
+        """
+        if not hasattr(self, '_path_objects'):
+            self._path_objects = self._get_path()
+        return self._path_objects
+
+    @property
+    def origins(self):
+        """
+        Return the list of originating objects (from cache, if available).
+        """
+        if hasattr(self, '_path_objects'):
+            return self.path_objects[0]
+        return [
+            path_node_to_object(node) for node in self.path[0]
+        ]
+
+    @property
+    def destinations(self):
+        """
+        Return the list of destination objects (from cache, if available), if the path is complete.
+        """
+        if not self.is_complete:
+            return []
+        if hasattr(self, '_path_objects'):
+            return self.path_objects[-1]
+        return [
+            path_node_to_object(node) for node in self.path[-1]
+        ]
 
     @property
     def segment_count(self):
@@ -474,9 +518,7 @@ class CablePath(models.Model):
         """
         Retrace the path from the currently-defined originating termination(s)
         """
-        _new = self.from_origin([
-            path_node_to_object(node) for node in self.path[0]
-        ])
+        _new = self.from_origin(self.origins)
         if _new:
             self.path = _new.path
             self.is_complete = _new.is_complete
@@ -486,7 +528,7 @@ class CablePath(models.Model):
         else:
             self.delete()
 
-    def get_path(self):
+    def _get_path(self):
         """
         Return the path as a list of prefetched objects.
         """
@@ -517,22 +559,6 @@ class CablePath(models.Model):
             path.append(nodes)
 
         return path
-
-    def get_destination(self):
-        if not self.is_complete:
-            return None
-        return [
-            path_node_to_object(node) for node in self.path[-1]
-        ]
-
-    @property
-    def last_nodes(self):
-        """
-        Return either the destination or the last node within the path.
-        """
-        return [
-            path_node_to_object(node) for node in self.path[-1]
-        ]
 
     def get_cable_ids(self):
         """

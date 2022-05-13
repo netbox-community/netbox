@@ -64,5 +64,4 @@ def rebuild_paths(terminations):
         with transaction.atomic():
             for cp in cable_paths:
                 cp.delete()
-                origins = [path_node_to_object(node) for node in cp.path[0]]
-                create_cablepath(origins)
+                create_cablepath(cp.origins)

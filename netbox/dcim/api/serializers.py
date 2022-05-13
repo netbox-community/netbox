@@ -1078,7 +1078,7 @@ class CablePathSerializer(serializers.ModelSerializer):
     @swagger_serializer_method(serializer_or_field=serializers.ListField)
     def get_path(self, obj):
         ret = []
-        for node in obj.get_path():
+        for node in obj.path_objects():
             serializer = get_serializer_for_model(node, prefix='Nested')
             context = {'request': self.context['request']}
             ret.append(serializer(node, context=context).data)
