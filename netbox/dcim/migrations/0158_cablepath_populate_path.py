@@ -32,8 +32,8 @@ def populate_cable_paths(apps, schema_editor):
 
         cable_paths.append(cablepath)
 
-    # Bulk create the termination objects
-    CablePath.objects.bulk_update(cable_paths, fields=('path', 'is_complete'), batch_size=100)
+    # Bulk update all CableTerminations
+    CablePath.objects.bulk_update(cable_paths, fields=('path', '_nodes', 'is_complete'), batch_size=100)
 
 
 class Migration(migrations.Migration):
