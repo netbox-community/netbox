@@ -108,7 +108,7 @@ class RegionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Region
     fieldsets = (
         (None, ('q', 'tag', 'parent_id')),
-        ('Contacts', ('contact', 'contact_role'))
+        ('Contacts', ('contact', 'contact_role', 'contact_group'))
     )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -122,7 +122,7 @@ class SiteGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = SiteGroup
     fieldsets = (
         (None, ('q', 'tag', 'parent_id')),
-        ('Contacts', ('contact', 'contact_role'))
+        ('Contacts', ('contact', 'contact_role', 'contact_group'))
     )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
@@ -329,7 +329,7 @@ class ManufacturerFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Manufacturer
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Contacts', ('contact', 'contact_role'))
+        ('Contacts', ('contact', 'contact_role', 'contact_group'))
     )
     tag = TagFilterField(model)
 
