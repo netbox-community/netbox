@@ -58,3 +58,8 @@ class ContactModelFilterForm(forms.Form):
         required=False,
         label=_('Contact Role')
     )
+    contact_group = DynamicModelMultipleChoiceField(
+        queryset=ContactGroup.objects.all(),
+        required=False,
+        label=_('Contact Group')
+    )
