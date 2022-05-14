@@ -1107,6 +1107,14 @@ class Module(NetBoxModel, ConfigContextModel):
                         # Assign it to the module
                         existing_item.module = self
                         update_instances.append(existing_item)
+
+                        # Adopt child interfaces
+                        if component_model is Interface:
+                            for child_interface in existing_item.child_interfaces.filter(module__isnull=True):
+                                child_interface.module = self
+                                update_instances.append(child_interface)
+
+                        # If we adopted, skip creation
                         continue
 
                 # Only create new components if replication is enabled
