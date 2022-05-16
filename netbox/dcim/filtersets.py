@@ -21,6 +21,7 @@ from .models import *
 
 __all__ = (
     'CableFilterSet',
+    'CabledObjectFilterSet',
     'CableTerminationFilterSet',
     'ConsoleConnectionFilterSet',
     'ConsolePortFilterSet',
@@ -1107,7 +1108,7 @@ class ModularDeviceComponentFilterSet(DeviceComponentFilterSet):
     )
 
 
-class CableTerminationFilterSet(django_filters.FilterSet):
+class CabledObjectFilterSet(django_filters.FilterSet):
     cabled = django_filters.BooleanFilter(
         field_name='cable',
         lookup_expr='isnull',
@@ -1130,7 +1131,7 @@ class PathEndpointFilterSet(django_filters.FilterSet):
 class ConsolePortFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet,
+    CabledObjectFilterSet,
     PathEndpointFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
@@ -1146,7 +1147,7 @@ class ConsolePortFilterSet(
 class ConsoleServerPortFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet,
+    CabledObjectFilterSet,
     PathEndpointFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
@@ -1162,7 +1163,7 @@ class ConsoleServerPortFilterSet(
 class PowerPortFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet,
+    CabledObjectFilterSet,
     PathEndpointFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
@@ -1178,7 +1179,7 @@ class PowerPortFilterSet(
 class PowerOutletFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet,
+    CabledObjectFilterSet,
     PathEndpointFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
@@ -1198,7 +1199,7 @@ class PowerOutletFilterSet(
 class InterfaceFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet,
+    CabledObjectFilterSet,
     PathEndpointFilterSet
 ):
     # Override device and device_id filters from DeviceComponentFilterSet to match against any peer virtual chassis
@@ -1326,7 +1327,7 @@ class InterfaceFilterSet(
 class FrontPortFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet
+    CabledObjectFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
@@ -1341,7 +1342,7 @@ class FrontPortFilterSet(
 class RearPortFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet
+    CabledObjectFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
@@ -1552,6 +1553,13 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         return queryset
 
 
+class CableTerminationFilterSet(BaseFilterSet):
+
+    class Meta:
+        model = CableTermination
+        fields = ['id', 'cable', 'cable_end', 'termination_type', 'termination_id']
+
+
 class PowerPanelFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
@@ -1609,7 +1617,7 @@ class PowerPanelFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilterSet(NetBoxModelFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+class PowerFeedFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='power_panel__site__region',

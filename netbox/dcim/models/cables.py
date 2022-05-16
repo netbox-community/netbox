@@ -13,6 +13,7 @@ from dcim.fields import PathField
 from dcim.utils import decompile_path_node, flatten_path, object_to_path_node, path_node_to_object
 from netbox.models import NetBoxModel
 from utilities.fields import ColorField
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import to_meters
 from wireless.models import WirelessLink
 from .devices import Device
@@ -221,6 +222,8 @@ class CableTermination(models.Model):
         ct_field='termination_type',
         fk_field='termination_id'
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['pk']

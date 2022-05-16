@@ -1061,6 +1061,26 @@ class TracedCableSerializer(serializers.ModelSerializer):
         ]
 
 
+class CableTerminationSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
+    termination_type = ContentTypeField(
+        queryset=ContentType.objects.filter(CABLE_TERMINATION_MODELS)
+    )
+    termination = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = CableTermination
+        fields = [
+            'id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id', 'termination'
+        ]
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_termination(self, obj):
+        serializer = get_serializer_for_model(obj.termination, prefix='Nested')
+        context = {'request': self.context['request']}
+        return serializer(obj.termination, context=context).data
+
+
 class CablePathSerializer(serializers.ModelSerializer):
     origin_type = ContentTypeField(read_only=True)
     origin = serializers.SerializerMethodField(read_only=True)

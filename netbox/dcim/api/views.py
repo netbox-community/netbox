@@ -646,10 +646,16 @@ class InventoryItemRoleViewSet(NetBoxModelViewSet):
 #
 
 class CableViewSet(NetBoxModelViewSet):
-    metadata_class = ContentTypeMetadata
     queryset = Cable.objects.prefetch_related('terminations__termination')
     serializer_class = serializers.CableSerializer
     filterset_class = filtersets.CableFilterSet
+
+
+class CableTerminationViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = CableTermination.objects.prefetch_related('cable', 'termination')
+    serializer_class = serializers.CableTerminationSerializer
+    filterset_class = filtersets.CableTerminationFilterSet
 
 
 #
