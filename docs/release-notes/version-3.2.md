@@ -6,10 +6,12 @@
 
 * [#8374](https://github.com/netbox-community/netbox/issues/8374) - Display device type and asset tag if name is blank but asset tag is populated
 * [#8922](https://github.com/netbox-community/netbox/issues/8922) - Add service list to IP address view
+* [#9239](https://github.com/netbox-community/netbox/issues/9239) - Enable filtering by contact group for all models which support contact assignment
 
 ### Bug Fixes
 
 * [#9094](https://github.com/netbox-community/netbox/issues/9094) - Fix partial address search within Prefix and Aggregate filters
+* [#9358](https://github.com/netbox-community/netbox/issues/9358) - Annotate circuit count for providers list under ASN view
 
 
 ---
