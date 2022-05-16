@@ -29,6 +29,10 @@ class ClusterTypeFilterForm(NetBoxModelFilterSetForm):
 class ClusterGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = ClusterGroup
     tag = TagFilterField(model)
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
+    )
 
 
 class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
