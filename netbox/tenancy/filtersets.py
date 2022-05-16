@@ -112,6 +112,12 @@ class ContactModelFilterSet(django_filters.FilterSet):
         queryset=ContactRole.objects.all(),
         label='Contact Role'
     )
+    contact_group = TreeNodeMultipleChoiceFilter(
+        queryset=ContactGroup.objects.all(),
+        field_name='contacts__contact__group',
+        lookup_expr='in',
+        label='Contact group',
+    )
 
 
 #
