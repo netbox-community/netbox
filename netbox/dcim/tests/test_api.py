@@ -1888,24 +1888,24 @@ class CableTest(APIViewTestCases.APIViewTestCase):
 
         cls.create_data = [
             {
-                'termination_a_type': 'dcim.interface',
-                'termination_a_id': interfaces[4].pk,
-                'termination_b_type': 'dcim.interface',
-                'termination_b_id': interfaces[14].pk,
+                'a_terminations_type': 'dcim.interface',
+                'a_terminations': [interfaces[4].pk],
+                'b_terminations_type': 'dcim.interface',
+                'b_terminations': [interfaces[14].pk],
                 'label': 'Cable 4',
             },
             {
-                'termination_a_type': 'dcim.interface',
-                'termination_a_id': interfaces[5].pk,
-                'termination_b_type': 'dcim.interface',
-                'termination_b_id': interfaces[15].pk,
+                'a_terminations_type': 'dcim.interface',
+                'a_terminations': [interfaces[5].pk],
+                'b_terminations_type': 'dcim.interface',
+                'b_terminations': [interfaces[15].pk],
                 'label': 'Cable 5',
             },
             {
-                'termination_a_type': 'dcim.interface',
-                'termination_a_id': interfaces[6].pk,
-                'termination_b_type': 'dcim.interface',
-                'termination_b_id': interfaces[16].pk,
+                'a_terminations_type': 'dcim.interface',
+                'a_terminations': [interfaces[6].pk],
+                'b_terminations_type': 'dcim.interface',
+                'b_terminations': [interfaces[16].pk],
                 'label': 'Cable 6',
             },
         ]

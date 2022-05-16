@@ -6,6 +6,7 @@ from timezone_field.rest_framework import TimeZoneSerializerField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from extras.api.serializers import ContentTypeSerializer
 from ipam.api.nested_serializers import (
     NestedASNSerializer, NestedIPAddressSerializer, NestedVLANSerializer, NestedVRFSerializer,
 )
@@ -994,8 +995,10 @@ class InventoryItemRoleSerializer(NetBoxModelSerializer):
 
 class CableSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
-    # termination_a = serializers.SerializerMethodField(read_only=True)
-    # termination_b = serializers.SerializerMethodField(read_only=True)
+    a_terminations_type = serializers.SerializerMethodField(read_only=True)
+    b_terminations_type = serializers.SerializerMethodField(read_only=True)
+    a_terminations = serializers.SerializerMethodField(read_only=True)
+    b_terminations = serializers.SerializerMethodField(read_only=True)
     status = ChoiceField(choices=LinkStatusChoices, required=False)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     length_unit = ChoiceField(choices=CableLengthUnitChoices, allow_blank=True, required=False)
@@ -1003,30 +1006,46 @@ class CableSerializer(NetBoxModelSerializer):
     class Meta:
         model = Cable
         fields = [
-            'id', 'url', 'display', 'type', 'status', 'tenant', 'label', 'color',
-            'length', 'length_unit', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'type', 'a_terminations_type', 'a_terminations', 'b_terminations_type',
+            'b_terminations', 'status', 'tenant', 'label', 'color', 'length', 'length_unit', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
 
-    def _get_termination(self, obj, side):
-        """
-        Serialize a nested representation of a termination.
-        """
+    def _get_terminations_type(self, obj, side):
         assert side.lower() in ('a', 'b')
-        termination_type = getattr(obj, f'termination_{side}_type').model_class()
-        termination = getattr(obj, f'termination_{side}')
-        serializer = get_serializer_for_model(termination_type, prefix='Nested')
+        terms = [t.termination for t in obj.terminations.all() if t.cable_end == side.upper()]
+        if terms:
+            ct = ContentType.objects.get_for_model(terms[0])
+            return f"{ct.app_label}.{ct.model}"
+
+    def _get_terminations(self, obj, side):
+        assert side.lower() in ('a', 'b')
+        terms = [t.termination for t in obj.terminations.all() if t.cable_end == side.upper()]
+        if not terms:
+            return []
+
+        termination_type = ContentType.objects.get_for_model(terms[0])
+        serializer = get_serializer_for_model(termination_type.model_class(), prefix='Nested')
         context = {'request': self.context['request']}
-        data = serializer(termination, context=context, many=True).data
+        data = serializer(terms, context=context, many=True).data
 
         return data
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
-    def get_termination_a(self, obj):
-        return self._get_termination(obj, 'a')
+    @swagger_serializer_method(serializer_or_field=serializers.CharField)
+    def get_a_terminations_type(self, obj):
+        return self._get_terminations_type(obj, 'a')
+
+    @swagger_serializer_method(serializer_or_field=serializers.CharField)
+    def get_b_terminations_type(self, obj):
+        return self._get_terminations_type(obj, 'b')
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
-    def get_termination_b(self, obj):
-        return self._get_termination(obj, 'b')
+    def get_a_terminations(self, obj):
+        return self._get_terminations(obj, 'a')
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_b_terminations(self, obj):
+        return self._get_terminations(obj, 'b')
 
 
 class TracedCableSerializer(serializers.ModelSerializer):
