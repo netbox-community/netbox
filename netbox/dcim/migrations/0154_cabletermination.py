@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('termination_type', models.ForeignKey(limit_choices_to=models.Q(models.Q(models.Q(('app_label', 'circuits'), ('model__in', ('circuittermination',))), models.Q(('app_label', 'dcim'), ('model__in', ('consoleport', 'consoleserverport', 'frontport', 'interface', 'powerfeed', 'poweroutlet', 'powerport', 'rearport'))), _connector='OR')), on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
             ],
             options={
-                'ordering': ['pk'],
+                'ordering': ('cable', 'cable_end', 'pk'),
             },
         ),
         migrations.AddConstraint(

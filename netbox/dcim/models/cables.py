@@ -226,7 +226,7 @@ class CableTermination(models.Model):
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
-        ordering = ['pk']
+        ordering = ('cable', 'cable_end', 'pk')
         constraints = (
             models.UniqueConstraint(
                 fields=('termination_type', 'termination_id'),
