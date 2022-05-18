@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
+from django.dispatch import Signal
 from django.urls import reverse
 
 from dcim.choices import *
@@ -25,6 +26,9 @@ __all__ = (
     'CablePath',
     'CableTermination',
 )
+
+
+trace_paths = Signal()
 
 
 #
@@ -107,20 +111,10 @@ class Cable(NetBoxModel):
         self._orig_status = self.status
 
         # Assign associated CableTerminations (if any)
-        terminations = []
-        if a_terminations and type(a_terminations) is list:
-            terminations.extend([
-                CableTermination(cable=self, cable_end='A', termination=t) for t in a_terminations
-            ])
-        if b_terminations and type(b_terminations) is list:
-            terminations.extend([
-                CableTermination(cable=self, cable_end='B', termination=t) for t in b_terminations
-            ])
-        if terminations:
-            assert self.pk is None
-            self._terminations = terminations
-        else:
-            self._terminations = []
+        if a_terminations is not None:
+            self.a_terminations = a_terminations
+        if b_terminations is not None:
+            self.b_terminations = b_terminations
 
     @classmethod
     def from_db(cls, db, field_names, values):
@@ -164,6 +158,7 @@ class Cable(NetBoxModel):
             self.length_unit = ''
 
     def save(self, *args, **kwargs):
+        _created = self.pk is None
 
         # Store the given length (if any) in meters for use in database ordering
         if self.length and self.length_unit:
@@ -182,6 +177,32 @@ class Cable(NetBoxModel):
 
         # Update the private pk used in __str__ in case this is a new object (i.e. just got its pk)
         self._pk = self.pk
+
+        # Retrieve existing A/B terminations for the Cable
+        a_terminations = {ct.termination: ct for ct in self.terminations.filter(cable_end='A')}
+        b_terminations = {ct.termination: ct for ct in self.terminations.filter(cable_end='B')}
+
+        # Delete stale CableTerminations
+        if hasattr(self, 'a_terminations'):
+            for termination, ct in a_terminations.items():
+                if termination not in self.a_terminations:
+                    ct.delete()
+        if hasattr(self, 'b_terminations'):
+            for termination, ct in b_terminations.items():
+                if termination not in self.b_terminations:
+                    ct.delete()
+
+        # Save new CableTerminations (if any)
+        if hasattr(self, 'a_terminations'):
+            for termination in self.a_terminations:
+                if termination not in a_terminations:
+                    CableTermination(cable=self, cable_end='A', termination=termination).save()
+        if hasattr(self, 'b_terminations'):
+            for termination in self.b_terminations:
+                if termination not in b_terminations:
+                    CableTermination(cable=self, cable_end='B', termination=termination).save()
+
+        trace_paths.send(Cable, instance=self, created=_created)
 
     def get_status_color(self):
         return LinkStatusChoices.colors.get(self.status)
@@ -270,6 +291,21 @@ class CableTermination(models.Model):
         #     raise ValidationError(
         #         f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
         #     )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Set the cable on the terminating object
+        termination_model = self.termination._meta.model
+        termination_model.objects.filter(pk=self.termination_id).update(cable=self.cable)
+
+    def delete(self, *args, **kwargs):
+
+        # Delete the cable association on the terminating object
+        termination_model = self.termination._meta.model
+        termination_model.objects.filter(pk=self.termination_id).update(cable=None)
+
+        super().delete(*args, **kwargs)
 
 
 class CablePath(models.Model):

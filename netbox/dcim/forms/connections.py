@@ -29,30 +29,13 @@ class BaseCableConnectionForm(TenancyForm, NetBoxModelForm):
         disabled_indicator='_occupied'
     )
 
-    def save(self, commit=True):
-        instance = super().save(commit=commit)
+    def save(self, *args, **kwargs):
 
-        # Create CableTermination instances
-        terminations = []
-        terminations.extend([
-            CableTermination(cable=instance, cable_end='A', termination=termination)
-            for termination in self.cleaned_data['a_terminations']
-        ])
-        terminations.extend([
-            CableTermination(cable=instance, cable_end='B', termination=termination)
-            for termination in self.cleaned_data['b_terminations']
-        ])
+        # Set the A/B terminations on the Cable instance
+        self.instance.a_terminations = self.cleaned_data['a_terminations']
+        self.instance.b_terminations = self.cleaned_data['b_terminations']
 
-        if commit:
-            for ct in terminations:
-                ct.save()
-        else:
-            instance._terminations = [
-                *self.cleaned_data['a_terminations'],
-                *self.cleaned_data['b_terminations'],
-            ]
-
-        return instance
+        return super().save(*args, **kwargs)
 
 
 class ConnectCableToDeviceForm(BaseCableConnectionForm):

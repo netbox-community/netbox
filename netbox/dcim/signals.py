@@ -1,12 +1,11 @@
-from collections import defaultdict
 import logging
 
-from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
 from .choices import LinkStatusChoices
 from .models import Cable, CablePath, CableTermination, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
+from .models.cables import trace_paths
 from .utils import create_cablepath, rebuild_paths
 
 
@@ -69,8 +68,7 @@ def clear_virtualchassis_members(instance, **kwargs):
 # Cables
 #
 
-
-@receiver(post_save, sender=Cable)
+@receiver(trace_paths, sender=Cable)
 def update_connected_endpoints(instance, created, raw=False, **kwargs):
     """
     When a Cable is saved, check for and update its two connected endpoints
@@ -80,28 +78,22 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
         logger.debug(f"Skipping endpoint updates for imported cable {instance}")
         return
 
-    # Save any new CableTerminations
-    CableTermination.objects.bulk_create([
-        term for term in instance._terminations if not term.pk
-    ])
-
-    # Split terminations into A/B sets and save link assignments
     # TODO: Update link peers
-    _terms = defaultdict(list)
-    for t in instance._terminations:
-        if t.termination.cable != instance:
-            t.termination.cable = instance
-            t.termination.save()
-        _terms[t.cable_end].append(t.termination)
 
     # Create/update cable paths
     if created:
-        for terms in _terms.values():
+        _terms = {
+            'A': [t.termination for t in instance.terminations.filter(cable_end='A')],
+            'B': [t.termination for t in instance.terminations.filter(cable_end='B')],
+        }
+        for nodes in _terms.values():
             # Examine type of first termination to determine object type (all must be the same)
-            if isinstance(terms[0], PathEndpoint):
-                create_cablepath(terms)
+            if not nodes:
+                continue
+            if isinstance(nodes[0], PathEndpoint):
+                create_cablepath(nodes)
             else:
-                rebuild_paths(terms)
+                rebuild_paths(nodes)
     elif instance.status != instance._orig_status:
         # We currently don't support modifying either termination of an existing Cable. (This
         # may change in the future.) However, we do need to capture status changes and update
