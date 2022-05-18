@@ -3,25 +3,19 @@
   {% if terminations.0.device %}
     {# Device component #}
     <tr>
+      <td>Site</td>
+      <td>{{ terminations.0.device.site|linkify }}</td>
+    </tr>
+    <tr>
       <td>Device</td>
       <td>{{ terminations.0.device|linkify }}</td>
     </tr>
     <tr>
-      <td>Site</td>
-      <td>{{ terminations.0.device.site|linkify }}</td>
+      <td>Rack</td>
+      <td>{{ terminations.0.device.rack|linkify|placeholder }}</td>
     </tr>
-    {% if terminations.0.device.rack %}
-      <tr>
-        <td>Rack</td>
-        <td>{{ terminations.0.device.rack|linkify }}</td>
-      </tr>
-    {% endif %}
     <tr>
-      <td>Type</td>
       <td>{{ terminations.0|meta:"verbose_name"|capfirst }}</td>
-    </tr>
-    <tr>
-      <td>Name(s)</td>
       <td>
         {% for term in terminations %}
           {{ term|linkify }}{% if not forloop.last %},{% endif %}
