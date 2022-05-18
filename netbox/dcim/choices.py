@@ -354,6 +354,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_UBIQUITI_SMARTPOWER = 'ubiquiti-smartpower'
     # Other
     TYPE_HARDWIRED = 'hardwired'
+    TYPE_OTHER = 'other'
 
     CHOICES = (
         ('IEC 60320', (
@@ -471,6 +472,7 @@ class PowerPortTypeChoices(ChoiceSet):
         )),
         ('Other', (
             (TYPE_HARDWIRED, 'Hardwired'),
+            (TYPE_OTHER, 'Other'),
         )),
     )
 
@@ -580,6 +582,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_UBIQUITI_SMARTPOWER = 'ubiquiti-smartpower'
     # Other
     TYPE_HARDWIRED = 'hardwired'
+    TYPE_OTHER = 'other'
 
     CHOICES = (
         ('IEC 60320', (
@@ -690,6 +693,7 @@ class PowerOutletTypeChoices(ChoiceSet):
         )),
         ('Other', (
             (TYPE_HARDWIRED, 'Hardwired'),
+            (TYPE_OTHER, 'Other'),
         )),
     )
 
@@ -1047,6 +1051,7 @@ class PortTypeChoices(ChoiceSet):
     TYPE_URM_P2 = 'urm-p2'
     TYPE_URM_P4 = 'urm-p4'
     TYPE_URM_P8 = 'urm-p8'
+    TYPE_OTHER = 'other'
 
     CHOICES = (
         (
@@ -1099,6 +1104,12 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_URM_P4, 'URM-P4'),
                 (TYPE_URM_P8, 'URM-P8'),
                 (TYPE_SPLICE, 'Splice'),
+            ),
+        ),
+        (
+            'Other',
+            (
+                (TYPE_OTHER, 'Other'),
             )
         )
     )
