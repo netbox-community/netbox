@@ -1499,10 +1499,18 @@ class VirtualChassisFilterSet(NetBoxModelFilterSet):
 
 
 class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
-    # termination_a_type = ContentTypeFilter()
-    # termination_a_id = MultiValueNumberFilter()
-    # termination_b_type = ContentTypeFilter()
-    # termination_b_id = MultiValueNumberFilter()
+    termination_a_type = ContentTypeFilter(
+        field_name='terminations__termination_type'
+    )
+    termination_a_id = MultiValueNumberFilter(
+        field_name='terminations__termination_id'
+    )
+    termination_b_type = ContentTypeFilter(
+        field_name='terminations__termination_type'
+    )
+    termination_b_id = MultiValueNumberFilter(
+        field_name='terminations__termination_id'
+    )
     type = django_filters.MultipleChoiceFilter(
         choices=CableTypeChoices
     )
