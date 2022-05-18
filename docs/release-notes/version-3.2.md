@@ -6,6 +6,7 @@
 
 * [#8374](https://github.com/netbox-community/netbox/issues/8374) - Display device type and asset tag if name is blank but asset tag is populated
 * [#8922](https://github.com/netbox-community/netbox/issues/8922) - Add service list to IP address view
+* [#9098](https://github.com/netbox-community/netbox/issues/9098) - Add "other" types for power ports/outlets, pass-through ports
 * [#9239](https://github.com/netbox-community/netbox/issues/9239) - Enable filtering by contact group for all models which support contact assignment
 
 ### Bug Fixes
