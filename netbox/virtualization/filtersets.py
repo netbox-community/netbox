@@ -90,6 +90,10 @@ class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
         to_field_name='slug',
         label='Cluster type (slug)',
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=ClusterStatusChoices,
+        null_value=None
+    )
 
     class Meta:
         model = Cluster

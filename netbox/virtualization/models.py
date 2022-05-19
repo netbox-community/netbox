@@ -119,6 +119,11 @@ class Cluster(NetBoxModel):
         blank=True,
         null=True
     )
+    status = models.CharField(
+        max_length=50,
+        choices=ClusterStatusChoices,
+        default=ClusterStatusChoices.STATUS_ACTIVE
+    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
@@ -164,6 +169,9 @@ class Cluster(NetBoxModel):
 
     def get_absolute_url(self):
         return reverse('virtualization:cluster', args=[self.pk])
+
+    def get_status_color(self):
+        return ClusterStatusChoices.colors.get(self.status)
 
     def clean(self):
         super().clean()

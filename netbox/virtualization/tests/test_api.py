@@ -4,6 +4,7 @@ from rest_framework import status
 from dcim.choices import InterfaceModeChoices
 from ipam.models import VLAN, VRF
 from utilities.testing import APITestCase, APIViewTestCases
+from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
@@ -85,6 +86,7 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
     model = Cluster
     brief_fields = ['display', 'id', 'name', 'url', 'virtualmachine_count']
     bulk_update_data = {
+        'status': 'offline',
         'comments': 'New comment',
     }
 
@@ -104,9 +106,9 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
         ClusterGroup.objects.bulk_create(cluster_groups)
 
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_types[0], group=cluster_groups[0]),
-            Cluster(name='Cluster 2', type=cluster_types[0], group=cluster_groups[0]),
-            Cluster(name='Cluster 3', type=cluster_types[0], group=cluster_groups[0]),
+            Cluster(name='Cluster 1', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
+            Cluster(name='Cluster 2', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
+            Cluster(name='Cluster 3', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
         )
         Cluster.objects.bulk_create(clusters)
 
@@ -115,16 +117,19 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Cluster 4',
                 'type': cluster_types[1].pk,
                 'group': cluster_groups[1].pk,
+                'status': ClusterStatusChoices.STATUS_STAGING,
             },
             {
                 'name': 'Cluster 5',
                 'type': cluster_types[1].pk,
                 'group': cluster_groups[1].pk,
+                'status': ClusterStatusChoices.STATUS_STAGING,
             },
             {
                 'name': 'Cluster 6',
                 'type': cluster_types[1].pk,
                 'group': cluster_groups[1].pk,
+                'status': ClusterStatusChoices.STATUS_STAGING,
             },
         ]
 

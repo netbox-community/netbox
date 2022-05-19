@@ -44,6 +44,10 @@ class ClusterCSVForm(NetBoxModelCSVForm):
         required=False,
         help_text='Assigned cluster group'
     )
+    status = CSVChoiceField(
+        choices=ClusterStatusChoices,
+        help_text='Operational status'
+    )
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -59,7 +63,7 @@ class ClusterCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Cluster
-        fields = ('name', 'type', 'group', 'site', 'comments')
+        fields = ('name', 'type', 'group', 'status', 'site', 'comments')
 
 
 class VirtualMachineCSVForm(NetBoxModelCSVForm):

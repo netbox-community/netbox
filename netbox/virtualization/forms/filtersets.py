@@ -35,7 +35,7 @@ class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
     model = Cluster
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Attributes', ('group_id', 'type_id')),
+        ('Attributes', ('group_id', 'type_id', 'status')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role')),
@@ -49,6 +49,10 @@ class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         queryset=Region.objects.all(),
         required=False,
         label=_('Region')
+    )
+    status = MultipleChoiceField(
+        choices=ClusterStatusChoices,
+        required=False
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),

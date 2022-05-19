@@ -58,6 +58,12 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
         queryset=ClusterGroup.objects.all(),
         required=False
     )
+    status = forms.ChoiceField(
+        choices=add_blank_choice(ClusterStatusChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -85,7 +91,7 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Cluster
     fieldsets = (
-        (None, ('type', 'group', 'tenant',)),
+        (None, ('type', 'group', 'status', 'tenant',)),
         ('Site', ('region', 'site_group', 'site',)),
     )
     nullable_fields = (

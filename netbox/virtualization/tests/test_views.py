@@ -101,9 +101,9 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ClusterType.objects.bulk_create(clustertypes)
 
         Cluster.objects.bulk_create([
-            Cluster(name='Cluster 1', group=clustergroups[0], type=clustertypes[0], site=sites[0]),
-            Cluster(name='Cluster 2', group=clustergroups[0], type=clustertypes[0], site=sites[0]),
-            Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], site=sites[0]),
+            Cluster(name='Cluster 1', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[0]),
+            Cluster(name='Cluster 2', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[0]),
+            Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[0]),
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
@@ -112,6 +112,7 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'name': 'Cluster X',
             'group': clustergroups[1].pk,
             'type': clustertypes[1].pk,
+            'status': ClusterStatusChoices.STATUS_OFFLINE,
             'tenant': None,
             'site': sites[1].pk,
             'comments': 'Some comments',
@@ -119,15 +120,16 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,type",
-            "Cluster 4,Cluster Type 1",
-            "Cluster 5,Cluster Type 1",
-            "Cluster 6,Cluster Type 1",
+            "name,type,status",
+            "Cluster 4,Cluster Type 1,active",
+            "Cluster 5,Cluster Type 1,active",
+            "Cluster 6,Cluster Type 1,active",
         )
 
         cls.bulk_edit_data = {
             'group': clustergroups[1].pk,
             'type': clustertypes[1].pk,
+            'status': ClusterStatusChoices.STATUS_OFFLINE,
             'tenant': None,
             'site': sites[1].pk,
             'comments': 'New comments',

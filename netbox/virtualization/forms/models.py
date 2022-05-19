@@ -79,15 +79,19 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Cluster', ('name', 'type', 'group', 'region', 'site_group', 'site', 'tags')),
+        ('Cluster', ('name', 'type', 'group', 'status', 'tags')),
+        ('Site', ('region', 'site_group', 'site')),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
 
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'tenant', 'region', 'site_group', 'site', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'tenant', 'region', 'site_group', 'site', 'comments', 'tags',
         )
+        widgets = {
+            'status': StaticSelect(),
+        }
 
 
 class ClusterAddDevicesForm(BootstrapMixin, forms.Form):

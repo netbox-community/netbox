@@ -45,6 +45,7 @@ class ClusterSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
     type = NestedClusterTypeSerializer()
     group = NestedClusterGroupSerializer(required=False, allow_null=True, default=None)
+    status = ChoiceField(choices=ClusterStatusChoices, required=False)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True, default=None)
     device_count = serializers.IntegerField(read_only=True)
@@ -53,8 +54,8 @@ class ClusterSerializer(NetBoxModelSerializer):
     class Meta:
         model = Cluster
         fields = [
-            'id', 'url', 'display', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated', 'device_count', 'virtualmachine_count',
+            'id', 'url', 'display', 'name', 'type', 'group', 'status', 'tenant', 'site', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
 
 

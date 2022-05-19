@@ -123,9 +123,9 @@ class ClusterTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_types[0], group=cluster_groups[0], site=sites[0], tenant=tenants[0]),
-            Cluster(name='Cluster 2', type=cluster_types[1], group=cluster_groups[1], site=sites[1], tenant=tenants[1]),
-            Cluster(name='Cluster 3', type=cluster_types[2], group=cluster_groups[2], site=sites[2], tenant=tenants[2]),
+            Cluster(name='Cluster 1', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED, site=sites[0], tenant=tenants[0]),
+            Cluster(name='Cluster 2', type=cluster_types[1], group=cluster_groups[1], status=ClusterStatusChoices.STATUS_STAGING, site=sites[1], tenant=tenants[1]),
+            Cluster(name='Cluster 3', type=cluster_types[2], group=cluster_groups[2], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[2], tenant=tenants[2]),
         )
         Cluster.objects.bulk_create(clusters)
 
@@ -159,6 +159,10 @@ class ClusterTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'group_id': [groups[0].pk, groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'group': [groups[0].slug, groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_status(self):
+        params = {'status': [ClusterStatusChoices.STATUS_PLANNED, ClusterStatusChoices.STATUS_STAGING]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
