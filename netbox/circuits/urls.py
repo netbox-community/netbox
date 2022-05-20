@@ -1,6 +1,6 @@
 from django.urls import path
 
-from dcim.views import CableCreateView, PathTraceView
+from dcim.views import CableEditView, PathTraceView
 from netbox.views.generic import ObjectChangeLogView, ObjectJournalView
 from . import views
 from .models import *
@@ -61,6 +61,6 @@ urlpatterns = [
     path('circuit-terminations/<int:pk>/edit/', views.CircuitTerminationEditView.as_view(), name='circuittermination_edit'),
     path('circuit-terminations/<int:pk>/delete/', views.CircuitTerminationDeleteView.as_view(), name='circuittermination_delete'),
     path('circuit-terminations/<int:pk>/trace/', PathTraceView.as_view(), name='circuittermination_trace', kwargs={'model': CircuitTermination}),
-    path('circuit-terminations/connect/', CableCreateView.as_view(), name='circuittermination_connect', kwargs={'termination_a_type': CircuitTermination}),
+    path('circuit-terminations/connect/', CableEditView.as_view(), name='circuittermination_connect', kwargs={'termination_a_type': CircuitTermination}),
 
 ]

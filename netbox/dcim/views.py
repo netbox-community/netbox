@@ -12,12 +12,12 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from circuits.models import Circuit
+from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
-from utilities.forms import ConfirmationForm
+from utilities.forms import ConfirmationForm, restrict_form_fields
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.utils import count_related
@@ -2804,72 +2804,49 @@ class PathTraceView(generic.ObjectView):
         }
 
 
-class CableCreateView(generic.ObjectEditView):
+class CableEditView(generic.ObjectEditView):
     queryset = Cable.objects.all()
-    template_name = 'dcim/cable_connect.html'
+    template_name = 'dcim/cable_edit.html'
 
     def dispatch(self, request, *args, **kwargs):
 
-        # Set the form class based on the type of component being connected
-        self.form = {
-            'dcim.consoleport': forms.ConnectCableToConsolePortForm,
-            'dcim.consoleserverport': forms.ConnectCableToConsoleServerPortForm,
-            'dcim.powerport': forms.ConnectCableToPowerPortForm,
-            'dcim.poweroutlet': forms.ConnectCableToPowerOutletForm,
-            'dcim.interface': forms.ConnectCableToInterfaceForm,
-            'dcim.frontport': forms.ConnectCableToFrontPortForm,
-            'dcim.rearport': forms.ConnectCableToRearPortForm,
-            'dcim.powerfeed': forms.ConnectCableToPowerFeedForm,
-            'circuits.circuittermination': forms.ConnectCableToCircuitTerminationForm,
-        }[request.GET.get('termination_b_type')]
+        # If creating a new Cable, initialize the form class using URL query params
+        if 'pk' not in kwargs:
+            termination_types = {
+                'dcim.consoleport': ConsolePort,
+                'dcim.consoleserverport': ConsoleServerPort,
+                'dcim.powerport': PowerPort,
+                'dcim.poweroutlet': PowerOutlet,
+                'dcim.interface': Interface,
+                'dcim.frontport': FrontPort,
+                'dcim.rearport': RearPort,
+                'dcim.powerfeed': PowerFeed,
+                'circuits.circuittermination': CircuitTermination,
+            }
+
+            a_type = kwargs.pop('termination_a_type')
+            b_type = termination_types[request.GET.get('termination_b_type')]
+
+            self.form = forms.get_cable_form(a_type, b_type)
 
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, **kwargs):
-        # Always return a new instance
-        return self.queryset.model()
+        """
+        Hack into get_object() to set the form class when editing an existing Cable, since ObjectEditView
+        doesn't currently provide a hook for dynamic class resolution.
+        """
+        obj = super().get_object(**kwargs)
 
-    def get(self, request, *args, **kwargs):
-        obj = self.get_object(**kwargs)
-        obj = self.alter_object(obj, request, args, kwargs)
-        initial_data = request.GET
+        if obj.pk:
+            # TODO: Optimize this logic
+            termination_a = obj.terminations.filter(cable_end='A').first()
+            a_type = termination_a.termination._meta.model if termination_a else None
+            termination_b = obj.terminations.filter(cable_end='B').first()
+            b_type = termination_b.termination._meta.model if termination_a else None
+            self.form = forms.get_cable_form(a_type, b_type)
 
-        app_label, model = request.GET.get('termination_b_type').split('.')
-        termination_b_type = ContentType.objects.get(app_label=app_label, model=model)
-
-        # TODO
-        # # Set initial site and rack based on side A termination (if not already set)
-        # termination_a_site = getattr(obj.termination_a.parent_object, 'site', None)
-        # if 'termination_b_site' not in initial_data:
-        #     initial_data['termination_b_site'] = termination_a_site
-        # if 'termination_b_rack' not in initial_data:
-        #     initial_data['termination_b_rack'] = getattr(obj.termination_a.parent_object, 'rack', None)
-        form = self.form(instance=obj, initial=initial_data)
-
-        # TODO Find a better way to infer the near-end parent object
-        termination_a = kwargs['termination_a_type'].objects.filter(pk=int(initial_data['a_terminations'])).first()
-
-        # Set the queryset of termination A
-        form.fields['a_terminations'].queryset = kwargs['termination_a_type'].objects.all()
-        form.fields['a_terminations'].widget.add_query_params({
-            'device_id': termination_a.device_id,
-        })
-
-        return render(request, self.template_name, {
-            'obj': obj,
-            'obj_type': Cable._meta.verbose_name,
-            'termination_a_type': kwargs['termination_a_type']._meta.model_name,
-            'termination_a_parent': termination_a.parent_object,
-            'termination_b_type': termination_b_type.name,
-            'form': form,
-            'return_url': self.get_return_url(request, obj),
-        })
-
-
-class CableEditView(generic.ObjectEditView):
-    queryset = Cable.objects.all()
-    form = forms.CableForm
-    template_name = 'dcim/cable_edit.html'
+        return obj
 
 
 class CableDeleteView(generic.ObjectDeleteView):
