@@ -1,7 +1,6 @@
 # Permissions
 
-NetBox v2.9 introduced a new object-based permissions framework, which replaces Django's built-in permissions model. Object-based permissions enable an administrator to grant users or groups the ability to perform an action on arbitrary subsets of objects in NetBox, rather than all objects of a certain type. For example, it is possible to grant a user permission to view only sites within a particular region, or to modify only VLANs with a numeric ID within a certain range.
-
+NetBox v2.9 introduced a new object-based permissions framework, which replaces Django's built-in permissions model. Object-based permissions enable an administrator to grant users or groups the ability to perform an action on arbitrary subsets of objects in NetBox, rather than all objects of a certain type. For example, it is possible to grant a user permission to view only sites within a particular region, or to modify only VLANs with a numeric ID within a certain range. To allow/deny unauthenticated users to view access see the [LOGIN_REQUIRED](../configuration/optional-settings.md) configuration setting 
 {!models/users/objectpermission.md!}
 
 ### Example Constraint Definitions
