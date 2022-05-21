@@ -1135,3 +1135,25 @@ class PowerFeedSerializer(NetBoxModelSerializer, LinkTerminationSerializer, Conn
             'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields',
             'created', 'last_updated', '_occupied',
         ]
+
+
+
+
+class SimpleDeviceSerializer(NetBoxModelSerializer):
+
+    tenant = NestedTenantSerializer(required=False, allow_null=True, default=None)
+    site = NestedSiteSerializer()
+    location = NestedLocationSerializer(required=False, allow_null=True, default=None)
+    rack = NestedRackSerializer(required=False, allow_null=True, default=None)
+    face = ChoiceField(choices=DeviceFaceChoices, allow_blank=True, default='')
+    position = serializers.IntegerField(allow_null=True, label='Position (U)', min_value=1, default=None)
+    status = ChoiceField(choices=DeviceStatusChoices, required=False)
+    primary_ip = NestedIPAddressSerializer(read_only=True)
+    primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
+    primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
+    class Meta:
+        model = Device
+        fields = [
+            'id', 'name',  'tenant', 'site', 'location', 'rack', 'face', 
+            'position', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6'
+        ]
