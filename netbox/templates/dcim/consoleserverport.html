@@ -113,28 +113,13 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a
-                                            class="dropdown-item"
-                                            href="{% url 'dcim:consoleserverport_connect' %}?a_terminations={{ object.pk }}&termination_b_type=dcim.consoleport&return_url={{ object.get_absolute_url }}"
-                                        >
-                                            Console Port
-                                        </a>
+                                        <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.consoleserverport&a_terminations={{ object.pk }}&b_terminations_type=dcim.consoleport&return_url={{ object.get_absolute_url }}" class="dropdown-item">Console Port</a>
                                     </li>
                                     <li>
-                                        <a
-                                            class="dropdown-item"
-                                            href="{% url 'dcim:consoleserverport_connect' %}?a_terminations={{ object.pk }}&termination_b_type=dcim.frontport&return_url={{ object.get_absolute_url }}"
-                                        >
-                                            Front Port
-                                        </a>
+                                        <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.consoleserverport&a_terminations={{ object.pk }}&b_terminations_type=dcim.frontport&return_url={{ object.get_absolute_url }}" class="dropdown-item">Front Port</a>
                                     </li>
                                     <li>
-                                        <a
-                                            class="dropdown-item"
-                                            href="{% url 'dcim:consoleserverport_connect' %}?a_terminations={{ object.pk }}&termination_b_type=dcim.rearport&return_url={{ object.get_absolute_url }}"
-                                        >
-                                            Rear Port
-                                        </a>
+                                        <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.consoleserverport&a_terminations={{ object.pk }}&b_terminations_type=dcim.rearport&return_url={{ object.get_absolute_url }}" class="dropdown-item">Rear Port</a>
                                     </li>
                                 </ul>
                             </div>

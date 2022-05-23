@@ -17,7 +17,7 @@ from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
-from utilities.forms import ConfirmationForm, restrict_form_fields
+from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.utils import count_related
@@ -2824,8 +2824,8 @@ class CableEditView(generic.ObjectEditView):
                 'circuits.circuittermination': CircuitTermination,
             }
 
-            a_type = kwargs.pop('termination_a_type')
-            b_type = termination_types[request.GET.get('termination_b_type')]
+            a_type = termination_types.get(request.GET.get('a_terminations_type'))
+            b_type = termination_types.get(request.GET.get('b_terminations_type'))
 
             self.form = forms.get_cable_form(a_type, b_type)
 
