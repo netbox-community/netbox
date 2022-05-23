@@ -19,7 +19,7 @@ def get_cable_form(a_type, b_type):
                     label='Region',
                     required=False,
                     initial_params={
-                        'sites': '$termination_{cable_end}_site'
+                        'sites': f'$termination_{cable_end}_site'
                     }
                 )
                 attrs[f'termination_{cable_end}_sitegroup'] = DynamicModelChoiceField(
@@ -27,7 +27,7 @@ def get_cable_form(a_type, b_type):
                     label='Site group',
                     required=False,
                     initial_params={
-                        'sites': '$termination_{cable_end}_site'
+                        'sites': f'$termination_{cable_end}_site'
                     }
                 )
                 attrs[f'termination_{cable_end}_site'] = DynamicModelChoiceField(
@@ -35,8 +35,8 @@ def get_cable_form(a_type, b_type):
                     label='Site',
                     required=False,
                     query_params={
-                        'region_id': '$termination_{cable_end}_region',
-                        'group_id': '$termination_{cable_end}_sitegroup',
+                        'region_id': f'$termination_{cable_end}_region',
+                        'group_id': f'$termination_{cable_end}_sitegroup',
                     }
                 )
                 attrs[f'termination_{cable_end}_location'] = DynamicModelChoiceField(
@@ -45,7 +45,7 @@ def get_cable_form(a_type, b_type):
                     required=False,
                     null_option='None',
                     query_params={
-                        'site_id': '$termination_{cable_end}_site'
+                        'site_id': f'$termination_{cable_end}_site'
                     }
                 )
 
@@ -57,15 +57,21 @@ def get_cable_form(a_type, b_type):
                         label='Rack',
                         required=False,
                         null_option='None',
+                        initial_params={
+                            'devices': f'$termination_{cable_end}_device'
+                        },
                         query_params={
-                            'site_id': '$termination_{cable_end}_site',
-                            'location_id': '$termination_{cable_end}_location',
+                            'site_id': f'$termination_{cable_end}_site',
+                            'location_id': f'$termination_{cable_end}_location',
                         }
                     )
                     attrs[f'termination_{cable_end}_device'] = DynamicModelChoiceField(
                         queryset=Device.objects.all(),
                         label='Device',
                         required=False,
+                        initial_params={
+                            f'{term_cls._meta.model_name}s__in': f'${cable_end}_terminations'
+                        },
                         query_params={
                             'site_id': f'$termination_{cable_end}_site',
                             'location_id': f'$termination_{cable_end}_location',
@@ -88,6 +94,9 @@ def get_cable_form(a_type, b_type):
                         queryset=PowerPanel.objects.all(),
                         label='Power Panel',
                         required=False,
+                        initial_params={
+                            'powerfeeds__in': f'${cable_end}_terminations'
+                        },
                         query_params={
                             'site_id': f'$termination_{cable_end}_site',
                             'location_id': f'$termination_{cable_end}_location',
@@ -108,11 +117,17 @@ def get_cable_form(a_type, b_type):
                     attrs[f'termination_{cable_end}_provider'] = DynamicModelChoiceField(
                         queryset=Provider.objects.all(),
                         label='Provider',
+                        initial_params={
+                            'circuits': f'$termination_{cable_end}_circuit'
+                        },
                         required=False
                     )
                     attrs[f'termination_{cable_end}_circuit'] = DynamicModelChoiceField(
                         queryset=Circuit.objects.all(),
                         label='Circuit',
+                        initial_params={
+                            'terminations__in': f'${cable_end}_terminations'
+                        },
                         query_params={
                             'provider_id': f'$termination_{cable_end}_provider',
                             'site_id': f'$termination_{cable_end}_site',
@@ -130,6 +145,20 @@ def get_cable_form(a_type, b_type):
             return super().__new__(mcs, name, bases, attrs)
 
     class _CableForm(CableForm, metaclass=FormMetaclass):
+
+        def __init__(self, *args, **kwargs):
+
+            # TODO: Temporary hack to work around list handling limitations with utils.normalize_querydict()
+            for field_name in ('a_terminations', 'b_terminations'):
+                if field_name in kwargs['initial'] and type(kwargs['initial'][field_name]) is not list:
+                    kwargs['initial'][field_name] = [kwargs['initial'][field_name]]
+
+            super().__init__(*args, **kwargs)
+
+            if self.instance and self.instance.pk:
+                # Initialize A/B terminations when modifying an existing Cable instance
+                self.initial['a_terminations'] = self.instance.get_a_terminations()
+                self.initial['b_terminations'] = self.instance.get_b_terminations()
 
         def save(self, *args, **kwargs):
 
