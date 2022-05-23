@@ -2631,11 +2631,10 @@ class CableTestCase(
 
         interface_ct = ContentType.objects.get_for_model(Interface)
         cls.form_data = {
+            # TODO: Revisit this limitation
             # Changing terminations not supported when editing an existing Cable
-            'termination_a_type': interface_ct.pk,
-            'termination_a_id': interfaces[0].pk,
-            'termination_b_type': interface_ct.pk,
-            'termination_b_id': interfaces[3].pk,
+            'a_terminations': interfaces[0].pk,
+            'b_terminations': interfaces[3].pk,
             'type': CableTypeChoices.TYPE_CAT6,
             'status': LinkStatusChoices.STATUS_PLANNED,
             'label': 'Label',

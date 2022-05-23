@@ -99,6 +99,14 @@ class CableType(NetBoxObjectType):
         return self.length_unit or None
 
 
+class CableTerminationType(NetBoxObjectType):
+
+    class Meta:
+        model = models.CableTermination
+        fields = '__all__'
+        filterset_class = filtersets.CableTerminationFilterSet
+
+
 class ConsolePortType(ComponentObjectType):
 
     class Meta:

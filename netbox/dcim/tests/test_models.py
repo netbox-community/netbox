@@ -521,14 +521,6 @@ class CableTestCase(TestCase):
         self.assertIsNone(interface2.cable)
         self.assertIsNone(interface2._link_peer)
 
-    def test_cabletermination_deletion(self):
-        """
-        When a CableTermination object is deleted, its attached Cable (if any) must also be deleted.
-        """
-        self.interface1.delete()
-        cable = Cable.objects.filter(pk=self.cable.pk).first()
-        self.assertIsNone(cable)
-
     def test_cable_validates_compatible_types(self):
         """
         The clean method should have a check to ensure only compatible port types can be connected by a cable
@@ -538,28 +530,11 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
-    def test_cable_cannot_have_the_same_terminination_on_both_ends(self):
-        """
-        A cable cannot be made with the same A and B side terminations
-        """
-        cable = Cable(a_terminations=[self.interface1], b_terminations=[self.interface1])
-        with self.assertRaises(ValidationError):
-            cable.clean()
-
     def test_cable_front_port_cannot_connect_to_corresponding_rear_port(self):
         """
         A cable cannot connect a front port to its corresponding rear port
         """
         cable = Cable(a_terminations=[self.front_port1], b_terminations=[self.rear_port1])
-        with self.assertRaises(ValidationError):
-            cable.clean()
-
-    def test_cable_cannot_terminate_to_an_existing_connection(self):
-        """
-        Either side of a cable cannot be terminated when that side already has a connection
-        """
-        # Try to create a cable with the same interface terminations
-        cable = Cable(a_terminations=[self.interface2], b_terminations=[self.interface1])
         with self.assertRaises(ValidationError):
             cable.clean()
 

@@ -150,7 +150,7 @@ def get_cable_form(a_type, b_type):
 
             # TODO: Temporary hack to work around list handling limitations with utils.normalize_querydict()
             for field_name in ('a_terminations', 'b_terminations'):
-                if field_name in kwargs['initial'] and type(kwargs['initial'][field_name]) is not list:
+                if field_name in kwargs.get('initial', {}) and type(kwargs['initial'][field_name]) is not list:
                     kwargs['initial'][field_name] = [kwargs['initial'][field_name]]
 
             super().__init__(*args, **kwargs)
