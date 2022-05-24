@@ -70,7 +70,7 @@ CORS_ORIGIN_WHITELIST = [
 
 Default: `csrftoken`
 
-The name of the cookie to use for the CSRF authentication token. See the [Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#session-cookie-name) for more detail.
+The name of the cookie to use for the cross-site request forgery (CSRF) authentication token. See the [Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#csrf-cookie-name) for more detail.
 
 ---
 
