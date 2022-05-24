@@ -182,7 +182,7 @@ class NetBoxTable(BaseTable):
         custom_fields = CustomField.objects.filter(
             content_types=content_type
         ).exclude(ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN)
-        
+
         extra_columns.extend([
             (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in custom_fields
         ])
