@@ -192,32 +192,35 @@ class ActionsColumn(tables.Column):
         model = table.Meta.model
         request = getattr(table, 'context', {}).get('request')
         url_appendix = f'?return_url={request.path}' if request else ''
+        html = ''
 
+        # Compile actions menu
         links = []
         user = getattr(request, 'user', AnonymousUser())
         for action, attrs in self.actions.items():
             permission = f'{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}'
             if attrs.permission is None or user.has_perm(permission):
                 url = reverse(get_viewname(model, action), kwargs={'pk': record.pk})
-                links.append(f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
-                             f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>')
-
-        if not links:
-            return ''
-
-        menu = f'<span class="dropdown">' \
-               f'<a class="btn btn-sm btn-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown">' \
-               f'<i class="mdi mdi-wrench"></i></a>' \
-               f'<ul class="dropdown-menu">{"".join(links)}</ul></span>'
+                links.append(
+                    f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
+                    f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>'
+                )
+        if links:
+            html += (
+                f'<span class="dropdown">'
+                f'<a class="btn btn-sm btn-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown">'
+                f'<i class="mdi mdi-wrench"></i></a>'
+                f'<ul class="dropdown-menu">{"".join(links)}</ul></span>'
+            )
 
         # Render any extra buttons from template code
         if self.extra_buttons:
             template = Template(self.extra_buttons)
             context = getattr(table, "context", Context())
             context.update({'record': record})
-            menu = template.render(context) + menu
+            html = template.render(context) + html
 
-        return mark_safe(menu)
+        return mark_safe(html)
 
 
 class ChoiceFieldColumn(tables.Column):
