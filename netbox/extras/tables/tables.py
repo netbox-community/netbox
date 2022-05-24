@@ -28,12 +28,13 @@ class CustomFieldTable(NetBoxTable):
     )
     content_types = columns.ContentTypesColumn()
     required = columns.BooleanColumn()
+    ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
 
     class Meta(NetBoxTable.Meta):
         model = CustomField
         fields = (
             'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'weight', 'default',
-            'description', 'filter_logic', 'choices', 'created', 'last_updated',
+            'description', 'filter_logic', 'choices', 'created', 'last_updated', 'ui_visibility',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
 

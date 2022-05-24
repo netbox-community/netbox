@@ -37,7 +37,7 @@ class CustomFieldCSVForm(CSVModelForm):
         model = CustomField
         fields = (
             'name', 'label', 'group_name', 'type', 'content_types', 'required', 'description', 'weight', 'filter_logic',
-            'default', 'choices', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
+            'default', 'choices', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'ui_visibility',
         )
 
 

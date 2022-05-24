@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 
 from extras.models import *
+from extras.choices import CustomFieldVisibilityChoices
 
 __all__ = (
     'CustomFieldsMixin',
@@ -42,8 +43,14 @@ class CustomFieldsMixin:
         Append form fields for all CustomFields assigned to this object type.
         """
         for customfield in self._get_custom_fields(self._get_content_type()):
+            if customfield.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN:
+                continue
+
             field_name = f'cf_{customfield.name}'
             self.fields[field_name] = self._get_form_field(customfield)
+
+            if customfield.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY:
+                self.fields[field_name].disabled = True
 
             # Annotate the field in the list of CustomField form fields
             self.custom_fields[field_name] = customfield
