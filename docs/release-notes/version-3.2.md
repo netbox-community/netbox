@@ -8,6 +8,7 @@
 * [#8922](https://github.com/netbox-community/netbox/issues/8922) - Add service list to IP address view
 * [#9098](https://github.com/netbox-community/netbox/issues/9098) - Add "other" types for power ports/outlets, pass-through ports
 * [#9239](https://github.com/netbox-community/netbox/issues/9239) - Enable filtering by contact group for all models which support contact assignment
+* [#9379](https://github.com/netbox-community/netbox/issues/9379) - Redirect to virtual chassis view after adding a member device
 
 ### Bug Fixes
 
