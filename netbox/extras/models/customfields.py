@@ -136,6 +136,12 @@ class CustomField(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         null=True,
         help_text='Comma-separated list of available choices (for selection fields)'
     )
+    ui_visibility = models.CharField(
+        max_length=50,
+        choices=CustomFieldVisibilityChoices,
+        default=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE,
+        help_text='Specifies the visibility of custom field in the UI.'
+    )
     objects = CustomFieldManager()
 
     class Meta:

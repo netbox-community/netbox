@@ -32,7 +32,7 @@ __all__ = (
 class CustomFieldFilterForm(FilterForm):
     fieldsets = (
         (None, ('q',)),
-        ('Attributes', ('content_types', 'type', 'group_name', 'weight', 'required')),
+        ('Attributes', ('content_types', 'type', 'group_name', 'weight', 'required', 'ui_visibility')),
     )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
@@ -55,6 +55,12 @@ class CustomFieldFilterForm(FilterForm):
         widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    ui_visibility = forms.ChoiceField(
+        choices=add_blank_choice(CustomFieldVisibilityChoices),
+        required=False,
+        label=_('UI Visibility'),
+        widget=StaticSelect()
     )
 
 

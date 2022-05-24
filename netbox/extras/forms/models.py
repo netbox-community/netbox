@@ -41,7 +41,7 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
 
     fieldsets = (
         ('Custom Field', (
-            'content_types', 'name', 'label', 'group_name', 'type', 'object_type', 'weight', 'required', 'description',
+            'content_types', 'name', 'label', 'group_name', 'type', 'object_type', 'weight', 'required', 'description', 'ui_visibility',
         )),
         ('Behavior', ('filter_logic',)),
         ('Values', ('default', 'choices')),
@@ -58,6 +58,7 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'type': StaticSelect(),
             'filter_logic': StaticSelect(),
+            'ui_visibility': StaticSelect(),
         }
 
 
