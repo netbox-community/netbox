@@ -16,10 +16,11 @@ from dcim.tables import (
     RackReservationTable, SiteTable, VirtualChassisTable,
 )
 from ipam.filtersets import (
-    AggregateFilterSet, ASNFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet,
+    AggregateFilterSet, ASNFilterSet, IPAddressFilterSet, PrefixFilterSet, ServiceFilterSet, VLANFilterSet,
+    VRFFilterSet,
 )
-from ipam.models import Aggregate, ASN, IPAddress, Prefix, VLAN, VRF
-from ipam.tables import AggregateTable, ASNTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
+from ipam.models import Aggregate, ASN, IPAddress, Prefix, Service, VLAN, VRF
+from ipam.tables import AggregateTable, ASNTable, IPAddressTable, PrefixTable, ServiceTable, VLANTable, VRFTable
 from tenancy.filtersets import ContactFilterSet, TenantFilterSet
 from tenancy.models import Contact, Tenant, ContactAssignment
 from tenancy.tables import ContactTable, TenantTable
@@ -190,6 +191,12 @@ IPAM_TYPES = OrderedDict(
             'filterset': ASNFilterSet,
             'table': ASNTable,
             'url': 'ipam:asn_list',
+        }),
+        ('service', {
+            'queryset': Service.objects.prefetch_related('device', 'virtual_machine'),
+            'filterset': ServiceFilterSet,
+            'table': ServiceTable,
+            'url': 'ipam:service_list',
         }),
     )
 )
