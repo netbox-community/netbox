@@ -140,7 +140,8 @@ class CustomField(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         max_length=50,
         choices=CustomFieldVisibilityChoices,
         default=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE,
-        help_text='Specifies the visibility of custom field in the UI.'
+        verbose_name='UI visibility',
+        help_text='Specifies the visibility of custom field in the UI'
     )
     objects = CustomFieldManager()
 

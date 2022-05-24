@@ -51,6 +51,10 @@ class CustomFieldsMixin:
 
             if customfield.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY:
                 self.fields[field_name].disabled = True
+                if self.fields[field_name].help_text:
+                    self.fields[field_name].help_text += '<br />'
+                self.fields[field_name].help_text += '<i class="mdi mdi-alert-circle-outline"></i> ' \
+                                                     'Field is set to read-only.'
 
             # Annotate the field in the list of CustomField form fields
             self.custom_fields[field_name] = customfield

@@ -59,7 +59,7 @@ class CustomFieldFilterForm(FilterForm):
     ui_visibility = forms.ChoiceField(
         choices=add_blank_choice(CustomFieldVisibilityChoices),
         required=False,
-        label=_('UI Visibility'),
+        label=_('UI visibility'),
         widget=StaticSelect()
     )
 

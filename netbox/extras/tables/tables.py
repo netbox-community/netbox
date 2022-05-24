@@ -34,7 +34,7 @@ class CustomFieldTable(NetBoxTable):
         model = CustomField
         fields = (
             'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'weight', 'default',
-            'description', 'filter_logic', 'choices', 'created', 'last_updated', 'ui_visibility',
+            'description', 'filter_logic', 'ui_visibility', 'choices', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
 

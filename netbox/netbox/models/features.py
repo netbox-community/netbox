@@ -125,7 +125,7 @@ class CustomFieldsMixin(models.Model):
 
     def get_custom_fields_by_group(self):
         """
-        Return a dictionary of custom field/value mappings organized by group.
+        Return a dictionary of custom field/value mappings organized by group. Hidden fields are omitted.
         """
         grouped_custom_fields = defaultdict(dict)
         for cf, value in self.get_custom_fields(omit_hidden=True).items():
