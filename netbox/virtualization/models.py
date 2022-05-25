@@ -200,6 +200,13 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
         on_delete=models.PROTECT,
         related_name='virtual_machines'
     )
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.PROTECT,
+        related_name='virtual_machines',
+        blank=True,
+        null=True
+    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
@@ -315,6 +322,12 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
 
     def clean(self):
         super().clean()
+
+        # Validate assigned cluster device
+        if self.device and self.device not in self.cluster.devices.all():
+            raise ValidationError({
+                'device': f'The selected device ({self.device} is not assigned to this cluster ({self.cluster}).'
+            })
 
         # Validate primary IP addresses
         interfaces = self.interfaces.all()

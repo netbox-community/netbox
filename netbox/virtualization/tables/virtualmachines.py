@@ -33,6 +33,9 @@ class VirtualMachineTable(NetBoxTable):
     cluster = tables.Column(
         linkify=True
     )
+    device = tables.Column(
+        linkify=True
+    )
     role = columns.ColoredLabelColumn()
     tenant = TenantColumn()
     comments = columns.MarkdownColumn()
@@ -56,7 +59,7 @@ class VirtualMachineTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VirtualMachine
         fields = (
-            'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
+            'pk', 'id', 'name', 'status', 'cluster', 'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
             'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (

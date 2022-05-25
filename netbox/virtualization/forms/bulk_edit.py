@@ -2,7 +2,7 @@ from django import forms
 
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
-from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from ipam.models import VLAN, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
@@ -110,6 +110,13 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Cluster.objects.all(),
         required=False
     )
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        query_params={
+            'cluster_id': '$cluster'
+        }
+    )
     role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.filter(
             vm_role=True
@@ -146,11 +153,11 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
 
     model = VirtualMachine
     fieldsets = (
-        (None, ('cluster', 'status', 'role', 'tenant', 'platform')),
+        (None, ('cluster', 'device', 'status', 'role', 'tenant', 'platform')),
         ('Resources', ('vcpus', 'memory', 'disk'))
     )
     nullable_fields = (
-        'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+        'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
     )
 
 

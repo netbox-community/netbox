@@ -3,7 +3,7 @@ from rest_framework import status
 
 from dcim.choices import InterfaceModeChoices
 from ipam.models import VLAN, VRF
-from utilities.testing import APITestCase, APIViewTestCases
+from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -152,8 +152,15 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         )
         Cluster.objects.bulk_create(clusters)
 
+        device1 = create_test_device('device1')
+        device1.cluster = clusters[0]
+        device1.save()
+        device2 = create_test_device('device2')
+        device2.cluster = clusters[1]
+        device2.save()
+
         virtual_machines = (
-            VirtualMachine(name='Virtual Machine 1', cluster=clusters[0], local_context_data={'A': 1}),
+            VirtualMachine(name='Virtual Machine 1', cluster=clusters[0], device=device1, local_context_data={'A': 1}),
             VirtualMachine(name='Virtual Machine 2', cluster=clusters[0], local_context_data={'B': 2}),
             VirtualMachine(name='Virtual Machine 3', cluster=clusters[0], local_context_data={'C': 3}),
         )
@@ -163,6 +170,7 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'Virtual Machine 4',
                 'cluster': clusters[1].pk,
+                'device': device2.pk,
             },
             {
                 'name': 'Virtual Machine 5',

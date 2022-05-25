@@ -9,6 +9,7 @@
 ### Enhancements
 
 * [#1202](https://github.com/netbox-community/netbox/issues/1202) - Support overlapping assignment of NAT IP addresses
+* [#8222](https://github.com/netbox-community/netbox/issues/8222) - Enable the assignment of a VM to a specific host device within a cluster
 * [#8471](https://github.com/netbox-community/netbox/issues/8471) - Add `status` field to Cluster
 * [#8495](https://github.com/netbox-community/netbox/issues/8495) - Enable custom field grouping
 * [#8995](https://github.com/netbox-community/netbox/issues/8995) - Enable arbitrary ordering of REST API results
@@ -26,4 +27,6 @@
     * The `nat_inside` field no longer requires a unique value
     * The `nat_outside` field has changed from a single IP address instance to a list of multiple IP addresses
 * virtualization.Cluster
-    * Add required `status` field (default value: `active`)
+    * Added required `status` field (default value: `active`)
+* virtualization.VirtualMachine
+    * Added `device` field

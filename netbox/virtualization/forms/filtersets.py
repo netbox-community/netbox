@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from extras.forms import LocalConfigContextFilterForm
 from ipam.models import VRF
 from netbox.forms import NetBoxModelFilterSetForm
@@ -87,7 +87,7 @@ class VirtualMachineFilterForm(
     model = VirtualMachine
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Cluster', ('cluster_group_id', 'cluster_type_id', 'cluster_id')),
+        ('Cluster', ('cluster_group_id', 'cluster_type_id', 'cluster_id', 'device_id')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Attriubtes', ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
@@ -109,6 +109,11 @@ class VirtualMachineFilterForm(
         queryset=Cluster.objects.all(),
         required=False,
         label=_('Cluster')
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Device')
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),

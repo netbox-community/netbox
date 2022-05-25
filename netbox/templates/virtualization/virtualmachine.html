@@ -78,9 +78,7 @@
     </div>
 	<div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">
-                Cluster
-            </h5>
+            <h5 class="card-header">Cluster</h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
@@ -96,13 +94,17 @@
                         <th scope="row">Cluster Type</th>
                         <td>{{ object.cluster.type }}</td>
                     </tr>
+                    <tr>
+                        <th scope="row">Device</th>
+                        <td>
+                            {{ object.device|linkify|placeholder }}
+                        </td>
+                    </tr>
                 </table>
             </div>
         </div>
         <div class="card">
-            <h5 class="card-header">
-                Resources
-            </h5>
+            <h5 class="card-header">Resources</h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>

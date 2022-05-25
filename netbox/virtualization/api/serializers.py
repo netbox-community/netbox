@@ -1,7 +1,9 @@
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
-from dcim.api.nested_serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
+from dcim.api.nested_serializers import (
+    NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer,
+)
 from dcim.choices import InterfaceModeChoices
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer, NestedVRFSerializer
 from ipam.models import VLAN
@@ -68,6 +70,7 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
     status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
     site = NestedSiteSerializer(read_only=True)
     cluster = NestedClusterSerializer()
+    device = NestedDeviceSerializer(required=False, allow_null=True)
     role = NestedDeviceRoleSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     platform = NestedPlatformSerializer(required=False, allow_null=True)
@@ -78,9 +81,9 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip',
-            'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
+            'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data',
+            'tags', 'custom_fields', 'created', 'last_updated',
         ]
         validators = []
 
@@ -90,9 +93,9 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
     class Meta(VirtualMachineSerializer.Meta):
         fields = [
-            'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip',
-            'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'tags',
-            'custom_fields', 'config_context', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
+            'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data',
+            'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)

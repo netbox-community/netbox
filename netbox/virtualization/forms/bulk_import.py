@@ -1,5 +1,5 @@
 from dcim.choices import InterfaceModeChoices
-from dcim.models import DeviceRole, Platform, Site
+from dcim.models import Device, DeviceRole, Platform, Site
 from ipam.models import VRF
 from netbox.forms import NetBoxModelCSVForm
 from tenancy.models import Tenant
@@ -76,6 +76,12 @@ class VirtualMachineCSVForm(NetBoxModelCSVForm):
         to_field_name='name',
         help_text='Assigned cluster'
     )
+    device = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Assigned device within cluster'
+    )
     role = CSVModelChoiceField(
         queryset=DeviceRole.objects.filter(
             vm_role=True
@@ -100,7 +106,7 @@ class VirtualMachineCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = VirtualMachine
         fields = (
-            'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+            'name', 'status', 'role', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
         )
 
 
