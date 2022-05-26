@@ -116,20 +116,6 @@ class Cable(NetBoxModel):
         if b_terminations is not None:
             self.b_terminations = b_terminations
 
-    @classmethod
-    def from_db(cls, db, field_names, values):
-        """
-        Cache the original A and B terminations of existing Cable instances for later reference inside clean().
-        """
-        instance = super().from_db(db, field_names, values)
-
-        # instance._orig_termination_a_type_id = instance.termination_a_type_id
-        # instance._orig_termination_a_ids = instance.termination_a_ids
-        # instance._orig_termination_b_type_id = instance.termination_b_type_id
-        # instance._orig_termination_b_ids = instance.termination_b_ids
-
-        return instance
-
     def __str__(self):
         pk = self.pk or self._pk
         return self.label or f'#{pk}'
@@ -166,12 +152,11 @@ class Cable(NetBoxModel):
         else:
             self._abs_length = None
 
-        # TODO: Move to CableTermination
-        # # Store the parent Device for the A and B terminations (if applicable) to enable filtering
-        # if hasattr(self.termination_a[0], 'device'):
-        #     self._termination_a_device = self.termination_a[0].device
-        # if hasattr(self.termination_b[0], 'device'):
-        #     self._termination_b_device = self.termination_b[0].device
+        # Store the parent Device for the A and B terminations (if applicable) to enable filtering
+        if hasattr(self, 'a_terminations'):
+            self._termination_a_device = self.a_terminations[0].device
+        if hasattr(self, 'b_terminations'):
+            self._termination_b_device = self.b_terminations[0].device
 
         super().save(*args, **kwargs)
 
