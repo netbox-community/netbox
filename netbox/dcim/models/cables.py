@@ -143,6 +143,50 @@ class Cable(NetBoxModel):
         elif self.length is None:
             self.length_unit = ''
 
+        a_terminations = [
+            CableTermination(cable=self, cable_end='A', termination=t) for t in getattr(self, 'a_terminations', [])
+        ]
+        b_terminations = [
+            CableTermination(cable=self, cable_end='B', termination=t) for t in getattr(self, 'b_terminations', [])
+        ]
+
+        # Check that all termination objects for either end are of the same type
+        for terms in (a_terminations, b_terminations):
+            if terms and len(terms) > 1:
+                if not all(t.termination.parent_object == terms[0].termination.parent_object for t in terms[1:]):
+                    raise ValidationError(
+                        "All terminations on one end of a cable must belong to the same parent object."
+                    )
+                if not all(t.termination_type == terms[0].termination_type for t in terms[1:]):
+                    raise ValidationError(
+                        "Cannot connect different termination types to same end of cable."
+                    )
+
+        # Check that termination types are compatible
+        if a_terminations and b_terminations:
+            a_type = a_terminations[0].termination_type.model
+            b_type = b_terminations[0].termination_type.model
+            if b_type not in COMPATIBLE_TERMINATION_TYPES.get(a_type):
+                raise ValidationError(
+                    f"Incompatible termination types: {a_type} and {b_type}"
+                )
+
+        # Run clean() on any new CableTerminations
+        for cabletermination in [*a_terminations, *b_terminations]:
+            cabletermination.clean()
+
+        # TODO
+        # # A front port cannot be connected to its corresponding rear port
+        # if (
+        #     type_a in ['frontport', 'rearport'] and
+        #     type_b in ['frontport', 'rearport'] and
+        #     (
+        #         getattr(self.termination_a, 'rear_port', None) == self.termination_b or
+        #         getattr(self.termination_b, 'rear_port', None) == self.termination_a
+        #     )
+        # ):
+        #     raise ValidationError("A front port cannot be connected to it corresponding rear port")
+
     def save(self, *args, **kwargs):
         _created = self.pk is None
 
@@ -257,25 +301,6 @@ class CableTermination(models.Model):
             raise ValidationError({
                 'termination': "Circuit terminations attached to a provider network may not be cabled."
             })
-
-        # TODO
-        # # A front port cannot be connected to its corresponding rear port
-        # if (
-        #     type_a in ['frontport', 'rearport'] and
-        #     type_b in ['frontport', 'rearport'] and
-        #     (
-        #         getattr(self.termination_a, 'rear_port', None) == self.termination_b or
-        #         getattr(self.termination_b, 'rear_port', None) == self.termination_a
-        #     )
-        # ):
-        #     raise ValidationError("A front port cannot be connected to it corresponding rear port")
-
-        # TODO
-        # # Check that termination types are compatible
-        # if type_b not in COMPATIBLE_TERMINATION_TYPES.get(type_a):
-        #     raise ValidationError(
-        #         f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
-        #     )
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
