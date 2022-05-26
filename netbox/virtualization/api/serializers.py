@@ -68,8 +68,8 @@ class ClusterSerializer(NetBoxModelSerializer):
 class VirtualMachineSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualmachine-detail')
     status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
-    site = NestedSiteSerializer(read_only=True)
-    cluster = NestedClusterSerializer()
+    site = NestedSiteSerializer(required=False, allow_null=True)
+    cluster = NestedClusterSerializer(required=False, allow_null=True)
     device = NestedDeviceSerializer(required=False, allow_null=True)
     role = NestedDeviceRoleSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)

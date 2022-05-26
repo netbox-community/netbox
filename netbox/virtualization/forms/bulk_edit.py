@@ -106,9 +106,16 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         initial='',
         widget=StaticSelect(),
     )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
     )
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
@@ -153,11 +160,11 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
 
     model = VirtualMachine
     fieldsets = (
-        (None, ('cluster', 'device', 'status', 'role', 'tenant', 'platform')),
+        (None, ('site', 'cluster', 'device', 'status', 'role', 'tenant', 'platform')),
         ('Resources', ('vcpus', 'memory', 'disk'))
     )
     nullable_fields = (
-        'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+        'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
     )
 
 
@@ -236,8 +243,10 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
             # See 5643
             if 'pk' in self.initial:
                 site = None
-                interfaces = VMInterface.objects.filter(pk__in=self.initial['pk']).prefetch_related(
-                    'virtual_machine__cluster__site'
+                interfaces = VMInterface.objects.filter(
+                    pk__in=self.initial['pk']
+                ).prefetch_related(
+                    'virtual_machine__site'
                 )
 
                 # Check interface sites.  First interface should set site, further interfaces will either continue the

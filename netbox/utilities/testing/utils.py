@@ -34,11 +34,12 @@ def post_data(data):
     return ret
 
 
-def create_test_device(name, **attrs):
+def create_test_device(name, site=None, **attrs):
     """
     Convenience method for creating a Device (e.g. for component testing).
     """
-    site, _ = Site.objects.get_or_create(name='Site 1', slug='site-1')
+    if site is None:
+        site, _ = Site.objects.get_or_create(name='Site 1', slug='site-1')
     manufacturer, _ = Manufacturer.objects.get_or_create(name='Manufacturer 1', slug='manufacturer-1')
     devicetype, _ = DeviceType.objects.get_or_create(model='Device Type 1', manufacturer=manufacturer)
     devicerole, _ = DeviceRole.objects.get_or_create(name='Device Role 1', slug='device-role-1')

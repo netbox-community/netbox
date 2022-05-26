@@ -168,23 +168,29 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Platform.objects.bulk_create(platforms)
 
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
         clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
 
         clusters = (
-            Cluster(name='Cluster 1', type=clustertype),
-            Cluster(name='Cluster 2', type=clustertype),
+            Cluster(name='Cluster 1', type=clustertype, site=sites[0]),
+            Cluster(name='Cluster 2', type=clustertype, site=sites[1]),
         )
         Cluster.objects.bulk_create(clusters)
 
         devices = (
-            create_test_device('device1', cluster=clusters[0]),
-            create_test_device('device2', cluster=clusters[1]),
+            create_test_device('device1', site=sites[0], cluster=clusters[0]),
+            create_test_device('device2', site=sites[1], cluster=clusters[1]),
         )
 
         VirtualMachine.objects.bulk_create([
-            VirtualMachine(name='Virtual Machine 1', cluster=clusters[0], device=devices[0], role=deviceroles[0], platform=platforms[0]),
-            VirtualMachine(name='Virtual Machine 2', cluster=clusters[0], device=devices[0], role=deviceroles[0], platform=platforms[0]),
-            VirtualMachine(name='Virtual Machine 3', cluster=clusters[0], device=devices[0], role=deviceroles[0], platform=platforms[0]),
+            VirtualMachine(name='Virtual Machine 1', site=sites[0], cluster=clusters[0], device=devices[0], role=deviceroles[0], platform=platforms[0]),
+            VirtualMachine(name='Virtual Machine 2', site=sites[0], cluster=clusters[0], device=devices[0], role=deviceroles[0], platform=platforms[0]),
+            VirtualMachine(name='Virtual Machine 3', site=sites[0], cluster=clusters[0], device=devices[0], role=deviceroles[0], platform=platforms[0]),
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
@@ -192,6 +198,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'cluster': clusters[1].pk,
             'device': devices[1].pk,
+            'site': sites[1].pk,
             'tenant': None,
             'platform': platforms[1].pk,
             'name': 'Virtual Machine X',
@@ -208,13 +215,14 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,status,cluster,device",
-            "Virtual Machine 4,active,Cluster 1,device1",
-            "Virtual Machine 5,active,Cluster 1,device1",
-            "Virtual Machine 6,active,Cluster 1,",
+            "name,status,site,cluster,device",
+            "Virtual Machine 4,active,Site 1,Cluster 1,device1",
+            "Virtual Machine 5,active,Site 1,Cluster 1,device1",
+            "Virtual Machine 6,active,Site 1,Cluster 1,",
         )
 
         cls.bulk_edit_data = {
+            'site': sites[1].pk,
             'cluster': clusters[1].pk,
             'device': devices[1].pk,
             'tenant': None,
@@ -252,8 +260,8 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
         cluster = Cluster.objects.create(name='Cluster 1', type=clustertype, site=site)
         virtualmachines = (
-            VirtualMachine(name='Virtual Machine 1', cluster=cluster, role=devicerole),
-            VirtualMachine(name='Virtual Machine 2', cluster=cluster, role=devicerole),
+            VirtualMachine(name='Virtual Machine 1', site=site, cluster=cluster, role=devicerole),
+            VirtualMachine(name='Virtual Machine 2', site=site, cluster=cluster, role=devicerole),
         )
         VirtualMachine.objects.bulk_create(virtualmachines)
 

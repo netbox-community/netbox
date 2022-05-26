@@ -165,6 +165,9 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
 
 
 class VirtualMachineForm(TenancyForm, NetBoxModelForm):
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all()
+    )
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -176,7 +179,8 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
         query_params={
-            'group_id': '$cluster_group'
+            'site_id': '$site',
+            'group_id': '$cluster_group',
         }
     )
     device = DynamicModelChoiceField(
@@ -204,7 +208,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
 
     fieldsets = (
         ('Virtual Machine', ('name', 'role', 'status', 'tags')),
-        ('Cluster', ('cluster_group', 'cluster', 'device')),
+        ('Cluster', ('site', 'cluster_group', 'cluster', 'device')),
         ('Tenancy', ('tenant_group', 'tenant')),
         ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
         ('Resources', ('vcpus', 'memory', 'disk')),
@@ -214,8 +218,9 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = VirtualMachine
         fields = [
-            'name', 'status', 'cluster_group', 'cluster', 'device', 'role', 'tenant_group', 'tenant', 'platform',
-            'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'tags', 'local_context_data',
+            'name', 'status', 'site', 'cluster_group', 'cluster', 'device', 'role', 'tenant_group', 'tenant',
+            'platform', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'tags',
+            'local_context_data',
         ]
         help_texts = {
             'local_context_data': "Local config context data overwrites all sources contexts in the final rendered "

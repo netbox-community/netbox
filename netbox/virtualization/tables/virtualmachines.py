@@ -30,6 +30,9 @@ class VirtualMachineTable(NetBoxTable):
         linkify=True
     )
     status = columns.ChoiceFieldColumn()
+    site = tables.Column(
+        linkify=True
+    )
     cluster = tables.Column(
         linkify=True
     )
@@ -59,11 +62,11 @@ class VirtualMachineTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VirtualMachine
         fields = (
-            'pk', 'id', 'name', 'status', 'cluster', 'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'vcpus', 'memory',
+            'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
+            'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
         )
 
 

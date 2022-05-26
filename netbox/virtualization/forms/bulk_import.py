@@ -71,9 +71,16 @@ class VirtualMachineCSVForm(NetBoxModelCSVForm):
         choices=VirtualMachineStatusChoices,
         help_text='Operational status'
     )
+    site = CSVModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Assigned site'
+    )
     cluster = CSVModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
+        required=False,
         help_text='Assigned cluster'
     )
     device = CSVModelChoiceField(
@@ -106,7 +113,8 @@ class VirtualMachineCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = VirtualMachine
         fields = (
-            'name', 'status', 'role', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+            'name', 'status', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
+            'comments',
         )
 
 

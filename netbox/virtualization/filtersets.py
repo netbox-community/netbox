@@ -162,37 +162,36 @@ class VirtualMachineFilterSet(
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='cluster__site__region',
+        field_name='site__region',
         lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='cluster__site__region',
+        field_name='site__region',
         lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
     site_group_id = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='cluster__site__group',
+        field_name='site__group',
         lookup_expr='in',
         label='Site group (ID)',
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='cluster__site__group',
+        field_name='site__group',
         lookup_expr='in',
         to_field_name='slug',
         label='Site group (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='cluster__site',
         queryset=Site.objects.all(),
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        field_name='cluster__site__slug',
+        field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
