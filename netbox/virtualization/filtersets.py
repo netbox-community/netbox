@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q
 
-from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from extras.filtersets import LocalConfigContextFilterSet
 from ipam.models import VRF
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
@@ -90,6 +90,10 @@ class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
         to_field_name='slug',
         label='Cluster type (slug)',
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=ClusterStatusChoices,
+        null_value=None
+    )
 
     class Meta:
         model = Cluster
@@ -146,39 +150,48 @@ class VirtualMachineFilterSet(
         to_field_name='name',
         label='Cluster',
     )
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Device.objects.all(),
+        label='Device (ID)',
+    )
+    device = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__name',
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        label='Device',
+    )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='cluster__site__region',
+        field_name='site__region',
         lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='cluster__site__region',
+        field_name='site__region',
         lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
     site_group_id = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='cluster__site__group',
+        field_name='site__group',
         lookup_expr='in',
         label='Site group (ID)',
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='cluster__site__group',
+        field_name='site__group',
         lookup_expr='in',
         to_field_name='slug',
         label='Site group (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='cluster__site',
         queryset=Site.objects.all(),
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        field_name='cluster__site__slug',
+        field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',

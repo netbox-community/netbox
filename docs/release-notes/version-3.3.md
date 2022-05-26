@@ -9,8 +9,12 @@
 ### Enhancements
 
 * [#1202](https://github.com/netbox-community/netbox/issues/1202) - Support overlapping assignment of NAT IP addresses
+* [#5303](https://github.com/netbox-community/netbox/issues/5303) - A virtual machine may be assigned to a site and/or cluster
+* [#8222](https://github.com/netbox-community/netbox/issues/8222) - Enable the assignment of a VM to a specific host device within a cluster
+* [#8471](https://github.com/netbox-community/netbox/issues/8471) - Add `status` field to Cluster
 * [#8495](https://github.com/netbox-community/netbox/issues/8495) - Enable custom field grouping
 * [#8995](https://github.com/netbox-community/netbox/issues/8995) - Enable arbitrary ordering of REST API results
+* [#9166](https://github.com/netbox-community/netbox/issues/9166) - Add UI visibility toggle for custom fields
 
 ### Other Changes
 
@@ -19,7 +23,13 @@
 ### REST API Changes
 
 * extras.CustomField
-    * Added `group_name` field
+    * Added `group_name` and `ui_visibility` fields
 * ipam.IPAddress
     * The `nat_inside` field no longer requires a unique value
     * The `nat_outside` field has changed from a single IP address instance to a list of multiple IP addresses
+* virtualization.Cluster
+    * Added required `status` field (default value: `active`)
+* virtualization.VirtualMachine
+    * Added `device` field
+    * The `site` field is now directly writable (rather than being inferred from the assigned cluster)
+    * The `cluster` field is now optional. A virtual machine must have a site and/or cluster assigned.

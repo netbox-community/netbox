@@ -47,6 +47,19 @@ class CustomFieldFilterLogicChoices(ChoiceSet):
     )
 
 
+class CustomFieldVisibilityChoices(ChoiceSet):
+
+    VISIBILITY_READ_WRITE = 'read-write'
+    VISIBILITY_READ_ONLY = 'read-only'
+    VISIBILITY_HIDDEN = 'hidden'
+
+    CHOICES = (
+        (VISIBILITY_READ_WRITE, 'Read/Write'),
+        (VISIBILITY_READ_ONLY, 'Read-only'),
+        (VISIBILITY_HIDDEN, 'Hidden'),
+    )
+
+
 #
 # CustomLinks
 #

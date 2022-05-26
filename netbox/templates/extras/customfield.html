@@ -42,6 +42,14 @@
             <th scope="row">Weight</th>
             <td>{{ object.weight }}</td>
           </tr>
+          <tr>
+            <th scope="row">Filter Logic</th>
+            <td>{{ object.get_filter_logic_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">UI Visibility</th>
+            <td>{{ object.get_ui_visibility_display }}</td>
+          </tr>
         </table>
       </div>
     </div>
@@ -64,10 +72,6 @@
                 <span class="text-muted">&mdash;</span>
               {% endif %}
             </td>
-          </tr>
-          <tr>
-            <th scope="row">Filter Logic</th>
-            <td>{{ object.get_filter_logic_display }}</td>
           </tr>
         </table>
       </div>
