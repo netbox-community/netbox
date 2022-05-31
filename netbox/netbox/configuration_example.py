@@ -202,6 +202,9 @@ RQ_DEFAULT_TIMEOUT = 300
 # this setting is derived from the installed location.
 # SCRIPTS_ROOT = '/opt/netbox/netbox/scripts'
 
+# The name to use for the csrf token cookie.
+CSRF_COOKIE_NAME = 'csrftoken'
+
 # The name to use for the session cookie.
 SESSION_COOKIE_NAME = 'sessionid'
 

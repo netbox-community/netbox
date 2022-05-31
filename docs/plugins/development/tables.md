@@ -85,4 +85,5 @@ The table column classes listed below are supported for use in plugins. These cl
 
 ::: netbox.tables.TemplateColumn
     selection:
-      members: false
+      members:
+        - __init__
