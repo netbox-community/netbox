@@ -16,6 +16,7 @@
 ### Bug Fixes
 
 * [#9094](https://github.com/netbox-community/netbox/issues/9094) - Fix partial address search within Prefix and Aggregate filters
+* [#9291](https://github.com/netbox-community/netbox/issues/9291) - Improve data validation for MultiObjectVar script fields
 * [#9358](https://github.com/netbox-community/netbox/issues/9358) - Annotate circuit count for providers list under ASN view
 * [#9387](https://github.com/netbox-community/netbox/issues/9387) - Ensure ActionsColumn `extra_buttons` are always displayed
 * [#9402](https://github.com/netbox-community/netbox/issues/9402) - Fix custom field population when creating a virtual chassis
