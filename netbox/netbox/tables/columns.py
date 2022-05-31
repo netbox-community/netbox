@@ -90,6 +90,15 @@ class TemplateColumn(tables.TemplateColumn):
     """
     PLACEHOLDER = mark_safe('&mdash;')
 
+    def __init__(self, export_raw=False, **kwargs):
+        """
+        Args:
+            export_raw: If true, data export returns the raw field value rather than the rendered template. (Default:
+                        False)
+        """
+        super().__init__(**kwargs)
+        self.export_raw = export_raw
+
     def render(self, *args, **kwargs):
         ret = super().render(*args, **kwargs)
         if not ret.strip():
@@ -97,6 +106,10 @@ class TemplateColumn(tables.TemplateColumn):
         return ret
 
     def value(self, **kwargs):
+        if self.export_raw:
+            # Skip template rendering and export raw value
+            return kwargs.get('value')
+
         ret = super().value(**kwargs)
         if ret == self.PLACEHOLDER:
             return ''

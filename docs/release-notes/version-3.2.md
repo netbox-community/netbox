@@ -11,6 +11,7 @@
 * [#9277](https://github.com/netbox-community/netbox/issues/9277) - Introduce `CSRF_COOKIE_NAME` configuration parameter
 * [#9347](https://github.com/netbox-community/netbox/issues/9347) - Include services in global search
 * [#9379](https://github.com/netbox-community/netbox/issues/9379) - Redirect to virtual chassis view after adding a member device
+* [#9451](https://github.com/netbox-community/netbox/issues/9451) - Add `export_raw` argument for TemplateColumn
 
 ### Bug Fixes
 
