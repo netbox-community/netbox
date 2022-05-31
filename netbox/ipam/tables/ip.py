@@ -226,8 +226,9 @@ class PrefixUtilizationColumn(columns.UtilizationColumn):
 
 
 class PrefixTable(NetBoxTable):
-    prefix = tables.TemplateColumn(
+    prefix = columns.TemplateColumn(
         template_code=PREFIX_LINK,
+        export_raw=True,
         attrs={'td': {'class': 'text-nowrap'}}
     )
     prefix_flat = tables.TemplateColumn(
