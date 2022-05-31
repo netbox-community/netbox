@@ -15,74 +15,70 @@
 {% block content %}
 <div class="row">
 	<div class="col col-md-4">
-        <div class="card">
-            <h5 class="card-header">
-                Virtual Chassis
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">Domain</th>
-                        <td>{{ object.domain|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Master</th>
-                        <td>{{ object.master|linkify }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/tags.html' %}
-        {% plugin_left_page object %}
+    <div class="card">
+      <h5 class="card-header">Virtual Chassis</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Domain</th>
+            <td>{{ object.domain|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Master</th>
+            <td>{{ object.master|linkify }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% include 'inc/panels/custom_fields.html' %}
+    {% include 'inc/panels/tags.html' %}
+    {% plugin_left_page object %}
     </div>
     <div class="col col-md-8">
-        <div class="card">
-            <h5 class="card-header">
-                Members
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th>Device</th>
-                        <th>Position</th>
-                        <th>Master</th>
-                        <th>Priority</th>
-                    </tr>
-                    {% for vc_member in members %}
-                        <tr{% if vc_member == device %} class="info"{% endif %}>
-                            <td>
-                                {{ vc_member|linkify }}
-                            </td>
-                            <td>
-                              {% badge vc_member.vc_position show_empty=True %}
-                            </td>
-                            <td>
-                              {% if object.master == vc_member %}
-                                {% checkmark True %}
-                              {% endif %}
-                            </td>
-                            <td>
-                              {{ vc_member.vc_priority|placeholder }}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
-            {% if perms.dcim.change_virtualchassis %}
-                <div class="card-footer text-end noprint">
-                    <a href="{% url 'dcim:virtualchassis_add_member' pk=object.pk %}?site={{ object.master.site.pk }}&rack={{ object.master.rack.pk }}" class="btn btn-primary btn-sm">
-                        <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Member
-                    </a>
-                </div>
-            {% endif %}
+      <div class="card">
+        <h5 class="card-header">Members</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th>Device</th>
+              <th>Position</th>
+              <th>Master</th>
+              <th>Priority</th>
+            </tr>
+            {% for vc_member in members %}
+              <tr{% if vc_member == device %} class="info"{% endif %}>
+                <td>
+                  {{ vc_member|linkify }}
+                </td>
+                <td>
+                  {% badge vc_member.vc_position show_empty=True %}
+                </td>
+                <td>
+                  {% if object.master == vc_member %}
+                    {% checkmark True %}
+                  {% endif %}
+                </td>
+                <td>
+                  {{ vc_member.vc_priority|placeholder }}
+                </td>
+              </tr>
+            {% endfor %}
+          </table>
         </div>
-        {% plugin_right_page object %}
+        {% if perms.dcim.change_virtualchassis %}
+          <div class="card-footer text-end noprint">
+            <a href="{% url 'dcim:virtualchassis_add_member' pk=object.pk %}?site={{ object.master.site.pk }}&rack={{ object.master.rack.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+              <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Member
+            </a>
+          </div>
+        {% endif %}
+      </div>
+      {% plugin_right_page object %}
 	</div>
 </div>
 <div class="row">
-    <div class="col col-md-12">
-        {% plugin_full_width_page object %}
-    </div>
+  <div class="col col-md-12">
+    {% plugin_full_width_page object %}
+  </div>
 </div>
 {% endblock %}

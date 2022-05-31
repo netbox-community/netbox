@@ -748,8 +748,12 @@ class Device(NetBoxModel, ConfigContextModel):
             return f'{self.name} ({self.asset_tag})'
         elif self.name:
             return self.name
+        elif self.virtual_chassis and self.asset_tag:
+            return f'{self.virtual_chassis.name}:{self.vc_position} ({self.asset_tag})'
         elif self.virtual_chassis:
             return f'{self.virtual_chassis.name}:{self.vc_position} ({self.pk})'
+        elif self.device_type and self.asset_tag:
+            return f'{self.device_type.manufacturer} {self.device_type.model} ({self.asset_tag})'
         elif self.device_type:
             return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
         return super().__str__()

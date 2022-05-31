@@ -23,7 +23,7 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
         (None, ('q', 'tag')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('ASN', ('asn',)),
-        ('Contacts', ('contact', 'contact_role')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -87,7 +87,7 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         ('Attributes', ('type_id', 'status', 'commit_rate')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Contacts', ('contact', 'contact_role')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
