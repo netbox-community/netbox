@@ -88,7 +88,12 @@ class DynamicModelChoiceMixin:
         # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
         # will be populated on-demand via the APISelect widget.
         data = bound_field.value()
+
         if data:
+            # When the field is multiple choice pass the data as a list if it's not already
+            if isinstance(bound_field.field, DynamicModelMultipleChoiceField) and not type(data) is list:
+                data = [data]
+
             field_name = getattr(self, 'to_field_name') or 'pk'
             filter = self.filter(field_name=field_name)
             try:
