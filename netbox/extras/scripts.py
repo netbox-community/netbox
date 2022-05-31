@@ -306,9 +306,16 @@ class BaseScript:
     @classmethod
     def _get_vars(cls):
         vars = {}
-        for name, attr in cls.__dict__.items():
-            if name not in vars and issubclass(attr.__class__, ScriptVariable):
-                vars[name] = attr
+
+        # Iterate all base classes looking for ScriptVariables
+        for base_class in inspect.getmro(cls):
+            # When object is reached there's no reason to continue
+            if base_class is object:
+                break
+
+            for name, attr in base_class.__dict__.items():
+                if name not in vars and issubclass(attr.__class__, ScriptVariable):
+                    vars[name] = attr
 
         # Order variables according to field_order
         field_order = getattr(cls.Meta, 'field_order', None)

@@ -88,7 +88,12 @@ class DynamicModelChoiceMixin:
         # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
         # will be populated on-demand via the APISelect widget.
         data = bound_field.value()
+
         if data:
+            # When the field is multiple choice pass the data as a list if it's not already
+            if isinstance(bound_field.field, DynamicModelMultipleChoiceField) and not type(data) is list:
+                data = [data]
+
             field_name = getattr(self, 'to_field_name') or 'pk'
             filter = self.filter(field_name=field_name)
             try:
@@ -130,11 +135,12 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
     widget = widgets.APISelectMultiple
 
     def clean(self, value):
-        """
-        When null option is enabled and "None" is sent as part of a form to be submitted, it is sent as the
-        string 'null'.  This will check for that condition and gracefully handle the conversion to a NoneType.
-        """
+        value = value or []
+
+        # When null option is enabled and "None" is sent as part of a form to be submitted, it is sent as the
+        # string 'null'.  This will check for that condition and gracefully handle the conversion to a NoneType.
         if self.null_option is not None and settings.FILTERS_NULL_CHOICE_VALUE in value:
             value = [v for v in value if v != settings.FILTERS_NULL_CHOICE_VALUE]
             return [None, *value]
+
         return super().clean(value)

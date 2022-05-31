@@ -145,9 +145,11 @@ class AggregateFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         if not value.strip():
             return queryset
         qs_filter = Q(description__icontains=value)
+        qs_filter |= Q(prefix__contains=value.strip())
         try:
             prefix = str(netaddr.IPNetwork(value.strip()).cidr)
             qs_filter |= Q(prefix__net_contains_or_equals=prefix)
+            qs_filter |= Q(prefix__contains=value.strip())
         except (AddrFormatError, ValueError):
             pass
         return queryset.filter(qs_filter)
@@ -334,9 +336,11 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         if not value.strip():
             return queryset
         qs_filter = Q(description__icontains=value)
+        qs_filter |= Q(prefix__contains=value.strip())
         try:
             prefix = str(netaddr.IPNetwork(value.strip()).cidr)
             qs_filter |= Q(prefix__net_contains_or_equals=prefix)
+            qs_filter |= Q(prefix__contains=value.strip())
         except (AddrFormatError, ValueError):
             pass
         return queryset.filter(qs_filter)

@@ -1,5 +1,33 @@
 # NetBox v3.2
 
+## v3.2.4 (2022-05-31)
+
+### Enhancements
+
+* [#8374](https://github.com/netbox-community/netbox/issues/8374) - Display device type and asset tag if name is blank but asset tag is populated
+* [#8922](https://github.com/netbox-community/netbox/issues/8922) - Add service list to IP address view
+* [#9098](https://github.com/netbox-community/netbox/issues/9098) - Add "other" types for power ports/outlets, pass-through ports
+* [#9239](https://github.com/netbox-community/netbox/issues/9239) - Enable filtering by contact group for all models which support contact assignment
+* [#9277](https://github.com/netbox-community/netbox/issues/9277) - Introduce `CSRF_COOKIE_NAME` configuration parameter
+* [#9347](https://github.com/netbox-community/netbox/issues/9347) - Include services in global search
+* [#9379](https://github.com/netbox-community/netbox/issues/9379) - Redirect to virtual chassis view after adding a member device
+* [#9451](https://github.com/netbox-community/netbox/issues/9451) - Add `export_raw` argument for TemplateColumn
+
+### Bug Fixes
+
+* [#9094](https://github.com/netbox-community/netbox/issues/9094) - Fix partial address search within Prefix and Aggregate filters
+* [#9291](https://github.com/netbox-community/netbox/issues/9291) - Improve data validation for MultiObjectVar script fields
+* [#9358](https://github.com/netbox-community/netbox/issues/9358) - Annotate circuit count for providers list under ASN view
+* [#9387](https://github.com/netbox-community/netbox/issues/9387) - Ensure ActionsColumn `extra_buttons` are always displayed
+* [#9402](https://github.com/netbox-community/netbox/issues/9402) - Fix custom field population when creating a virtual chassis
+* [#9407](https://github.com/netbox-community/netbox/issues/9407) - Clean up display of prefixes values when exporting prefixes list
+* [#9420](https://github.com/netbox-community/netbox/issues/9420) - Fix custom script class inheritance
+* [#9425](https://github.com/netbox-community/netbox/issues/9425) - Fix bulk import for object and multi-object custom fields
+* [#9430](https://github.com/netbox-community/netbox/issues/9430) - Fix passing of initial form data for DynamicModelChoiceFields
+
+
+---
+
 ## v3.2.3 (2022-05-12)
 
 ### Enhancements

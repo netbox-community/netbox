@@ -4,7 +4,7 @@ from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from circuits.models import Provider
+from circuits.models import Provider, Circuit
 from circuits.tables import ProviderTable
 from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
@@ -225,7 +225,9 @@ class ASNView(generic.ObjectView):
         sites_table.configure(request)
 
         # Gather assigned Providers
-        providers = instance.providers.restrict(request.user, 'view')
+        providers = instance.providers.restrict(request.user, 'view').annotate(
+            count_circuits=count_related(Circuit, 'provider')
+        )
         providers_table = ProviderTable(providers, user=request.user)
         providers_table.configure(request)
 
@@ -674,11 +676,14 @@ class IPAddressView(generic.ObjectView):
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
         related_ips_table.configure(request)
 
+        services = Service.objects.restrict(request.user, 'view').filter(ipaddresses=instance)
+
         return {
             'parent_prefixes_table': parent_prefixes_table,
             'duplicate_ips_table': duplicate_ips_table,
             'more_duplicate_ips': duplicate_ips.count() > 10,
             'related_ips_table': related_ips_table,
+            'services': services,
         }
 
 
