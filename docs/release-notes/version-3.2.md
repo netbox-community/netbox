@@ -18,6 +18,7 @@
 * [#9358](https://github.com/netbox-community/netbox/issues/9358) - Annotate circuit count for providers list under ASN view
 * [#9387](https://github.com/netbox-community/netbox/issues/9387) - Ensure ActionsColumn `extra_buttons` are always displayed
 * [#9420](https://github.com/netbox-community/netbox/issues/9420) - Fix custom script class inheritance
+* [#9425](https://github.com/netbox-community/netbox/issues/9425) - Fix bulk import for object and multi-object custom fields
 * [#9430](https://github.com/netbox-community/netbox/issues/9430) - Fix passing of initial form data for DynamicModelChoiceFields
 
 
