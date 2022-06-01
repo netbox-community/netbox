@@ -27,25 +27,37 @@ from .nested_serializers import *
 
 
 class LinkTerminationSerializer(serializers.ModelSerializer):
-    link_peer_type = serializers.SerializerMethodField(read_only=True)
-    link_peer = serializers.SerializerMethodField(read_only=True)
+    link_peers_type = serializers.SerializerMethodField(read_only=True)
+    link_peers = serializers.SerializerMethodField(read_only=True)
     _occupied = serializers.SerializerMethodField(read_only=True)
 
-    def get_link_peer_type(self, obj):
-        if obj._link_peer is not None:
-            return f'{obj._link_peer._meta.app_label}.{obj._link_peer._meta.model_name}'
+    def get_link_peers_type(self, obj):
+        """
+        Return the type of the peer link terminations, or None.
+        """
+        if not obj.cable:
+            return None
+
+        if obj.link_peers:
+            return f'{obj.link_peers[0]._meta.app_label}.{obj.link_peers[0]._meta.model_name}'
+
         return None
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
-    def get_link_peer(self, obj):
+    @swagger_serializer_method(serializer_or_field=serializers.ListField)
+    def get_link_peers(self, obj):
         """
         Return the appropriate serializer for the link termination model.
         """
-        if obj._link_peer is not None:
-            serializer = get_serializer_for_model(obj._link_peer, prefix='Nested')
+        if not obj.cable:
+            return []
+
+        # Return serialized peer termination objects
+        if obj.link_peers:
+            serializer = get_serializer_for_model(obj.link_peers[0], prefix='Nested')
             context = {'request': self.context['request']}
-            return serializer(obj._link_peer, context=context).data
-        return None
+            return serializer(obj.link_peers, context=context, many=True).data
+
+        return []
 
     @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get__occupied(self, obj):
@@ -96,7 +108,7 @@ class ConnectedEndpointsSerializer(serializers.ModelSerializer):
         if endpoints:
             return f'{endpoints[0]._meta.app_label}.{endpoints[0]._meta.model_name}'
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.ListField)
     def get_connected_endpoints(self, obj):
         """
         Return the appropriate serializer for the type of connected object.
@@ -715,7 +727,7 @@ class ConsoleServerPortSerializer(NetBoxModelSerializer, LinkTerminationSerializ
         model = ConsoleServerPort
         fields = [
             'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'speed', 'description',
-            'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'connected_endpoints', 'connected_endpoints_type',
+            'mark_connected', 'cable', 'link_peers', 'link_peers_type', 'connected_endpoints', 'connected_endpoints_type',
             'connected_endpoints_reachable', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
@@ -743,7 +755,7 @@ class ConsolePortSerializer(NetBoxModelSerializer, LinkTerminationSerializer, Co
         model = ConsolePort
         fields = [
             'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'speed', 'description',
-            'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'connected_endpoints', 'connected_endpoints_type',
+            'mark_connected', 'cable', 'link_peers', 'link_peers_type', 'connected_endpoints', 'connected_endpoints_type',
             'connected_endpoints_reachable', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
@@ -777,7 +789,7 @@ class PowerOutletSerializer(NetBoxModelSerializer, LinkTerminationSerializer, Co
         model = PowerOutlet
         fields = [
             'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'power_port', 'feed_leg',
-            'description', 'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'connected_endpoints',
+            'description', 'mark_connected', 'cable', 'link_peers', 'link_peers_type', 'connected_endpoints',
             'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields', 'created',
             'last_updated', '_occupied',
         ]
@@ -801,7 +813,7 @@ class PowerPortSerializer(NetBoxModelSerializer, LinkTerminationSerializer, Conn
         model = PowerPort
         fields = [
             'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw',
-            'description', 'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'connected_endpoints',
+            'description', 'mark_connected', 'cable', 'link_peers', 'link_peers_type', 'connected_endpoints',
             'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields', 'created',
             'last_updated', '_occupied',
         ]
@@ -847,7 +859,7 @@ class InterfaceSerializer(NetBoxModelSerializer, LinkTerminationSerializer, Conn
             'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'enabled', 'parent', 'bridge', 'lag',
             'mtu', 'mac_address', 'speed', 'duplex', 'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel',
             'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'mark_connected',
-            'cable', 'wireless_link', 'link_peer', 'link_peer_type', 'wireless_lans', 'vrf', 'connected_endpoints',
+            'cable', 'wireless_link', 'link_peers', 'link_peers_type', 'wireless_lans', 'vrf', 'connected_endpoints',
             'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields', 'created',
             'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
         ]
@@ -880,7 +892,7 @@ class RearPortSerializer(NetBoxModelSerializer, LinkTerminationSerializer):
         model = RearPort
         fields = [
             'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'description',
-            'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'tags', 'custom_fields', 'created',
+            'mark_connected', 'cable', 'link_peers', 'link_peers_type', 'tags', 'custom_fields', 'created',
             'last_updated', '_occupied',
         ]
 
@@ -911,7 +923,7 @@ class FrontPortSerializer(NetBoxModelSerializer, LinkTerminationSerializer):
         model = FrontPort
         fields = [
             'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'rear_port',
-            'rear_port_position', 'description', 'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'tags',
+            'rear_port_position', 'description', 'mark_connected', 'cable', 'link_peers', 'link_peers_type', 'tags',
             'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
@@ -1193,7 +1205,7 @@ class PowerFeedSerializer(NetBoxModelSerializer, LinkTerminationSerializer, Conn
         model = PowerFeed
         fields = [
             'id', 'url', 'display', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
-            'amperage', 'max_utilization', 'comments', 'mark_connected', 'cable', 'link_peer', 'link_peer_type',
+            'amperage', 'max_utilization', 'comments', 'mark_connected', 'cable', 'link_peers', 'link_peers_type',
             'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields',
             'created', 'last_updated', '_occupied',
         ]

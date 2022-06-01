@@ -39,7 +39,7 @@ def populate_cable_paths(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0157_cablepath'),
+        ('dcim', '0155_populate_cable_terminations'),
     ]
 
     operations = [

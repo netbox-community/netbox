@@ -44,16 +44,15 @@
                   <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
                   <span class="text-muted">Marked as connected</span>
                 {% elif termination.cable %}
-                  <a class="d-block d-md-inline" href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a>
-                  {% with peer=termination.get_link_peer %}
-                    to
+                  <a class="d-block d-md-inline" href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a> to
+                  {% for peer in termination.link_peers %}
                     {% if peer.device %}
                       {{ peer.device|linkify }}<br/>
                     {% elif peer.circuit %}
                       {{ peer.circuit|linkify }}<br/>
                     {% endif %}
-                    {{ peer|linkify }}
-                  {% endwith %}
+                    {{ peer|linkify }}{% if not forloop.last %},{% endif %}
+                  {% endfor %}
                   <div class="mt-1">
                     <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
                       <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i> Trace

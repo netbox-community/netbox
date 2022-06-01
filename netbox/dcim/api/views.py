@@ -546,7 +546,7 @@ class ModuleViewSet(NetBoxModelViewSet):
 
 class ConsolePortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = ConsolePort.objects.prefetch_related(
-        'device', 'module__module_bay', '_path', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filtersets.ConsolePortFilterSet
@@ -555,7 +555,7 @@ class ConsolePortViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class ConsoleServerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = ConsoleServerPort.objects.prefetch_related(
-        'device', 'module__module_bay', '_path', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filtersets.ConsoleServerPortFilterSet
@@ -564,7 +564,7 @@ class ConsoleServerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class PowerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = PowerPort.objects.prefetch_related(
-        'device', 'module__module_bay', '_path', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filtersets.PowerPortFilterSet
@@ -573,7 +573,7 @@ class PowerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = PowerOutlet.objects.prefetch_related(
-        'device', 'module__module_bay', '_path', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filtersets.PowerOutletFilterSet
@@ -582,8 +582,8 @@ class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        'device', 'module__module_bay', 'parent', 'bridge', 'lag', '_path', 'cable', '_link_peer',
-        'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'vrf', 'ip_addresses', 'fhrp_group_assignments', 'tags'
+        'device', 'module__module_bay', 'parent', 'bridge', 'lag', '_path', 'cable__terminations', 'wireless_lans',
+        'untagged_vlan', 'tagged_vlans', 'vrf', 'ip_addresses', 'fhrp_group_assignments', 'tags'
     )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filtersets.InterfaceFilterSet
@@ -592,7 +592,7 @@ class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class FrontPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
     queryset = FrontPort.objects.prefetch_related(
-        'device__device_type__manufacturer', 'module__module_bay', 'rear_port', 'cable', 'tags'
+        'device__device_type__manufacturer', 'module__module_bay', 'rear_port', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.FrontPortSerializer
     filterset_class = filtersets.FrontPortFilterSet
@@ -601,7 +601,7 @@ class FrontPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
 
 class RearPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
     queryset = RearPort.objects.prefetch_related(
-        'device__device_type__manufacturer', 'module__module_bay', 'cable', 'tags'
+        'device__device_type__manufacturer', 'module__module_bay', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.RearPortSerializer
     filterset_class = filtersets.RearPortFilterSet
@@ -691,7 +691,7 @@ class PowerPanelViewSet(NetBoxModelViewSet):
 
 class PowerFeedViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = PowerFeed.objects.prefetch_related(
-        'power_panel', 'rack', '_path', 'cable', '_link_peer', 'tags'
+        'power_panel', 'rack', '_path', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.PowerFeedSerializer
     filterset_class = filtersets.PowerFeedFilterSet

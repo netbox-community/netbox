@@ -1,6 +1,6 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Sum
@@ -105,12 +105,7 @@ class ModularComponentModel(ComponentModel):
 
 class LinkTermination(models.Model):
     """
-    An abstract model inherited by all models to which a Cable, WirelessLink, or other such link can terminate. Examples
-    include most device components, CircuitTerminations, and PowerFeeds. The `cable` and `wireless_link` fields
-    reference the attached Cable or WirelessLink instance, respectively.
-
-    `_link_peer` is a GenericForeignKey used to cache the far-end LinkTermination on the local instance; this is a
-    shortcut to referencing `instance.link.termination_b`, for example.
+    An abstract model inherited by all models to which a Cable can terminate.
     """
     cable = models.ForeignKey(
         to='dcim.Cable',
@@ -119,20 +114,10 @@ class LinkTermination(models.Model):
         blank=True,
         null=True
     )
-    _link_peer_type = models.ForeignKey(
-        to=ContentType,
-        on_delete=models.SET_NULL,
-        related_name='+',
+    cable_end = models.CharField(
+        max_length=1,
         blank=True,
-        null=True
-    )
-    _link_peer_id = models.PositiveBigIntegerField(
-        blank=True,
-        null=True
-    )
-    _link_peer = GenericForeignKey(
-        ct_field='_link_peer_type',
-        fk_field='_link_peer_id'
+        choices=CableEndChoices
     )
     mark_connected = models.BooleanField(
         default=False,
@@ -145,13 +130,23 @@ class LinkTermination(models.Model):
     def clean(self):
         super().clean()
 
+        if self.cable and not self.cable_end:
+            raise ValidationError({
+                "cable_end": "Must specify cable end (A or B) when attaching a cable."
+            })
+
         if self.mark_connected and self.cable_id:
             raise ValidationError({
                 "mark_connected": "Cannot mark as connected with a cable attached."
             })
 
-    def get_link_peer(self):
-        return self._link_peer
+    @property
+    def link_peers(self):
+        # TODO: Support WirelessLinks
+        if not self.cable:
+            return []
+        peer_terminations = self.cable.terminations.exclude(cable_end=self.cable_end).prefetch_related('termination')
+        return [ct.termination for ct in peer_terminations]
 
     @property
     def _occupied(self):

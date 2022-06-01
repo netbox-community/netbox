@@ -224,7 +224,7 @@ class CircuitTerminationFilterSet(ChangeLoggedModelFilterSet, CabledObjectFilter
 
     class Meta:
         model = CircuitTermination
-        fields = ['id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description']
+        fields = ['id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description', 'cable_end']
 
     def search(self, queryset, name, value):
         if not value.strip():

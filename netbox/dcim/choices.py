@@ -1226,7 +1226,8 @@ class CableEndChoices(ChoiceSet):
 
     CHOICES = (
         (SIDE_A, 'A'),
-        (SIDE_B, 'B')
+        (SIDE_B, 'B'),
+        ('', ''),
     )
 
 

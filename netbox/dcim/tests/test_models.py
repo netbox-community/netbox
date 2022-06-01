@@ -503,8 +503,12 @@ class CableTestCase(TestCase):
         """
         self.interface1.refresh_from_db()
         self.interface2.refresh_from_db()
-        self.assertEqual(self.interface1._link_peer, self.interface2)
-        self.assertEqual(self.interface2._link_peer, self.interface1)
+        self.assertEqual(self.interface1.cable, self.cable)
+        self.assertEqual(self.interface2.cable, self.cable)
+        self.assertEqual(self.interface1.cable_end, 'A')
+        self.assertEqual(self.interface2.cable_end, 'B')
+        self.assertEqual(self.interface1.link_peers, [self.interface2])
+        self.assertEqual(self.interface2.link_peers, [self.interface1])
 
     def test_cable_deletion(self):
         """
@@ -516,10 +520,10 @@ class CableTestCase(TestCase):
         self.assertNotEqual(str(self.cable), '#None')
         interface1 = Interface.objects.get(pk=self.interface1.pk)
         self.assertIsNone(interface1.cable)
-        self.assertIsNone(interface1._link_peer)
+        self.assertListEqual(interface1.link_peers, [])
         interface2 = Interface.objects.get(pk=self.interface2.pk)
         self.assertIsNone(interface2.cable)
-        self.assertIsNone(interface2._link_peer)
+        self.assertListEqual(interface2.link_peers, [])
 
     def test_cable_validates_same_parent_object(self):
         """

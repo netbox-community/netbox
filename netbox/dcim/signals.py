@@ -132,4 +132,4 @@ def nullify_connected_endpoints(instance, **kwargs):
     Disassociate the Cable from the termination object.
     """
     model = instance.termination_type.model_class()
-    model.objects.filter(pk=instance.termination_id).update(_link_peer_type=None, _link_peer_id=None)
+    model.objects.filter(pk=instance.termination_id).update(cable=None, cable_end='')
