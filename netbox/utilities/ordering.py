@@ -52,7 +52,8 @@ def naturalize_interface(value, max_length, integer_places=5, model_instance=Non
     interface_type_weight_list = {
         r'^([fgstx]e|et|lt)-': '05',                        # Group juniper interfaces  (https://www.juniper.net/documentation/us/en/software/junos/interfaces-fundamentals/topics/topic-map/router-interfaces-overview.html). Other Juniper interfaces will come after these and sorted alphabetically
         r'^ethernet': '10',                                 # Group Arista Interfaces Ethernet1, Ethernet2, Ethernet49/1, Ethernet50/1
-        r'[' + ''.join(digit_separators) + ']+': '15',      # Group Anything with a digit_separator
+        r'[' + '\\'.join(digit_separators) + ']+': '15',    # Group Anything with a digit_separator or subinterface_separators
+        r'^\d+\.?\d*$': '15',                               # Group Only digits together with digit_separator, including optional subinterface
         r'eth': '20',                                       # Group Anything with eth in the name
     }
 
@@ -82,7 +83,7 @@ def naturalize_interface(value, max_length, integer_places=5, model_instance=Non
 
         for part in parts:
             if part.isdigit():
-                output += part.rjust(integer_places, '0')   # zero-pre-pad the port number. 'integer_places' digits must be at least 5, because subinterfaces can go to 65535.
+                output += str(int(part) + 1).rjust(integer_places, '0')   # zero-pre-pad the port number. 'integer_places' digits must be at least 5, because subinterfaces can go to 65535. Interface numbers are incremented with one to better sort the '0' interfaces (0:0.0; 0; 0.0)
             elif part in subinterface_separators:           # replace the subinterface separators with a 0
                 output += '0'                               # this will group subinterfaces with the master interface, when there are interfaces with more /'s  (ex: Eth1.1 and Eth1/1.5)
             elif part in digit_separators:                  # standardize the digit separators to a 9.
