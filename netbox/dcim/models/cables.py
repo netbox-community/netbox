@@ -198,9 +198,9 @@ class Cable(NetBoxModel):
 
         # Store the parent Device for the A and B terminations (if applicable) to enable filtering
         if hasattr(self, 'a_terminations'):
-            self._termination_a_device = self.a_terminations[0].device
+            self._termination_a_device = getattr(self.a_terminations[0], 'device', None)
         if hasattr(self, 'b_terminations'):
-            self._termination_b_device = self.b_terminations[0].device
+            self._termination_b_device = getattr(self.b_terminations[0], 'device', None)
 
         super().save(*args, **kwargs)
 
