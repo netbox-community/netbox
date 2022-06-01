@@ -1,17 +1,7 @@
 import re
 
-INTERFACE_NAME_REGEX = r'(^(?P<type>[^\d\.:]+)?)' \
-                       r'((?P<slot>\d+)/)?' \
-                       r'((?P<subslot>\d+)/)?' \
-                       r'((?P<position>\d+)/)?' \
-                       r'((?P<subposition>\d+)/)?' \
-                       r'((?P<id>\d+))?' \
-                       r'(:(?P<channel>\d+))?' \
-                       r'(\.(?P<vc>\d+))?' \
-                       r'(?P<remainder>.*)$'
 
-
-def naturalize(value, max_length, integer_places=8):
+def naturalize(value, max_length, integer_places=8, model_instance=None):
     """
     Take an alphanumeric string and prepend all integers to `integer_places` places to ensure the strings
     are ordered naturally. For example:
@@ -29,6 +19,7 @@ def naturalize(value, max_length, integer_places=8):
     :param value: The value to be naturalized
     :param max_length: The maximum length of the returned string. Characters beyond this length will be stripped.
     :param integer_places: The number of places to which each integer will be expanded. (Default: 8)
+    :param model_instance: The netbox model instance. This is required to modify the sort order based on the model characteristics
     """
     if not value:
         return value
@@ -43,43 +34,60 @@ def naturalize(value, max_length, integer_places=8):
     return ret[:max_length]
 
 
-def naturalize_interface(value, max_length):
+def naturalize_interface(value, max_length, integer_places=5, model_instance=None):
     """
     Similar in nature to naturalize(), but takes into account a particular naming format adapted from the old
     InterfaceManager.
 
     :param value: The value to be naturalized
     :param max_length: The maximum length of the returned string. Characters beyond this length will be stripped.
+    :param integer_places: The number of places to which each integer will be expanded. (Default: 5, minimum: 5)
+    :param model_instance: The netbox model instance. This is required to modify the sort order based on the model characteristics
     """
-    output = ''
-    match = re.search(INTERFACE_NAME_REGEX, value)
-    if match is None:
-        return value
 
-    # First, we order by slot/position, padding each to four digits. If a field is not present,
-    # set it to 9999 to ensure it is ordered last.
-    for part_name in ('slot', 'subslot', 'position', 'subposition'):
-        part = match.group(part_name)
-        if part is not None:
-            output += part.rjust(4, '0')
+    digit_separators = [':', '/', '-']
+    subinterface_separators = ['.']
+    interface_remainder_len = 10
+
+    interface_type_weight_list = {
+        r'^([fgstx]e|et|lt)-': '05',                        # Group juniper interfaces  (https://www.juniper.net/documentation/us/en/software/junos/interfaces-fundamentals/topics/topic-map/router-interfaces-overview.html). Other Juniper interfaces will come after these and sorted alphabetically
+        r'^ethernet': '10',                                 # Group Arista Interfaces Ethernet1, Ethernet2, Ethernet49/1, Ethernet50/1
+        r'[' + ''.join(digit_separators) + ']+': '15',      # Group Anything with a digit_separator
+        r'eth': '20',                                       # Group Anything with eth in the name
+    }
+
+    if integer_places < 5:
+        integer_places = 5
+
+    output = value
+    parts = re.split(r'(\d+)', value)
+    if parts:
+
+        # If the last part of the interface name is non-digit, then this will be added to the naturalized name for sorting purposes. Maxlength is 10 (space padded)
+        interface_remainder = ''.ljust(interface_remainder_len, ' ')
+        if re.match(r'[^\d]+', parts[-1]):
+            interface_remainder = naturalize(parts[-1], interface_remainder_len).ljust(interface_remainder_len, ' ')
+            parts.pop()
+
+        interface_type_weight = value[:2].upper()                       # the two character of the interface name will determin the sort order
+        if getattr(model_instance, 'mgmt_only', False):
+            interface_type_weight = "ZZ"                                # mgmt interfaces are put at the end of the table
         else:
-            output += '9999'
+            for regmatch, weigth in interface_type_weight_list.items():  # unless it matches a specific pattern, then the interfaces will be grouped
+                if re.search(regmatch, value, re.IGNORECASE):             # first match is applied
+                    interface_type_weight = weigth
+                    break
 
-    # Append the type, if any.
-    if match.group('type') is not None:
-        output += match.group('type')
+        output = interface_type_weight.rjust(2, '9')
 
-    # Append any remaining fields, left-padding to six digits each.
-    for part_name in ('id', 'channel', 'vc'):
-        part = match.group(part_name)
-        if part is not None:
-            output += part.rjust(6, '0')
-        else:
-            output += '......'
+        for part in parts:
+            if part.isdigit():
+                output += part.rjust(integer_places, '0')   # zero-pre-pad the port number. 'integer_places' digits must be at least 5, because subinterfaces can go to 65535.
+            elif part in subinterface_separators:           # replace the subinterface separators with a 0
+                output += '0'                               # this will group subinterfaces with the master interface, when there are interfaces with more /'s  (ex: Eth1.1 and Eth1/1.5)
+            elif part in digit_separators:                  # standardize the digit separators to a 9.
+                output += '9'
 
-    # Finally, naturalize any remaining text and append it
-    if match.group('remainder') is not None and len(output) < max_length:
-        remainder = naturalize(match.group('remainder'), max_length - len(output))
-        output += remainder
+        output = output.ljust(max_length - interface_remainder_len, '.') + interface_remainder
 
     return output[:max_length]

@@ -57,7 +57,7 @@ class NaturalOrderingField(models.CharField):
         Generate a naturalized value from the target field
         """
         original_value = getattr(model_instance, self.target_field)
-        naturalized_value = self.naturalize_function(original_value, max_length=self.max_length)
+        naturalized_value = self.naturalize_function(original_value, max_length=self.max_length, model_instance=model_instance)
         setattr(model_instance, self.attname, naturalized_value)
 
         return naturalized_value
