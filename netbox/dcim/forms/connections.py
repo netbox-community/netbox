@@ -83,7 +83,7 @@ def get_cable_form(a_type, b_type):
                         label=term_cls._meta.verbose_name.title(),
                         disabled_indicator='_occupied',
                         query_params={
-                            'device_id': f'termination_{cable_end}_device',
+                            'device_id': f'$termination_{cable_end}_device',
                         }
                     )
 
@@ -107,7 +107,7 @@ def get_cable_form(a_type, b_type):
                         label='Power Feed',
                         disabled_indicator='_occupied',
                         query_params={
-                            'powerpanel_id': f'termination_{cable_end}_powerpanel',
+                            'powerpanel_id': f'$termination_{cable_end}_powerpanel',
                         }
                     )
 

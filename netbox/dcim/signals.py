@@ -71,22 +71,23 @@ def clear_virtualchassis_members(instance, **kwargs):
 @receiver(trace_paths, sender=Cable)
 def update_connected_endpoints(instance, created, raw=False, **kwargs):
     """
-    When a Cable is saved, check for and update its two connected endpoints
+    When a Cable is saved with new terminations, retrace any affected cable paths.
     """
     logger = logging.getLogger('netbox.dcim.cable')
     if raw:
         logger.debug(f"Skipping endpoint updates for imported cable {instance}")
         return
 
-    # TODO: Update link peers
-
-    # Create/update cable paths
-    if created:
-        _terms = {
-            'A': [t.termination for t in instance.terminations.filter(cable_end='A')],
-            'B': [t.termination for t in instance.terminations.filter(cable_end='B')],
-        }
-        for nodes in _terms.values():
+    # Update cable paths if new terminations have been set
+    if hasattr(instance, 'a_terminations') or hasattr(instance, 'b_terminations'):
+        a_terminations = []
+        b_terminations = []
+        for t in instance.terminations.all():
+            if t.cable_end == 'A':
+                a_terminations.append(t.termination)
+            else:
+                b_terminations.append(t.termination)
+        for nodes in [a_terminations, b_terminations]:
             # Examine type of first termination to determine object type (all must be the same)
             if not nodes:
                 continue
@@ -94,27 +95,13 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
                 create_cablepath(nodes)
             else:
                 rebuild_paths(nodes)
+
+    # Update status of CablePaths if Cable status has been changed
     elif instance.status != instance._orig_status:
-        # We currently don't support modifying either termination of an existing Cable. (This
-        # may change in the future.) However, we do need to capture status changes and update
-        # any CablePaths accordingly.
         if instance.status != LinkStatusChoices.STATUS_CONNECTED:
             CablePath.objects.filter(_nodes__contains=instance).update(is_active=False)
         else:
             rebuild_paths([instance])
-
-
-# @receiver(post_save, sender=CableTermination)
-# def cache_cable_on_endpoints(instance, created, raw=False, **kwargs):
-#     if not raw:
-#         model = instance.termination_type.model_class()
-#         model.objects.filter(pk=instance.termination_id).update(cable=instance.cable)
-#
-#
-# @receiver(post_delete, sender=CableTermination)
-# def clear_cable_on_endpoints(instance, **kwargs):
-#     model = instance.termination_type.model_class()
-#     model.objects.filter(pk=instance.termination_id).update(cable=None)
 
 
 @receiver(post_delete, sender=Cable)

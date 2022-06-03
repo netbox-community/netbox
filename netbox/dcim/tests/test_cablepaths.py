@@ -1754,6 +1754,7 @@ class CablePathTestCase(TestCase):
         self.assertEqual(CablePath.objects.count(), 2)
 
         # Change cable 2's status to "planned"
+        cable2 = Cable.objects.get(pk=cable2.pk)  # Rebuild object to ditch A/B terminations set earlier
         cable2.status = LinkStatusChoices.STATUS_PLANNED
         cable2.save()
         self.assertPathExists(

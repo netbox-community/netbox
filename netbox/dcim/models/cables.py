@@ -316,7 +316,7 @@ class CableTermination(models.Model):
 
         # Delete the cable association on the terminating object
         termination_model = self.termination._meta.model
-        termination_model.objects.filter(pk=self.termination_id).update(cable=None)
+        termination_model.objects.filter(pk=self.termination_id).update(cable=None, cable_end='', _path=None)
 
         super().delete(*args, **kwargs)
 
