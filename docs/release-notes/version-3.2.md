@@ -2,6 +2,10 @@
 
 ## v3.2.5 (FUTURE)
 
+### Enhancements
+
+* [#8882](https://github.com/netbox-community/netbox/issues/8882) - Support filtering IP addresses by multiple parent prefixes
+
 ### Bug Fixes
 
 * [#9480](https://github.com/netbox-community/netbox/issues/9480) - Fix sorting services & service templates by port numbers
