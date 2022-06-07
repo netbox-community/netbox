@@ -16,8 +16,8 @@ __all__ = (
 OFFSET = 0.5
 PADDING = 10
 LINE_HEIGHT = 20
-
-TERMINATION_WIDTH = 80
+FANOUT_HEIGHT = 25
+TERMINATION_WIDTH = 100
 
 
 class Node(Hyperlink):
@@ -64,6 +64,47 @@ class Node(Hyperlink):
     @property
     def bottom_center(self):
         return self.box['x'] + self.box['width'] / 2, self.box['y'] + self.box['height']
+
+
+class Connector(Group):
+    """
+    Return an SVG group containing a line element and text labels representing a Cable.
+
+    Arguments:
+        color: Cable (line) color
+        url: Hyperlink URL
+        labels: Iterable of text labels
+    """
+
+    def __init__(self, start, url, color, labels=[], **extra):
+        super().__init__(class_='connector', **extra)
+
+        self.start = start
+        self.height = PADDING * 2 + LINE_HEIGHT * len(labels) + PADDING * 2
+        self.end = (start[0], start[1] + self.height)
+        self.color = color or '000000'
+
+        # Draw a "shadow" line to give the cable a border
+        cable_shadow = Line(start=self.start, end=self.end, class_='cable-shadow')
+        self.add(cable_shadow)
+
+        # Draw the cable
+        cable = Line(start=self.start, end=self.end, style=f'stroke: #{self.color}')
+        self.add(cable)
+
+        # Add link
+        link = Hyperlink(href=url, target='_blank')
+
+        # Add text label(s)
+        cursor = start[1]
+        cursor += PADDING * 2
+        for i, label in enumerate(labels):
+            cursor += LINE_HEIGHT
+            text_coords = (start[0] + PADDING * 2, cursor - LINE_HEIGHT / 2)
+            text = Text(label, insert=text_coords, class_='bold' if not i else [])
+            link.add(text)
+
+        self.add(link)
 
 
 class CableTraceSVG:
@@ -136,12 +177,14 @@ class CableTraceSVG:
         node = Node(
             position=(0, self.cursor),
             width=self.width,
-            url=obj.get_absolute_url(),
+            url=f'{self.base_url}{obj.get_absolute_url()}',
             color=self._get_color(obj),
             labels=self._get_labels(obj)
         )
         self.parent_objects.append(node)
         self.cursor += node.box['height']
+
+        return node
 
     def draw_terminations(self, terminations):
         """
@@ -156,7 +199,7 @@ class CableTraceSVG:
             node = Node(
                 position=(x + i * TERMINATION_WIDTH, self.cursor),
                 width=TERMINATION_WIDTH,
-                url=term.get_absolute_url(),
+                url=f'{self.base_url}{term.get_absolute_url()}',
                 color=self._get_color(term),
                 labels=self._get_labels(term),
                 radius=5
@@ -169,52 +212,50 @@ class CableTraceSVG:
 
         return nodes
 
-    def draw_cable(self, color, url, labels):
-        """
-        Return an SVG group containing a line element and text labels representing a Cable.
+    def draw_fanin(self, node, connector):
+        self.connectors.extend((
+            Line(start=node.bottom_center, end=connector.start, class_='cable-shadow'),
+            Line(start=node.bottom_center, end=connector.start, style=f'stroke: #{connector.color}'),
+        ))
 
-        :param color: Cable (line) color
-        :param url: Hyperlink URL
-        :param labels: Iterable of text labels
-        """
-        group = Group(class_='connector')
+    def draw_fanout(self, node, connector):
+        self.connectors.extend((
+            Line(start=connector.end, end=node.top_center, class_='cable-shadow'),
+            Line(start=connector.end, end=node.top_center, style=f'stroke: #{connector.color}')
+        ))
 
-        # Draw a "shadow" line to give the cable a border
-        start = (OFFSET + self.center, self.cursor)
-        height = PADDING * 2 + LINE_HEIGHT * len(labels) + PADDING * 2
-        end = (start[0], start[1] + height)
-        cable_shadow = Line(start=start, end=end, class_='cable-shadow')
-        group.add(cable_shadow)
+    def draw_cable(self, cable):
+        labels = [
+            f'Cable {cable}',
+            cable.get_status_display()
+        ]
+        if cable.type:
+            labels.append(cable.get_type_display())
+        if cable.length and cable.length_unit:
+            labels.append(f'{cable.length} {cable.get_length_unit_display()}')
+        connector = Connector(
+            start=(self.center + OFFSET, self.cursor),
+            color=cable.color or '000000',
+            url=f'{self.base_url}{cable.get_absolute_url()}',
+            labels=labels
+        )
 
-        # Draw the cable
-        cable = Line(start=start, end=end, style=f'stroke: #{color}')
-        group.add(cable)
+        self.cursor += connector.height
 
-        self.cursor += PADDING * 2
+        return connector
 
-        # Add link
-        link = Hyperlink(href=f'{self.base_url}{url}', target='_blank')
-
-        # Add text label(s)
-        for i, label in enumerate(labels):
-            self.cursor += LINE_HEIGHT
-            text_coords = (self.center + PADDING * 2, self.cursor - LINE_HEIGHT / 2)
-            text = Text(label, insert=text_coords, class_='bold' if not i else [])
-            link.add(text)
-
-        group.add(link)
-        self.cursor += PADDING * 2
-
-        return group
-
-    def draw_wirelesslink(self, url, labels):
+    def draw_wirelesslink(self, wirelesslink):
         """
         Draw a line with labels representing a WirelessLink.
-
-        :param url: Hyperlink URL
-        :param labels: Iterable of text labels
         """
         group = Group(class_='connector')
+
+        labels = [
+            f'Wireless link {wirelesslink}',
+            wirelesslink.get_status_display()
+        ]
+        if wirelesslink.ssid:
+            labels.append(wirelesslink.ssid)
 
         # Draw the wireless link
         start = (OFFSET + self.center, self.cursor)
@@ -226,7 +267,7 @@ class CableTraceSVG:
         self.cursor += PADDING * 2
 
         # Add link
-        link = Hyperlink(href=f'{self.base_url}{url}', target='_blank')
+        link = Hyperlink(href=f'{self.base_url}{wirelesslink.get_absolute_url()}', target='_blank')
 
         # Add text label(s)
         for i, label in enumerate(labels):
@@ -267,53 +308,48 @@ class CableTraceSVG:
 
         # Iterate through each (terms, cable, terms) segment in the path
         for i, segment in enumerate(traced_path):
-            near_ends, connector, far_ends = segment
+            near_ends, link, far_ends = segment
 
             # Near end parent
             if i == 0:
                 # If this is the first segment, draw the originating termination's parent object
                 self.draw_parent_object(near_ends[0].parent_object)
 
-            # Near end termination
-            self.draw_terminations(near_ends)
+            # Near end termination(s)
+            terminations = self.draw_terminations(near_ends)
 
             # Connector (a Cable or WirelessLink)
-            connector = connector[0]  # Remove Cable from list
-            if connector is not None:
+            link = link[0]  # Remove Cable from list
+            if link is not None:
 
                 # Cable
-                if type(connector) is Cable:
-                    connector_labels = [
-                        f'Cable {connector}',
-                        connector.get_status_display()
-                    ]
-                    if connector.type:
-                        connector_labels.append(connector.get_type_display())
-                    if connector.length and connector.length_unit:
-                        connector_labels.append(f'{connector.length} {connector.get_length_unit_display()}')
-                    cable = self.draw_cable(
-                        color=connector.color or '000000',
-                        url=connector.get_absolute_url(),
-                        labels=connector_labels
-                    )
+                if type(link) is Cable:
+
+                    # Account for fan-ins height
+                    if len(near_ends) > 1:
+                        self.cursor += FANOUT_HEIGHT
+
+                    cable = self.draw_cable(link)
                     self.connectors.append(cable)
 
+                    # Draw fan-ins
+                    if len(near_ends) > 1:
+                        for term in terminations:
+                            self.draw_fanin(term, cable)
+
                 # WirelessLink
-                elif type(connector) is WirelessLink:
-                    connector_labels = [
-                        f'Wireless link {connector}',
-                        connector.get_status_display()
-                    ]
-                    if connector.ssid:
-                        connector_labels.append(connector.ssid)
-                    wirelesslink = self.draw_wirelesslink(
-                        url=connector.get_absolute_url(),
-                        labels=connector_labels
-                    )
+                elif type(link) is WirelessLink:
+                    wirelesslink = self.draw_wirelesslink(link)
                     self.connectors.append(wirelesslink)
 
-                # Far end termination
-                self.draw_terminations(far_ends)
+                # Far end termination(s)
+                if len(far_ends) > 1:
+                    self.cursor += FANOUT_HEIGHT
+                    terminations = self.draw_terminations(far_ends)
+                    for term in terminations:
+                        self.draw_fanout(term, cable)
+                else:
+                    self.draw_terminations(far_ends)
 
                 # Far end parent
                 self.draw_parent_object(far_ends[0].parent_object)
