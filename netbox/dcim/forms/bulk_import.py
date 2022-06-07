@@ -420,11 +420,20 @@ class ModuleCSVForm(NetBoxModelCSVForm):
         queryset=ModuleType.objects.all(),
         to_field_name='model'
     )
+    replicate_components = forms.BooleanField(
+        required=False,
+        help_text="Automatically populate components associated with this module type (default: true)"
+    )
+    adopt_components = forms.BooleanField(
+        required=False,
+        help_text="Adopt already existing components"
+    )
 
     class Meta:
         model = Module
         fields = (
-            'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'comments',
+            'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'replicate_components',
+            'adopt_components', 'comments',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -434,6 +443,75 @@ class ModuleCSVForm(NetBoxModelCSVForm):
             # Limit module_bay queryset by assigned device
             params = {f"device__{self.fields['device'].to_field_name}": data.get('device')}
             self.fields['module_bay'].queryset = self.fields['module_bay'].queryset.filter(**params)
+
+    def save(self, *args, **kwargs):
+
+        # If replicate_components is False, disable automatic component replication on the instance
+        if not self.cleaned_data['replicate_components']:
+            self.instance._disable_replication = True
+
+        if self.cleaned_data['adopt_components']:
+            self.instance._adopt_components = True
+
+        return super().save(*args, **kwargs)
+
+    def clean_replicate_components(self):
+        # Make sure replicate_components is True when it's not included in the uploaded data
+        if 'replicate_components' not in self.data:
+            return True
+        else:
+            return self.cleaned_data['replicate_components']
+
+    def clean(self):
+        super().clean()
+
+        replicate_components = self.cleaned_data.get("replicate_components")
+        adopt_components = self.cleaned_data.get("adopt_components")
+        device = self.cleaned_data['device']
+        module_type = self.cleaned_data['module_type']
+        module_bay = self.cleaned_data['module_bay']
+
+        # Bail out if we are not installing a new module or if we are not replicating components
+        if not replicate_components:
+            return
+
+        for templates, component_attribute in [
+                ("consoleporttemplates", "consoleports"),
+                ("consoleserverporttemplates", "consoleserverports"),
+                ("interfacetemplates", "interfaces"),
+                ("powerporttemplates", "powerports"),
+                ("poweroutlettemplates", "poweroutlets"),
+                ("rearporttemplates", "rearports"),
+                ("frontporttemplates", "frontports")
+        ]:
+            # Prefetch installed components
+            installed_components = {
+                component.name: component for component in getattr(device, component_attribute).all()
+            }
+
+            # Get the templates for the module type.
+            for template in getattr(module_type, templates).all():
+                # Installing modules with placeholders require that the bay has a position value
+                if MODULE_TOKEN in template.name and not module_bay.position:
+                    raise forms.ValidationError(
+                        "Cannot install module with placeholder values in a module bay with no position defined"
+                    )
+
+                resolved_name = template.name.replace(MODULE_TOKEN, module_bay.position)
+                existing_item = installed_components.get(resolved_name)
+
+                # It is not possible to adopt components already belonging to a module
+                if adopt_components and existing_item and existing_item.module:
+                    raise forms.ValidationError(
+                        f"Cannot adopt {template.component_model.__name__} '{resolved_name}' as it already belongs "
+                        f"to a module"
+                    )
+
+                # If we are not adopting components we error if the component exists
+                if not adopt_components and resolved_name in installed_components:
+                    raise forms.ValidationError(
+                        f"{template.component_model.__name__} - {resolved_name} already exists"
+                    )
 
 
 class ChildDeviceCSVForm(BaseDeviceCSVForm):
