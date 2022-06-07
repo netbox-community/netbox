@@ -160,9 +160,9 @@ to aid in issue management.
 
 It is natural that some new issues get more attention than others. The stale
 bot helps bring renewed attention to potentially valuable issues that may have
-been overlooked. **Do not** comment on an issue that has been marked stale in
-an effort to circumvent the bot: Doing so will not remove the stale label.
-(Stale labels can be removed only by maintainers.)
+been overlooked. **Do not** comment on a stale issue merely to "bump" it in an
+effort to circumvent the bot: This will result in the immediate closure of the
+issue, and you may be barred from participating in future discussions.
 
 ## Maintainer Guidance
 
