@@ -2,6 +2,11 @@
 
 ## v3.2.5 (FUTURE)
 
+### Bug Fixes
+
+* [#9480](https://github.com/netbox-community/netbox/issues/9480) - Fix sorting services & service templates by port numbers
+* [#9484](https://github.com/netbox-community/netbox/issues/9484) - Include services listening on "all IPs" under IP address view
+
 ---
 
 ## v3.2.4 (2022-05-31)
