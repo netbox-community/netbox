@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#8882](https://github.com/netbox-community/netbox/issues/8882) - Support filtering IP addresses by multiple parent prefixes
+* [#8893](https://github.com/netbox-community/netbox/issues/8893) - Include count of IP ranges under tenant view
 
 ### Bug Fixes
 
