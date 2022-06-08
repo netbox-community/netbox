@@ -1,6 +1,6 @@
 import svgwrite
 from svgwrite.container import Group, Hyperlink
-from svgwrite.shapes import Line, Rect
+from svgwrite.shapes import Line, Polyline, Rect
 from svgwrite.text import Text
 
 from django.conf import settings
@@ -16,7 +16,8 @@ __all__ = (
 OFFSET = 0.5
 PADDING = 10
 LINE_HEIGHT = 20
-FANOUT_HEIGHT = 25
+FANOUT_HEIGHT = 35
+FANOUT_LEG_HEIGHT = 15
 TERMINATION_WIDTH = 100
 
 
@@ -213,15 +214,25 @@ class CableTraceSVG:
         return nodes
 
     def draw_fanin(self, node, connector):
+        points = (
+            node.bottom_center,
+            (node.bottom_center[0], node.bottom_center[1] + FANOUT_LEG_HEIGHT),
+            connector.start,
+        )
         self.connectors.extend((
-            Line(start=node.bottom_center, end=connector.start, class_='cable-shadow'),
-            Line(start=node.bottom_center, end=connector.start, style=f'stroke: #{connector.color}'),
+            Polyline(points=points, class_='cable-shadow'),
+            Polyline(points=points, style=f'stroke: #{connector.color}'),
         ))
 
     def draw_fanout(self, node, connector):
+        points = (
+            connector.end,
+            (node.top_center[0], node.top_center[1] - FANOUT_LEG_HEIGHT),
+            node.top_center,
+        )
         self.connectors.extend((
-            Line(start=connector.end, end=node.top_center, class_='cable-shadow'),
-            Line(start=connector.end, end=node.top_center, style=f'stroke: #{connector.color}')
+            Polyline(points=points, class_='cable-shadow'),
+            Polyline(points=points, style=f'stroke: #{connector.color}'),
         ))
 
     def draw_cable(self, cable):
