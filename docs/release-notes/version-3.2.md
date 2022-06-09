@@ -12,6 +12,7 @@
 * [#9480](https://github.com/netbox-community/netbox/issues/9480) - Fix sorting services & service templates by port numbers
 * [#9484](https://github.com/netbox-community/netbox/issues/9484) - Include services listening on "all IPs" under IP address view
 * [#9486](https://github.com/netbox-community/netbox/issues/9486) - Fix redirect URL when adding device components from the module view
+* [#9495](https://github.com/netbox-community/netbox/issues/9495) - Correct link to contacts in contact groups table column
 
 ---
 

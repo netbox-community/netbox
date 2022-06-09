@@ -18,7 +18,7 @@ class ContactGroupTable(NetBoxTable):
     )
     contact_count = columns.LinkedCountColumn(
         viewname='tenancy:contact_list',
-        url_params={'role_id': 'pk'},
+        url_params={'group_id': 'pk'},
         verbose_name='Contacts'
     )
     tags = columns.TagColumn(
