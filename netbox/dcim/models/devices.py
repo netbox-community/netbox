@@ -99,8 +99,10 @@ class DeviceType(NetBoxModel):
         blank=True,
         help_text='Discrete part number (optional)'
     )
-    u_height = models.PositiveSmallIntegerField(
-        default=1,
+    u_height = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        default=1.0,
         verbose_name='Height (U)'
     )
     is_full_depth = models.BooleanField(
@@ -654,10 +656,12 @@ class Device(NetBoxModel, ConfigContextModel):
         blank=True,
         null=True
     )
-    position = models.PositiveSmallIntegerField(
+    position = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
         blank=True,
         null=True,
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(1), MaxValueValidator(99.5)],
         verbose_name='Position (U)',
         help_text='The lowest-numbered unit occupied by the device'
     )

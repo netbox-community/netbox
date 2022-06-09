@@ -1,3 +1,5 @@
+import decimal
+
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
@@ -5,6 +7,7 @@ from circuits.models import *
 from dcim.choices import *
 from dcim.models import *
 from tenancy.models import Tenant
+from utilities.utils import drange
 
 
 class LocationTestCase(TestCase):
@@ -183,26 +186,34 @@ class RackTestCase(TestCase):
             device_role=DeviceRole.objects.get(slug='switch'),
             site=self.site1,
             rack=self.rack,
-            position=10,
+            position=10.0,
             face=DeviceFaceChoices.FACE_REAR,
         )
         device1.save()
 
         # Validate rack height
-        self.assertEqual(list(self.rack.units), list(reversed(range(1, 43))))
+        self.assertEqual(list(self.rack.units), list(drange(42.5, 0.5, -0.5)))
 
         # Validate inventory (front face)
-        rack1_inventory_front = self.rack.get_rack_units(face=DeviceFaceChoices.FACE_FRONT)
-        self.assertEqual(rack1_inventory_front[-10]['device'], device1)
-        del(rack1_inventory_front[-10])
-        for u in rack1_inventory_front:
+        rack1_inventory_front = {
+            u['id']: u for u in self.rack.get_rack_units(face=DeviceFaceChoices.FACE_FRONT)
+        }
+        self.assertEqual(rack1_inventory_front[10.0]['device'], device1)
+        self.assertEqual(rack1_inventory_front[10.5]['device'], device1)
+        del(rack1_inventory_front[10.0])
+        del(rack1_inventory_front[10.5])
+        for u in rack1_inventory_front.values():
             self.assertIsNone(u['device'])
 
         # Validate inventory (rear face)
-        rack1_inventory_rear = self.rack.get_rack_units(face=DeviceFaceChoices.FACE_REAR)
-        self.assertEqual(rack1_inventory_rear[-10]['device'], device1)
-        del(rack1_inventory_rear[-10])
-        for u in rack1_inventory_rear:
+        rack1_inventory_rear = {
+            u['id']: u for u in self.rack.get_rack_units(face=DeviceFaceChoices.FACE_REAR)
+        }
+        self.assertEqual(rack1_inventory_rear[10.0]['device'], device1)
+        self.assertEqual(rack1_inventory_rear[10.5]['device'], device1)
+        del(rack1_inventory_rear[10.0])
+        del(rack1_inventory_rear[10.5])
+        for u in rack1_inventory_rear.values():
             self.assertIsNone(u['device'])
 
     def test_mount_zero_ru(self):

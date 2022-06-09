@@ -1,3 +1,4 @@
+import decimal
 import svgwrite
 from svgwrite.container import Group, Hyperlink
 from svgwrite.shapes import Line, Rect
@@ -7,6 +8,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils.http import urlencode
 
+from netbox.config import get_config
 from utilities.utils import foreground_color
 from .choices import DeviceFaceChoices
 from .constants import RACK_ELEVATION_BORDER_WIDTH
@@ -36,13 +38,17 @@ class RackElevationSVG:
     :param include_images: If true, the SVG document will embed front/rear device face images, where available
     :param base_url: Base URL for links within the SVG document. If none, links will be relative.
     """
-    def __init__(self, rack, user=None, include_images=True, base_url=None):
+    def __init__(self, rack, unit_height=None, unit_width=None, legend_width=None, user=None, include_images=True,
+                 base_url=None):
         self.rack = rack
         self.include_images = include_images
-        if base_url is not None:
-            self.base_url = base_url.rstrip('/')
-        else:
-            self.base_url = ''
+        self.base_url = base_url.rstrip('/') if base_url is not None else ''
+
+        # Set drawing dimensions
+        config = get_config()
+        self.unit_width = unit_width or config.RACK_ELEVATION_DEFAULT_UNIT_WIDTH
+        self.unit_height = unit_height or config.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
+        self.legend_width = legend_width or config.RACK_ELEVATION_LEGEND_WIDTH_DEFAULT
 
         # Determine the subset of devices within this rack that are viewable by the user, if any
         permitted_devices = self.rack.devices
@@ -78,15 +84,16 @@ class RackElevationSVG:
         gradient.add_stop_color(offset='100%', color=color)
         drawing.defs.add(gradient)
 
-    @staticmethod
-    def _setup_drawing(width, height):
+    def _setup_drawing(self):
+        width = self.unit_width + self.legend_width + RACK_ELEVATION_BORDER_WIDTH * 2
+        height = self.unit_height * self.rack.u_height + RACK_ELEVATION_BORDER_WIDTH * 2
         drawing = svgwrite.Drawing(size=(width, height))
 
-        # add the stylesheet
+        # Add the stylesheet
         with open('{}/rack_elevation.css'.format(settings.STATIC_ROOT)) as css_file:
             drawing.defs.add(drawing.style(css_file.read()))
 
-        # add gradients
+        # Add gradients
         RackElevationSVG._add_gradient(drawing, 'reserved', '#c7c7ff')
         RackElevationSVG._add_gradient(drawing, 'occupied', '#d7d7d7')
         RackElevationSVG._add_gradient(drawing, 'blocked', '#ffc0c0')
@@ -151,7 +158,7 @@ class RackElevationSVG:
                      stroke_width='0.2em', stroke_linejoin='round', class_='device-image-label'))
             link.add(drawing.text(get_device_name(device), insert=text, fill='white', class_='device-image-label'))
 
-    def _draw_empty(self, drawing, rack, start, end, text, id_, face_id, class_, reservation):
+    def _draw_empty(self, drawing, rack, start, end, text, unit, face_id, class_, reservation):
         link_url = '{}{}?{}'.format(
             self.base_url,
             reverse('dcim:device_add'),
@@ -160,7 +167,7 @@ class RackElevationSVG:
                 'location': rack.location.pk if rack.location else '',
                 'rack': rack.pk,
                 'face': face_id,
-                'position': id_
+                'position': unit
             })
         )
         link = drawing.add(
@@ -173,98 +180,108 @@ class RackElevationSVG:
         link.add(drawing.rect(start, end, class_=class_))
         link.add(drawing.text("add device", insert=text, class_='add-device'))
 
-    def merge_elevations(self, face):
-        elevation = self.rack.get_rack_units(face=face, expand_devices=False)
-        if face == DeviceFaceChoices.FACE_REAR:
-            other_face = DeviceFaceChoices.FACE_FRONT
-        else:
-            other_face = DeviceFaceChoices.FACE_REAR
-        other = self.rack.get_rack_units(face=other_face)
-
-        unit_cursor = 0
-        for u in elevation:
-            o = other[unit_cursor]
-            if not u['device'] and o['device'] and o['device'].device_type.is_full_depth:
-                u['device'] = o['device']
-                u['height'] = 1
-            unit_cursor += u.get('height', 1)
-
-        return elevation
-
-    def render(self, face, unit_width, unit_height, legend_width):
+    def draw_legend(self):
         """
-        Return an SVG document representing a rack elevation.
+        Draw the rack unit labels along the lefthand side of the elevation.
         """
-        drawing = self._setup_drawing(
-            unit_width + legend_width + RACK_ELEVATION_BORDER_WIDTH * 2,
-            unit_height * self.rack.u_height + RACK_ELEVATION_BORDER_WIDTH * 2
-        )
-        reserved_units = self.rack.get_reserved_units()
-
-        unit_cursor = 0
         for ru in range(0, self.rack.u_height):
-            start_y = ru * unit_height
-            position_coordinates = (legend_width / 2, start_y + unit_height / 2 + RACK_ELEVATION_BORDER_WIDTH)
+            start_y = ru * self.unit_height
+            position_coordinates = (self.legend_width / 2, start_y + self.unit_height / 2 + RACK_ELEVATION_BORDER_WIDTH)
             unit = ru + 1 if self.rack.desc_units else self.rack.u_height - ru
-            drawing.add(
-                drawing.text(str(unit), position_coordinates, class_="unit")
+            self.drawing.add(
+                Text(str(unit), position_coordinates, class_="unit")
             )
 
-        for unit in self.merge_elevations(face):
+    def draw_face(self, face, opposite=False):
+        """
+        Draw any occupied rack units for the specified rack face.
+        """
+        for unit in self.rack.get_rack_units(face=face, expand_devices=False):
 
             # Loop through all units in the elevation
             device = unit['device']
-            height = unit.get('height', 1)
+            height = unit.get('height', decimal.Decimal(1.0))
 
             # Setup drawing coordinates
-            x_offset = legend_width + RACK_ELEVATION_BORDER_WIDTH
-            y_offset = unit_cursor * unit_height + RACK_ELEVATION_BORDER_WIDTH
-            end_y = unit_height * height
+            x_offset = self.legend_width + RACK_ELEVATION_BORDER_WIDTH
+            if self.rack.desc_units:
+                y_offset = int(unit['id'] * self.unit_height) + RACK_ELEVATION_BORDER_WIDTH
+            else:
+                y_offset = self.drawing['height'] - int(unit['id'] * self.unit_height) - RACK_ELEVATION_BORDER_WIDTH
+
+            end_y = int(self.unit_height * height)
             start_cordinates = (x_offset, y_offset)
-            end_cordinates = (unit_width, end_y)
-            text_cordinates = (x_offset + (unit_width / 2), y_offset + end_y / 2)
+            size = (self.unit_width, end_y)
+            text_cordinates = (x_offset + (self.unit_width / 2), y_offset + end_y / 2)
 
             # Draw the device
-            if device and device.face == face and device.pk in self.permitted_device_ids:
-                self._draw_device_front(drawing, device, start_cordinates, end_cordinates, text_cordinates)
-            elif device and device.device_type.is_full_depth and device.pk in self.permitted_device_ids:
-                self._draw_device_rear(drawing, device, start_cordinates, end_cordinates, text_cordinates)
+            if device and device.pk in self.permitted_device_ids:
+                print(device)
+                print(f'    {start_cordinates}')
+                print(f'    {size}')
+
+                if device.face == face and not opposite:
+                    self._draw_device_front(self.drawing, device, start_cordinates, size, text_cordinates)
+                else:
+                    self._draw_device_rear(self.drawing, device, start_cordinates, size, text_cordinates)
+
             elif device:
                 # Devices which the user does not have permission to view are rendered only as unavailable space
-                drawing.add(drawing.rect(start_cordinates, end_cordinates, class_='blocked'))
-            else:
-                # Draw shallow devices, reservations, or empty units
-                class_ = 'slot'
-                reservation = reserved_units.get(unit["id"])
-                if device:
-                    class_ += ' occupied'
-                if reservation:
-                    class_ += ' reserved'
-                self._draw_empty(
-                    drawing,
-                    self.rack,
-                    start_cordinates,
-                    end_cordinates,
-                    text_cordinates,
-                    unit["id"],
-                    face,
-                    class_,
-                    reservation
-                )
+                self.drawing.add(Rect(start_cordinates, size, class_='blocked'))
 
-            unit_cursor += height
+            # else:
+            #     # Draw shallow devices, reservations, or empty units
+            #     class_ = 'slot'
+            #     # reservation = reserved_units.get(unit["id"])
+            #     reservation = None
+            #     if device:
+            #         class_ += ' occupied'
+            #     if reservation:
+            #         class_ += ' reserved'
+            #     self._draw_empty(
+            #         self.drawing,
+            #         self.rack,
+            #         start_cordinates,
+            #         end_cordinates,
+            #         text_cordinates,
+            #         unit["id"],
+            #         face,
+            #         class_,
+            #         reservation
+            #     )
+
+    def render(self, face):
+        """
+        Return an SVG document representing a rack elevation.
+        """
+
+        # Initialize the drawing
+        self.drawing = self._setup_drawing()
+
+        # reserved_units = self.rack.get_reserved_units()
+
+        # Draw the unit legend
+        self.draw_legend()
+
+        # Draw the opposite rack face first, then the near face
+        if face == DeviceFaceChoices.FACE_REAR:
+            opposite_face = DeviceFaceChoices.FACE_FRONT
+        else:
+            opposite_face = DeviceFaceChoices.FACE_REAR
+        # self.draw_face(opposite_face, opposite=True)
+        self.draw_face(face)
 
         # Wrap the drawing with a border
         border_width = RACK_ELEVATION_BORDER_WIDTH
         border_offset = RACK_ELEVATION_BORDER_WIDTH / 2
-        frame = drawing.rect(
-            insert=(legend_width + border_offset, border_offset),
-            size=(unit_width + border_width, self.rack.u_height * unit_height + border_width),
+        frame = Rect(
+            insert=(self.legend_width + border_offset, border_offset),
+            size=(self.unit_width + border_width, self.rack.u_height * self.unit_height + border_width),
             class_='rack'
         )
-        drawing.add(frame)
+        self.drawing.add(frame)
 
-        return drawing
+        return self.drawing
 
 
 OFFSET = 0.5
