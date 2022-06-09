@@ -7,6 +7,7 @@ django-mptt==0.13.4
 django-pglocks==1.0.4
 django-prometheus==2.2.0
 django-redis==5.2.0
+django-rich-1.4.0
 django-rq==2.5.1
 django-tables2==2.4.1
 django-taggit==2.1.0
