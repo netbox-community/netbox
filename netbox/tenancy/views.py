@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 
 from circuits.models import Circuit
 from dcim.models import Cable, Device, Location, Rack, RackReservation, Site
-from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF, ASN
+from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF, ASN
 from netbox.views import generic
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, Cluster
@@ -104,8 +104,9 @@ class TenantView(generic.ObjectView):
             'location_count': Location.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'aggregate_count': Aggregate.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'iprange_count': IPRange.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'ipaddress_count': IPAddress.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(tenant=instance).count(),

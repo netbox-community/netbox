@@ -464,7 +464,7 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         field_name='address',
         lookup_expr='family'
     )
-    parent = django_filters.CharFilter(
+    parent = MultiValueCharFilter(
         method='search_by_parent',
         label='Parent prefix',
     )
@@ -571,14 +571,16 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         return queryset.filter(qs_filter)
 
     def search_by_parent(self, queryset, name, value):
-        value = value.strip()
         if not value:
             return queryset
-        try:
-            query = str(netaddr.IPNetwork(value.strip()).cidr)
-            return queryset.filter(address__net_host_contained=query)
-        except (AddrFormatError, ValueError):
-            return queryset.none()
+        q = Q()
+        for prefix in value:
+            try:
+                query = str(netaddr.IPNetwork(prefix.strip()).cidr)
+                q |= Q(address__net_host_contained=query)
+            except (AddrFormatError, ValueError):
+                return queryset.none()
+        return queryset.filter(q)
 
     def filter_address(self, queryset, name, value):
         try:
