@@ -14,6 +14,7 @@ from mptt.models import MPTTModel
 from dcim.choices import CableLengthUnitChoices
 from extras.plugins import PluginConfig
 from extras.utils import is_taggable
+from netbox.config import get_config
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 
 
@@ -257,7 +258,9 @@ def render_jinja2(template_code, context):
     """
     Render a Jinja2 template with the provided context. Return the rendered content.
     """
-    return SandboxedEnvironment().from_string(source=template_code).render(**context)
+    environment = SandboxedEnvironment()
+    environment.filters.update(get_config().JINJA2_FILTERS)
+    return environment.from_string(source=template_code).render(**context)
 
 
 def prepare_cloned_fields(instance):
