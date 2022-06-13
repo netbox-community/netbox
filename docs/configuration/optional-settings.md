@@ -259,9 +259,12 @@ HTTP_PROXIES = {
 
 Default: `{}`
 
-A dictionary of custom jinja2 filters with the key being the filter name and the value being a callable. For more information see the [jinja2 documentation](https://jinja.palletsprojects.com/en/3.1.x/api/#custom-filters). For example:
+A dictionary of custom jinja2 filters with the key being the filter name and the value being a callable. For more information see the [Jinja2 documentation](https://jinja.palletsprojects.com/en/3.1.x/api/#custom-filters). For example:
 
 ```python
+def uppercase(x):
+    return str(x).upper()
+
 JINJA2_FILTERS = {
     'uppercase': uppercase,
 }
