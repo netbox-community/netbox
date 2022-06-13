@@ -307,7 +307,7 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
         model = VMInterface
         fields = [
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
-            'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
+            'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
         ]
         widgets = {
             'virtual_machine': forms.HiddenInput(),

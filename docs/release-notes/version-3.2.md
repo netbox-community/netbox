@@ -15,6 +15,7 @@
 * [#9486](https://github.com/netbox-community/netbox/issues/9486) - Fix redirect URL when adding device components from the module view
 * [#9495](https://github.com/netbox-community/netbox/issues/9495) - Correct link to contacts in contact groups table column
 * [#9512](https://github.com/netbox-community/netbox/issues/9512) - Fix duplicate site results when searching by ASN
+* [#9524](https://github.com/netbox-community/netbox/issues/9524) - Correct order of VLAN fields under VM interface creation form
 
 ---
 
