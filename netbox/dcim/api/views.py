@@ -19,6 +19,7 @@ from ipam.models import Prefix, VLAN
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import ServiceUnavailable
 from netbox.api.metadata import ContentTypeMetadata
+from netbox.api.pagination import StripCountAnnotationsPaginator
 from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.config import get_config
 from utilities.api import get_serializer_for_model
@@ -392,6 +393,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',
     )
     filterset_class = filtersets.DeviceFilterSet
+    pagination_class = StripCountAnnotationsPaginator
 
     def get_serializer_class(self):
         """
