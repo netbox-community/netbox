@@ -37,7 +37,7 @@
                                 {% elif field.required %}
                                     <span class="text-warning">Not defined</span>
                                 {% else %}
-                                    <span class="text-muted">&mdash;</span>
+                                    {{ ''|placeholder }}
                                 {% endif %}
                             </td>
                         </tr>

@@ -321,7 +321,7 @@
                     {% if object.rf_channel_frequency %}
                       {{ object.rf_channel_frequency|simplify_decimal }} MHz
                     {% else %}
-                      <span class="text-muted">&mdash;</span>
+                      {{ ''|placeholder }}
                     {% endif %}
                   </td>
                   {% if peer %}
@@ -329,7 +329,7 @@
                       {% if peer.rf_channel_frequency %}
                         {{ peer.rf_channel_frequency|simplify_decimal }} MHz
                       {% else %}
-                        <span class="text-muted">&mdash;</span>
+                        {{ ''|placeholder }}
                       {% endif %}
                     </td>
                   {% endif %}
@@ -340,7 +340,7 @@
                     {% if object.rf_channel_width %}
                       {{ object.rf_channel_width|simplify_decimal }} MHz
                     {% else %}
-                      <span class="text-muted">&mdash;</span>
+                      {{ ''|placeholder }}
                     {% endif %}
                   </td>
                   {% if peer %}
@@ -348,7 +348,7 @@
                       {% if peer.rf_channel_width %}
                         {{ peer.rf_channel_width|simplify_decimal }} MHz
                       {% else %}
-                        <span class="text-muted">&mdash;</span>
+                        {{ ''|placeholder }}
                       {% endif %}
                     </td>
                   {% endif %}

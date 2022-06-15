@@ -23,7 +23,7 @@
                                     {% endfor %}
                                     {{ object.site.region|linkify }}
                                 {% else %}
-                                    <span class="text-muted">None</span>
+                                    {{ ''|placeholder }}
                                 {% endif %}
                             </td>
                         </tr>
@@ -40,7 +40,7 @@
                                 {% endfor %}
                                 {{ object.location|linkify }}
                             {% else %}
-                                <span class="text-muted">None</span>
+                                {{ ''|placeholder }}
                             {% endif %}
                             </td>
                         </tr>
@@ -50,7 +50,7 @@
                                 {% if object.rack %}
                                     <a href="{% url 'dcim:rack' pk=object.rack.pk %}">{{ object.rack }}</a>
                                 {% else %}
-                                    <span class="text-muted">None</span>
+                                    {{ ''|placeholder }}
                                 {% endif %}
                             </td>
                         </tr>
@@ -69,7 +69,7 @@
                                 {% elif object.rack and object.device_type.u_height %}
                                     <span class="badge bg-warning">Not racked</span>
                                 {% else %}
-                                    <span class="text-muted">&mdash;</span>
+                                    {{ ''|placeholder }}
                                 {% endif %}
                             </td>
                         </tr>
@@ -180,7 +180,7 @@
                                   (NAT: {{ object.primary_ip4.nat_outside.address.ip|linkify }})
                                 {% endif %}
                               {% else %}
-                                <span class="text-muted">&mdash;</span>
+                                {{ ''|placeholder }}
                               {% endif %}
                             </td>
                         </tr>
@@ -195,7 +195,7 @@
                                   (NAT: {{ object.primary_ip6.nat_outside.address.ip|linkify }})
                                 {% endif %}
                               {% else %}
-                                <span class="text-muted">&mdash;</span>
+                                {{ ''|placeholder }}
                               {% endif %}
                             </td>
                         </tr>

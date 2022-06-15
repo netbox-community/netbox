@@ -44,7 +44,7 @@
                             {% for ipaddress in object.ipaddresses.all %}
                                 {{ ipaddress|linkify }}<br />
                             {% empty %}
-                                <span class="text-muted">None</span>
+                                {{ ''|placeholder }}
                             {% endfor %}
                         </td>
                     </tr>
