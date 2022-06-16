@@ -48,14 +48,27 @@ def naturalize_interface(value, max_length, integer_places=5, model_instance=Non
     digit_separators = [':', '/', '-']
     subinterface_separators = ['.']
     interface_remainder_len = 10
+    interface_type_sort_length = 4
 
     interface_type_weight_list = {
-        r'^([fgstx]e|et|lt)-': '05',                        # Group juniper interfaces  (https://www.juniper.net/documentation/us/en/software/junos/interfaces-fundamentals/topics/topic-map/router-interfaces-overview.html). Other Juniper interfaces will come after these and sorted alphabetically
-        r'^ethernet': '10',                                 # Group Arista Interfaces Ethernet1, Ethernet2, Ethernet49/1, Ethernet50/1
-        r'[' + '\\'.join(digit_separators) + ']+': '15',    # Group Anything with a digit_separator or subinterface_separators
-        r'^\d+\.?\d*$': '15',                               # Group Only digits together with digit_separator, including optional subinterface
-        r'eth': '20',                                       # Group Anything with eth in the name
+        r'^([fgstx]e|et|lt)-': '5',                         # Group Juniper interfaces  (https://www.juniper.net/documentation/us/en/software/junos/interfaces-fundamentals/topics/topic-map/router-interfaces-overview.html). Other Juniper interfaces will come after these and sorted alphabetically
+        r'^ethernet\d+(\/[1-4])?$': '10',                  # Group Arista Interfaces Ethernet1, Ethernet2, Ethernet49/1, Ethernet50/1
+        r'^(fa|gi|ten|hun)[a-z]*\d+$': '16',              # Group Cisco Interfaces with only numbers after with digit_separators
+        r'^(fa|gi|ten|hun)[a-z]*\d+?[' + '\\'.join(subinterface_separators) + r']\d*': '16',              # Group Cisco Interfaces with only numbers after with digit_separators
+        r'^(fa|gi|ten|hun)[a-z]*\d+[' + '\\'.join(digit_separators) + ']+': '15',              # Group Cisco Interfaces (Ethernet, FastEthernet, GigeEthernet, TenEthernet, HundredEthernet) with digit_separators
+        r'^[e]?\d+[a-z]*$': '20',                           # Group Netapp Interfaces
+        r'^[^a-z]*$': '25',                                 # Group Only digits together
+        r'[' + '\\'.join(digit_separators) + ']+': '30',    # Group Anything with a digit_separator
+        r'eth': '35',                                       # Group Anything with eth in the name
     }
+
+    # interface_type_weight_list = {
+    #     r'^([fgstx]e|et|lt)-': '05',                        # Group juniper interfaces  (https://www.juniper.net/documentation/us/en/software/junos/interfaces-fundamentals/topics/topic-map/router-interfaces-overview.html). Other Juniper interfaces will come after these and sorted alphabetically
+    #     r'^ethernet\d+(\/[1-4])?$': '10',                  # Group Arista Interfaces Ethernet1, Ethernet2, Ethernet49/1, Ethernet50/1
+    #     r'[' + '\\'.join(digit_separators) + ']+[' + '\\'.join(subinterface_separators) + ']*': '15',    # Group Anything with a digit_separator and an optional subinterface_separator
+    #     r'^\d+' + '\\'.join(subinterface_separators) + '?\d*$': '15',                               # Group Only digits together with digit_separator, including optional subinterface
+    #     r'eth': '20',                                       # Group Anything with eth in the name
+    # }
 
     if integer_places < 5:
         integer_places = 5
@@ -65,21 +78,24 @@ def naturalize_interface(value, max_length, integer_places=5, model_instance=Non
     if parts:
 
         # If the last part of the interface name is non-digit, then this will be added to the naturalized name for sorting purposes. Maxlength is 10 (space padded)
-        interface_remainder = ''.ljust(interface_remainder_len, ' ')
-        if re.match(r'[^\d]+', parts[-1]):
-            interface_remainder = naturalize(parts[-1], interface_remainder_len).ljust(interface_remainder_len, ' ')
-            parts.pop()
+        interface_remainder = ''.ljust(interface_remainder_len, '.')
+        if len(parts) > 1:
+            if re.match(r'[^\d]+', parts[-1]):
+                interface_remainder = naturalize(parts[-1], interface_remainder_len).ljust(interface_remainder_len, '.')
+                parts.pop()
+        if re.match(r'[^\d]+', parts[0]):
+            interface_type_weight = parts[0][:interface_type_sort_length].upper()
+            parts.pop(0)
 
-        interface_type_weight = value[:2].upper()                       # the two character of the interface name will determin the sort order
         if getattr(model_instance, 'mgmt_only', False):
-            interface_type_weight = "ZZ"                                # mgmt interfaces are put at the end of the table
+            interface_type_weight = ''.ljust(interface_type_sort_length, 'Z')  # mgmt interfaces are put at the end of the table
         else:
             for regmatch, weigth in interface_type_weight_list.items():  # unless it matches a specific pattern, then the interfaces will be grouped
                 if re.search(regmatch, value, re.IGNORECASE):             # first match is applied
                     interface_type_weight = weigth
                     break
 
-        output = interface_type_weight.rjust(2, '9')
+        output = interface_type_weight.ljust(interface_type_sort_length, '0')
 
         for part in parts:
             if part.isdigit():

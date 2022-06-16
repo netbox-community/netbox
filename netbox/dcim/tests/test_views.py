@@ -735,10 +735,13 @@ inventory-items:
         self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
 
         self.assertEqual(device_type.interfacetemplates.count(), 3)
-        iface1 = InterfaceTemplate.objects.first()
+        iface1 = InterfaceTemplate.objects.last()
         self.assertEqual(iface1.name, 'Interface 1')
         self.assertEqual(iface1.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
         self.assertTrue(iface1.mgmt_only)
+        iface2 = InterfaceTemplate.objects.first()
+        self.assertEqual(iface2.name, 'Interface 2')
+        self.assertEqual(iface2.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
 
         self.assertEqual(device_type.rearporttemplates.count(), 3)
         rp1 = RearPortTemplate.objects.first()
@@ -1041,10 +1044,13 @@ front-ports:
         self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
 
         self.assertEqual(module_type.interfacetemplates.count(), 3)
-        iface1 = InterfaceTemplate.objects.first()
+        iface1 = InterfaceTemplate.objects.last()
         self.assertEqual(iface1.name, 'Interface 1')
         self.assertEqual(iface1.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
         self.assertTrue(iface1.mgmt_only)
+        iface2 = InterfaceTemplate.objects.first()
+        self.assertEqual(iface2.name, 'Interface 2')
+        self.assertEqual(iface2.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
 
         self.assertEqual(module_type.rearporttemplates.count(), 3)
         rp1 = RearPortTemplate.objects.first()
