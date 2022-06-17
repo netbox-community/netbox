@@ -823,10 +823,8 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
-        params = {'parent': '10.0.0.0/24'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
-        params = {'parent': '2001:db8::/64'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'parent': ['10.0.0.0/30', '2001:db8::/126']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
     def test_filter_address(self):
         # Check IPv4 and IPv6, with and without a mask
@@ -1023,6 +1021,20 @@ class FHRPGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_priority(self):
         params = {'priority': [10, 20]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_device(self):
+        device = Device.objects.first()
+        params = {'device': [device.name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'device_id': [device.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_virtual_machine(self):
+        vm = VirtualMachine.objects.first()
+        params = {'virtual_machine': [vm.name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'virtual_machine_id': [vm.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):

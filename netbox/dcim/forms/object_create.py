@@ -256,6 +256,8 @@ class VirtualChassisCreateForm(NetBoxModelForm):
         ]
 
     def clean(self):
+        super().clean()
+
         if self.cleaned_data['members'] and self.cleaned_data['initial_position'] is None:
             raise forms.ValidationError({
                 'initial_position': "A position must be specified for the first VC member."

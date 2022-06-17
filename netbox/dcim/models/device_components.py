@@ -77,7 +77,7 @@ class ComponentModel(NetBoxModel):
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
         objectchange.related_object = self.device
-        return super().to_objectchange(action)
+        return objectchange
 
     @property
     def parent_object(self):
@@ -543,7 +543,8 @@ class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpo
     )
     speed = models.PositiveIntegerField(
         blank=True,
-        null=True
+        null=True,
+        verbose_name='Speed (Kbps)'
     )
     duplex = models.CharField(
         max_length=50,

@@ -119,6 +119,11 @@ class Cluster(NetBoxModel):
         blank=True,
         null=True
     )
+    status = models.CharField(
+        max_length=50,
+        choices=ClusterStatusChoices,
+        default=ClusterStatusChoices.STATUS_ACTIVE
+    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
@@ -165,6 +170,9 @@ class Cluster(NetBoxModel):
     def get_absolute_url(self):
         return reverse('virtualization:cluster', args=[self.pk])
 
+    def get_status_color(self):
+        return ClusterStatusChoices.colors.get(self.status)
+
     def clean(self):
         super().clean()
 
@@ -187,10 +195,26 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
     """
     A virtual machine which runs inside a Cluster.
     """
+    site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.PROTECT,
+        related_name='virtual_machines',
+        blank=True,
+        null=True
+    )
     cluster = models.ForeignKey(
         to='virtualization.Cluster',
         on_delete=models.PROTECT,
-        related_name='virtual_machines'
+        related_name='virtual_machines',
+        blank=True,
+        null=True
+    )
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.PROTECT,
+        related_name='virtual_machines',
+        blank=True,
+        null=True
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -276,7 +300,7 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
     objects = ConfigContextModelQuerySet.as_manager()
 
     clone_fields = [
-        'cluster', 'tenant', 'platform', 'status', 'role', 'vcpus', 'memory', 'disk',
+        'site', 'cluster', 'device', 'tenant', 'platform', 'status', 'role', 'vcpus', 'memory', 'disk',
     ]
 
     class Meta:
@@ -308,6 +332,28 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
     def clean(self):
         super().clean()
 
+        # Must be assigned to a site and/or cluster
+        if not self.site and not self.cluster:
+            raise ValidationError({
+                'cluster': f'A virtual machine must be assigned to a site and/or cluster.'
+            })
+
+        # Validate site for cluster & device
+        if self.cluster and self.cluster.site != self.site:
+            raise ValidationError({
+                'cluster': f'The selected cluster ({self.cluster} is not assigned to this site ({self.site}).'
+            })
+        if self.device and self.device.site != self.site:
+            raise ValidationError({
+                'device': f'The selected device ({self.device} is not assigned to this site ({self.site}).'
+            })
+
+        # Validate assigned cluster device
+        if self.device and self.device not in self.cluster.devices.all():
+            raise ValidationError({
+                'device': f'The selected device ({self.device} is not assigned to this cluster ({self.cluster}).'
+            })
+
         # Validate primary IP addresses
         interfaces = self.interfaces.all()
         for field in ['primary_ip4', 'primary_ip6']:
@@ -335,10 +381,6 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
             return self.primary_ip4
         else:
             return None
-
-    @property
-    def site(self):
-        return self.cluster.site
 
 
 #

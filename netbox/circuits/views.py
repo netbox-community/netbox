@@ -32,7 +32,7 @@ class ProviderView(generic.ObjectView):
         ).prefetch_related(
             'type', 'tenant', 'terminations__site'
         )
-        circuits_table = tables.CircuitTable(circuits, exclude=('provider',))
+        circuits_table = tables.CircuitTable(circuits, user=request.user, exclude=('provider',))
         circuits_table.configure(request)
 
         return {
@@ -93,7 +93,7 @@ class ProviderNetworkView(generic.ObjectView):
         ).prefetch_related(
             'type', 'tenant', 'terminations__site'
         )
-        circuits_table = tables.CircuitTable(circuits)
+        circuits_table = tables.CircuitTable(circuits, user=request.user)
         circuits_table.configure(request)
 
         return {
@@ -147,7 +147,7 @@ class CircuitTypeView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         circuits = Circuit.objects.restrict(request.user, 'view').filter(type=instance)
-        circuits_table = tables.CircuitTable(circuits, exclude=('type',))
+        circuits_table = tables.CircuitTable(circuits, user=request.user, exclude=('type',))
         circuits_table.configure(request)
 
         return {

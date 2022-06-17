@@ -14,7 +14,9 @@ class ClusterTypeTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    cluster_count = tables.Column(
+    cluster_count = columns.LinkedCountColumn(
+        viewname='virtualization:cluster_list',
+        url_params={'type_id': 'pk'},
         verbose_name='Clusters'
     )
     tags = columns.TagColumn(
@@ -33,10 +35,12 @@ class ClusterGroupTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    cluster_count = tables.Column(
+    cluster_count = columns.LinkedCountColumn(
+        viewname='virtualization:cluster_list',
+        url_params={'group_id': 'pk'},
         verbose_name='Clusters'
     )
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(
@@ -62,6 +66,7 @@ class ClusterTable(NetBoxTable):
     group = tables.Column(
         linkify=True
     )
+    status = columns.ChoiceFieldColumn()
     tenant = tables.Column(
         linkify=True
     )
@@ -79,7 +84,7 @@ class ClusterTable(NetBoxTable):
         verbose_name='VMs'
     )
     comments = columns.MarkdownColumn()
-    contacts = tables.ManyToManyColumn(
+    contacts = columns.ManyToManyColumn(
         linkify_item=True
     )
     tags = columns.TagColumn(
@@ -89,7 +94,7 @@ class ClusterTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Cluster
         fields = (
-            'pk', 'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'device_count', 'vm_count', 'contacts',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'type', 'group', 'status', 'tenant', 'site', 'comments', 'device_count', 'vm_count',
+            'contacts', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'device_count', 'vm_count')
+        default_columns = ('pk', 'name', 'type', 'group', 'status', 'tenant', 'site', 'device_count', 'vm_count')

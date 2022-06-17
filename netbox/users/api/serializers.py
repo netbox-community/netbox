@@ -45,6 +45,11 @@ class UserSerializer(ValidatedModelSerializer):
 
         return user
 
+    def get_display(self, obj):
+        if full_name := obj.get_full_name():
+            return f"{obj.username} ({full_name})"
+        return obj.username
+
 
 class GroupSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:group-detail')

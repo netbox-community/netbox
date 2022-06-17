@@ -37,6 +37,13 @@ class CustomFieldBulkEditForm(BulkEditForm):
     weight = forms.IntegerField(
         required=False
     )
+    ui_visibility = forms.ChoiceField(
+        label="UI visibility",
+        choices=add_blank_choice(CustomFieldVisibilityChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
 
     nullable_fields = ('group_name', 'description',)
 

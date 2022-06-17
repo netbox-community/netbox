@@ -1,10 +1,100 @@
 # NetBox v3.2
 
-## v3.2.2 (FUTURE)
+## v3.2.5 (FUTURE)
+
+### Enhancements
+
+* [#8882](https://github.com/netbox-community/netbox/issues/8882) - Support filtering IP addresses by multiple parent prefixes
+* [#8893](https://github.com/netbox-community/netbox/issues/8893) - Include count of IP ranges under tenant view
 
 ### Bug Fixes
 
+* [#9480](https://github.com/netbox-community/netbox/issues/9480) - Fix sorting services & service templates by port numbers
+* [#9484](https://github.com/netbox-community/netbox/issues/9484) - Include services listening on "all IPs" under IP address view
+* [#9486](https://github.com/netbox-community/netbox/issues/9486) - Fix redirect URL when adding device components from the module view
+* [#9495](https://github.com/netbox-community/netbox/issues/9495) - Correct link to contacts in contact groups table column
+
+---
+
+## v3.2.4 (2022-05-31)
+
+### Enhancements
+
+* [#8374](https://github.com/netbox-community/netbox/issues/8374) - Display device type and asset tag if name is blank but asset tag is populated
+* [#8922](https://github.com/netbox-community/netbox/issues/8922) - Add service list to IP address view
+* [#9098](https://github.com/netbox-community/netbox/issues/9098) - Add "other" types for power ports/outlets, pass-through ports
+* [#9239](https://github.com/netbox-community/netbox/issues/9239) - Enable filtering by contact group for all models which support contact assignment
+* [#9277](https://github.com/netbox-community/netbox/issues/9277) - Introduce `CSRF_COOKIE_NAME` configuration parameter
+* [#9347](https://github.com/netbox-community/netbox/issues/9347) - Include services in global search
+* [#9379](https://github.com/netbox-community/netbox/issues/9379) - Redirect to virtual chassis view after adding a member device
+* [#9451](https://github.com/netbox-community/netbox/issues/9451) - Add `export_raw` argument for TemplateColumn
+
+### Bug Fixes
+
+* [#9094](https://github.com/netbox-community/netbox/issues/9094) - Fix partial address search within Prefix and Aggregate filters
+* [#9291](https://github.com/netbox-community/netbox/issues/9291) - Improve data validation for MultiObjectVar script fields
+* [#9358](https://github.com/netbox-community/netbox/issues/9358) - Annotate circuit count for providers list under ASN view
+* [#9387](https://github.com/netbox-community/netbox/issues/9387) - Ensure ActionsColumn `extra_buttons` are always displayed
+* [#9402](https://github.com/netbox-community/netbox/issues/9402) - Fix custom field population when creating a virtual chassis
+* [#9407](https://github.com/netbox-community/netbox/issues/9407) - Clean up display of prefixes values when exporting prefixes list
+* [#9420](https://github.com/netbox-community/netbox/issues/9420) - Fix custom script class inheritance
+* [#9425](https://github.com/netbox-community/netbox/issues/9425) - Fix bulk import for object and multi-object custom fields
+* [#9430](https://github.com/netbox-community/netbox/issues/9430) - Fix passing of initial form data for DynamicModelChoiceFields
+
+---
+
+## v3.2.3 (2022-05-12)
+
+### Enhancements
+
+* [#8805](https://github.com/netbox-community/netbox/issues/8805) - Add "mixed" option for device airflow indication
+* [#8894](https://github.com/netbox-community/netbox/issues/8894) - Include full names when listing users
+* [#8998](https://github.com/netbox-community/netbox/issues/8998) - Enable filtering racks & reservations by site group
+* [#9122](https://github.com/netbox-community/netbox/issues/9122) - Introduce `clearcache` management command & clear cache during upgrade
+* [#9221](https://github.com/netbox-community/netbox/issues/9221) - Add definition list support for Markdown
+* [#9260](https://github.com/netbox-community/netbox/issues/9260) - Apply user preferences to tables under object detail views
+* [#9278](https://github.com/netbox-community/netbox/issues/9278) - Linkify device types count under manufacturers list
+* [#9280](https://github.com/netbox-community/netbox/issues/9280) - Allow adopting existing components when installing a module
+* [#9314](https://github.com/netbox-community/netbox/issues/9314) - Add device and VM filters for FHRP group assignments
+* [#9340](https://github.com/netbox-community/netbox/issues/9340) - Introduce support for error reporting via Sentry
+* [#9343](https://github.com/netbox-community/netbox/issues/9343) - Add Ubiquiti SmartPower power outlet type
+
+### Bug Fixes
+
+* [#9190](https://github.com/netbox-community/netbox/issues/9190) - Prevent exception when attempting to instantiate module components which already exist on the parent device
+* [#9267](https://github.com/netbox-community/netbox/issues/9267) - Remove invalid entry in IP address role choices
+* [#9296](https://github.com/netbox-community/netbox/issues/9296) - Improve Markdown link sanitization
+* [#9306](https://github.com/netbox-community/netbox/issues/9306) - Include VC master interfaces when selecting a LAG/bridge for a VC member interface
+* [#9311](https://github.com/netbox-community/netbox/issues/9311) - Permit creating contact assignment without a priority via the REST API
+* [#9313](https://github.com/netbox-community/netbox/issues/9313) - Remove HTML code from CSV output of many-to-many relationships
+* [#9330](https://github.com/netbox-community/netbox/issues/9330) - Add missing `module_type` field to REST API serializers for modular device component templates
+
+---
+
+## v3.2.2 (2022-04-28)
+
+### Enhancements
+
+* [#9060](https://github.com/netbox-community/netbox/issues/9060) - Add device type filters for device bays, module bays, and inventory items
+* [#9152](https://github.com/netbox-community/netbox/issues/9152) - Annotate related object type under custom field view
+* [#9192](https://github.com/netbox-community/netbox/issues/9192) - Add Ubiquiti SmartPower connector type
+* [#9214](https://github.com/netbox-community/netbox/issues/9214) - Linkify cluster counts in cluster type & group tables
+
+### Bug Fixes
+
+* [#4264](https://github.com/netbox-community/netbox/issues/4264) - Treat 0th IP as unusable for IPv6 prefixes (excluding /127s)
+* [#8941](https://github.com/netbox-community/netbox/issues/8941) - Fix dynamic dropdown behavior when browser is zoomed
+* [#8959](https://github.com/netbox-community/netbox/issues/8959) - Prevent exception when refreshing scripts list (avoid race condition)
+* [#9132](https://github.com/netbox-community/netbox/issues/9132) - Limit location options by selected site when creating a wireless link
 * [#9133](https://github.com/netbox-community/netbox/issues/9133) - Upgrade script should require Python 3.8 or later
+* [#9138](https://github.com/netbox-community/netbox/issues/9138) - Avoid inadvertent form submission when utilizing quick search field on object lists
+* [#9151](https://github.com/netbox-community/netbox/issues/9151) - Child prefix counts not annotated on aggregates list under RIR view
+* [#9156](https://github.com/netbox-community/netbox/issues/9156) - Fix loading UserConfig data from fixtures
+* [#9158](https://github.com/netbox-community/netbox/issues/9158) - Do not list tags field for CSV forms which do not support tag assignment
+* [#9194](https://github.com/netbox-community/netbox/issues/9194) - Support position assignment when add module bays to multiple devices
+* [#9206](https://github.com/netbox-community/netbox/issues/9206) - Show header for comments field under module & module type creation views
+* [#9222](https://github.com/netbox-community/netbox/issues/9222) - Fix circuit ID display under cable view
+* [#9227](https://github.com/netbox-community/netbox/issues/9227) - Fix related object assignment when recording change record for interfaces
 
 ---
 

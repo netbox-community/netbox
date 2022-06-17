@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
-from django.urls import NoReverseMatch, reverse
+from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
 from django_tables2.columns import library
@@ -27,6 +27,7 @@ __all__ = (
     'CustomLinkColumn',
     'LinkedCountColumn',
     'MarkdownColumn',
+    'ManyToManyColumn',
     'MPTTColumn',
     'TagColumn',
     'TemplateColumn',
@@ -35,6 +36,10 @@ __all__ = (
 )
 
 
+#
+# Django-tables2 overrides
+#
+
 @library.register
 class DateColumn(tables.DateColumn):
     """
@@ -42,7 +47,6 @@ class DateColumn(tables.DateColumn):
     tables and null when exporting data. It is registered in the tables library to use this class instead of the
     default, making this behavior consistent in all fields of type DateField.
     """
-
     def value(self, value):
         return value
 
@@ -59,7 +63,6 @@ class DateTimeColumn(tables.DateTimeColumn):
     tables and null when exporting data. It is registered in the tables library to use this class instead of the
     default, making this behavior consistent in all fields of type DateTimeField.
     """
-
     def value(self, value):
         if value:
             return date_format(value, format="SHORT_DATETIME_FORMAT")
@@ -70,6 +73,52 @@ class DateTimeColumn(tables.DateTimeColumn):
         if isinstance(field, DateTimeField):
             return cls(**kwargs)
 
+
+class ManyToManyColumn(tables.ManyToManyColumn):
+    """
+    Overrides django-tables2's stock ManyToManyColumn to ensure that value() returns only plaintext data.
+    """
+    def value(self, value):
+        items = [self.transform(item) for item in self.filter(value)]
+        return self.separator.join(items)
+
+
+class TemplateColumn(tables.TemplateColumn):
+    """
+    Overrides django-tables2's stock TemplateColumn class to render a placeholder symbol if the returned value
+    is an empty string.
+    """
+    PLACEHOLDER = mark_safe('&mdash;')
+
+    def __init__(self, export_raw=False, **kwargs):
+        """
+        Args:
+            export_raw: If true, data export returns the raw field value rather than the rendered template. (Default:
+                        False)
+        """
+        super().__init__(**kwargs)
+        self.export_raw = export_raw
+
+    def render(self, *args, **kwargs):
+        ret = super().render(*args, **kwargs)
+        if not ret.strip():
+            return self.PLACEHOLDER
+        return ret
+
+    def value(self, **kwargs):
+        if self.export_raw:
+            # Skip template rendering and export raw value
+            return kwargs.get('value')
+
+        ret = super().value(**kwargs)
+        if ret == self.PLACEHOLDER:
+            return ''
+        return ret
+
+
+#
+# Custom columns
+#
 
 class ToggleColumn(tables.CheckBoxColumn):
     """
@@ -110,26 +159,6 @@ class BooleanColumn(tables.Column):
 
     def value(self, value):
         return str(value)
-
-
-class TemplateColumn(tables.TemplateColumn):
-    """
-    Overrides django-tables2's stock TemplateColumn class to render a placeholder symbol if the returned value
-    is an empty string.
-    """
-    PLACEHOLDER = mark_safe('&mdash;')
-
-    def render(self, *args, **kwargs):
-        ret = super().render(*args, **kwargs)
-        if not ret.strip():
-            return self.PLACEHOLDER
-        return ret
-
-    def value(self, **kwargs):
-        ret = super().value(**kwargs)
-        if ret == self.PLACEHOLDER:
-            return ''
-        return ret
 
 
 @dataclass
@@ -176,32 +205,35 @@ class ActionsColumn(tables.Column):
         model = table.Meta.model
         request = getattr(table, 'context', {}).get('request')
         url_appendix = f'?return_url={request.path}' if request else ''
+        html = ''
 
+        # Compile actions menu
         links = []
         user = getattr(request, 'user', AnonymousUser())
         for action, attrs in self.actions.items():
             permission = f'{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}'
             if attrs.permission is None or user.has_perm(permission):
                 url = reverse(get_viewname(model, action), kwargs={'pk': record.pk})
-                links.append(f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
-                             f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>')
-
-        if not links:
-            return ''
-
-        menu = f'<span class="dropdown">' \
-               f'<a class="btn btn-sm btn-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown">' \
-               f'<i class="mdi mdi-wrench"></i></a>' \
-               f'<ul class="dropdown-menu">{"".join(links)}</ul></span>'
+                links.append(
+                    f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
+                    f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>'
+                )
+        if links:
+            html += (
+                f'<span class="dropdown">'
+                f'<a class="btn btn-sm btn-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown">'
+                f'<i class="mdi mdi-wrench"></i></a>'
+                f'<ul class="dropdown-menu">{"".join(links)}</ul></span>'
+            )
 
         # Render any extra buttons from template code
         if self.extra_buttons:
             template = Template(self.extra_buttons)
             context = getattr(table, "context", Context())
             context.update({'record': record})
-            menu = template.render(context) + menu
+            html = template.render(context) + html
 
-        return mark_safe(menu)
+        return mark_safe(html)
 
 
 class ChoiceFieldColumn(tables.Column):

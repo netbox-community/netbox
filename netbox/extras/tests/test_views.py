@@ -36,13 +36,15 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'default': None,
             'weight': 200,
             'required': True,
+            'ui_visibility': CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE,
         }
 
         cls.csv_data = (
-            'name,label,type,content_types,weight,filter_logic,choices,validation_minimum,validation_maximum,validation_regex',
-            'field4,Field 4,text,dcim.site,100,exact,,,,[a-z]{3}',
-            'field5,Field 5,integer,dcim.site,100,exact,,1,100,',
-            'field6,Field 6,select,dcim.site,100,exact,"A,B,C",,,',
+            'name,label,type,content_types,object_type,weight,filter_logic,choices,validation_minimum,validation_maximum,validation_regex,ui_visibility',
+            'field4,Field 4,text,dcim.site,,100,exact,,,,[a-z]{3},read-write',
+            'field5,Field 5,integer,dcim.site,,100,exact,,1,100,,read-write',
+            'field6,Field 6,select,dcim.site,,100,exact,"A,B,C",,,,read-write',
+            'field7,Field 7,object,dcim.site,dcim.region,100,exact,,,,,read-write',
         )
 
         cls.bulk_edit_data = {

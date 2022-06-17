@@ -4,15 +4,15 @@ from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from circuits.models import Provider
+from circuits.models import Provider, Circuit
 from circuits.tables import ProviderTable
 from dcim.filtersets import InterfaceFilterSet
-from dcim.models import Interface, Site
+from dcim.models import Interface, Site, Device
 from dcim.tables import SiteTable
 from netbox.views import generic
 from utilities.utils import count_related
 from virtualization.filtersets import VMInterfaceFilterSet
-from virtualization.models import VMInterface
+from virtualization.models import VMInterface, VirtualMachine
 from . import filtersets, forms, tables
 from .constants import *
 from .models import *
@@ -158,10 +158,10 @@ class RIRView(generic.ObjectView):
     queryset = RIR.objects.all()
 
     def get_extra_context(self, request, instance):
-        aggregates = Aggregate.objects.restrict(request.user, 'view').filter(
-            rir=instance
+        aggregates = Aggregate.objects.restrict(request.user, 'view').filter(rir=instance).annotate(
+            child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
         )
-        aggregates_table = tables.AggregateTable(aggregates, exclude=('rir', 'utilization'))
+        aggregates_table = tables.AggregateTable(aggregates, user=request.user, exclude=('rir', 'utilization'))
         aggregates_table.configure(request)
 
         return {
@@ -221,12 +221,14 @@ class ASNView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         # Gather assigned Sites
         sites = instance.sites.restrict(request.user, 'view')
-        sites_table = SiteTable(sites)
+        sites_table = SiteTable(sites, user=request.user)
         sites_table.configure(request)
 
         # Gather assigned Providers
-        providers = instance.providers.restrict(request.user, 'view')
-        providers_table = ProviderTable(providers)
+        providers = instance.providers.restrict(request.user, 'view').annotate(
+            count_circuits=count_related(Circuit, 'provider')
+        )
+        providers_table = ProviderTable(providers, user=request.user)
         providers_table.configure(request)
 
         return {
@@ -366,7 +368,7 @@ class RoleView(generic.ObjectView):
             role=instance
         )
 
-        prefixes_table = tables.PrefixTable(prefixes, exclude=('role', 'utilization'))
+        prefixes_table = tables.PrefixTable(prefixes, user=request.user, exclude=('role', 'utilization'))
         prefixes_table.configure(request)
 
         return {
@@ -585,7 +587,7 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'role', 'tenant',
+            'vrf', 'tenant',
         )
 
     def get_extra_context(self, request, instance):
@@ -674,11 +676,26 @@ class IPAddressView(generic.ObjectView):
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
         related_ips_table.configure(request)
 
+        # Find services belonging to the IP
+        service_filter = Q(ipaddresses=instance)
+
+        # Find services listening on all IPs on the assigned device/vm
+        if instance.assigned_object and instance.assigned_object.parent_object:
+            parent_object = instance.assigned_object.parent_object
+
+            if isinstance(parent_object, VirtualMachine):
+                service_filter |= (Q(virtual_machine=parent_object) & Q(ipaddresses=None))
+            elif isinstance(parent_object, Device):
+                service_filter |= (Q(device=parent_object) & Q(ipaddresses=None))
+
+        services = Service.objects.restrict(request.user, 'view').filter(service_filter)
+
         return {
             'parent_prefixes_table': parent_prefixes_table,
             'duplicate_ips_table': duplicate_ips_table,
             'more_duplicate_ips': duplicate_ips.count() > 10,
             'related_ips_table': related_ips_table,
+            'services': services,
         }
 
 
@@ -805,7 +822,7 @@ class VLANGroupView(generic.ObjectView):
         vlans_count = vlans.count()
         vlans = add_available_vlans(vlans, vlan_group=instance)
 
-        vlans_table = tables.VLANTable(vlans, exclude=('group',))
+        vlans_table = tables.VLANTable(vlans, user=request.user, exclude=('group',))
         if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
             vlans_table.columns.show('pk')
         vlans_table.configure(request)

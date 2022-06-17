@@ -346,6 +346,32 @@ class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='rack__site__region',
+        lookup_expr='in',
+        label='Region (ID)',
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='rack__site__region',
+        lookup_expr='in',
+        to_field_name='slug',
+        label='Region (slug)',
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='rack__site__group',
+        lookup_expr='in',
+        label='Site group (ID)',
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='rack__site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label='Site group (slug)',
+    )
     location_id = TreeNodeMultipleChoiceFilter(
         queryset=Location.objects.all(),
         field_name='rack__location',
@@ -435,6 +461,10 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
         method='_device_bays',
         label='Has device bays',
     )
+    inventory_items = django_filters.BooleanFilter(
+        method='_inventory_items',
+        label='Has inventory items',
+    )
 
     class Meta:
         model = DeviceType
@@ -478,6 +508,9 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
 
     def _device_bays(self, queryset, name, value):
         return queryset.exclude(devicebaytemplates__isnull=value)
+
+    def _inventory_items(self, queryset, name, value):
+        return queryset.exclude(inventoryitemtemplates__isnull=value)
 
 
 class ModuleTypeFilterSet(NetBoxModelFilterSet):

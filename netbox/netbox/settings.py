@@ -1,3 +1,4 @@
+import hashlib
 import importlib
 import logging
 import os
@@ -8,9 +9,11 @@ import sys
 import warnings
 from urllib.parse import urlsplit
 
+import sentry_sdk
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from netbox.config import PARAMS
 
@@ -40,6 +43,7 @@ if sys.version_info < (3, 8):
         f"NetBox requires Python 3.8 or later. (Currently installed: Python {platform.python_version()})"
     )
 
+DEFAULT_SENTRY_DSN = 'https://198cf560b29d4054ab8e583a1d10ea58@o1242133.ingest.sentry.io/6396485'
 
 #
 # Configuration import
@@ -68,6 +72,9 @@ DATABASE = getattr(configuration, 'DATABASE')
 REDIS = getattr(configuration, 'REDIS')
 SECRET_KEY = getattr(configuration, 'SECRET_KEY')
 
+# Calculate a unique deployment ID from the secret key
+DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
+
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
 AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [])
@@ -77,6 +84,7 @@ if BASE_PATH:
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
+CSRF_COOKIE_NAME = getattr(configuration, 'CSRF_COOKIE_NAME', 'csrftoken')
 CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
 DATE_FORMAT = getattr(configuration, 'DATE_FORMAT', 'N j, Y')
 DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
@@ -113,6 +121,11 @@ REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, 'REMOTE_AUTH_GROUP_SEPARATO
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
+SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', DEFAULT_SENTRY_DSN)
+SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
+SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
+SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
+SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
@@ -410,6 +423,8 @@ LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+TEST_RUNNER = "django_rich.test.RichRunner"
+
 # Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
 # by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.
 EXEMPT_EXCLUDE_MODELS = (
@@ -426,6 +441,36 @@ EXEMPT_PATHS = (
     f'/{BASE_PATH}oauth/',
     f'/{BASE_PATH}metrics',
 )
+
+
+#
+# Sentry
+#
+
+if SENTRY_ENABLED:
+    if not SENTRY_DSN:
+        raise ImproperlyConfigured("SENTRY_ENABLED is True but SENTRY_DSN has not been defined.")
+    # If using the default DSN, force sampling rates
+    if SENTRY_DSN == DEFAULT_SENTRY_DSN:
+        SENTRY_SAMPLE_RATE = 1.0
+        SENTRY_TRACES_SAMPLE_RATE = 0
+    # Initialize the SDK
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        release=VERSION,
+        integrations=[DjangoIntegration()],
+        sample_rate=SENTRY_SAMPLE_RATE,
+        traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
+        send_default_pii=True,
+        http_proxy=HTTP_PROXIES.get('http') if HTTP_PROXIES else None,
+        https_proxy=HTTP_PROXIES.get('https') if HTTP_PROXIES else None
+    )
+    # Assign any configured tags
+    for k, v in SENTRY_TAGS.items():
+        sentry_sdk.set_tag(k, v)
+    # If using the default DSN, append a unique deployment ID tag for error correlation
+    if SENTRY_DSN == DEFAULT_SENTRY_DSN:
+        sentry_sdk.set_tag('netbox.deployment_id', DEPLOYMENT_ID)
 
 
 #

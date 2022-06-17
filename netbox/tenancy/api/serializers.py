@@ -97,7 +97,7 @@ class ContactAssignmentSerializer(NetBoxModelSerializer):
     object = serializers.SerializerMethodField(read_only=True)
     contact = NestedContactSerializer()
     role = NestedContactRoleSerializer(required=False, allow_null=True)
-    priority = ChoiceField(choices=ContactPriorityChoices, required=False)
+    priority = ChoiceField(choices=ContactPriorityChoices, allow_blank=True, required=False, default='')
 
     class Meta:
         model = ContactAssignment

@@ -39,6 +39,7 @@ AUTH_BACKEND_ATTRS = {
     'keycloak': ('Keycloak', None),
     'microsoft-graph': ('Microsoft Graph', 'microsoft'),
     'okta': ('Okta', None),
+    'okta-openidconnect': ('Okta (OIDC)', None),
     'salesforce-oauth2': ('Salesforce', 'salesforce'),
 }
 

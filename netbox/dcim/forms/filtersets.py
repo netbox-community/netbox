@@ -108,7 +108,7 @@ class RegionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Region
     fieldsets = (
         (None, ('q', 'tag', 'parent_id')),
-        ('Contacts', ('contact', 'contact_role'))
+        ('Contacts', ('contact', 'contact_role', 'contact_group'))
     )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -122,7 +122,7 @@ class SiteGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = SiteGroup
     fieldsets = (
         (None, ('q', 'tag', 'parent_id')),
-        ('Contacts', ('contact', 'contact_role'))
+        ('Contacts', ('contact', 'contact_role', 'contact_group'))
     )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
@@ -138,7 +138,7 @@ class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         (None, ('q', 'tag')),
         ('Attributes', ('status', 'region_id', 'group_id', 'asn_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Contacts', ('contact', 'contact_role')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
     status = MultipleChoiceField(
         choices=SiteStatusChoices,
@@ -168,7 +168,7 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
         (None, ('q', 'tag')),
         ('Parent', ('region_id', 'site_group_id', 'site_id', 'parent_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Contacts', ('contact', 'contact_role')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -210,11 +210,11 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
     model = Rack
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Location', ('region_id', 'site_id', 'location_id')),
+        ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id')),
         ('Function', ('status', 'role_id')),
         ('Hardware', ('type', 'width', 'serial', 'asset_tag')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Contacts', ('contact', 'contact_role')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -228,6 +228,11 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
             'region_id': '$region_id'
         },
         label=_('Site')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
@@ -282,7 +287,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'tag')),
         ('User', ('user_id',)),
-        ('Rack', ('region_id', 'site_id', 'location_id')),
+        ('Rack', ('region_id', 'site_group_id', 'site_id', 'location_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
     )
     region_id = DynamicModelMultipleChoiceField(
@@ -297,6 +302,11 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
             'region_id': '$region_id'
         },
         label=_('Site')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.prefetch_related('site'),
@@ -319,7 +329,7 @@ class ManufacturerFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Manufacturer
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Contacts', ('contact', 'contact_role'))
+        ('Contacts', ('contact', 'contact_role', 'contact_group'))
     )
     tag = TagFilterField(model)
 
@@ -331,7 +341,7 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
         ('Hardware', ('manufacturer_id', 'part_number', 'subdevice_role', 'airflow')),
         ('Components', (
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
-            'pass_through_ports',
+            'pass_through_ports', 'device_bays', 'module_bays', 'inventory_items',
         )),
     )
     manufacturer_id = DynamicModelMultipleChoiceField(
@@ -388,6 +398,27 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     pass_through_ports = forms.NullBooleanField(
         required=False,
         label='Has pass-through ports',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    device_bays = forms.NullBooleanField(
+        required=False,
+        label='Has device bays',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    module_bays = forms.NullBooleanField(
+        required=False,
+        label='Has module bays',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    inventory_items = forms.NullBooleanField(
+        required=False,
+        label='Has inventory items',
         widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -487,7 +518,7 @@ class DeviceFilterForm(
         ('Operation', ('status', 'role_id', 'airflow', 'serial', 'asset_tag', 'mac_address')),
         ('Hardware', ('manufacturer_id', 'device_type_id', 'platform_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Contacts', ('contact', 'contact_role')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
         ('Components', (
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports',
         )),
@@ -757,7 +788,7 @@ class PowerPanelFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'tag')),
         ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id')),
-        ('Contacts', ('contact', 'contact_role')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -1071,7 +1102,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
     model = InventoryItem
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Attributes', ('name', 'label', 'manufacturer_id', 'serial', 'asset_tag', 'discovered')),
+        ('Attributes', ('name', 'label', 'role_id', 'manufacturer_id', 'serial', 'asset_tag', 'discovered')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id')),
     )
     role_id = DynamicModelMultipleChoiceField(

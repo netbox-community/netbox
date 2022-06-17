@@ -5,6 +5,7 @@ import os
 import pkgutil
 import sys
 import traceback
+import threading
 from collections import OrderedDict
 
 import yaml
@@ -13,11 +14,9 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
 from django.utils.functional import classproperty
-from django_rq import job
 
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices, LogLevelChoices
-from extras.models import JobResult
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortTransaction
@@ -41,6 +40,8 @@ __all__ = [
     'StringVar',
     'TextVar',
 ]
+
+lock = threading.Lock()
 
 
 #
@@ -305,9 +306,16 @@ class BaseScript:
     @classmethod
     def _get_vars(cls):
         vars = {}
-        for name, attr in cls.__dict__.items():
-            if name not in vars and issubclass(attr.__class__, ScriptVariable):
-                vars[name] = attr
+
+        # Iterate all base classes looking for ScriptVariables
+        for base_class in inspect.getmro(cls):
+            # When object is reached there's no reason to continue
+            if base_class is object:
+                break
+
+            for name, attr in base_class.__dict__.items():
+                if name not in vars and issubclass(attr.__class__, ScriptVariable):
+                    vars[name] = attr
 
         # Order variables according to field_order
         field_order = getattr(cls.Meta, 'field_order', None)
@@ -491,11 +499,14 @@ def get_scripts(use_names=False):
     # Iterate through all modules within the scripts path. These are the user-created files in which reports are
     # defined.
     for importer, module_name, _ in pkgutil.iter_modules([settings.SCRIPTS_ROOT]):
-        # Remove cached module to ensure consistency with filesystem
-        if module_name in sys.modules:
-            del sys.modules[module_name]
+        # Use a lock as removing and loading modules is not thread safe
+        with lock:
+            # Remove cached module to ensure consistency with filesystem
+            if module_name in sys.modules:
+                del sys.modules[module_name]
 
-        module = importer.find_module(module_name).load_module(module_name)
+            module = importer.find_module(module_name).load_module(module_name)
+
         if use_names and hasattr(module, 'name'):
             module_name = module.name
         module_scripts = OrderedDict()

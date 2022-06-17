@@ -1,6 +1,6 @@
 [Unit]
 Description=NetBox Request Queue Worker
-Documentation=https://netbox.readthedocs.io/en/stable/
+Documentation=https://docs.netbox.dev/
 After=network-online.target
 Wants=network-online.target
 

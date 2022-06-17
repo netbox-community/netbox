@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 
 from circuits.models import Circuit
 from dcim.models import Cable, Device, Location, Rack, RackReservation, Site
-from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF, ASN
+from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF, ASN
 from netbox.views import generic
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, Cluster
@@ -35,7 +35,7 @@ class TenantGroupView(generic.ObjectView):
         tenants = Tenant.objects.restrict(request.user, 'view').filter(
             group=instance
         )
-        tenants_table = tables.TenantTable(tenants, exclude=('group',))
+        tenants_table = tables.TenantTable(tenants, user=request.user, exclude=('group',))
         tenants_table.configure(request)
 
         return {
@@ -104,8 +104,9 @@ class TenantView(generic.ObjectView):
             'location_count': Location.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'aggregate_count': Aggregate.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'iprange_count': IPRange.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'ipaddress_count': IPAddress.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
@@ -184,7 +185,7 @@ class ContactGroupView(generic.ObjectView):
         contacts = Contact.objects.restrict(request.user, 'view').filter(
             group=instance
         )
-        contacts_table = tables.ContactTable(contacts, exclude=('group',))
+        contacts_table = tables.ContactTable(contacts, user=request.user, exclude=('group',))
         contacts_table.configure(request)
 
         return {
@@ -250,7 +251,7 @@ class ContactRoleView(generic.ObjectView):
         contact_assignments = ContactAssignment.objects.restrict(request.user, 'view').filter(
             role=instance
         )
-        contacts_table = tables.ContactAssignmentTable(contact_assignments)
+        contacts_table = tables.ContactAssignmentTable(contact_assignments, user=request.user)
         contacts_table.columns.hide('role')
         contacts_table.configure(request)
 
@@ -307,7 +308,7 @@ class ContactView(generic.ObjectView):
         contact_assignments = ContactAssignment.objects.restrict(request.user, 'view').filter(
             contact=instance
         )
-        assignments_table = tables.ContactAssignmentTable(contact_assignments)
+        assignments_table = tables.ContactAssignmentTable(contact_assignments, user=request.user)
         assignments_table.columns.hide('contact')
         assignments_table.configure(request)
 

@@ -118,7 +118,7 @@ class ASNTable(NetBoxTable):
         url_params={'asn_id': 'pk'},
         verbose_name='Provider Count'
     )
-    sites = tables.ManyToManyColumn(
+    sites = columns.ManyToManyColumn(
         linkify_item=True,
         verbose_name='Sites'
     )
@@ -226,8 +226,9 @@ class PrefixUtilizationColumn(columns.UtilizationColumn):
 
 
 class PrefixTable(NetBoxTable):
-    prefix = tables.TemplateColumn(
+    prefix = columns.TemplateColumn(
         template_code=PREFIX_LINK,
+        export_raw=True,
         attrs={'td': {'class': 'text-nowrap'}}
     )
     prefix_flat = tables.TemplateColumn(
