@@ -4,18 +4,23 @@
 
 ### Enhancements
 
+* [#8704](https://github.com/netbox-community/netbox/issues/8704) - Shift-click to select multiple objects in a list
 * [#8882](https://github.com/netbox-community/netbox/issues/8882) - Support filtering IP addresses by multiple parent prefixes
 * [#8893](https://github.com/netbox-community/netbox/issues/8893) - Include count of IP ranges under tenant view
 * [#9501](https://github.com/netbox-community/netbox/issues/9501) - Add support for custom Jinja2 filters
+* [#9533](https://github.com/netbox-community/netbox/issues/9533) - Move Markdown reference to local documentation
 
 ### Bug Fixes
 
+* [#9374](https://github.com/netbox-community/netbox/issues/9374) - Improve performance when retrieving devices/VMs with config context data
+* [#9466](https://github.com/netbox-community/netbox/issues/9466) - Avoid sending webhooks after script/report failure
 * [#9480](https://github.com/netbox-community/netbox/issues/9480) - Fix sorting services & service templates by port numbers
 * [#9484](https://github.com/netbox-community/netbox/issues/9484) - Include services listening on "all IPs" under IP address view
 * [#9486](https://github.com/netbox-community/netbox/issues/9486) - Fix redirect URL when adding device components from the module view
 * [#9495](https://github.com/netbox-community/netbox/issues/9495) - Correct link to contacts in contact groups table column
 * [#9512](https://github.com/netbox-community/netbox/issues/9512) - Fix duplicate site results when searching by ASN
 * [#9524](https://github.com/netbox-community/netbox/issues/9524) - Correct order of VLAN fields under VM interface creation form
+* [#9537](https://github.com/netbox-community/netbox/issues/9537) - Ensure consistent use of placeholder tag throughout UI
 
 ---
 
