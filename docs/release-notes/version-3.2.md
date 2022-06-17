@@ -9,6 +9,7 @@
 * [#8893](https://github.com/netbox-community/netbox/issues/8893) - Include count of IP ranges under tenant view
 * [#9501](https://github.com/netbox-community/netbox/issues/9501) - Add support for custom Jinja2 filters
 * [#9533](https://github.com/netbox-community/netbox/issues/9533) - Move Markdown reference to local documentation
+* [#9534](https://github.com/netbox-community/netbox/issues/9534) - Add VLAN group selector to interface bulk edit forms
 
 ### Bug Fixes
 
