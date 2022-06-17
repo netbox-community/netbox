@@ -20,8 +20,8 @@ class TokenAuthentication(authentication.TokenAuthentication):
             raise exceptions.AuthenticationFailed("Invalid token")
 
         # Update last used, but only once a minute. This reduces the write load on the db
-        timediff = timezone.now() - token.last_used
-        if timediff.total_seconds() > 60:
+        last_used_diff = timezone.now() - token.last_used
+        if last_used_diff.total_seconds() > 60:
             token.last_used = timezone.now()
             token.save()
 
