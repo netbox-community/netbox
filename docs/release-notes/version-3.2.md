@@ -18,6 +18,7 @@
 * [#9484](https://github.com/netbox-community/netbox/issues/9484) - Include services listening on "all IPs" under IP address view
 * [#9486](https://github.com/netbox-community/netbox/issues/9486) - Fix redirect URL when adding device components from the module view
 * [#9495](https://github.com/netbox-community/netbox/issues/9495) - Correct link to contacts in contact groups table column
+* [#9503](https://github.com/netbox-community/netbox/issues/9503) - Hyperlinks in ack elevation SVGs must always use absolute URLs
 * [#9512](https://github.com/netbox-community/netbox/issues/9512) - Fix duplicate site results when searching by ASN
 * [#9524](https://github.com/netbox-community/netbox/issues/9524) - Correct order of VLAN fields under VM interface creation form
 * [#9537](https://github.com/netbox-community/netbox/issues/9537) - Ensure consistent use of placeholder tag throughout UI
