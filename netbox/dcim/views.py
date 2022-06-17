@@ -510,8 +510,8 @@ class RackRoleView(generic.ObjectView):
     queryset = RackRole.objects.all()
 
     def get_extra_context(self, request, instance):
-        racks = Rack.objects.restrict(request.user, 'view').filter(
-            role=instance
+        racks = Rack.objects.restrict(request.user, 'view').filter(role=instance).annotate(
+            device_count=count_related(Device, 'rack')
         )
 
         racks_table = tables.RackTable(racks, user=request.user, exclude=(

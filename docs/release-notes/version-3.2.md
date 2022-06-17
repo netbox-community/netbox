@@ -22,6 +22,7 @@
 * [#9512](https://github.com/netbox-community/netbox/issues/9512) - Fix duplicate site results when searching by ASN
 * [#9524](https://github.com/netbox-community/netbox/issues/9524) - Correct order of VLAN fields under VM interface creation form
 * [#9537](https://github.com/netbox-community/netbox/issues/9537) - Ensure consistent use of placeholder tag throughout UI
+* [#9549](https://github.com/netbox-community/netbox/issues/9549) - Fix device counts for rack list under rack role view
 
 ---
 
