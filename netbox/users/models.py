@@ -203,6 +203,10 @@ class Token(models.Model):
         blank=True,
         null=True
     )
+    last_used = models.DateTimeField(
+        blank=True,
+        null=True
+    )
     key = models.CharField(
         max_length=40,
         unique=True,

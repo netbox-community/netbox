@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils import timezone
 from rest_framework import authentication, exceptions
 from rest_framework.permissions import BasePermission, DjangoObjectPermissions, SAFE_METHODS
 
@@ -17,6 +18,10 @@ class TokenAuthentication(authentication.TokenAuthentication):
             token = model.objects.prefetch_related('user').get(key=key)
         except model.DoesNotExist:
             raise exceptions.AuthenticationFailed("Invalid token")
+
+        # Update last used.
+        token.last_used = timezone.now()
+        token.save()
 
         # Enforce the Token's expiration time, if one has been set.
         if token.is_expired:
