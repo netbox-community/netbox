@@ -55,7 +55,7 @@
                                         <img src="{{ object.front_image.url }}" alt="{{ object.front_image.name }}" class="img-fluid" />
                                     </a>
                                 {% else %}
-                                    <span class="text-muted">&mdash;</span>
+                                    {{ ''|placeholder }}
                                 {% endif %}
                             </td>
                         </tr>
@@ -67,7 +67,7 @@
                                         <img src="{{ object.rear_image.url }}" alt="{{ object.rear_image.name }}" class="img-fluid" />
                                     </a>
                                 {% else %}
-                                    <span class="text-muted">&mdash;</span>
+                                    {{ ''|placeholder }}
                                 {% endif %}
                             </td>
                         </tr>

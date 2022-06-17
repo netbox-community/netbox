@@ -10,7 +10,7 @@
             {% if termination_a %}
                 {{ termination_a.site }} {% if termination_a.interface %}- {{ termination_a.interface.device }} {{ termination_a.interface }}{% endif %}
             {% else %}
-                <span class="text-muted">None</span>
+                {{ ''|placeholder }}
             {% endif %}
         </li>
         <li>
@@ -18,7 +18,7 @@
             {% if termination_z %}
                 {{ termination_z.site }} {% if termination_z.interface %}- {{ termination_z.interface.device }} {{ termination_z.interface }}{% endif %}
             {% else %}
-                <span class="text-muted">None</span>
+                {{ ''|placeholder }}
             {% endif %}
         </li>
     </ul>

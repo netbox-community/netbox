@@ -49,7 +49,7 @@
                               (NAT: <a href="{{ object.primary_ip4.nat_outside.get_absolute_url }}">{{ object.primary_ip4.nat_outside.address.ip }}</a>)
                             {% endif %}
                           {% else %}
-                            <span class="text-muted">&mdash;</span>
+                            {{ ''|placeholder }}
                           {% endif %}
                         </td>
                     </tr>
@@ -64,7 +64,7 @@
                               (NAT: <a href="{{ object.primary_ip6.nat_outside.get_absolute_url }}">{{ object.primary_ip6.nat_outside.address.ip }}</a>)
                             {% endif %}
                           {% else %}
-                            <span class="text-muted">&mdash;</span>
+                            {{ ''|placeholder }}
                           {% endif %}
                         </td>
                     </tr>
@@ -115,7 +115,7 @@
                             {% if object.memory %}
                                 {{ object.memory|humanize_megabytes }}
                             {% else %}
-                                <span class="text-muted">&mdash;</span>
+                                {{ ''|placeholder }}
                             {% endif %}
                         </td>
                     </tr>
@@ -125,7 +125,7 @@
                             {% if object.disk %}
                                 {{ object.disk }} GB
                             {% else %}
-                                <span class="text-muted">&mdash;</span>
+                                {{ ''|placeholder }}
                             {% endif %}
                         </td>
                     </tr>
