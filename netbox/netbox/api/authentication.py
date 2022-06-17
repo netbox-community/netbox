@@ -19,9 +19,11 @@ class TokenAuthentication(authentication.TokenAuthentication):
         except model.DoesNotExist:
             raise exceptions.AuthenticationFailed("Invalid token")
 
-        # Update last used.
-        token.last_used = timezone.now()
-        token.save()
+        # Update last used, but only once a minute. This reduces the write load on the db
+        timediff = timezone.now() - token.last_used
+        if timediff.total_seconds() > 60:
+            token.last_used = timezone.now()
+            token.save()
 
         # Enforce the Token's expiration time, if one has been set.
         if token.is_expired:
