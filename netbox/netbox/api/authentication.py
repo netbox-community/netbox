@@ -1,8 +1,11 @@
+import logging
+
 from django.conf import settings
 from django.utils import timezone
 from rest_framework import authentication, exceptions
 from rest_framework.permissions import BasePermission, DjangoObjectPermissions, SAFE_METHODS
 
+from netbox.config import get_config
 from users.models import Token
 
 
@@ -20,9 +23,15 @@ class TokenAuthentication(authentication.TokenAuthentication):
             raise exceptions.AuthenticationFailed("Invalid token")
 
         # Update last used, but only once a minute. This reduces the write load on the db
-        if not token.last_used or (timezone.now() - token.last_used).total_seconds() > 60:
-            token.last_used = timezone.now()
-            token.save()
+        if not token.last_used or (timezone.now() - token.last_used).total_seconds() > 6:
+            # If maintenance mode is enabled, assume the database is read-only, and disable updating the token's
+            # last_used time upon authentication.
+            if get_config().MAINTENANCE_MODE:
+                logger = logging.getLogger('netbox.auth.login')
+                logger.warning("Maintenance mode enabled: disabling update of token's last used timestamp")
+            else:
+                token.last_used = timezone.now()
+                token.save()
 
         # Enforce the Token's expiration time, if one has been set.
         if token.is_expired:
