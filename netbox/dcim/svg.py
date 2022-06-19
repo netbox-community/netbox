@@ -1,6 +1,8 @@
 import decimal
 import svgwrite
 from svgwrite.container import Group, Hyperlink
+from svgwrite.image import Image
+from svgwrite.gradients import LinearGradient
 from svgwrite.shapes import Line, Rect
 from svgwrite.text import Text
 
@@ -22,11 +24,27 @@ __all__ = (
 
 def get_device_name(device):
     if device.virtual_chassis:
-        return f'{device.virtual_chassis.name}:{device.vc_position}'
+        name = f'{device.virtual_chassis.name}:{device.vc_position}'
     elif device.name:
-        return device.name
+        name = device.name
     else:
-        return str(device.device_type)
+        name = str(device.device_type)
+    if device.devicebay_count:
+        name += ' ({}/{})'.format(device.get_children().count(), device.devicebay_count)
+
+    return name
+
+
+def get_device_description(device):
+    return '{} ({}) — {} {} ({}U) {} {}'.format(
+        device.name,
+        device.device_role,
+        device.device_type.manufacturer.name,
+        device.device_type.model,
+        device.device_type.u_height,
+        device.asset_tag or '',
+        device.serial or ''
+    )
 
 
 class RackElevationSVG:
@@ -57,20 +75,8 @@ class RackElevationSVG:
         self.permitted_device_ids = permitted_devices.values_list('pk', flat=True)
 
     @staticmethod
-    def _get_device_description(device):
-        return '{} ({}) — {} {} ({}U) {} {}'.format(
-            device.name,
-            device.device_role,
-            device.device_type.manufacturer.name,
-            device.device_type.model,
-            device.device_type.u_height,
-            device.asset_tag or '',
-            device.serial or ''
-        )
-
-    @staticmethod
     def _add_gradient(drawing, id_, color):
-        gradient = drawing.linearGradient(
+        gradient = LinearGradient(
             start=(0, 0),
             end=(0, 25),
             spreadMethod='repeat',
@@ -82,6 +88,7 @@ class RackElevationSVG:
         gradient.add_stop_color(offset='50%', color='#f7f7f7')
         gradient.add_stop_color(offset='50%', color=color)
         gradient.add_stop_color(offset='100%', color=color)
+
         drawing.defs.add(gradient)
 
     def _setup_drawing(self):
@@ -90,7 +97,7 @@ class RackElevationSVG:
         drawing = svgwrite.Drawing(size=(width, height))
 
         # Add the stylesheet
-        with open('{}/rack_elevation.css'.format(settings.STATIC_ROOT)) as css_file:
+        with open(f'{settings.STATIC_ROOT}/rack_elevation.css') as css_file:
             drawing.defs.add(drawing.style(css_file.read()))
 
         # Add gradients
@@ -112,72 +119,60 @@ class RackElevationSVG:
 
         return x, y
 
-    def _draw_device_front(self, drawing, device, start, size):
-        text_coords = (
-            start[0] + size[0] / 2,
-            start[1] + size[1] / 2
-        )
+    def _draw_device(self, device, coords, size, color=None, image=None):
         name = get_device_name(device)
-        if device.devicebay_count:
-            name += ' ({}/{})'.format(device.get_children().count(), device.devicebay_count)
-        color = device.device_role.color
-
-        link = drawing.add(
-            drawing.a(
-                href='{}{}'.format(self.base_url, reverse('dcim:device', kwargs={'pk': device.pk})),
-                target='_top',
-                fill='black'
-            )
-        )
-        link.set_desc(self._get_device_description(device))
-        link.add(drawing.rect(start, size, style='fill: #{}'.format(color), class_='slot'))
-        hex_color = '#{}'.format(foreground_color(color))
-        link.add(drawing.text(str(name), insert=text_coords, fill=hex_color))
-
-        # Embed front device type image if one exists
-        if self.include_images and device.device_type.front_image:
-            image = drawing.image(
-                href='{}{}'.format(self.base_url, device.device_type.front_image.url),
-                insert=start,
-                size=size,
-                class_='device-image'
-            )
-            image.fit(scale='slice')
-            link.add(image)
-            link.add(drawing.text(str(name), insert=text_coords, stroke='black',
-                     stroke_width='0.2em', stroke_linejoin='round', class_='device-image-label'))
-            link.add(drawing.text(str(name), insert=text_coords, fill='white', class_='device-image-label'))
-
-    def _draw_device_rear(self, drawing, device, start, size):
+        description = get_device_description(device)
         text_coords = (
-            start[0] + size[0] / 2,
-            start[1] + size[1] / 2
+            coords[0] + size[0] / 2,
+            coords[1] + size[1] / 2
         )
+        text_color = f'#{foreground_color(color)}' if color else '#000000'
 
-        link = drawing.add(
-            drawing.a(
-                href='{}{}'.format(self.base_url, reverse('dcim:device', kwargs={'pk': device.pk})),
-                target='_top',
-                fill='black'
-            )
+        # Create hyperlink element
+        link = Hyperlink(
+            href='{}{}'.format(
+                self.base_url,
+                reverse('dcim:device', kwargs={'pk': device.pk})
+            ),
+            target='_blank',
         )
-        link.set_desc(self._get_device_description(device))
-        link.add(drawing.rect(start, size, class_="slot blocked"))
-        link.add(drawing.text(get_device_name(device), insert=text_coords))
+        link.set_desc(description)
+        if color:
+            link.add(Rect(coords, size, style=f'fill: #{color}', class_='slot'))
+        else:
+            link.add(Rect(coords, size, class_='slot blocked'))
+        link.add(Text(name, insert=text_coords, fill=text_color))
 
-        # Embed rear device type image if one exists
-        if self.include_images and device.device_type.rear_image:
-            image = drawing.image(
-                href='{}{}'.format(self.base_url, device.device_type.rear_image.url),
-                insert=start,
+        # Embed device type image if provided
+        if self.include_images and image:
+            image = Image(
+                href='{}{}'.format(self.base_url, image.url),
+                insert=coords,
                 size=size,
                 class_='device-image'
             )
             image.fit(scale='slice')
             link.add(image)
-            link.add(Text(get_device_name(device), insert=text_coords, stroke='black',
+            link.add(Text(name, insert=text_coords, stroke='black',
                      stroke_width='0.2em', stroke_linejoin='round', class_='device-image-label'))
-            link.add(Text(get_device_name(device), insert=text_coords, fill='white', class_='device-image-label'))
+            link.add(Text(name, insert=text_coords, fill='white', class_='device-image-label'))
+
+        self.drawing.add(link)
+
+    def draw_device_front(self, device, coords, size):
+        """
+        Draw the front (mounted) face of a device.
+        """
+        color = device.device_role.color
+        image = device.device_type.front_image
+        self._draw_device(device, coords, size, color=color, image=image)
+
+    def draw_device_rear(self, device, coords, size):
+        """
+        Draw the rear (opposite) face of a device.
+        """
+        image = device.device_type.rear_image
+        self._draw_device(device, coords, size, image=image)
 
     def draw_border(self):
         """
@@ -228,7 +223,7 @@ class RackElevationSVG:
 
             link = Hyperlink(href=url_string.format(ru), target='_blank')
             link.add(Rect((x_offset, y_offset), (self.unit_width, self.unit_height), class_='slot'))
-            link.add(self.drawing.text('add device', insert=text_coords, class_='add-device'))
+            link.add(Text('add device', insert=text_coords, class_='add-device'))
 
             self.drawing.add(link)
 
@@ -242,20 +237,22 @@ class RackElevationSVG:
             device = unit['device']
             height = unit.get('height', decimal.Decimal(1.0))
 
-            start_cordinates = self._get_device_coords(unit['id'], height)
-            end_y = int(self.unit_height * height)
-            size = (self.unit_width, end_y)
+            device_coords = self._get_device_coords(unit['id'], height)
+            device_size = (
+                self.unit_width,
+                int(self.unit_height * height)
+            )
 
             # Draw the device
             if device and device.pk in self.permitted_device_ids:
                 if device.face == face and not opposite:
-                    self._draw_device_front(self.drawing, device, start_cordinates, size)
+                    self.draw_device_front(device, device_coords, device_size)
                 else:
-                    self._draw_device_rear(self.drawing, device, start_cordinates, size)
+                    self.draw_device_rear(device, device_coords, device_size)
 
             elif device:
                 # Devices which the user does not have permission to view are rendered only as unavailable space
-                self.drawing.add(Rect(start_cordinates, size, class_='blocked'))
+                self.drawing.add(Rect(device_coords, device_size, class_='blocked'))
 
     def render(self, face):
         """
