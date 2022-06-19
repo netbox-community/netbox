@@ -94,18 +94,34 @@ class RackElevationSVG:
             drawing.defs.add(drawing.style(css_file.read()))
 
         # Add gradients
-        RackElevationSVG._add_gradient(drawing, 'reserved', '#c7c7ff')
         RackElevationSVG._add_gradient(drawing, 'occupied', '#d7d7d7')
         RackElevationSVG._add_gradient(drawing, 'blocked', '#ffc0c0')
 
         return drawing
 
-    def _draw_device_front(self, drawing, device, start, end, text):
+    def _get_device_coords(self, position, height):
+        """
+        Return the X, Y coordinates of the top left corner for a device in the specified rack unit.
+        """
+        x = self.legend_width + RACK_ELEVATION_BORDER_WIDTH
+        y = RACK_ELEVATION_BORDER_WIDTH
+        if self.rack.desc_units:
+            y += int((position - 1) * self.unit_height)
+        else:
+            y += int((self.rack.u_height - position + 1) * self.unit_height) - int(height * self.unit_height)
+
+        return x, y
+
+    def _draw_device_front(self, drawing, device, start, size):
+        text_coords = (
+            start[0] + size[0] / 2,
+            start[1] + size[1] / 2
+        )
         name = get_device_name(device)
         if device.devicebay_count:
             name += ' ({}/{})'.format(device.get_children().count(), device.devicebay_count)
-
         color = device.device_role.color
+
         link = drawing.add(
             drawing.a(
                 href='{}{}'.format(self.base_url, reverse('dcim:device', kwargs={'pk': device.pk})),
@@ -114,25 +130,30 @@ class RackElevationSVG:
             )
         )
         link.set_desc(self._get_device_description(device))
-        link.add(drawing.rect(start, end, style='fill: #{}'.format(color), class_='slot'))
+        link.add(drawing.rect(start, size, style='fill: #{}'.format(color), class_='slot'))
         hex_color = '#{}'.format(foreground_color(color))
-        link.add(drawing.text(str(name), insert=text, fill=hex_color))
+        link.add(drawing.text(str(name), insert=text_coords, fill=hex_color))
 
         # Embed front device type image if one exists
         if self.include_images and device.device_type.front_image:
             image = drawing.image(
                 href='{}{}'.format(self.base_url, device.device_type.front_image.url),
                 insert=start,
-                size=end,
+                size=size,
                 class_='device-image'
             )
             image.fit(scale='slice')
             link.add(image)
-            link.add(drawing.text(str(name), insert=text, stroke='black',
+            link.add(drawing.text(str(name), insert=text_coords, stroke='black',
                      stroke_width='0.2em', stroke_linejoin='round', class_='device-image-label'))
-            link.add(drawing.text(str(name), insert=text, fill='white', class_='device-image-label'))
+            link.add(drawing.text(str(name), insert=text_coords, fill='white', class_='device-image-label'))
 
-    def _draw_device_rear(self, drawing, device, start, end, text):
+    def _draw_device_rear(self, drawing, device, start, size):
+        text_coords = (
+            start[0] + size[0] / 2,
+            start[1] + size[1] / 2
+        )
+
         link = drawing.add(
             drawing.a(
                 href='{}{}'.format(self.base_url, reverse('dcim:device', kwargs={'pk': device.pk})),
@@ -141,56 +162,75 @@ class RackElevationSVG:
             )
         )
         link.set_desc(self._get_device_description(device))
-        link.add(drawing.rect(start, end, class_="slot blocked"))
-        link.add(drawing.text(get_device_name(device), insert=text))
+        link.add(drawing.rect(start, size, class_="slot blocked"))
+        link.add(drawing.text(get_device_name(device), insert=text_coords))
 
         # Embed rear device type image if one exists
         if self.include_images and device.device_type.rear_image:
             image = drawing.image(
                 href='{}{}'.format(self.base_url, device.device_type.rear_image.url),
                 insert=start,
-                size=end,
+                size=size,
                 class_='device-image'
             )
             image.fit(scale='slice')
             link.add(image)
-            link.add(drawing.text(get_device_name(device), insert=text, stroke='black',
+            link.add(Text(get_device_name(device), insert=text_coords, stroke='black',
                      stroke_width='0.2em', stroke_linejoin='round', class_='device-image-label'))
-            link.add(drawing.text(get_device_name(device), insert=text, fill='white', class_='device-image-label'))
+            link.add(Text(get_device_name(device), insert=text_coords, fill='white', class_='device-image-label'))
 
-    def _draw_empty(self, drawing, rack, start, end, text, unit, face_id, class_, reservation):
-        link_url = '{}{}?{}'.format(
-            self.base_url,
-            reverse('dcim:device_add'),
-            urlencode({
-                'site': rack.site.pk,
-                'location': rack.location.pk if rack.location else '',
-                'rack': rack.pk,
-                'face': face_id,
-                'position': unit
-            })
+    def draw_border(self):
+        """
+        Draw a border around the collection of rack units.
+        """
+        border_width = RACK_ELEVATION_BORDER_WIDTH
+        border_offset = RACK_ELEVATION_BORDER_WIDTH / 2
+        frame = Rect(
+            insert=(self.legend_width + border_offset, border_offset),
+            size=(self.unit_width + border_width, self.rack.u_height * self.unit_height + border_width),
+            class_='rack'
         )
-        link = drawing.add(
-            drawing.a(href=link_url, target='_top')
-        )
-        if reservation:
-            link.set_desc('{} — {} · {}'.format(
-                reservation.description, reservation.user, reservation.created
-            ))
-        link.add(drawing.rect(start, end, class_=class_))
-        link.add(drawing.text("add device", insert=text, class_='add-device'))
+        self.drawing.add(frame)
 
     def draw_legend(self):
         """
         Draw the rack unit labels along the lefthand side of the elevation.
         """
         for ru in range(0, self.rack.u_height):
-            start_y = ru * self.unit_height
+            start_y = ru * self.unit_height + RACK_ELEVATION_BORDER_WIDTH
             position_coordinates = (self.legend_width / 2, start_y + self.unit_height / 2 + RACK_ELEVATION_BORDER_WIDTH)
             unit = ru + 1 if self.rack.desc_units else self.rack.u_height - ru
             self.drawing.add(
-                Text(str(unit), position_coordinates, class_="unit")
+                Text(str(unit), position_coordinates, class_='unit')
             )
+
+    def draw_background(self, face):
+        """
+        Draw the rack unit placeholders which form the "background" of the rack elevation.
+        """
+        x_offset = RACK_ELEVATION_BORDER_WIDTH + self.legend_width
+        url_string = '{}?{}&position={{}}'.format(
+            reverse('dcim:device_add'),
+            urlencode({
+                'site': self.rack.site.pk,
+                'location': self.rack.location.pk if self.rack.location else '',
+                'rack': self.rack.pk,
+                'face': face,
+            })
+        )
+
+        for ru in range(0, self.rack.u_height):
+            y_offset = RACK_ELEVATION_BORDER_WIDTH + ru * self.unit_height
+            text_coords = (
+                x_offset + self.unit_width / 2,
+                y_offset + self.unit_height / 2
+            )
+
+            link = Hyperlink(href=url_string.format(ru), target='_blank')
+            link.add(Rect((x_offset, y_offset), (self.unit_width, self.unit_height), class_='slot'))
+            link.add(self.drawing.text('add device', insert=text_coords, class_='add-device'))
+
+            self.drawing.add(link)
 
     def draw_face(self, face, opposite=False):
         """
@@ -202,53 +242,20 @@ class RackElevationSVG:
             device = unit['device']
             height = unit.get('height', decimal.Decimal(1.0))
 
-            # Setup drawing coordinates
-            x_offset = self.legend_width + RACK_ELEVATION_BORDER_WIDTH
-            if self.rack.desc_units:
-                y_offset = int(unit['id'] * self.unit_height) + RACK_ELEVATION_BORDER_WIDTH
-            else:
-                y_offset = self.drawing['height'] - int(unit['id'] * self.unit_height) - RACK_ELEVATION_BORDER_WIDTH
-
+            start_cordinates = self._get_device_coords(unit['id'], height)
             end_y = int(self.unit_height * height)
-            start_cordinates = (x_offset, y_offset)
             size = (self.unit_width, end_y)
-            text_cordinates = (x_offset + (self.unit_width / 2), y_offset + end_y / 2)
 
             # Draw the device
             if device and device.pk in self.permitted_device_ids:
-                print(device)
-                print(f'    {start_cordinates}')
-                print(f'    {size}')
-
                 if device.face == face and not opposite:
-                    self._draw_device_front(self.drawing, device, start_cordinates, size, text_cordinates)
+                    self._draw_device_front(self.drawing, device, start_cordinates, size)
                 else:
-                    self._draw_device_rear(self.drawing, device, start_cordinates, size, text_cordinates)
+                    self._draw_device_rear(self.drawing, device, start_cordinates, size)
 
             elif device:
                 # Devices which the user does not have permission to view are rendered only as unavailable space
                 self.drawing.add(Rect(start_cordinates, size, class_='blocked'))
-
-            # else:
-            #     # Draw shallow devices, reservations, or empty units
-            #     class_ = 'slot'
-            #     # reservation = reserved_units.get(unit["id"])
-            #     reservation = None
-            #     if device:
-            #         class_ += ' occupied'
-            #     if reservation:
-            #         class_ += ' reserved'
-            #     self._draw_empty(
-            #         self.drawing,
-            #         self.rack,
-            #         start_cordinates,
-            #         end_cordinates,
-            #         text_cordinates,
-            #         unit["id"],
-            #         face,
-            #         class_,
-            #         reservation
-            #     )
 
     def render(self, face):
         """
@@ -258,10 +265,9 @@ class RackElevationSVG:
         # Initialize the drawing
         self.drawing = self._setup_drawing()
 
-        # reserved_units = self.rack.get_reserved_units()
-
-        # Draw the unit legend
+        # Draw the empty rack & legend
         self.draw_legend()
+        self.draw_background(face)
 
         # Draw the opposite rack face first, then the near face
         if face == DeviceFaceChoices.FACE_REAR:
@@ -271,15 +277,8 @@ class RackElevationSVG:
         # self.draw_face(opposite_face, opposite=True)
         self.draw_face(face)
 
-        # Wrap the drawing with a border
-        border_width = RACK_ELEVATION_BORDER_WIDTH
-        border_offset = RACK_ELEVATION_BORDER_WIDTH / 2
-        frame = Rect(
-            insert=(self.legend_width + border_offset, border_offset),
-            size=(self.unit_width + border_width, self.rack.u_height * self.unit_height + border_width),
-            class_='rack'
-        )
-        self.drawing.add(frame)
+        # Draw the rack border last
+        self.draw_border()
 
         return self.drawing
 
