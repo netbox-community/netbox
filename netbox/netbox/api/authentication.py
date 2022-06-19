@@ -23,7 +23,7 @@ class TokenAuthentication(authentication.TokenAuthentication):
             raise exceptions.AuthenticationFailed("Invalid token")
 
         # Update last used, but only once a minute. This reduces the write load on the db
-        if not token.last_used or (timezone.now() - token.last_used).total_seconds() > 6:
+        if not token.last_used or (timezone.now() - token.last_used).total_seconds() > 60:
             # If maintenance mode is enabled, assume the database is read-only, and disable updating the token's
             # last_used time upon authentication.
             if get_config().MAINTENANCE_MODE:
