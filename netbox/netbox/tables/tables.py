@@ -165,11 +165,7 @@ class NetBoxTable(BaseTable):
         linkify=True,
         verbose_name='ID'
     )
-    actions = columns.ActionsColumn(
-        extra_buttons="""
-        <a class="btn btn-sm btn-warning" href="{{ record.get_absolute_url }}edit/" type="button"><i class="mdi mdi-pencil"></i></a>
-        """
-    )
+    actions = columns.ActionsColumn()
 
     exempt_columns = ('pk', 'actions')
 
