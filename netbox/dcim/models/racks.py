@@ -405,6 +405,7 @@ class Rack(NetBoxModel):
         as utilized.
         """
         # Determine unoccupied units
+        total_units = len(list(self.units))
         available_units = self.get_available_units()
 
         # Remove reserved units
@@ -412,8 +413,8 @@ class Rack(NetBoxModel):
             if u in available_units:
                 available_units.remove(u)
 
-        occupied_unit_count = self.u_height - len(available_units)
-        percentage = float(occupied_unit_count) / self.u_height * 100
+        occupied_unit_count = total_units - len(available_units)
+        percentage = float(occupied_unit_count) / total_units * 100
 
         return percentage
 
