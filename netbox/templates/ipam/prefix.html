@@ -39,7 +39,7 @@
               {% if aggregate %}
                 <a href="{% url 'ipam:aggregate' pk=aggregate.pk %}">{{ aggregate.prefix }}</a> ({{ aggregate.rir }})
               {% else %}
-                <span class="text-warning">None</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
@@ -52,7 +52,7 @@
                 {% endif %}
                 {{ object.site|linkify }}
               {% else %}
-                <span class="text-muted">None</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
@@ -65,7 +65,7 @@
                 {% endif %}
                 {{ object.vlan|linkify }}
               {% else %}
-                <span class="text-muted">None</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
@@ -138,7 +138,7 @@
                     {{ first_available_ip }}
                   {% endif %}
                 {% else %}
-                  <span class="text-muted">None</span>
+                  {{ ''|placeholder }}
                 {% endif %}
               {% endwith %}
             </td>

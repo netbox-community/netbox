@@ -14,7 +14,8 @@ class ServiceTemplateTable(NetBoxTable):
         linkify=True
     )
     ports = tables.Column(
-        accessor=tables.A('port_list')
+        accessor=tables.A('port_list'),
+        order_by=tables.A('ports'),
     )
     tags = columns.TagColumn(
         url_name='ipam:servicetemplate_list'
@@ -35,7 +36,8 @@ class ServiceTable(NetBoxTable):
         order_by=('device', 'virtual_machine')
     )
     ports = tables.Column(
-        accessor=tables.A('port_list')
+        accessor=tables.A('port_list'),
+        order_by=tables.A('ports'),
     )
     tags = columns.TagColumn(
         url_name='ipam:service_list'

@@ -33,7 +33,7 @@
         {% if interface.rf_channel_frequency %}
           {{ interface.rf_channel_frequency|simplify_decimal }} MHz
         {% else %}
-          <span class="text-muted">&mdash;</span>
+          {{ ''|placeholder }}
         {% endif %}
       </td>
   </tr>
@@ -43,7 +43,7 @@
         {% if interface.rf_channel_width %}
           {{ interface.rf_channel_width|simplify_decimal }} MHz
         {% else %}
-          <span class="text-muted">&mdash;</span>
+          {{ ''|placeholder }}
         {% endif %}
       </td>
   </tr>

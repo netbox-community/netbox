@@ -823,10 +823,8 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
-        params = {'parent': '10.0.0.0/24'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
-        params = {'parent': '2001:db8::/64'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'parent': ['10.0.0.0/30', '2001:db8::/126']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
     def test_filter_address(self):
         # Check IPv4 and IPv6, with and without a mask

@@ -327,15 +327,15 @@ class RackTest(APIViewTestCases.APIViewTestCase):
 
         # Retrieve all units
         response = self.client.get(url, **self.header)
-        self.assertEqual(response.data['count'], 42)
+        self.assertEqual(response.data['count'], 84)
 
         # Search for specific units
         response = self.client.get(f'{url}?q=3', **self.header)
-        self.assertEqual(response.data['count'], 13)
+        self.assertEqual(response.data['count'], 26)
         response = self.client.get(f'{url}?q=U3', **self.header)
-        self.assertEqual(response.data['count'], 11)
+        self.assertEqual(response.data['count'], 22)
         response = self.client.get(f'{url}?q=U10', **self.header)
-        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['count'], 2)
 
     def test_get_rack_elevation_svg(self):
         """

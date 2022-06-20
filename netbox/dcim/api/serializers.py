@@ -1,3 +1,5 @@
+import decimal
+
 from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
@@ -246,7 +248,11 @@ class RackUnitSerializer(serializers.Serializer):
     """
     A rack unit is an abstraction formed by the set (rack, position, face); it does not exist as a row in the database.
     """
-    id = serializers.IntegerField(read_only=True)
+    id = serializers.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        read_only=True
+    )
     name = serializers.CharField(read_only=True)
     face = ChoiceField(choices=DeviceFaceChoices, read_only=True)
     device = NestedDeviceSerializer(read_only=True)
@@ -328,6 +334,13 @@ class ManufacturerSerializer(NetBoxModelSerializer):
 class DeviceTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicetype-detail')
     manufacturer = NestedManufacturerSerializer()
+    u_height = serializers.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        label='Position (U)',
+        min_value=decimal.Decimal(0.5),
+        default=1.0
+    )
     subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
     device_count = serializers.IntegerField(read_only=True)
@@ -634,7 +647,14 @@ class DeviceSerializer(NetBoxModelSerializer):
     location = NestedLocationSerializer(required=False, allow_null=True, default=None)
     rack = NestedRackSerializer(required=False, allow_null=True, default=None)
     face = ChoiceField(choices=DeviceFaceChoices, allow_blank=True, default='')
-    position = serializers.IntegerField(allow_null=True, label='Position (U)', min_value=1, default=None)
+    position = serializers.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        allow_null=True,
+        label='Position (U)',
+        min_value=decimal.Decimal(0.5),
+        default=None
+    )
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
     primary_ip = NestedIPAddressSerializer(read_only=True)

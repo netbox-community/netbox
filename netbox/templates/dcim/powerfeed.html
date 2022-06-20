@@ -44,7 +44,7 @@
                             {% if object.connected_endpoint %}
                                 {{ object.connected_endpoint.device|linkify }} ({{ object.connected_endpoint }})
                             {% else %}
-                                <span class="text-muted">None</span>
+                                {{ ''|placeholder }}
                             {% endif %}
                         </td>
                     </tr>

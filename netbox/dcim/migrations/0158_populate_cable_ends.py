@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('circuits', '0036_new_cabling_models'),
-        ('dcim', '0156_populate_cable_paths'),
+        ('dcim', '0157_populate_cable_paths'),
     ]
 
     operations = [

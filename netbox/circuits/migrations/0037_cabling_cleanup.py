@@ -5,7 +5,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('circuits', '0036_new_cabling_models'),
-        ('dcim', '0157_populate_cable_ends'),
+        ('dcim', '0158_populate_cable_ends'),
     ]
 
     operations = [

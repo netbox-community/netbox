@@ -4,7 +4,12 @@
 
 ### Breaking Changes
 
+* Device position and rack unit values are now reported as decimals (e.g. `1.0` or `1.5`) to support modeling half-height rack units.
 * The `nat_outside` relation on the IP address model now returns a list of zero or more related IP addresses, rather than a single instance (or None).
+
+### New Features
+
+#### Half-Height Rack Units ([#51](https://github.com/netbox-community/netbox/issues/51))
 
 ### Enhancements
 
@@ -19,9 +24,16 @@
 ### Other Changes
 
 * [#9261](https://github.com/netbox-community/netbox/issues/9261) - `NetBoxTable` no longer automatically clears pre-existing calls to `prefetch_related()` on its queryset
+* [#9434](https://github.com/netbox-community/netbox/issues/9434) - Enabled `django-rich` test runner for more user-friendly output
 
 ### REST API Changes
 
+* dcim.Device
+    * The `position` field has been changed from an integer to a decimal
+* dcim.DeviceType
+    * The `u_height` field has been changed from an integer to a decimal
+* dcim.Rack
+    * The `elevation` endpoint now includes half-height rack units, and utilizes decimal values for the ID and name of each unit
 * extras.CustomField
     * Added `group_name` and `ui_visibility` fields
 * ipam.IPAddress

@@ -6,7 +6,7 @@ from timezone_field import TimeZoneFormField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from ipam.models import ASN, VLAN, VRF
+from ipam.models import ASN, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -1067,13 +1067,32 @@ class InterfaceBulkEditForm(
         required=False,
         widget=BulkEditNullBooleanSelect
     )
+    mode = forms.ChoiceField(
+        choices=add_blank_choice(InterfaceModeChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
+    vlan_group = DynamicModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        label='VLAN group'
+    )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'group_id': '$vlan_group',
+        },
+        label='Untagged VLAN'
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'group_id': '$vlan_group',
+        },
+        label='Tagged VLANs'
     )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
@@ -1087,13 +1106,13 @@ class InterfaceBulkEditForm(
         ('Addressing', ('vrf', 'mac_address', 'wwn')),
         ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
         ('Related Interfaces', ('parent', 'bridge', 'lag')),
-        ('802.1Q Switching', ('mode', 'untagged_vlan', 'tagged_vlans')),
+        ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
         ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width')),
     )
     nullable_fields = (
         'module', 'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'description',
-        'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans',
-        'vrf',
+        'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'vlan_group', 'untagged_vlan',
+        'tagged_vlans', 'vrf',
     )
 
     def __init__(self, *args, **kwargs):

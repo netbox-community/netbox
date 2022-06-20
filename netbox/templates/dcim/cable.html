@@ -38,7 +38,7 @@
                 {% if object.color %}
                   <span class="color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
                 {% else %}
-                  <span class="text-muted">&mdash;</span>
+                  {{ ''|placeholder }}
                 {% endif %}
               </td>
             </tr>
@@ -48,7 +48,7 @@
                 {% if object.length %}
                   {{ object.length|floatformat }} {{ object.get_length_unit_display }}
                 {% else %}
-                  <span class="text-muted">&mdash;</span>
+                  {{ ''|placeholder }}
                 {% endif %}
               </td>
             </tr>

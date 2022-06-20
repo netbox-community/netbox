@@ -96,6 +96,7 @@ EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
+JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
@@ -422,6 +423,8 @@ LOGIN_URL = f'/{BASE_PATH}login/'
 LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+TEST_RUNNER = "django_rich.test.RichRunner"
 
 # Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
 # by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.

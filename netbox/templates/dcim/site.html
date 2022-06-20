@@ -34,7 +34,7 @@
                 {% endfor %}
                 {{ object.region|linkify }}
               {% else %}
-                <span class="text-muted">None</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
@@ -47,7 +47,7 @@
                 {% endfor %}
                 {{ object.group|linkify }}
               {% else %}
-                <span class="text-muted">None</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
@@ -79,7 +79,7 @@
                 {{ object.time_zone }} (UTC {{ object.time_zone|tzoffset }})<br />
                 <small class="text-muted">Site time: {% timezone object.time_zone %}{% annotated_now %}{% endtimezone %}</small>
               {% else %}
-                <span class="text-muted">&mdash;</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
@@ -94,7 +94,7 @@
                 </div>
                 <span>{{ object.physical_address|linebreaksbr }}</span>
               {% else %}
-                <span class="text-muted">&mdash;</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
@@ -113,7 +113,7 @@
                 </div>
                 <span>{{ object.latitude }}, {{ object.longitude }}</span>
               {% else %}
-                <span class="text-muted">&mdash;</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>

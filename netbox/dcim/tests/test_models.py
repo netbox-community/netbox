@@ -5,6 +5,7 @@ from circuits.models import *
 from dcim.choices import *
 from dcim.models import *
 from tenancy.models import Tenant
+from utilities.utils import drange
 
 
 class LocationTestCase(TestCase):
@@ -74,148 +75,142 @@ class RackTestCase(TestCase):
 
     def setUp(self):
 
-        self.site1 = Site.objects.create(
-            name='TestSite1',
-            slug='test-site-1'
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
         )
-        self.site2 = Site.objects.create(
-            name='TestSite2',
-            slug='test-site-2'
+        Site.objects.bulk_create(sites)
+
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
         )
-        self.location1 = Location.objects.create(
-            name='TestGroup1',
-            slug='test-group-1',
-            site=self.site1
-        )
-        self.location2 = Location.objects.create(
-            name='TestGroup2',
-            slug='test-group-2',
-            site=self.site2
-        )
-        self.rack = Rack.objects.create(
-            name='TestRack1',
+        for location in locations:
+            location.save()
+
+        Rack.objects.create(
+            name='Rack 1',
             facility_id='A101',
-            site=self.site1,
-            location=self.location1,
+            site=sites[0],
+            location=locations[0],
             u_height=42
         )
-        self.manufacturer = Manufacturer.objects.create(
-            name='Acme',
-            slug='acme'
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_types = (
+            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1', u_height=1),
+            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2', u_height=0),
+            DeviceType(manufacturer=manufacturer, model='Device Type 3', slug='device-type-3', u_height=0.5),
         )
+        DeviceType.objects.bulk_create(device_types)
 
-        self.device_type = {
-            'ff2048': DeviceType.objects.create(
-                manufacturer=self.manufacturer,
-                model='FrameForwarder 2048',
-                slug='ff2048'
-            ),
-            'cc5000': DeviceType.objects.create(
-                manufacturer=self.manufacturer,
-                model='CurrentCatapult 5000',
-                slug='cc5000',
-                u_height=0
-            ),
-        }
-        self.role = {
-            'Server': DeviceRole.objects.create(
-                name='Server',
-                slug='server',
-            ),
-            'Switch': DeviceRole.objects.create(
-                name='Switch',
-                slug='switch',
-            ),
-            'Console Server': DeviceRole.objects.create(
-                name='Console Server',
-                slug='console-server',
-            ),
-            'PDU': DeviceRole.objects.create(
-                name='PDU',
-                slug='pdu',
-            ),
-
-        }
+        DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
     def test_rack_device_outside_height(self):
-
-        rack1 = Rack(
-            name='TestRack2',
-            facility_id='A102',
-            site=self.site1,
-            u_height=42
-        )
-        rack1.save()
+        site = Site.objects.first()
+        rack = Rack.objects.first()
 
         device1 = Device(
-            name='TestSwitch1',
-            device_type=DeviceType.objects.get(manufacturer__slug='acme', slug='ff2048'),
-            device_role=DeviceRole.objects.get(slug='switch'),
-            site=self.site1,
-            rack=rack1,
+            name='Device 1',
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            site=site,
+            rack=rack,
             position=43,
             face=DeviceFaceChoices.FACE_FRONT,
         )
         device1.save()
 
         with self.assertRaises(ValidationError):
-            rack1.clean()
+            rack.clean()
 
     def test_location_site(self):
+        site1 = Site.objects.get(name='Site 1')
+        location2 = Location.objects.get(name='Location 2')
 
-        rack_invalid_location = Rack(
-            name='TestRack2',
-            facility_id='A102',
-            site=self.site1,
-            u_height=42,
-            location=self.location2
+        rack2 = Rack(
+            name='Rack 2',
+            site=site1,
+            location=location2,
+            u_height=42
         )
-        rack_invalid_location.save()
+        rack2.save()
 
         with self.assertRaises(ValidationError):
-            rack_invalid_location.clean()
+            rack2.clean()
 
     def test_mount_single_device(self):
+        site = Site.objects.first()
+        rack = Rack.objects.first()
 
         device1 = Device(
             name='TestSwitch1',
-            device_type=DeviceType.objects.get(manufacturer__slug='acme', slug='ff2048'),
-            device_role=DeviceRole.objects.get(slug='switch'),
-            site=self.site1,
-            rack=self.rack,
-            position=10,
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            site=site,
+            rack=rack,
+            position=10.0,
             face=DeviceFaceChoices.FACE_REAR,
         )
         device1.save()
 
         # Validate rack height
-        self.assertEqual(list(self.rack.units), list(reversed(range(1, 43))))
+        self.assertEqual(list(rack.units), list(drange(42.5, 0.5, -0.5)))
 
         # Validate inventory (front face)
-        rack1_inventory_front = self.rack.get_rack_units(face=DeviceFaceChoices.FACE_FRONT)
-        self.assertEqual(rack1_inventory_front[-10]['device'], device1)
-        del(rack1_inventory_front[-10])
-        for u in rack1_inventory_front:
+        rack1_inventory_front = {
+            u['id']: u for u in rack.get_rack_units(face=DeviceFaceChoices.FACE_FRONT)
+        }
+        self.assertEqual(rack1_inventory_front[10.0]['device'], device1)
+        self.assertEqual(rack1_inventory_front[10.5]['device'], device1)
+        del(rack1_inventory_front[10.0])
+        del(rack1_inventory_front[10.5])
+        for u in rack1_inventory_front.values():
             self.assertIsNone(u['device'])
 
         # Validate inventory (rear face)
-        rack1_inventory_rear = self.rack.get_rack_units(face=DeviceFaceChoices.FACE_REAR)
-        self.assertEqual(rack1_inventory_rear[-10]['device'], device1)
-        del(rack1_inventory_rear[-10])
-        for u in rack1_inventory_rear:
+        rack1_inventory_rear = {
+            u['id']: u for u in rack.get_rack_units(face=DeviceFaceChoices.FACE_REAR)
+        }
+        self.assertEqual(rack1_inventory_rear[10.0]['device'], device1)
+        self.assertEqual(rack1_inventory_rear[10.5]['device'], device1)
+        del(rack1_inventory_rear[10.0])
+        del(rack1_inventory_rear[10.5])
+        for u in rack1_inventory_rear.values():
             self.assertIsNone(u['device'])
 
     def test_mount_zero_ru(self):
-        pdu = Device.objects.create(
-            name='TestPDU',
-            device_role=self.role.get('PDU'),
-            device_type=self.device_type.get('cc5000'),
-            site=self.site1,
-            rack=self.rack,
-            position=None,
-            face='',
-        )
-        self.assertTrue(pdu)
+        """
+        Check that a 0RU device can be mounted in a rack with no face/position.
+        """
+        site = Site.objects.first()
+        rack = Rack.objects.first()
+
+        Device(
+            name='Device 1',
+            device_role=DeviceRole.objects.first(),
+            device_type=DeviceType.objects.first(),
+            site=site,
+            rack=rack
+        ).save()
+
+    def test_mount_half_u_devices(self):
+        """
+        Check that two 0.5U devices can be mounted in the same rack unit.
+        """
+        rack = Rack.objects.first()
+        attrs = {
+            'device_type': DeviceType.objects.get(u_height=0.5),
+            'device_role': DeviceRole.objects.first(),
+            'site': Site.objects.first(),
+            'rack': rack,
+            'face': DeviceFaceChoices.FACE_FRONT,
+        }
+
+        Device(name='Device 1', position=1, **attrs).save()
+        Device(name='Device 2', position=1.5, **attrs).save()
+
+        self.assertEqual(len(rack.get_available_units()), rack.u_height * 2 - 3)
 
     def test_change_rack_site(self):
         """
@@ -224,19 +219,16 @@ class RackTestCase(TestCase):
         site_a = Site.objects.create(name='Site A', slug='site-a')
         site_b = Site.objects.create(name='Site B', slug='site-b')
 
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        device_type = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
-        )
-        device_role = DeviceRole.objects.create(
-            name='Device Role 1', slug='device-role-1', color='ff0000'
-        )
-
         # Create Rack1 in Site A
         rack1 = Rack.objects.create(site=site_a, name='Rack 1')
 
         # Create Device1 in Rack1
-        device1 = Device.objects.create(site=site_a, rack=rack1, device_type=device_type, device_role=device_role)
+        device1 = Device.objects.create(
+            site=site_a,
+            rack=rack1,
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first()
+        )
 
         # Move Rack1 to Site B
         rack1.site = site_b
