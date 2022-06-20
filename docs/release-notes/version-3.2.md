@@ -13,9 +13,12 @@
 * [#9525](https://github.com/netbox-community/netbox/issues/9525) - Provide one-click edit link for objects in tables
 * [#9533](https://github.com/netbox-community/netbox/issues/9533) - Move Markdown reference to local documentation
 * [#9534](https://github.com/netbox-community/netbox/issues/9534) - Add VLAN group selector to interface bulk edit forms
+* [#9556](https://github.com/netbox-community/netbox/issues/9556) - Leave dropdown open upon selection for multi-select fields
 
 ### Bug Fixes
 
+* [#8944](https://github.com/netbox-community/netbox/issues/8944) - Fix rendering of Markdown links with colons
+* [#9108](https://github.com/netbox-community/netbox/issues/9108) - Fix rendering of bracketed Markdown links
 * [#9374](https://github.com/netbox-community/netbox/issues/9374) - Improve performance when retrieving devices/VMs with config context data
 * [#9466](https://github.com/netbox-community/netbox/issues/9466) - Avoid sending webhooks after script/report failure
 * [#9480](https://github.com/netbox-community/netbox/issues/9480) - Fix sorting services & service templates by port numbers
