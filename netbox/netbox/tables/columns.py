@@ -175,6 +175,7 @@ class ActionsColumn(tables.Column):
 
     :param actions: The ordered list of dropdown menu items to include
     :param extra_buttons: A Django template string which renders additional buttons preceding the actions dropdown
+    :param split_actions: When True, converts the actions dropdown menu into a split button with first action as the direct button link and icon (default: True)
     """
     attrs = {'td': {'class': 'text-end text-nowrap noprint'}}
     empty_values = ()
@@ -184,10 +185,11 @@ class ActionsColumn(tables.Column):
         'changelog': ActionsItem('Changelog', 'history'),
     }
 
-    def __init__(self, *args, actions=('edit', 'delete', 'changelog'), extra_buttons='', **kwargs):
+    def __init__(self, *args, actions=('edit', 'delete', 'changelog'), extra_buttons='', split_actions=True, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.extra_buttons = extra_buttons
+        self.split_actions = split_actions
 
         # Determine which actions to enable
         self.actions = {
@@ -210,19 +212,42 @@ class ActionsColumn(tables.Column):
         # Compile actions menu
         links = []
         user = getattr(request, 'user', AnonymousUser())
-        for action, attrs in self.actions.items():
+        for idx, (action, attrs) in enumerate(self.actions.items()):
             permission = f'{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}'
             if attrs.permission is None or user.has_perm(permission):
                 url = reverse(get_viewname(model, action), kwargs={'pk': record.pk})
-                links.append(
-                    f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
-                    f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>'
-                )
+
+                # If only a single action exists, render a regular button
+                if len(self.actions.items()) == 1:
+                    html += (
+                        f'<a class="btn btn-sm btn-secondary" href="{url}{url_appendix}" type="button">'
+                        f'<i class="mdi mdi-{attrs.icon}"></i></a>'
+                    )
+
+                # Creates split button for the first action with direct link and icon
+                elif self.split_actions and idx == 0:
+                    html += (
+                        f'<span class="btn-group dropdown">'
+                        f'<a class="btn btn-sm btn-secondary" href="{url}{url_appendix}" type="button">'
+                        f'<i class="mdi mdi-{attrs.icon}"></i></a>'
+                    )
+
+                # Creates standard action dropdown menu items
+                else:
+                    links.append(
+                        f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
+                        f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>'
+                    )
+
+        # Create the actions dropdown menu
         if links:
+            dropdown_icon = '' if self.split_actions else '<i class="mdi mdi-wrench"></i>'
+            dropdown_class = '' if self.split_actions else '<span class="dropdown">'
             html += (
-                f'<span class="dropdown">'
-                f'<a class="btn btn-sm btn-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown">'
-                f'<i class="mdi mdi-wrench"></i></a>'
+                f'{dropdown_class}'
+                f'<a class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">'
+                f'{dropdown_icon}'
+                f'<span class="visually-hidden">Toggle Dropdown</span></a>'
                 f'<ul class="dropdown-menu">{"".join(links)}</ul></span>'
             )
 
