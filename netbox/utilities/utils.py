@@ -4,6 +4,7 @@ from collections import OrderedDict
 from decimal import Decimal
 from itertools import count, groupby
 
+import bleach
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
@@ -385,3 +386,33 @@ def copy_safe_request(request):
         'path': request.path,
         'id': getattr(request, 'id', None),  # UUID assigned by middleware
     })
+
+
+def clean_html(html, schemes):
+    """
+    Sanitizes HTML based on a whitelist of allowed tags and attributes.
+    Also takes a list of allowed URI schemes.
+    """
+
+    ALLOWED_TAGS = [
+        "div", "pre", "code", "blockquote", "del",
+        "hr", "h1", "h2", "h3", "h4", "h5", "h6",
+        "ul", "ol", "li", "p", "br",
+        "strong", "em", "a", "b", "i", "img",
+        "table", "thead", "tbody", "tr", "th", "td",
+        "dl", "dt", "dd",
+    ]
+
+    ALLOWED_ATTRIBUTES = {
+        "div": ['class'],
+        "h1": ["id"], "h2": ["id"], "h3": ["id"], "h4": ["id"], "h5": ["id"], "h6": ["id"],
+        "a": ["href", "title"],
+        "img": ["src", "title", "alt"],
+    }
+
+    return bleach.clean(
+        html,
+        tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTRIBUTES,
+        protocols=schemes
+    )
