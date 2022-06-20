@@ -168,7 +168,7 @@ class DeviceType(NetBoxModel):
             ('model', self.model),
             ('slug', self.slug),
             ('part_number', self.part_number),
-            ('u_height', self.u_height),
+            ('u_height', float(self.u_height)),
             ('is_full_depth', self.is_full_depth),
             ('subdevice_role', self.subdevice_role),
             ('airflow', self.airflow),
