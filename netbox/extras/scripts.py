@@ -17,6 +17,7 @@ from django.utils.functional import classproperty
 
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices, LogLevelChoices
+from extras.signals import clear_webhooks
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortTransaction
@@ -465,7 +466,7 @@ def run_script(data, request, commit=True, *args, **kwargs):
 
         except AbortTransaction:
             script.log_info("Database changes have been reverted automatically.")
-
+            clear_webhooks.send(request)
         except Exception as e:
             stacktrace = traceback.format_exc()
             script.log_failure(
@@ -474,7 +475,7 @@ def run_script(data, request, commit=True, *args, **kwargs):
             script.log_info("Database changes have been reverted due to error.")
             logger.error(f"Exception raised during script execution: {e}")
             job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-
+            clear_webhooks.send(request)
         finally:
             job_result.data = ScriptOutputSerializer(script).data
             job_result.save()

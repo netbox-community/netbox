@@ -52,7 +52,7 @@
                           {% if object.role %}
                               <a href="{% url 'ipam:ipaddress_list' %}?role={{ object.role }}">{{ object.get_role_display }}</a>
                           {% else %}
-                              <span class="text-muted">None</span>
+                              {{ ''|placeholder }}
                           {% endif %}
                       </td>
                   </tr>
@@ -73,7 +73,7 @@
                           {% endif %}
                           {{ object.assigned_object|linkify }}
                         {% else %}
-                          <span class="text-muted">&mdash;</span>
+                          {{ ''|placeholder }}
                         {% endif %}
                       </td>
                   </tr>
@@ -86,7 +86,7 @@
                                   ({{ object.nat_inside.assigned_object.parent_object|linkify }})
                               {% endif %}
                           {% else %}
-                              <span class="text-muted">None</span>
+                              {{ ''|placeholder }}
                           {% endif %}
                       </td>
                   </tr>

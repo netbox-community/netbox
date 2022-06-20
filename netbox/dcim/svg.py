@@ -114,7 +114,7 @@ class RackElevationSVG:
         # Embed front device type image if one exists
         if self.include_images and device.device_type.front_image:
             image = drawing.image(
-                href=device.device_type.front_image.url,
+                href='{}{}'.format(self.base_url, device.device_type.front_image.url),
                 insert=start,
                 size=end,
                 class_='device-image'
@@ -140,7 +140,7 @@ class RackElevationSVG:
         # Embed rear device type image if one exists
         if self.include_images and device.device_type.rear_image:
             image = drawing.image(
-                href=device.device_type.rear_image.url,
+                href='{}{}'.format(self.base_url, device.device_type.rear_image.url),
                 insert=start,
                 size=end,
                 class_='device-image'
@@ -151,9 +151,9 @@ class RackElevationSVG:
                      stroke_width='0.2em', stroke_linejoin='round', class_='device-image-label'))
             link.add(drawing.text(get_device_name(device), insert=text, fill='white', class_='device-image-label'))
 
-    @staticmethod
-    def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_, reservation):
-        link_url = '{}?{}'.format(
+    def _draw_empty(self, drawing, rack, start, end, text, id_, face_id, class_, reservation):
+        link_url = '{}{}?{}'.format(
+            self.base_url,
             reverse('dcim:device_add'),
             urlencode({
                 'site': rack.site.pk,

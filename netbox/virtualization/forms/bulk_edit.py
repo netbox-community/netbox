@@ -3,7 +3,7 @@ from django import forms
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
-from ipam.models import VLAN, VRF
+from ipam.models import VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -202,13 +202,26 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         widget=StaticSelect()
     )
+    vlan_group = DynamicModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        label='VLAN group'
+    )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'group_id': '$vlan_group',
+        },
+        label='Untagged VLAN'
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'group_id': '$vlan_group',
+        },
+        label='Tagged VLANs'
     )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
@@ -220,7 +233,7 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         (None, ('mtu', 'enabled', 'vrf', 'description')),
         ('Related Interfaces', ('parent', 'bridge')),
-        ('802.1Q Switching', ('mode', 'untagged_vlan', 'tagged_vlans')),
+        ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
     )
     nullable_fields = (
         'parent', 'bridge', 'mtu', 'vrf', 'description',

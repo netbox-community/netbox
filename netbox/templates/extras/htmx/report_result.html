@@ -57,7 +57,7 @@
                   {% elif obj %}
                     {{ obj }}
                   {% else %}
-                    <span class="muted">&mdash;</span>
+                    {{ ''|placeholder }}
                   {% endif %}
                 </td>
                 <td class="rendered-markdown">{{ message|markdown }}</td>

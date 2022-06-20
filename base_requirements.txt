@@ -48,7 +48,8 @@ django-tables2
 
 # User-defined tags for objects
 # https://github.com/alex/django-taggit
-django-taggit
+# Will evaluate v3.0 during NetBox v3.3 beta
+django-taggit>=2.1.0,<3.0
 
 # A Django field for representing time zones
 # https://github.com/mfogel/django-timezone-field/
@@ -129,3 +130,7 @@ tablib
 # Timezone data (required by django-timezone-field on Python 3.9+)
 # https://github.com/python/tzdata
 tzdata
+
+# HTML sanitizer
+# https://github.com/mozilla/bleach
+bleach
