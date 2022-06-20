@@ -136,6 +136,7 @@ nav:
         - Overview: 'graphql-api/overview.md'
     - Reference:
         - Conditions: 'reference/conditions.md'
+        - Markdown: 'reference/markdown.md'
     - Development:
         - Introduction: 'development/index.md'
         - Getting Started: 'development/getting-started.md'

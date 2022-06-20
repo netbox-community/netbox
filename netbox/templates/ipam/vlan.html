@@ -21,7 +21,7 @@
                                     {% endif %}
                                     {{ object.site|linkify }}
                                 {% else %}
-                                    <span class="text-muted">None</span>
+                                    {{ ''|placeholder }}
                                 {% endif %}
                             </td>
                         </tr>
@@ -56,7 +56,7 @@
                                 {% if object.role %}
                                     <a href="{% url 'ipam:vlan_list' %}?role={{ object.role.slug }}">{{ object.role }}</a>
                                 {% else %}
-                                    <span class="text-muted">None</span>
+                                    {{ ''|placeholder }}
                                 {% endif %}
                             </td>
                         </tr>

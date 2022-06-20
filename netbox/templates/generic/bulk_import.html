@@ -76,14 +76,14 @@ Context:
                                                 {% if field.required %}
                                                     {% checkmark True true="Required" %}
                                                 {% else %}
-                                                    <span class="text-muted">&mdash;</span>
+                                                    {{ ''|placeholder }}
                                                 {% endif %}
                                             </td>
                                             <td>
                                                 {% if field.to_field_name %}
                                                     <code>{{ field.to_field_name }}</code>
                                                 {% else %}
-                                                    <span class="text-muted">&mdash;</span>
+                                                    {{ ''|placeholder }}
                                                 {% endif %}
                                             </td>
                                             <td>

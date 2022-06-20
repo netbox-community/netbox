@@ -35,7 +35,7 @@
                 {% if object.phone %}
                   <a href="tel:{{ object.phone }}">{{ object.phone }}</a>
                 {% else %}
-                  <span class="text-muted">None</span>
+                  {{ ''|placeholder }}
                 {% endif %}
               </td>
             </tr>
@@ -45,7 +45,7 @@
                 {% if object.email %}
                   <a href="mailto:{{ object.email }}">{{ object.email }}</a>
                 {% else %}
-                  <span class="text-muted">None</span>
+                  {{ ''|placeholder }}
                 {% endif %}
               </td>
             </tr>

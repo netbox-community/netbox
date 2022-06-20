@@ -94,7 +94,7 @@
                 {% elif termination.port_speed %}
                     {{ termination.port_speed|humanize_speed }}
                 {% else %}
-                    <span class="text-muted">&mdash;</span>
+                    {{ ''|placeholder }}
                 {% endif %}
                 </td>
             </tr>
