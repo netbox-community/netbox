@@ -7,7 +7,10 @@
 * [#8704](https://github.com/netbox-community/netbox/issues/8704) - Shift-click to select multiple objects in a list
 * [#8882](https://github.com/netbox-community/netbox/issues/8882) - Support filtering IP addresses by multiple parent prefixes
 * [#8893](https://github.com/netbox-community/netbox/issues/8893) - Include count of IP ranges under tenant view
+* [#9417](https://github.com/netbox-community/netbox/issues/9417) - Initialize manufacturer selection when inserting a new module
 * [#9501](https://github.com/netbox-community/netbox/issues/9501) - Add support for custom Jinja2 filters
+* [#9517](https://github.com/netbox-community/netbox/issues/9517) - Linkify related power port on power outlet view
+* [#9525](https://github.com/netbox-community/netbox/issues/9525) - Provide one-click edit link for objects in tables
 * [#9533](https://github.com/netbox-community/netbox/issues/9533) - Move Markdown reference to local documentation
 * [#9534](https://github.com/netbox-community/netbox/issues/9534) - Add VLAN group selector to interface bulk edit forms
 
