@@ -100,6 +100,7 @@ class RackTestCase(TestCase):
         device_types = (
             DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1', u_height=1),
             DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2', u_height=0),
+            DeviceType(manufacturer=manufacturer, model='Device Type 3', slug='device-type-3', u_height=0.5),
         )
         DeviceType.objects.bulk_create(device_types)
 
@@ -179,17 +180,37 @@ class RackTestCase(TestCase):
             self.assertIsNone(u['device'])
 
     def test_mount_zero_ru(self):
+        """
+        Check that a 0RU device can be mounted in a rack with no face/position.
+        """
         site = Site.objects.first()
         rack = Rack.objects.first()
 
-        device = Device.objects.create(
-            name='TestPDU',
+        Device(
+            name='Device 1',
             device_role=DeviceRole.objects.first(),
             device_type=DeviceType.objects.first(),
             site=site,
             rack=rack
-        )
-        self.assertTrue(device)
+        ).save()
+
+    def test_mount_half_u_devices(self):
+        """
+        Check that two 0.5U devices can be mounted in the same rack unit.
+        """
+        rack = Rack.objects.first()
+        attrs = {
+            'device_type': DeviceType.objects.get(u_height=0.5),
+            'device_role': DeviceRole.objects.first(),
+            'site': Site.objects.first(),
+            'rack': rack,
+            'face': DeviceFaceChoices.FACE_FRONT,
+        }
+
+        Device(name='Device 1', position=1, **attrs).save()
+        Device(name='Device 2', position=1.5, **attrs).save()
+
+        self.assertEqual(len(rack.get_available_units()), rack.u_height * 2 - 3)
 
     def test_change_rack_site(self):
         """
