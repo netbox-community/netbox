@@ -467,7 +467,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             'location_id': '$location',
         }
     )
-    position = forms.IntegerField(
+    position = forms.DecimalField(
         required=False,
         help_text="The lowest-numbered unit occupied by the device",
         widget=APISelect(

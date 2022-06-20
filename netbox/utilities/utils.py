@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import json
 from collections import OrderedDict
 from decimal import Decimal
@@ -224,6 +225,21 @@ def deepmerge(original, new):
         else:
             merged[key] = val
     return merged
+
+
+def drange(start, end, step=decimal.Decimal(1)):
+    """
+    Decimal-compatible implementation of Python's range()
+    """
+    start, end, step = decimal.Decimal(start), decimal.Decimal(end), decimal.Decimal(step)
+    if start < end:
+        while start < end:
+            yield start
+            start += step
+    else:
+        while start > end:
+            yield start
+            start += step
 
 
 def to_meters(length, unit):
