@@ -341,14 +341,34 @@ def flatten_dict(d, prefix='', separator='.'):
     return ret
 
 
+def array_to_ranges(array):
+    """
+    Convert an arbitrary array of integers to a list of consecutive values. Nonconsecutive values are returned as
+    single-item tuples. For example:
+        [0, 1, 2, 10, 14, 15, 16] => [(0, 2), (10,), (14, 16)]"
+    """
+    group = (
+        list(x) for _, x in groupby(sorted(array), lambda x, c=count(): next(c) - x)
+    )
+    return [
+        (g[0], g[-1])[:len(g)] for g in group
+    ]
+
+
 def array_to_string(array):
     """
     Generate an efficient, human-friendly string from a set of integers. Intended for use with ArrayField.
     For example:
         [0, 1, 2, 10, 14, 15, 16] => "0-2, 10, 14-16"
     """
-    group = (list(x) for _, x in groupby(sorted(array), lambda x, c=count(): next(c) - x))
-    return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
+    ret = []
+    ranges = array_to_ranges(array)
+    for value in ranges:
+        if len(value) == 1:
+            ret.append(str(value[0]))
+        else:
+            ret.append(f'{value[0]}-{value[1]}')
+    return ', '.join(ret)
 
 
 def content_type_name(ct):

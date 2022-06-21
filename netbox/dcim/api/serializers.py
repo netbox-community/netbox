@@ -252,7 +252,10 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
         default=ConfigItem('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT')
     )
     legend_width = serializers.IntegerField(
-        default=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT
+        default=RACK_ELEVATION_DEFAULT_LEGEND_WIDTH
+    )
+    margin_width = serializers.IntegerField(
+        default=RACK_ELEVATION_DEFAULT_MARGIN_WIDTH
     )
     exclude = serializers.IntegerField(
         required=False,

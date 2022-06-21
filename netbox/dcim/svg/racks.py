@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.http import urlencode
 
 from netbox.config import get_config
-from utilities.utils import foreground_color
+from utilities.utils import foreground_color, array_to_ranges
 from dcim.choices import DeviceFaceChoices
 from dcim.constants import RACK_ELEVATION_BORDER_WIDTH
 
@@ -55,8 +55,8 @@ class RackElevationSVG:
     :param include_images: If true, the SVG document will embed front/rear device face images, where available
     :param base_url: Base URL for links within the SVG document. If none, links will be relative.
     """
-    def __init__(self, rack, unit_height=None, unit_width=None, legend_width=None, user=None, include_images=True,
-                 base_url=None):
+    def __init__(self, rack, unit_height=None, unit_width=None, legend_width=None, margin_width=None, user=None,
+                 include_images=True, base_url=None):
         self.rack = rack
         self.include_images = include_images
         self.base_url = base_url.rstrip('/') if base_url is not None else ''
@@ -65,7 +65,8 @@ class RackElevationSVG:
         config = get_config()
         self.unit_width = unit_width or config.RACK_ELEVATION_DEFAULT_UNIT_WIDTH
         self.unit_height = unit_height or config.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
-        self.legend_width = legend_width or config.RACK_ELEVATION_LEGEND_WIDTH_DEFAULT
+        self.legend_width = legend_width or config.RACK_ELEVATION_DEFAULT_LEGEND_WIDTH
+        self.margin_width = margin_width or config.RACK_ELEVATION_DEFAULT_MARGIN_WIDTH
 
         # Determine the subset of devices within this rack that are viewable by the user, if any
         permitted_devices = self.rack.devices
@@ -91,7 +92,7 @@ class RackElevationSVG:
         drawing.defs.add(gradient)
 
     def _setup_drawing(self):
-        width = self.unit_width + self.legend_width + RACK_ELEVATION_BORDER_WIDTH * 2
+        width = self.unit_width + self.legend_width + self.margin_width + RACK_ELEVATION_BORDER_WIDTH * 2
         height = self.unit_height * self.rack.u_height + RACK_ELEVATION_BORDER_WIDTH * 2
         drawing = svgwrite.Drawing(size=(width, height))
 
@@ -100,6 +101,7 @@ class RackElevationSVG:
             drawing.defs.add(drawing.style(css_file.read()))
 
         # Add gradients
+        RackElevationSVG._add_gradient(drawing, 'reserved', '#b0b0ff')
         RackElevationSVG._add_gradient(drawing, 'occupied', '#d7d7d7')
         RackElevationSVG._add_gradient(drawing, 'blocked', '#ffc0c0')
 
@@ -198,6 +200,29 @@ class RackElevationSVG:
                 Text(str(unit), position_coordinates, class_='unit')
             )
 
+    def draw_margin(self):
+        """
+        Draw any rack reservations in the right-hand margin alongside the rack elevation.
+        """
+        for reservation in self.rack.reservations.all():
+            for segment in array_to_ranges(reservation.units):
+                u_height = 1 if len(segment) == 1 else segment[1] + 1 - segment[0]
+                coords = self._get_device_coords(segment[0], u_height)
+                coords = (coords[0] + self.unit_width + RACK_ELEVATION_BORDER_WIDTH * 2, coords[1])
+                size = (
+                    self.margin_width,
+                    u_height * self.unit_height
+                )
+                link = Hyperlink(
+                    href='{}{}'.format(self.base_url, reservation.get_absolute_url()),
+                    target='_blank'
+                )
+                link.set_desc(f'Reservation #{reservation.pk}: {reservation.description}')
+                link.add(
+                    Rect(coords, size, class_='reservation')
+                )
+                self.drawing.add(link)
+
     def draw_background(self, face):
         """
         Draw the rack unit placeholders which form the "background" of the rack elevation.
@@ -261,16 +286,12 @@ class RackElevationSVG:
         # Initialize the drawing
         self.drawing = self._setup_drawing()
 
-        # Draw the empty rack & legend
+        # Draw the empty rack, legend, and margin
         self.draw_legend()
         self.draw_background(face)
+        self.draw_margin()
 
-        # Draw the opposite rack face first, then the near face
-        if face == DeviceFaceChoices.FACE_REAR:
-            opposite_face = DeviceFaceChoices.FACE_FRONT
-        else:
-            opposite_face = DeviceFaceChoices.FACE_REAR
-        # self.draw_face(opposite_face, opposite=True)
+        # Draw the rack face
         self.draw_face(face)
 
         # Draw the rack border last
