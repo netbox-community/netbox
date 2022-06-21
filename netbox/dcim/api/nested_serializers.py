@@ -5,6 +5,7 @@ from netbox.api.serializers import BaseModelSerializer, WritableNestedSerializer
 
 __all__ = [
     'ComponentNestedModuleSerializer',
+    'ModuleBayNestedModuleSerializer',
     'NestedCableSerializer',
     'NestedConsolePortSerializer',
     'NestedConsolePortTemplateSerializer',
@@ -279,6 +280,13 @@ class ModuleNestedModuleBaySerializer(WritableNestedSerializer):
     class Meta:
         model = models.ModuleBay
         fields = ['id', 'url', 'display', 'name']
+
+class ModuleBayNestedModuleSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:module-detail')
+
+    class Meta:
+        model = models.Module
+        fields = ['id', 'url', 'display', 'serial']
 
 
 class ComponentNestedModuleSerializer(WritableNestedSerializer):
