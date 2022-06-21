@@ -489,7 +489,7 @@ urlpatterns = [
 
     # Power feeds
     path('power-feeds/', views.PowerFeedListView.as_view(), name='powerfeed_list'),
-    path('power-feeds/add/', views.PowerFeedEditView.as_view(), name='powerfeed_add'),
+    path('power-feeds/add/', views.PowerFeedCreateView.as_view(), name='powerfeed_add'),
     path('power-feeds/import/', views.PowerFeedBulkImportView.as_view(), name='powerfeed_import'),
     path('power-feeds/edit/', views.PowerFeedBulkEditView.as_view(), name='powerfeed_bulk_edit'),
     path('power-feeds/disconnect/', views.PowerFeedBulkDisconnectView.as_view(), name='powerfeed_bulk_disconnect'),

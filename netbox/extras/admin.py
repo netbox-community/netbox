@@ -15,6 +15,9 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
         ('Rack Elevations', {
             'fields': ('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH'),
         }),
+        ('Power', {
+            'fields': ('POWERFEED_DEFAULT_VOLTAGE', 'POWERFEED_DEFAULT_AMPERAGE', 'POWERFEED_DEFAULT_MAX_UTILIZATION')
+        }),
         ('IPAM', {
             'fields': ('ENFORCE_GLOBAL_UNIQUE', 'PREFER_IPV4'),
         }),

@@ -16,6 +16,7 @@ from circuits.models import Circuit
 from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
+from netbox.config import ConfigItem
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -3251,6 +3252,17 @@ class PowerFeedListView(generic.ObjectListView):
 
 class PowerFeedView(generic.ObjectView):
     queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack')
+
+
+class PowerFeedCreateView(generic.ObjectEditView):
+    queryset = PowerFeed.objects.all()
+    form = forms.PowerFeedForm
+
+    def alter_object(self, obj, request, args, kwargs):
+        obj.voltage = ConfigItem('POWERFEED_DEFAULT_VOLTAGE')
+        obj.amperage = ConfigItem('POWERFEED_DEFAULT_AMPERAGE')
+        obj.max_utilization = ConfigItem('POWERFEED_DEFAULT_MAX_UTILIZATION')
+        return obj
 
 
 class PowerFeedEditView(generic.ObjectEditView):
