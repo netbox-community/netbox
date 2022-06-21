@@ -1852,7 +1852,7 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_module_bay(self):
         module_bays = ModuleBay.objects.all()[:2]
         params = {'module_bay_id': [module_bays[0].pk, module_bays[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
         device_types = Device.objects.all()[:2]

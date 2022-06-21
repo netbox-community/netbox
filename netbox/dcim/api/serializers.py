@@ -886,7 +886,7 @@ class FrontPortSerializer(NetBoxModelSerializer, LinkTerminationSerializer):
 class ModuleBaySerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebay-detail')
     device = NestedDeviceSerializer()
-    installed_module = ModuleBayNestedModuleSerializer()
+    installed_module = ModuleBayNestedModuleSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ModuleBay
