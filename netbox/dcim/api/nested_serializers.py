@@ -281,6 +281,7 @@ class ModuleNestedModuleBaySerializer(WritableNestedSerializer):
         model = models.ModuleBay
         fields = ['id', 'url', 'display', 'name']
 
+
 class ModuleBayNestedModuleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:module-detail')
 

@@ -1848,7 +1848,7 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'module_type': [module_types[0].model, module_types[1].model]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
-    
+
     def test_module_bay(self):
         module_bays = ModuleBay.objects.all()[:2]
         params = {'module_bay_id': [module_bays[0].pk, module_bays[1].pk]}
