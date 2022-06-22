@@ -2204,6 +2204,8 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'description': 'A front port',
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'tx_power': 10,
+            'poe_mode': InterfacePoEModeChoices.MODE_PSE,
+            'poe_type': InterfacePoETypeChoices.TYPE_1_8023AF,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
@@ -2225,6 +2227,8 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'duplex': 'half',
             'mgmt_only': True,
             'description': 'A front port',
+            'poe_mode': InterfacePoEModeChoices.MODE_PSE,
+            'poe_type': InterfacePoETypeChoices.TYPE_1_8023AF,
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
@@ -2244,6 +2248,8 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'duplex': 'full',
             'mgmt_only': True,
             'description': 'New description',
+            'poe_mode': InterfacePoEModeChoices.MODE_PD,
+            'poe_type': InterfacePoETypeChoices.TYPE_2_8023AT,
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'tx_power': 10,
             'untagged_vlan': vlans[0].pk,
@@ -2252,10 +2258,10 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            f"device,name,type,vrf.pk",
-            f"Device 1,Interface 4,1000base-t,{vrfs[0].pk}",
-            f"Device 1,Interface 5,1000base-t,{vrfs[0].pk}",
-            f"Device 1,Interface 6,1000base-t,{vrfs[0].pk}",
+            f"device,name,type,vrf.pk,poe_mode,poe_type",
+            f"Device 1,Interface 4,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
+            f"Device 1,Interface 5,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
+            f"Device 1,Interface 6,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
         )
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])

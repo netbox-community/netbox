@@ -11,6 +11,8 @@
 
 #### Half-Height Rack Units ([#51](https://github.com/netbox-community/netbox/issues/51))
 
+#### PoE Interface Attributes ([#1099](https://github.com/netbox-community/netbox/issues/1099))
+
 ### Enhancements
 
 * [#1202](https://github.com/netbox-community/netbox/issues/1202) - Support overlapping assignment of NAT IP addresses
@@ -33,6 +35,8 @@
     * The `position` field has been changed from an integer to a decimal
 * dcim.DeviceType
     * The `u_height` field has been changed from an integer to a decimal
+* dcim.Interface
+    * Added the option `poe_mode` and `poe_type` fields
 * dcim.Rack
     * The `elevation` endpoint now includes half-height rack units, and utilizes decimal values for the ID and name of each unit
 * extras.CustomField

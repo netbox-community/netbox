@@ -622,6 +622,16 @@ class InterfaceCSVForm(NetBoxModelCSVForm):
         choices=InterfaceDuplexChoices,
         required=False
     )
+    poe_mode = CSVChoiceField(
+        choices=InterfacePoEModeChoices,
+        required=False,
+        help_text='PoE mode'
+    )
+    poe_type = CSVChoiceField(
+        choices=InterfacePoETypeChoices,
+        required=False,
+        help_text='PoE type'
+    )
     mode = CSVChoiceField(
         choices=InterfaceModeChoices,
         required=False,
@@ -642,9 +652,9 @@ class InterfaceCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = Interface
         fields = (
-            'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'speed', 'duplex', 'enabled', 'mark_connected', 'mac_address',
-            'wwn', 'mtu', 'mgmt_only', 'description', 'mode', 'vrf', 'rf_role', 'rf_channel', 'rf_channel_frequency',
-            'rf_channel_width', 'tx_power',
+            'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'speed', 'duplex', 'enabled',
+            'mark_connected', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
+            'vrf', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
         )
 
     def __init__(self, data=None, *args, **kwargs):

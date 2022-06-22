@@ -1238,6 +1238,12 @@ class InterfaceFilterSet(
     )
     mac_address = MultiValueMACAddressFilter()
     wwn = MultiValueWWNFilter()
+    poe_mode = django_filters.MultipleChoiceFilter(
+        choices=InterfacePoEModeChoices
+    )
+    poe_type = django_filters.MultipleChoiceFilter(
+        choices=InterfacePoETypeChoices
+    )
     vlan_id = django_filters.CharFilter(
         method='filter_vlan_id',
         label='Assigned VLAN'
@@ -1271,8 +1277,8 @@ class InterfaceFilterSet(
     class Meta:
         model = Interface
         fields = [
-            'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'rf_role', 'rf_channel',
-            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
+            'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'poe_mode', 'poe_type', 'mode', 'rf_role',
+            'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
         ]
 
     def filter_device(self, queryset, name, value):
