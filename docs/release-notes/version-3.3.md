@@ -21,10 +21,10 @@
 * [#7120](https://github.com/netbox-community/netbox/issues/7120) - Add `termination_date` field to Circuit
 * [#7744](https://github.com/netbox-community/netbox/issues/7744) - Add `status` field to Location
 * [#8222](https://github.com/netbox-community/netbox/issues/8222) - Enable the assignment of a VM to a specific host device within a cluster
+* [#8233](https://github.com/netbox-community/netbox/issues/8233) - Restrict API token access by source IP
 * [#8471](https://github.com/netbox-community/netbox/issues/8471) - Add `status` field to Cluster
 * [#8495](https://github.com/netbox-community/netbox/issues/8495) - Enable custom field grouping
 * [#8995](https://github.com/netbox-community/netbox/issues/8995) - Enable arbitrary ordering of REST API results
-* [#8233](https://github.com/netbox-community/netbox/issues/8233) - Restrict API key access by source IP
 * [#9166](https://github.com/netbox-community/netbox/issues/9166) - Add UI visibility toggle for custom fields
 * [#9582](https://github.com/netbox-community/netbox/issues/9582) - Enable assigning config contexts based on device location
 

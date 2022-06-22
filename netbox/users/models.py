@@ -223,7 +223,9 @@ class Token(models.Model):
         base_field=IPNetworkField(),
         blank=True,
         null=True,
-        help_text='Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"',
+        verbose_name='Allowed IPs',
+        help_text='Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. '
+                  'Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"',
     )
 
     class Meta:
@@ -249,20 +251,15 @@ class Token(models.Model):
             return False
         return True
 
-    def validate_client_ip(self, raw_ip_address):
+    def validate_client_ip(self, client_ip):
         """
-        Checks that an IP address falls within the allowed IPs.
+        Validate the API client IP address against the source IP restrictions (if any) set on the token.
         """
         if not self.allowed_ips:
             return True
 
-        try:
-            ip_address = ipaddress.ip_address(raw_ip_address)
-        except ValueError as e:
-            raise ValidationError(str(e))
-
         for ip_network in self.allowed_ips:
-            if ip_address in ipaddress.ip_network(ip_network):
+            if client_ip in ipaddress.ip_network(ip_network):
                 return True
 
         return False

@@ -1,41 +1,37 @@
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from rest_framework import authentication, exceptions
 from rest_framework.permissions import BasePermission, DjangoObjectPermissions, SAFE_METHODS
 
 from users.models import Token
+from utilities.request import get_client_ip
 
 
 class TokenAuthentication(authentication.TokenAuthentication):
     """
-    A custom authentication scheme which enforces Token expiration times.
+    A custom authentication scheme which enforces Token expiration times and source IP restrictions.
     """
     model = Token
 
     def authenticate(self, request):
-        authenticationresult = super().authenticate(request)
-        if authenticationresult:
-            token_user, token = authenticationresult
+        result = super().authenticate(request)
 
-            # Verify source IP is allowed
+        if result:
+            token = result[1]
+
+            # Enforce source IP restrictions (if any) set on the token
             if token.allowed_ips:
-                # Replace 'HTTP_X_REAL_IP' with the settings variable choosen in #8867
-                if 'HTTP_X_REAL_IP' in request.META:
-                    clientip = request.META['HTTP_X_REAL_IP'].split(",")[0].strip()
-                    http_header = 'HTTP_X_REAL_IP'
-                elif 'REMOTE_ADDR' in request.META:
-                    clientip = request.META['REMOTE_ADDR']
-                    http_header = 'REMOTE_ADDR'
-                else:
-                    raise exceptions.AuthenticationFailed(f"A HTTP header containing the SourceIP (HTTP_X_REAL_IP, REMOTE_ADDR) is missing from the request.")
+                client_ip = get_client_ip(request)
+                if client_ip is None:
+                    raise exceptions.AuthenticationFailed(
+                        "Client IP address could not be determined for validation. Check that the HTTP server is "
+                        "correctly configured to pass the required header(s)."
+                    )
+                if not token.validate_client_ip(client_ip):
+                    raise exceptions.AuthenticationFailed(
+                        f"Source IP {client_ip} is not permitted to authenticate using this token."
+                    )
 
-                try:
-                    if not token.validate_client_ip(clientip):
-                        raise exceptions.AuthenticationFailed(f"Source IP {clientip} is not allowed to use this token.")
-                except ValidationError as ValidationErrorInfo:
-                    raise exceptions.ValidationError(f"The value in the HTTP Header {http_header} has a ValidationError: {ValidationErrorInfo.message}")
-
-        return authenticationresult
+        return result
 
     def authenticate_credentials(self, key):
         model = self.get_model()
