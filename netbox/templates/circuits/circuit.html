@@ -46,6 +46,10 @@
                         <td>{{ object.install_date|annotated_date|placeholder }}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Termination Date</th>
+                        <td>{{ object.termination_date|annotated_date|placeholder }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Commit Rate</th>
                         <td>{{ object.commit_rate|humanize_speed|placeholder }}</td>
                     </tr>

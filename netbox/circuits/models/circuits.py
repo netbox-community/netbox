@@ -78,7 +78,12 @@ class Circuit(NetBoxModel):
     install_date = models.DateField(
         blank=True,
         null=True,
-        verbose_name='Date installed'
+        verbose_name='Installed'
+    )
+    termination_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name='Terminates'
     )
     commit_rate = models.PositiveIntegerField(
         blank=True,
@@ -119,7 +124,7 @@ class Circuit(NetBoxModel):
     )
 
     clone_fields = [
-        'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description',
+        'provider', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate', 'description',
     ]
 
     class Meta:

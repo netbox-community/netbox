@@ -13,7 +13,7 @@ Each circuit is also assigned one of the following operational statuses:
 * Deprovisioning
 * Decommissioned
 
-Circuits also have optional fields for annotating their installation date and commit rate, and may be assigned to NetBox tenants.
+Circuits also have optional fields for annotating their installation and termination dates and commit rate, and may be assigned to NetBox tenants.
 
 !!! note
     NetBox currently models only physical circuits: those which have exactly two endpoints. It is common to layer virtualized constructs (_virtual circuits_) such as MPLS or EVPN tunnels on top of these, however NetBox does not yet support virtual circuit modeling.
