@@ -216,10 +216,14 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, OrganizationalM
         to_field_name='slug',
         label='Location (slug)',
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=LocationStatusChoices,
+        null_value=None
+    )
 
     class Meta:
         model = Location
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ['id', 'name', 'slug', 'status', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():

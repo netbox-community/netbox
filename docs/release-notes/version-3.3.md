@@ -18,6 +18,7 @@
 * [#1202](https://github.com/netbox-community/netbox/issues/1202) - Support overlapping assignment of NAT IP addresses
 * [#4350](https://github.com/netbox-community/netbox/issues/4350) - Illustrate reservations vertically alongside rack elevations
 * [#5303](https://github.com/netbox-community/netbox/issues/5303) - A virtual machine may be assigned to a site and/or cluster
+* [#7744](https://github.com/netbox-community/netbox/issues/7744) - Add `status` field to Location
 * [#8222](https://github.com/netbox-community/netbox/issues/8222) - Enable the assignment of a VM to a specific host device within a cluster
 * [#8471](https://github.com/netbox-community/netbox/issues/8471) - Add `status` field to Cluster
 * [#8495](https://github.com/netbox-community/netbox/issues/8495) - Enable custom field grouping
@@ -36,7 +37,9 @@
 * dcim.DeviceType
     * The `u_height` field has been changed from an integer to a decimal
 * dcim.Interface
-    * Added the option `poe_mode` and `poe_type` fields
+    * Added the optional `poe_mode` and `poe_type` fields
+* dcim.Location
+    * Added required `status` field (default value: `active`)
 * dcim.Rack
     * The `elevation` endpoint now includes half-height rack units, and utilizes decimal values for the ID and name of each unit
 * extras.CustomField

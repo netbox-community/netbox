@@ -158,6 +158,12 @@ class LocationBulkEditForm(NetBoxModelBulkEditForm):
             'site_id': '$site'
         }
     )
+    status = forms.ChoiceField(
+        choices=add_blank_choice(LocationStatusChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -169,7 +175,7 @@ class LocationBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Location
     fieldsets = (
-        (None, ('site', 'parent', 'tenant', 'description')),
+        (None, ('site', 'parent', 'status', 'tenant', 'description')),
     )
     nullable_fields = ('parent', 'tenant', 'description')
 

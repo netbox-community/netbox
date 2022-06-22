@@ -124,6 +124,10 @@ class LocationCSVForm(NetBoxModelCSVForm):
             'invalid_choice': 'Location not found.',
         }
     )
+    status = CSVChoiceField(
+        choices=LocationStatusChoices,
+        help_text='Operational status'
+    )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -133,7 +137,7 @@ class LocationCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Location
-        fields = ('site', 'parent', 'name', 'slug', 'tenant', 'description')
+        fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'description')
 
 
 class RackRoleCSVForm(NetBoxModelCSVForm):

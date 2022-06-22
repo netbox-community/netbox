@@ -194,7 +194,7 @@ class LocationForm(TenancyForm, NetBoxModelForm):
 
     fieldsets = (
         ('Location', (
-            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tags',
+            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'status', 'description', 'tags',
         )),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
@@ -202,8 +202,12 @@ class LocationForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Location
         fields = (
-            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tenant_group', 'tenant', 'tags',
+            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'status', 'description', 'tenant_group', 'tenant',
+            'tags',
         )
+        widgets = {
+            'status': StaticSelect(),
+        }
 
 
 class RackRoleForm(NetBoxModelForm):

@@ -166,7 +166,7 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
     model = Location
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Parent', ('region_id', 'site_group_id', 'site_id', 'parent_id')),
+        ('Attributes', ('region_id', 'site_group_id', 'site_id', 'parent_id', 'status')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
@@ -197,6 +197,10 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
             'site_id': '$site_id',
         },
         label=_('Parent')
+    )
+    status = MultipleChoiceField(
+        choices=LocationStatusChoices,
+        required=False
     )
     tag = TagFilterField(model)
 

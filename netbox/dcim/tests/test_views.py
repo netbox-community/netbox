@@ -175,9 +175,9 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
 
         locations = (
-            Location(name='Location 1', slug='location-1', site=site, tenant=tenant),
-            Location(name='Location 2', slug='location-2', site=site, tenant=tenant),
-            Location(name='Location 3', slug='location-3', site=site, tenant=tenant),
+            Location(name='Location 1', slug='location-1', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
+            Location(name='Location 2', slug='location-2', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
+            Location(name='Location 3', slug='location-3', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
         )
         for location in locations:
             location.save()
@@ -188,16 +188,17 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'Location X',
             'slug': 'location-x',
             'site': site.pk,
+            'status': LocationStatusChoices.STATUS_PLANNED,
             'tenant': tenant.pk,
             'description': 'A new location',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "site,tenant,name,slug,description",
-            "Site 1,Tenant 1,Location 4,location-4,Fourth location",
-            "Site 1,Tenant 1,Location 5,location-5,Fifth location",
-            "Site 1,Tenant 1,Location 6,location-6,Sixth location",
+            "site,tenant,name,slug,status,description",
+            "Site 1,Tenant 1,Location 4,location-4,planned,Fourth location",
+            "Site 1,Tenant 1,Location 5,location-5,planned,Fifth location",
+            "Site 1,Tenant 1,Location 6,location-6,planned,Sixth location",
         )
 
         cls.bulk_edit_data = {
