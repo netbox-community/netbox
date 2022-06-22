@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
-from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
+from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
@@ -254,6 +254,17 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
+    )
+    location_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='locations',
+        queryset=Location.objects.all(),
+        label='Location',
+    )
+    location = django_filters.ModelMultipleChoiceFilter(
+        field_name='locations__slug',
+        queryset=Location.objects.all(),
+        to_field_name='slug',
+        label='Location (slug)',
     )
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device_types',

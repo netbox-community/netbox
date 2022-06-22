@@ -25,6 +25,7 @@
 * [#8495](https://github.com/netbox-community/netbox/issues/8495) - Enable custom field grouping
 * [#8995](https://github.com/netbox-community/netbox/issues/8995) - Enable arbitrary ordering of REST API results
 * [#9166](https://github.com/netbox-community/netbox/issues/9166) - Add UI visibility toggle for custom fields
+* [#9582](https://github.com/netbox-community/netbox/issues/9582) - Enable assigning config contexts based on device location
 
 ### Other Changes
 
@@ -45,6 +46,8 @@
     * Added required `status` field (default value: `active`)
 * dcim.Rack
     * The `elevation` endpoint now includes half-height rack units, and utilizes decimal values for the ID and name of each unit
+* extras.ConfigContext
+    * Added the `locations` many-to-many field to track the assignment of ConfigContexts to Locations
 * extras.CustomField
     * Added `group_name` and `ui_visibility` fields
 * ipam.IPAddress

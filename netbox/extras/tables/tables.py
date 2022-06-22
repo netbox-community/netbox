@@ -167,8 +167,9 @@ class ConfigContextTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ConfigContext
         fields = (
-            'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'roles', 'platforms',
-            'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'created', 'last_updated',
+            'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'locations', 'roles',
+            'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'weight', 'is_active', 'description')
 
