@@ -67,7 +67,7 @@ class TokenSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Token
-        fields = ('id', 'url', 'display', 'user', 'created', 'expires', 'key', 'write_enabled', 'description')
+        fields = ('id', 'url', 'display', 'user', 'created', 'expires', 'key', 'write_enabled', 'description', 'allowed_ips')
 
     def to_internal_value(self, data):
         if 'key' not in data:
