@@ -70,6 +70,14 @@
               <td>{{ object.description|placeholder }} </td>
             </tr>
             <tr>
+              <th scope="row">PoE Mode</th>
+              <td>{{ object.get_poe_mode_display|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">PoE Mode</th>
+              <td>{{ object.get_poe_type_display|placeholder }}</td>
+            </tr>
+            <tr>
               <th scope="row">802.1Q Mode</th>
               <td>{{ object.get_mode_display|placeholder }}</td>
             </tr>
@@ -321,7 +329,7 @@
                     {% if object.rf_channel_frequency %}
                       {{ object.rf_channel_frequency|simplify_decimal }} MHz
                     {% else %}
-                      <span class="text-muted">&mdash;</span>
+                      {{ ''|placeholder }}
                     {% endif %}
                   </td>
                   {% if peer %}
@@ -329,7 +337,7 @@
                       {% if peer.rf_channel_frequency %}
                         {{ peer.rf_channel_frequency|simplify_decimal }} MHz
                       {% else %}
-                        <span class="text-muted">&mdash;</span>
+                        {{ ''|placeholder }}
                       {% endif %}
                     </td>
                   {% endif %}
@@ -340,7 +348,7 @@
                     {% if object.rf_channel_width %}
                       {{ object.rf_channel_width|simplify_decimal }} MHz
                     {% else %}
-                      <span class="text-muted">&mdash;</span>
+                      {{ ''|placeholder }}
                     {% endif %}
                   </td>
                   {% if peer %}
@@ -348,7 +356,7 @@
                       {% if peer.rf_channel_width %}
                         {{ peer.rf_channel_width|simplify_decimal }} MHz
                       {% else %}
-                        <span class="text-muted">&mdash;</span>
+                        {{ ''|placeholder }}
                       {% endif %}
                     </td>
                   {% endif %}

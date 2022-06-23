@@ -72,5 +72,6 @@ class CircuitCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = Circuit
         fields = [
-            'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
+            'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate',
+            'description', 'comments',
         ]

@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from extras.forms import LocalConfigContextFilterForm
 from ipam.models import VRF
 from netbox.forms import NetBoxModelFilterSetForm
@@ -29,16 +29,20 @@ class ClusterTypeFilterForm(NetBoxModelFilterSetForm):
 class ClusterGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = ClusterGroup
     tag = TagFilterField(model)
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
+    )
 
 
 class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Cluster
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Attributes', ('group_id', 'type_id')),
+        ('Attributes', ('group_id', 'type_id', 'status')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Contacts', ('contact', 'contact_role')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
@@ -49,6 +53,10 @@ class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         queryset=Region.objects.all(),
         required=False,
         label=_('Region')
+    )
+    status = MultipleChoiceField(
+        choices=ClusterStatusChoices,
+        required=False
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
@@ -83,11 +91,11 @@ class VirtualMachineFilterForm(
     model = VirtualMachine
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Cluster', ('cluster_group_id', 'cluster_type_id', 'cluster_id')),
+        ('Cluster', ('cluster_group_id', 'cluster_type_id', 'cluster_id', 'device_id')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Attriubtes', ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Contacts', ('contact', 'contact_role')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
@@ -105,6 +113,11 @@ class VirtualMachineFilterForm(
         queryset=Cluster.objects.all(),
         required=False,
         label=_('Cluster')
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Device')
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),

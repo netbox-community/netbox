@@ -45,7 +45,7 @@
                 {% if ipranges_count %}
                   <a href="{% url 'ipam:iprange_list' %}?role_id={{ object.pk }}">{{ ipranges_count }}</a>
                 {% else %}
-                  &mdash;
+                  {{ ''|placeholder }}
                 {% endif %}
               {% endwith %}
             </td>
@@ -57,7 +57,7 @@
                 {% if vlans_count %}
                   <a href="{% url 'ipam:vlan_list' %}?role_id={{ object.pk }}">{{ vlans_count }}</a>
                 {% else %}
-                  &mdash;
+                  {{ ''|placeholder }}
                 {% endif %}
               {% endwith %}
             </td>

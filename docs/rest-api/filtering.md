@@ -106,3 +106,23 @@ expression: `n`. Here is an example of a lookup expression on a foreign key, it 
 ```no-highlight
 GET /api/ipam/vlans/?group_id__n=3203
 ```
+
+## Ordering Objects
+
+To order results by a particular field, include the `ordering` query parameter. For example, order the list of sites according to their facility values:
+
+```no-highlight
+GET /api/dcim/sites/?ordering=facility
+```
+
+To invert the ordering, prepend a hyphen to the field name:
+
+```no-highlight
+GET /api/dcim/sites/?ordering=-facility
+```
+
+Multiple fields can be specified by separating the field names with a comma. For example:
+
+```no-highlight
+GET /api/dcim/sites/?ordering=facility,-name
+```

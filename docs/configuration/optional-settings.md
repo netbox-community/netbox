@@ -66,6 +66,14 @@ CORS_ORIGIN_WHITELIST = [
 
 ---
 
+## CSRF_COOKIE_NAME
+
+Default: `csrftoken`
+
+The name of the cookie to use for the cross-site request forgery (CSRF) authentication token. See the [Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#csrf-cookie-name) for more detail.
+
+---
+
 ## CSRF_TRUSTED_ORIGINS
 
 Default: `[]`
@@ -242,6 +250,23 @@ A dictionary of HTTP proxies to use for outbound requests originating from NetBo
 HTTP_PROXIES = {
     'http': 'http://10.10.1.10:3128',
     'https': 'http://10.10.1.10:1080',
+}
+```
+
+---
+
+## JINJA2_FILTERS
+
+Default: `{}`
+
+A dictionary of custom jinja2 filters with the key being the filter name and the value being a callable. For more information see the [Jinja2 documentation](https://jinja.palletsprojects.com/en/3.1.x/api/#custom-filters). For example:
+
+```python
+def uppercase(x):
+    return str(x).upper()
+
+JINJA2_FILTERS = {
+    'uppercase': uppercase,
 }
 ```
 

@@ -7,7 +7,7 @@ from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
-from utilities.forms import DynamicModelMultipleChoiceField, MultipleChoiceField, TagFilterField
+from utilities.forms import DatePicker, DynamicModelMultipleChoiceField, MultipleChoiceField, TagFilterField
 
 __all__ = (
     'CircuitFilterForm',
@@ -23,7 +23,7 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
         (None, ('q', 'tag')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('ASN', ('asn',)),
-        ('Contacts', ('contact', 'contact_role')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -84,10 +84,10 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
     fieldsets = (
         (None, ('q', 'tag')),
         ('Provider', ('provider_id', 'provider_network_id')),
-        ('Attributes', ('type_id', 'status', 'commit_rate')),
+        ('Attributes', ('type_id', 'status', 'install_date', 'termination_date', 'commit_rate')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Contacts', ('contact', 'contact_role')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
@@ -129,6 +129,14 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
             'site_group_id': '$site_group_id',
         },
         label=_('Site')
+    )
+    install_date = forms.DateField(
+        required=False,
+        widget=DatePicker
+    )
+    termination_date = forms.DateField(
+        required=False,
+        widget=DatePicker
     )
     commit_rate = forms.IntegerField(
         required=False,

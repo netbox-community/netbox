@@ -27,6 +27,12 @@ class CustomFieldCSVForm(CSVModelForm):
         choices=CustomFieldTypeChoices,
         help_text='Field data type (e.g. text, integer, etc.)'
     )
+    object_type = CSVContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields'),
+        required=False,
+        help_text="Object type (for object or multi-object fields)"
+    )
     choices = SimpleArrayField(
         base_field=forms.CharField(),
         required=False,
@@ -36,8 +42,9 @@ class CustomFieldCSVForm(CSVModelForm):
     class Meta:
         model = CustomField
         fields = (
-            'name', 'label', 'type', 'content_types', 'required', 'description', 'weight', 'filter_logic', 'default',
-            'choices', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
+            'name', 'label', 'group_name', 'type', 'content_types', 'object_type', 'required', 'description', 'weight',
+            'filter_logic', 'default', 'choices', 'weight', 'validation_minimum', 'validation_maximum',
+            'validation_regex', 'ui_visibility',
         )
 
 

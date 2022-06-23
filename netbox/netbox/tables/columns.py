@@ -90,6 +90,15 @@ class TemplateColumn(tables.TemplateColumn):
     """
     PLACEHOLDER = mark_safe('&mdash;')
 
+    def __init__(self, export_raw=False, **kwargs):
+        """
+        Args:
+            export_raw: If true, data export returns the raw field value rather than the rendered template. (Default:
+                        False)
+        """
+        super().__init__(**kwargs)
+        self.export_raw = export_raw
+
     def render(self, *args, **kwargs):
         ret = super().render(*args, **kwargs)
         if not ret.strip():
@@ -97,6 +106,10 @@ class TemplateColumn(tables.TemplateColumn):
         return ret
 
     def value(self, **kwargs):
+        if self.export_raw:
+            # Skip template rendering and export raw value
+            return kwargs.get('value')
+
         ret = super().value(**kwargs)
         if ret == self.PLACEHOLDER:
             return ''
@@ -153,6 +166,7 @@ class ActionsItem:
     title: str
     icon: str
     permission: Optional[str] = None
+    css_class: Optional[str] = 'secondary'
 
 
 class ActionsColumn(tables.Column):
@@ -162,19 +176,22 @@ class ActionsColumn(tables.Column):
 
     :param actions: The ordered list of dropdown menu items to include
     :param extra_buttons: A Django template string which renders additional buttons preceding the actions dropdown
+    :param split_actions: When True, converts the actions dropdown menu into a split button with first action as the
+        direct button link and icon (default: True)
     """
     attrs = {'td': {'class': 'text-end text-nowrap noprint'}}
     empty_values = ()
     actions = {
-        'edit': ActionsItem('Edit', 'pencil', 'change'),
-        'delete': ActionsItem('Delete', 'trash-can-outline', 'delete'),
+        'edit': ActionsItem('Edit', 'pencil', 'change', 'warning'),
+        'delete': ActionsItem('Delete', 'trash-can-outline', 'delete', 'danger'),
         'changelog': ActionsItem('Changelog', 'history'),
     }
 
-    def __init__(self, *args, actions=('edit', 'delete', 'changelog'), extra_buttons='', **kwargs):
+    def __init__(self, *args, actions=('edit', 'delete', 'changelog'), extra_buttons='', split_actions=True, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.extra_buttons = extra_buttons
+        self.split_actions = split_actions
 
         # Determine which actions to enable
         self.actions = {
@@ -192,32 +209,62 @@ class ActionsColumn(tables.Column):
         model = table.Meta.model
         request = getattr(table, 'context', {}).get('request')
         url_appendix = f'?return_url={request.path}' if request else ''
+        html = ''
 
-        links = []
+        # Compile actions menu
+        button = None
+        dropdown_class = 'secondary'
+        dropdown_links = []
         user = getattr(request, 'user', AnonymousUser())
-        for action, attrs in self.actions.items():
+        for idx, (action, attrs) in enumerate(self.actions.items()):
             permission = f'{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}'
             if attrs.permission is None or user.has_perm(permission):
                 url = reverse(get_viewname(model, action), kwargs={'pk': record.pk})
-                links.append(f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
-                             f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>')
 
-        if not links:
-            return ''
+                # Render a separate button if a) only one action exists, or b) if split_actions is True
+                if len(self.actions) == 1 or (self.split_actions and idx == 0):
+                    dropdown_class = attrs.css_class
+                    button = (
+                        f'<a class="btn btn-sm btn-{attrs.css_class}" href="{url}{url_appendix}" type="button">'
+                        f'<i class="mdi mdi-{attrs.icon}"></i></a>'
+                    )
 
-        menu = f'<span class="dropdown">' \
-               f'<a class="btn btn-sm btn-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown">' \
-               f'<i class="mdi mdi-wrench"></i></a>' \
-               f'<ul class="dropdown-menu">{"".join(links)}</ul></span>'
+                # Add dropdown menu items
+                else:
+                    dropdown_links.append(
+                        f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
+                        f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>'
+                    )
+
+        # Create the actions dropdown menu
+        if button and dropdown_links:
+            html += (
+                f'<span class="btn-group dropdown">'
+                f'  {button}'
+                f'  <a class="btn btn-sm btn-{dropdown_class} dropdown-toggle" type="button" data-bs-toggle="dropdown" style="padding-left: 2px">'
+                f'  <span class="visually-hidden">Toggle Dropdown</span></a>'
+                f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
+                f'</span>'
+            )
+        elif button:
+            html += button
+        elif dropdown_links:
+            html += (
+                f'<span class="btn-group dropdown">'
+                f'  <a class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">'
+                f'  <span class="visually-hidden">Toggle Dropdown</span></a>'
+                f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
+                f'</span>'
+            )
 
         # Render any extra buttons from template code
         if self.extra_buttons:
             template = Template(self.extra_buttons)
             context = getattr(table, "context", Context())
             context.update({'record': record})
-            menu = template.render(context) + menu
+            html = template.render(context) + html
 
-        return mark_safe(menu)
+        return mark_safe(html)
 
 
 class ChoiceFieldColumn(tables.Column):

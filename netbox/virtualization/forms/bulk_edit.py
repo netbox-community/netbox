@@ -2,8 +2,8 @@ from django import forms
 
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
-from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
-from ipam.models import VLAN, VRF
+from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
+from ipam.models import VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -58,6 +58,12 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
         queryset=ClusterGroup.objects.all(),
         required=False
     )
+    status = forms.ChoiceField(
+        choices=add_blank_choice(ClusterStatusChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -85,7 +91,7 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Cluster
     fieldsets = (
-        (None, ('type', 'group', 'tenant',)),
+        (None, ('type', 'group', 'status', 'tenant',)),
         ('Site', ('region', 'site_group', 'site',)),
     )
     nullable_fields = (
@@ -100,9 +106,23 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         initial='',
         widget=StaticSelect(),
     )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
+    )
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        query_params={
+            'cluster_id': '$cluster'
+        }
     )
     role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.filter(
@@ -140,11 +160,11 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
 
     model = VirtualMachine
     fieldsets = (
-        (None, ('cluster', 'status', 'role', 'tenant', 'platform')),
+        (None, ('site', 'cluster', 'device', 'status', 'role', 'tenant', 'platform')),
         ('Resources', ('vcpus', 'memory', 'disk'))
     )
     nullable_fields = (
-        'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+        'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
     )
 
 
@@ -182,13 +202,26 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         widget=StaticSelect()
     )
+    vlan_group = DynamicModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        label='VLAN group'
+    )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'group_id': '$vlan_group',
+        },
+        label='Untagged VLAN'
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'group_id': '$vlan_group',
+        },
+        label='Tagged VLANs'
     )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
@@ -200,7 +233,7 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         (None, ('mtu', 'enabled', 'vrf', 'description')),
         ('Related Interfaces', ('parent', 'bridge')),
-        ('802.1Q Switching', ('mode', 'untagged_vlan', 'tagged_vlans')),
+        ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
     )
     nullable_fields = (
         'parent', 'bridge', 'mtu', 'vrf', 'description',
@@ -223,8 +256,10 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
             # See 5643
             if 'pk' in self.initial:
                 site = None
-                interfaces = VMInterface.objects.filter(pk__in=self.initial['pk']).prefetch_related(
-                    'virtual_machine__cluster__site'
+                interfaces = VMInterface.objects.filter(
+                    pk__in=self.initial['pk']
+                ).prefetch_related(
+                    'virtual_machine__site'
                 )
 
                 # Check interface sites.  First interface should set site, further interfaces will either continue the

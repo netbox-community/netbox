@@ -1,9 +1,11 @@
 import datetime
+import decimal
 import json
 from collections import OrderedDict
 from decimal import Decimal
 from itertools import count, groupby
 
+import bleach
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
@@ -14,6 +16,7 @@ from mptt.models import MPTTModel
 from dcim.choices import CableLengthUnitChoices
 from extras.plugins import PluginConfig
 from extras.utils import is_taggable
+from netbox.config import get_config
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 
 
@@ -224,6 +227,21 @@ def deepmerge(original, new):
     return merged
 
 
+def drange(start, end, step=decimal.Decimal(1)):
+    """
+    Decimal-compatible implementation of Python's range()
+    """
+    start, end, step = decimal.Decimal(start), decimal.Decimal(end), decimal.Decimal(step)
+    if start < end:
+        while start < end:
+            yield start
+            start += step
+    else:
+        while start > end:
+            yield start
+            start += step
+
+
 def to_meters(length, unit):
     """
     Convert the given length to meters.
@@ -257,7 +275,9 @@ def render_jinja2(template_code, context):
     """
     Render a Jinja2 template with the provided context. Return the rendered content.
     """
-    return SandboxedEnvironment().from_string(source=template_code).render(**context)
+    environment = SandboxedEnvironment()
+    environment.filters.update(get_config().JINJA2_FILTERS)
+    return environment.from_string(source=template_code).render(**context)
 
 
 def prepare_cloned_fields(instance):
@@ -321,14 +341,34 @@ def flatten_dict(d, prefix='', separator='.'):
     return ret
 
 
+def array_to_ranges(array):
+    """
+    Convert an arbitrary array of integers to a list of consecutive values. Nonconsecutive values are returned as
+    single-item tuples. For example:
+        [0, 1, 2, 10, 14, 15, 16] => [(0, 2), (10,), (14, 16)]"
+    """
+    group = (
+        list(x) for _, x in groupby(sorted(array), lambda x, c=count(): next(c) - x)
+    )
+    return [
+        (g[0], g[-1])[:len(g)] for g in group
+    ]
+
+
 def array_to_string(array):
     """
     Generate an efficient, human-friendly string from a set of integers. Intended for use with ArrayField.
     For example:
         [0, 1, 2, 10, 14, 15, 16] => "0-2, 10, 14-16"
     """
-    group = (list(x) for _, x in groupby(sorted(array), lambda x, c=count(): next(c) - x))
-    return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
+    ret = []
+    ranges = array_to_ranges(array)
+    for value in ranges:
+        if len(value) == 1:
+            ret.append(str(value[0]))
+        else:
+            ret.append(f'{value[0]}-{value[1]}')
+    return ', '.join(ret)
 
 
 def content_type_name(ct):
@@ -382,3 +422,33 @@ def copy_safe_request(request):
         'path': request.path,
         'id': getattr(request, 'id', None),  # UUID assigned by middleware
     })
+
+
+def clean_html(html, schemes):
+    """
+    Sanitizes HTML based on a whitelist of allowed tags and attributes.
+    Also takes a list of allowed URI schemes.
+    """
+
+    ALLOWED_TAGS = [
+        "div", "pre", "code", "blockquote", "del",
+        "hr", "h1", "h2", "h3", "h4", "h5", "h6",
+        "ul", "ol", "li", "p", "br",
+        "strong", "em", "a", "b", "i", "img",
+        "table", "thead", "tbody", "tr", "th", "td",
+        "dl", "dt", "dd",
+    ]
+
+    ALLOWED_ATTRIBUTES = {
+        "div": ['class'],
+        "h1": ["id"], "h2": ["id"], "h3": ["id"], "h4": ["id"], "h5": ["id"], "h6": ["id"],
+        "a": ["href", "title"],
+        "img": ["src", "title", "alt"],
+    }
+
+    return bleach.clean(
+        html,
+        tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTRIBUTES,
+        protocols=schemes
+    )

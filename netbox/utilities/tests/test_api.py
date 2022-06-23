@@ -176,6 +176,64 @@ class APIPaginationTestCase(APITestCase):
         self.assertEqual(len(response.data['results']), 100)
 
 
+class APIOrderingTestCase(APITestCase):
+    user_permissions = ('dcim.view_site',)
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.url = reverse('dcim-api:site-list')
+
+        sites = (
+            Site(name='Site 1', slug='site-1', facility='C', description='Z'),
+            Site(name='Site 2', slug='site-2', facility='C', description='Y'),
+            Site(name='Site 3', slug='site-3', facility='B', description='X'),
+            Site(name='Site 4', slug='site-4', facility='B', description='W'),
+            Site(name='Site 5', slug='site-5', facility='A', description='V'),
+            Site(name='Site 6', slug='site-6', facility='A', description='U'),
+        )
+        Site.objects.bulk_create(sites)
+
+    def test_default_order(self):
+        response = self.client.get(self.url, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 6)
+        self.assertListEqual(
+            [s['name'] for s in response.data['results']],
+            ['Site 1', 'Site 2', 'Site 3', 'Site 4', 'Site 5', 'Site 6']
+        )
+
+    def test_order_single_field(self):
+        response = self.client.get(f'{self.url}?ordering=description', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 6)
+        self.assertListEqual(
+            [s['name'] for s in response.data['results']],
+            ['Site 6', 'Site 5', 'Site 4', 'Site 3', 'Site 2', 'Site 1']
+        )
+
+    def test_order_reversed(self):
+        response = self.client.get(f'{self.url}?ordering=-name', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 6)
+        self.assertListEqual(
+            [s['name'] for s in response.data['results']],
+            ['Site 6', 'Site 5', 'Site 4', 'Site 3', 'Site 2', 'Site 1']
+        )
+
+    def test_order_multiple_fields(self):
+        response = self.client.get(f'{self.url}?ordering=facility,name', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 6)
+        self.assertListEqual(
+            [s['name'] for s in response.data['results']],
+            ['Site 5', 'Site 6', 'Site 3', 'Site 4', 'Site 1', 'Site 2']
+        )
+
+
 class APIDocsTestCase(TestCase):
 
     def setUp(self):

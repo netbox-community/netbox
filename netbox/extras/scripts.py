@@ -17,6 +17,7 @@ from django.utils.functional import classproperty
 
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices, LogLevelChoices
+from extras.signals import clear_webhooks
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortTransaction
@@ -306,9 +307,16 @@ class BaseScript:
     @classmethod
     def _get_vars(cls):
         vars = {}
-        for name, attr in cls.__dict__.items():
-            if name not in vars and issubclass(attr.__class__, ScriptVariable):
-                vars[name] = attr
+
+        # Iterate all base classes looking for ScriptVariables
+        for base_class in inspect.getmro(cls):
+            # When object is reached there's no reason to continue
+            if base_class is object:
+                break
+
+            for name, attr in base_class.__dict__.items():
+                if name not in vars and issubclass(attr.__class__, ScriptVariable):
+                    vars[name] = attr
 
         # Order variables according to field_order
         field_order = getattr(cls.Meta, 'field_order', None)
@@ -458,7 +466,7 @@ def run_script(data, request, commit=True, *args, **kwargs):
 
         except AbortTransaction:
             script.log_info("Database changes have been reverted automatically.")
-
+            clear_webhooks.send(request)
         except Exception as e:
             stacktrace = traceback.format_exc()
             script.log_failure(
@@ -467,7 +475,7 @@ def run_script(data, request, commit=True, *args, **kwargs):
             script.log_info("Database changes have been reverted due to error.")
             logger.error(f"Exception raised during script execution: {e}")
             job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-
+            clear_webhooks.send(request)
         finally:
             job_result.data = ScriptOutputSerializer(script).data
             job_result.save()

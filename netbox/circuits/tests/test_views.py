@@ -130,6 +130,7 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
             'tenant': None,
             'install_date': datetime.date(2020, 1, 1),
+            'termination_date': datetime.date(2021, 1, 1),
             'commit_rate': 1000,
             'description': 'A new circuit',
             'comments': 'Some comments',

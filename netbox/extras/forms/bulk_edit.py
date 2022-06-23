@@ -24,6 +24,9 @@ class CustomFieldBulkEditForm(BulkEditForm):
         queryset=CustomField.objects.all(),
         widget=forms.MultipleHiddenInput
     )
+    group_name = forms.CharField(
+        required=False
+    )
     description = forms.CharField(
         required=False
     )
@@ -34,8 +37,15 @@ class CustomFieldBulkEditForm(BulkEditForm):
     weight = forms.IntegerField(
         required=False
     )
+    ui_visibility = forms.ChoiceField(
+        label="UI visibility",
+        choices=add_blank_choice(CustomFieldVisibilityChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
 
-    nullable_fields = ('description',)
+    nullable_fields = ('group_name', 'description',)
 
 
 class CustomLinkBulkEditForm(BulkEditForm):

@@ -70,7 +70,7 @@ class CircuitTable(NetBoxTable):
         model = Circuit
         fields = (
             'pk', 'id', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'install_date',
-            'commit_rate', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'termination_date', 'commit_rate', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'description',

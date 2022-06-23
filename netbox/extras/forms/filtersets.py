@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
-from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
+from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
@@ -32,7 +32,7 @@ __all__ = (
 class CustomFieldFilterForm(FilterForm):
     fieldsets = (
         (None, ('q',)),
-        ('Attributes', ('type', 'content_types', 'weight', 'required')),
+        ('Attributes', ('content_types', 'type', 'group_name', 'weight', 'required', 'ui_visibility')),
     )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
@@ -44,6 +44,9 @@ class CustomFieldFilterForm(FilterForm):
         required=False,
         label=_('Field type')
     )
+    group_name = forms.CharField(
+        required=False
+    )
     weight = forms.IntegerField(
         required=False
     )
@@ -52,6 +55,12 @@ class CustomFieldFilterForm(FilterForm):
         widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    ui_visibility = forms.ChoiceField(
+        choices=add_blank_choice(CustomFieldVisibilityChoices),
+        required=False,
+        label=_('UI visibility'),
+        widget=StaticSelect()
     )
 
 
@@ -161,7 +170,7 @@ class TagFilterForm(FilterForm):
 class ConfigContextFilterForm(FilterForm):
     fieldsets = (
         (None, ('q', 'tag_id')),
-        ('Location', ('region_id', 'site_group_id', 'site_id')),
+        ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id')),
         ('Device', ('device_type_id', 'platform_id', 'role_id')),
         ('Cluster', ('cluster_type_id', 'cluster_group_id', 'cluster_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id'))
@@ -180,6 +189,11 @@ class ConfigContextFilterForm(FilterForm):
         queryset=Site.objects.all(),
         required=False,
         label=_('Sites')
+    )
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label=_('Locations')
     )
     device_type_id = DynamicModelMultipleChoiceField(
         queryset=DeviceType.objects.all(),

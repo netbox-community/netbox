@@ -126,6 +126,7 @@ class LocationTable(NetBoxTable):
     site = tables.Column(
         linkify=True
     )
+    status = columns.ChoiceFieldColumn()
     tenant = TenantColumn()
     rack_count = columns.LinkedCountColumn(
         viewname='dcim:rack_list',
@@ -150,7 +151,7 @@ class LocationTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Location
         fields = (
-            'pk', 'id', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'contacts',
-            'tags', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'site', 'status', 'tenant', 'rack_count', 'device_count', 'description', 'slug',
+            'contacts', 'tags', 'actions', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description')
+        default_columns = ('pk', 'name', 'site', 'status', 'tenant', 'rack_count', 'device_count', 'description')

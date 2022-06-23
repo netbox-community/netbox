@@ -385,7 +385,7 @@ MODULEBAY_BUTTONS = """
             <i class="mdi mdi-server-minus" aria-hidden="true" title="Remove module"></i>
         </a>
     {% else %}
-        <a href="{% url 'dcim:module_add' %}?device={{ record.device.pk }}&module_bay={{ record.pk }}&return_url={% url 'dcim:device_modulebays' pk=object.pk %}" class="btn btn-success btn-sm">
+        <a href="{% url 'dcim:module_add' %}?device={{ record.device.pk }}&module_bay={{ record.pk }}&manufacturer={{ object.device_type.manufacturer_id }}&return_url={% url 'dcim:device_modulebays' pk=object.pk %}" class="btn btn-success btn-sm">
             <i class="mdi mdi-server-plus" aria-hidden="true" title="Install module"></i>
         </a>
     {% endif %}

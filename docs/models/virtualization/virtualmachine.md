@@ -1,6 +1,6 @@
 # Virtual Machines
 
-A virtual machine represents a virtual compute instance hosted within a cluster. Each VM must be assigned to exactly one cluster.
+A virtual machine represents a virtual compute instance hosted within a cluster. Each VM must be assigned to a site and/or cluster, and may optionally be assigned to a particular host device within a cluster.
 
 Like devices, each VM can be assigned a platform and/or functional role, and must have one of the following operational statuses assigned to it:
 

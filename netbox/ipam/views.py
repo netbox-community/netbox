@@ -4,15 +4,15 @@ from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from circuits.models import Provider
+from circuits.models import Provider, Circuit
 from circuits.tables import ProviderTable
 from dcim.filtersets import InterfaceFilterSet
-from dcim.models import Interface, Site
+from dcim.models import Interface, Site, Device
 from dcim.tables import SiteTable
 from netbox.views import generic
 from utilities.utils import count_related
 from virtualization.filtersets import VMInterfaceFilterSet
-from virtualization.models import VMInterface
+from virtualization.models import VMInterface, VirtualMachine
 from . import filtersets, forms, tables
 from .constants import *
 from .models import *
@@ -225,7 +225,9 @@ class ASNView(generic.ObjectView):
         sites_table.configure(request)
 
         # Gather assigned Providers
-        providers = instance.providers.restrict(request.user, 'view')
+        providers = instance.providers.restrict(request.user, 'view').annotate(
+            count_circuits=count_related(Circuit, 'provider')
+        )
         providers_table = ProviderTable(providers, user=request.user)
         providers_table.configure(request)
 
@@ -585,7 +587,7 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'role', 'tenant',
+            'vrf', 'tenant',
         )
 
     def get_extra_context(self, request, instance):
@@ -674,11 +676,26 @@ class IPAddressView(generic.ObjectView):
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
         related_ips_table.configure(request)
 
+        # Find services belonging to the IP
+        service_filter = Q(ipaddresses=instance)
+
+        # Find services listening on all IPs on the assigned device/vm
+        if instance.assigned_object and instance.assigned_object.parent_object:
+            parent_object = instance.assigned_object.parent_object
+
+            if isinstance(parent_object, VirtualMachine):
+                service_filter |= (Q(virtual_machine=parent_object) & Q(ipaddresses=None))
+            elif isinstance(parent_object, Device):
+                service_filter |= (Q(device=parent_object) & Q(ipaddresses=None))
+
+        services = Service.objects.restrict(request.user, 'view').filter(service_filter)
+
         return {
             'parent_prefixes_table': parent_prefixes_table,
             'duplicate_ips_table': duplicate_ips_table,
             'more_duplicate_ips': duplicate_ips.count() > 10,
             'related_ips_table': related_ips_table,
+            'services': services,
         }
 
 

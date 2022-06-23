@@ -99,8 +99,10 @@ class DeviceType(NetBoxModel):
         blank=True,
         help_text='Discrete part number (optional)'
     )
-    u_height = models.PositiveSmallIntegerField(
-        default=1,
+    u_height = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        default=1.0,
         verbose_name='Height (U)'
     )
     is_full_depth = models.BooleanField(
@@ -166,7 +168,7 @@ class DeviceType(NetBoxModel):
             ('model', self.model),
             ('slug', self.slug),
             ('part_number', self.part_number),
-            ('u_height', self.u_height),
+            ('u_height', float(self.u_height)),
             ('is_full_depth', self.is_full_depth),
             ('subdevice_role', self.subdevice_role),
             ('airflow', self.airflow),
@@ -654,10 +656,12 @@ class Device(NetBoxModel, ConfigContextModel):
         blank=True,
         null=True
     )
-    position = models.PositiveSmallIntegerField(
+    position = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
         blank=True,
         null=True,
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(1), MaxValueValidator(99.5)],
         verbose_name='Position (U)',
         help_text='The lowest-numbered unit occupied by the device'
     )
@@ -748,8 +752,12 @@ class Device(NetBoxModel, ConfigContextModel):
             return f'{self.name} ({self.asset_tag})'
         elif self.name:
             return self.name
+        elif self.virtual_chassis and self.asset_tag:
+            return f'{self.virtual_chassis.name}:{self.vc_position} ({self.asset_tag})'
         elif self.virtual_chassis:
             return f'{self.virtual_chassis.name}:{self.vc_position} ({self.pk})'
+        elif self.device_type and self.asset_tag:
+            return f'{self.device_type.manufacturer} {self.device_type.model} ({self.asset_tag})'
         elif self.device_type:
             return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
         return super().__str__()

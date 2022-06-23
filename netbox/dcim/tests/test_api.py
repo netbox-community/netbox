@@ -197,13 +197,13 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
         Site.objects.bulk_create(sites)
 
         parent_locations = (
-            Location.objects.create(site=sites[0], name='Parent Location 1', slug='parent-location-1'),
-            Location.objects.create(site=sites[1], name='Parent Location 2', slug='parent-location-2'),
+            Location.objects.create(site=sites[0], name='Parent Location 1', slug='parent-location-1', status=LocationStatusChoices.STATUS_ACTIVE),
+            Location.objects.create(site=sites[1], name='Parent Location 2', slug='parent-location-2', status=LocationStatusChoices.STATUS_ACTIVE),
         )
 
-        Location.objects.create(site=sites[0], name='Location 1', slug='location-1', parent=parent_locations[0])
-        Location.objects.create(site=sites[0], name='Location 2', slug='location-2', parent=parent_locations[0])
-        Location.objects.create(site=sites[0], name='Location 3', slug='location-3', parent=parent_locations[0])
+        Location.objects.create(site=sites[0], name='Location 1', slug='location-1', parent=parent_locations[0], status=LocationStatusChoices.STATUS_ACTIVE)
+        Location.objects.create(site=sites[0], name='Location 2', slug='location-2', parent=parent_locations[0], status=LocationStatusChoices.STATUS_ACTIVE)
+        Location.objects.create(site=sites[0], name='Location 3', slug='location-3', parent=parent_locations[0], status=LocationStatusChoices.STATUS_ACTIVE)
 
         cls.create_data = [
             {
@@ -211,18 +211,21 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
                 'slug': 'test-location-4',
                 'site': sites[1].pk,
                 'parent': parent_locations[1].pk,
+                'status': LocationStatusChoices.STATUS_PLANNED,
             },
             {
                 'name': 'Test Location 5',
                 'slug': 'test-location-5',
                 'site': sites[1].pk,
                 'parent': parent_locations[1].pk,
+                'status': LocationStatusChoices.STATUS_PLANNED,
             },
             {
                 'name': 'Test Location 6',
                 'slug': 'test-location-6',
                 'site': sites[1].pk,
                 'parent': parent_locations[1].pk,
+                'status': LocationStatusChoices.STATUS_PLANNED,
             },
         ]
 
@@ -327,15 +330,15 @@ class RackTest(APIViewTestCases.APIViewTestCase):
 
         # Retrieve all units
         response = self.client.get(url, **self.header)
-        self.assertEqual(response.data['count'], 42)
+        self.assertEqual(response.data['count'], 84)
 
         # Search for specific units
         response = self.client.get(f'{url}?q=3', **self.header)
-        self.assertEqual(response.data['count'], 13)
+        self.assertEqual(response.data['count'], 26)
         response = self.client.get(f'{url}?q=U3', **self.header)
-        self.assertEqual(response.data['count'], 11)
+        self.assertEqual(response.data['count'], 22)
         response = self.client.get(f'{url}?q=U10', **self.header)
-        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['count'], 2)
 
     def test_get_rack_elevation_svg(self):
         """
@@ -1507,6 +1510,8 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'speed': 1000000,
                 'duplex': 'full',
                 'vrf': vrfs[0].pk,
+                'poe_mode': InterfacePoEModeChoices.MODE_PD,
+                'poe_type': InterfacePoETypeChoices.TYPE_1_8023AF,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
             },

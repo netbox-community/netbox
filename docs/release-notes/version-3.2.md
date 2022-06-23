@@ -1,5 +1,69 @@
 # NetBox v3.2
 
+## v3.2.6 (FUTURE)
+
+---
+
+## v3.2.5 (2022-06-20)
+
+### Enhancements
+
+* [#8704](https://github.com/netbox-community/netbox/issues/8704) - Shift-click to select multiple objects in a list
+* [#8882](https://github.com/netbox-community/netbox/issues/8882) - Support filtering IP addresses by multiple parent prefixes
+* [#8893](https://github.com/netbox-community/netbox/issues/8893) - Include count of IP ranges under tenant view
+* [#9417](https://github.com/netbox-community/netbox/issues/9417) - Initialize manufacturer selection when inserting a new module
+* [#9501](https://github.com/netbox-community/netbox/issues/9501) - Add support for custom Jinja2 filters
+* [#9517](https://github.com/netbox-community/netbox/issues/9517) - Linkify related power port on power outlet view
+* [#9525](https://github.com/netbox-community/netbox/issues/9525) - Provide one-click edit link for objects in tables
+* [#9533](https://github.com/netbox-community/netbox/issues/9533) - Move Markdown reference to local documentation
+* [#9534](https://github.com/netbox-community/netbox/issues/9534) - Add VLAN group selector to interface bulk edit forms
+* [#9556](https://github.com/netbox-community/netbox/issues/9556) - Leave dropdown open upon selection for multi-select fields
+
+### Bug Fixes
+
+* [#8944](https://github.com/netbox-community/netbox/issues/8944) - Fix rendering of Markdown links with colons
+* [#9108](https://github.com/netbox-community/netbox/issues/9108) - Fix rendering of bracketed Markdown links
+* [#9374](https://github.com/netbox-community/netbox/issues/9374) - Improve performance when retrieving devices/VMs with config context data
+* [#9466](https://github.com/netbox-community/netbox/issues/9466) - Avoid sending webhooks after script/report failure
+* [#9480](https://github.com/netbox-community/netbox/issues/9480) - Fix sorting services & service templates by port numbers
+* [#9484](https://github.com/netbox-community/netbox/issues/9484) - Include services listening on "all IPs" under IP address view
+* [#9486](https://github.com/netbox-community/netbox/issues/9486) - Fix redirect URL when adding device components from the module view
+* [#9495](https://github.com/netbox-community/netbox/issues/9495) - Correct link to contacts in contact groups table column
+* [#9503](https://github.com/netbox-community/netbox/issues/9503) - Hyperlinks in rack elevation SVGs must always use absolute URLs
+* [#9512](https://github.com/netbox-community/netbox/issues/9512) - Fix duplicate site results when searching by ASN
+* [#9524](https://github.com/netbox-community/netbox/issues/9524) - Correct order of VLAN fields under VM interface creation form
+* [#9537](https://github.com/netbox-community/netbox/issues/9537) - Ensure consistent use of placeholder tag throughout UI
+* [#9549](https://github.com/netbox-community/netbox/issues/9549) - Fix device counts for rack list under rack role view
+
+---
+
+## v3.2.4 (2022-05-31)
+
+### Enhancements
+
+* [#8374](https://github.com/netbox-community/netbox/issues/8374) - Display device type and asset tag if name is blank but asset tag is populated
+* [#8922](https://github.com/netbox-community/netbox/issues/8922) - Add service list to IP address view
+* [#9098](https://github.com/netbox-community/netbox/issues/9098) - Add "other" types for power ports/outlets, pass-through ports
+* [#9239](https://github.com/netbox-community/netbox/issues/9239) - Enable filtering by contact group for all models which support contact assignment
+* [#9277](https://github.com/netbox-community/netbox/issues/9277) - Introduce `CSRF_COOKIE_NAME` configuration parameter
+* [#9347](https://github.com/netbox-community/netbox/issues/9347) - Include services in global search
+* [#9379](https://github.com/netbox-community/netbox/issues/9379) - Redirect to virtual chassis view after adding a member device
+* [#9451](https://github.com/netbox-community/netbox/issues/9451) - Add `export_raw` argument for TemplateColumn
+
+### Bug Fixes
+
+* [#9094](https://github.com/netbox-community/netbox/issues/9094) - Fix partial address search within Prefix and Aggregate filters
+* [#9291](https://github.com/netbox-community/netbox/issues/9291) - Improve data validation for MultiObjectVar script fields
+* [#9358](https://github.com/netbox-community/netbox/issues/9358) - Annotate circuit count for providers list under ASN view
+* [#9387](https://github.com/netbox-community/netbox/issues/9387) - Ensure ActionsColumn `extra_buttons` are always displayed
+* [#9402](https://github.com/netbox-community/netbox/issues/9402) - Fix custom field population when creating a virtual chassis
+* [#9407](https://github.com/netbox-community/netbox/issues/9407) - Clean up display of prefixes values when exporting prefixes list
+* [#9420](https://github.com/netbox-community/netbox/issues/9420) - Fix custom script class inheritance
+* [#9425](https://github.com/netbox-community/netbox/issues/9425) - Fix bulk import for object and multi-object custom fields
+* [#9430](https://github.com/netbox-community/netbox/issues/9430) - Fix passing of initial form data for DynamicModelChoiceFields
+
+---
+
 ## v3.2.3 (2022-05-12)
 
 ### Enhancements

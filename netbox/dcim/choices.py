@@ -24,6 +24,28 @@ class SiteStatusChoices(ChoiceSet):
 
 
 #
+# Locations
+#
+
+class LocationStatusChoices(ChoiceSet):
+    key = 'Location.status'
+
+    STATUS_PLANNED = 'planned'
+    STATUS_STAGING = 'staging'
+    STATUS_ACTIVE = 'active'
+    STATUS_DECOMMISSIONING = 'decommissioning'
+    STATUS_RETIRED = 'retired'
+
+    CHOICES = [
+        (STATUS_PLANNED, 'Planned', 'cyan'),
+        (STATUS_STAGING, 'Staging', 'blue'),
+        (STATUS_ACTIVE, 'Active', 'green'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
+        (STATUS_RETIRED, 'Retired', 'red'),
+    ]
+
+
+#
 # Racks
 #
 
@@ -354,6 +376,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_UBIQUITI_SMARTPOWER = 'ubiquiti-smartpower'
     # Other
     TYPE_HARDWIRED = 'hardwired'
+    TYPE_OTHER = 'other'
 
     CHOICES = (
         ('IEC 60320', (
@@ -471,6 +494,7 @@ class PowerPortTypeChoices(ChoiceSet):
         )),
         ('Other', (
             (TYPE_HARDWIRED, 'Hardwired'),
+            (TYPE_OTHER, 'Other'),
         )),
     )
 
@@ -580,6 +604,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_UBIQUITI_SMARTPOWER = 'ubiquiti-smartpower'
     # Other
     TYPE_HARDWIRED = 'hardwired'
+    TYPE_OTHER = 'other'
 
     CHOICES = (
         ('IEC 60320', (
@@ -690,6 +715,7 @@ class PowerOutletTypeChoices(ChoiceSet):
         )),
         ('Other', (
             (TYPE_HARDWIRED, 'Hardwired'),
+            (TYPE_OTHER, 'Other'),
         )),
     )
 
@@ -999,6 +1025,51 @@ class InterfaceModeChoices(ChoiceSet):
     )
 
 
+class InterfacePoEModeChoices(ChoiceSet):
+
+    MODE_PD = 'pd'
+    MODE_PSE = 'pse'
+
+    CHOICES = (
+        (MODE_PD, 'Powered device (PD)'),
+        (MODE_PSE, 'Power sourcing equipment (PSE)'),
+    )
+
+
+class InterfacePoETypeChoices(ChoiceSet):
+
+    TYPE_1_8023AF = 'type1-ieee802.3af'
+    TYPE_2_8023AT = 'type2-ieee802.3at'
+    TYPE_3_8023BT = 'type3-ieee802.3bt'
+    TYPE_4_8023BT = 'type4-ieee802.3bt'
+
+    PASSIVE_24V_2PAIR = 'passive-24v-2pair'
+    PASSIVE_24V_4PAIR = 'passive-24v-4pair'
+    PASSIVE_48V_2PAIR = 'passive-48v-2pair'
+    PASSIVE_48V_4PAIR = 'passive-48v-4pair'
+
+    CHOICES = (
+        (
+            'IEEE Standard',
+            (
+                (TYPE_1_8023AF, '802.3af (Type 1)'),
+                (TYPE_2_8023AT, '802.3at (Type 2)'),
+                (TYPE_3_8023BT, '802.3bt (Type 3)'),
+                (TYPE_4_8023BT, '802.3bt (Type 4)'),
+            )
+        ),
+        (
+            'Passive',
+            (
+                (PASSIVE_24V_2PAIR, 'Passive 24V (2-pair)'),
+                (PASSIVE_24V_4PAIR, 'Passive 24V (4-pair)'),
+                (PASSIVE_48V_2PAIR, 'Passive 48V (2-pair)'),
+                (PASSIVE_48V_2PAIR, 'Passive 48V (4-pair)'),
+            )
+        ),
+    )
+
+
 #
 # FrontPorts/RearPorts
 #
@@ -1047,6 +1118,7 @@ class PortTypeChoices(ChoiceSet):
     TYPE_URM_P2 = 'urm-p2'
     TYPE_URM_P4 = 'urm-p4'
     TYPE_URM_P8 = 'urm-p8'
+    TYPE_OTHER = 'other'
 
     CHOICES = (
         (
@@ -1099,6 +1171,12 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_URM_P4, 'URM-P4'),
                 (TYPE_URM_P8, 'URM-P8'),
                 (TYPE_SPLICE, 'Splice'),
+            ),
+        ),
+        (
+            'Other',
+            (
+                (TYPE_OTHER, 'Other'),
             )
         )
     )

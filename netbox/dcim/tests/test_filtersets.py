@@ -265,9 +265,9 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
             location.save()
 
         locations = (
-            Location(name='Location 1', slug='location-1', site=sites[0], parent=parent_locations[0], description='A'),
-            Location(name='Location 2', slug='location-2', site=sites[1], parent=parent_locations[1], description='B'),
-            Location(name='Location 3', slug='location-3', site=sites[2], parent=parent_locations[2], description='C'),
+            Location(name='Location 1', slug='location-1', site=sites[0], parent=parent_locations[0], status=LocationStatusChoices.STATUS_PLANNED, description='A'),
+            Location(name='Location 2', slug='location-2', site=sites[1], parent=parent_locations[1], status=LocationStatusChoices.STATUS_STAGING, description='B'),
+            Location(name='Location 3', slug='location-3', site=sites[2], parent=parent_locations[2], status=LocationStatusChoices.STATUS_DECOMMISSIONING, description='C'),
         )
         for location in locations:
             location.save()
@@ -278,6 +278,10 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_slug(self):
         params = {'slug': ['location-1', 'location-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_status(self):
+        params = {'status': [LocationStatusChoices.STATUS_PLANNED, LocationStatusChoices.STATUS_STAGING]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -2540,14 +2544,109 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis, vc_position=2, vc_priority=2)
 
         interfaces = (
-            Interface(device=devices[0], module=modules[0], name='Interface 1', label='A', type=InterfaceTypeChoices.TYPE_1GE_SFP, enabled=True, mgmt_only=True, mtu=100, mode=InterfaceModeChoices.MODE_ACCESS, mac_address='00-00-00-00-00-01', description='First', vrf=vrfs[0], speed=1000000, duplex='half'),
-            Interface(device=devices[1], module=modules[1], name='Interface 2', label='B', type=InterfaceTypeChoices.TYPE_1GE_GBIC, enabled=True, mgmt_only=True, mtu=200, mode=InterfaceModeChoices.MODE_TAGGED, mac_address='00-00-00-00-00-02', description='Second', vrf=vrfs[1], speed=1000000, duplex='full'),
-            Interface(device=devices[2], module=modules[2], name='Interface 3', label='C', type=InterfaceTypeChoices.TYPE_1GE_FIXED, enabled=False, mgmt_only=False, mtu=300, mode=InterfaceModeChoices.MODE_TAGGED_ALL, mac_address='00-00-00-00-00-03', description='Third', vrf=vrfs[2], speed=100000, duplex='half'),
-            Interface(device=devices[3], name='Interface 4', label='D', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True, tx_power=40, speed=100000, duplex='full'),
-            Interface(device=devices[3], name='Interface 5', label='E', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True, tx_power=40),
-            Interface(device=devices[3], name='Interface 6', label='F', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False, mgmt_only=False, tx_power=40),
-            Interface(device=devices[3], name='Interface 7', type=InterfaceTypeChoices.TYPE_80211AC, rf_role=WirelessRoleChoices.ROLE_AP, rf_channel=WirelessChannelChoices.CHANNEL_24G_1, rf_channel_frequency=2412, rf_channel_width=22),
-            Interface(device=devices[3], name='Interface 8', type=InterfaceTypeChoices.TYPE_80211AC, rf_role=WirelessRoleChoices.ROLE_STATION, rf_channel=WirelessChannelChoices.CHANNEL_5G_32, rf_channel_frequency=5160, rf_channel_width=20),
+            Interface(
+                device=devices[0],
+                module=modules[0],
+                name='Interface 1',
+                label='A',
+                type=InterfaceTypeChoices.TYPE_1GE_SFP,
+                enabled=True,
+                mgmt_only=True,
+                mtu=100,
+                mode=InterfaceModeChoices.MODE_ACCESS,
+                mac_address='00-00-00-00-00-01',
+                description='First',
+                vrf=vrfs[0],
+                speed=1000000,
+                duplex='half',
+                poe_mode=InterfacePoEModeChoices.MODE_PSE,
+                poe_type=InterfacePoETypeChoices.TYPE_1_8023AF
+            ),
+            Interface(
+                device=devices[1],
+                module=modules[1],
+                name='Interface 2',
+                label='B',
+                type=InterfaceTypeChoices.TYPE_1GE_GBIC,
+                enabled=True,
+                mgmt_only=True,
+                mtu=200,
+                mode=InterfaceModeChoices.MODE_TAGGED,
+                mac_address='00-00-00-00-00-02',
+                description='Second',
+                vrf=vrfs[1],
+                speed=1000000,
+                duplex='full',
+                poe_mode=InterfacePoEModeChoices.MODE_PD,
+                poe_type=InterfacePoETypeChoices.TYPE_1_8023AF
+            ),
+            Interface(
+                device=devices[2],
+                module=modules[2],
+                name='Interface 3',
+                label='C',
+                type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+                enabled=False,
+                mgmt_only=False,
+                mtu=300,
+                mode=InterfaceModeChoices.MODE_TAGGED_ALL,
+                mac_address='00-00-00-00-00-03',
+                description='Third',
+                vrf=vrfs[2],
+                speed=100000,
+                duplex='half',
+                poe_mode=InterfacePoEModeChoices.MODE_PSE,
+                poe_type=InterfacePoETypeChoices.TYPE_2_8023AT
+            ),
+            Interface(
+                device=devices[3],
+                name='Interface 4',
+                label='D',
+                type=InterfaceTypeChoices.TYPE_OTHER,
+                enabled=True,
+                mgmt_only=True,
+                tx_power=40,
+                speed=100000,
+                duplex='full',
+                poe_mode=InterfacePoEModeChoices.MODE_PD,
+                poe_type=InterfacePoETypeChoices.TYPE_2_8023AT
+            ),
+            Interface(
+                device=devices[3],
+                name='Interface 5',
+                label='E',
+                type=InterfaceTypeChoices.TYPE_OTHER,
+                enabled=True,
+                mgmt_only=True,
+                tx_power=40
+            ),
+            Interface(
+                device=devices[3],
+                name='Interface 6',
+                label='F',
+                type=InterfaceTypeChoices.TYPE_OTHER,
+                enabled=False,
+                mgmt_only=False,
+                tx_power=40
+            ),
+            Interface(
+                device=devices[3],
+                name='Interface 7',
+                type=InterfaceTypeChoices.TYPE_80211AC,
+                rf_role=WirelessRoleChoices.ROLE_AP,
+                rf_channel=WirelessChannelChoices.CHANNEL_24G_1,
+                rf_channel_frequency=2412,
+                rf_channel_width=22
+            ),
+            Interface(
+                device=devices[3],
+                name='Interface 8',
+                type=InterfaceTypeChoices.TYPE_80211AC,
+                rf_role=WirelessRoleChoices.ROLE_STATION,
+                rf_channel=WirelessChannelChoices.CHANNEL_5G_32,
+                rf_channel_frequency=5160,
+                rf_channel_width=20
+            ),
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -2592,6 +2691,14 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'mgmt_only': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'mgmt_only': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_poe_mode(self):
+        params = {'poe_mode': [InterfacePoEModeChoices.MODE_PD, InterfacePoEModeChoices.MODE_PSE]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_poe_type(self):
+        params = {'poe_type': [InterfacePoETypeChoices.TYPE_1_8023AF, InterfacePoETypeChoices.TYPE_2_8023AT]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_mode(self):

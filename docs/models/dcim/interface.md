@@ -11,6 +11,10 @@ Interfaces may be physical or virtual in nature, but only physical interfaces ma
 
 Physical interfaces may be arranged into a link aggregation group (LAG) and associated with a parent LAG (virtual) interface. LAG interfaces can be recursively nested to model bonding of trunk groups. Like all virtual interfaces, LAG interfaces cannot be connected physically.
 
+### Power over Ethernet (PoE)
+
+Physical interfaces can be assigned a PoE mode to indicate PoE capability: power supplying equipment (PSE) or powered device (PD). Additionally, a PoE mode may be specified. This can be one of the listed IEEE 802.3 standards, or a passive setting (24 or 48 volts across two or four pairs).
+
 ### Wireless Interfaces
 
 Wireless interfaces may additionally track the following attributes:

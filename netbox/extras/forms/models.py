@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 
-from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
+from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
@@ -40,8 +40,10 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        ('Custom Field', ('content_types', 'name', 'label', 'type', 'object_type', 'weight', 'required', 'description')),
-        ('Behavior', ('filter_logic',)),
+        ('Custom Field', (
+            'content_types', 'name', 'label', 'group_name', 'type', 'object_type', 'weight', 'required', 'description',
+        )),
+        ('Behavior', ('filter_logic', 'ui_visibility')),
         ('Values', ('default', 'choices')),
         ('Validation', ('validation_minimum', 'validation_maximum', 'validation_regex')),
     )
@@ -56,6 +58,7 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'type': StaticSelect(),
             'filter_logic': StaticSelect(),
+            'ui_visibility': StaticSelect(),
         }
 
 
@@ -163,6 +166,10 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         queryset=Site.objects.all(),
         required=False
     )
+    locations = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False
+    )
     device_types = DynamicModelMultipleChoiceField(
         queryset=DeviceType.objects.all(),
         required=False
@@ -199,15 +206,22 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         queryset=Tag.objects.all(),
         required=False
     )
-    data = JSONField(
-        label=''
+    data = JSONField()
+
+    fieldsets = (
+        ('Config Context', ('name', 'weight', 'description', 'data', 'is_active')),
+        ('Assignment', (
+            'regions', 'site_groups', 'sites', 'locations', 'device_types', 'roles', 'platforms', 'cluster_types',
+            'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags',
+        )),
     )
 
     class Meta:
         model = ConfigContext
         fields = (
-            'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites', 'roles', 'device_types',
-            'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data',
+            'name', 'weight', 'description', 'data', 'is_active', 'regions', 'site_groups', 'sites', 'locations',
+            'roles', 'device_types', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
+            'tenants', 'tags',
         )
 
 

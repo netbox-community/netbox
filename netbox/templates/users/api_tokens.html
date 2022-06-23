@@ -50,7 +50,14 @@
                                     <span class="badge bg-danger">Disabled</span>
                                 {% endif %}
                             </div>
-                        </div>
+                            <div class="col col-md-3">
+                                <small class="text-muted">Allowed Source IPs</small><br />
+                                {% if token.allowed_ips %}
+                                    {{ token.allowed_ips|join:', ' }}
+                                {% else %}
+                                    <span>Any</span>
+                                {% endif %}
+                            </div>                        </div>
                         {% if token.description %}
                             <br /><span>{{ token.description }}</span>
                         {% endif %}
