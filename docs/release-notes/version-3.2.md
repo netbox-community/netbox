@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#7702](https://github.com/netbox-community/netbox/issues/7702) - Enable dynamic configuration for default powerfeed attributes
 * [#9396](https://github.com/netbox-community/netbox/issues/9396) - Allow filtering modules by bay ID
 
 ### Bug Fixes
