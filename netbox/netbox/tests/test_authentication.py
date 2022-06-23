@@ -31,6 +31,10 @@ class TokenAuthenticationTestCase(APITestCase):
         response = self.client.get(url, HTTP_AUTHORIZATION=f'Token {token.key}')
         self.assertEqual(response.status_code, 200)
 
+        # Check that the token's last_used time has been updated
+        token.refresh_from_db()
+        self.assertIsNotNone(token.last_used)
+
     @override_settings(LOGIN_REQUIRED=True, EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_token_expiration(self):
         url = reverse('dcim-api:site-list')

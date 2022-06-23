@@ -35,6 +35,14 @@
                                 {% endif %}
                             </div>
                             <div class="col col-md-3">
+                                <small class="text-muted">Last Used</small><br />
+                                {% if token.last_used %}
+                                    {{ token.last_used|annotated_date }}
+                                {% else %}
+                                    <span>Never</span>
+                                {% endif %}
+                            </div>
+                            <div class="col col-md-3">
                                 <small class="text-muted">Create/Edit/Delete Operations</small><br />
                                 {% if token.write_enabled %}
                                     <span class="badge bg-success">Enabled</span>
