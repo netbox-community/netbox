@@ -2,6 +2,15 @@
 
 ## v3.2.6 (FUTURE)
 
+### Enhancements
+
+* [#9396](https://github.com/netbox-community/netbox/issues/9396) - Allow filtering modules by bay ID
+
+### Bug Fixes
+
+* [#9575](https://github.com/netbox-community/netbox/issues/9575) - Fix AttributeError exception for FHRP group with an IP address assigned
+* [#9597](https://github.com/netbox-community/netbox/issues/9597) - Include `installed_module` in module bay REST API serializer
+
 ---
 
 ## v3.2.5 (2022-06-20)
