@@ -106,7 +106,7 @@ class PowerFeed(NetBoxModel, PathEndpoint, LinkTermination):
         default=PowerFeedPhaseChoices.PHASE_SINGLE
     )
     voltage = models.SmallIntegerField(
-        default=ConfigItem('POWERFEED_DEFAULT_VOLTAGE')
+        default=ConfigItem('POWERFEED_DEFAULT_VOLTAGE'),
         validators=[ExclusionValidator([0])]
     )
     amperage = models.PositiveSmallIntegerField(
@@ -115,7 +115,7 @@ class PowerFeed(NetBoxModel, PathEndpoint, LinkTermination):
     )
     max_utilization = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
-        default=ConfigItem('POWERFEED_DEFAULT_MAX_UTILIZATION')
+        default=ConfigItem('POWERFEED_DEFAULT_MAX_UTILIZATION'),
         help_text="Maximum permissible draw (percentage)"
     )
     available_power = models.PositiveIntegerField(
