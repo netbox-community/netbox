@@ -74,7 +74,7 @@ class TokenSerializer(ValidatedModelSerializer):
     class Meta:
         model = Token
         fields = (
-            'id', 'url', 'display', 'user', 'created', 'expires', 'key', 'write_enabled', 'description',
+            'id', 'url', 'display', 'user', 'created', 'expires', 'last_used', 'key', 'write_enabled', 'description',
             'allowed_ips',
         )
 

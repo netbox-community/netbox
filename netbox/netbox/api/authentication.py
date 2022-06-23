@@ -44,16 +44,15 @@ class TokenAuthentication(authentication.TokenAuthentication):
         except model.DoesNotExist:
             raise exceptions.AuthenticationFailed("Invalid token")
 
-        # Update last used, but only once a minute. This reduces the write load on the db
+        # Update last used, but only once per minute at most. This reduces write load on the database
         if not token.last_used or (timezone.now() - token.last_used).total_seconds() > 60:
             # If maintenance mode is enabled, assume the database is read-only, and disable updating the token's
             # last_used time upon authentication.
             if get_config().MAINTENANCE_MODE:
                 logger = logging.getLogger('netbox.auth.login')
-                logger.warning("Maintenance mode enabled: disabling update of token's last used timestamp")
+                logger.debug("Maintenance mode enabled: Disabling update of token's last used timestamp")
             else:
-                token.last_used = timezone.now()
-                token.save()
+                Token.objects.filter(pk=token.pk).update(last_used=timezone.now())
 
         # Enforce the Token's expiration time, if one has been set.
         if token.is_expired:
