@@ -30,6 +30,10 @@
 * [#9536](https://github.com/netbox-community/netbox/issues/9536) - Track API token usage times
 * [#9582](https://github.com/netbox-community/netbox/issues/9582) - Enable assigning config contexts based on device location
 
+### Plugins API
+
+* [#9414](https://github.com/netbox-community/netbox/issues/9414) - Add `clone()` method to NetBoxModel for copying instance attributes
+
 ### Other Changes
 
 * [#9261](https://github.com/netbox-community/netbox/issues/9261) - `NetBoxTable` no longer automatically clears pre-existing calls to `prefetch_related()` on its queryset

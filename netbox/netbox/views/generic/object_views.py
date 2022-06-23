@@ -394,11 +394,11 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
                 if '_addanother' in request.POST:
                     redirect_url = request.path
 
-                    # If the object has clone_fields, pre-populate a new instance of the form
+                    # If cloning is supported, pre-populate a new instance of the form
                     params = prepare_cloned_fields(obj)
-                    if 'return_url' in request.GET:
-                        params['return_url'] = request.GET.get('return_url')
                     if params:
+                        if 'return_url' in request.GET:
+                            params['return_url'] = request.GET.get('return_url')
                         redirect_url += f"?{params.urlencode()}"
 
                     return redirect(redirect_url)

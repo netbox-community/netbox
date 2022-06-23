@@ -282,26 +282,22 @@ def render_jinja2(template_code, context):
 
 def prepare_cloned_fields(instance):
     """
-    Compile an object's `clone_fields` list into a string of URL query parameters. Tags are automatically cloned where
-    applicable.
+    Generate a QueryDict comprising attributes from an object's clone() method.
     """
+    # Generate the clone attributes from the instance
+    if not hasattr(instance, 'clone'):
+        return None
+    attrs = instance.clone()
+
+    # Prepare querydict parameters
     params = []
-    for field_name in getattr(instance, 'clone_fields', []):
-        field = instance._meta.get_field(field_name)
-        field_value = field.value_from_object(instance)
-
-        # Pass False as null for boolean fields
-        if field_value is False:
-            params.append((field_name, ''))
-
-        # Omit empty values
-        elif field_value not in (None, ''):
-            params.append((field_name, field_value))
-
-    # Copy tags
-    if is_taggable(instance):
-        for tag in instance.tags.all():
-            params.append(('tags', tag.pk))
+    for key, value in attrs.items():
+        if type(value) in (list, tuple):
+            params.extend([(key, v) for v in value])
+        elif value not in (False, None):
+            params.append((key, value))
+        else:
+            params.append((key, ''))
 
     # Return a QueryDict with the parameters
     return QueryDict('&'.join([f'{k}={v}' for k, v in params]), mutable=True)
