@@ -13,6 +13,8 @@
 
 #### PoE Interface Attributes ([#1099](https://github.com/netbox-community/netbox/issues/1099))
 
+#### Restrict API Tokens by Client IP ([#8233](https://github.com/netbox-community/netbox/issues/8233))
+
 ### Enhancements
 
 * [#1202](https://github.com/netbox-community/netbox/issues/1202) - Support overlapping assignment of NAT IP addresses

@@ -3,13 +3,35 @@ from rest_framework import authentication, exceptions
 from rest_framework.permissions import BasePermission, DjangoObjectPermissions, SAFE_METHODS
 
 from users.models import Token
+from utilities.request import get_client_ip
 
 
 class TokenAuthentication(authentication.TokenAuthentication):
     """
-    A custom authentication scheme which enforces Token expiration times.
+    A custom authentication scheme which enforces Token expiration times and source IP restrictions.
     """
     model = Token
+
+    def authenticate(self, request):
+        result = super().authenticate(request)
+
+        if result:
+            token = result[1]
+
+            # Enforce source IP restrictions (if any) set on the token
+            if token.allowed_ips:
+                client_ip = get_client_ip(request)
+                if client_ip is None:
+                    raise exceptions.AuthenticationFailed(
+                        "Client IP address could not be determined for validation. Check that the HTTP server is "
+                        "correctly configured to pass the required header(s)."
+                    )
+                if not token.validate_client_ip(client_ip):
+                    raise exceptions.AuthenticationFailed(
+                        f"Source IP {client_ip} is not permitted to authenticate using this token."
+                    )
+
+        return result
 
     def authenticate_credentials(self, key):
         model = self.get_model()
