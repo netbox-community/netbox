@@ -64,7 +64,12 @@ class TokenSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:token-detail')
     key = serializers.CharField(min_length=40, max_length=40, allow_blank=True, required=False)
     user = NestedUserSerializer()
-    allowed_ips = serializers.ListField(child=IPNetworkSerializer())
+    allowed_ips = serializers.ListField(
+        child=IPNetworkSerializer(),
+        required=False,
+        allow_empty=True,
+        default=[]
+    )
 
     class Meta:
         model = Token
