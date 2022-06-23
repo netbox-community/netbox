@@ -4,20 +4,18 @@ import os
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
-from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from netaddr import IPNetwork
 
 from ipam.fields import IPNetworkField
 from netbox.config import get_config
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import flatten_dict
 from .constants import *
-
-import ipaddress
 
 __all__ = (
     'ObjectPermission',
@@ -259,7 +257,7 @@ class Token(models.Model):
             return True
 
         for ip_network in self.allowed_ips:
-            if client_ip in ipaddress.ip_network(ip_network):
+            if client_ip in IPNetwork(ip_network):
                 return True
 
         return False

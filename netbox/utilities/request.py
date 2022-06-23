@@ -1,4 +1,4 @@
-import ipaddress
+from netaddr import IPAddress
 
 __all__ = (
     'get_client_ip',
@@ -19,7 +19,7 @@ def get_client_ip(request, additional_headers=()):
         if header in request.META:
             client_ip = request.META[header].split(',')[0]
             try:
-                return ipaddress.ip_address(client_ip)
+                return IPAddress(client_ip)
             except ValueError:
                 raise ValueError(f"Invalid IP address set for {header}: {client_ip}")
 

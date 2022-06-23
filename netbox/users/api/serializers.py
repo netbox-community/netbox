@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
-from netbox.api import ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
+from netbox.api import ContentTypeField, IPNetworkSerializer, SerializedPKRelatedField, ValidatedModelSerializer
 from users.models import ObjectPermission, Token
 from .nested_serializers import *
 
@@ -64,6 +64,7 @@ class TokenSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:token-detail')
     key = serializers.CharField(min_length=40, max_length=40, allow_blank=True, required=False)
     user = NestedUserSerializer()
+    allowed_ips = serializers.ListField(child=IPNetworkSerializer())
 
     class Meta:
         model = Token
