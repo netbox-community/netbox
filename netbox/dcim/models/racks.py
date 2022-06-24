@@ -370,7 +370,8 @@ class Rack(NetBoxModel):
             legend_width=RACK_ELEVATION_DEFAULT_LEGEND_WIDTH,
             margin_width=RACK_ELEVATION_DEFAULT_MARGIN_WIDTH,
             include_images=True,
-            base_url=None
+            base_url=None,
+            highlight_params=None
     ):
         """
         Return an SVG of the rack elevation
@@ -394,7 +395,8 @@ class Rack(NetBoxModel):
             margin_width=margin_width,
             user=user,
             include_images=include_images,
-            base_url=base_url
+            base_url=base_url,
+            highlight_params=highlight_params
         )
 
         return elevation.render(face)

@@ -7,12 +7,13 @@ from svgwrite.shapes import Rect
 from svgwrite.text import Text
 
 from django.conf import settings
+from django.core.exceptions import FieldError
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.http import urlencode
 
 from netbox.config import get_config
 from utilities.utils import foreground_color, array_to_ranges
-from dcim.choices import DeviceFaceChoices
 from dcim.constants import RACK_ELEVATION_BORDER_WIDTH
 
 
@@ -51,12 +52,17 @@ class RackElevationSVG:
     Use this class to render a rack elevation as an SVG image.
 
     :param rack: A NetBox Rack instance
+    :param unit_width: Rendered unit width, in pixels
+    :param unit_height: Rendered unit height, in pixels
+    :param legend_width: Legend width, in pixels (where the unit labels appear)
+    :param margin_width: Margin width, in pixels (where reservations appear)
     :param user: User instance. If specified, only devices viewable by this user will be fully displayed.
     :param include_images: If true, the SVG document will embed front/rear device face images, where available
     :param base_url: Base URL for links within the SVG document. If none, links will be relative.
+    :param highlight_params: Iterable of two-tuples which identifies attributes of devices to highlight
     """
     def __init__(self, rack, unit_height=None, unit_width=None, legend_width=None, margin_width=None, user=None,
-                 include_images=True, base_url=None):
+                 include_images=True, base_url=None, highlight_params=None):
         self.rack = rack
         self.include_images = include_images
         self.base_url = base_url.rstrip('/') if base_url is not None else ''
@@ -73,6 +79,17 @@ class RackElevationSVG:
         if user is not None:
             permitted_devices = permitted_devices.restrict(user, 'view')
         self.permitted_device_ids = permitted_devices.values_list('pk', flat=True)
+
+        # Determine device(s) to highlight within the elevation (if any)
+        self.highlight_devices = []
+        if highlight_params:
+            q = Q()
+            for k, v in highlight_params:
+                q |= Q(**{k: v})
+            try:
+                self.highlight_devices = permitted_devices.filter(q)
+            except FieldError:
+                pass
 
     @staticmethod
     def _add_gradient(drawing, id_, color):
@@ -123,40 +140,44 @@ class RackElevationSVG:
     def _draw_device(self, device, coords, size, color=None, image=None):
         name = get_device_name(device)
         description = get_device_description(device)
+        text_color = f'#{foreground_color(color)}' if color else '#000000'
         text_coords = (
             coords[0] + size[0] / 2,
             coords[1] + size[1] / 2
         )
-        text_color = f'#{foreground_color(color)}' if color else '#000000'
+
+        # Determine whether highlighting is in use, and if so, whether to shade this device
+        is_shaded = self.highlight_devices and device not in self.highlight_devices
+        css_extra = ' shaded' if is_shaded else ''
 
         # Create hyperlink element
-        link = Hyperlink(
-            href='{}{}'.format(
-                self.base_url,
-                reverse('dcim:device', kwargs={'pk': device.pk})
-            ),
-            target='_blank',
-        )
+        link = Hyperlink(href=f'{self.base_url}{device.get_absolute_url()}', target='_blank')
         link.set_desc(description)
+
+        # Add rect element to hyperlink
         if color:
-            link.add(Rect(coords, size, style=f'fill: #{color}', class_='slot'))
+            link.add(Rect(coords, size, style=f'fill: #{color}', class_=f'slot{css_extra}'))
         else:
-            link.add(Rect(coords, size, class_='slot blocked'))
-        link.add(Text(name, insert=text_coords, fill=text_color))
+            link.add(Rect(coords, size, class_=f'slot blocked{css_extra}'))
+        link.add(Text(name, insert=text_coords, fill=text_color, class_=f'label{css_extra}'))
 
         # Embed device type image if provided
         if self.include_images and image:
             image = Image(
-                href='{}{}'.format(self.base_url, image.url),
+                href=f'{self.base_url}{image.url}',
                 insert=coords,
                 size=size,
-                class_='device-image'
+                class_=f'device-image{css_extra}'
             )
             image.fit(scale='slice')
             link.add(image)
-            link.add(Text(name, insert=text_coords, stroke='black',
-                     stroke_width='0.2em', stroke_linejoin='round', class_='device-image-label'))
-            link.add(Text(name, insert=text_coords, fill='white', class_='device-image-label'))
+            link.add(
+                Text(name, insert=text_coords, stroke='black', stroke_width='0.2em', stroke_linejoin='round',
+                     class_=f'device-image-label{css_extra}')
+            )
+            link.add(
+                Text(name, insert=text_coords, fill='white', class_=f'device-image-label{css_extra}')
+            )
 
         self.drawing.add(link)
 

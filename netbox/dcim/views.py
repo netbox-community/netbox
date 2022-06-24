@@ -639,6 +639,11 @@ class RackView(generic.ObjectView):
 
         device_count = Device.objects.restrict(request.user, 'view').filter(rack=instance).count()
 
+        # Determine any additional parameters to pass when embedding the rack elevations
+        svg_extra = '&'.join([
+            f'highlight=id:{pk}' for pk in request.GET.getlist('device')
+        ])
+
         return {
             'device_count': device_count,
             'reservations': reservations,
@@ -646,6 +651,7 @@ class RackView(generic.ObjectView):
             'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
+            'svg_extra': svg_extra,
         }
 
 
