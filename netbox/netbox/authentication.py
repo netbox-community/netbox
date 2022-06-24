@@ -1,7 +1,5 @@
 import logging
 from collections import defaultdict
-import requests
-from rich import print
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
