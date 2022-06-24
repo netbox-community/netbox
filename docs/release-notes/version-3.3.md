@@ -19,6 +19,7 @@
 
 * [#1202](https://github.com/netbox-community/netbox/issues/1202) - Support overlapping assignment of NAT IP addresses
 * [#4350](https://github.com/netbox-community/netbox/issues/4350) - Illustrate reservations vertically alongside rack elevations
+* [#4434](https://github.com/netbox-community/netbox/issues/4434) - Enable highlighting devices within rack elevations
 * [#5303](https://github.com/netbox-community/netbox/issues/5303) - A virtual machine may be assigned to a site and/or cluster
 * [#7120](https://github.com/netbox-community/netbox/issues/7120) - Add `termination_date` field to Circuit
 * [#7744](https://github.com/netbox-community/netbox/issues/7744) - Add `status` field to Location

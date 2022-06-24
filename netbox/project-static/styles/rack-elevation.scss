@@ -48,6 +48,13 @@ svg {
     visibility: hidden;
   }
 
+  rect.shaded, image.shaded {
+    opacity: 25%;
+  }
+  text.shaded {
+    opacity: 50%;
+  }
+
   // Rack elevation container.
   .rack {
     fill: none;

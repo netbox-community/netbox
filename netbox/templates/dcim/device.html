@@ -49,6 +49,11 @@
                             <td>
                                 {% if object.rack %}
                                     <a href="{% url 'dcim:rack' pk=object.rack.pk %}">{{ object.rack }}</a>
+                                    <div class="float-end noprint">
+                                      <a href="{% url 'dcim:rack' pk=object.rack.pk %}?device={{ object.pk }}" class="btn btn-primary btn-sm" title="Highlight device">
+                                        <i class="mdi mdi-view-day-outline"></i>
+                                      </a>
+                                    </div>
                                 {% else %}
                                     {{ ''|placeholder }}
                                 {% endif %}
