@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from circuits.models import *
-from dcim.models import Region, Site, SiteGroup
+from dcim.models import Location, Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
@@ -150,6 +150,14 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         },
         required=False
     )
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        query_params={
+            'region_id': '$region',
+            'site_id': '$site',
+        },
+        required=False
+    )
     provider_network = DynamicModelChoiceField(
         queryset=ProviderNetwork.objects.all(),
         required=False
@@ -158,7 +166,7 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = CircuitTermination
         fields = [
-            'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'provider_network', 'mark_connected',
+            'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'location', 'provider_network', 'mark_connected',
             'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description',
         ]
         help_texts = {

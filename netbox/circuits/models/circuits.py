@@ -154,6 +154,13 @@ class CircuitTermination(WebhooksMixin, ChangeLoggedModel, LinkTermination):
         blank=True,
         null=True
     )
+    location = models.ForeignKey(
+        to='dcim.Location',
+        on_delete=models.PROTECT,
+        related_name='circuit_terminations',
+        blank=True,
+        null=True
+    )
     provider_network = models.ForeignKey(
         to='circuits.ProviderNetwork',
         on_delete=models.PROTECT,
@@ -204,9 +211,10 @@ class CircuitTermination(WebhooksMixin, ChangeLoggedModel, LinkTermination):
 
         # Must define either site *or* provider network
         if self.site is None and self.provider_network is None:
-            raise ValidationError("A circuit termination must attach to either a site or a provider network.")
+            raise ValidationError("A circuit termination must attach to either a site [+optionally a location] or a provider network.")
+
         if self.site and self.provider_network:
-            raise ValidationError("A circuit termination cannot attach to both a site and a provider network.")
+            raise ValidationError("A circuit termination cannot attach to both a site [+optionally a location] and a provider network.")
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)

@@ -9,7 +9,7 @@
     IF YOUR PULL REQUEST DOES NOT REFERENCE AN ACCEPTED BUG REPORT OR
     FEATURE REQUEST, IT WILL BE MARKED AS INVALID AND CLOSED.
 -->
-### Fixes: <ISSUE NUMBER GOES HERE>
+### Fixes: 9604
 <!--
     Please include a summary of the proposed changes below.
 -->
