@@ -106,6 +106,9 @@ class CablePathTestCase(TestCase):
         self.assertPathIsSet(interface1, path1)
         self.assertPathIsSet(interface2, path2)
 
+        # Test SVG generation
+        interface1.get_trace_svg()
+
         # Delete cable 1
         cable1.delete()
 
@@ -141,6 +144,9 @@ class CablePathTestCase(TestCase):
         consoleserverport1.refresh_from_db()
         self.assertPathIsSet(consoleport1, path1)
         self.assertPathIsSet(consoleserverport1, path2)
+
+        # Test SVG generation
+        consoleport1.get_trace_svg()
 
         # Delete cable 1
         cable1.delete()
@@ -178,6 +184,9 @@ class CablePathTestCase(TestCase):
         self.assertPathIsSet(powerport1, path1)
         self.assertPathIsSet(poweroutlet1, path2)
 
+        # Test SVG generation
+        powerport1.get_trace_svg()
+
         # Delete cable 1
         cable1.delete()
 
@@ -213,6 +222,9 @@ class CablePathTestCase(TestCase):
         powerfeed1.refresh_from_db()
         self.assertPathIsSet(powerport1, path1)
         self.assertPathIsSet(powerfeed1, path2)
+
+        # Test SVG generation
+        powerport1.get_trace_svg()
 
         # Delete cable 1
         cable1.delete()
@@ -253,6 +265,9 @@ class CablePathTestCase(TestCase):
         self.assertPathIsSet(interface1, path1)
         self.assertPathIsSet(interface2, path2)
         self.assertPathIsSet(interface3, path2)
+
+        # Test SVG generation
+        interface1.get_trace_svg()
 
         # Delete cable 1
         cable1.delete()
@@ -302,6 +317,9 @@ class CablePathTestCase(TestCase):
         self.assertPathIsSet(interface2, path1)
         self.assertPathIsSet(interface3, path2)
         self.assertPathIsSet(interface4, path2)
+
+        # Test SVG generation
+        interface1.get_trace_svg()
 
         # Delete cable 1
         cable1.delete()

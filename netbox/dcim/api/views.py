@@ -13,6 +13,7 @@ from rest_framework.viewsets import ViewSet
 
 from circuits.models import Circuit
 from dcim import filtersets
+from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from dcim.models import *
 from extras.api.views import ConfigContextQuerySetMixin
 from ipam.models import Prefix, VLAN
@@ -54,9 +55,9 @@ class PathEndpointMixin(object):
         if request.GET.get('render', None) == 'svg':
             # Render SVG
             try:
-                width = min(int(request.GET.get('width')), 1600)
+                width = int(request.GET.get('width', CABLE_TRACE_SVG_DEFAULT_WIDTH))
             except (ValueError, TypeError):
-                width = None
+                width = CABLE_TRACE_SVG_DEFAULT_WIDTH
             drawing = obj.get_trace_svg(
                 base_url=request.build_absolute_uri('/'),
                 width=width

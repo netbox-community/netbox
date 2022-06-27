@@ -5,6 +5,7 @@ from svgwrite.text import Text
 
 from django.conf import settings
 
+from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from utilities.utils import foreground_color
 
 
@@ -115,7 +116,7 @@ class CableTraceSVG:
     :param width: Width of the generated image (in pixels)
     :param base_url: Base URL for links within the SVG document. If none, links will be relative.
     """
-    def __init__(self, origin, width=400, base_url=None):
+    def __init__(self, origin, width=CABLE_TRACE_SVG_DEFAULT_WIDTH, base_url=None):
         self.origin = origin
         self.width = width
         self.base_url = base_url.rstrip('/') if base_url is not None else ''
