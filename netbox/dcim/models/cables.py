@@ -444,9 +444,8 @@ class CablePath(models.Model):
 
         while terminations:
 
-            # Terminations must all be of the same type and belong to the same parent
+            # Terminations must all be of the same type
             assert all(isinstance(t, type(terminations[0])) for t in terminations[1:])
-            assert all(t.parent_object == terminations[0].parent_object for t in terminations[1:])
 
             # Step 1: Record the near-end termination object(s)
             path.append([

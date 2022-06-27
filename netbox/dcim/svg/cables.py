@@ -18,7 +18,6 @@ PADDING = 10
 LINE_HEIGHT = 20
 FANOUT_HEIGHT = 35
 FANOUT_LEG_HEIGHT = 15
-TERMINATION_WIDTH = 100
 
 
 class Node(Hyperlink):
@@ -174,32 +173,35 @@ class CableTraceSVG:
             # Other parent object
             return 'e0e0e0'
 
-    def draw_parent_object(self, obj):
-        node = Node(
-            position=(0, self.cursor),
-            width=self.width,
-            url=f'{self.base_url}{obj.get_absolute_url()}',
-            color=self._get_color(obj),
-            labels=self._get_labels(obj)
-        )
-        self.parent_objects.append(node)
-        self.cursor += node.box['height']
-
-        return node
+    def draw_parent_objects(self, obj_list):
+        """
+        Draw a set of parent objects.
+        """
+        width = self.width / len(obj_list)
+        for i, obj in enumerate(obj_list):
+            node = Node(
+                position=(i * width, self.cursor),
+                width=width,
+                url=f'{self.base_url}{obj.get_absolute_url()}',
+                color=self._get_color(obj),
+                labels=self._get_labels(obj)
+            )
+            self.parent_objects.append(node)
+            if i + 1 == len(obj_list):
+                self.cursor += node.box['height']
 
     def draw_terminations(self, terminations):
         """
-        Draw a row of terminating objects (e.g. interfaces) belonging to the same parent object, all of which
-        are attached to the same end of a cable.
+        Draw a row of terminating objects (e.g. interfaces), all of which are attached to the same end of a cable.
         """
         nodes = []
         nodes_height = 0
-        x = self.width / 2 - len(terminations) * TERMINATION_WIDTH / 2
+        width = self.width / len(terminations)
 
         for i, term in enumerate(terminations):
             node = Node(
-                position=(x + i * TERMINATION_WIDTH, self.cursor),
-                width=TERMINATION_WIDTH,
+                position=(i * width, self.cursor),
+                width=width,
                 url=f'{self.base_url}{term.get_absolute_url()}',
                 color=self._get_color(term),
                 labels=self._get_labels(term),
@@ -324,7 +326,7 @@ class CableTraceSVG:
             # Near end parent
             if i == 0:
                 # If this is the first segment, draw the originating termination's parent object
-                self.draw_parent_object(near_ends[0].parent_object)
+                self.draw_parent_objects(set(end.parent_object for end in near_ends))
 
             # Near end termination(s)
             terminations = self.draw_terminations(near_ends)
@@ -363,7 +365,8 @@ class CableTraceSVG:
                     self.draw_terminations(far_ends)
 
                 # Far end parent
-                self.draw_parent_object(far_ends[0].parent_object)
+                parent_objects = set(end.parent_object for end in far_ends)
+                self.draw_parent_objects(parent_objects)
 
             elif far_ends:
 
@@ -372,7 +375,7 @@ class CableTraceSVG:
                 self.connectors.append(attachment)
 
                 # ProviderNetwork
-                self.draw_parent_object(far_ends[0])
+                self.draw_parent_objects(set(end.parent_object for end in far_ends))
 
         # Determine drawing size
         self.drawing = svgwrite.Drawing(
