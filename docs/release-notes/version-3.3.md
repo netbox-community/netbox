@@ -28,6 +28,7 @@
 * [#8495](https://github.com/netbox-community/netbox/issues/8495) - Enable custom field grouping
 * [#8995](https://github.com/netbox-community/netbox/issues/8995) - Enable arbitrary ordering of REST API results
 * [#9166](https://github.com/netbox-community/netbox/issues/9166) - Add UI visibility toggle for custom fields
+* [#9177](https://github.com/netbox-community/netbox/issues/9177) - Add tenant assignment for wireless LANs & links
 * [#9536](https://github.com/netbox-community/netbox/issues/9536) - Track API token usage times
 * [#9582](https://github.com/netbox-community/netbox/issues/9582) - Enable assigning config contexts based on device location
 
@@ -70,3 +71,7 @@
     * Added `device` field
     * The `site` field is now directly writable (rather than being inferred from the assigned cluster)
     * The `cluster` field is now optional. A virtual machine must have a site and/or cluster assigned.
+wireless.WirelessLAN
+    * Added `tenant` field
+wireless.WirelessLink
+    * Added `tenant` field

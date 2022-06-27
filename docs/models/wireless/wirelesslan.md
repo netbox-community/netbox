@@ -1,6 +1,6 @@
 # Wireless LANs
 
-A wireless LAN is a set of interfaces connected via a common wireless channel. Each instance must have an SSID, and may optionally be correlated to a VLAN. Wireless LANs can be arranged into hierarchical groups.
+A wireless LAN is a set of interfaces connected via a common wireless channel. Each instance must have an SSID, and may optionally be correlated to a VLAN. Wireless LANs can be arranged into hierarchical groups, and each may be associated with a particular tenant.
 
 An interface may be attached to multiple wireless LANs, provided they are all operating on the same channel. Only wireless interfaces may be attached to wireless LANs.
 

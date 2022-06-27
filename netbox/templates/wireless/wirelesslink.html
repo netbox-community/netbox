@@ -24,6 +24,15 @@
               <td>{{ object.ssid|placeholder }}</td>
             </tr>
             <tr>
+              <th scope="row">Tenant</th>
+              <td>
+                {% if object.tenant.group %}
+                  {{ object.tenant.group|linkify }} /
+                {% endif %}
+                {{ object.tenant|linkify|placeholder }}
+              </td>
+            </tr>
+            <tr>
               <th scope="row">Description</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>

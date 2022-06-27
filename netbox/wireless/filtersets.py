@@ -4,6 +4,7 @@ from django.db.models import Q
 from dcim.choices import LinkStatusChoices
 from ipam.models import VLAN
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
+from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import MultiValueNumberFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
@@ -30,7 +31,7 @@ class WirelessLANGroupFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class WirelessLANFilterSet(NetBoxModelFilterSet):
+class WirelessLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=WirelessLANGroup.objects.all(),
         field_name='group',
@@ -66,7 +67,7 @@ class WirelessLANFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class WirelessLinkFilterSet(NetBoxModelFilterSet):
+class WirelessLinkFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     interface_a_id = MultiValueNumberFilter()
     interface_b_id = MultiValueNumberFilter()
     status = django_filters.MultipleChoiceFilter(
