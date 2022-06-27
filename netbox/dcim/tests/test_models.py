@@ -537,19 +537,10 @@ class CableTestCase(TestCase):
         """
         The clean method should have a check to ensure only compatible port types can be connected by a cable
         """
-        # An interface cannot be connected to a power port
-        cable = Cable(a_terminations=[self.interface1, self.interface2], b_terminations=[self.interface3])
+        # An interface cannot be connected to a power port, for example
+        cable = Cable(a_terminations=[self.interface1], b_terminations=[self.power_port1])
         with self.assertRaises(ValidationError):
             cable.clean()
-
-    # TODO: Remove this?
-    # def test_cable_front_port_cannot_connect_to_corresponding_rear_port(self):
-    #     """
-    #     A cable cannot connect a front port to its corresponding rear port
-    #     """
-    #     cable = Cable(a_terminations=[self.front_port1], b_terminations=[self.rear_port1])
-    #     with self.assertRaises(ValidationError):
-    #         cable.clean()
 
     def test_cable_cannot_terminate_to_a_provider_network_circuittermination(self):
         """
@@ -558,36 +549,6 @@ class CableTestCase(TestCase):
         cable = Cable(a_terminations=[self.interface3], b_terminations=[self.circuittermination3])
         with self.assertRaises(ValidationError):
             cable.clean()
-
-    # TODO: Remove this?
-    # def test_rearport_connections(self):
-    #     """
-    #     Test various combinations of RearPort connections.
-    #     """
-    #     # Connecting a single-position RearPort to a multi-position RearPort is ok
-    #     Cable(a_terminations=[self.rear_port1], b_terminations=[self.rear_port2]).full_clean()
-    #
-    #     # Connecting a single-position RearPort to an Interface is ok
-    #     Cable(a_terminations=[self.rear_port1], b_terminations=[self.interface3]).full_clean()
-    #
-    #     # Connecting a single-position RearPort to a CircuitTermination is ok
-    #     Cable(a_terminations=[self.rear_port1], b_terminations=[self.circuittermination1]).full_clean()
-    #
-    #     # Connecting a multi-position RearPort to another RearPort with the same number of positions is ok
-    #     Cable(a_terminations=[self.rear_port3], b_terminations=[self.rear_port4]).full_clean()
-    #
-    #     # Connecting a multi-position RearPort to an Interface is ok
-    #     Cable(a_terminations=[self.rear_port2], b_terminations=[self.interface3]).full_clean()
-    #
-    #     # Connecting a multi-position RearPort to a CircuitTermination is ok
-    #     Cable(a_terminations=[self.rear_port2], b_terminations=[self.circuittermination1]).full_clean()
-    #
-    #     # Connecting a two-position RearPort to a three-position RearPort is NOT ok
-    #     with self.assertRaises(
-    #         ValidationError,
-    #         msg='Connecting a 2-position RearPort to a 3-position RearPort should fail'
-    #     ):
-    #         Cable(a_terminations=[self.rear_port2], b_terminations=[self.rear_port3]).full_clean()
 
     def test_cable_cannot_terminate_to_a_virtual_interface(self):
         """

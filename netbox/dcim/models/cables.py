@@ -126,17 +126,6 @@ class Cable(NetBoxModel):
     def clean(self):
         super().clean()
 
-        # TODO: Is this validation still necessary?
-        # # Check that two connected RearPorts have the same number of positions (if both are >1)
-        # if isinstance(self.termination_a, RearPort) and isinstance(self.termination_b, RearPort):
-        #     if self.termination_a.positions > 1 and self.termination_b.positions > 1:
-        #         if self.termination_a.positions != self.termination_b.positions:
-        #             raise ValidationError(
-        #                 f"{self.termination_a} has {self.termination_a.positions} position(s) but "
-        #                 f"{self.termination_b} has {self.termination_b.positions}. "
-        #                 f"Both terminations must have the same number of positions (if greater than one)."
-        #             )
-
         # Validate length and length_unit
         if self.length is not None and not self.length_unit:
             raise ValidationError("Must specify a unit when setting a cable length")
@@ -153,10 +142,6 @@ class Cable(NetBoxModel):
         # Check that all termination objects for either end are of the same type
         for terms in (a_terminations, b_terminations):
             if terms and len(terms) > 1:
-                if not all(t.termination.parent_object == terms[0].termination.parent_object for t in terms[1:]):
-                    raise ValidationError(
-                        "All terminations on one end of a cable must belong to the same parent object."
-                    )
                 if not all(t.termination_type == terms[0].termination_type for t in terms[1:]):
                     raise ValidationError(
                         "Cannot connect different termination types to same end of cable."
@@ -174,18 +159,6 @@ class Cable(NetBoxModel):
         # Run clean() on any new CableTerminations
         for cabletermination in [*a_terminations, *b_terminations]:
             cabletermination.clean()
-
-        # TODO
-        # # A front port cannot be connected to its corresponding rear port
-        # if (
-        #     type_a in ['frontport', 'rearport'] and
-        #     type_b in ['frontport', 'rearport'] and
-        #     (
-        #         getattr(self.termination_a, 'rear_port', None) == self.termination_b or
-        #         getattr(self.termination_b, 'rear_port', None) == self.termination_a
-        #     )
-        # ):
-        #     raise ValidationError("A front port cannot be connected to it corresponding rear port")
 
     def save(self, *args, **kwargs):
         _created = self.pk is None
