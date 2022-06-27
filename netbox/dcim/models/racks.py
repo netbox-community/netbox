@@ -429,20 +429,22 @@ class Rack(NetBoxModel):
         """
         powerfeeds = PowerFeed.objects.filter(rack=self)
         available_power_total = sum(pf.available_power for pf in powerfeeds)
+        print(f'available_power_total: {available_power_total}')
         if not available_power_total:
             return 0
 
-        pf_powerports = PowerPort.objects.filter(
-            _link_peer_type=ContentType.objects.get_for_model(PowerFeed),
-            _link_peer_id__in=powerfeeds.values_list('id', flat=True)
-        )
-        poweroutlets = PowerOutlet.objects.filter(power_port_id__in=pf_powerports)
-        allocated_draw_total = PowerPort.objects.filter(
-            _link_peer_type=ContentType.objects.get_for_model(PowerOutlet),
-            _link_peer_id__in=poweroutlets.values_list('id', flat=True)
-        ).aggregate(Sum('allocated_draw'))['allocated_draw__sum'] or 0
+        powerports = []
+        for powerfeed in powerfeeds:
+            powerports.extend([
+                peer for peer in powerfeed.link_peers if isinstance(peer, PowerPort)
+            ])
 
-        return int(allocated_draw_total / available_power_total * 100)
+        allocated_draw = 0
+        for powerport in powerports:
+            allocated_draw += powerport.get_power_draw()['allocated']
+        print(f'allocated_draw: {allocated_draw}')
+
+        return int(allocated_draw / available_power_total * 100)
 
 
 class RackReservation(NetBoxModel):

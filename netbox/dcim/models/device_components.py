@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -155,6 +155,12 @@ class LinkTermination(models.Model):
     @property
     def parent_object(self):
         raise NotImplementedError(f"{self.__class__.__name__} models must declare a parent_object property")
+
+    @property
+    def opposite_cable_end(self):
+        if not self.cable_end:
+            return None
+        return CableEndChoices.SIDE_A if self.cable_end == CableEndChoices.SIDE_B else CableEndChoices.SIDE_B
 
     @property
     def link(self):
@@ -333,36 +339,49 @@ class PowerPort(ModularComponentModel, LinkTermination, PathEndpoint):
                     'allocated_draw': f"Allocated draw cannot exceed the maximum draw ({self.maximum_draw}W)."
                 })
 
+    def get_downstream_powerports(self, leg=None):
+        """
+        Return a queryset of all PowerPorts connected via cable to a child PowerOutlet.
+        """
+        poweroutlets = self.poweroutlets.filter(cable__isnull=False)
+        if leg:
+            poweroutlets = poweroutlets.filter(feed_leg=leg)
+        if not poweroutlets:
+            return PowerPort.objects.none()
+
+        q = Q()
+        for poweroutlet in poweroutlets:
+            q |= Q(
+                cable=poweroutlet.cable,
+                cable_end=poweroutlet.opposite_cable_end
+            )
+
+        return PowerPort.objects.filter(q)
+
     def get_power_draw(self):
         """
         Return the allocated and maximum power draw (in VA) and child PowerOutlet count for this PowerPort.
         """
+        from dcim.models import PowerFeed
+
         # Calculate aggregate draw of all child power outlets if no numbers have been defined manually
         if self.allocated_draw is None and self.maximum_draw is None:
-            poweroutlet_ct = ContentType.objects.get_for_model(PowerOutlet)
-            outlet_ids = PowerOutlet.objects.filter(power_port=self).values_list('pk', flat=True)
-            utilization = PowerPort.objects.filter(
-                _link_peer_type=poweroutlet_ct,
-                _link_peer_id__in=outlet_ids
-            ).aggregate(
+            utilization = self.get_downstream_powerports().aggregate(
                 maximum_draw_total=Sum('maximum_draw'),
                 allocated_draw_total=Sum('allocated_draw'),
             )
             ret = {
                 'allocated': utilization['allocated_draw_total'] or 0,
                 'maximum': utilization['maximum_draw_total'] or 0,
-                'outlet_count': len(outlet_ids),
+                'outlet_count': self.poweroutlets.count(),
                 'legs': [],
             }
 
-            # Calculate per-leg aggregates for three-phase feeds
-            if getattr(self._link_peer, 'phase', None) == PowerFeedPhaseChoices.PHASE_3PHASE:
+            # Calculate per-leg aggregates for three-phase power feeds
+            if len(self.link_peers) == 1 and isinstance(self.link_peers[0], PowerFeed) and \
+                    self.link_peers[0].phase == PowerFeedPhaseChoices.PHASE_3PHASE:
                 for leg, leg_name in PowerOutletFeedLegChoices:
-                    outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
-                    utilization = PowerPort.objects.filter(
-                        _link_peer_type=poweroutlet_ct,
-                        _link_peer_id__in=outlet_ids
-                    ).aggregate(
+                    utilization = self.get_downstream_powerports(leg=leg).aggregate(
                         maximum_draw_total=Sum('maximum_draw'),
                         allocated_draw_total=Sum('allocated_draw'),
                     )
@@ -370,7 +389,7 @@ class PowerPort(ModularComponentModel, LinkTermination, PathEndpoint):
                         'name': leg_name,
                         'allocated': utilization['allocated_draw_total'] or 0,
                         'maximum': utilization['maximum_draw_total'] or 0,
-                        'outlet_count': len(outlet_ids),
+                        'outlet_count': self.poweroutlets.filter(feed_leg=leg).count(),
                     })
 
             return ret
@@ -379,7 +398,7 @@ class PowerPort(ModularComponentModel, LinkTermination, PathEndpoint):
         return {
             'allocated': self.allocated_draw or 0,
             'maximum': self.maximum_draw or 0,
-            'outlet_count': PowerOutlet.objects.filter(power_port=self).count(),
+            'outlet_count': self.poweroutlets.count(),
             'legs': [],
         }
 
@@ -422,9 +441,7 @@ class PowerOutlet(ModularComponentModel, LinkTermination, PathEndpoint):
 
         # Validate power port assignment
         if self.power_port and self.power_port.device != self.device:
-            raise ValidationError(
-                "Parent power port ({}) must belong to the same device".format(self.power_port)
-            )
+            raise ValidationError(f"Parent power port ({self.power_port}) must belong to the same device")
 
 
 #
