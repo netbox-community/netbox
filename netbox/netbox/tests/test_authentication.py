@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
@@ -8,10 +10,77 @@ from netaddr import IPNetwork
 from rest_framework.test import APIClient
 
 from dcim.models import Site
-from ipam.choices import PrefixStatusChoices
 from ipam.models import Prefix
 from users.models import ObjectPermission, Token
 from utilities.testing import TestCase
+from utilities.testing.api import APITestCase
+
+
+class TokenAuthenticationTestCase(APITestCase):
+
+    @override_settings(LOGIN_REQUIRED=True, EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_token_authentication(self):
+        url = reverse('dcim-api:site-list')
+
+        # Request without a token should return a 403
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        # Valid token should return a 200
+        token = Token.objects.create(user=self.user)
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Token {token.key}')
+        self.assertEqual(response.status_code, 200)
+
+        # Check that the token's last_used time has been updated
+        token.refresh_from_db()
+        self.assertIsNotNone(token.last_used)
+
+    @override_settings(LOGIN_REQUIRED=True, EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_token_expiration(self):
+        url = reverse('dcim-api:site-list')
+
+        # Request without a non-expired token should succeed
+        token = Token.objects.create(user=self.user)
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Token {token.key}')
+        self.assertEqual(response.status_code, 200)
+
+        # Request with an expired token should fail
+        token.expires = datetime.datetime(2020, 1, 1, tzinfo=datetime.timezone.utc)
+        token.save()
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Token {token.key}')
+        self.assertEqual(response.status_code, 403)
+
+    @override_settings(LOGIN_REQUIRED=True, EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_token_write_enabled(self):
+        url = reverse('dcim-api:site-list')
+        data = {
+            'name': 'Site 1',
+            'slug': 'site-1',
+        }
+
+        # Request with a write-disabled token should fail
+        token = Token.objects.create(user=self.user, write_enabled=False)
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=f'Token {token.key}')
+        self.assertEqual(response.status_code, 403)
+
+        # Request with a write-enabled token should succeed
+        token.write_enabled = True
+        token.save()
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=f'Token {token.key}')
+        self.assertEqual(response.status_code, 403)
+
+    @override_settings(LOGIN_REQUIRED=True, EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_token_allowed_ips(self):
+        url = reverse('dcim-api:site-list')
+
+        # Request from a non-allowed client IP should fail
+        token = Token.objects.create(user=self.user, allowed_ips=['192.0.2.0/24'])
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Token {token.key}', REMOTE_ADDR='127.0.0.1')
+        self.assertEqual(response.status_code, 403)
+
+        # Request with an expired token should fail
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Token {token.key}', REMOTE_ADDR='192.0.2.1')
+        self.assertEqual(response.status_code, 200)
 
 
 class ExternalAuthenticationTestCase(TestCase):

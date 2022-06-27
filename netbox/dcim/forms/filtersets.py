@@ -166,7 +166,7 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
     model = Location
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Parent', ('region_id', 'site_group_id', 'site_id', 'parent_id')),
+        ('Attributes', ('region_id', 'site_group_id', 'site_id', 'parent_id', 'status')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
@@ -197,6 +197,10 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
             'site_id': '$site_id',
         },
         label=_('Parent')
+    )
+    status = MultipleChoiceField(
+        choices=LocationStatusChoices,
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -969,6 +973,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         (None, ('q', 'tag')),
         ('Attributes', ('name', 'label', 'kind', 'type', 'speed', 'duplex', 'enabled', 'mgmt_only')),
         ('Addressing', ('vrf_id', 'mac_address', 'wwn')),
+        ('PoE', ('poe_mode', 'poe_type')),
         ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id')),
     )
@@ -1008,6 +1013,14 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     wwn = forms.CharField(
         required=False,
         label='WWN'
+    )
+    poe_mode = MultipleChoiceField(
+        choices=InterfacePoEModeChoices,
+        required=False
+    )
+    poe_type = MultipleChoiceField(
+        choices=InterfacePoEModeChoices,
+        required=False
     )
     rf_role = MultipleChoiceField(
         choices=WirelessRoleChoices,

@@ -575,6 +575,18 @@ class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpo
         validators=(MaxValueValidator(127),),
         verbose_name='Transmit power (dBm)'
     )
+    poe_mode = models.CharField(
+        max_length=50,
+        choices=InterfacePoEModeChoices,
+        blank=True,
+        verbose_name='PoE mode'
+    )
+    poe_type = models.CharField(
+        max_length=50,
+        choices=InterfacePoETypeChoices,
+        blank=True,
+        verbose_name='PoE type'
+    )
     wireless_link = models.ForeignKey(
         to='wireless.WirelessLink',
         on_delete=models.SET_NULL,
@@ -623,7 +635,7 @@ class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpo
         related_query_name='+'
     )
 
-    clone_fields = ['device', 'parent', 'bridge', 'lag', 'type', 'mgmt_only']
+    clone_fields = ['device', 'parent', 'bridge', 'lag', 'type', 'mgmt_only', 'poe_mode', 'poe_type']
 
     class Meta:
         ordering = ('device', CollateAsChar('_name'))
@@ -710,6 +722,24 @@ class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpo
                     'lag': f"The selected LAG interface ({self.lag}) belongs to {self.lag.device}, which is not part "
                            f"of virtual chassis {self.device.virtual_chassis}."
                 })
+
+        # PoE validation
+
+        # Only physical interfaces may have a PoE mode/type assigned
+        if self.poe_mode and self.is_virtual:
+            raise ValidationError({
+                'poe_mode': "Virtual interfaces cannot have a PoE mode."
+            })
+        if self.poe_type and self.is_virtual:
+            raise ValidationError({
+                'poe_type': "Virtual interfaces cannot have a PoE type."
+            })
+
+        # An interface with a PoE type set must also specify a mode
+        if self.poe_type and not self.poe_mode:
+            raise ValidationError({
+                'poe_type': "Must specify PoE mode when designating a PoE type."
+            })
 
         # Wireless validation
 

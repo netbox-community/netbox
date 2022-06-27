@@ -9,4 +9,4 @@ Each token contains a 160-bit key represented as 40 hexadecimal characters. When
 
 By default, a token can be used to perform all actions via the API that a user would be permitted to do via the web UI. Deselecting the "write enabled" option will restrict API requests made with the token to read operations (e.g. GET) only.
 
-Additionally, a token can be set to expire at a specific time. This can be useful if an external client needs to be granted temporary access to NetBox.
+Additionally, a token can be set to expire at a specific time. This can be useful if an external client needs to be granted temporary access to NetBox. Tokens can also be restricted by IP range: If defined, authentication for API clients connecting from an IP address outside these ranges will fail.

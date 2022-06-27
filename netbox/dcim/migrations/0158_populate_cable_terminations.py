@@ -40,7 +40,7 @@ def populate_cable_terminations(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0155_new_cabling_models'),
+        ('dcim', '0157_new_cabling_models'),
     ]
 
     operations = [

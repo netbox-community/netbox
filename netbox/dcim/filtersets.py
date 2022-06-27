@@ -217,10 +217,14 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, OrganizationalM
         to_field_name='slug',
         label='Location (slug)',
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=LocationStatusChoices,
+        null_value=None
+    )
 
     class Meta:
         model = Location
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ['id', 'name', 'slug', 'status', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1239,6 +1243,12 @@ class InterfaceFilterSet(
     )
     mac_address = MultiValueMACAddressFilter()
     wwn = MultiValueWWNFilter()
+    poe_mode = django_filters.MultipleChoiceFilter(
+        choices=InterfacePoEModeChoices
+    )
+    poe_type = django_filters.MultipleChoiceFilter(
+        choices=InterfacePoETypeChoices
+    )
     vlan_id = django_filters.CharFilter(
         method='filter_vlan_id',
         label='Assigned VLAN'
@@ -1272,8 +1282,8 @@ class InterfaceFilterSet(
     class Meta:
         model = Interface
         fields = [
-            'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'rf_role', 'rf_channel',
-            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'cable_end',
+            'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'poe_mode', 'poe_type', 'mode', 'rf_role',
+            'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'cable_end',
         ]
 
     def filter_device(self, queryset, name, value):

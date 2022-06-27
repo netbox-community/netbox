@@ -367,9 +367,11 @@ class Rack(NetBoxModel):
             user=None,
             unit_width=None,
             unit_height=None,
-            legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT,
+            legend_width=RACK_ELEVATION_DEFAULT_LEGEND_WIDTH,
+            margin_width=RACK_ELEVATION_DEFAULT_MARGIN_WIDTH,
             include_images=True,
-            base_url=None
+            base_url=None,
+            highlight_params=None
     ):
         """
         Return an SVG of the rack elevation
@@ -381,6 +383,7 @@ class Rack(NetBoxModel):
         :param unit_height: Height of each rack unit for the rendered drawing. Note this is not the total
             height of the elevation
         :param legend_width: Width of the unit legend, in pixels
+        :param margin_width: Width of the rigth-hand margin, in pixels
         :param include_images: Embed front/rear device images where available
         :param base_url: Base URL for links and images. If none, URLs will be relative.
         """
@@ -389,9 +392,11 @@ class Rack(NetBoxModel):
             unit_width=unit_width,
             unit_height=unit_height,
             legend_width=legend_width,
+            margin_width=margin_width,
             user=user,
             include_images=include_images,
-            base_url=base_url
+            base_url=base_url,
+            highlight_params=highlight_params
         )
 
         return elevation.render(face)

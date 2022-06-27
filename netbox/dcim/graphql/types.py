@@ -234,6 +234,12 @@ class InterfaceType(IPAddressesMixin, ComponentObjectType):
         exclude = ('_path',)
         filterset_class = filtersets.InterfaceFilterSet
 
+    def resolve_poe_mode(self, info):
+        return self.poe_mode or None
+
+    def resolve_poe_type(self, info):
+        return self.poe_type or None
+
     def resolve_mode(self, info):
         return self.mode or None
 

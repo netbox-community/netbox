@@ -48,6 +48,13 @@ svg {
     visibility: hidden;
   }
 
+  rect.shaded, image.shaded {
+    opacity: 25%;
+  }
+  text.shaded {
+    opacity: 50%;
+  }
+
   // Rack elevation container.
   .rack {
     fill: none;
@@ -81,17 +88,6 @@ svg {
       opacity: 1;
     }
 
-    // When a reserved slot is hovered, use a more readable color for the 'Add Device' text.
-    &.reserved:hover[class] + .add-device {
-      fill: $black;
-    }
-
-    // Reserved rack unit background color.
-    &.reserved[class],
-    &.reserved:hover[class] {
-      fill: url(#reserved);
-    }
-
     // Occupied rack unit background color.
     &.occupied[class],
     &.occupied:hover[class] {
@@ -107,5 +103,10 @@ svg {
     &.blocked:hover + .add-device {
       opacity: 0;
     }
+  }
+
+  // Reservation background color.
+  .reservation[class] {
+    fill: url(#reserved);
   }
 }

@@ -2,6 +2,7 @@ from wireless.choices import *
 from wireless.models import *
 from dcim.choices import InterfaceTypeChoices, LinkStatusChoices
 from dcim.models import Interface
+from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags, create_test_device
 
 
@@ -47,6 +48,13 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         groups = (
             WirelessLANGroup(name='Wireless LAN Group 1', slug='wireless-lan-group-1'),
             WirelessLANGroup(name='Wireless LAN Group 2', slug='wireless-lan-group-2'),
@@ -55,9 +63,9 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             group.save()
 
         WirelessLAN.objects.bulk_create([
-            WirelessLAN(group=groups[0], ssid='WLAN1'),
-            WirelessLAN(group=groups[0], ssid='WLAN2'),
-            WirelessLAN(group=groups[0], ssid='WLAN3'),
+            WirelessLAN(group=groups[0], ssid='WLAN1', tenant=tenants[0]),
+            WirelessLAN(group=groups[0], ssid='WLAN2', tenant=tenants[0]),
+            WirelessLAN(group=groups[0], ssid='WLAN3', tenant=tenants[0]),
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
@@ -65,14 +73,15 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'ssid': 'WLAN2',
             'group': groups[1].pk,
+            'tenant': tenants[1].pk,
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "group,ssid",
-            "Wireless LAN Group 2,WLAN4",
-            "Wireless LAN Group 2,WLAN5",
-            "Wireless LAN Group 2,WLAN6",
+            f"group,ssid,tenant",
+            f"Wireless LAN Group 2,WLAN4,{tenants[0].name}",
+            f"Wireless LAN Group 2,WLAN5,{tenants[1].name}",
+            f"Wireless LAN Group 2,WLAN6,{tenants[2].name}",
         )
 
         cls.bulk_edit_data = {
@@ -85,6 +94,14 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         device = create_test_device('test-device')
         interfaces = [
             Interface(
@@ -98,9 +115,9 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ]
         Interface.objects.bulk_create(interfaces)
 
-        WirelessLink(interface_a=interfaces[0], interface_b=interfaces[1], ssid='LINK1').save()
-        WirelessLink(interface_a=interfaces[2], interface_b=interfaces[3], ssid='LINK2').save()
-        WirelessLink(interface_a=interfaces[4], interface_b=interfaces[5], ssid='LINK3').save()
+        WirelessLink(interface_a=interfaces[0], interface_b=interfaces[1], ssid='LINK1', tenant=tenants[0]).save()
+        WirelessLink(interface_a=interfaces[2], interface_b=interfaces[3], ssid='LINK2', tenant=tenants[0]).save()
+        WirelessLink(interface_a=interfaces[4], interface_b=interfaces[5], ssid='LINK3', tenant=tenants[0]).save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -108,14 +125,15 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'interface_a': interfaces[6].pk,
             'interface_b': interfaces[7].pk,
             'status': LinkStatusChoices.STATUS_PLANNED,
+            'tenant': tenants[1].pk,
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "interface_a,interface_b,status",
-            f"{interfaces[6].pk},{interfaces[7].pk},connected",
-            f"{interfaces[8].pk},{interfaces[9].pk},connected",
-            f"{interfaces[10].pk},{interfaces[11].pk},connected",
+            f"interface_a,interface_b,status,tenant",
+            f"{interfaces[6].pk},{interfaces[7].pk},connected,{tenants[0].name}",
+            f"{interfaces[8].pk},{interfaces[9].pk},connected,{tenants[1].name}",
+            f"{interfaces[10].pk},{interfaces[11].pk},connected,{tenants[2].name}",
         )
 
         cls.bulk_edit_data = {

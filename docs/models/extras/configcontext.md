@@ -5,9 +5,11 @@ Sometimes it is desirable to associate additional data with a group of devices o
 * Region
 * Site group
 * Site
+* Location (devices only)
 * Device type (devices only)
 * Role
 * Platform
+* Cluster type (VMs only)
 * Cluster group (VMs only)
 * Cluster (VMs only)
 * Tenant group

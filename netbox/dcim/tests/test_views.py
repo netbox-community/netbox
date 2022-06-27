@@ -175,9 +175,9 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
 
         locations = (
-            Location(name='Location 1', slug='location-1', site=site, tenant=tenant),
-            Location(name='Location 2', slug='location-2', site=site, tenant=tenant),
-            Location(name='Location 3', slug='location-3', site=site, tenant=tenant),
+            Location(name='Location 1', slug='location-1', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
+            Location(name='Location 2', slug='location-2', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
+            Location(name='Location 3', slug='location-3', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
         )
         for location in locations:
             location.save()
@@ -188,16 +188,17 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'Location X',
             'slug': 'location-x',
             'site': site.pk,
+            'status': LocationStatusChoices.STATUS_PLANNED,
             'tenant': tenant.pk,
             'description': 'A new location',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "site,tenant,name,slug,description",
-            "Site 1,Tenant 1,Location 4,location-4,Fourth location",
-            "Site 1,Tenant 1,Location 5,location-5,Fifth location",
-            "Site 1,Tenant 1,Location 6,location-6,Sixth location",
+            "site,tenant,name,slug,status,description",
+            "Site 1,Tenant 1,Location 4,location-4,planned,Fourth location",
+            "Site 1,Tenant 1,Location 5,location-5,planned,Fifth location",
+            "Site 1,Tenant 1,Location 6,location-6,planned,Sixth location",
         )
 
         cls.bulk_edit_data = {
@@ -2204,6 +2205,8 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'description': 'A front port',
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'tx_power': 10,
+            'poe_mode': InterfacePoEModeChoices.MODE_PSE,
+            'poe_type': InterfacePoETypeChoices.TYPE_1_8023AF,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
@@ -2225,6 +2228,8 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'duplex': 'half',
             'mgmt_only': True,
             'description': 'A front port',
+            'poe_mode': InterfacePoEModeChoices.MODE_PSE,
+            'poe_type': InterfacePoETypeChoices.TYPE_1_8023AF,
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
@@ -2244,6 +2249,8 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'duplex': 'full',
             'mgmt_only': True,
             'description': 'New description',
+            'poe_mode': InterfacePoEModeChoices.MODE_PD,
+            'poe_type': InterfacePoETypeChoices.TYPE_2_8023AT,
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'tx_power': 10,
             'untagged_vlan': vlans[0].pk,
@@ -2252,10 +2259,10 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            f"device,name,type,vrf.pk",
-            f"Device 1,Interface 4,1000base-t,{vrfs[0].pk}",
-            f"Device 1,Interface 5,1000base-t,{vrfs[0].pk}",
-            f"Device 1,Interface 6,1000base-t,{vrfs[0].pk}",
+            f"device,name,type,vrf.pk,poe_mode,poe_type",
+            f"Device 1,Interface 4,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
+            f"Device 1,Interface 5,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
+            f"Device 1,Interface 6,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
         )
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])

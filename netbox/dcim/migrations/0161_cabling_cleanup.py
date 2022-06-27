@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0158_populate_cable_ends'),
+        ('dcim', '0160_populate_cable_ends'),
     ]
 
     operations = [

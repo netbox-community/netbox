@@ -6,7 +6,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('dcim', '0154_half_height_rack_units'),
+        ('dcim', '0156_location_status'),
     ]
 
     operations = [

@@ -215,6 +215,14 @@ class RackViewSet(NetBoxModelViewSet):
         data = serializer.validated_data
 
         if data['render'] == 'svg':
+            # Determine attributes for highlighting devices (if any)
+            highlight_params = []
+            for param in request.GET.getlist('highlight'):
+                try:
+                    highlight_params.append(param.split(':', 1))
+                except ValueError:
+                    pass
+
             # Render and return the elevation as an SVG drawing with the correct content type
             drawing = rack.get_elevation_svg(
                 face=data['face'],
@@ -223,7 +231,8 @@ class RackViewSet(NetBoxModelViewSet):
                 unit_height=data['unit_height'],
                 legend_width=data['legend_width'],
                 include_images=data['include_images'],
-                base_url=request.build_absolute_uri('/')
+                base_url=request.build_absolute_uri('/'),
+                highlight_params=highlight_params
             )
             return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 

@@ -196,6 +196,7 @@ class LocationSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:location-detail')
     site = NestedSiteSerializer()
     parent = NestedLocationSerializer(required=False, allow_null=True)
+    status = ChoiceField(choices=LocationStatusChoices, required=False)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     rack_count = serializers.IntegerField(read_only=True)
     device_count = serializers.IntegerField(read_only=True)
@@ -203,8 +204,8 @@ class LocationSerializer(NestedGroupModelSerializer):
     class Meta:
         model = Location
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'site', 'parent', 'tenant', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'rack_count', 'device_count', '_depth',
+            'id', 'url', 'display', 'name', 'slug', 'site', 'parent', 'status', 'tenant', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated', 'rack_count', 'device_count', '_depth',
         ]
 
 
@@ -297,7 +298,10 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
         default=ConfigItem('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT')
     )
     legend_width = serializers.IntegerField(
-        default=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT
+        default=RACK_ELEVATION_DEFAULT_LEGEND_WIDTH
+    )
+    margin_width = serializers.IntegerField(
+        default=RACK_ELEVATION_DEFAULT_MARGIN_WIDTH
     )
     exclude = serializers.IntegerField(
         required=False,
@@ -854,6 +858,8 @@ class InterfaceSerializer(NetBoxModelSerializer, LinkTerminationSerializer, Conn
     duplex = ChoiceField(choices=InterfaceDuplexChoices, required=False, allow_blank=True)
     rf_role = ChoiceField(choices=WirelessRoleChoices, required=False, allow_blank=True)
     rf_channel = ChoiceField(choices=WirelessChannelChoices, required=False, allow_blank=True)
+    poe_mode = ChoiceField(choices=InterfacePoEModeChoices, required=False, allow_blank=True)
+    poe_type = ChoiceField(choices=InterfacePoETypeChoices, required=False, allow_blank=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),
@@ -878,10 +884,10 @@ class InterfaceSerializer(NetBoxModelSerializer, LinkTerminationSerializer, Conn
         fields = [
             'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'enabled', 'parent', 'bridge', 'lag',
             'mtu', 'mac_address', 'speed', 'duplex', 'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel',
-            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'mark_connected',
-            'cable', 'wireless_link', 'link_peers', 'link_peers_type', 'wireless_lans', 'vrf', 'connected_endpoints',
-            'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields', 'created',
-            'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
+            'poe_mode', 'poe_type', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan',
+            'tagged_vlans', 'mark_connected', 'cable', 'wireless_link', 'link_peers', 'link_peers_type',
+            'wireless_lans', 'vrf', 'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable',
+            'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
         ]
 
     def validate(self, data):

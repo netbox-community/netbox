@@ -29,6 +29,11 @@ $ curl https://netbox/api/dcim/sites/
 }
 ```
 
+When a token is used to authenticate a request, its `last_updated` time updated to the current time if its last use was recorded more than 60 seconds ago (or was never recorded). This allows users to determine which tokens have been active recently.
+
+!!! note
+    The "last used" time for tokens will not be updated while maintenance mode is enabled.
+
 ## Initial Token Provisioning
 
 Ideally, each user should provision his or her own REST API token(s) via the web UI. However, you may encounter where a token must be created by a user via the REST API itself. NetBox provides a special endpoint to provision tokens using a valid username and password combination.
