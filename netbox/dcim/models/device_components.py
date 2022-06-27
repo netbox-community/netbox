@@ -205,14 +205,14 @@ class PathEndpoint(models.Model):
             while (len(path)) % 3:
                 # Pad to ensure we have complete three-tuples (e.g. for paths that end at a non-connected FrontPort)
                 # by inserting empty entries immediately prior to the path's destination node(s)
-                path.insert(-1, [None])
+                path.append([])
 
             # TODO: Add bridging support
             # # Check for bridge interface to continue the trace
             # origin = getattr(origin._path.destination, 'bridge', None)
             origin = None
 
-        # Return the path as a list of three-tuples (A termination, cable, B termination)
+        # Return the path as a list of three-tuples (A termination(s), cable(s), B termination(s))
         return list(zip(*[iter(path)] * 3))
 
     def get_trace_svg(self, base_url=None, width=None):

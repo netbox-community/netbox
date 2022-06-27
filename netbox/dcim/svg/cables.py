@@ -321,7 +321,7 @@ class CableTraceSVG:
 
         # Iterate through each (terms, cable, terms) segment in the path
         for i, segment in enumerate(traced_path):
-            near_ends, link, far_ends = segment
+            near_ends, links, far_ends = segment
 
             # Near end parent
             if i == 0:
@@ -332,8 +332,8 @@ class CableTraceSVG:
             terminations = self.draw_terminations(near_ends)
 
             # Connector (a Cable or WirelessLink)
-            link = link[0]  # Remove Cable from list
-            if link is not None:
+            if links:
+                link = links[0]  # Remove Cable from list
 
                 # Cable
                 if type(link) is Cable:

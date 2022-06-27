@@ -429,7 +429,6 @@ class Rack(NetBoxModel):
         """
         powerfeeds = PowerFeed.objects.filter(rack=self)
         available_power_total = sum(pf.available_power for pf in powerfeeds)
-        print(f'available_power_total: {available_power_total}')
         if not available_power_total:
             return 0
 
@@ -442,7 +441,6 @@ class Rack(NetBoxModel):
         allocated_draw = 0
         for powerport in powerports:
             allocated_draw += powerport.get_power_draw()['allocated']
-        print(f'allocated_draw: {allocated_draw}')
 
         return int(allocated_draw / available_power_total * 100)
 
