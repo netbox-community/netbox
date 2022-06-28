@@ -527,10 +527,12 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     )
     vc_position = forms.IntegerField(
         required=False,
+        label='Position',
         help_text="The position in the virtual chassis this device is identified by"
     )
     vc_priority = forms.IntegerField(
         required=False,
+        label='Priority',
         help_text="The priority of the device in the virtual chassis"
     )
 
