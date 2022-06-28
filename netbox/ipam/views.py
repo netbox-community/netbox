@@ -680,13 +680,16 @@ class IPAddressView(generic.ObjectView):
         service_filter = Q(ipaddresses=instance)
 
         # Find services listening on all IPs on the assigned device/vm
-        if instance.assigned_object and instance.assigned_object.parent_object:
-            parent_object = instance.assigned_object.parent_object
+        try:
+            if instance.assigned_object and instance.assigned_object.parent_object:
+                parent_object = instance.assigned_object.parent_object
 
-            if isinstance(parent_object, VirtualMachine):
-                service_filter |= (Q(virtual_machine=parent_object) & Q(ipaddresses=None))
-            elif isinstance(parent_object, Device):
-                service_filter |= (Q(device=parent_object) & Q(ipaddresses=None))
+                if isinstance(parent_object, VirtualMachine):
+                    service_filter |= (Q(virtual_machine=parent_object) & Q(ipaddresses=None))
+                elif isinstance(parent_object, Device):
+                    service_filter |= (Q(device=parent_object) & Q(ipaddresses=None))
+        except AttributeError:
+            pass
 
         services = Service.objects.restrict(request.user, 'view').filter(service_filter)
 

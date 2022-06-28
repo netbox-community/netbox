@@ -348,3 +348,26 @@ class LDAPBackend:
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 
         return obj
+
+
+# Custom Social Auth Pipeline Handlers
+def user_default_groups_handler(backend, user, response, *args, **kwargs):
+    """
+    Custom pipeline handler which adds remote auth users to the default group specified in the
+    configuration file.
+    """
+    logger = logging.getLogger('netbox.auth.user_default_groups_handler')
+    if settings.REMOTE_AUTH_DEFAULT_GROUPS:
+        # Assign default groups to the user
+        group_list = []
+        for name in settings.REMOTE_AUTH_DEFAULT_GROUPS:
+            try:
+                group_list.append(Group.objects.get(name=name))
+            except Group.DoesNotExist:
+                logging.error(
+                    f"Could not assign group {name} to remotely-authenticated user {user}: Group not found")
+        if group_list:
+            user.groups.add(*group_list)
+        else:
+            user.groups.clear()
+            logger.debug(f"Stripping user {user} from Groups")

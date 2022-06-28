@@ -620,7 +620,7 @@ class RearPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
 
 
 class ModuleBayViewSet(NetBoxModelViewSet):
-    queryset = ModuleBay.objects.prefetch_related('tags')
+    queryset = ModuleBay.objects.prefetch_related('tags', 'installed_module')
     serializer_class = serializers.ModuleBaySerializer
     filterset_class = filtersets.ModuleBayFilterSet
     brief_prefetch_fields = ['device']

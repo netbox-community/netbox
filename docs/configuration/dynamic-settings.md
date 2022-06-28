@@ -43,18 +43,6 @@ changes in the database indefinitely.
 
 ---
 
-## JOBRESULT_RETENTION
-
-Default: 90
-
-The number of days to retain job results (scripts and reports). Set this to `0` to retain
-job results in the database indefinitely.
-
-!!! warning
-    If enabling indefinite job results retention, it is recommended to periodically delete old entries. Otherwise, the database may eventually exceed capacity.
-
----
-
 ## CUSTOM_VALIDATORS
 
 This is a mapping of models to [custom validators](../customization/custom-validation.md) that have been defined locally to enforce custom validation logic. An example is provided below:
@@ -107,6 +95,18 @@ By default, NetBox will permit users to create duplicate prefixes and IP address
 Default: True
 
 Setting this to False will disable the GraphQL API.
+
+---
+
+## JOBRESULT_RETENTION
+
+Default: 90
+
+The number of days to retain job results (scripts and reports). Set this to `0` to retain
+job results in the database indefinitely.
+
+!!! warning
+    If enabling indefinite job results retention, it is recommended to periodically delete old entries. Otherwise, the database may eventually exceed capacity.
 
 ---
 
@@ -182,6 +182,30 @@ The amount of time (in seconds) to wait for NAPALM to connect to a device.
 Default: 50
 
 The default maximum number of objects to display per page within each list of objects.
+
+---
+
+## POWERFEED_DEFAULT_AMPERAGE
+
+Default: 15
+
+The default value for the `amperage` field when creating new power feeds.
+
+---
+
+## POWERFEED_DEFAULT_MAX_UTILIZATION
+
+Default: 80
+
+The default value (percentage) for the `max_utilization` field when creating new power feeds.
+
+---
+
+## POWERFEED_DEFAULT_VOLTAGE
+
+Default: 120
+
+The default value for the `voltage` field when creating new power feeds.
 
 ---
 

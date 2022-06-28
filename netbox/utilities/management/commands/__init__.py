@@ -1,6 +1,8 @@
 from django.db import models
 from timezone_field import TimeZoneField
 
+from netbox.config import ConfigItem
+
 
 SKIP_FIELDS = (
     TimeZoneField,
@@ -25,5 +27,10 @@ def custom_deconstruct(field):
     if field.__class__ not in SKIP_FIELDS:
         for attr in EXEMPT_ATTRS:
             kwargs.pop(attr, None)
+
+    # Ignore any field defaults which reference a ConfigItem
+    kwargs = {
+        k: v for k, v in kwargs.items() if not isinstance(v, ConfigItem)
+    }
 
     return name, path, args, kwargs

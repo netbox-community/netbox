@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from dcim.choices import *
 from dcim.constants import *
+from netbox.config import ConfigItem
 from netbox.models import NetBoxModel
 from utilities.validators import ExclusionValidator
 from .device_components import LinkTermination, PathEndpoint
@@ -105,16 +106,16 @@ class PowerFeed(NetBoxModel, PathEndpoint, LinkTermination):
         default=PowerFeedPhaseChoices.PHASE_SINGLE
     )
     voltage = models.SmallIntegerField(
-        default=POWERFEED_VOLTAGE_DEFAULT,
+        default=ConfigItem('POWERFEED_DEFAULT_VOLTAGE'),
         validators=[ExclusionValidator([0])]
     )
     amperage = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
-        default=POWERFEED_AMPERAGE_DEFAULT
+        default=ConfigItem('POWERFEED_DEFAULT_AMPERAGE')
     )
     max_utilization = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
-        default=POWERFEED_MAX_UTILIZATION_DEFAULT,
+        default=ConfigItem('POWERFEED_DEFAULT_MAX_UTILIZATION'),
         help_text="Maximum permissible draw (percentage)"
     )
     available_power = models.PositiveIntegerField(

@@ -912,12 +912,12 @@ class FrontPortSerializer(NetBoxModelSerializer, LinkTerminationSerializer):
 class ModuleBaySerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebay-detail')
     device = NestedDeviceSerializer()
-    # installed_module = NestedModuleSerializer(required=False, allow_null=True)
+    installed_module = ModuleBayNestedModuleSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ModuleBay
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'position', 'description', 'tags', 'custom_fields',
+            'id', 'url', 'display', 'device', 'name', 'installed_module', 'label', 'position', 'description', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
 
