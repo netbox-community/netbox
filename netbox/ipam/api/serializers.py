@@ -19,6 +19,9 @@ from .nested_serializers import *
 #
 # ASNs
 #
+from .nested_serializers import NestedL2VPNSerializer
+from ..models.l2vpn import L2VPNTermination, L2VPN
+
 
 class ASNSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
@@ -433,3 +436,58 @@ class ServiceSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'device', 'virtual_machine', 'name', 'ports', 'protocol', 'ipaddresses',
             'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
+
+#
+# Virtual Circuits
+#
+
+
+class L2VPNSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:l2vpn-detail')
+    type = ChoiceField(choices=L2VPNTypeChoices, required=False)
+    import_targets = SerializedPKRelatedField(
+        queryset=RouteTarget.objects.all(),
+        serializer=NestedRouteTargetSerializer,
+        required=False,
+        many=True
+    )
+    export_targets = SerializedPKRelatedField(
+        queryset=RouteTarget.objects.all(),
+        serializer=NestedRouteTargetSerializer,
+        required=False,
+        many=True
+    )
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+
+    class Meta:
+        model = L2VPN
+        fields = [
+            'id', 'url', 'display', 'identifier', 'name', 'slug', 'type', 'import_targets', 'export_targets',
+            'description', 'tenant',
+            # Extra Fields
+            'tags', 'custom_fields', 'created', 'last_updated'
+        ]
+
+
+class L2VPNTerminationSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:l2vpntermination-detail')
+    l2vpn = NestedL2VPNSerializer()
+    assigned_object_type = ContentTypeField(
+        queryset=ContentType.objects.all()
+    )
+    assigned_object = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = L2VPNTermination
+        fields = [
+            'id', 'url', 'display', 'l2vpn', 'assigned_object_type', 'assigned_object_id',
+            'assigned_object',
+            # Extra Fields
+            'tags', 'custom_fields', 'created', 'last_updated'
+        ]
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_assigned_object(self, instance):
+        serializer = get_serializer_for_model(instance.assigned_object, prefix='Nested')
+        context = {'request': self.context['request']}
+        return serializer(instance.assigned_object, context=context).data

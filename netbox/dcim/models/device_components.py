@@ -649,6 +649,11 @@ class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpo
         object_id_field='interface_id',
         related_query_name='+'
     )
+    l2vpn = GenericRelation(
+        to='ipam.L2VPNTermination',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+    )
 
     clone_fields = ['device', 'parent', 'bridge', 'lag', 'type', 'mgmt_only', 'poe_mode', 'poe_type']
 

@@ -45,6 +45,10 @@ router.register('vlans', views.VLANViewSet)
 router.register('service-templates', views.ServiceTemplateViewSet)
 router.register('services', views.ServiceViewSet)
 
+# L2VPN
+router.register('l2vpn', views.L2VPNViewSet)
+router.register('l2vpn-termination', views.L2VPNTerminationViewSet)
+
 app_name = 'ipam-api'
 
 urlpatterns = [

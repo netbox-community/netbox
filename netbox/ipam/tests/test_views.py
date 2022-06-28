@@ -746,3 +746,13 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertEqual(instance.protocol, service_template.protocol)
         self.assertEqual(instance.ports, service_template.ports)
         self.assertEqual(instance.description, service_template.description)
+
+
+class L2VPNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    # TODO: L2VPN Tests
+    pass
+
+
+class L2VPNTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    # TODO: L2VPN Termination Tests
+    pass

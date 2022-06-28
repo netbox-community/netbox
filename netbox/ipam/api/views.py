@@ -18,6 +18,7 @@ from netbox.config import get_config
 from utilities.constants import ADVISORY_LOCK_KEYS
 from utilities.utils import count_related
 from . import serializers
+from ..models.l2vpn import L2VPN, L2VPNTermination
 
 
 class IPAMRootView(APIRootView):
@@ -155,6 +156,18 @@ class ServiceViewSet(NetBoxModelViewSet):
     )
     serializer_class = serializers.ServiceSerializer
     filterset_class = filtersets.ServiceFilterSet
+
+
+class L2VPNViewSet(NetBoxModelViewSet):
+    queryset = L2VPN.objects
+    serializer_class = serializers.L2VPNSerializer
+    filterset_class = filtersets.L2VPNFilterSet
+
+
+class L2VPNTerminationViewSet(NetBoxModelViewSet):
+    queryset = L2VPNTermination.objects
+    serializer_class = serializers.L2VPNTerminationSerializer
+    filterset_class = filtersets.L2VPNTerminationFilterSet
 
 
 #

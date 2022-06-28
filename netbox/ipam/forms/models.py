@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 
 from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
 from extras.models import Tag
@@ -8,8 +9,10 @@ from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
 from ipam.models import *
 from ipam.models import ASN
+from ipam.models.l2vpn import L2VPN, L2VPNTermination
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
+from tenancy.models import Tenant
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField,
@@ -26,6 +29,8 @@ __all__ = (
     'IPAddressBulkAddForm',
     'IPAddressForm',
     'IPRangeForm',
+    'L2VPNForm',
+    'L2VPNTerminationForm',
     'PrefixForm',
     'RIRForm',
     'RoleForm',
@@ -861,3 +866,94 @@ class ServiceCreateForm(ServiceForm):
                 self.cleaned_data['description'] = service_template.description
         elif not all(self.cleaned_data[f] for f in ('name', 'protocol', 'ports')):
             raise forms.ValidationError("Must specify name, protocol, and port(s) if not using a service template.")
+
+
+#
+# L2VPN
+#
+
+
+class L2VPNForm(TenancyForm, NetBoxModelForm):
+    slug = SlugField()
+    import_targets = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        required=False
+    )
+    export_targets = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        required=False
+    )
+
+    fieldsets = (
+        ('L2VPN', ('name', 'slug', 'type', 'identifier', 'description', 'tags')),
+        ('Route Targets', ('import_targets', 'export_targets')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
+    class Meta:
+        model = L2VPN
+        fields = (
+            'name', 'slug', 'type', 'identifier', 'description', 'import_targets', 'export_targets', 'tenant', 'tags'
+        )
+
+
+class L2VPNTerminationForm(NetBoxModelForm):
+    l2vpn = DynamicModelChoiceField(
+        queryset=L2VPN.objects.all(),
+        required=True,
+        query_params={},
+        label='L2VPN',
+        fetch_trigger='open'
+    )
+
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        query_params={}
+    )
+
+    vlan = DynamicModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        query_params={
+            'available_on_device': '$device'
+        }
+    )
+
+    interface = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device'
+        }
+    )
+
+    class Meta:
+        model = L2VPNTermination
+        fields = ('l2vpn', )
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {}).copy()
+
+        if instance:
+            if type(instance.assigned_object) is Interface:
+                initial['device'] = instance.assigned_object.parent
+                initial['interface'] = instance.assigned_object
+            elif type(instance.assigned_object) is VLAN:
+                initial['vlan'] = instance.assigned_object
+            kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        if not (self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')):
+            raise ValidationError('You must have either a interface or a VLAN')
+
+        if self.cleaned_data.get('interface') and self.cleaned_data.get('vlan'):
+            raise ValidationError('Cannot assign both a interface and vlan')
+
+        obj = self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')
+        self.instance.assigned_object = obj

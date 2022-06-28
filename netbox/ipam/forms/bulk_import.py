@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 
 from dcim.models import Device, Interface, Site
 from ipam.choices import *
@@ -16,6 +17,8 @@ __all__ = (
     'FHRPGroupCSVForm',
     'IPAddressCSVForm',
     'IPRangeCSVForm',
+    'L2VPNCSVForm',
+    'L2VPNTerminationCSVForm',
     'PrefixCSVForm',
     'RIRCSVForm',
     'RoleCSVForm',
@@ -425,3 +428,74 @@ class ServiceCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = Service
         fields = ('device', 'virtual_machine', 'name', 'protocol', 'ports', 'description')
+
+
+class L2VPNCSVForm(NetBoxModelCSVForm):
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+    )
+    type = CSVChoiceField(
+        choices=L2VPNTypeChoices,
+        help_text='IP protocol'
+    )
+
+    class Meta:
+        model = L2VPN
+        fields = ('identifier', 'name', 'slug', 'type', 'description')
+
+
+class L2VPNTerminationCSVForm(NetBoxModelCSVForm):
+    l2vpn = CSVModelChoiceField(
+        queryset=L2VPN.objects.all(),
+        required=True,
+        to_field_name='name',
+        label='L2VPN',
+    )
+
+    device = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Required if assigned to a interface'
+    )
+
+    interface = CSVModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Required if not assigned to a vlan'
+    )
+
+    vlan = CSVModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Required if not assigned to a interface'
+    )
+
+    class Meta:
+        model = L2VPNTermination
+        fields = ('l2vpn', 'device', 'interface', 'vlan')
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+        if data:
+            # Limit interface queryset by assigned device
+            if data.get('device'):
+                self.fields['interface'].queryset = Interface.objects.filter(
+                    **{f"device__{self.fields['device'].to_field_name}": data['device']}
+                )
+
+    def clean(self):
+        super().clean()
+
+        if not (self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')):
+            raise ValidationError('You must have either a interface or a VLAN')
+
+        if self.cleaned_data.get('interface') and self.cleaned_data.get('vlan'):
+            raise ValidationError('Cannot assign both a interface and vlan')
+
+        # Set Assigned Object
+        self.instance.assigned_object = self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')

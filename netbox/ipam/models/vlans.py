@@ -1,4 +1,4 @@
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -8,6 +8,7 @@ from django.urls import reverse
 from dcim.models import Interface
 from ipam.choices import *
 from ipam.constants import *
+from ipam.models import L2VPNTermination
 from ipam.querysets import VLANQuerySet
 from netbox.models import OrganizationalModel, NetBoxModel
 from virtualization.models import VMInterface
@@ -171,6 +172,12 @@ class VLAN(NetBoxModel):
     description = models.CharField(
         max_length=200,
         blank=True
+    )
+
+    l2vpn = GenericRelation(
+        to='ipam.L2VPNTermination',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
     )
 
     objects = VLANQuerySet.as_manager()

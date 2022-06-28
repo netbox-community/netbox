@@ -261,6 +261,13 @@ IPAM_MENU = Menu(
             ),
         ),
         MenuGroup(
+            label='L2VPNs',
+            items=(
+                get_model_item('ipam', 'l2vpn', 'L2VPN'),
+                get_model_item('ipam', 'l2vpntermination', 'Terminations'),
+            ),
+        ),
+        MenuGroup(
             label='Other',
             items=(
                 get_model_item('ipam', 'fhrpgroup', 'FHRP Groups'),

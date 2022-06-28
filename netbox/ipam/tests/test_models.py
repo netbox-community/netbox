@@ -538,3 +538,13 @@ class TestVLANGroup(TestCase):
 
         VLAN.objects.create(name='VLAN 104', vid=104, group=vlangroup)
         self.assertEqual(vlangroup.get_next_available_vid(), 105)
+
+
+class TestL2VPN(TestCase):
+    # TODO: L2VPN Tests
+    pass
+
+
+class TestL2VPNTermination(TestCase):
+    # TODO: L2VPN Termination Tests
+    pass

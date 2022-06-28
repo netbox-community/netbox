@@ -23,6 +23,8 @@ __all__ = (
     'FHRPGroupFilterSet',
     'IPAddressFilterSet',
     'IPRangeFilterSet',
+    'L2VPNFilterSet',
+    'L2VPNTerminationFilterSet',
     'PrefixFilterSet',
     'RIRFilterSet',
     'RoleFilterSet',
@@ -921,4 +923,67 @@ class ServiceFilterSet(NetBoxModelFilterSet):
         if not value.strip():
             return queryset
         qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
+        return queryset.filter(qs_filter)
+
+
+#
+# L2VPN
+#
+
+
+class L2VPNFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+    import_target_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='import_targets',
+        queryset=RouteTarget.objects.all(),
+        label='Import target',
+    )
+    import_target = django_filters.ModelMultipleChoiceFilter(
+        field_name='import_targets__name',
+        queryset=RouteTarget.objects.all(),
+        to_field_name='name',
+        label='Import target (name)',
+    )
+    export_target_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='export_targets',
+        queryset=RouteTarget.objects.all(),
+        label='Export target',
+    )
+    export_target = django_filters.ModelMultipleChoiceFilter(
+        field_name='export_targets__name',
+        queryset=RouteTarget.objects.all(),
+        to_field_name='name',
+        label='Export target (name)',
+    )
+
+    class Meta:
+        model = L2VPN
+        fields = ['identifier', 'name', 'type', 'description']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(identifier=value) | Q(name__icontains=value) | Q(description__icontains=value)
+        return queryset.filter(qs_filter)
+
+
+class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
+    l2vpn_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=L2VPN.objects.all(),
+        label='L2VPN (ID)',
+    )
+    l2vpn = django_filters.ModelMultipleChoiceFilter(
+        field_name='l2vpn__name',
+        queryset=L2VPN.objects.all(),
+        to_field_name='name',
+        label='L2VPN (name)',
+    )
+
+    class Meta:
+        model = L2VPNTermination
+        fields = ['l2vpn']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(l2vpn__name__icontains=value)
         return queryset.filter(qs_filter)

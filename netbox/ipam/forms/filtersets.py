@@ -19,6 +19,8 @@ __all__ = (
     'FHRPGroupFilterForm',
     'IPAddressFilterForm',
     'IPRangeFilterForm',
+    'L2VPNFilterForm',
+    'L2VPNTerminationFilterForm',
     'PrefixFilterForm',
     'RIRFilterForm',
     'RoleFilterForm',
@@ -463,3 +465,30 @@ class ServiceTemplateFilterForm(NetBoxModelFilterSetForm):
 
 class ServiceFilterForm(ServiceTemplateFilterForm):
     model = Service
+
+
+class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+    model = L2VPN
+    fieldsets = (
+        (None, ('type', )),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(L2VPNTypeChoices),
+        required=False,
+        widget=StaticSelect()
+    )
+
+
+class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
+    model = L2VPNTermination
+    fieldsets = (
+        (None, ('l2vpn', )),
+    )
+    l2vpn = DynamicModelChoiceField(
+        queryset=L2VPN.objects.all(),
+        required=True,
+        query_params={},
+        label='L2VPN',
+        fetch_trigger='open'
+    )
