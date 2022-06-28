@@ -24,6 +24,7 @@ from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.views import GetReturnURLMixin
 from .base import BaseMultiObjectView
+from .mixins import TableMixin
 
 __all__ = (
     'BulkComponentCreateView',
@@ -36,9 +37,9 @@ __all__ = (
 )
 
 
-class ObjectListView(BaseMultiObjectView):
+class ObjectListView(BaseMultiObjectView, TableMixin):
     """
-    Display multiple objects, all of the same type, as a table.
+    Display multiple objects, all the same type, as a table.
 
     Attributes:
         filterset: A django-filter FilterSet that is applied to the queryset
@@ -60,20 +61,6 @@ class ObjectListView(BaseMultiObjectView):
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
-
-    def get_table(self, request, bulk_actions=True):
-        """
-        Return the django-tables2 Table instance to be used for rendering the objects list.
-
-        Args:
-            request: The current request
-            bulk_actions: Show checkboxes for object selection
-        """
-        table = self.table(self.queryset, user=request.user)
-        if 'pk' in table.base_columns and bulk_actions:
-            table.columns.show('pk')
-
-        return table
 
     #
     # Export methods
@@ -159,7 +146,7 @@ class ObjectListView(BaseMultiObjectView):
 
             # Export the current table view
             if request.GET['export'] == 'table':
-                table = self.get_table(request, has_bulk_actions)
+                table = self.get_table(self.queryset, request, has_bulk_actions)
                 columns = [name for name, _ in table.selected_columns]
                 return self.export_table(table, columns)
 
@@ -177,12 +164,11 @@ class ObjectListView(BaseMultiObjectView):
 
             # Fall back to default table/YAML export
             else:
-                table = self.get_table(request, has_bulk_actions)
+                table = self.get_table(self.queryset, request, has_bulk_actions)
                 return self.export_table(table)
 
         # Render the objects table
-        table = self.get_table(request, has_bulk_actions)
-        table.configure(request)
+        table = self.get_table(self.queryset, request, has_bulk_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
         if is_htmx(request):

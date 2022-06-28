@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from copy import deepcopy
 
 from django.contrib import messages
@@ -20,6 +21,7 @@ from utilities.permissions import get_permission_for_model
 from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin
 from .base import BaseObjectView
+from .mixins import TableMixin
 
 __all__ = (
     'ComponentCreateView',
@@ -69,23 +71,31 @@ class ObjectView(BaseObjectView):
         })
 
 
-class ObjectChildrenView(ObjectView):
+class ObjectChildrenView(ObjectView, TableMixin):
     """
     Display a table of child objects associated with the parent object.
 
     Attributes:
-        table: Table class used to render child objects list
+        child_model: The model class which represents the child objects
+        table: The django-tables2 Table class used to render the child objects list
+        filterset: A django-filter FilterSet that is applied to the queryset
     """
     child_model = None
     table = None
     filterset = None
+    actions = ('bulk_edit', 'bulk_delete')
+    action_perms = defaultdict(set, **{
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+    })
 
     def get_children(self, request, parent):
         """
         Return a QuerySet of child objects.
 
-        request: The current request
-        parent: The parent object
+        Args:
+            request: The current request
+            parent: The parent object
         """
         raise NotImplementedError(f'{self.__class__.__name__} must implement get_children()')
 
@@ -114,16 +124,16 @@ class ObjectChildrenView(ObjectView):
         if self.filterset:
             child_objects = self.filterset(request.GET, child_objects).qs
 
-        permissions = {}
-        for action in ('change', 'delete'):
-            perm_name = get_permission_for_model(self.child_model, action)
-            permissions[action] = request.user.has_perm(perm_name)
+        # Determine the available actions
+        actions = []
+        for action in self.actions:
+            if request.user.has_perms([
+                get_permission_for_model(self.child_model, name) for name in self.action_perms[action]
+            ]):
+                actions.append(action)
 
-        table = self.table(self.prep_table_data(request, child_objects, instance), user=request.user)
-        # Determine whether to display bulk action checkboxes
-        if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
-            table.columns.show('pk')
-        table.configure(request)
+        table_data = self.prep_table_data(request, child_objects, instance)
+        table = self.get_table(table_data, request, bool(actions))
 
         # If this is an HTMX request, return only the rendered table HTML
         if is_htmx(request):
@@ -134,8 +144,9 @@ class ObjectChildrenView(ObjectView):
 
         return render(request, self.get_template_name(), {
             'object': instance,
+            'child_model': self.child_model,
             'table': table,
-            'permissions': permissions,
+            'actions': actions,
             **self.get_extra_context(request, instance),
         })
 
