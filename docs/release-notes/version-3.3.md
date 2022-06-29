@@ -34,6 +34,7 @@
 
 ### Plugins API
 
+* [#9092](https://github.com/netbox-community/netbox/issues/9092) - Add support for `ObjectChildrenView` generic view
 * [#9414](https://github.com/netbox-community/netbox/issues/9414) - Add `clone()` method to NetBoxModel for copying instance attributes
 
 ### Other Changes
