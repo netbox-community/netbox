@@ -27,6 +27,7 @@
 * [#8471](https://github.com/netbox-community/netbox/issues/8471) - Add `status` field to Cluster
 * [#8495](https://github.com/netbox-community/netbox/issues/8495) - Enable custom field grouping
 * [#8995](https://github.com/netbox-community/netbox/issues/8995) - Enable arbitrary ordering of REST API results
+* [#9070](https://github.com/netbox-community/netbox/issues/9070) - Hide navigation menu items based on user permissions
 * [#9166](https://github.com/netbox-community/netbox/issues/9166) - Add UI visibility toggle for custom fields
 * [#9177](https://github.com/netbox-community/netbox/issues/9177) - Add tenant assignment for wireless LANs & links
 * [#9536](https://github.com/netbox-community/netbox/issues/9536) - Track API token usage times
