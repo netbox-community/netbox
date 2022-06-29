@@ -1,5 +1,4 @@
 import logging
-from collections import defaultdict
 from copy import deepcopy
 
 from django.contrib import messages
@@ -21,7 +20,7 @@ from utilities.permissions import get_permission_for_model
 from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin
 from .base import BaseObjectView
-from .mixins import TableMixin
+from .mixins import ActionsMixin, TableMixin
 
 __all__ = (
     'ComponentCreateView',
@@ -71,7 +70,7 @@ class ObjectView(BaseObjectView):
         })
 
 
-class ObjectChildrenView(ObjectView, TableMixin):
+class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
     """
     Display a table of child objects associated with the parent object.
 
@@ -79,15 +78,13 @@ class ObjectChildrenView(ObjectView, TableMixin):
         child_model: The model class which represents the child objects
         table: The django-tables2 Table class used to render the child objects list
         filterset: A django-filter FilterSet that is applied to the queryset
+        actions: Supported actions for the model. When adding custom actions, bulk action names must
+            be prefixed with `bulk_`. Default actions: add, import, export, bulk_edit, bulk_delete
+        action_perms: A dictionary mapping supported actions to a set of permissions required for each
     """
     child_model = None
     table = None
     filterset = None
-    actions = ('bulk_edit', 'bulk_delete')
-    action_perms = defaultdict(set, **{
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
-    })
 
     def get_children(self, request, parent):
         """
@@ -125,12 +122,7 @@ class ObjectChildrenView(ObjectView, TableMixin):
             child_objects = self.filterset(request.GET, child_objects).qs
 
         # Determine the available actions
-        actions = []
-        for action in self.actions:
-            if request.user.has_perms([
-                get_permission_for_model(self.child_model, name) for name in self.action_perms[action]
-            ]):
-                actions.append(action)
+        actions = self.get_permitted_actions(request.user, model=self.child_model)
 
         table_data = self.prep_table_data(request, child_objects, instance)
         table = self.get_table(table_data, request, bool(actions))

@@ -1,6 +1,31 @@
+from collections import defaultdict
+
+from utilities.permissions import get_permission_for_model
+
 __all__ = (
     'TableMixin',
 )
+
+
+class ActionsMixin:
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+    })
+
+    def get_permitted_actions(self, user, model=None):
+        """
+        Return a tuple of actions for which the given user is permitted to do.
+        """
+        model = model or self.queryset.model
+        return [
+            action for action in self.actions if user.has_perms([
+                get_permission_for_model(model, name) for name in self.action_perms[action]
+            ])
+        ]
 
 
 class TableMixin:

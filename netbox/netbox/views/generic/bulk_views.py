@@ -24,7 +24,7 @@ from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.views import GetReturnURLMixin
 from .base import BaseMultiObjectView
-from .mixins import TableMixin
+from .mixins import ActionsMixin, TableMixin
 
 __all__ = (
     'BulkComponentCreateView',
@@ -37,7 +37,7 @@ __all__ = (
 )
 
 
-class ObjectListView(BaseMultiObjectView, TableMixin):
+class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     """
     Display multiple objects, all the same type, as a table.
 
@@ -51,13 +51,6 @@ class ObjectListView(BaseMultiObjectView, TableMixin):
     template_name = 'generic/object_list.html'
     filterset = None
     filterset_form = None
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete')
-    action_perms = defaultdict(set, **{
-        'add': {'add'},
-        'import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
-    })
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
@@ -134,12 +127,7 @@ class ObjectListView(BaseMultiObjectView, TableMixin):
             self.queryset = self.filterset(request.GET, self.queryset).qs
 
         # Determine the available actions
-        actions = []
-        for action in self.actions:
-            if request.user.has_perms([
-                get_permission_for_model(model, name) for name in self.action_perms[action]
-            ]):
-                actions.append(action)
+        actions = self.get_permitted_actions(request.user)
         has_bulk_actions = any([a.startswith('bulk_') for a in actions])
 
         if 'export' in request.GET:
@@ -176,15 +164,13 @@ class ObjectListView(BaseMultiObjectView, TableMixin):
                 'table': table,
             })
 
-        context = {
+        return render(request, self.template_name, {
             'model': model,
             'table': table,
             'actions': actions,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
             **self.get_extra_context(request),
-        }
-
-        return render(request, self.template_name, context)
+        })
 
 
 class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
