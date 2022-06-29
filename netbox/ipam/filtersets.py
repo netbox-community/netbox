@@ -957,7 +957,7 @@ class L2VPNFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = L2VPN
-        fields = ['identifier', 'name', 'type', 'description']
+        fields = ['id', 'identifier', 'name', 'type', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -977,13 +977,60 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         to_field_name='name',
         label='L2VPN (name)',
     )
+    device = MultiValueCharFilter(
+        method='filter_device',
+        field_name='name',
+        label='Device (name)',
+    )
+    device_id = MultiValueNumberFilter(
+        method='filter_device',
+        field_name='pk',
+        label='Device (ID)',
+    )
+    interface = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface__name',
+        queryset=Interface.objects.all(),
+        to_field_name='name',
+        label='Interface (name)',
+    )
+    interface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface',
+        queryset=Interface.objects.all(),
+        label='Interface (ID)',
+    )
+    vlan = django_filters.ModelMultipleChoiceFilter(
+        field_name='vlan__name',
+        queryset=VLAN.objects.all(),
+        to_field_name='name',
+        label='VLAN (name)',
+    )
+    vlan_vid = django_filters.NumberFilter(
+        field_name='vlan__vid',
+        label='VLAN number (1-4094)',
+    )
+    vlan_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vlan',
+        queryset=VLAN.objects.all(),
+        label='VLAN (ID)',
+    )
 
     class Meta:
         model = L2VPNTermination
-        fields = ['l2vpn']
+        fields = ['id', ]
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         qs_filter = Q(l2vpn__name__icontains=value)
         return queryset.filter(qs_filter)
+
+    def filter_device(self, queryset, name, value):
+        devices = Device.objects.filter(**{'{}__in'.format(name): value})
+        if not devices.exists():
+            return queryset.none()
+        interface_ids = []
+        for device in devices:
+            interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
+        return queryset.filter(
+            interface__in=interface_ids
+        )

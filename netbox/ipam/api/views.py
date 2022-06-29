@@ -165,7 +165,7 @@ class L2VPNViewSet(NetBoxModelViewSet):
 
 
 class L2VPNTerminationViewSet(NetBoxModelViewSet):
-    queryset = L2VPNTermination.objects
+    queryset = L2VPNTermination.objects.prefetch_related('assigned_object')
     serializer_class = serializers.L2VPNTerminationSerializer
     filterset_class = filtersets.L2VPNTerminationFilterSet
 

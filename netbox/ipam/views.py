@@ -1141,6 +1141,13 @@ class ServiceBulkEditView(generic.BulkEditView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable
+    form = forms.ServiceBulkEditForm
+
+
+class ServiceBulkDeleteView(generic.BulkDeleteView):
+    queryset = Service.objects.prefetch_related('device', 'virtual_machine')
+    filterset = filtersets.ServiceFilterSet
+    table = tables.ServiceTable
 
 
 # L2VPN
@@ -1232,14 +1239,14 @@ class L2VPNTerminationBulkImportView(generic.BulkImportView):
     table = tables.L2VPNTerminationTable
 
 
+class L2VPNTerminationBulkEditView(generic.BulkEditView):
+    queryset = L2VPNTermination.objects.all()
+    filterset = filtersets.L2VPNTerminationFilterSet
+    table = tables.L2VPNTerminationTable
+    form = forms.L2VPNTerminationBulkEditForm
+
+
 class L2VPNTerminationBulkDeleteView(generic.BulkDeleteView):
     queryset = L2VPNTermination.objects.all()
     filterset = filtersets.L2VPNTerminationFilterSet
     table = tables.L2VPNTerminationTable
-    form = forms.ServiceBulkEditForm
-
-
-class ServiceBulkDeleteView(generic.BulkDeleteView):
-    queryset = Service.objects.prefetch_related('device', 'virtual_machine')
-    filterset = filtersets.ServiceFilterSet
-    table = tables.ServiceTable

@@ -1465,8 +1465,7 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class L2VPNTest(TestCase, ChangeLoggedFilterSetTests):
-    # TODO: L2VPN Tests
+class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = L2VPN.objects.all()
     filterset = L2VPNFilterSet
 
@@ -1480,20 +1479,8 @@ class L2VPNTest(TestCase, ChangeLoggedFilterSetTests):
         )
         L2VPN.objects.bulk_create(l2vpns)
 
-    def test_created(self):
-        from datetime import date, date
-        pk_list = self.queryset.values_list('pk', flat=True)[:2]
-        print(pk_list)
-        self.queryset.filter(pk__in=pk_list).update(created=datetime(2021, 1, 1, 0, 0, 0, tzinfo=timezone.utc))
-        params = {'created': '2021-01-01T00:00:00'}
-        fs = self.filterset({}, self.queryset).qs.all()
-        for res in fs:
-            print(f'{res.name}:{res.created}')
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-
-class L2VPNTerminationTest(TestCase, ChangeLoggedFilterSetTests):
-    # TODO: L2VPN Termination Tests
+class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = L2VPNTermination.objects.all()
     filterset = L2VPNTerminationFilterSet
 
@@ -1511,22 +1498,24 @@ class L2VPNTerminationTest(TestCase, ChangeLoggedFilterSetTests):
             device_role=device_role,
             status='active'
         )
-        interfaces = Interface.objects.bulk_create(
-            Interface(name='GigabitEthernet1/0/1', device=device, type='1000baset'),
-            Interface(name='GigabitEthernet1/0/2', device=device, type='1000baset'),
-            Interface(name='GigabitEthernet1/0/3', device=device, type='1000baset'),
-            Interface(name='GigabitEthernet1/0/4', device=device, type='1000baset'),
-            Interface(name='GigabitEthernet1/0/5', device=device, type='1000baset'),
+
+        interfaces = (
+            Interface(name='Interface 1', device=device, type='1000baset'),
+            Interface(name='Interface 2', device=device, type='1000baset'),
+            Interface(name='Interface 3', device=device, type='1000baset'),
+            Interface(name='Interface 4', device=device, type='1000baset'),
+            Interface(name='Interface 5', device=device, type='1000baset'),
+            Interface(name='Interface 6', device=device, type='1000baset')
         )
 
+        Interface.objects.bulk_create(interfaces)
+
         vlans = (
-            VLAN(name='VLAN 1', vid=650001),
-            VLAN(name='VLAN 2', vid=650002),
-            VLAN(name='VLAN 3', vid=650003),
-            VLAN(name='VLAN 4', vid=650004),
-            VLAN(name='VLAN 5', vid=650005),
-            VLAN(name='VLAN 6', vid=650006),
-            VLAN(name='VLAN 7', vid=650007)
+            VLAN(name='VLAN 1', vid=651),
+            VLAN(name='VLAN 2', vid=652),
+            VLAN(name='VLAN 3', vid=653),
+            VLAN(name='VLAN 4', vid=654),
+            VLAN(name='VLAN 5', vid=655)
         )
 
         VLAN.objects.bulk_create(vlans)
@@ -1534,26 +1523,33 @@ class L2VPNTerminationTest(TestCase, ChangeLoggedFilterSetTests):
         l2vpns = (
             L2VPN(name='L2VPN 1', type='vxlan', identifier=650001),
             L2VPN(name='L2VPN 2', type='vpws', identifier=650002),
-            L2VPN(name='L2VPN 3', type='vpls'),  # No RD
+            L2VPN(name='L2VPN 3', type='vpls'),  # No RD,
         )
         L2VPN.objects.bulk_create(l2vpns)
 
         l2vpnterminations = (
             L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[0]),
-            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[1]),
-            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[2])
+            L2VPNTermination(l2vpn=l2vpns[1], assigned_object=vlans[1]),
+            L2VPNTermination(l2vpn=l2vpns[2], assigned_object=vlans[2]),
+            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=interfaces[0]),
+            L2VPNTermination(l2vpn=l2vpns[1], assigned_object=interfaces[1]),
+            L2VPNTermination(l2vpn=l2vpns[2], assigned_object=interfaces[2]),
         )
+
+        L2VPNTermination.objects.bulk_create(l2vpnterminations)
 
     def test_l2vpns(self):
         l2vpns = L2VPN.objects.all()[:2]
         params = {'l2vpn_id': [l2vpns[0].pk, l2vpns[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'l2vpn': ['L2VPN 1', 'L2VPN 2']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_interfaces(self):
         interfaces = Interface.objects.all()[:2]
         params = {'interface_id': [interfaces[0].pk, interfaces[1].pk]}
+        qs = self.filterset(params, self.queryset).qs
+        results = qs.all()
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'interface': ['Interface 1', 'Interface 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

@@ -201,6 +201,7 @@ urlpatterns = [
     path('l2vpn-termination/', views.L2VPNTerminationListView.as_view(), name='l2vpntermination_list'),
     path('l2vpn-termination/add/', views.L2VPNTerminationEditView.as_view(), name='l2vpntermination_add'),
     path('l2vpn-termination/import/', views.L2VPNTerminationBulkImportView.as_view(), name='l2vpntermination_import'),
+    path('l2vpn-termination/edit/', views.L2VPNTerminationBulkEditView.as_view(), name='l2vpntermination_bulk_edit'),
     path('l2vpn-termination/delete/', views.L2VPNTerminationBulkDeleteView.as_view(), name='l2vpntermination_bulk_delete'),
     path('l2vpn-termination/<int:pk>/', views.L2VPNTerminationView.as_view(), name='l2vpntermination'),
     path('l2vpn-termination/<int:pk>/edit/', views.L2VPNTerminationEditView.as_view(), name='l2vpntermination_edit'),

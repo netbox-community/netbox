@@ -174,10 +174,11 @@ class VLAN(NetBoxModel):
         blank=True
     )
 
-    l2vpn = GenericRelation(
+    l2vpn_terminations = GenericRelation(
         to='ipam.L2VPNTermination',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
+        related_query_name='vlan'
     )
 
     objects = VLANQuerySet.as_manager()
@@ -234,3 +235,7 @@ class VLAN(NetBoxModel):
             Q(untagged_vlan_id=self.pk) |
             Q(tagged_vlans=self.pk)
         ).distinct()
+
+    @property
+    def l2vpn_termination(self):
+        return self.l2vpn_terminations.first()

@@ -19,6 +19,7 @@ __all__ = (
     'IPAddressBulkEditForm',
     'IPRangeBulkEditForm',
     'L2VPNBulkEditForm',
+    'L2VPNTerminationBulkEditForm',
     'PrefixBulkEditForm',
     'RIRBulkEditForm',
     'RoleBulkEditForm',
@@ -458,3 +459,7 @@ class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
         (None, ('tenant', 'description')),
     )
     nullable_fields = ('tenant', 'description',)
+
+
+class L2VPNTerminationBulkEditForm(NetBoxModelBulkEditForm):
+    model = L2VPN

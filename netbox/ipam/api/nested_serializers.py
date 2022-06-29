@@ -11,6 +11,8 @@ __all__ = [
     'NestedFHRPGroupAssignmentSerializer',
     'NestedIPAddressSerializer',
     'NestedIPRangeSerializer',
+    'NestedL2VPNSerializer',
+    'NestedL2VPNTerminationSerializer',
     'NestedPrefixSerializer',
     'NestedRIRSerializer',
     'NestedRoleSerializer',
@@ -203,17 +205,17 @@ class NestedL2VPNSerializer(WritableNestedSerializer):
     class Meta:
         model = L2VPN
         fields = [
-            'id', 'url', 'display', 'name', 'type'
+            'id', 'url', 'display', 'identifier', 'name', 'slug', 'type'
         ]
 
 
 class NestedL2VPNTerminationSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:l2vpn_termination-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:l2vpntermination-detail')
     l2vpn = NestedL2VPNSerializer()
 
     class Meta:
         model = L2VPNTermination
         fields = [
-            'id', 'url', 'display', 'l2vpn', 'assigned_object'
+            'id', 'url', 'display', 'l2vpn'
         ]
 

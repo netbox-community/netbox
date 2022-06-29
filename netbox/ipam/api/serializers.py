@@ -207,13 +207,14 @@ class VLANSerializer(NetBoxModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=VLANStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
+    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True)
     prefix_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VLAN
         fields = [
-            'id', 'url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'tags',
-            'custom_fields', 'created', 'last_updated', 'prefix_count',
+            'id', 'url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description',
+            'l2vpn_termination', 'tags', 'custom_fields', 'created', 'last_updated', 'prefix_count',
         ]
 
 
