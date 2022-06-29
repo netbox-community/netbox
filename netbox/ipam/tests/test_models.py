@@ -612,4 +612,3 @@ class TestL2VPNTermination(TestCase):
         L2VPNTermination.objects.create(l2vpn=l2vpn, assigned_object=vlan)
         duplicate = L2VPNTermination(l2vpn=l2vpn, assigned_object=vlan)
         self.assertRaises(ValidationError, duplicate.clean)
-

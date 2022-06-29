@@ -218,4 +218,3 @@ class NestedL2VPNTerminationSerializer(WritableNestedSerializer):
         fields = [
             'id', 'url', 'display', 'l2vpn'
         ]
-
