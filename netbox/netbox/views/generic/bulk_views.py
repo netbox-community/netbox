@@ -1,6 +1,5 @@
 import logging
 import re
-from collections import defaultdict
 from copy import deepcopy
 
 from django.contrib import messages
@@ -12,11 +11,12 @@ from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2.export import TableExport
+from django.utils.safestring import mark_safe
 
 from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
-from utilities.exceptions import PermissionsViolation
+from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import (
     BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, CSVFileField, restrict_form_fields,
 )
@@ -264,10 +264,10 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
             except IntegrityError:
                 pass
 
-            except PermissionsViolation:
-                msg = "Object creation failed due to object-level permissions violation"
-                logger.debug(msg)
-                form.add_error(None, msg)
+            except (AbortRequest, PermissionsViolation) as e:
+                logger.debug(e.message)
+                form.add_error(None, e.message)
+                clear_webhooks.send(sender=self)
 
         else:
             logger.debug("Form validation failed")
@@ -392,10 +392,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             except ValidationError:
                 clear_webhooks.send(sender=self)
 
-            except PermissionsViolation:
-                msg = "Object import failed due to object-level permissions violation"
-                logger.debug(msg)
-                form.add_error(None, msg)
+            except (AbortRequest, PermissionsViolation) as e:
+                logger.debug(e.message)
+                form.add_error(None, e.message)
                 clear_webhooks.send(sender=self)
 
         else:
@@ -542,10 +541,9 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                     messages.error(self.request, ", ".join(e.messages))
                     clear_webhooks.send(sender=self)
 
-                except PermissionsViolation:
-                    msg = "Object update failed due to object-level permissions violation"
-                    logger.debug(msg)
-                    form.add_error(None, msg)
+                except (AbortRequest, PermissionsViolation) as e:
+                    logger.debug(e.message)
+                    form.add_error(None, e.message)
                     clear_webhooks.send(sender=self)
 
             else:
@@ -639,10 +637,9 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                             messages.success(request, f"Renamed {len(selected_objects)} {model_name}")
                             return redirect(self.get_return_url(request))
 
-                except PermissionsViolation:
-                    msg = "Object update failed due to object-level permissions violation"
-                    logger.debug(msg)
-                    form.add_error(None, msg)
+                except (AbortRequest, PermissionsViolation) as e:
+                    logger.debug(e.message)
+                    form.add_error(None, e.message)
                     clear_webhooks.send(sender=self)
 
         else:
@@ -717,9 +714,15 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                         if hasattr(obj, 'snapshot'):
                             obj.snapshot()
                         obj.delete()
+
                 except ProtectedError as e:
                     logger.info("Caught ProtectedError while attempting to delete objects")
                     handle_protectederror(queryset, request, e)
+                    return redirect(self.get_return_url(request))
+
+                except AbortRequest as e:
+                    logger.debug(e.message)
+                    messages.error(request, mark_safe(e.message))
                     return redirect(self.get_return_url(request))
 
                 msg = f"Deleted {deleted_count} {model._meta.verbose_name_plural}"
@@ -829,10 +832,9 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
                 except IntegrityError:
                     clear_webhooks.send(sender=self)
 
-                except PermissionsViolation:
-                    msg = "Component creation failed due to object-level permissions violation"
-                    logger.debug(msg)
-                    form.add_error(None, msg)
+                except (AbortRequest, PermissionsViolation) as e:
+                    logger.debug(e.message)
+                    form.add_error(None, e.message)
                     clear_webhooks.send(sender=self)
 
                 if not form.errors:

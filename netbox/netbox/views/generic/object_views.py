@@ -13,7 +13,7 @@ from django.utils.safestring import mark_safe
 
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
-from utilities.exceptions import AbortTransaction, PermissionsViolation
+from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import ConfirmationForm, ImportForm, restrict_form_fields
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
@@ -246,10 +246,9 @@ class ObjectImportView(GetReturnURLMixin, BaseObjectView):
                 except AbortTransaction:
                     clear_webhooks.send(sender=self)
 
-                except PermissionsViolation:
-                    msg = "Object creation failed due to object-level permissions violation"
-                    logger.debug(msg)
-                    form.add_error(None, msg)
+                except (AbortRequest, PermissionsViolation) as e:
+                    logger.debug(e.message)
+                    form.add_error(None, e.message)
                     clear_webhooks.send(sender=self)
 
             if not model_form.errors:
@@ -410,10 +409,9 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
 
                 return redirect(return_url)
 
-            except PermissionsViolation:
-                msg = "Object save failed due to object-level permissions violation"
-                logger.debug(msg)
-                form.add_error(None, msg)
+            except (AbortRequest, PermissionsViolation) as e:
+                logger.debug(e.message)
+                form.add_error(None, e.message)
                 clear_webhooks.send(sender=self)
 
         else:
@@ -489,9 +487,15 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
             try:
                 obj.delete()
+
             except ProtectedError as e:
                 logger.info("Caught ProtectedError while attempting to delete object")
                 handle_protectederror([obj], request, e)
+                return redirect(obj.get_absolute_url())
+
+            except AbortRequest as e:
+                logger.debug(e.message)
+                messages.error(request, mark_safe(e.message))
                 return redirect(obj.get_absolute_url())
 
             msg = 'Deleted {} {}'.format(self.queryset.model._meta.verbose_name, obj)
@@ -603,10 +607,9 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                         else:
                             return redirect(self.get_return_url(request))
 
-                except PermissionsViolation:
-                    msg = "Component creation failed due to object-level permissions violation"
-                    logger.debug(msg)
-                    form.add_error(None, msg)
+                except (AbortRequest, PermissionsViolation) as e:
+                    logger.debug(e.message)
+                    form.add_error(None, e.message)
                     clear_webhooks.send(sender=self)
 
         return render(request, self.template_name, {

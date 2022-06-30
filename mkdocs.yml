@@ -118,6 +118,7 @@ nav:
             - REST API: 'plugins/development/rest-api.md'
             - GraphQL API: 'plugins/development/graphql-api.md'
             - Background Tasks: 'plugins/development/background-tasks.md'
+            - Exceptions: 'plugins/development/exceptions.md'
     - Administration:
         - Authentication:
             - Overview: 'administration/authentication/overview.md'
