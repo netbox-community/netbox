@@ -676,6 +676,9 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
         else:
             form = self.form(initial={'pk': request.POST.getlist('pk')})
             selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
+            for object in selected_objects:
+                # Do something to raise error message to user
+                pass
 
         return render(request, self.template_name, {
             'form': form,
