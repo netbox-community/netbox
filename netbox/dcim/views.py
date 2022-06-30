@@ -1786,6 +1786,12 @@ class DeviceBulkDeleteView(generic.BulkDeleteView):
     table = tables.DeviceTable
 
 
+class DeviceBulkRenameView(generic.BulkRenameView):
+    queryset = Device.objects.prefetch_related('tenant', 'site', 'rack', 'device_role', 'device_type__manufacturer')
+    filterset = filtersets.DeviceFilterSet
+    table = tables.DeviceTable
+
+
 #
 # Devices
 #
