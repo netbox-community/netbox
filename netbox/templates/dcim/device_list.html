@@ -2,8 +2,7 @@
 
 {% block bulk_buttons %}
   {% if perms.dcim.change_device %}
-    <!-- TODO: fix return URL-->
-    <button type="submit" name="_rename" formaction="{% url 'dcim:device_bulk_rename' %}?return_url={% url 'dcim:device_list' %}" class="btn btn-outline-warning btn-sm">
+    <button type="submit" name="_rename" formaction="{% url 'dcim:device_bulk_rename' %}?return_url={% url 'dcim:device_list' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-outline-warning btn-sm">
       <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
     </button>
     <div class="dropdown">
