@@ -26,3 +26,8 @@
 ---
 
 {!models/ipam/asn.md!}
+
+---
+
+{!models/ipam/l2vpn.md!}
+{!models/ipam/l2vpntermination.md!}
