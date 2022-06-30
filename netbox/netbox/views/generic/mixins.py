@@ -3,6 +3,7 @@ from collections import defaultdict
 from utilities.permissions import get_permission_for_model
 
 __all__ = (
+    'ActionsMixin',
     'TableMixin',
 )
 
