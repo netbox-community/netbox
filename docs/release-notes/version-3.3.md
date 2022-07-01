@@ -25,6 +25,7 @@
 * [#5303](https://github.com/netbox-community/netbox/issues/5303) - A virtual machine may be assigned to a site and/or cluster
 * [#7120](https://github.com/netbox-community/netbox/issues/7120) - Add `termination_date` field to Circuit
 * [#7744](https://github.com/netbox-community/netbox/issues/7744) - Add `status` field to Location
+* [#8171](https://github.com/netbox-community/netbox/issues/8171) - Populate next available address when cloning an IP
 * [#8222](https://github.com/netbox-community/netbox/issues/8222) - Enable the assignment of a VM to a specific host device within a cluster
 * [#8471](https://github.com/netbox-community/netbox/issues/8471) - Add `status` field to Cluster
 * [#8495](https://github.com/netbox-community/netbox/issues/8495) - Enable custom field grouping

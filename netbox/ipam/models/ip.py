@@ -857,6 +857,25 @@ class IPAddress(NetBoxModel):
             address__net_host=str(self.address.ip)
         ).exclude(pk=self.pk)
 
+    def get_next_available_ip(self):
+        """
+        Return the next available IP address within this IP's network (if any)
+        """
+        if self.address and self.address.broadcast:
+            start_ip = self.address.ip + 1
+            end_ip = self.address.broadcast - 1
+            if start_ip <= end_ip:
+                available_ips = netaddr.IPSet(netaddr.IPRange(start_ip, end_ip))
+                available_ips -= netaddr.IPSet([
+                    address.ip for address in IPAddress.objects.filter(
+                        vrf=self.vrf,
+                        address__gt=self.address,
+                        address__net_contained_or_equal=self.address.cidr
+                    ).values_list('address', flat=True)
+                ])
+                if available_ips:
+                    return next(iter(available_ips))
+
     def clean(self):
         super().clean()
 
@@ -906,6 +925,15 @@ class IPAddress(NetBoxModel):
         self.dns_name = self.dns_name.lower()
 
         super().save(*args, **kwargs)
+
+    def clone(self):
+        attrs = super().clone()
+
+        # Populate the address field with the next available IP (if any)
+        if next_available_ip := self.get_next_available_ip():
+            attrs['address'] = next_available_ip
+
+        return attrs
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
