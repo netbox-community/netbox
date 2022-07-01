@@ -286,7 +286,7 @@ def prepare_cloned_fields(instance):
     """
     # Generate the clone attributes from the instance
     if not hasattr(instance, 'clone'):
-        return None
+        return QueryDict()
     attrs = instance.clone()
 
     # Prepare querydict parameters
