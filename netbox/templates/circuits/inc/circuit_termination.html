@@ -2,7 +2,6 @@
 
 <div class="card">
     <div class="card-header">
-        <strong class="d-block d-md-inline mb-3 mb-md-0">Termination - {{ side }} Side</strong>
         <div class="float-md-end">
             {% if not termination and perms.circuits.add_circuittermination %}
                 <a href="{% url 'circuits:circuittermination_add' %}?circuit={{ object.pk }}&term_side={{ side }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-success lh-1">
@@ -10,10 +9,10 @@
                 </a>
             {% endif %}
             {% if termination and perms.circuits.change_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}" class="btn btn-sm btn-warning lh-1">
+                <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-warning lh-1">
                     <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                 </a>
-                <a href="{% url 'circuits:circuit_terminations_swap' pk=object.pk %}" class="btn btn-sm btn-primary lh-1">
+                <a href="{% url 'circuits:circuit_terminations_swap' pk=object.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary lh-1">
                     <span class="mdi mdi-swap-vertical" aria-hidden="true"></span> Swap
                 </a>
             {% endif %}
@@ -23,6 +22,7 @@
                 </a>
             {% endif %}
         </div>
+        <h5>Termination {{ side }}</h5>
     </div>
     <div class="card-body">
       {% if termination %}
@@ -110,6 +110,33 @@
                 <td>Description</td>
                 <td>{{ termination.description|placeholder }}</td>
             </tr>
+            <tr>
+              <td>Tags</td>
+              <td>
+                {% for tag in termination.tags.all %}
+                  {% tag tag %}
+                {% empty %}
+                  {{ ''|placeholder }}
+                {% endfor %}
+              </td>
+            </tr>
+          {% for group_name, fields in termination.get_custom_fields_by_group.items %}
+            <tr>
+              <td colspan="2">
+                <strong>{{ group_name|default:"Custom Fields" }}</strong>
+              </td>
+            </tr>
+            {% for field, value in fields.items %}
+              <tr>
+                <td>
+                  <span title="{{ field.description|escape }}">{{ field }}</span>
+                </td>
+                <td>
+                  {% customfield_value field value %}
+                </td>
+              </tr>
+            {% endfor %}
+          {% endfor %}
         </table>
     {% else %}
         <span class="text-muted">None</span>

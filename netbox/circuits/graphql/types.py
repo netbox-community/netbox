@@ -1,4 +1,5 @@
 from circuits import filtersets, models
+from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType
 
 __all__ = (
@@ -10,7 +11,7 @@ __all__ = (
 )
 
 
-class CircuitTerminationType(ObjectType):
+class CircuitTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
 
     class Meta:
         model = models.CircuitTermination

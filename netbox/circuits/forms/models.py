@@ -116,7 +116,7 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
         }
 
 
-class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
+class CircuitTerminationForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
         queryset=Provider.objects.all(),
         required=False,
@@ -161,7 +161,7 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         model = CircuitTermination
         fields = [
             'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'provider_network', 'mark_connected',
-            'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description',
+            'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         help_texts = {
             'port_speed': "Physical circuit speed",

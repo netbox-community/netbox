@@ -28,6 +28,7 @@
 * [#8222](https://github.com/netbox-community/netbox/issues/8222) - Enable the assignment of a VM to a specific host device within a cluster
 * [#8471](https://github.com/netbox-community/netbox/issues/8471) - Add `status` field to Cluster
 * [#8495](https://github.com/netbox-community/netbox/issues/8495) - Enable custom field grouping
+* [#8511](https://github.com/netbox-community/netbox/issues/8511) - Enable custom fields and tags for circuit terminations
 * [#8995](https://github.com/netbox-community/netbox/issues/8995) - Enable arbitrary ordering of REST API results
 * [#9070](https://github.com/netbox-community/netbox/issues/9070) - Hide navigation menu items based on user permissions
 * [#9166](https://github.com/netbox-community/netbox/issues/9166) - Add UI visibility toggle for custom fields
@@ -51,6 +52,8 @@
 
 * circuits.Circuit
     * Added optional `termination_date` field
+* circuits.CircuitTermination
+    * Added 'custom_fields' and 'tags' fields
 * dcim.Device
     * The `position` field has been changed from an integer to a decimal
 * dcim.DeviceType

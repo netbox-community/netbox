@@ -98,7 +98,7 @@ class CircuitSerializer(NetBoxModelSerializer):
         ]
 
 
-class CircuitTerminationSerializer(ValidatedModelSerializer, LinkTerminationSerializer):
+class CircuitTerminationSerializer(NetBoxModelSerializer, LinkTerminationSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
     circuit = NestedCircuitSerializer()
     site = NestedSiteSerializer(required=False, allow_null=True)
@@ -110,5 +110,5 @@ class CircuitTerminationSerializer(ValidatedModelSerializer, LinkTerminationSeri
         fields = [
             'id', 'url', 'display', 'circuit', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed',
             'xconnect_id', 'pp_info', 'description', 'mark_connected', 'cable', 'link_peer', 'link_peer_type',
-            '_occupied', 'created', 'last_updated',
+            '_occupied', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
