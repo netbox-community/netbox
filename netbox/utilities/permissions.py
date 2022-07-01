@@ -80,14 +80,25 @@ def permission_is_exempt(name):
     return False
 
 
-def qs_filter_from_constraints(constraints):
+def qs_filter_from_constraints(constraints, tokens=None):
     """
     Construct a Q filter object from an iterable of ObjectPermission constraints.
+
+    Args:
+        tokens: A dictionary mapping string tokens to be replaced with a value.
     """
+    if tokens is None:
+        tokens = {}
+
+    def _replace_tokens(value, tokens):
+        if type(value) is list:
+            return list(map(lambda v: tokens.get(v, v), value))
+        return tokens.get(value, value)
+
     params = Q()
     for constraint in constraints:
         if constraint:
-            params |= Q(**constraint)
+            params |= Q(**{k: _replace_tokens(v, tokens) for k, v in constraint.items()})
         else:
             # Found null constraint; permit model-level access
             return Q()

@@ -8,6 +8,7 @@ from django.contrib.auth.models import Group, AnonymousUser
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Q
 
+from users.constants import CONSTRAINT_TOKEN_USER
 from users.models import ObjectPermission
 from utilities.permissions import (
     permission_is_exempt, qs_filter_from_constraints, resolve_permission, resolve_permission_ct,
@@ -118,7 +119,10 @@ class ObjectPermissionMixin:
             raise ValueError(f"Invalid permission {perm} for model {model}")
 
         # Compile a QuerySet filter that matches all instances of the specified model
-        qs_filter = qs_filter_from_constraints(object_permissions[perm])
+        tokens = {
+            CONSTRAINT_TOKEN_USER: user_obj,
+        }
+        qs_filter = qs_filter_from_constraints(object_permissions[perm], tokens)
 
         # Permission to perform the requested action on the object depends on whether the specified object matches
         # the specified constraints. Note that this check is made against the *database* record representing the object,

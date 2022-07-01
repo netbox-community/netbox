@@ -53,3 +53,17 @@ To achieve a logical OR with a different set of constraints, define multiple obj
 ```
 
 Additionally, where multiple permissions have been assigned for an object type, their collective constraints will be merged using a logical "OR" operation.
+
+### Tokens
+
+!!! info "This feature was introduced in NetBox v3.3"
+
+When defining a permission constraint, administrators may use the special token `$user` to reference the current user at the time of evaluation. This can be helpful to restrict users to editing only their own journal entries, for example. Such a constraint might be defined as:
+
+```json
+{
+  "created_by": "$user"
+}
+```
+
+The `$user` token can be used only as a constraint value, or as an item within a list of values. It cannot be modified or extended to reference specific user attributes.
