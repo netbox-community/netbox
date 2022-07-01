@@ -1,5 +1,14 @@
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+
+__all__ = (
+    'get_permission_for_model',
+    'permission_is_exempt',
+    'qs_filter_from_constraints',
+    'resolve_permission',
+    'resolve_permission_ct',
+)
 
 
 def get_permission_for_model(model, action):
@@ -69,3 +78,18 @@ def permission_is_exempt(name):
             return True
 
     return False
+
+
+def qs_filter_from_constraints(constraints):
+    """
+    Construct a Q filter object from an iterable of ObjectPermission constraints.
+    """
+    params = Q()
+    for constraint in constraints:
+        if constraint:
+            params |= Q(**constraint)
+        else:
+            # Found null constraint; permit model-level access
+            return Q()
+
+    return params
