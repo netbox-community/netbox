@@ -8,6 +8,8 @@ Custom scripting was introduced to provide a way for users to execute custom log
 
 Custom scripts are Python code and exist outside of the official NetBox code base, so they can be updated and changed without interfering with the core NetBox installation. And because they're completely custom, there is no inherent limitation on what a script can accomplish.
 
+By default, custom scripts are located at `{INSTALL DIR}/netbox/scripts/`. If you followed the [Installation Guide](https://netbox.bnassif.us/static/docs/installation/3-netbox/#option-a-download-a-release-archive), this would be `/opt/netbox/netbox/scripts/`. You can override this directory by setting the `SCRIPTS_ROOT` value in the netbox config.
+
 ## Writing Custom Scripts
 
 All custom scripts must inherit from the `extras.scripts.Script` base class. This class provides the functionality necessary to generate forms and log activity.
