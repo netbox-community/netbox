@@ -145,6 +145,9 @@ class NaturalOrderingTestCase(TestCase):
     def test_interface_ordering_ios(self):
 
         INTERFACES = [
+            'FastEthernet1',
+            'FastEthernet2',
+            'FastEthernet10',
             'GigabitEthernet0/1',
             'GigabitEthernet0/2',
             'GigabitEthernet0/10',
@@ -155,9 +158,6 @@ class NaturalOrderingTestCase(TestCase):
             'GigabitEthernet1/10',
             'TenGigabitEthernet1/20',
             'TenGigabitEthernet1/21',
-            'FastEthernet1',
-            'FastEthernet2',
-            'FastEthernet10',
         ]
 
         for name in INTERFACES:
