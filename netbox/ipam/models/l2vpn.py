@@ -60,23 +60,15 @@ class L2VPNTermination(NetBoxModel):
     l2vpn = models.ForeignKey(
         to='ipam.L2VPN',
         on_delete=models.CASCADE,
-        related_name='terminations',
-        blank=False,
-        null=False
+        related_name='terminations'
     )
-
     assigned_object_type = models.ForeignKey(
         to=ContentType,
         limit_choices_to=L2VPN_ASSIGNMENT_MODELS,
         on_delete=models.PROTECT,
-        related_name='+',
-        blank=True,
-        null=True
+        related_name='+'
     )
-    assigned_object_id = models.PositiveBigIntegerField(
-        blank=True,
-        null=True
-    )
+    assigned_object_id = models.PositiveBigIntegerField()
     assigned_object = GenericForeignKey(
         ct_field='assigned_object_type',
         fk_field='assigned_object_id'
@@ -95,13 +87,13 @@ class L2VPNTermination(NetBoxModel):
     def __str__(self):
         if self.pk is not None:
             return f'{self.assigned_object} <> {self.l2vpn}'
-        return ''
+        return super().__str__()
 
     def get_absolute_url(self):
         return reverse('ipam:l2vpntermination', args=[self.pk])
 
     def clean(self):
-        # Only check is assigned_object is set
+        # Only check is assigned_object is set.  Required otherwise we have an Integrity Error thrown.
         if self.assigned_object:
             obj_id = self.assigned_object.pk
             obj_type = ContentType.objects.get_for_model(self.assigned_object)

@@ -464,9 +464,7 @@ class L2VPNSerializer(NetBoxModelSerializer):
         model = L2VPN
         fields = [
             'id', 'url', 'display', 'identifier', 'name', 'slug', 'type', 'import_targets', 'export_targets',
-            'description', 'tenant',
-            # Extra Fields
-            'tags', 'custom_fields', 'created', 'last_updated'
+            'description', 'tenant', 'tags', 'custom_fields', 'created', 'last_updated'
         ]
 
 
@@ -482,8 +480,7 @@ class L2VPNTerminationSerializer(NetBoxModelSerializer):
         model = L2VPNTermination
         fields = [
             'id', 'url', 'display', 'l2vpn', 'assigned_object_type', 'assigned_object_id',
-            'assigned_object',
-            'tags', 'custom_fields', 'created', 'last_updated'
+            'assigned_object', 'tags', 'custom_fields', 'created', 'last_updated'
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)

@@ -929,6 +929,20 @@ class L2VPNTerminationForm(NetBoxModelForm):
         }
     )
 
+    virtual_machine = DynamicModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        query_params={}
+    )
+
+    vminterface = DynamicModelChoiceField(
+        queryset=VMInterface.objects.all(),
+        required=False,
+        query_params={
+            'virtual_machine_id': '$virtual_machine'
+        }
+    )
+
     class Meta:
         model = L2VPNTermination
         fields = ('l2vpn', )
@@ -943,6 +957,8 @@ class L2VPNTerminationForm(NetBoxModelForm):
                 initial['interface'] = instance.assigned_object
             elif type(instance.assigned_object) is VLAN:
                 initial['vlan'] = instance.assigned_object
+            elif type(instance.assigned_object) is VMInterface:
+                initial['vminterface'] = instance.assigned_object
             kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
@@ -950,11 +966,21 @@ class L2VPNTerminationForm(NetBoxModelForm):
     def clean(self):
         super().clean()
 
-        if not (self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')):
+        interface = self.cleaned_data.get('interface')
+        vlan = self.cleaned_data.get('vlan')
+        vminterface = self.cleaned_data.get('vminterface')
+
+        if not (interface or vlan or vminterface):
             raise ValidationError('You must have either a interface or a VLAN')
 
-        if self.cleaned_data.get('interface') and self.cleaned_data.get('vlan'):
+        if interface and vlan and vminterface:
+            raise ValidationError('Cannot assign a interface, vlan and vminterface')
+        elif interface and vlan:
             raise ValidationError('Cannot assign both a interface and vlan')
+        elif interface and vminterface:
+            raise ValidationError('Cannot assign both a interface and vminterface')
+        elif vlan and vminterface:
+            raise ValidationError('Cannot assign both a vlan and vminterface')
 
-        obj = self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')
+        obj = interface or vlan or vminterface
         self.instance.assigned_object = obj

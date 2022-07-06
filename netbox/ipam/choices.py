@@ -191,6 +191,14 @@ class L2VPNTypeChoices(ChoiceSet):
             (TYPE_VPWS, 'VPWS'),
             (TYPE_VPLS, 'VPLS'),
         )),
+        ('VXLAN', (
+            (TYPE_VXLAN, 'VXLAN'),
+            (TYPE_VXLAN_EVPN, 'VXLAN-EVPN'),
+        )),
+        ('L2VPN E-VPN', (
+            (TYPE_MPLS_EVPN, 'MPLS EVPN'),
+            (TYPE_PBB_EVPN, 'PBB EVPN'),
+        )),
         ('E-Line', (
             (TYPE_EPL, 'EPL'),
             (TYPE_EVPL, 'EVPL'),
@@ -203,14 +211,6 @@ class L2VPNTypeChoices(ChoiceSet):
             (TYPE_EPTREE, 'Ethernet Private Tree'),
             (TYPE_EVPTREE, 'Ethernet Virtual Private Tree'),
         )),
-        ('VXLAN', (
-            (TYPE_VXLAN, 'VXLAN'),
-            (TYPE_VXLAN_EVPN, 'VXLAN-EVPN'),
-        )),
-        ('L2VPN E-VPN', (
-            (TYPE_MPLS_EVPN, 'MPLS EVPN'),
-            (TYPE_PBB_EVPN, 'PBB EVPN'),
-        ))
     )
 
     P2P = (
