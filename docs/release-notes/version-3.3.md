@@ -13,6 +13,8 @@
 
 #### PoE Interface Attributes ([#1099](https://github.com/netbox-community/netbox/issues/1099))
 
+#### L2VPN Modeling ([#8157](https://github.com/netbox-community/netbox/issues/8157))
+
 #### Restrict API Tokens by Client IP ([#8233](https://github.com/netbox-community/netbox/issues/8233))
 
 #### Reference User in Permission Constraints ([#9074](https://github.com/netbox-community/netbox/issues/9074))
@@ -52,6 +54,9 @@
 
 ### REST API Changes
 
+* Added the following endpoints:
+    * `/api/ipam/l2vpns/`
+    * `/api/ipam/l2vpn-terminations/`
 * circuits.Circuit
     * Added optional `termination_date` field
 * circuits.CircuitTermination
@@ -62,6 +67,7 @@
     * The `u_height` field has been changed from an integer to a decimal
 * dcim.Interface
     * Added the optional `poe_mode` and `poe_type` fields
+    * Added the `l2vpn_termination` read-only field
 * dcim.Location
     * Added required `status` field (default value: `active`)
 * dcim.Rack
@@ -73,15 +79,18 @@
 * ipam.IPAddress
     * The `nat_inside` field no longer requires a unique value
     * The `nat_outside` field has changed from a single IP address instance to a list of multiple IP addresses
+* ipam.VLAN
+    * Added the `l2vpn_termination` read-only field
 * users.Token
     * Added the `allowed_ips` array field
     * Added the read-only `last_used` datetime field
 * virtualization.Cluster
     * Added required `status` field (default value: `active`)
 * virtualization.VirtualMachine
-    * Added `device` field
     * The `site` field is now directly writable (rather than being inferred from the assigned cluster)
     * The `cluster` field is now optional. A virtual machine must have a site and/or cluster assigned.
+    * Added the `device` field
+    * Added the `l2vpn_termination` read-only field
 wireless.WirelessLAN
     * Added `tenant` field
 wireless.WirelessLink
