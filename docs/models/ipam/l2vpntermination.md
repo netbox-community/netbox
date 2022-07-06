@@ -10,3 +10,6 @@ The following types of L2VPN's are considered point-to-point:
 * EPL
 * EP-LAN
 * EP-TREE
+
+!!!note
+    Choosing any of the above types of L2VPN's will result in only being able to add 2 terminations to a given L2VPN.

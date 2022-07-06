@@ -976,7 +976,7 @@ class L2VPNTerminationForm(NetBoxModelForm):
         if interface and vlan and vminterface:
             raise ValidationError('Cannot assign a interface, vlan and vminterface')
         elif interface and vlan:
-            raise ValidationError('Cannot assign both a interface and vlan')
+            raise Validatio`nError('Cannot assign both a interface and vlan')
         elif interface and vminterface:
             raise ValidationError('Cannot assign both a interface and vminterface')
         elif vlan and vminterface:
