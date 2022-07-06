@@ -34,7 +34,7 @@ class L2VPN(NetBoxModel):
     description = models.TextField(null=True, blank=True)
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name='l2vpns',
         blank=True,
         null=True
@@ -85,7 +85,6 @@ class L2VPNTermination(NetBoxModel):
     class Meta:
         ordering = ('l2vpn',)
         verbose_name = 'L2VPN Termination'
-
         constraints = (
             models.UniqueConstraint(
                 fields=('assigned_object_type', 'assigned_object_id'),
@@ -112,5 +111,10 @@ class L2VPNTermination(NetBoxModel):
 
         # Only check if L2VPN is set and is of type P2P
         if self.l2vpn and self.l2vpn.type in L2VPNTypeChoices.P2P:
-            if L2VPNTermination.objects.filter(l2vpn=self.l2vpn).exclude(pk=self.pk).count() >= 2:
-                raise ValidationError(f'P2P Type L2VPNs can only have 2 terminations; first delete a termination')
+            terminations_count = L2VPNTermination.objects.filter(l2vpn=self.l2vpn).exclude(pk=self.pk).count()
+            if terminations_count >= 2:
+                l2vpn_type = self.l2vpn.get_type_display()
+                raise ValidationError(
+                    f'{l2vpn_type} L2VPNs cannot have more than two terminations; found {terminations_count} already '
+                    f'defined.'
+                )

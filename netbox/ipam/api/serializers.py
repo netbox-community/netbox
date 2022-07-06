@@ -483,7 +483,6 @@ class L2VPNTerminationSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display', 'l2vpn', 'assigned_object_type', 'assigned_object_id',
             'assigned_object',
-            # Extra Fields
             'tags', 'custom_fields', 'created', 'last_updated'
         ]
 

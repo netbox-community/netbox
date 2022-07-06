@@ -893,6 +893,9 @@ class L2VPNForm(TenancyForm, NetBoxModelForm):
         fields = (
             'name', 'slug', 'type', 'identifier', 'description', 'import_targets', 'export_targets', 'tenant', 'tags'
         )
+        widgets = {
+            'type': StaticSelect(),
+        }
 
 
 class L2VPNTerminationForm(NetBoxModelForm):
