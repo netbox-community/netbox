@@ -4,7 +4,7 @@ from django.db import models
 from django.urls import reverse
 
 from circuits.choices import *
-from dcim.models import LinkTermination
+from dcim.models import CabledObjectModel
 from netbox.models import (
     ChangeLoggedModel, CustomFieldsMixin, CustomLinksMixin, OrganizationalModel, NetBoxModel, TagsMixin,
 )
@@ -149,7 +149,7 @@ class CircuitTermination(
     TagsMixin,
     WebhooksMixin,
     ChangeLoggedModel,
-    LinkTermination
+    CabledObjectModel
 ):
     circuit = models.ForeignKey(
         to='circuits.Circuit',

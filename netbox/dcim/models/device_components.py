@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Q, Sum
+from django.db.models import Sum
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -23,7 +23,7 @@ from wireless.utils import get_channel_attr
 
 __all__ = (
     'BaseInterface',
-    'LinkTermination',
+    'CabledObjectModel',
     'ConsolePort',
     'ConsoleServerPort',
     'DeviceBay',
@@ -103,7 +103,7 @@ class ModularComponentModel(ComponentModel):
         abstract = True
 
 
-class LinkTermination(models.Model):
+class CabledObjectModel(models.Model):
     """
     An abstract model inherited by all models to which a Cable can terminate.
     """
@@ -237,7 +237,7 @@ class PathEndpoint(models.Model):
 # Console components
 #
 
-class ConsolePort(ModularComponentModel, LinkTermination, PathEndpoint):
+class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -264,7 +264,7 @@ class ConsolePort(ModularComponentModel, LinkTermination, PathEndpoint):
         return reverse('dcim:consoleport', kwargs={'pk': self.pk})
 
 
-class ConsoleServerPort(ModularComponentModel, LinkTermination, PathEndpoint):
+class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -295,7 +295,7 @@ class ConsoleServerPort(ModularComponentModel, LinkTermination, PathEndpoint):
 # Power components
 #
 
-class PowerPort(ModularComponentModel, LinkTermination, PathEndpoint):
+class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -400,7 +400,7 @@ class PowerPort(ModularComponentModel, LinkTermination, PathEndpoint):
         }
 
 
-class PowerOutlet(ModularComponentModel, LinkTermination, PathEndpoint):
+class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -512,7 +512,7 @@ class BaseInterface(models.Model):
         return self.fhrp_group_assignments.count()
 
 
-class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpoint):
+class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEndpoint):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
@@ -837,7 +837,7 @@ class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpo
 # Pass-through ports
 #
 
-class FrontPort(ModularComponentModel, LinkTermination):
+class FrontPort(ModularComponentModel, CabledObjectModel):
     """
     A pass-through port on the front of a Device.
     """
@@ -890,7 +890,7 @@ class FrontPort(ModularComponentModel, LinkTermination):
             })
 
 
-class RearPort(ModularComponentModel, LinkTermination):
+class RearPort(ModularComponentModel, CabledObjectModel):
     """
     A pass-through port on the rear of a Device.
     """
