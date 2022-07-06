@@ -1,1 +1,7 @@
 Copyrighted and licensed under Apache License 2.0 by DigitalOcean, LLC.
+
+This project contains code developed expressly for NetBox, and its reuse in
+other projects may introduce issues affecting performance, data integrity,
+and security.
+
+For more information, please see https://github.com/netbox-community/netbox.

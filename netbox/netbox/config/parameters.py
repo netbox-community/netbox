@@ -82,6 +82,31 @@ PARAMS = (
         field=forms.IntegerField
     ),
 
+    # Power
+    ConfigParam(
+        name='POWERFEED_DEFAULT_VOLTAGE',
+        label='Powerfeed voltage',
+        default=120,
+        description="Default voltage for powerfeeds",
+        field=forms.IntegerField
+    ),
+
+    ConfigParam(
+        name='POWERFEED_DEFAULT_AMPERAGE',
+        label='Powerfeed amperage',
+        default=15,
+        description="Default amperage for powerfeeds",
+        field=forms.IntegerField
+    ),
+
+    ConfigParam(
+        name='POWERFEED_DEFAULT_MAX_UTILIZATION',
+        label='Powerfeed max utilization',
+        default=80,
+        description="Default max utilization for powerfeeds",
+        field=forms.IntegerField
+    ),
+
     # Security
     ConfigParam(
         name='ALLOWED_URL_SCHEMES',

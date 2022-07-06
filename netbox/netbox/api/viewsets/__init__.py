@@ -11,6 +11,7 @@ from rest_framework.viewsets import ModelViewSet
 from extras.models import ExportTemplate
 from netbox.api.exceptions import SerializerNotFound
 from utilities.api import get_serializer_for_model
+from utilities.exceptions import AbortRequest
 from .mixins import *
 
 __all__ = (
@@ -122,6 +123,14 @@ class NetBoxModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ObjectVali
             return self.finalize_response(
                 request,
                 Response({'detail': msg}, status=409),
+                *args,
+                **kwargs
+            )
+        except AbortRequest as e:
+            logger.debug(e.message)
+            return self.finalize_response(
+                request,
+                Response({'detail': e.message}, status=400),
                 *args,
                 **kwargs
             )

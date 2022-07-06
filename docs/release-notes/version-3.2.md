@@ -2,6 +2,19 @@
 
 ## v3.2.6 (FUTURE)
 
+### Enhancements
+
+* [#7702](https://github.com/netbox-community/netbox/issues/7702) - Enable dynamic configuration for default powerfeed attributes
+* [#9396](https://github.com/netbox-community/netbox/issues/9396) - Allow filtering modules by bay ID
+* [#9403](https://github.com/netbox-community/netbox/issues/9403) - Enable modifying virtual chassis properties when creating/editing a device
+* [#9540](https://github.com/netbox-community/netbox/issues/9540) - Add filters for assigned device & VM to IP addresses list
+
+### Bug Fixes
+
+* [#8854](https://github.com/netbox-community/netbox/issues/8854) - Fix `REMOTE_AUTH_DEFAULT_GROUPS` for social-auth backends
+* [#9575](https://github.com/netbox-community/netbox/issues/9575) - Fix AttributeError exception for FHRP group with an IP address assigned
+* [#9597](https://github.com/netbox-community/netbox/issues/9597) - Include `installed_module` in module bay REST API serializer
+
 ---
 
 ## v3.2.5 (2022-06-20)

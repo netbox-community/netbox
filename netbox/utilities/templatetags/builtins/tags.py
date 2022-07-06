@@ -18,6 +18,21 @@ def tag(value, viewname=None):
     }
 
 
+@register.inclusion_tag('builtins/customfield_value.html')
+def customfield_value(customfield, value):
+    """
+    Render a custom field value according to the field type.
+
+    Args:
+        customfield: A CustomField instance
+        value: The custom field value applied to an object
+    """
+    return {
+        'customfield': customfield,
+        'value': value,
+    }
+
+
 @register.inclusion_tag('builtins/badge.html')
 def badge(value, bg_color=None, show_empty=False):
     """

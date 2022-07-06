@@ -198,7 +198,7 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
         ).distinct()
 
 
-class CircuitTerminationFilterSet(ChangeLoggedModelFilterSet, CabledObjectFilterSet):
+class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

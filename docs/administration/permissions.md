@@ -4,7 +4,7 @@ NetBox v2.9 introduced a new object-based permissions framework, which replaces 
 
 {!models/users/objectpermission.md!}
 
-### Example Constraint Definitions
+#### Example Constraint Definitions
 
 | Constraints | Description |
 | ----------- | ----------- |

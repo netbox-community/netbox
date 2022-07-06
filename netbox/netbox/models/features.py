@@ -49,11 +49,19 @@ class ChangeLoggingMixin(models.Model):
     class Meta:
         abstract = True
 
+    def serialize_object(self):
+        """
+        Return a JSON representation of the instance. Models can override this method to replace or extend the default
+        serialization logic provided by the `serialize_object()` utility function.
+        """
+        return serialize_object(self)
+
     def snapshot(self):
         """
-        Save a snapshot of the object's current state in preparation for modification.
+        Save a snapshot of the object's current state in preparation for modification. The snapshot is saved as
+        `_prechange_snapshot` on the instance.
         """
-        self._prechange_snapshot = serialize_object(self)
+        self._prechange_snapshot = self.serialize_object()
 
     def to_objectchange(self, action):
         """
@@ -69,7 +77,7 @@ class ChangeLoggingMixin(models.Model):
         if hasattr(self, '_prechange_snapshot'):
             objectchange.prechange_data = self._prechange_snapshot
         if action in (ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE):
-            objectchange.postchange_data = serialize_object(self)
+            objectchange.postchange_data = self.serialize_object()
 
         return objectchange
 

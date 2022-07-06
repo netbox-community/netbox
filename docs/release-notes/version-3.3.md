@@ -13,7 +13,11 @@
 
 #### PoE Interface Attributes ([#1099](https://github.com/netbox-community/netbox/issues/1099))
 
+#### L2VPN Modeling ([#8157](https://github.com/netbox-community/netbox/issues/8157))
+
 #### Restrict API Tokens by Client IP ([#8233](https://github.com/netbox-community/netbox/issues/8233))
+
+#### Reference User in Permission Constraints ([#9074](https://github.com/netbox-community/netbox/issues/9074))
 
 ### Enhancements
 
@@ -23,10 +27,13 @@
 * [#5303](https://github.com/netbox-community/netbox/issues/5303) - A virtual machine may be assigned to a site and/or cluster
 * [#7120](https://github.com/netbox-community/netbox/issues/7120) - Add `termination_date` field to Circuit
 * [#7744](https://github.com/netbox-community/netbox/issues/7744) - Add `status` field to Location
+* [#8171](https://github.com/netbox-community/netbox/issues/8171) - Populate next available address when cloning an IP
 * [#8222](https://github.com/netbox-community/netbox/issues/8222) - Enable the assignment of a VM to a specific host device within a cluster
 * [#8471](https://github.com/netbox-community/netbox/issues/8471) - Add `status` field to Cluster
 * [#8495](https://github.com/netbox-community/netbox/issues/8495) - Enable custom field grouping
+* [#8511](https://github.com/netbox-community/netbox/issues/8511) - Enable custom fields and tags for circuit terminations
 * [#8995](https://github.com/netbox-community/netbox/issues/8995) - Enable arbitrary ordering of REST API results
+* [#9070](https://github.com/netbox-community/netbox/issues/9070) - Hide navigation menu items based on user permissions
 * [#9166](https://github.com/netbox-community/netbox/issues/9166) - Add UI visibility toggle for custom fields
 * [#9177](https://github.com/netbox-community/netbox/issues/9177) - Add tenant assignment for wireless LANs & links
 * [#9536](https://github.com/netbox-community/netbox/issues/9536) - Track API token usage times
@@ -34,7 +41,11 @@
 
 ### Plugins API
 
+* [#9075](https://github.com/netbox-community/netbox/issues/9075) - Introduce `AbortRequest` exception for cleanly interrupting object mutations
+* [#9092](https://github.com/netbox-community/netbox/issues/9092) - Add support for `ObjectChildrenView` generic view
+* [#9228](https://github.com/netbox-community/netbox/issues/9228) - Subclasses of `ChangeLoggingMixin` can override `serialize_object()` to control JSON serialization for change logging
 * [#9414](https://github.com/netbox-community/netbox/issues/9414) - Add `clone()` method to NetBoxModel for copying instance attributes
+* [#9647](https://github.com/netbox-community/netbox/issues/9647) - Introduce `customfield_value` template tag
 
 ### Other Changes
 
@@ -43,14 +54,20 @@
 
 ### REST API Changes
 
+* Added the following endpoints:
+    * `/api/ipam/l2vpns/`
+    * `/api/ipam/l2vpn-terminations/`
 * circuits.Circuit
     * Added optional `termination_date` field
+* circuits.CircuitTermination
+    * Added 'custom_fields' and 'tags' fields
 * dcim.Device
     * The `position` field has been changed from an integer to a decimal
 * dcim.DeviceType
     * The `u_height` field has been changed from an integer to a decimal
 * dcim.Interface
     * Added the optional `poe_mode` and `poe_type` fields
+    * Added the `l2vpn_termination` read-only field
 * dcim.Location
     * Added required `status` field (default value: `active`)
 * dcim.Rack
@@ -62,15 +79,18 @@
 * ipam.IPAddress
     * The `nat_inside` field no longer requires a unique value
     * The `nat_outside` field has changed from a single IP address instance to a list of multiple IP addresses
+* ipam.VLAN
+    * Added the `l2vpn_termination` read-only field
 * users.Token
     * Added the `allowed_ips` array field
     * Added the read-only `last_used` datetime field
 * virtualization.Cluster
     * Added required `status` field (default value: `active`)
 * virtualization.VirtualMachine
-    * Added `device` field
     * The `site` field is now directly writable (rather than being inferred from the assigned cluster)
     * The `cluster` field is now optional. A virtual machine must have a site and/or cluster assigned.
+    * Added the `device` field
+    * Added the `l2vpn_termination` read-only field
 wireless.WirelessLAN
     * Added `tenant` field
 wireless.WirelessLink

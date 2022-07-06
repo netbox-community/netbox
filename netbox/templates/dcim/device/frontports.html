@@ -17,7 +17,7 @@
 
     <div class="noprint bulk-buttons">
         <div class="bulk-button-group">
-            {% if perms.dcim.change_frontport %}
+            {% if 'bulk_edit' in actions %}
                 <button type="submit" name="_rename" formaction="{% url 'dcim:frontport_bulk_rename' %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
                     <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
                 </button>
@@ -28,7 +28,7 @@
                     <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
                 </button>
             {% endif %}
-            {% if perms.dcim.delete_frontport %}
+            {% if 'bulk_delete' in actions %}
                 <button type="submit" formaction="{% url 'dcim:frontport_bulk_delete' %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-danger btn-sm">
                     <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
                 </button>

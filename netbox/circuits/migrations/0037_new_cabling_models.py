@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('circuits', '0036_circuit_termination_date'),
+        ('circuits', '0036_circuit_termination_date_tags_custom_fields'),
     ]
 
     operations = [

@@ -5,7 +5,9 @@ from dcim.api.nested_serializers import (
     NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer,
 )
 from dcim.choices import InterfaceModeChoices
-from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer, NestedVRFSerializer
+from ipam.api.nested_serializers import (
+    NestedIPAddressSerializer, NestedL2VPNTerminationSerializer, NestedVLANSerializer, NestedVRFSerializer,
+)
 from ipam.models import VLAN
 from netbox.api import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
@@ -121,6 +123,7 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
         many=True
     )
     vrf = NestedVRFSerializer(required=False, allow_null=True)
+    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True)
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
 
@@ -128,8 +131,8 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
         model = VMInterface
         fields = [
             'id', 'url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'bridge', 'mtu', 'mac_address',
-            'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'vrf', 'tags', 'custom_fields', 'created',
-            'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
+            'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'vrf', 'l2vpn_termination', 'tags', 'custom_fields',
+            'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
         ]
 
     def validate(self, data):

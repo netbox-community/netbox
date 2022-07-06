@@ -45,6 +45,8 @@ The Django [content types](https://docs.djangoproject.com/en/stable/ref/contrib/
 * [ipam.FHRPGroup](../models/ipam/fhrpgroup.md)
 * [ipam.IPAddress](../models/ipam/ipaddress.md)
 * [ipam.IPRange](../models/ipam/iprange.md)
+* [ipam.L2VPN](../models/ipam/l2vpn.md)
+* [ipam.L2VPNTermination](../models/ipam/l2vpntermination.md)
 * [ipam.Prefix](../models/ipam/prefix.md)
 * [ipam.RouteTarget](../models/ipam/routetarget.md)
 * [ipam.Service](../models/ipam/service.md)

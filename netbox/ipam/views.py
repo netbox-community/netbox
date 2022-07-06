@@ -17,6 +17,7 @@ from . import filtersets, forms, tables
 from .constants import *
 from .models import *
 from .models import ASN
+from .tables.l2vpn import L2VPNTable, L2VPNTerminationTable
 from .utils import add_requested_prefixes, add_available_ipaddresses, add_available_vlans
 
 
@@ -680,13 +681,16 @@ class IPAddressView(generic.ObjectView):
         service_filter = Q(ipaddresses=instance)
 
         # Find services listening on all IPs on the assigned device/vm
-        if instance.assigned_object and instance.assigned_object.parent_object:
-            parent_object = instance.assigned_object.parent_object
+        try:
+            if instance.assigned_object and instance.assigned_object.parent_object:
+                parent_object = instance.assigned_object.parent_object
 
-            if isinstance(parent_object, VirtualMachine):
-                service_filter |= (Q(virtual_machine=parent_object) & Q(ipaddresses=None))
-            elif isinstance(parent_object, Device):
-                service_filter |= (Q(device=parent_object) & Q(ipaddresses=None))
+                if isinstance(parent_object, VirtualMachine):
+                    service_filter |= (Q(virtual_machine=parent_object) & Q(ipaddresses=None))
+                elif isinstance(parent_object, Device):
+                    service_filter |= (Q(device=parent_object) & Q(ipaddresses=None))
+        except AttributeError:
+            pass
 
         services = Service.objects.restrict(request.user, 'view').filter(service_filter)
 
@@ -1147,3 +1151,105 @@ class ServiceBulkDeleteView(generic.BulkDeleteView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable
+
+
+# L2VPN
+
+
+class L2VPNListView(generic.ObjectListView):
+    queryset = L2VPN.objects.all()
+    table = L2VPNTable
+    filterset = filtersets.L2VPNFilterSet
+    filterset_form = forms.L2VPNFilterForm
+
+
+class L2VPNView(generic.ObjectView):
+    queryset = L2VPN.objects.all()
+
+    def get_extra_context(self, request, instance):
+        terminations = L2VPNTermination.objects.restrict(request.user, 'view').filter(l2vpn=instance)
+        terminations_table = tables.L2VPNTerminationTable(terminations, user=request.user, exclude=('l2vpn', ))
+        terminations_table.configure(request)
+
+        import_targets_table = tables.RouteTargetTable(
+            instance.import_targets.prefetch_related('tenant'),
+            orderable=False
+        )
+        export_targets_table = tables.RouteTargetTable(
+            instance.export_targets.prefetch_related('tenant'),
+            orderable=False
+        )
+
+        return {
+            'terminations_table': terminations_table,
+            'import_targets_table': import_targets_table,
+            'export_targets_table': export_targets_table,
+        }
+
+
+class L2VPNEditView(generic.ObjectEditView):
+    queryset = L2VPN.objects.all()
+    form = forms.L2VPNForm
+
+
+class L2VPNDeleteView(generic.ObjectDeleteView):
+    queryset = L2VPN.objects.all()
+
+
+class L2VPNBulkImportView(generic.BulkImportView):
+    queryset = L2VPN.objects.all()
+    model_form = forms.L2VPNCSVForm
+    table = tables.L2VPNTable
+
+
+class L2VPNBulkEditView(generic.BulkEditView):
+    queryset = L2VPN.objects.all()
+    filterset = filtersets.L2VPNFilterSet
+    table = tables.L2VPNTable
+    form = forms.L2VPNBulkEditForm
+
+
+class L2VPNBulkDeleteView(generic.BulkDeleteView):
+    queryset = L2VPN.objects.all()
+    filterset = filtersets.L2VPNFilterSet
+    table = tables.L2VPNTable
+
+
+class L2VPNTerminationListView(generic.ObjectListView):
+    queryset = L2VPNTermination.objects.all()
+    table = L2VPNTerminationTable
+    filterset = filtersets.L2VPNTerminationFilterSet
+    filterset_form = forms.L2VPNTerminationFilterForm
+
+
+class L2VPNTerminationView(generic.ObjectView):
+    queryset = L2VPNTermination.objects.all()
+
+
+class L2VPNTerminationEditView(generic.ObjectEditView):
+    queryset = L2VPNTermination.objects.all()
+    form = forms.L2VPNTerminationForm
+    template_name = 'ipam/l2vpntermination_edit.html'
+
+
+class L2VPNTerminationDeleteView(generic.ObjectDeleteView):
+    queryset = L2VPNTermination.objects.all()
+
+
+class L2VPNTerminationBulkImportView(generic.BulkImportView):
+    queryset = L2VPNTermination.objects.all()
+    model_form = forms.L2VPNTerminationCSVForm
+    table = tables.L2VPNTerminationTable
+
+
+class L2VPNTerminationBulkEditView(generic.BulkEditView):
+    queryset = L2VPNTermination.objects.all()
+    filterset = filtersets.L2VPNTerminationFilterSet
+    table = tables.L2VPNTerminationTable
+    form = forms.L2VPNTerminationBulkEditForm
+
+
+class L2VPNTerminationBulkDeleteView(generic.BulkDeleteView):
+    queryset = L2VPNTermination.objects.all()
+    filterset = filtersets.L2VPNTerminationFilterSet
+    table = tables.L2VPNTerminationTable

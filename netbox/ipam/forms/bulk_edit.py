@@ -18,6 +18,8 @@ __all__ = (
     'FHRPGroupBulkEditForm',
     'IPAddressBulkEditForm',
     'IPRangeBulkEditForm',
+    'L2VPNBulkEditForm',
+    'L2VPNTerminationBulkEditForm',
     'PrefixBulkEditForm',
     'RIRBulkEditForm',
     'RoleBulkEditForm',
@@ -440,3 +442,24 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
 
 class ServiceBulkEditForm(ServiceTemplateBulkEditForm):
     model = Service
+
+
+class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    model = L2VPN
+    fieldsets = (
+        (None, ('tenant', 'description')),
+    )
+    nullable_fields = ('tenant', 'description',)
+
+
+class L2VPNTerminationBulkEditForm(NetBoxModelBulkEditForm):
+    model = L2VPN

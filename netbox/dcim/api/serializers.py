@@ -10,7 +10,8 @@ from dcim.constants import *
 from dcim.models import *
 from extras.api.serializers import ContentTypeSerializer
 from ipam.api.nested_serializers import (
-    NestedASNSerializer, NestedIPAddressSerializer, NestedVLANSerializer, NestedVRFSerializer,
+    NestedASNSerializer, NestedIPAddressSerializer, NestedL2VPNTerminationSerializer, NestedVLANSerializer,
+    NestedVRFSerializer,
 )
 from ipam.models import ASN, VLAN
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
@@ -868,6 +869,7 @@ class InterfaceSerializer(NetBoxModelSerializer, LinkTerminationSerializer, Conn
         many=True
     )
     vrf = NestedVRFSerializer(required=False, allow_null=True)
+    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True)
     cable = NestedCableSerializer(read_only=True)
     wireless_link = NestedWirelessLinkSerializer(read_only=True)
     wireless_lans = SerializedPKRelatedField(
@@ -886,8 +888,9 @@ class InterfaceSerializer(NetBoxModelSerializer, LinkTerminationSerializer, Conn
             'mtu', 'mac_address', 'speed', 'duplex', 'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel',
             'poe_mode', 'poe_type', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan',
             'tagged_vlans', 'mark_connected', 'cable', 'wireless_link', 'link_peers', 'link_peers_type',
-            'wireless_lans', 'vrf', 'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable',
-            'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
+            'wireless_lans', 'vrf', 'l2vpn_termination', 'connected_endpoints', 'connected_endpoints_type',
+            'connected_endpoints_reachable', 'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses',
+            'count_fhrp_groups', '_occupied',
         ]
 
     def validate(self, data):
@@ -957,12 +960,12 @@ class FrontPortSerializer(NetBoxModelSerializer, LinkTerminationSerializer):
 class ModuleBaySerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebay-detail')
     device = NestedDeviceSerializer()
-    # installed_module = NestedModuleSerializer(required=False, allow_null=True)
+    installed_module = ModuleBayNestedModuleSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ModuleBay
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'position', 'description', 'tags', 'custom_fields',
+            'id', 'url', 'display', 'device', 'name', 'installed_module', 'label', 'position', 'description', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
 

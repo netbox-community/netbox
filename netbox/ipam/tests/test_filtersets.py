@@ -1463,3 +1463,100 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'virtual_machine': [vms[0].name, vms[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = L2VPN.objects.all()
+    filterset = L2VPNFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        l2vpns = (
+            L2VPN(name='L2VPN 1', type='vxlan', identifier=650001),
+            L2VPN(name='L2VPN 2', type='vpws', identifier=650002),
+            L2VPN(name='L2VPN 3', type='vpls'),  # No RD
+        )
+        L2VPN.objects.bulk_create(l2vpns)
+
+
+class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = L2VPNTermination.objects.all()
+    filterset = L2VPNTerminationFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1')
+        device_type = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
+        device_role = DeviceRole.objects.create(name='Switch')
+        device = Device.objects.create(
+            name='Device 1',
+            site=site,
+            device_type=device_type,
+            device_role=device_role,
+            status='active'
+        )
+
+        interfaces = (
+            Interface(name='Interface 1', device=device, type='1000baset'),
+            Interface(name='Interface 2', device=device, type='1000baset'),
+            Interface(name='Interface 3', device=device, type='1000baset'),
+            Interface(name='Interface 4', device=device, type='1000baset'),
+            Interface(name='Interface 5', device=device, type='1000baset'),
+            Interface(name='Interface 6', device=device, type='1000baset')
+        )
+
+        Interface.objects.bulk_create(interfaces)
+
+        vlans = (
+            VLAN(name='VLAN 1', vid=651),
+            VLAN(name='VLAN 2', vid=652),
+            VLAN(name='VLAN 3', vid=653),
+            VLAN(name='VLAN 4', vid=654),
+            VLAN(name='VLAN 5', vid=655)
+        )
+
+        VLAN.objects.bulk_create(vlans)
+
+        l2vpns = (
+            L2VPN(name='L2VPN 1', type='vxlan', identifier=650001),
+            L2VPN(name='L2VPN 2', type='vpws', identifier=650002),
+            L2VPN(name='L2VPN 3', type='vpls'),  # No RD,
+        )
+        L2VPN.objects.bulk_create(l2vpns)
+
+        l2vpnterminations = (
+            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[0]),
+            L2VPNTermination(l2vpn=l2vpns[1], assigned_object=vlans[1]),
+            L2VPNTermination(l2vpn=l2vpns[2], assigned_object=vlans[2]),
+            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=interfaces[0]),
+            L2VPNTermination(l2vpn=l2vpns[1], assigned_object=interfaces[1]),
+            L2VPNTermination(l2vpn=l2vpns[2], assigned_object=interfaces[2]),
+        )
+
+        L2VPNTermination.objects.bulk_create(l2vpnterminations)
+
+    def test_l2vpns(self):
+        l2vpns = L2VPN.objects.all()[:2]
+        params = {'l2vpn_id': [l2vpns[0].pk, l2vpns[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'l2vpn': ['L2VPN 1', 'L2VPN 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_interfaces(self):
+        interfaces = Interface.objects.all()[:2]
+        params = {'interface_id': [interfaces[0].pk, interfaces[1].pk]}
+        qs = self.filterset(params, self.queryset).qs
+        results = qs.all()
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'interface': ['Interface 1', 'Interface 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_vlans(self):
+        vlans = VLAN.objects.all()[:2]
+        params = {'vlan_id': [vlans[0].pk, vlans[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'vlan': ['VLAN 1', 'VLAN 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

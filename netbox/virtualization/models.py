@@ -440,6 +440,12 @@ class VMInterface(NetBoxModel, BaseInterface):
         object_id_field='interface_id',
         related_query_name='+'
     )
+    l2vpn_terminations = GenericRelation(
+        to='ipam.L2VPNTermination',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='vminterface',
+    )
 
     class Meta:
         verbose_name = 'interface'
@@ -498,3 +504,7 @@ class VMInterface(NetBoxModel, BaseInterface):
     @property
     def parent_object(self):
         return self.virtual_machine
+
+    @property
+    def l2vpn_termination(self):
+        return self.l2vpn_terminations.first()

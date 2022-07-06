@@ -1,7 +1,8 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from dcim.models import Location, Rack, Region, Site, SiteGroup
+from dcim.models import Location, Rack, Region, Site, SiteGroup, Device
+from virtualization.models import VirtualMachine
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
@@ -19,6 +20,8 @@ __all__ = (
     'FHRPGroupFilterForm',
     'IPAddressFilterForm',
     'IPRangeFilterForm',
+    'L2VPNFilterForm',
+    'L2VPNTerminationFilterForm',
     'PrefixFilterForm',
     'RIRFilterForm',
     'RoleFilterForm',
@@ -265,6 +268,7 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         ('Attributes', ('parent', 'family', 'status', 'role', 'mask_length', 'assigned_to_interface')),
         ('VRF', ('vrf_id', 'present_in_vrf_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Device/VM', ('device_id', 'virtual_machine_id')),
     )
     parent = forms.CharField(
         required=False,
@@ -297,6 +301,16 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         queryset=VRF.objects.all(),
         required=False,
         label=_('Present in VRF')
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Assigned Device'),
+    )
+    virtual_machine_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label=_('Assigned VM'),
     )
     status = MultipleChoiceField(
         choices=IPAddressStatusChoices,
@@ -463,3 +477,30 @@ class ServiceTemplateFilterForm(NetBoxModelFilterSetForm):
 
 class ServiceFilterForm(ServiceTemplateFilterForm):
     model = Service
+
+
+class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+    model = L2VPN
+    fieldsets = (
+        (None, ('type', )),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(L2VPNTypeChoices),
+        required=False,
+        widget=StaticSelect()
+    )
+
+
+class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
+    model = L2VPNTermination
+    fieldsets = (
+        (None, ('l2vpn', )),
+    )
+    l2vpn = DynamicModelChoiceField(
+        queryset=L2VPN.objects.all(),
+        required=True,
+        query_params={},
+        label='L2VPN',
+        fetch_trigger='open'
+    )

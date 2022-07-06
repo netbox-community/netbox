@@ -5,7 +5,9 @@ from django.urls import reverse
 
 from circuits.choices import *
 from dcim.models import LinkTermination
-from netbox.models import ChangeLoggedModel, OrganizationalModel, NetBoxModel
+from netbox.models import (
+    ChangeLoggedModel, CustomFieldsMixin, CustomLinksMixin, OrganizationalModel, NetBoxModel, TagsMixin,
+)
 from netbox.models.features import WebhooksMixin
 
 __all__ = (
@@ -141,7 +143,14 @@ class Circuit(NetBoxModel):
         return CircuitStatusChoices.colors.get(self.status)
 
 
-class CircuitTermination(WebhooksMixin, ChangeLoggedModel, LinkTermination):
+class CircuitTermination(
+    CustomFieldsMixin,
+    CustomLinksMixin,
+    TagsMixin,
+    WebhooksMixin,
+    ChangeLoggedModel,
+    LinkTermination
+):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,
