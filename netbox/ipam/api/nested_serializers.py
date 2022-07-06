@@ -195,7 +195,7 @@ class NestedServiceSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name', 'protocol', 'ports']
 
 #
-# Virtual Circuits
+# L2VPN
 #
 
 
