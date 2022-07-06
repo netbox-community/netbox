@@ -8,8 +8,6 @@ from ipam.choices import *
 from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
 from ipam.models import *
-from ipam.models import ASN
-from ipam.models.l2vpn import L2VPN, L2VPNTermination
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
