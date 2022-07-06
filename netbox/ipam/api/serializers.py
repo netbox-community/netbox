@@ -439,7 +439,7 @@ class ServiceSerializer(NetBoxModelSerializer):
         ]
 
 #
-# Virtual Circuits
+# L2VPN
 #
 
 
