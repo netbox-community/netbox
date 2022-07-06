@@ -906,13 +906,11 @@ class L2VPNTerminationForm(NetBoxModelForm):
         label='L2VPN',
         fetch_trigger='open'
     )
-
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         query_params={}
     )
-
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
@@ -920,7 +918,6 @@ class L2VPNTerminationForm(NetBoxModelForm):
             'available_on_device': '$device'
         }
     )
-
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -928,13 +925,11 @@ class L2VPNTerminationForm(NetBoxModelForm):
             'device_id': '$device'
         }
     )
-
     virtual_machine = DynamicModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         query_params={}
     )
-
     vminterface = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
@@ -967,20 +962,12 @@ class L2VPNTerminationForm(NetBoxModelForm):
         super().clean()
 
         interface = self.cleaned_data.get('interface')
-        vlan = self.cleaned_data.get('vlan')
         vminterface = self.cleaned_data.get('vminterface')
+        vlan = self.cleaned_data.get('vlan')
 
-        if not (interface or vlan or vminterface):
-            raise ValidationError('You must have either a interface or a VLAN')
+        if not (interface or vminterface or vlan):
+            raise ValidationError('A termination must specify an interface or VLAN.')
+        if len([x for x in (interface, vminterface, vlan) if x]) > 1:
+            raise ValidationError('A termination can only have one terminating object (an interface or VLAN).')
 
-        if interface and vlan and vminterface:
-            raise ValidationError('Cannot assign a interface, vlan and vminterface')
-        elif interface and vlan:
-            raise ValidationError('Cannot assign both a interface and vlan')
-        elif interface and vminterface:
-            raise ValidationError('Cannot assign both a interface and vminterface')
-        elif vlan and vminterface:
-            raise ValidationError('Cannot assign both a vlan and vminterface')
-
-        obj = interface or vlan or vminterface
-        self.instance.assigned_object = obj
+        self.instance.assigned_object = interface or vminterface or vlan
