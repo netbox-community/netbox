@@ -9,8 +9,8 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.api.nested_serializers import (
-    NestedASNSerializer, NestedIPAddressSerializer, NestedVLANSerializer, NestedVRFSerializer,
-    NestedL2VPNTerminationSerializer,
+    NestedASNSerializer, NestedIPAddressSerializer, NestedL2VPNTerminationSerializer, NestedVLANSerializer,
+    NestedVRFSerializer,
 )
 from ipam.models import ASN, VLAN
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField

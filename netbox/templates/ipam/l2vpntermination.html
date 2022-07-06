@@ -11,12 +11,12 @@
             <div class="card-body">
                 <table class="table table-hover">
                     <tr>
-                        <th scope="row">L2vPN</th>
-                        <td>{{ object.l2vpn.name|placeholder }}</td>
+                        <th scope="row">L2VPN</th>
+                        <td>{{ object.l2vpn|linkify }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Assigned Object</th>
-                        <td>{{ object.assigned_object.name|placeholder }}</td>
+                        <td>{{ object.assigned_object|linkify }}</td>
                     </tr>
                 </table>
             </div>
