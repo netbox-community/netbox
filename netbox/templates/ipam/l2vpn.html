@@ -59,39 +59,9 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
         <div class="card">
-          <h5 class="card-header">L2VPN Terminations</h5>
+          <h5 class="card-header">Terminations</h5>
           <div class="card-body">
-            {% with terminations=object.terminations.all %}
-              {% if terminations.exists %}
-                <table class="table table-hover">
-                  <tr>
-                    <th>Termination Type</th>
-                    <th>Termination</th>
-                    <th></th>
-                  </tr>
-                  {% for termination in terminations %}
-                    <tr>
-                      <td>{{ termination.assigned_object|meta:"verbose_name" }}</td>
-                      <td>{{ termination.assigned_object|linkify }}</td>
-                      <td class="text-end noprint">
-                        {% if perms.ipam.change_l2vpntermination %}
-                          <a href="{% url 'ipam:l2vpntermination_edit' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning btn-sm lh-1" title="Edit">
-                            <i class="mdi mdi-pencil" aria-hidden="true"></i>
-                          </a>
-                        {% endif %}
-                        {% if perms.ipam.delete_l2vpntermination %}
-                          <a href="{% url 'ipam:l2vpntermination_delete' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-danger btn-sm lh-1" title="Delete">
-                            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
-                          </a>
-                        {% endif %}
-                      </td>
-                    </tr>
-                  {% endfor %}
-                </table>
-              {% else %}
-                <div class="text-muted">None</div>
-              {% endif %}
-            {% endwith %}
+            {% render_table terminations_table 'inc/table.html' %}
           </div>
           {% if perms.ipam.add_l2vpntermination %}
             <div class="card-footer text-end noprint">
