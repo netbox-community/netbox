@@ -6,6 +6,26 @@
 
 * Device position and rack unit values are now reported as decimals (e.g. `1.0` or `1.5`) to support modeling half-height rack units.
 * The `nat_outside` relation on the IP address model now returns a list of zero or more related IP addresses, rather than a single instance (or None).
+* Several fields on the cable API serializers have been altered to support multiple-object cable terminations:
+
+| Old Name             | Old Type | New Name              | New Type |
+|----------------------|----------|-----------------------|----------|
+| `termination_a_type` | string   | `a_terminations_type` | string   |
+| `termination_b_type` | string   | `b_terminations_type` | string   |
+| `termination_a_id`   | integer  | _Removed_             | -        |
+| `termination_b_id`   | integer  | _Removed_             | -        |
+| `termination_a`      | object   | `a_terminations`      | list     |
+| `termination_b`      | object   | `b_terminations`      | list     |
+
+* As with the cable model, several API fields on all objects to which cables can be connected (interfaces, circuit terminations, etc.) have been changed:
+
+| Old Name                       | Old Type | New Name                        | New Type |
+|--------------------------------|----------|---------------------------------|----------|
+| `link_peer`                    | object   | `link_peers`                    | list     |
+| `link_peer_type`               | string   | `link_peers_type`               | string   |
+| `connected_endpoint`           | object   | `connected_endpoints`           | list     |
+| `connected_endpoint_type`      | string   | `connected_endpoints_type`      | string   |
+| `connected_endpoint_reachable` | boolean  | `connected_endpoints_reachable` | boolean  |
 
 ### New Features
 
@@ -18,6 +38,8 @@
 #### Restrict API Tokens by Client IP ([#8233](https://github.com/netbox-community/netbox/issues/8233))
 
 #### Reference User in Permission Constraints ([#9074](https://github.com/netbox-community/netbox/issues/9074))
+
+#### Multi-object Cable Terminations ([#9102](https://github.com/netbox-community/netbox/issues/9102))
 
 ### Enhancements
 
@@ -55,23 +77,83 @@
 ### REST API Changes
 
 * Added the following endpoints:
+    * `/api/dcim/cable-terminations/`
     * `/api/ipam/l2vpns/`
     * `/api/ipam/l2vpn-terminations/`
 * circuits.Circuit
     * Added optional `termination_date` field
 * circuits.CircuitTermination
-    * Added 'custom_fields' and 'tags' fields
+    * `link_peer` has been renamed to `link_peers` and now returns a list of objects
+    * `link_peer_type` has been renamed to `link_peers_type`
+    * `connected_endpoint` has been renamed to `connected_endpoints` and now returns a list of objects
+    * `connected_endpoint_type` has been renamed to `connected_endpoints_type`
+    * `connected_endpoint_reachable` has been renamed to `connected_endpoints_reachable`
+    * Added `custom_fields` and `tags` fields
+* dcim.Cable
+    * `termination_a_type` has been renamed to `a_terminations_type`
+    * `termination_b_type` has been renamed to `b_terminations_type`
+    * `termination_a` renamed to `a_terminations` and now returns a list of objects
+    * `termination_b` renamed to `b_terminations` and now returns a list of objects
+    * `termination_a_id` has been removed
+    * `termination_b_id` has been removed
+* dcim.ConsolePort
+    * `link_peer` has been renamed to `link_peers` and now returns a list of objects
+    * `link_peer_type` has been renamed to `link_peers_type`
+    * `connected_endpoint` has been renamed to `connected_endpoints` and now returns a list of objects
+    * `connected_endpoint_type` has been renamed to `connected_endpoints_type`
+    * `connected_endpoint_reachable` has been renamed to `connected_endpoints_reachable`
+* dcim.ConsoleServerPort
+    * `link_peer` has been renamed to `link_peers` and now returns a list of objects
+    * `link_peer_type` has been renamed to `link_peers_type`
+    * `connected_endpoint` has been renamed to `connected_endpoints` and now returns a list of objects
+    * `connected_endpoint_type` has been renamed to `connected_endpoints_type`
+    * `connected_endpoint_reachable` has been renamed to `connected_endpoints_reachable`
 * dcim.Device
     * The `position` field has been changed from an integer to a decimal
 * dcim.DeviceType
     * The `u_height` field has been changed from an integer to a decimal
+* dcim.FrontPort
+    * `link_peer` has been renamed to `link_peers` and now returns a list of objects
+    * `link_peer_type` has been renamed to `link_peers_type`
+    * `connected_endpoint` has been renamed to `connected_endpoints` and now returns a list of objects
+    * `connected_endpoint_type` has been renamed to `connected_endpoints_type`
+    * `connected_endpoint_reachable` has been renamed to `connected_endpoints_reachable`
 * dcim.Interface
+    * `link_peer` has been renamed to `link_peers` and now returns a list of objects
+    * `link_peer_type` has been renamed to `link_peers_type`
+    * `connected_endpoint` has been renamed to `connected_endpoints` and now returns a list of objects
+    * `connected_endpoint_type` has been renamed to `connected_endpoints_type`
+    * `connected_endpoint_reachable` has been renamed to `connected_endpoints_reachable`
     * Added the optional `poe_mode` and `poe_type` fields
     * Added the `l2vpn_termination` read-only field
 * dcim.Location
     * Added required `status` field (default value: `active`)
+* dcim.PowerOutlet
+    * `link_peer` has been renamed to `link_peers` and now returns a list of objects
+    * `link_peer_type` has been renamed to `link_peers_type`
+    * `connected_endpoint` has been renamed to `connected_endpoints` and now returns a list of objects
+    * `connected_endpoint_type` has been renamed to `connected_endpoints_type`
+    * `connected_endpoint_reachable` has been renamed to `connected_endpoints_reachable`
+* dcim.PowerFeed
+    * `link_peer` has been renamed to `link_peers` and now returns a list of objects
+    * `link_peer_type` has been renamed to `link_peers_type`
+    * `connected_endpoint` has been renamed to `connected_endpoints` and now returns a list of objects
+    * `connected_endpoint_type` has been renamed to `connected_endpoints_type`
+    * `connected_endpoint_reachable` has been renamed to `connected_endpoints_reachable`
+* dcim.PowerPort
+    * `link_peer` has been renamed to `link_peers` and now returns a list of objects
+    * `link_peer_type` has been renamed to `link_peers_type`
+    * `connected_endpoint` has been renamed to `connected_endpoints` and now returns a list of objects
+    * `connected_endpoint_type` has been renamed to `connected_endpoints_type`
+    * `connected_endpoint_reachable` has been renamed to `connected_endpoints_reachable`
 * dcim.Rack
     * The `elevation` endpoint now includes half-height rack units, and utilizes decimal values for the ID and name of each unit
+* dcim.RearPort
+    * `link_peer` has been renamed to `link_peers` and now returns a list of objects
+    * `link_peer_type` has been renamed to `link_peers_type`
+    * `connected_endpoint` has been renamed to `connected_endpoints` and now returns a list of objects
+    * `connected_endpoint_type` has been renamed to `connected_endpoints_type`
+    * `connected_endpoint_reachable` has been renamed to `connected_endpoints_reachable`
 * extras.ConfigContext
     * Added the `locations` many-to-many field to track the assignment of ConfigContexts to Locations
 * extras.CustomField
