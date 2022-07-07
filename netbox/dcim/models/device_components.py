@@ -10,7 +10,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField, WWNField
-from dcim.svg import CableTraceSVG
 from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
@@ -105,7 +104,8 @@ class ModularComponentModel(ComponentModel):
 
 class CabledObjectModel(models.Model):
     """
-    An abstract model inherited by all models to which a Cable can terminate.
+    An abstract model inherited by all models to which a Cable can terminate. Provides the `cable` and `cable_end`
+    fields for caching cable associations, as well as `mark_connected` to designate "fake" connections.
     """
     cable = models.ForeignKey(
         to='dcim.Cable',
@@ -134,8 +134,11 @@ class CabledObjectModel(models.Model):
             raise ValidationError({
                 "cable_end": "Must specify cable end (A or B) when attaching a cable."
             })
-
-        if self.mark_connected and self.cable_id:
+        if self.cable_end and not self.cable:
+            raise ValidationError({
+                "cable_end": "Cable end must not be set without a cable."
+            })
+        if self.mark_connected and self.cable:
             raise ValidationError({
                 "mark_connected": "Cannot mark as connected with a cable attached."
             })
@@ -167,12 +170,13 @@ class CabledObjectModel(models.Model):
         """
         Generic wrapper for a Cable, WirelessLink, or some other relation to a connected termination.
         """
+        # TODO: Support WirelessLinks
         return self.cable
 
 
 class PathEndpoint(models.Model):
     """
-    An abstract model inherited by any CableTermination subclass which represents the end of a CablePath; specifically,
+    An abstract model inherited by any CabledObjectModel subclass which represents the end of a CablePath; specifically,
     these include ConsolePort, ConsoleServerPort, PowerPort, PowerOutlet, Interface, and PowerFeed.
 
     `_path` references the CablePath originating from this instance, if any. It is set or cleared by the receivers in
@@ -214,14 +218,6 @@ class PathEndpoint(models.Model):
 
         # Return the path as a list of three-tuples (A termination(s), cable(s), B termination(s))
         return list(zip(*[iter(path)] * 3))
-
-    def get_trace_svg(self, base_url=None, width=CABLE_TRACE_SVG_DEFAULT_WIDTH):
-        trace = CableTraceSVG(self, base_url=base_url, width=width)
-        return trace.render()
-
-    @property
-    def path(self):
-        return self._path
 
     @property
     def connected_endpoints(self):
@@ -338,7 +334,15 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
 
     def get_downstream_powerports(self, leg=None):
         """
-        Return a queryset of all PowerPorts connected via cable to a child PowerOutlet.
+        Return a queryset of all PowerPorts connected via cable to a child PowerOutlet. For example, in the topology
+        below, PP1.get_downstream_powerports() would return PP2-4.
+
+               ---- PO1 <---> PP2
+             /
+        PP1 ------- PO2 <---> PP3
+             \
+               ---- PO3 <---> PP4
+
         """
         poweroutlets = self.poweroutlets.filter(cable__isnull=False)
         if leg:

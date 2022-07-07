@@ -52,16 +52,13 @@ class CabledObjectSerializer(serializers.ModelSerializer):
         """
         Return the appropriate serializer for the link termination model.
         """
-        if not obj.cable:
+        if not obj.link_peers:
             return []
 
         # Return serialized peer termination objects
-        if obj.link_peers:
-            serializer = get_serializer_for_model(obj.link_peers[0], prefix='Nested')
-            context = {'request': self.context['request']}
-            return serializer(obj.link_peers, context=context, many=True).data
-
-        return []
+        serializer = get_serializer_for_model(obj.link_peers[0], prefix='Nested')
+        context = {'request': self.context['request']}
+        return serializer(obj.link_peers, context=context, many=True).data
 
     @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get__occupied(self, obj):
@@ -77,8 +74,7 @@ class ConnectedEndpointsSerializer(serializers.ModelSerializer):
     connected_endpoints_reachable = serializers.SerializerMethodField(read_only=True)
 
     def get_connected_endpoints_type(self, obj):
-        endpoints = obj.connected_endpoints
-        if endpoints:
+        if endpoints := obj.connected_endpoints:
             return f'{endpoints[0]._meta.app_label}.{endpoints[0]._meta.model_name}'
 
     @swagger_serializer_method(serializer_or_field=serializers.ListField)
@@ -86,8 +82,7 @@ class ConnectedEndpointsSerializer(serializers.ModelSerializer):
         """
         Return the appropriate serializer for the type of connected object.
         """
-        endpoints = obj.connected_endpoints
-        if endpoints:
+        if endpoints := obj.connected_endpoints:
             serializer = get_serializer_for_model(endpoints[0], prefix='Nested')
             context = {'request': self.context['request']}
             return serializer(endpoints, many=True, context=context).data
@@ -1016,15 +1011,15 @@ class CableSerializer(NetBoxModelSerializer):
         ]
 
     def _get_terminations_type(self, obj, side):
-        assert side.lower() in ('a', 'b')
-        terms = [t.termination for t in obj.terminations.all() if t.cable_end == side.upper()]
+        assert side in CableEndChoices.values()
+        terms = getattr(obj, f'get_{side.lower()}_terminations')()
         if terms:
             ct = ContentType.objects.get_for_model(terms[0])
             return f"{ct.app_label}.{ct.model}"
 
     def _get_terminations(self, obj, side):
-        assert side.lower() in ('a', 'b')
-        terms = [t.termination for t in obj.terminations.all() if t.cable_end == side.upper()]
+        assert side in CableEndChoices.values()
+        terms = getattr(obj, f'get_{side.lower()}_terminations')()
         if not terms:
             return []
 
@@ -1037,19 +1032,19 @@ class CableSerializer(NetBoxModelSerializer):
 
     @swagger_serializer_method(serializer_or_field=serializers.CharField)
     def get_a_terminations_type(self, obj):
-        return self._get_terminations_type(obj, 'a')
+        return self._get_terminations_type(obj, CableEndChoices.SIDE_A)
 
     @swagger_serializer_method(serializer_or_field=serializers.CharField)
     def get_b_terminations_type(self, obj):
-        return self._get_terminations_type(obj, 'b')
+        return self._get_terminations_type(obj, CableEndChoices.SIDE_B)
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_a_terminations(self, obj):
-        return self._get_terminations(obj, 'a')
+        return self._get_terminations(obj, CableEndChoices.SIDE_A)
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_b_terminations(self, obj):
-        return self._get_terminations(obj, 'b')
+        return self._get_terminations(obj, CableEndChoices.SIDE_B)
 
 
 class TracedCableSerializer(serializers.ModelSerializer):
@@ -1066,7 +1061,7 @@ class TracedCableSerializer(serializers.ModelSerializer):
 
 
 class CableTerminationSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cabletermination-detail')
     termination_type = ContentTypeField(
         queryset=ContentType.objects.filter(CABLE_TERMINATION_MODELS)
     )

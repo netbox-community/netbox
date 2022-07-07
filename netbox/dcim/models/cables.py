@@ -1,3 +1,4 @@
+import itertools
 from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -11,15 +12,14 @@ from django.urls import reverse
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
-from dcim.utils import decompile_path_node, flatten_path, object_to_path_node, path_node_to_object
+from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_object
 from netbox.models import NetBoxModel
 from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import to_meters
 from wireless.models import WirelessLink
-from .devices import Device
 from .device_components import FrontPort, RearPort
-
+from .devices import Device
 
 __all__ = (
     'Cable',
@@ -110,7 +110,8 @@ class Cable(NetBoxModel):
         # Cache the original status so we can check later if it's been changed
         self._orig_status = self.status
 
-        # Assign associated CableTerminations (if any)
+        # Assign any *new* CableTerminations for the instance. These will replace any existing
+        # terminations on save().
         if a_terminations is not None:
             self.a_terminations = a_terminations
         if b_terminations is not None:
@@ -133,28 +134,25 @@ class Cable(NetBoxModel):
             self.length_unit = ''
 
         a_terminations = [
-            CableTermination(cable=self, cable_end='A', termination=t) for t in getattr(self, 'a_terminations', [])
+            CableTermination(cable=self, cable_end='A', termination=t)
+            for t in getattr(self, 'a_terminations', [])
         ]
         b_terminations = [
-            CableTermination(cable=self, cable_end='B', termination=t) for t in getattr(self, 'b_terminations', [])
+            CableTermination(cable=self, cable_end='B', termination=t)
+            for t in getattr(self, 'b_terminations', [])
         ]
 
         # Check that all termination objects for either end are of the same type
         for terms in (a_terminations, b_terminations):
-            if terms and len(terms) > 1:
-                if not all(t.termination_type == terms[0].termination_type for t in terms[1:]):
-                    raise ValidationError(
-                        "Cannot connect different termination types to same end of cable."
-                    )
+            if len(terms) > 1 and not all(t.termination_type == terms[0].termination_type for t in terms[1:]):
+                raise ValidationError("Cannot connect different termination types to same end of cable.")
 
         # Check that termination types are compatible
         if a_terminations and b_terminations:
             a_type = a_terminations[0].termination_type.model
             b_type = b_terminations[0].termination_type.model
             if b_type not in COMPATIBLE_TERMINATION_TYPES.get(a_type):
-                raise ValidationError(
-                    f"Incompatible termination types: {a_type} and {b_type}"
-                )
+                raise ValidationError(f"Incompatible termination types: {a_type} and {b_type}")
 
         # Run clean() on any new CableTerminations
         for cabletermination in [*a_terminations, *b_terminations]:
@@ -169,6 +167,7 @@ class Cable(NetBoxModel):
         else:
             self._abs_length = None
 
+        # TODO: Need to come with a proper solution for filtering by termination parent
         # Store the parent Device for the A and B terminations (if applicable) to enable filtering
         if hasattr(self, 'a_terminations'):
             self._termination_a_device = getattr(self.a_terminations[0], 'device', None)
@@ -210,13 +209,15 @@ class Cable(NetBoxModel):
         return LinkStatusChoices.colors.get(self.status)
 
     def get_a_terminations(self):
+        # Query self.terminations.all() to leverage cached results
         return [
-            term.termination for term in CableTermination.objects.filter(cable=self, cable_end='A')
+            ct.termination for ct in self.terminations.all() if ct.cable_end == CableEndChoices.SIDE_A
         ]
 
     def get_b_terminations(self):
+        # Query self.terminations.all() to leverage cached results
         return [
-            term.termination for term in CableTermination.objects.filter(cable=self, cable_end='B')
+            ct.termination for ct in self.terminations.all() if ct.cable_end == CableEndChoices.SIDE_B
         ]
 
 
@@ -253,7 +254,7 @@ class CableTermination(models.Model):
         constraints = (
             models.UniqueConstraint(
                 fields=('termination_type', 'termination_id'),
-                name='unique_termination'
+                name='dcim_cable_termination_unique_termination'
             ),
         )
 
@@ -289,34 +290,48 @@ class CableTermination(models.Model):
 
         # Delete the cable association on the terminating object
         termination_model = self.termination._meta.model
-        termination_model.objects.filter(pk=self.termination_id).update(cable=None, cable_end='', _path=None)
+        termination_model.objects.filter(pk=self.termination_id).update(
+            cable=None,
+            cable_end=''
+        )
 
         super().delete(*args, **kwargs)
 
 
 class CablePath(models.Model):
     """
-    A CablePath instance represents the physical path from an origin to a destination, including all intermediate
-    elements in the path. Every instance must specify an `origin`, whereas `destination` may be null (for paths which do
-    not terminate on a PathEndpoint).
+    A CablePath instance represents the physical path from a set of origin nodes to a set of destination nodes,
+    including all intermediate elements.
 
-    `path` contains a list of nodes within the path, each represented by a tuple of (type, ID). The first element in the
-    path must be a Cable instance, followed by a pair of pass-through ports. For example, consider the following
+    `path` contains the ordered set of nodes, arranged in lists of (type, ID) tuples. (Each cable in the path can
+    terminate to one or more objects.)  For example, consider the following
     topology:
 
-                     1                              2                              3
-        Interface A --- Front Port A | Rear Port A --- Rear Port B | Front Port B --- Interface B
+                     A                              B                              C
+        Interface 1 --- Front Port 1 | Rear Port 1 --- Rear Port 2 | Front Port 3 --- Interface 2
+                        Front Port 2                                 Front Port 4
 
     This path would be expressed as:
 
     CablePath(
-        origin = Interface A
-        destination = Interface B
-        path = [Cable 1, Front Port A, Rear Port A, Cable 2, Rear Port B, Front Port B, Cable 3]
+        path = [
+            [Interface 1],
+            [Cable A],
+            [Front Port 1, Front Port 2],
+            [Rear Port 1],
+            [Cable B],
+            [Rear Port 2],
+            [Front Port 3, Front Port 4],
+            [Cable C],
+            [Interface 2],
+        ]
     )
 
-    `is_active` is set to True only if 1) `destination` is not null, and 2) every Cable within the path has a status of
-    "connected".
+    `is_active` is set to True only if every Cable within the path has a status of "connected". `is_complete` is True
+    if the instance represents a complete end-to-end path from origin(s) to destination(s). `is_split` is True if the
+    path diverges across multiple cables.
+
+    `_nodes` retains a flattened list of all nodes within the path to enable simple filtering.
     """
     path = models.JSONField(
         default=list
@@ -332,36 +347,32 @@ class CablePath(models.Model):
     )
     _nodes = PathField()
 
-    class Meta:
-        pass
-
     def __str__(self):
-        status = ' (active)' if self.is_active else ' (split)' if self.is_split else ''
-        return f"Path #{self.pk}: {len(self.path)} nodes{status}"
+        return f"Path #{self.pk}: {len(self.path)} hops"
 
     def save(self, *args, **kwargs):
 
         # Save the flattened nodes list
-        self._nodes = flatten_path(self.path)
+        self._nodes = list(itertools.chain(*self.path))
 
         super().save(*args, **kwargs)
 
         # Record a direct reference to this CablePath on its originating object(s)
-        origin_model = self.origins[0]._meta.model
-        origin_ids = [o.id for o in self.origins]
+        origin_model = self.origin_type.model_class()
+        origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
         origin_model.objects.filter(pk__in=origin_ids).update(_path=self.pk)
 
     @property
     def origin_type(self):
-        ct_id, _ = decompile_path_node(self.path[0][0])
-        return ContentType.objects.get_for_id(ct_id)
+        if self.path:
+            ct_id, _ = decompile_path_node(self.path[0][0])
+            return ContentType.objects.get_for_id(ct_id)
 
     @property
     def destination_type(self):
-        if not self.is_complete:
-            return None
-        ct_id, _ = decompile_path_node(self.path[-1][0])
-        return ContentType.objects.get_for_id(ct_id)
+        if self.is_complete:
+            ct_id, _ = decompile_path_node(self.path[-1][0])
+            return ContentType.objects.get_for_id(ct_id)
 
     @property
     def path_objects(self):
@@ -375,7 +386,7 @@ class CablePath(models.Model):
     @property
     def origins(self):
         """
-        Return the list of originating objects (from cache, if available).
+        Return the list of originating objects.
         """
         if hasattr(self, '_path_objects'):
             return self.path_objects[0]
@@ -386,7 +397,7 @@ class CablePath(models.Model):
     @property
     def destinations(self):
         """
-        Return the list of destination objects (from cache, if available), if the path is complete.
+        Return the list of destination objects, if the path is complete.
         """
         if not self.is_complete:
             return []

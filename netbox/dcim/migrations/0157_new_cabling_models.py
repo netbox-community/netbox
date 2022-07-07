@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='cabletermination',
-            constraint=models.UniqueConstraint(fields=('termination_type', 'termination_id'), name='unique_termination'),
+            constraint=models.UniqueConstraint(fields=('termination_type', 'termination_id'), name='dcim_cable_termination_unique_termination'),
         ),
 
         # Update CablePath model

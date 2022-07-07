@@ -28,6 +28,18 @@ from .choices import DeviceFaceChoices
 from .constants import NONCONNECTABLE_IFACE_TYPES
 from .models import *
 
+CABLE_TERMINATION_TYPES = {
+    'dcim.consoleport': ConsolePort,
+    'dcim.consoleserverport': ConsoleServerPort,
+    'dcim.powerport': PowerPort,
+    'dcim.poweroutlet': PowerOutlet,
+    'dcim.interface': Interface,
+    'dcim.frontport': FrontPort,
+    'dcim.rearport': RearPort,
+    'dcim.powerfeed': PowerFeed,
+    'circuits.circuittermination': CircuitTermination,
+}
+
 
 class DeviceComponentsView(generic.ObjectChildrenView):
     queryset = Device.objects.all()
@@ -2818,22 +2830,10 @@ class CableEditView(generic.ObjectEditView):
 
         # If creating a new Cable, initialize the form class using URL query params
         if 'pk' not in kwargs:
-            termination_types = {
-                'dcim.consoleport': ConsolePort,
-                'dcim.consoleserverport': ConsoleServerPort,
-                'dcim.powerport': PowerPort,
-                'dcim.poweroutlet': PowerOutlet,
-                'dcim.interface': Interface,
-                'dcim.frontport': FrontPort,
-                'dcim.rearport': RearPort,
-                'dcim.powerfeed': PowerFeed,
-                'circuits.circuittermination': CircuitTermination,
-            }
-
-            a_type = termination_types.get(request.GET.get('a_terminations_type'))
-            b_type = termination_types.get(request.GET.get('b_terminations_type'))
-
-            self.form = forms.get_cable_form(a_type, b_type)
+            self.form = forms.get_cable_form(
+                a_type=CABLE_TERMINATION_TYPES.get(request.GET.get('a_terminations_type')),
+                b_type=CABLE_TERMINATION_TYPES.get(request.GET.get('b_terminations_type'))
+            )
 
         return super().dispatch(request, *args, **kwargs)
 

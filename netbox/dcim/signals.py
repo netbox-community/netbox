@@ -3,7 +3,7 @@ import logging
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
-from .choices import LinkStatusChoices
+from .choices import CableEndChoices, LinkStatusChoices
 from .models import Cable, CablePath, CableTermination, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
 from .models.cables import trace_paths
 from .utils import create_cablepath, rebuild_paths
@@ -83,7 +83,7 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
         a_terminations = []
         b_terminations = []
         for t in instance.terminations.all():
-            if t.cable_end == 'A':
+            if t.cable_end == CableEndChoices.SIDE_A:
                 a_terminations.append(t.termination)
             else:
                 b_terminations.append(t.termination)

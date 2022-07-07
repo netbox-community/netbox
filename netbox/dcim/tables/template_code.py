@@ -13,21 +13,17 @@ CABLE_LENGTH = """
 {% if record.length %}{{ record.length|simplify_decimal }} {{ record.length_unit }}{% endif %}
 """
 
-CABLE_TERMINATION = """
-{{ value|join:", " }}
-"""
-
-CABLE_TERMINATION_PARENT = """
-{% with value.0 as termination %}
-  {% if termination.device %}
-    <a href="{{ termination.device.get_absolute_url }}">{{ termination.device }}</a>
-  {% elif termination.circuit %}
-    <a href="{{ termination.circuit.get_absolute_url }}">{{ termination.circuit }}</a>
-  {% elif termination.power_panel %}
-    <a href="{{ termination.power_panel.get_absolute_url }}">{{ termination.power_panel }}</a>
-  {% endif %}
-{% endwith %}
-"""
+# CABLE_TERMINATION_PARENT = """
+# {% with value.0 as termination %}
+#   {% if termination.device %}
+#     <a href="{{ termination.device.get_absolute_url }}">{{ termination.device }}</a>
+#   {% elif termination.circuit %}
+#     <a href="{{ termination.circuit.get_absolute_url }}">{{ termination.circuit }}</a>
+#   {% elif termination.power_panel %}
+#     <a href="{{ termination.power_panel.get_absolute_url }}">{{ termination.power_panel }}</a>
+#   {% endif %}
+# {% endwith %}
+# """
 
 DEVICE_LINK = """
 <a href="{% url 'dcim:device' pk=record.pk %}">

@@ -438,9 +438,9 @@ class Rack(NetBoxModel):
                 peer for peer in powerfeed.link_peers if isinstance(peer, PowerPort)
             ])
 
-        allocated_draw = 0
-        for powerport in powerports:
-            allocated_draw += powerport.get_power_draw()['allocated']
+        allocated_draw = sum([
+            powerport.get_power_draw()['allocated'] for powerport in powerports
+        ])
 
         return int(allocated_draw / available_power_total * 100)
 

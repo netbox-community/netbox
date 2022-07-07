@@ -1,3 +1,5 @@
+import itertools
+
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 
@@ -29,16 +31,6 @@ def path_node_to_object(repr):
     return ct.model_class().objects.get(pk=object_id)
 
 
-def flatten_path(path):
-    """
-    Flatten a two-dimensional array (list of lists) into a flat list.
-    """
-    ret = []
-    for step in path:
-        ret.extend(step)
-    return ret
-
-
 def create_cablepath(terminations):
     """
     Create CablePaths for all paths originating from the specified set of nodes.
@@ -54,7 +46,7 @@ def create_cablepath(terminations):
 
 def rebuild_paths(terminations):
     """
-    Rebuild all CablePaths which traverse the specified node
+    Rebuild all CablePaths which traverse the specified nodes.
     """
     from dcim.models import CablePath
 

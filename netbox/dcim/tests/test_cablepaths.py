@@ -3,6 +3,7 @@ from django.test import TestCase
 from circuits.models import *
 from dcim.choices import LinkStatusChoices
 from dcim.models import *
+from dcim.svg import CableTraceSVG
 from dcim.utils import object_to_path_node
 
 
@@ -107,7 +108,7 @@ class CablePathTestCase(TestCase):
         self.assertPathIsSet(interface2, path2)
 
         # Test SVG generation
-        interface1.get_trace_svg()
+        CableTraceSVG(interface1).render()
 
         # Delete cable 1
         cable1.delete()
@@ -146,7 +147,7 @@ class CablePathTestCase(TestCase):
         self.assertPathIsSet(consoleserverport1, path2)
 
         # Test SVG generation
-        consoleport1.get_trace_svg()
+        CableTraceSVG(consoleport1).render()
 
         # Delete cable 1
         cable1.delete()
@@ -185,7 +186,7 @@ class CablePathTestCase(TestCase):
         self.assertPathIsSet(poweroutlet1, path2)
 
         # Test SVG generation
-        powerport1.get_trace_svg()
+        CableTraceSVG(powerport1).render()
 
         # Delete cable 1
         cable1.delete()
@@ -224,7 +225,7 @@ class CablePathTestCase(TestCase):
         self.assertPathIsSet(powerfeed1, path2)
 
         # Test SVG generation
-        powerport1.get_trace_svg()
+        CableTraceSVG(powerport1).render()
 
         # Delete cable 1
         cable1.delete()
@@ -267,7 +268,7 @@ class CablePathTestCase(TestCase):
         self.assertPathIsSet(interface3, path2)
 
         # Test SVG generation
-        interface1.get_trace_svg()
+        CableTraceSVG(interface1).render()
 
         # Delete cable 1
         cable1.delete()
@@ -319,7 +320,7 @@ class CablePathTestCase(TestCase):
         self.assertPathIsSet(interface4, path2)
 
         # Test SVG generation
-        interface1.get_trace_svg()
+        CableTraceSVG(interface1).render()
 
         # Delete cable 1
         cable1.delete()

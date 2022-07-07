@@ -15,6 +15,7 @@ from circuits.models import Circuit
 from dcim import filtersets
 from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from dcim.models import *
+from dcim.svg import CableTraceSVG
 from extras.api.views import ConfigContextQuerySetMixin
 from ipam.models import Prefix, VLAN
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
@@ -52,37 +53,30 @@ class PathEndpointMixin(object):
         # Initialize the path array
         path = []
 
+        # Render SVG image if requested
         if request.GET.get('render', None) == 'svg':
-            # Render SVG
             try:
                 width = int(request.GET.get('width', CABLE_TRACE_SVG_DEFAULT_WIDTH))
             except (ValueError, TypeError):
                 width = CABLE_TRACE_SVG_DEFAULT_WIDTH
-            drawing = obj.get_trace_svg(
-                base_url=request.build_absolute_uri('/'),
-                width=width
-            )
-            return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
+            drawing = CableTraceSVG(self, base_url=request.build_absolute_uri('/'), width=width)
+            return HttpResponse(drawing.render().tostring(), content_type='image/svg+xml')
 
+        # Serialize path objects, iterating over each three-tuple in the path
         for near_end, cable, far_end in obj.trace():
-            if near_end is None:
-                # Split paths
-                break
-
-            # Serialize each object
-            serializer_a = get_serializer_for_model(near_end[0], prefix='Nested')
-            x = serializer_a(near_end, many=True, context={'request': request}).data
-            if cable is not None:
-                y = serializers.TracedCableSerializer(cable[0], context={'request': request}).data
+            if near_end is not None:
+                serializer_a = get_serializer_for_model(near_end[0], prefix='Nested')
+                near_end = serializer_a(near_end, many=True, context={'request': request}).data
             else:
-                y = None
+                # Path is split; stop here
+                break
+            if cable is not None:
+                cable = serializers.TracedCableSerializer(cable[0], context={'request': request}).data
             if far_end is not None:
                 serializer_b = get_serializer_for_model(far_end[0], prefix='Nested')
-                z = serializer_b(far_end, many=True, context={'request': request}).data
-            else:
-                z = None
+                far_end = serializer_b(far_end, many=True, context={'request': request}).data
 
-            path.append((x, y, z))
+            path.append((near_end, cable, far_end))
 
         return Response(path)
 
