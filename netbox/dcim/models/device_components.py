@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -150,7 +152,7 @@ class CabledObjectModel(models.Model):
         """
         return self.cable
 
-    @property
+    @cached_property
     def link_peers(self):
         if self.cable:
             peers = self.cable.terminations.exclude(cable_end=self.cable_end).prefetch_related('termination')
@@ -217,14 +219,12 @@ class PathEndpoint(models.Model):
         # Return the path as a list of three-tuples (A termination(s), cable(s), B termination(s))
         return list(zip(*[iter(path)] * 3))
 
-    @property
+    @cached_property
     def connected_endpoints(self):
         """
         Caching accessor for the attached CablePath's destination (if any)
         """
-        if not hasattr(self, '_connected_endpoints'):
-            self._connected_endpoints = self._path.destinations if self._path else []
-        return self._connected_endpoints
+        return self._path.destinations if self._path else []
 
 
 #
@@ -830,7 +830,7 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
     def link(self):
         return self.cable or self.wireless_link
 
-    @property
+    @cached_property
     def link_peers(self):
         if self.cable:
             return super().link_peers
