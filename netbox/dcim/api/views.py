@@ -59,7 +59,7 @@ class PathEndpointMixin(object):
                 width = int(request.GET.get('width', CABLE_TRACE_SVG_DEFAULT_WIDTH))
             except (ValueError, TypeError):
                 width = CABLE_TRACE_SVG_DEFAULT_WIDTH
-            drawing = CableTraceSVG(self, base_url=request.build_absolute_uri('/'), width=width)
+            drawing = CableTraceSVG(obj, base_url=request.build_absolute_uri('/'), width=width)
             return HttpResponse(drawing.render().tostring(), content_type='image/svg+xml')
 
         # Serialize path objects, iterating over each three-tuple in the path

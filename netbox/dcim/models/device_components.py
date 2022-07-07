@@ -211,10 +211,10 @@ class PathEndpoint(models.Model):
                 # by inserting empty entries immediately prior to the path's destination node(s)
                 path.append([])
 
-            # TODO: Add bridging support
-            # # Check for bridge interface to continue the trace
-            # origin = getattr(origin._path.destination, 'bridge', None)
-            origin = None
+            # Check for a bridged relationship to continue the trace
+            destinations = origin._path.destinations
+            if len(destinations) == 1:
+                origin = getattr(destinations[0], 'bridge', None)
 
         # Return the path as a list of three-tuples (A termination(s), cable(s), B termination(s))
         return list(zip(*[iter(path)] * 3))
