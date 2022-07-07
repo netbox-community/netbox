@@ -144,12 +144,18 @@ class CabledObjectModel(models.Model):
             })
 
     @property
+    def link(self):
+        """
+        Generic wrapper for a Cable, WirelessLink, or some other relation to a connected termination.
+        """
+        return self.cable
+
+    @property
     def link_peers(self):
-        # TODO: Support WirelessLinks
-        if not self.cable:
-            return []
-        peer_terminations = self.cable.terminations.exclude(cable_end=self.cable_end).prefetch_related('termination')
-        return [ct.termination for ct in peer_terminations]
+        if self.cable:
+            peers = self.cable.terminations.exclude(cable_end=self.cable_end).prefetch_related('termination')
+            return [peer.termination for peer in peers]
+        return []
 
     @property
     def _occupied(self):
@@ -164,14 +170,6 @@ class CabledObjectModel(models.Model):
         if not self.cable_end:
             return None
         return CableEndChoices.SIDE_A if self.cable_end == CableEndChoices.SIDE_B else CableEndChoices.SIDE_B
-
-    @property
-    def link(self):
-        """
-        Generic wrapper for a Cable, WirelessLink, or some other relation to a connected termination.
-        """
-        # TODO: Support WirelessLinks
-        return self.cable
 
 
 class PathEndpoint(models.Model):
@@ -831,6 +829,18 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
     @property
     def link(self):
         return self.cable or self.wireless_link
+
+    @property
+    def link_peers(self):
+        if self.cable:
+            return super().link_peers
+        if self.wireless_link:
+            # Return the opposite side of the attached wireless link
+            if self.wireless_link.interface_a == self:
+                return [self.wireless_link.interface_b]
+            else:
+                return [self.wireless_link.interface_a]
+        return []
 
     @property
     def l2vpn_termination(self):
