@@ -215,6 +215,8 @@ class PathEndpoint(models.Model):
             destinations = origin._path.destinations
             if len(destinations) == 1:
                 origin = getattr(destinations[0], 'bridge', None)
+            else:
+                origin = None
 
         # Return the path as a list of three-tuples (A termination(s), cable(s), B termination(s))
         return list(zip(*[iter(path)] * 3))
