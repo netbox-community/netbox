@@ -1081,45 +1081,19 @@ class CableTerminationSerializer(NetBoxModelSerializer):
 
 
 class CablePathSerializer(serializers.ModelSerializer):
-    origin_type = ContentTypeField(read_only=True)
-    origin = serializers.SerializerMethodField(read_only=True)
-    destination_type = ContentTypeField(read_only=True)
-    destination = serializers.SerializerMethodField(read_only=True)
     path = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = CablePath
-        fields = [
-            'id', 'origin_type', 'origin', 'destination_type', 'destination', 'path', 'is_active', 'is_split',
-        ]
-
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
-    def get_origin(self, obj):
-        """
-        Return the appropriate serializer for the origin.
-        """
-        serializer = get_serializer_for_model(obj.origin, prefix='Nested')
-        context = {'request': self.context['request']}
-        return serializer(obj.origin, context=context).data
-
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
-    def get_destination(self, obj):
-        """
-        Return the appropriate serializer for the destination, if any.
-        """
-        if obj.destination_id is not None:
-            serializer = get_serializer_for_model(obj.destination, prefix='Nested')
-            context = {'request': self.context['request']}
-            return serializer(obj.destination, context=context).data
-        return None
+        fields = ['id', 'path', 'is_active', 'is_complete', 'is_split']
 
     @swagger_serializer_method(serializer_or_field=serializers.ListField)
     def get_path(self, obj):
         ret = []
-        for node in obj.path_objects():
-            serializer = get_serializer_for_model(node, prefix='Nested')
+        for nodes in obj.path_objects:
+            serializer = get_serializer_for_model(nodes[0], prefix='Nested')
             context = {'request': self.context['request']}
-            ret.append(serializer(node, context=context).data)
+            ret.append(serializer(nodes, context=context, many=True).data)
         return ret
 
 

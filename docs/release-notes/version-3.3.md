@@ -27,6 +27,8 @@
 | `connected_endpoint_type`      | string   | `connected_endpoints_type`      | string   |
 | `connected_endpoint_reachable` | boolean  | `connected_endpoints_reachable` | boolean  |
 
+* The cable path serialization returned by the `/paths/` endpoint for pass-through ports has been simplified, and the following fields removed: `origin_type`, `origin`, `destination_type`, `destination`. (Additionally, `is_complete` has been added.)
+
 ### New Features
 
 #### Half-Height Rack Units ([#51](https://github.com/netbox-community/netbox/issues/51))
