@@ -21,6 +21,7 @@ from .models import *
 
 __all__ = (
     'CableFilterSet',
+    'CabledObjectFilterSet',
     'CableTerminationFilterSet',
     'ConsoleConnectionFilterSet',
     'ConsolePortFilterSet',
@@ -1117,7 +1118,7 @@ class ModularDeviceComponentFilterSet(DeviceComponentFilterSet):
     )
 
 
-class CableTerminationFilterSet(django_filters.FilterSet):
+class CabledObjectFilterSet(django_filters.FilterSet):
     cabled = django_filters.BooleanFilter(
         field_name='cable',
         lookup_expr='isnull',
@@ -1140,7 +1141,7 @@ class PathEndpointFilterSet(django_filters.FilterSet):
 class ConsolePortFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet,
+    CabledObjectFilterSet,
     PathEndpointFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
@@ -1150,13 +1151,13 @@ class ConsolePortFilterSet(
 
     class Meta:
         model = ConsolePort
-        fields = ['id', 'name', 'label', 'description']
+        fields = ['id', 'name', 'label', 'description', 'cable_end']
 
 
 class ConsoleServerPortFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet,
+    CabledObjectFilterSet,
     PathEndpointFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
@@ -1166,13 +1167,13 @@ class ConsoleServerPortFilterSet(
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'name', 'label', 'description']
+        fields = ['id', 'name', 'label', 'description', 'cable_end']
 
 
 class PowerPortFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet,
+    CabledObjectFilterSet,
     PathEndpointFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
@@ -1182,13 +1183,13 @@ class PowerPortFilterSet(
 
     class Meta:
         model = PowerPort
-        fields = ['id', 'name', 'label', 'maximum_draw', 'allocated_draw', 'description']
+        fields = ['id', 'name', 'label', 'maximum_draw', 'allocated_draw', 'description', 'cable_end']
 
 
 class PowerOutletFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet,
+    CabledObjectFilterSet,
     PathEndpointFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
@@ -1202,13 +1203,13 @@ class PowerOutletFilterSet(
 
     class Meta:
         model = PowerOutlet
-        fields = ['id', 'name', 'label', 'feed_leg', 'description']
+        fields = ['id', 'name', 'label', 'feed_leg', 'description', 'cable_end']
 
 
 class InterfaceFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet,
+    CabledObjectFilterSet,
     PathEndpointFilterSet
 ):
     # Override device and device_id filters from DeviceComponentFilterSet to match against any peer virtual chassis
@@ -1288,7 +1289,7 @@ class InterfaceFilterSet(
         model = Interface
         fields = [
             'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'poe_mode', 'poe_type', 'mode', 'rf_role',
-            'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
+            'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'cable_end',
         ]
 
     def filter_device(self, queryset, name, value):
@@ -1342,7 +1343,7 @@ class InterfaceFilterSet(
 class FrontPortFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet
+    CabledObjectFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
@@ -1351,13 +1352,13 @@ class FrontPortFilterSet(
 
     class Meta:
         model = FrontPort
-        fields = ['id', 'name', 'label', 'type', 'color', 'description']
+        fields = ['id', 'name', 'label', 'type', 'color', 'description', 'cable_end']
 
 
 class RearPortFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
-    CableTerminationFilterSet
+    CabledObjectFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
@@ -1366,7 +1367,7 @@ class RearPortFilterSet(
 
     class Meta:
         model = RearPort
-        fields = ['id', 'name', 'label', 'type', 'color', 'positions', 'description']
+        fields = ['id', 'name', 'label', 'type', 'color', 'positions', 'description', 'cable_end']
 
 
 class ModuleBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
@@ -1514,10 +1515,18 @@ class VirtualChassisFilterSet(NetBoxModelFilterSet):
 
 
 class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
-    termination_a_type = ContentTypeFilter()
-    termination_a_id = MultiValueNumberFilter()
-    termination_b_type = ContentTypeFilter()
-    termination_b_id = MultiValueNumberFilter()
+    termination_a_type = ContentTypeFilter(
+        field_name='terminations__termination_type'
+    )
+    termination_a_id = MultiValueNumberFilter(
+        field_name='terminations__termination_id'
+    )
+    termination_b_type = ContentTypeFilter(
+        field_name='terminations__termination_type'
+    )
+    termination_b_id = MultiValueNumberFilter(
+        field_name='terminations__termination_id'
+    )
     type = django_filters.MultipleChoiceFilter(
         choices=CableTypeChoices
     )
@@ -1528,44 +1537,57 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         choices=ColorChoices
     )
     device_id = MultiValueNumberFilter(
-        method='filter_device'
+        method='filter_by_termination'
     )
     device = MultiValueCharFilter(
-        method='filter_device',
+        method='filter_by_termination',
         field_name='device__name'
     )
     rack_id = MultiValueNumberFilter(
-        method='filter_device',
-        field_name='device__rack_id'
+        method='filter_by_termination',
+        field_name='rack_id'
     )
     rack = MultiValueCharFilter(
-        method='filter_device',
-        field_name='device__rack__name'
+        method='filter_by_termination',
+        field_name='rack__name'
+    )
+    location_id = MultiValueNumberFilter(
+        method='filter_by_termination',
+        field_name='location_id'
+    )
+    location = MultiValueCharFilter(
+        method='filter_by_termination',
+        field_name='location__name'
     )
     site_id = MultiValueNumberFilter(
-        method='filter_device',
-        field_name='device__site_id'
+        method='filter_by_termination',
+        field_name='site_id'
     )
     site = MultiValueCharFilter(
-        method='filter_device',
-        field_name='device__site__slug'
+        method='filter_by_termination',
+        field_name='site__slug'
     )
 
     class Meta:
         model = Cable
-        fields = ['id', 'label', 'length', 'length_unit', 'termination_a_id', 'termination_b_id']
+        fields = ['id', 'label', 'length', 'length_unit']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(label__icontains=value)
 
-    def filter_device(self, queryset, name, value):
-        queryset = queryset.filter(
-            Q(**{'_termination_a_{}__in'.format(name): value}) |
-            Q(**{'_termination_b_{}__in'.format(name): value})
-        )
-        return queryset
+    def filter_by_termination(self, queryset, name, value):
+        # Filter by a related object cached on CableTermination. Note the underscore preceding the field name.
+        # Supported objects: device, rack, location, site
+        return queryset.filter(**{f'terminations___{name}__in': value}).distinct()
+
+
+class CableTerminationFilterSet(BaseFilterSet):
+
+    class Meta:
+        model = CableTermination
+        fields = ['id', 'cable', 'cable_end', 'termination_type', 'termination_id']
 
 
 class PowerPanelFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
@@ -1625,7 +1647,7 @@ class PowerPanelFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilterSet(NetBoxModelFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+class PowerFeedFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='power_panel__site__region',
@@ -1679,7 +1701,9 @@ class PowerFeedFilterSet(NetBoxModelFilterSet, CableTerminationFilterSet, PathEn
 
     class Meta:
         model = PowerFeed
-        fields = ['id', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization']
+        fields = [
+            'id', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization', 'cable_end',
+        ]
 
     def search(self, queryset, name, value):
         if not value.strip():

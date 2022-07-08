@@ -3,7 +3,6 @@ import sys
 
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import F
 from django.http import HttpResponseServerError
 from django.shortcuts import redirect, render
 from django.template import loader
@@ -37,14 +36,13 @@ class HomeView(View):
             return redirect("login")
 
         connected_consoleports = ConsolePort.objects.restrict(request.user, 'view').prefetch_related('_path').filter(
-            _path__destination_id__isnull=False
+            _path__is_complete=True
         )
         connected_powerports = PowerPort.objects.restrict(request.user, 'view').prefetch_related('_path').filter(
-            _path__destination_id__isnull=False
+            _path__is_complete=True
         )
         connected_interfaces = Interface.objects.restrict(request.user, 'view').prefetch_related('_path').filter(
-            _path__destination_id__isnull=False,
-            pk__lt=F('_path__destination_id')
+            _path__is_complete=True
         )
 
         def build_stats():

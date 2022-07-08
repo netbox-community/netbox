@@ -1283,6 +1283,22 @@ class CableLengthUnitChoices(ChoiceSet):
 
 
 #
+# CableTerminations
+#
+
+class CableEndChoices(ChoiceSet):
+
+    SIDE_A = 'A'
+    SIDE_B = 'B'
+
+    CHOICES = (
+        (SIDE_A, 'A'),
+        (SIDE_B, 'B'),
+        # ('', ''),
+    )
+
+
+#
 # PowerFeeds
 #
 

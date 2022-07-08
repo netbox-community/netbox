@@ -457,7 +457,7 @@ class CableTestCase(TestCase):
         self.interface1 = Interface.objects.create(device=self.device1, name='eth0')
         self.interface2 = Interface.objects.create(device=self.device2, name='eth0')
         self.interface3 = Interface.objects.create(device=self.device2, name='eth1')
-        self.cable = Cable(termination_a=self.interface1, termination_b=self.interface2)
+        self.cable = Cable(a_terminations=[self.interface1], b_terminations=[self.interface2])
         self.cable.save()
 
         self.power_port1 = PowerPort.objects.create(device=self.device2, name='psu1')
@@ -493,12 +493,14 @@ class CableTestCase(TestCase):
         """
         When a new Cable is created, it must be cached on either termination point.
         """
-        interface1 = Interface.objects.get(pk=self.interface1.pk)
-        interface2 = Interface.objects.get(pk=self.interface2.pk)
-        self.assertEqual(self.cable.termination_a, interface1)
-        self.assertEqual(interface1._link_peer, interface2)
-        self.assertEqual(self.cable.termination_b, interface2)
-        self.assertEqual(interface2._link_peer, interface1)
+        self.interface1.refresh_from_db()
+        self.interface2.refresh_from_db()
+        self.assertEqual(self.interface1.cable, self.cable)
+        self.assertEqual(self.interface2.cable, self.cable)
+        self.assertEqual(self.interface1.cable_end, 'A')
+        self.assertEqual(self.interface2.cable_end, 'B')
+        self.assertEqual(self.interface1.link_peers, [self.interface2])
+        self.assertEqual(self.interface2.link_peers, [self.interface1])
 
     def test_cable_deletion(self):
         """
@@ -510,50 +512,33 @@ class CableTestCase(TestCase):
         self.assertNotEqual(str(self.cable), '#None')
         interface1 = Interface.objects.get(pk=self.interface1.pk)
         self.assertIsNone(interface1.cable)
-        self.assertIsNone(interface1._link_peer)
+        self.assertListEqual(interface1.link_peers, [])
         interface2 = Interface.objects.get(pk=self.interface2.pk)
         self.assertIsNone(interface2.cable)
-        self.assertIsNone(interface2._link_peer)
+        self.assertListEqual(interface2.link_peers, [])
 
-    def test_cabletermination_deletion(self):
+    def test_cable_validates_same_parent_object(self):
         """
-        When a CableTermination object is deleted, its attached Cable (if any) must also be deleted.
+        The clean method should ensure that all terminations at either end of a Cable belong to the same parent object.
         """
-        self.interface1.delete()
-        cable = Cable.objects.filter(pk=self.cable.pk).first()
-        self.assertIsNone(cable)
+        cable = Cable(a_terminations=[self.interface1], b_terminations=[self.power_port1])
+        with self.assertRaises(ValidationError):
+            cable.clean()
+
+    def test_cable_validates_same_type(self):
+        """
+        The clean method should ensure that all terminations at either end of a Cable are of the same type.
+        """
+        cable = Cable(a_terminations=[self.front_port1, self.rear_port1], b_terminations=[self.interface1])
+        with self.assertRaises(ValidationError):
+            cable.clean()
 
     def test_cable_validates_compatible_types(self):
         """
         The clean method should have a check to ensure only compatible port types can be connected by a cable
         """
-        # An interface cannot be connected to a power port
-        cable = Cable(termination_a=self.interface1, termination_b=self.power_port1)
-        with self.assertRaises(ValidationError):
-            cable.clean()
-
-    def test_cable_cannot_have_the_same_terminination_on_both_ends(self):
-        """
-        A cable cannot be made with the same A and B side terminations
-        """
-        cable = Cable(termination_a=self.interface1, termination_b=self.interface1)
-        with self.assertRaises(ValidationError):
-            cable.clean()
-
-    def test_cable_front_port_cannot_connect_to_corresponding_rear_port(self):
-        """
-        A cable cannot connect a front port to its corresponding rear port
-        """
-        cable = Cable(termination_a=self.front_port1, termination_b=self.rear_port1)
-        with self.assertRaises(ValidationError):
-            cable.clean()
-
-    def test_cable_cannot_terminate_to_an_existing_connection(self):
-        """
-        Either side of a cable cannot be terminated when that side already has a connection
-        """
-        # Try to create a cable with the same interface terminations
-        cable = Cable(termination_a=self.interface2, termination_b=self.interface1)
+        # An interface cannot be connected to a power port, for example
+        cable = Cable(a_terminations=[self.interface1], b_terminations=[self.power_port1])
         with self.assertRaises(ValidationError):
             cable.clean()
 
@@ -561,45 +546,16 @@ class CableTestCase(TestCase):
         """
         Neither side of a cable can be terminated to a CircuitTermination which is attached to a ProviderNetwork
         """
-        cable = Cable(termination_a=self.interface3, termination_b=self.circuittermination3)
+        cable = Cable(a_terminations=[self.interface3], b_terminations=[self.circuittermination3])
         with self.assertRaises(ValidationError):
             cable.clean()
-
-    def test_rearport_connections(self):
-        """
-        Test various combinations of RearPort connections.
-        """
-        # Connecting a single-position RearPort to a multi-position RearPort is ok
-        Cable(termination_a=self.rear_port1, termination_b=self.rear_port2).full_clean()
-
-        # Connecting a single-position RearPort to an Interface is ok
-        Cable(termination_a=self.rear_port1, termination_b=self.interface3).full_clean()
-
-        # Connecting a single-position RearPort to a CircuitTermination is ok
-        Cable(termination_a=self.rear_port1, termination_b=self.circuittermination1).full_clean()
-
-        # Connecting a multi-position RearPort to another RearPort with the same number of positions is ok
-        Cable(termination_a=self.rear_port3, termination_b=self.rear_port4).full_clean()
-
-        # Connecting a multi-position RearPort to an Interface is ok
-        Cable(termination_a=self.rear_port2, termination_b=self.interface3).full_clean()
-
-        # Connecting a multi-position RearPort to a CircuitTermination is ok
-        Cable(termination_a=self.rear_port2, termination_b=self.circuittermination1).full_clean()
-
-        # Connecting a two-position RearPort to a three-position RearPort is NOT ok
-        with self.assertRaises(
-            ValidationError,
-                msg='Connecting a 2-position RearPort to a 3-position RearPort should fail'
-        ):
-            Cable(termination_a=self.rear_port2, termination_b=self.rear_port3).full_clean()
 
     def test_cable_cannot_terminate_to_a_virtual_interface(self):
         """
         A cable cannot terminate to a virtual interface
         """
         virtual_interface = Interface(device=self.device1, name="V1", type=InterfaceTypeChoices.TYPE_VIRTUAL)
-        cable = Cable(termination_a=self.interface2, termination_b=virtual_interface)
+        cable = Cable(a_terminations=[self.interface2], b_terminations=[virtual_interface])
         with self.assertRaises(ValidationError):
             cable.clean()
 
@@ -608,6 +564,6 @@ class CableTestCase(TestCase):
         A cable cannot terminate to a wireless interface
         """
         wireless_interface = Interface(device=self.device1, name="W1", type=InterfaceTypeChoices.TYPE_80211A)
-        cable = Cable(termination_a=self.interface2, termination_b=wireless_interface)
+        cable = Cable(a_terminations=[self.interface2], b_terminations=[wireless_interface])
         with self.assertRaises(ValidationError):
             cable.clean()

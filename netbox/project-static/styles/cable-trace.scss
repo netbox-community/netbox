@@ -55,7 +55,11 @@ svg {
   line {
     stroke-width: 5px;
   }
-  line.cable-shadow {
+  polyline {
+    fill: none;
+    stroke-width: 5px;
+  }
+  .cable-shadow {
     stroke: var(--nbx-trace-cable-shadow);
     stroke-width: 7px;
   }

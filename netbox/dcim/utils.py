@@ -1,3 +1,5 @@
+import itertools
+
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 
@@ -29,27 +31,29 @@ def path_node_to_object(repr):
     return ct.model_class().objects.get(pk=object_id)
 
 
-def create_cablepath(node):
+def create_cablepath(terminations):
     """
-    Create CablePaths for all paths originating from the specified node.
+    Create CablePaths for all paths originating from the specified set of nodes.
+
+    :param terminations: Iterable of CableTermination objects
     """
     from dcim.models import CablePath
 
-    cp = CablePath.from_origin(node)
+    cp = CablePath.from_origin(terminations)
     if cp:
         cp.save()
 
 
-def rebuild_paths(obj):
+def rebuild_paths(terminations):
     """
-    Rebuild all CablePaths which traverse the specified node
+    Rebuild all CablePaths which traverse the specified nodes.
     """
     from dcim.models import CablePath
 
-    cable_paths = CablePath.objects.filter(path__contains=obj)
+    for obj in terminations:
+        cable_paths = CablePath.objects.filter(_nodes__contains=obj)
 
-    with transaction.atomic():
-        for cp in cable_paths:
-            cp.delete()
-            if cp.origin:
-                create_cablepath(cp.origin)
+        with transaction.atomic():
+            for cp in cable_paths:
+                cp.delete()
+                create_cablepath(cp.origins)

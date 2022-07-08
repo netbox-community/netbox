@@ -6,11 +6,15 @@ import taggit.managers
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0076_configcontext_locations'),
-        ('circuits', '0036_circuit_termination_date'),
+        ('circuits', '0035_provider_asns'),
     ]
 
     operations = [
+        migrations.AddField(
+            model_name='circuit',
+            name='termination_date',
+            field=models.DateField(blank=True, null=True),
+        ),
         migrations.AddField(
             model_name='circuittermination',
             name='custom_field_data',

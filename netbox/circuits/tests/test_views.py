@@ -246,7 +246,7 @@ class CircuitTerminationTestCase(
             device=device,
             name='Interface 1'
         )
-        Cable(termination_a=circuittermination, termination_b=interface).save()
+        Cable(a_terminations=[circuittermination], b_terminations=[interface]).save()
 
         response = self.client.get(reverse('circuits:circuittermination_trace', kwargs={'pk': circuittermination.pk}))
         self.assertHttpStatus(response, 200)

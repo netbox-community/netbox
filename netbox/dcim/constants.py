@@ -85,6 +85,8 @@ MODULAR_COMPONENT_MODELS = Q(
 # Cabling and connections
 #
 
+CABLE_TRACE_SVG_DEFAULT_WIDTH = 400
+
 # Cable endpoint types
 CABLE_TERMINATION_MODELS = Q(
     Q(app_label='circuits', model__in=(

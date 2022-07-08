@@ -7,6 +7,7 @@ from extras.graphql.mixins import (
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
+from .mixins import CabledObjectMixin
 
 __all__ = (
     'CableType',
@@ -99,7 +100,15 @@ class CableType(NetBoxObjectType):
         return self.length_unit or None
 
 
-class ConsolePortType(ComponentObjectType):
+class CableTerminationType(NetBoxObjectType):
+
+    class Meta:
+        model = models.CableTermination
+        fields = '__all__'
+        filterset_class = filtersets.CableTerminationFilterSet
+
+
+class ConsolePortType(ComponentObjectType, CabledObjectMixin):
 
     class Meta:
         model = models.ConsolePort
@@ -121,7 +130,7 @@ class ConsolePortTemplateType(ComponentTemplateObjectType):
         return self.type or None
 
 
-class ConsoleServerPortType(ComponentObjectType):
+class ConsoleServerPortType(ComponentObjectType, CabledObjectMixin):
 
     class Meta:
         model = models.ConsoleServerPort
@@ -203,7 +212,7 @@ class DeviceTypeType(NetBoxObjectType):
         return self.airflow or None
 
 
-class FrontPortType(ComponentObjectType):
+class FrontPortType(ComponentObjectType, CabledObjectMixin):
 
     class Meta:
         model = models.FrontPort
@@ -219,7 +228,7 @@ class FrontPortTemplateType(ComponentTemplateObjectType):
         filterset_class = filtersets.FrontPortTemplateFilterSet
 
 
-class InterfaceType(IPAddressesMixin, ComponentObjectType):
+class InterfaceType(IPAddressesMixin, ComponentObjectType, CabledObjectMixin):
 
     class Meta:
         model = models.Interface
@@ -322,7 +331,7 @@ class PlatformType(OrganizationalObjectType):
         filterset_class = filtersets.PlatformFilterSet
 
 
-class PowerFeedType(NetBoxObjectType):
+class PowerFeedType(NetBoxObjectType, CabledObjectMixin):
 
     class Meta:
         model = models.PowerFeed
@@ -330,7 +339,7 @@ class PowerFeedType(NetBoxObjectType):
         filterset_class = filtersets.PowerFeedFilterSet
 
 
-class PowerOutletType(ComponentObjectType):
+class PowerOutletType(ComponentObjectType, CabledObjectMixin):
 
     class Meta:
         model = models.PowerOutlet
@@ -366,7 +375,7 @@ class PowerPanelType(NetBoxObjectType):
         filterset_class = filtersets.PowerPanelFilterSet
 
 
-class PowerPortType(ComponentObjectType):
+class PowerPortType(ComponentObjectType, CabledObjectMixin):
 
     class Meta:
         model = models.PowerPort
@@ -418,7 +427,7 @@ class RackRoleType(OrganizationalObjectType):
         filterset_class = filtersets.RackRoleFilterSet
 
 
-class RearPortType(ComponentObjectType):
+class RearPortType(ComponentObjectType, CabledObjectMixin):
 
     class Meta:
         model = models.RearPort

@@ -360,7 +360,7 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         ))
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
-        Cable(termination_a=circuit_terminations[0], termination_b=circuit_terminations[1]).save()
+        Cable(a_terminations=[circuit_terminations[0]], b_terminations=[circuit_terminations[1]]).save()
 
     def test_term_side(self):
         params = {'term_side': 'A'}

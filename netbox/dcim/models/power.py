@@ -9,7 +9,7 @@ from dcim.constants import *
 from netbox.config import ConfigItem
 from netbox.models import NetBoxModel
 from utilities.validators import ExclusionValidator
-from .device_components import LinkTermination, PathEndpoint
+from .device_components import CabledObjectModel, PathEndpoint
 
 __all__ = (
     'PowerFeed',
@@ -67,7 +67,7 @@ class PowerPanel(NetBoxModel):
             )
 
 
-class PowerFeed(NetBoxModel, PathEndpoint, LinkTermination):
+class PowerFeed(NetBoxModel, PathEndpoint, CabledObjectModel):
     """
     An electrical circuit delivered from a PowerPanel.
     """

@@ -56,6 +56,7 @@ router.register('inventory-item-roles', views.InventoryItemRoleViewSet)
 
 # Cables
 router.register('cables', views.CableViewSet)
+router.register('cable-terminations', views.CableTerminationViewSet)
 
 # Virtual chassis
 router.register('virtual-chassis', views.VirtualChassisViewSet)

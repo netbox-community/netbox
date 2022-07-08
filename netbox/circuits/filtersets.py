@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q
 
-from dcim.filtersets import CableTerminationFilterSet
+from dcim.filtersets import CabledObjectFilterSet
 from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.filtersets import ChangeLoggedModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet
@@ -198,7 +198,7 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
         ).distinct()
 
 
-class CircuitTerminationFilterSet(NetBoxModelFilterSet, CableTerminationFilterSet):
+class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -224,7 +224,7 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CableTerminationFilterSe
 
     class Meta:
         model = CircuitTermination
-        fields = ['id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description']
+        fields = ['id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description', 'cable_end']
 
     def search(self, queryset, name, value):
         if not value.strip():
