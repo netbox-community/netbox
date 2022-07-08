@@ -2756,7 +2756,10 @@ class DeviceBulkAddInventoryItemView(generic.BulkComponentCreateView):
 #
 
 class CableListView(generic.ObjectListView):
-    queryset = Cable.objects.prefetch_related('terminations__termination')
+    queryset = Cable.objects.prefetch_related(
+        'terminations__termination', 'terminations___device', 'terminations___rack', 'terminations___location',
+        'terminations___site',
+    )
     filterset = filtersets.CableFilterSet
     filterset_form = forms.CableFilterForm
     table = tables.CableTable

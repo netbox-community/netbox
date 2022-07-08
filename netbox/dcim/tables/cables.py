@@ -1,5 +1,6 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
+from django.utils.safestring import mark_safe
 
 from dcim.models import Cable
 from netbox.tables import NetBoxTable, columns
@@ -11,20 +12,34 @@ __all__ = (
 )
 
 
-class CableTerminationsColumn(tables.TemplateColumn):
+class CableTerminationsColumn(tables.Column):
+    """
+    Args:
+        cable_end: Which side of the cable to report on (A or B)
+        attr: The CableTermination attribute to return for each instance (returns the termination object by default)
+    """
+    def __init__(self, cable_end, attr='termination', *args, **kwargs):
+        self.cable_end = cable_end
+        self.attr = attr
+        super().__init__(accessor=Accessor('terminations'), *args, **kwargs)
 
-    def __init__(self, cable_end, *args, **kwargs):
-        template_code = """
-        {% for term in value.all %}
-          {% if term.cable_end == '""" + cable_end + """' %}
-            <a href="{{ term.termination.get_absolute_url }}">{{ term.termination }}</a>
-          {% endif %}
-        {% endfor %}
-        """
-        super().__init__(template_code=template_code, *args, **kwargs)
+    def _get_terminations(self, manager):
+        terminations = set()
+        for cabletermination in manager.all():
+            if cabletermination.cable_end == self.cable_end:
+                if termination := getattr(cabletermination, self.attr, None):
+                    terminations.add(termination)
+
+        return terminations
+
+    def render(self, value):
+        links = [
+            f'<a href="{term.get_absolute_url()}">{term}</a>' for term in self._get_terminations(value)
+        ]
+        return mark_safe('<br />'.join(links) or '&mdash;')
 
     def value(self, value):
-        return ', '.join([str(t.termination) for t in value.all()])
+        return ','.join([str(t) for t in self._get_terminations(value)])
 
 
 #
@@ -32,41 +47,63 @@ class CableTerminationsColumn(tables.TemplateColumn):
 #
 
 class CableTable(NetBoxTable):
-    # termination_a_parent = tables.TemplateColumn(
-    #     template_code=CABLE_TERMINATION_PARENT,
-    #     accessor=Accessor('termination_a'),
-    #     orderable=False,
-    #     verbose_name='Side A'
-    # )
-    # rack_a = tables.Column(
-    #     accessor=Accessor('termination_a__device__rack'),
-    #     orderable=False,
-    #     linkify=True,
-    #     verbose_name='Rack A'
-    # )
-    # termination_b_parent = tables.TemplateColumn(
-    #     template_code=CABLE_TERMINATION_PARENT,
-    #     accessor=Accessor('termination_b'),
-    #     orderable=False,
-    #     verbose_name='Side B'
-    # )
-    # rack_b = tables.Column(
-    #     accessor=Accessor('termination_b__device__rack'),
-    #     orderable=False,
-    #     linkify=True,
-    #     verbose_name='Rack B'
-    # )
     a_terminations = CableTerminationsColumn(
         cable_end='A',
-        accessor=Accessor('terminations'),
         orderable=False,
-        verbose_name='A Side'
+        verbose_name='Termination A'
     )
     b_terminations = CableTerminationsColumn(
         cable_end='B',
-        accessor=Accessor('terminations'),
         orderable=False,
-        verbose_name='B Side'
+        verbose_name='Termination B'
+    )
+    device_a = CableTerminationsColumn(
+        cable_end='A',
+        attr='_device',
+        orderable=False,
+        verbose_name='Device A'
+    )
+    device_b = CableTerminationsColumn(
+        cable_end='B',
+        attr='_device',
+        orderable=False,
+        verbose_name='Device B'
+    )
+    location_a = CableTerminationsColumn(
+        cable_end='A',
+        attr='_location',
+        orderable=False,
+        verbose_name='Location A'
+    )
+    location_b = CableTerminationsColumn(
+        cable_end='B',
+        attr='_location',
+        orderable=False,
+        verbose_name='Location B'
+    )
+    rack_a = CableTerminationsColumn(
+        cable_end='A',
+        attr='_rack',
+        orderable=False,
+        verbose_name='Rack A'
+    )
+    rack_b = CableTerminationsColumn(
+        cable_end='B',
+        attr='_rack',
+        orderable=False,
+        verbose_name='Rack B'
+    )
+    site_a = CableTerminationsColumn(
+        cable_end='A',
+        attr='_site',
+        orderable=False,
+        verbose_name='Site A'
+    )
+    site_b = CableTerminationsColumn(
+        cable_end='B',
+        attr='_site',
+        orderable=False,
+        verbose_name='Site B'
     )
     status = columns.ChoiceFieldColumn()
     tenant = TenantColumn()
@@ -82,8 +119,9 @@ class CableTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Cable
         fields = (
-            'pk', 'id', 'label', 'a_terminations', 'b_terminations', 'status', 'type', 'tenant', 'color', 'length',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'label', 'a_terminations', 'b_terminations', 'device_a', 'device_b', 'rack_a', 'rack_b',
+            'location_a', 'location_b', 'site_a', 'site_b', 'status', 'type', 'tenant', 'color', 'length', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
             'pk', 'id', 'label', 'a_terminations', 'b_terminations', 'status', 'type',
