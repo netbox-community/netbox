@@ -19,7 +19,6 @@ from utilities.querysets import RestrictedQuerySet
 from utilities.utils import to_meters
 from wireless.models import WirelessLink
 from .device_components import FrontPort, RearPort
-from .devices import Device
 
 __all__ = (
     'Cable',
@@ -78,22 +77,6 @@ class Cable(NetBoxModel):
     _abs_length = models.DecimalField(
         max_digits=10,
         decimal_places=4,
-        blank=True,
-        null=True
-    )
-    # Cache the associated device (where applicable) for the A and B terminations. This enables filtering of Cables by
-    # their associated Devices.
-    _termination_a_device = models.ForeignKey(
-        to=Device,
-        on_delete=models.CASCADE,
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    _termination_b_device = models.ForeignKey(
-        to=Device,
-        on_delete=models.CASCADE,
-        related_name='+',
         blank=True,
         null=True
     )
@@ -166,13 +149,6 @@ class Cable(NetBoxModel):
             self._abs_length = to_meters(self.length, self.length_unit)
         else:
             self._abs_length = None
-
-        # TODO: Need to come with a proper solution for filtering by termination parent
-        # Store the parent Device for the A and B terminations (if applicable) to enable filtering
-        if hasattr(self, 'a_terminations'):
-            self._termination_a_device = getattr(self.a_terminations[0], 'device', None)
-        if hasattr(self, 'b_terminations'):
-            self._termination_b_device = getattr(self.b_terminations[0], 'device', None)
 
         super().save(*args, **kwargs)
 
@@ -247,6 +223,32 @@ class CableTermination(models.Model):
         fk_field='termination_id'
     )
 
+    # Cached associations to enable efficient filtering
+    _device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+    _rack = models.ForeignKey(
+        to='dcim.Rack',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+    _location = models.ForeignKey(
+        to='dcim.Location',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+    _site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
@@ -277,6 +279,10 @@ class CableTermination(models.Model):
             })
 
     def save(self, *args, **kwargs):
+
+        # Cache objects associated with the terminating object (for filtering)
+        self.cache_related_objects()
+
         super().save(*args, **kwargs)
 
         # Set the cable on the terminating object
@@ -296,6 +302,30 @@ class CableTermination(models.Model):
         )
 
         super().delete(*args, **kwargs)
+
+    def cache_related_objects(self):
+        """
+        Cache objects related to the termination (e.g. device, rack, site) directly on the object to
+        enable efficient filtering.
+        """
+        assert self.termination is not None
+
+        # Device components
+        if getattr(self.termination, 'device', None):
+            self._device = self.termination.device
+            self._rack = self.termination.device.rack
+            self._location = self.termination.device.location
+            self._site = self.termination.device.site
+
+        # Power feeds
+        elif getattr(self.termination, 'rack', None):
+            self._rack = self.termination.rack
+            self._location = self.termination.rack.location
+            self._site = self.termination.rack.site
+
+        # Circuit terminations
+        elif getattr(self.termination, 'site', None):
+            self._site = self.termination.site
 
 
 class CablePath(models.Model):

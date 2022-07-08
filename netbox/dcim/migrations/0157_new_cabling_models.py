@@ -20,6 +20,10 @@ class Migration(migrations.Migration):
                 ('termination_id', models.PositiveBigIntegerField()),
                 ('cable', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='terminations', to='dcim.cable')),
                 ('termination_type', models.ForeignKey(limit_choices_to=models.Q(models.Q(models.Q(('app_label', 'circuits'), ('model__in', ('circuittermination',))), models.Q(('app_label', 'dcim'), ('model__in', ('consoleport', 'consoleserverport', 'frontport', 'interface', 'powerfeed', 'poweroutlet', 'powerport', 'rearport'))), _connector='OR')), on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
+                ('_device', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.device')),
+                ('_rack', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.rack')),
+                ('_location', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.location')),
+                ('_site', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.site')),
             ],
             options={
                 'ordering': ('cable', 'cable_end', 'pk'),

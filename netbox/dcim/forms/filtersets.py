@@ -730,7 +730,7 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Cable
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Location', ('site_id', 'rack_id', 'device_id')),
+        ('Location', ('site_id', 'location_id', 'rack_id', 'device_id')),
         ('Attributes', ('type', 'status', 'color', 'length', 'length_unit')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
     )
@@ -747,13 +747,23 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         },
         label=_('Site')
     )
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label=_('Location'),
+        null_option='None',
+        query_params={
+            'site_id': '$site_id'
+        }
+    )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         label=_('Rack'),
         null_option='None',
         query_params={
-            'site_id': '$site_id'
+            'site_id': '$site_id',
+            'location_id': '$location_id',
         }
     )
     device_id = DynamicModelMultipleChoiceField(
@@ -761,8 +771,9 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         required=False,
         query_params={
             'site_id': '$site_id',
-            'tenant_id': '$tenant_id',
+            'location_id': '$location_id',
             'rack_id': '$rack_id',
+            'tenant_id': '$tenant_id',
         },
         label=_('Device')
     )

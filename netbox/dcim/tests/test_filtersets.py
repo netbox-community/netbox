@@ -3663,6 +3663,21 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Site.objects.bulk_create(sites)
 
+        locations = (
+            Location(name='Location 1', site=sites[0], slug='location-1'),
+            Location(name='Location 2', site=sites[1], slug='location-1'),
+            Location(name='Location 3', site=sites[2], slug='location-1'),
+        )
+        for location in locations:
+            location.save()
+
+        racks = (
+            Rack(name='Rack 1', site=sites[0], location=locations[0]),
+            Rack(name='Rack 2', site=sites[1], location=locations[1]),
+            Rack(name='Rack 3', site=sites[2], location=locations[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1'),
             Tenant(name='Tenant 2', slug='tenant-2'),
@@ -3670,24 +3685,17 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Tenant.objects.bulk_create(tenants)
 
-        racks = (
-            Rack(name='Rack 1', site=sites[0]),
-            Rack(name='Rack 2', site=sites[1]),
-            Rack(name='Rack 3', site=sites[2]),
-        )
-        Rack.objects.bulk_create(racks)
-
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=1),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=2),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=1),
-            Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=2),
-            Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=1),
-            Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=2),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], location=locations[0], position=1),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], location=locations[0], position=2),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], location=locations[1], position=1),
+            Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], location=locations[1], position=2),
+            Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], location=locations[2], position=1),
+            Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], location=locations[2], position=2),
         )
         Device.objects.bulk_create(devices)
 
@@ -3757,6 +3765,13 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'rack_id': [racks[0].pk, racks[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'rack': [racks[0].name, racks[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'location': [locations[0].name, locations[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_site(self):

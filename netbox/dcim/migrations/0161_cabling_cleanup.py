@@ -34,6 +34,14 @@ class Migration(migrations.Migration):
             model_name='cable',
             name='termination_b_type',
         ),
+        migrations.RemoveField(
+            model_name='cable',
+            name='_termination_a_device',
+        ),
+        migrations.RemoveField(
+            model_name='cable',
+            name='_termination_b_device',
+        ),
 
         # Remove old fields from CablePath
         migrations.AlterUniqueTogether(

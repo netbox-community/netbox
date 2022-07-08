@@ -1537,27 +1537,35 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         choices=ColorChoices
     )
     device_id = MultiValueNumberFilter(
-        method='filter_device'
+        method='filter_by_termination'
     )
     device = MultiValueCharFilter(
-        method='filter_device',
+        method='filter_by_termination',
         field_name='device__name'
     )
     rack_id = MultiValueNumberFilter(
-        method='filter_device',
-        field_name='device__rack_id'
+        method='filter_by_termination',
+        field_name='rack_id'
     )
     rack = MultiValueCharFilter(
-        method='filter_device',
-        field_name='device__rack__name'
+        method='filter_by_termination',
+        field_name='rack__name'
+    )
+    location_id = MultiValueNumberFilter(
+        method='filter_by_termination',
+        field_name='location_id'
+    )
+    location = MultiValueCharFilter(
+        method='filter_by_termination',
+        field_name='location__name'
     )
     site_id = MultiValueNumberFilter(
-        method='filter_device',
-        field_name='device__site_id'
+        method='filter_by_termination',
+        field_name='site_id'
     )
     site = MultiValueCharFilter(
-        method='filter_device',
-        field_name='device__site__slug'
+        method='filter_by_termination',
+        field_name='site__slug'
     )
 
     class Meta:
@@ -1569,12 +1577,10 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
             return queryset
         return queryset.filter(label__icontains=value)
 
-    def filter_device(self, queryset, name, value):
-        queryset = queryset.filter(
-            Q(**{f'_termination_a_{name}__in': value}) |
-            Q(**{f'_termination_b_{name}__in': value})
-        )
-        return queryset
+    def filter_by_termination(self, queryset, name, value):
+        # Filter by a related object cached on CableTermination. Note the underscore preceding the field name.
+        # Supported objects: device, rack, location, site
+        return queryset.filter(**{f'terminations___{name}__in': value}).distinct()
 
 
 class CableTerminationFilterSet(BaseFilterSet):

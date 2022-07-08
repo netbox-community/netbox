@@ -126,6 +126,13 @@ class CabledObjectModel(models.Model):
         help_text="Treat as if a cable is connected"
     )
 
+    cable_terminations = GenericRelation(
+        to='dcim.CableTermination',
+        content_type_field='termination_type',
+        object_id_field='termination_id',
+        related_query_name='%(class)s',
+    )
+
     class Meta:
         abstract = True
 
