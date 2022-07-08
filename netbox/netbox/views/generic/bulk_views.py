@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
+from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -455,7 +456,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                         setattr(obj, name, None if model_field.null else '')
 
                 # ManyToManyFields
-                elif isinstance(model_field, ManyToManyField):
+                elif isinstance(model_field, (ManyToManyField, ManyToManyRel)):
                     if form.cleaned_data[name]:
                         getattr(obj, name).set(form.cleaned_data[name])
                 # Normal fields

@@ -6,14 +6,81 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from circuits.models import Provider
-from dcim.models import DeviceRole, DeviceType, Location, Manufacturer, Platform, Rack, Region, Site, SiteGroup
-from extras.choices import JournalEntryKindChoices, ObjectChangeActionChoices
+from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
+from dcim.models import Location
+from extras.choices import *
 from extras.filtersets import *
 from extras.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests, create_tags
 from virtualization.models import Cluster, ClusterGroup, ClusterType
+
+
+class CustomFieldTestCase(TestCase, BaseFilterSetTests):
+    queryset = CustomField.objects.all()
+    filterset = CustomFieldFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+
+        custom_fields = (
+            CustomField(
+                name='Custom Field 1',
+                type=CustomFieldTypeChoices.TYPE_TEXT,
+                required=True,
+                weight=100,
+                filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE,
+                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE
+            ),
+            CustomField(
+                name='Custom Field 2',
+                type=CustomFieldTypeChoices.TYPE_INTEGER,
+                required=False,
+                weight=200,
+                filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT,
+                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY
+            ),
+            CustomField(
+                name='Custom Field 3',
+                type=CustomFieldTypeChoices.TYPE_BOOLEAN,
+                required=False,
+                weight=300,
+                filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED,
+                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN
+            ),
+        )
+        CustomField.objects.bulk_create(custom_fields)
+        custom_fields[0].content_types.add(content_types[0])
+        custom_fields[1].content_types.add(content_types[1])
+        custom_fields[2].content_types.add(content_types[2])
+
+    def test_name(self):
+        params = {'name': ['Custom Field 1', 'Custom Field 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_content_types(self):
+        params = {'content_types': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'content_type_id': [ContentType.objects.get_for_model(Site).pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_required(self):
+        params = {'required': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_weight(self):
+        params = {'weight': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_filter_logic(self):
+        params = {'filter_logic': CustomFieldFilterLogicChoices.FILTER_LOOSE}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_ui_visibility(self):
+        params = {'ui_visibility': CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class WebhookTestCase(TestCase, BaseFilterSetTests):
@@ -61,6 +128,8 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
 
     def test_content_types(self):
         params = {'content_types': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'content_type_id': [ContentType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_type_create(self):

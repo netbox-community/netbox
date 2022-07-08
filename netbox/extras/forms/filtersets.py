@@ -32,12 +32,13 @@ __all__ = (
 class CustomFieldFilterForm(FilterForm):
     fieldsets = (
         (None, ('q',)),
-        ('Attributes', ('content_types', 'type', 'group_name', 'weight', 'required', 'ui_visibility')),
+        ('Attributes', ('type', 'content_type_id', 'group_name', 'weight', 'required', 'ui_visibility')),
     )
-    content_types = ContentTypeMultipleChoiceField(
+    content_type_id = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
-        required=False
+        required=False,
+        label='Object type'
     )
     type = MultipleChoiceField(
         choices=CustomFieldTypeChoices,
@@ -119,13 +120,14 @@ class ExportTemplateFilterForm(FilterForm):
 class WebhookFilterForm(FilterForm):
     fieldsets = (
         (None, ('q',)),
-        ('Attributes', ('content_types', 'http_method', 'enabled')),
+        ('Attributes', ('content_type_id', 'http_method', 'enabled')),
         ('Events', ('type_create', 'type_update', 'type_delete')),
     )
-    content_types = ContentTypeMultipleChoiceField(
+    content_type_id = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('webhooks'),
-        required=False
+        required=False,
+        label='Object type'
     )
     http_method = MultipleChoiceField(
         choices=WebhookHttpMethodChoices,

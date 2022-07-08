@@ -789,8 +789,6 @@ class L2VPNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'export_targets': [rts[1].pk]
         }
 
-        print(cls.form_data)
-
 
 class L2VPNTerminationTestCase(
         ViewTestCases.GetObjectViewTestCase,

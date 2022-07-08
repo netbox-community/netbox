@@ -32,6 +32,9 @@ class WebhookFilterSet(BaseFilterSet):
         method='search',
         label='Search',
     )
+    content_type_id = MultiValueNumberFilter(
+        field_name='content_types__id'
+    )
     content_types = ContentTypeFilter()
     http_method = django_filters.MultipleChoiceFilter(
         choices=WebhookHttpMethodChoices
@@ -40,8 +43,8 @@ class WebhookFilterSet(BaseFilterSet):
     class Meta:
         model = Webhook
         fields = [
-            'id', 'content_types', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url', 'enabled',
-            'http_method', 'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
+            'id', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url', 'enabled', 'http_method',
+            'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
         ]
 
     def search(self, queryset, name, value):
@@ -57,6 +60,12 @@ class CustomFieldFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    type = django_filters.MultipleChoiceFilter(
+        choices=CustomFieldTypeChoices
+    )
+    content_type_id = MultiValueNumberFilter(
+        field_name='content_types__id'
     )
     content_types = ContentTypeFilter()
 
