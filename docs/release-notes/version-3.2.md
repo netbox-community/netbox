@@ -14,6 +14,7 @@
 * [#8854](https://github.com/netbox-community/netbox/issues/8854) - Fix `REMOTE_AUTH_DEFAULT_GROUPS` for social-auth backends
 * [#9575](https://github.com/netbox-community/netbox/issues/9575) - Fix AttributeError exception for FHRP group with an IP address assigned
 * [#9597](https://github.com/netbox-community/netbox/issues/9597) - Include `installed_module` in module bay REST API serializer
+* [#9682](https://github.com/netbox-community/netbox/issues/9682) - Fix bulk assignment of ASNs to sites
 
 ---
 
