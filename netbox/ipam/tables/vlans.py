@@ -5,7 +5,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Interface
 from ipam.models import *
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
+from tenancy.tables import TenancyColumnsMixin, TenantColumn
 from virtualization.models import VMInterface
 
 __all__ = (
@@ -173,7 +173,7 @@ class VLANVirtualMachinesTable(VLANMembersTable):
         exclude = ('id', )
 
 
-class InterfaceVLANTable(TenancyColumnsMixin, NetBoxTable):
+class InterfaceVLANTable(NetBoxTable):
     """
     List VLANs assigned to a specific Interface.
     """
@@ -189,6 +189,7 @@ class InterfaceVLANTable(TenancyColumnsMixin, NetBoxTable):
         accessor=Accessor('group__name'),
         verbose_name='Group'
     )
+    tenant = TenantColumn()
     status = columns.ChoiceFieldColumn()
     role = tables.Column(
         linkify=True
@@ -196,7 +197,7 @@ class InterfaceVLANTable(TenancyColumnsMixin, NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = VLAN
-        fields = ('vid', 'tagged', 'site', 'group', 'name', 'tenant', 'tenant_group', 'status', 'role', 'description')
+        fields = ('vid', 'tagged', 'site', 'group', 'name', 'tenant', 'status', 'role', 'description')
         exclude = ('id', )
 
     def __init__(self, interface, *args, **kwargs):

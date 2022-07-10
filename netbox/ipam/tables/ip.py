@@ -4,7 +4,7 @@ from django_tables2.utils import Accessor
 
 from ipam.models import *
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
+from tenancy.tables import TenancyColumnsMixin, TenantColumn
 
 __all__ = (
     'AggregateTable',
@@ -409,7 +409,7 @@ class IPAddressAssignTable(NetBoxTable):
         orderable = False
 
 
-class AssignedIPAddressesTable(TenancyColumnsMixin, NetBoxTable):
+class AssignedIPAddressesTable(NetBoxTable):
     """
     List IP addresses assigned to an object.
     """
@@ -422,8 +422,9 @@ class AssignedIPAddressesTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name='VRF'
     )
     status = columns.ChoiceFieldColumn()
+    tenant = TenantColumn()
 
     class Meta(NetBoxTable.Meta):
         model = IPAddress
-        fields = ('address', 'vrf', 'status', 'role', 'tenant', 'tenant_group', 'description')
+        fields = ('address', 'vrf', 'status', 'role', 'tenant', 'description')
         exclude = ('id', )
