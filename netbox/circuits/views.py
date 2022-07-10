@@ -30,7 +30,7 @@ class ProviderView(generic.ObjectView):
         circuits = Circuit.objects.restrict(request.user, 'view').filter(
             provider=instance
         ).prefetch_related(
-            'type', 'tenant', 'terminations__site'
+            'type', 'tenant', 'tenant__group', 'terminations__site'
         )
         circuits_table = tables.CircuitTable(circuits, user=request.user, exclude=('provider',))
         circuits_table.configure(request)
@@ -91,7 +91,7 @@ class ProviderNetworkView(generic.ObjectView):
             Q(termination_a__provider_network=instance.pk) |
             Q(termination_z__provider_network=instance.pk)
         ).prefetch_related(
-            'type', 'tenant', 'terminations__site'
+            'type', 'tenant', 'tenant__group', 'terminations__site'
         )
         circuits_table = tables.CircuitTable(circuits, user=request.user)
         circuits_table.configure(request)
@@ -192,7 +192,7 @@ class CircuitTypeBulkDeleteView(generic.BulkDeleteView):
 
 class CircuitListView(generic.ObjectListView):
     queryset = Circuit.objects.prefetch_related(
-        'provider', 'type', 'tenant', 'termination_a', 'termination_z'
+        'provider', 'type', 'tenant', 'tenant__group', 'termination_a', 'termination_z'
     )
     filterset = filtersets.CircuitFilterSet
     filterset_form = forms.CircuitFilterForm

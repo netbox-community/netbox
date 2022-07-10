@@ -298,7 +298,7 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
     def get_children(self, request, parent):
         return Prefix.objects.restrict(request.user, 'view').filter(
             prefix__net_contained_or_equal=str(parent.prefix)
-        ).prefetch_related('site', 'role', 'tenant', 'vlan')
+        ).prefetch_related('site', 'role', 'tenant', 'tenant__group', 'vlan')
 
     def prep_table_data(self, request, queryset, parent):
         # Determine whether to show assigned prefixes, available prefixes, or both
@@ -470,7 +470,7 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_child_prefixes().restrict(request.user, 'view').prefetch_related(
-            'site', 'vrf', 'vlan', 'role', 'tenant',
+            'site', 'vrf', 'vlan', 'role', 'tenant', 'tenant__group'
         )
 
     def prep_table_data(self, request, queryset, parent):
@@ -499,7 +499,7 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_child_ranges().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'role', 'tenant',
+            'vrf', 'role', 'tenant', 'tenant__group',
         )
 
     def get_extra_context(self, request, instance):
@@ -587,7 +587,7 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'role', 'tenant',
+            'vrf', 'role', 'tenant', 'tenant__group',
         )
 
     def get_extra_context(self, request, instance):
