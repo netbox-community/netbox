@@ -3,6 +3,7 @@ import django_tables2 as tables
 __all__ = (
     'TenantColumn',
     'TenantGroupColumn',
+    'TenancyColumnsMixin',
 )
 
 
@@ -50,3 +51,7 @@ class TenantGroupColumn(tables.TemplateColumn):
     def value(self, value):
         return str(value) if value else None
 
+
+class TenancyColumnsMixin(tables.Table):
+    tenant_group = TenantGroupColumn()
+    tenant = TenantColumn()
