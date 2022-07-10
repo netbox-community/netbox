@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from dcim.tables.devices import BaseInterfaceTable
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenantColumn
+from tenancy.tables import TenancyColumnsMixin
 from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
@@ -24,7 +24,7 @@ VMINTERFACE_BUTTONS = """
 # Virtual machines
 #
 
-class VirtualMachineTable(NetBoxTable):
+class VirtualMachineTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.Column(
         order_by=('_name',),
         linkify=True
@@ -34,7 +34,6 @@ class VirtualMachineTable(NetBoxTable):
         linkify=True
     )
     role = columns.ColoredLabelColumn()
-    tenant = TenantColumn()
     comments = columns.MarkdownColumn()
     primary_ip4 = tables.Column(
         linkify=True,
@@ -56,7 +55,7 @@ class VirtualMachineTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VirtualMachine
         fields = (
-            'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
+            'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'tenant_group', 'platform', 'vcpus', 'memory', 'disk',
             'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (

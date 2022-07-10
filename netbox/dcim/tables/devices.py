@@ -6,7 +6,7 @@ from dcim.models import (
     InventoryItemRole, ModuleBay, Platform, PowerOutlet, PowerPort, RearPort, VirtualChassis,
 )
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenantColumn
+from tenancy.tables import TenancyColumnsMixin
 from .template_code import *
 
 __all__ = (
@@ -137,13 +137,12 @@ class PlatformTable(NetBoxTable):
 # Devices
 #
 
-class DeviceTable(NetBoxTable):
+class DeviceTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.TemplateColumn(
         order_by=('_name',),
         template_code=DEVICE_LINK
     )
     status = columns.ChoiceFieldColumn()
-    tenant = TenantColumn()
     site = tables.Column(
         linkify=True
     )
@@ -200,7 +199,7 @@ class DeviceTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Device
         fields = (
-            'pk', 'id', 'name', 'status', 'tenant', 'device_role', 'manufacturer', 'device_type', 'platform', 'serial',
+            'pk', 'id', 'name', 'status', 'tenant', 'tenant_group', 'device_role', 'manufacturer', 'device_type', 'platform', 'serial',
             'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'primary_ip', 'airflow', 'primary_ip4',
             'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'contacts', 'tags',
             'created', 'last_updated',
@@ -211,12 +210,11 @@ class DeviceTable(NetBoxTable):
         )
 
 
-class DeviceImportTable(NetBoxTable):
+class DeviceImportTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.TemplateColumn(
         template_code=DEVICE_LINK
     )
     status = columns.ChoiceFieldColumn()
-    tenant = TenantColumn()
     site = tables.Column(
         linkify=True
     )
@@ -232,7 +230,7 @@ class DeviceImportTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = Device
-        fields = ('id', 'name', 'status', 'tenant', 'site', 'rack', 'position', 'device_role', 'device_type')
+        fields = ('id', 'name', 'status', 'tenant', 'tenant_group', 'site', 'rack', 'position', 'device_role', 'device_type')
         empty_text = False
 
 

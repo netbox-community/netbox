@@ -5,7 +5,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Interface
 from ipam.models import *
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenantColumn
+from tenancy.tables import TenancyColumnsMixin
 from virtualization.models import VMInterface
 
 __all__ = (
@@ -90,7 +90,7 @@ class VLANGroupTable(NetBoxTable):
 # VLANs
 #
 
-class VLANTable(NetBoxTable):
+class VLANTable(TenancyColumnsMixin, NetBoxTable):
     vid = tables.TemplateColumn(
         template_code=VLAN_LINK,
         verbose_name='VID'
@@ -104,7 +104,6 @@ class VLANTable(NetBoxTable):
     group = tables.Column(
         linkify=True
     )
-    tenant = TenantColumn()
     status = columns.ChoiceFieldColumn(
         default=AVAILABLE_LABEL
     )
@@ -123,7 +122,7 @@ class VLANTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VLAN
         fields = (
-            'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags',
+            'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'tenant_group', 'status', 'role', 'description', 'tags',
             'created', 'last_updated',
         )
         default_columns = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description')
@@ -174,7 +173,7 @@ class VLANVirtualMachinesTable(VLANMembersTable):
         exclude = ('id', )
 
 
-class InterfaceVLANTable(NetBoxTable):
+class InterfaceVLANTable(TenancyColumnsMixin, NetBoxTable):
     """
     List VLANs assigned to a specific Interface.
     """
@@ -190,7 +189,6 @@ class InterfaceVLANTable(NetBoxTable):
         accessor=Accessor('group__name'),
         verbose_name='Group'
     )
-    tenant = TenantColumn()
     status = columns.ChoiceFieldColumn()
     role = tables.Column(
         linkify=True
@@ -198,7 +196,7 @@ class InterfaceVLANTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = VLAN
-        fields = ('vid', 'tagged', 'site', 'group', 'name', 'tenant', 'status', 'role', 'description')
+        fields = ('vid', 'tagged', 'site', 'group', 'name', 'tenant', 'tenant_group', 'status', 'role', 'description')
         exclude = ('id', )
 
     def __init__(self, interface, *args, **kwargs):
