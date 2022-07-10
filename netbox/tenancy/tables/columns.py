@@ -2,6 +2,7 @@ import django_tables2 as tables
 
 __all__ = (
     'TenantColumn',
+    'TenantGroupColumn',
 )
 
 
@@ -24,3 +25,28 @@ class TenantColumn(tables.TemplateColumn):
 
     def value(self, value):
         return str(value) if value else None
+
+
+class TenantGroupColumn(tables.TemplateColumn):
+    """
+    Include the tenant group description.
+    """
+    template_code = """
+    {% if record.tenant and record.tenant.group %}
+        <a href="{{ record.tenant.group.get_absolute_url }}" title="{{ record.tenant.group.description }}">{{ record.tenant.group }}</a>
+    {% elif record.vrf.tenant and record.vrf.tenant.group %}
+        <a href="{{ record.vrf.tenant.group.get_absolute_url }}" title="{{ record.vrf.tenant.group.description }}">{{ record.vrf.tenant.group }}</a>*
+    {% else %}
+        &mdash;
+    {% endif %}
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'verbose_name' not in kwargs:
+            kwargs['verbose_name'] = 'Tenant Group'
+
+        super().__init__(template_code=self.template_code, *args, **kwargs)
+
+    def value(self, value):
+        return str(value) if value else None
+
