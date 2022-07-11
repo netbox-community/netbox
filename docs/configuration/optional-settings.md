@@ -212,6 +212,7 @@ The following model fields support configurable choices:
 
 * `circuits.Circuit.status`
 * `dcim.Device.status`
+* `dcim.Location.status`
 * `dcim.PowerFeed.status`
 * `dcim.Rack.status`
 * `dcim.Site.status`
@@ -220,6 +221,7 @@ The following model fields support configurable choices:
 * `ipam.IPRange.status`
 * `ipam.Prefix.status`
 * `ipam.VLAN.status`
+* `virtualization.Cluster.status`
 * `virtualization.VirtualMachine.status`
 
 The following colors are supported:

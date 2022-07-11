@@ -54,7 +54,7 @@ To achieve a logical OR with a different set of constraints, define multiple obj
 
 Additionally, where multiple permissions have been assigned for an object type, their collective constraints will be merged using a logical "OR" operation.
 
-### Tokens
+### User Token
 
 !!! info "This feature was introduced in NetBox v3.3"
 

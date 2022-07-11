@@ -31,7 +31,7 @@ def get_snapshots(instance, action):
         'postchange': None,
     }
     if action != ObjectChangeActionChoices.ACTION_DELETE:
-        # Use model's serialize() method if defined; fall back to serialize_object
+        # Use model's serialize_object() method if defined; fall back to serialize_object() utility function
         if hasattr(instance, 'serialize_object'):
             snapshots['postchange'] = instance.serialize_object()
         else:

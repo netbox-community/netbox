@@ -106,7 +106,7 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
         required=False,
         label='Allowed IPs',
         help_text='Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. '
-                  'Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"',
+                  'Example: <code>10.1.1.0/24,192.168.10.16/32,2001:db8:1::/64</code>',
     )
 
     class Meta:

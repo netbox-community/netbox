@@ -26,11 +26,35 @@ Each custom field must have a name. This should be a simple database-friendly st
 
 Marking a field as required will force the user to provide a value for the field when creating a new object or when saving an existing object. A default value for the field may also be provided. Use "true" or "false" for boolean fields, or the exact value of a choice for selection fields.
 
-The filter logic controls how values are matched when filtering objects by the custom field. Loose filtering (the default) matches on a partial value, whereas exact matching requires a complete match of the given string to a field's value. For example, exact filtering with the string "red" will only match the exact value "red", whereas loose filtering will match on the values "red", "red-orange", or "bored". Setting the filter logic to "disabled" disables filtering by the field entirely.
-
 A custom field must be assigned to one or more object types, or models, in NetBox. Once created, custom fields will automatically appear as part of these models in the web UI and REST API. Note that not all models support custom fields.
 
-### Custom Field Validation
+### Filtering
+
+The filter logic controls how values are matched when filtering objects by the custom field. Loose filtering (the default) matches on a partial value, whereas exact matching requires a complete match of the given string to a field's value. For example, exact filtering with the string "red" will only match the exact value "red", whereas loose filtering will match on the values "red", "red-orange", or "bored". Setting the filter logic to "disabled" disables filtering by the field entirely.
+
+### Grouping
+
+!!! note
+    This feature was introduced in NetBox v3.3.
+
+Related custom fields can be grouped together within the UI by assigning each the same group name. When at least one custom field for an object type has a group defined, it will appear under the group heading within the custom fields panel under the object view. All custom fields with the same group name will appear under that heading. (Note that the group names must match exactly, or each will appear as a separate heading.)
+
+This parameter has no effect on the API representation of custom field data.
+
+### Visibility
+
+!!! note
+    This feature was introduced in NetBox v3.3.
+
+When creating a custom field, there are three options for UI visibility. These control how and whether the custom field is displayed within the NetBox UI.
+
+* **Read/write** (default): The custom field is included when viewing and editing objects.
+* **Read-only**: The custom field is displayed when viewing an object, but it cannot be edited via the UI. (It will appear in the form as a read-only field.)
+* **Hidden**: The custom field will never be displayed within the UI. This option is recommended for fields which are not intended for use by human users.
+
+Note that this setting has no impact on the REST or GraphQL APIs: Custom field data will always be available via either API.
+
+### Validation
 
 NetBox supports limited custom validation for custom field values. Following are the types of validation enforced for each field type:
 

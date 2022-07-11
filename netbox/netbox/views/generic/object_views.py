@@ -72,7 +72,8 @@ class ObjectView(BaseObjectView):
 
 class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
     """
-    Display a table of child objects associated with the parent object.
+    Display a table of child objects associated with the parent object. For example, NetBox uses this to display
+    the set of child IP addresses within a parent prefix.
 
     Attributes:
         child_model: The model class which represents the child objects

@@ -131,7 +131,7 @@ nav:
         - NetBox Shell: 'administration/netbox-shell.md'
     - REST API:
         - Overview: 'rest-api/overview.md'
-        - Filtering: 'rest-api/filtering.md'
+        - Filtering & Ordering: 'rest-api/filtering.md'
         - Authentication: 'rest-api/authentication.md'
     - GraphQL API:
         - Overview: 'graphql-api/overview.md'
