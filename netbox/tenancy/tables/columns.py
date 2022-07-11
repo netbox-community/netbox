@@ -42,11 +42,11 @@ class TenantGroupColumn(tables.TemplateColumn):
     {% endif %}
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, accessor=tables.A('tenant__group'), *args, **kwargs):
         if 'verbose_name' not in kwargs:
             kwargs['verbose_name'] = 'Tenant Group'
 
-        super().__init__(template_code=self.template_code, *args, **kwargs)
+        super().__init__(template_code=self.template_code, accessor=accessor, *args, **kwargs)
 
     def value(self, value):
         return str(value) if value else None
