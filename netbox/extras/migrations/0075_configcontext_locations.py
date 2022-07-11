@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('dcim', '0156_location_status'),
-        ('extras', '0075_customfield_ui_visibility'),
+        ('extras', '0074_customfield_extensions'),
     ]
 
     operations = [

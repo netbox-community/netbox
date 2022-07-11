@@ -9,7 +9,7 @@ import taggit.managers
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0076_configcontext_locations'),
+        ('extras', '0075_configcontext_locations'),
         ('contenttypes', '0002_remove_content_type_name'),
         ('tenancy', '0007_contact_link'),
         ('ipam', '0058_ipaddress_nat_inside_nonunique'),

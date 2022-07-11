@@ -19,4 +19,9 @@ class Migration(migrations.Migration):
             name='group_name',
             field=models.CharField(blank=True, max_length=50),
         ),
+        migrations.AddField(
+            model_name='customfield',
+            name='ui_visibility',
+            field=models.CharField(default='read-write', max_length=50),
+        ),
     ]
