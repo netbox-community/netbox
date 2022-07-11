@@ -21,6 +21,7 @@ from netbox.config import get_config
 from utilities.forms import ConfirmationForm
 from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
 from .models import Token
+from .tables import TokenTable
 
 
 #
@@ -157,7 +158,7 @@ class UserConfigView(LoginRequiredMixin, View):
             form.save()
 
             messages.success(request, "Your preferences have been updated.")
-            return redirect('user:preferences')
+            return redirect('users:preferences')
 
         return render(request, self.template_name, {
             'form': form,
@@ -172,7 +173,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
         # LDAP users cannot change their password here
         if getattr(request.user, 'ldap_username', None):
             messages.warning(request, "LDAP-authenticated user credentials cannot be changed within NetBox.")
-            return redirect('user:profile')
+            return redirect('users:profile')
 
         form = PasswordChangeForm(user=request.user)
 
@@ -187,7 +188,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
             form.save()
             update_session_auth_hash(request, form.user)
             messages.success(request, "Your password has been changed successfully.")
-            return redirect('user:profile')
+            return redirect('users:profile')
 
         return render(request, self.template_name, {
             'form': form,
@@ -204,10 +205,13 @@ class TokenListView(LoginRequiredMixin, View):
     def get(self, request):
 
         tokens = Token.objects.filter(user=request.user)
+        table = TokenTable(tokens)
+        table.configure(request)
 
         return render(request, 'users/api_tokens.html', {
             'tokens': tokens,
             'active_tab': 'api-tokens',
+            'table': table,
         })
 
 
@@ -225,7 +229,7 @@ class TokenEditView(LoginRequiredMixin, View):
         return render(request, 'generic/object_edit.html', {
             'object': token,
             'form': form,
-            'return_url': reverse('user:token_list'),
+            'return_url': reverse('users:token_list'),
         })
 
     def post(self, request, pk=None):
@@ -248,12 +252,12 @@ class TokenEditView(LoginRequiredMixin, View):
             if '_addanother' in request.POST:
                 return redirect(request.path)
             else:
-                return redirect('user:token_list')
+                return redirect('users:token_list')
 
         return render(request, 'generic/object_edit.html', {
             'object': token,
             'form': form,
-            'return_url': reverse('user:token_list'),
+            'return_url': reverse('users:token_list'),
         })
 
 
@@ -263,14 +267,14 @@ class TokenDeleteView(LoginRequiredMixin, View):
 
         token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
         initial_data = {
-            'return_url': reverse('user:token_list'),
+            'return_url': reverse('users:token_list'),
         }
         form = ConfirmationForm(initial=initial_data)
 
         return render(request, 'generic/object_delete.html', {
             'object': token,
             'form': form,
-            'return_url': reverse('user:token_list'),
+            'return_url': reverse('users:token_list'),
         })
 
     def post(self, request, pk):
@@ -280,10 +284,10 @@ class TokenDeleteView(LoginRequiredMixin, View):
         if form.is_valid():
             token.delete()
             messages.success(request, "Token deleted")
-            return redirect('user:token_list')
+            return redirect('users:token_list')
 
         return render(request, 'generic/object_delete.html', {
             'object': token,
             'form': form,
-            'return_url': reverse('user:token_list'),
+            'return_url': reverse('users:token_list'),
         })
