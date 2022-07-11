@@ -365,13 +365,8 @@ class CustomField(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
 
         # Text
         else:
-            if self.type == CustomFieldTypeChoices.TYPE_LONGTEXT:
-                max_length = None
-                widget = forms.Textarea
-            else:
-                max_length = 255
-                widget = None
-            field = forms.CharField(max_length=max_length, required=required, initial=initial, widget=widget)
+            widget = forms.Textarea if self.type == CustomFieldTypeChoices.TYPE_LONGTEXT else None
+            field = forms.CharField(required=required, initial=initial, widget=widget)
             if self.validation_regex:
                 field.validators = [
                     RegexValidator(

@@ -1,3 +1,7 @@
+# HTML sanitizer
+# https://github.com/mozilla/bleach
+bleach
+
 # The Python web framework on which NetBox is built
 # https://github.com/django/django
 Django
@@ -126,7 +130,3 @@ tablib
 # Timezone data (required by django-timezone-field on Python 3.9+)
 # https://github.com/python/tzdata
 tzdata
-
-# HTML sanitizer
-# https://github.com/mozilla/bleach
-bleach

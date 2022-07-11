@@ -521,13 +521,28 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         required=False,
         label=''
     )
+    virtual_chassis = DynamicModelChoiceField(
+        queryset=VirtualChassis.objects.all(),
+        required=False
+    )
+    vc_position = forms.IntegerField(
+        required=False,
+        label='Position',
+        help_text="The position in the virtual chassis this device is identified by"
+    )
+    vc_priority = forms.IntegerField(
+        required=False,
+        label='Priority',
+        help_text="The priority of the device in the virtual chassis"
+    )
 
     class Meta:
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'rack',
             'location', 'position', 'face', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6',
-            'cluster_group', 'cluster', 'tenant_group', 'tenant', 'comments', 'tags', 'local_context_data'
+            'cluster_group', 'cluster', 'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority',
+            'comments', 'tags', 'local_context_data'
         ]
         help_texts = {
             'device_role': "The function this device serves",
