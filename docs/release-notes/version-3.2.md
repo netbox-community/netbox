@@ -18,6 +18,7 @@
 * [#9632](https://github.com/netbox-community/netbox/issues/9632) - Automatically focus on search box when expanding dropdowns
 * [#9657](https://github.com/netbox-community/netbox/issues/9657) - Fix filtering for custom fields and webhooks in the UI
 * [#9682](https://github.com/netbox-community/netbox/issues/9682) - Fix bulk assignment of ASNs to sites
+* [#9687](https://github.com/netbox-community/netbox/issues/9687) - Don't restrict custom text field lengths when entering via UI form
 * [#9704](https://github.com/netbox-community/netbox/issues/9704) - Include `last_updated` field on JournalEntry REST API serializer
 
 ---
