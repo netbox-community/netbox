@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from dcim.models import Interface
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenantColumn
+from tenancy.tables import TenancyColumnsMixin
 from wireless.models import *
 
 __all__ = (
@@ -33,14 +33,13 @@ class WirelessLANGroupTable(NetBoxTable):
         default_columns = ('pk', 'name', 'wirelesslan_count', 'description')
 
 
-class WirelessLANTable(NetBoxTable):
+class WirelessLANTable(TenancyColumnsMixin, NetBoxTable):
     ssid = tables.Column(
         linkify=True
     )
     group = tables.Column(
         linkify=True
     )
-    tenant = TenantColumn()
     interface_count = tables.Column(
         verbose_name='Interfaces'
     )
@@ -51,8 +50,8 @@ class WirelessLANTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = WirelessLAN
         fields = (
-            'pk', 'ssid', 'group', 'tenant', 'description', 'vlan', 'interface_count', 'auth_type', 'auth_cipher',
-            'auth_psk', 'tags', 'created', 'last_updated',
+            'pk', 'ssid', 'group', 'tenant', 'tenant_group', 'description', 'vlan', 'interface_count', 'auth_type',
+            'auth_cipher', 'auth_psk', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'ssid', 'group', 'description', 'vlan', 'auth_type', 'interface_count')
 
