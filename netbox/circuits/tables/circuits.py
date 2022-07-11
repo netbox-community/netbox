@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from circuits.models import *
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenantColumn
+from tenancy.tables import TenancyColumnsMixin
 from .columns import CommitRateColumn
 
 __all__ = (
@@ -39,7 +39,7 @@ class CircuitTypeTable(NetBoxTable):
         default_columns = ('pk', 'name', 'circuit_count', 'description', 'slug')
 
 
-class CircuitTable(NetBoxTable):
+class CircuitTable(TenancyColumnsMixin, NetBoxTable):
     cid = tables.Column(
         linkify=True,
         verbose_name='Circuit ID'
@@ -48,7 +48,6 @@ class CircuitTable(NetBoxTable):
         linkify=True
     )
     status = columns.ChoiceFieldColumn()
-    tenant = TenantColumn()
     termination_a = tables.TemplateColumn(
         template_code=CIRCUITTERMINATION_LINK,
         verbose_name='Side A'
@@ -69,7 +68,7 @@ class CircuitTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Circuit
         fields = (
-            'pk', 'id', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'install_date',
+            'pk', 'id', 'cid', 'provider', 'type', 'status', 'tenant', 'tenant_group', 'termination_a', 'termination_z', 'install_date',
             'commit_rate', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
