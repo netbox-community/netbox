@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from ipam.models import *
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenantColumn
+from tenancy.tables import TenancyColumnsMixin
 
 __all__ = (
     'RouteTargetTable',
@@ -20,14 +20,13 @@ VRF_TARGETS = """
 # VRFs
 #
 
-class VRFTable(NetBoxTable):
+class VRFTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
     rd = tables.Column(
         verbose_name='RD'
     )
-    tenant = TenantColumn()
     enforce_unique = columns.BooleanColumn(
         verbose_name='Unique'
     )
@@ -46,7 +45,7 @@ class VRFTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VRF
         fields = (
-            'pk', 'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets', 'export_targets',
+            'pk', 'id', 'name', 'rd', 'tenant', 'tenant_group', 'enforce_unique', 'description', 'import_targets', 'export_targets',
             'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'rd', 'tenant', 'description')
@@ -56,16 +55,15 @@ class VRFTable(NetBoxTable):
 # Route targets
 #
 
-class RouteTargetTable(NetBoxTable):
+class RouteTargetTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    tenant = TenantColumn()
     tags = columns.TagColumn(
         url_name='ipam:vrf_list'
     )
 
     class Meta(NetBoxTable.Meta):
         model = RouteTarget
-        fields = ('pk', 'id', 'name', 'tenant', 'description', 'tags', 'created', 'last_updated',)
+        fields = ('pk', 'id', 'name', 'tenant', 'tenant_group', 'description', 'tags', 'created', 'last_updated',)
         default_columns = ('pk', 'name', 'tenant', 'description')

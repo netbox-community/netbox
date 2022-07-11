@@ -1,6 +1,10 @@
 # NetBox v3.2
 
-## v3.2.6 (FUTURE)
+## v3.2.7 (FUTURE)
+
+---
+
+## v3.2.6 (2022-07-11)
 
 ### Enhancements
 
@@ -8,14 +12,18 @@
 * [#9396](https://github.com/netbox-community/netbox/issues/9396) - Allow filtering modules by bay ID
 * [#9403](https://github.com/netbox-community/netbox/issues/9403) - Enable modifying virtual chassis properties when creating/editing a device
 * [#9540](https://github.com/netbox-community/netbox/issues/9540) - Add filters for assigned device & VM to IP addresses list
+* [#9686](https://github.com/netbox-community/netbox/issues/9686) - Add tenant group column for all object tables with tenant assignments
 
 ### Bug Fixes
 
 * [#8854](https://github.com/netbox-community/netbox/issues/8854) - Fix `REMOTE_AUTH_DEFAULT_GROUPS` for social-auth backends
 * [#9575](https://github.com/netbox-community/netbox/issues/9575) - Fix AttributeError exception for FHRP group with an IP address assigned
 * [#9597](https://github.com/netbox-community/netbox/issues/9597) - Include `installed_module` in module bay REST API serializer
+* [#9632](https://github.com/netbox-community/netbox/issues/9632) - Automatically focus on search box when expanding dropdowns
 * [#9657](https://github.com/netbox-community/netbox/issues/9657) - Fix filtering for custom fields and webhooks in the UI
 * [#9682](https://github.com/netbox-community/netbox/issues/9682) - Fix bulk assignment of ASNs to sites
+* [#9687](https://github.com/netbox-community/netbox/issues/9687) - Don't restrict custom text field lengths when entering via UI form
+* [#9704](https://github.com/netbox-community/netbox/issues/9704) - Include `last_updated` field on JournalEntry REST API serializer
 
 ---
 

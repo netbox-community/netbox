@@ -96,8 +96,7 @@ class ModularComponentModel(ComponentModel):
     inventory_items = GenericRelation(
         to='dcim.InventoryItem',
         content_type_field='component_type',
-        object_id_field='component_id',
-        related_name='%(class)ss',
+        object_id_field='component_id'
     )
 
     class Meta:

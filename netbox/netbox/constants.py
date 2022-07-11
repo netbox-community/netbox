@@ -34,7 +34,7 @@ CIRCUIT_TYPES = OrderedDict(
         }),
         ('circuit', {
             'queryset': Circuit.objects.prefetch_related(
-                'type', 'provider', 'tenant', 'terminations__site'
+                'type', 'provider', 'tenant', 'tenant__group', 'terminations__site'
             ),
             'filterset': circuits.filtersets.CircuitFilterSet,
             'table': circuits.tables.CircuitTable,
@@ -53,13 +53,13 @@ CIRCUIT_TYPES = OrderedDict(
 DCIM_TYPES = OrderedDict(
     (
         ('site', {
-            'queryset': Site.objects.prefetch_related('region', 'tenant'),
+            'queryset': Site.objects.prefetch_related('region', 'tenant', 'tenant__group'),
             'filterset': dcim.filtersets.SiteFilterSet,
             'table': dcim.tables.SiteTable,
             'url': 'dcim:site_list',
         }),
         ('rack', {
-            'queryset': Rack.objects.prefetch_related('site', 'location', 'tenant', 'role').annotate(
+            'queryset': Rack.objects.prefetch_related('site', 'location', 'tenant', 'tenant__group', 'role').annotate(
                 device_count=count_related(Device, 'rack')
             ),
             'filterset': dcim.filtersets.RackFilterSet,
@@ -100,7 +100,7 @@ DCIM_TYPES = OrderedDict(
         }),
         ('device', {
             'queryset': Device.objects.prefetch_related(
-                'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack', 'primary_ip4', 'primary_ip6',
+                'device_type__manufacturer', 'device_role', 'tenant', 'tenant__group', 'site', 'rack', 'primary_ip4', 'primary_ip6',
             ),
             'filterset': dcim.filtersets.DeviceFilterSet,
             'table': dcim.tables.DeviceTable,
@@ -148,7 +148,7 @@ DCIM_TYPES = OrderedDict(
 IPAM_TYPES = OrderedDict(
     (
         ('vrf', {
-            'queryset': VRF.objects.prefetch_related('tenant'),
+            'queryset': VRF.objects.prefetch_related('tenant', 'tenant__group'),
             'filterset': ipam.filtersets.VRFFilterSet,
             'table': ipam.tables.VRFTable,
             'url': 'ipam:vrf_list',
@@ -160,25 +160,25 @@ IPAM_TYPES = OrderedDict(
             'url': 'ipam:aggregate_list',
         }),
         ('prefix', {
-            'queryset': Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role'),
+            'queryset': Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'tenant__group', 'vlan', 'role'),
             'filterset': ipam.filtersets.PrefixFilterSet,
             'table': ipam.tables.PrefixTable,
             'url': 'ipam:prefix_list',
         }),
         ('ipaddress', {
-            'queryset': IPAddress.objects.prefetch_related('vrf__tenant', 'tenant'),
+            'queryset': IPAddress.objects.prefetch_related('vrf__tenant', 'tenant', 'tenant__group'),
             'filterset': ipam.filtersets.IPAddressFilterSet,
             'table': ipam.tables.IPAddressTable,
             'url': 'ipam:ipaddress_list',
         }),
         ('vlan', {
-            'queryset': VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role'),
+            'queryset': VLAN.objects.prefetch_related('site', 'group', 'tenant', 'tenant__group', 'role'),
             'filterset': ipam.filtersets.VLANFilterSet,
             'table': ipam.tables.VLANTable,
             'url': 'ipam:vlan_list',
         }),
         ('asn', {
-            'queryset': ASN.objects.prefetch_related('rir', 'tenant'),
+            'queryset': ASN.objects.prefetch_related('rir', 'tenant', 'tenant__group'),
             'filterset': ipam.filtersets.ASNFilterSet,
             'table': ipam.tables.ASNTable,
             'url': 'ipam:asn_list',
@@ -223,7 +223,7 @@ VIRTUALIZATION_TYPES = OrderedDict(
         }),
         ('virtualmachine', {
             'queryset': VirtualMachine.objects.prefetch_related(
-                'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
+                'cluster', 'tenant', 'tenant__group', 'platform', 'primary_ip4', 'primary_ip6',
             ),
             'filterset': virtualization.filtersets.VirtualMachineFilterSet,
             'table': virtualization.tables.VirtualMachineTable,

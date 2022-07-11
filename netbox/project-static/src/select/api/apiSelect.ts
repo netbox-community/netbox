@@ -411,6 +411,7 @@ export class APISelect {
     } finally {
       this.setOptionStyles();
       this.enable();
+      this.slim.slim.search.input.focus();
       this.base.dispatchEvent(this.loadEvent);
     }
   }

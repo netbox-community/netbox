@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 
 from dcim.models import Cable
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenantColumn
+from tenancy.tables import TenancyColumnsMixin
 from .template_code import CABLE_LENGTH
 
 __all__ = (
@@ -46,7 +46,7 @@ class CableTerminationsColumn(tables.Column):
 # Cables
 #
 
-class CableTable(NetBoxTable):
+class CableTable(TenancyColumnsMixin, NetBoxTable):
     a_terminations = CableTerminationsColumn(
         cable_end='A',
         orderable=False,
@@ -106,7 +106,6 @@ class CableTable(NetBoxTable):
         verbose_name='Site B'
     )
     status = columns.ChoiceFieldColumn()
-    tenant = TenantColumn()
     length = columns.TemplateColumn(
         template_code=CABLE_LENGTH,
         order_by=('_abs_length', 'length_unit')
@@ -120,8 +119,8 @@ class CableTable(NetBoxTable):
         model = Cable
         fields = (
             'pk', 'id', 'label', 'a_terminations', 'b_terminations', 'device_a', 'device_b', 'rack_a', 'rack_b',
-            'location_a', 'location_b', 'site_a', 'site_b', 'status', 'type', 'tenant', 'color', 'length', 'tags',
-            'created', 'last_updated',
+            'location_a', 'location_b', 'site_a', 'site_b', 'status', 'type', 'tenant', 'tenant_group', 'color',
+            'length', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'id', 'label', 'a_terminations', 'b_terminations', 'status', 'type',

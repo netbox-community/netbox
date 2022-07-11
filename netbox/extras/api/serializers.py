@@ -222,7 +222,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
         model = JournalEntry
         fields = [
             'id', 'url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'created',
-            'created_by', 'kind', 'comments', 'tags', 'custom_fields',
+            'created_by', 'kind', 'comments', 'tags', 'custom_fields', 'last_updated',
         ]
 
     def validate(self, data):
