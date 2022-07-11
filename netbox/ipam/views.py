@@ -586,9 +586,7 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
     template_name = 'ipam/iprange/ip_addresses.html'
 
     def get_children(self, request, parent):
-        return parent.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'role', 'tenant', 'tenant__group',
-        )
+        return parent.get_child_ips().restrict(request.user, 'view')
 
     def get_extra_context(self, request, instance):
         return {
