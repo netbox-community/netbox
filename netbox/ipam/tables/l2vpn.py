@@ -1,8 +1,8 @@
 import django_tables2 as tables
 
-from ipam.models import *
-from ipam.models.l2vpn import L2VPN, L2VPNTermination
+from ipam.models import L2VPN, L2VPNTermination
 from netbox.tables import NetBoxTable, columns
+from tenancy.tables import TenancyColumnsMixin
 
 __all__ = (
     'L2VPNTable',
@@ -16,7 +16,7 @@ L2VPN_TARGETS = """
 """
 
 
-class L2VPNTable(NetBoxTable):
+class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
     pk = columns.ToggleColumn()
     name = tables.Column(
         linkify=True
@@ -32,7 +32,10 @@ class L2VPNTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = L2VPN
-        fields = ('pk', 'name', 'slug', 'type', 'description', 'import_targets', 'export_targets', 'tenant', 'actions')
+        fields = (
+            'pk', 'name', 'slug', 'type', 'description', 'import_targets', 'export_targets', 'tenant', 'tenant_group',
+            'actions',
+        )
         default_columns = ('pk', 'name', 'type', 'description', 'actions')
 
 

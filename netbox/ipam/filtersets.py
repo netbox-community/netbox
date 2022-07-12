@@ -930,8 +930,11 @@ class ServiceFilterSet(NetBoxModelFilterSet):
 # L2VPN
 #
 
-
 class L2VPNFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=L2VPNTypeChoices,
+        null_value=None
+    )
     import_target_id = django_filters.ModelMultipleChoiceFilter(
         field_name='import_targets',
         queryset=RouteTarget.objects.all(),
@@ -972,10 +975,10 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         label='L2VPN (ID)',
     )
     l2vpn = django_filters.ModelMultipleChoiceFilter(
-        field_name='l2vpn__name',
+        field_name='l2vpn__slug',
         queryset=L2VPN.objects.all(),
-        to_field_name='name',
-        label='L2VPN (name)',
+        to_field_name='slug',
+        label='L2VPN (slug)',
     )
     device = MultiValueCharFilter(
         method='filter_device',
@@ -987,16 +990,15 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         field_name='pk',
         label='Device (ID)',
     )
-    interface = django_filters.ModelMultipleChoiceFilter(
-        field_name='interface__name',
-        queryset=Interface.objects.all(),
-        to_field_name='name',
-        label='Interface (name)',
-    )
     interface_id = django_filters.ModelMultipleChoiceFilter(
         field_name='interface',
         queryset=Interface.objects.all(),
         label='Interface (ID)',
+    )
+    vminterface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface',
+        queryset=VMInterface.objects.all(),
+        label='VM Interface (ID)',
     )
     vlan = django_filters.ModelMultipleChoiceFilter(
         field_name='vlan__name',
@@ -1013,10 +1015,11 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         queryset=VLAN.objects.all(),
         label='VLAN (ID)',
     )
+    assigned_object_type = ContentTypeFilter()
 
     class Meta:
         model = L2VPNTermination
-        fields = ['id', ]
+        fields = ('id', 'assigned_object_type_id')
 
     def search(self, queryset, name, value):
         if not value.strip():

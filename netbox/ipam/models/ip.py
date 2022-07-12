@@ -931,7 +931,7 @@ class IPAddress(NetBoxModel):
 
         # Populate the address field with the next available IP (if any)
         if next_available_ip := self.get_next_available_ip():
-            attrs['address'] = next_available_ip
+            attrs['address'] = f'{next_available_ip}/{self.address.prefixlen}'
 
         return attrs
 

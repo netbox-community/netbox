@@ -970,7 +970,6 @@ class L2VPNTerminationTest(APIViewTestCases.APIViewTestCase):
             VLAN(name='VLAN 6', vid=656),
             VLAN(name='VLAN 7', vid=657)
         )
-
         VLAN.objects.bulk_create(vlans)
 
         l2vpns = (
@@ -985,7 +984,6 @@ class L2VPNTerminationTest(APIViewTestCases.APIViewTestCase):
             L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[1]),
             L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[2])
         )
-
         L2VPNTermination.objects.bulk_create(l2vpnterminations)
 
         cls.create_data = [

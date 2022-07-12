@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField()),
                 ('type', models.CharField(max_length=50)),
                 ('identifier', models.BigIntegerField(blank=True, null=True, unique=True)),
-                ('description', models.TextField(blank=True, null=True)),
+                ('description', models.CharField(blank=True, max_length=200)),
                 ('export_targets', models.ManyToManyField(blank=True, related_name='exporting_l2vpns', to='ipam.routetarget')),
                 ('import_targets', models.ManyToManyField(blank=True, related_name='importing_l2vpns', to='ipam.routetarget')),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'L2VPN',
-                'ordering': ('identifier', 'name'),
+                'ordering': ('name', 'identifier'),
             },
         ),
         migrations.CreateModel(
@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={
-                'verbose_name': 'L2VPN Termination',
+                'verbose_name': 'L2VPN termination',
                 'ordering': ('l2vpn',),
             },
         ),

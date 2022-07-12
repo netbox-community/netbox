@@ -1,18 +1,14 @@
 import datetime
 
-from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 from netaddr import IPNetwork
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site, Interface
-from extras.choices import ObjectChangeActionChoices
-from extras.models import ObjectChange
 from ipam.choices import *
 from ipam.models import *
 from tenancy.models import Tenant
-from users.models import ObjectPermission
-from utilities.testing import ViewTestCases, create_tags, post_data
+from utilities.testing import ViewTestCases, create_test_device, create_tags
 
 
 class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -772,9 +768,9 @@ class L2VPNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         RouteTarget.objects.bulk_create(rts)
 
         l2vpns = (
-            L2VPN(name='L2VPN 1', slug='l2vpn-1', type='vxlan', identifier='650001'),
-            L2VPN(name='L2VPN 2', slug='l2vpn-2', type='vxlan', identifier='650002'),
-            L2VPN(name='L2VPN 3', slug='l2vpn-3', type='vxlan', identifier='650003')
+            L2VPN(name='L2VPN 1', slug='l2vpn-1', type=L2VPNTypeChoices.TYPE_VXLAN, identifier='650001'),
+            L2VPN(name='L2VPN 2', slug='l2vpn-2', type=L2VPNTypeChoices.TYPE_VXLAN, identifier='650002'),
+            L2VPN(name='L2VPN 3', slug='l2vpn-3', type=L2VPNTypeChoices.TYPE_VXLAN, identifier='650003')
         )
 
         L2VPN.objects.bulk_create(l2vpns)
@@ -782,7 +778,7 @@ class L2VPNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'name': 'L2VPN 8',
             'slug': 'l2vpn-8',
-            'type': 'vxlan',
+            'type': L2VPNTypeChoices.TYPE_VXLAN,
             'identifier': 123,
             'description': 'Description',
             'import_targets': [rts[0].pk],
@@ -805,21 +801,9 @@ class L2VPNTerminationTestCase(
 
     @classmethod
     def setUpTestData(cls):
-        site = Site.objects.create(name='Site 1')
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1')
-        device_type = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
-        device_role = DeviceRole.objects.create(name='Switch')
-        device = Device.objects.create(
-            name='Device 1',
-            site=site,
-            device_type=device_type,
-            device_role=device_role,
-            status='active'
-        )
-
+        device = create_test_device('Device 1')
         interface = Interface.objects.create(name='Interface 1', device=device, type='1000baset')
-        l2vpn = L2VPN.objects.create(name='L2VPN 1', type='vxlan', identifier=650001)
-        l2vpn_vlans = L2VPN.objects.create(name='L2VPN 2', type='vxlan', identifier=650002)
+        l2vpn = L2VPN.objects.create(name='L2VPN 1', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=650001)
 
         vlans = (
             VLAN(name='Vlan 1', vid=1001),
@@ -846,9 +830,9 @@ class L2VPNTerminationTestCase(
 
         cls.csv_data = (
             "l2vpn,vlan",
-            "L2VPN 2,Vlan 4",
-            "L2VPN 2,Vlan 5",
-            "L2VPN 2,Vlan 6",
+            "L2VPN 1,Vlan 4",
+            "L2VPN 1,Vlan 5",
+            "L2VPN 1,Vlan 6",
         )
 
         cls.bulk_edit_data = {}
@@ -857,6 +841,7 @@ class L2VPNTerminationTestCase(
     # Custom assertions
     #
 
+    # TODO: Remove this
     def assertInstanceEqual(self, instance, data, exclude=None, api=False):
         """
         Override parent

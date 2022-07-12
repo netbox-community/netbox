@@ -438,7 +438,7 @@ class L2VPNCSVForm(NetBoxModelCSVForm):
     )
     type = CSVChoiceField(
         choices=L2VPNTypeChoices,
-        help_text='IP protocol'
+        help_text='L2VPN type'
     )
 
     class Meta:

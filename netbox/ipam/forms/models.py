@@ -916,7 +916,8 @@ class L2VPNTerminationForm(NetBoxModelForm):
         required=False,
         query_params={
             'available_on_device': '$device'
-        }
+        },
+        label='VLAN'
     )
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
@@ -935,7 +936,8 @@ class L2VPNTerminationForm(NetBoxModelForm):
         required=False,
         query_params={
             'virtual_machine_id': '$virtual_machine'
-        }
+        },
+        label='Interface'
     )
 
     class Meta:

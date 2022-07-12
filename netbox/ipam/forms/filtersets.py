@@ -1,18 +1,19 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from dcim.models import Location, Rack, Region, Site, SiteGroup, Device
-from virtualization.models import VirtualMachine
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
-from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
-    add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField, MultipleChoiceField, StaticSelect,
-    TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    add_blank_choice, ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    MultipleChoiceField, StaticSelect, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
+from virtualization.models import VirtualMachine
 
 __all__ = (
     'AggregateFilterForm',
@@ -482,7 +483,8 @@ class ServiceFilterForm(ServiceTemplateFilterForm):
 class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = L2VPN
     fieldsets = (
-        (None, ('type', )),
+        (None, ('q', 'tag')),
+        ('Attributes', ('type', 'import_target_id', 'export_target_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
     )
     type = forms.ChoiceField(
@@ -490,17 +492,31 @@ class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         required=False,
         widget=StaticSelect()
     )
+    import_target_id = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        required=False,
+        label=_('Import targets')
+    )
+    export_target_id = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        required=False,
+        label=_('Export targets')
+    )
+    tag = TagFilterField(model)
 
 
 class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
     model = L2VPNTermination
     fieldsets = (
-        (None, ('l2vpn', )),
+        (None, ('l2vpn_id', 'assigned_object_type_id')),
     )
-    l2vpn = DynamicModelChoiceField(
+    l2vpn_id = DynamicModelChoiceField(
         queryset=L2VPN.objects.all(),
-        required=True,
-        query_params={},
-        label='L2VPN',
-        fetch_trigger='open'
+        required=False,
+        label='L2VPN'
+    )
+    assigned_object_type_id = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        required=False,
+        label='Object type'
     )
