@@ -125,6 +125,7 @@ class LocationTable(TenancyColumnsMixin, NetBoxTable):
     site = tables.Column(
         linkify=True
     )
+    status = columns.ChoiceFieldColumn()
     rack_count = columns.LinkedCountColumn(
         viewname='dcim:rack_list',
         url_params={'location_id': 'pk'},

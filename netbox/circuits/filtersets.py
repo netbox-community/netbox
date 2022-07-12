@@ -4,7 +4,7 @@ from django.db.models import Q
 from dcim.filtersets import CabledObjectFilterSet
 from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
-from netbox.filtersets import ChangeLoggedModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet
+from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import TreeNodeMultipleChoiceFilter
 from .choices import *

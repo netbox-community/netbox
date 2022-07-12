@@ -260,13 +260,14 @@ class RackElevationSVG:
         )
 
         for ru in range(0, self.rack.u_height):
+            unit = ru + 1 if self.rack.desc_units else self.rack.u_height - ru
             y_offset = RACK_ELEVATION_BORDER_WIDTH + ru * self.unit_height
             text_coords = (
                 x_offset + self.unit_width / 2,
                 y_offset + self.unit_height / 2
             )
 
-            link = Hyperlink(href=url_string.format(ru), target='_blank')
+            link = Hyperlink(href=url_string.format(unit), target='_blank')
             link.add(Rect((x_offset, y_offset), (self.unit_width, self.unit_height), class_='slot'))
             link.add(Text('add device', insert=text_coords, class_='add-device'))
 

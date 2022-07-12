@@ -166,7 +166,8 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
 
 class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     site = DynamicModelChoiceField(
-        queryset=Site.objects.all()
+        queryset=Site.objects.all(),
+        required=False
     )
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
@@ -178,6 +179,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
+        required=False,
         query_params={
             'site_id': '$site',
             'group_id': '$cluster_group',
@@ -188,7 +190,8 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         required=False,
         query_params={
             'cluster_id': '$cluster'
-        }
+        },
+        help_text="Optionally pin this VM to a specific host device within the cluster"
     )
     role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -208,7 +211,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
 
     fieldsets = (
         ('Virtual Machine', ('name', 'role', 'status', 'tags')),
-        ('Cluster', ('site', 'cluster_group', 'cluster', 'device')),
+        ('Site/Cluster', ('site', 'cluster_group', 'cluster', 'device')),
         ('Tenancy', ('tenant_group', 'tenant')),
         ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
         ('Resources', ('vcpus', 'memory', 'disk')),

@@ -1073,13 +1073,15 @@ class InterfaceBulkEditForm(
         choices=add_blank_choice(InterfacePoEModeChoices),
         required=False,
         initial='',
-        widget=StaticSelect()
+        widget=StaticSelect(),
+        label='PoE mode'
     )
     poe_type = forms.ChoiceField(
         choices=add_blank_choice(InterfacePoETypeChoices),
         required=False,
         initial='',
-        widget=StaticSelect()
+        widget=StaticSelect(),
+        label='PoE type'
     )
     mark_connected = forms.NullBooleanField(
         required=False,

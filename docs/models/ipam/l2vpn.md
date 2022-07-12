@@ -17,5 +17,5 @@ Each L2VPN instance must have one of the following type associated with it:
 * MPLS-EVPN
 * PBB-EVPN
 
-!!!note
-    Choosing VPWS, EPL, EP-LAN, EP-TREE will result in only being able to add 2 terminations to a given L2VPN.
+!!! note
+    Choosing VPWS, EPL, EP-LAN, EP-TREE will result in only being able to add two terminations to a given L2VPN.

@@ -227,6 +227,10 @@ class PathEndpoint(models.Model):
         # Return the path as a list of three-tuples (A termination(s), cable(s), B termination(s))
         return list(zip(*[iter(path)] * 3))
 
+    @property
+    def path(self):
+        return self._path
+
     @cached_property
     def connected_endpoints(self):
         """

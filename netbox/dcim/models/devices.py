@@ -1,3 +1,4 @@
+import decimal
 from collections import OrderedDict
 
 import yaml
@@ -278,6 +279,12 @@ class DeviceType(NetBoxModel):
 
     def clean(self):
         super().clean()
+
+        # U height must be divisible by 0.5
+        if self.u_height % decimal.Decimal(0.5):
+            raise ValidationError({
+                'u_height': "U height must be in increments of 0.5 rack units."
+            })
 
         # If editing an existing DeviceType to have a larger u_height, first validate that *all* instances of it have
         # room to expand within their racks. This validation will impose a very high performance penalty when there are
@@ -811,7 +818,11 @@ class Device(NetBoxModel, ConfigContextModel):
                     'position': "Cannot select a rack position without assigning a rack.",
                 })
 
-        # Validate position/face combination
+        # Validate rack position and face
+        if self.position and self.position % decimal.Decimal(0.5):
+            raise ValidationError({
+                'position': "Position must be in increments of 0.5 rack units."
+            })
         if self.position and not self.face:
             raise ValidationError({
                 'face': "Must specify rack face when defining rack position.",

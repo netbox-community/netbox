@@ -1031,8 +1031,8 @@ class InterfacePoEModeChoices(ChoiceSet):
     MODE_PSE = 'pse'
 
     CHOICES = (
-        (MODE_PD, 'Powered device (PD)'),
-        (MODE_PSE, 'Power sourcing equipment (PSE)'),
+        (MODE_PD, 'PD'),
+        (MODE_PSE, 'PSE'),
     )
 
 

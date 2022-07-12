@@ -13,6 +13,9 @@ Physical interfaces may be arranged into a link aggregation group (LAG) and asso
 
 ### Power over Ethernet (PoE)
 
+!!! note
+    This feature was added in NetBox v3.3.
+
 Physical interfaces can be assigned a PoE mode to indicate PoE capability: power supplying equipment (PSE) or powered device (PD). Additionally, a PoE mode may be specified. This can be one of the listed IEEE 802.3 standards, or a passive setting (24 or 48 volts across two or four pairs).
 
 ### Wireless Interfaces
