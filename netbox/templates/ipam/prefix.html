@@ -143,6 +143,32 @@
               {% endwith %}
             </td>
           </tr>
+	  {% if object.prefix.version == 4 %}
+	  <tr>
+	    <td>
+		    Network Mask
+            </td>
+	    <td>
+		    {{ object.prefix.netmask }}		
+            </td>
+	  </tr>
+	  <tr>
+	    <td>
+		    Broadcast Address
+            </td>
+	    <td>
+		    {{ object.prefix.broadcast }}		
+            </td>
+	  </tr>
+	  <tr>
+	    <td>
+		    Wildcard Mask
+            </td>
+	    <td>
+		    {{ object.prefix.hostmask }}		
+            </td>
+	  </tr>
+	  {% endif %}
         </table>
       </div>
     </div>
