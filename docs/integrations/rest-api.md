@@ -273,7 +273,11 @@ When retrieving devices and virtual machines via the REST API, each will include
 
 ## Pagination
 
-API responses which contain a list of many objects will be paginated for efficiency. The root JSON object returned by a list endpoint contains the following attributes:
+API responses which contain a list of many objects will be paginated for efficiency. NetBox supports two pagination modes: Limit Offset Pagination (default) and Cursor Pagination. The two modes can be toggled with the `pagination_mode` parameter.
+
+### Limit Offset Pagination
+
+The root JSON object returned by a list endpoint contains the following attributes:
 
 * `count`: The total number of all objects matching the query
 * `next`: A hyperlink to the next page of results (if applicable)
@@ -324,6 +328,23 @@ The response will return devices 1 through 100. The URL provided in the `next` a
     "results": [...]
 }
 ```
+
+### Cursor Pagination
+
+Cursor Pagination presents a cursor indicator and it allows the client to retrieve the next or the previous page with respect to the cursor. The returned list is sorted in reverse order of the "created" field. In this mode, the client can get a consistent view of the items even when items are being deleted by other clients during the process. More information about proper use of cursor pagination can be found in the [Djaongo REST framework documentation](https://www.django-rest-framework.org/api-guide/pagination/#cursorpagination).
+
+Here is an example of a cursor pagination request:
+```
+GET http://netbox/api/dcim/devices/?pagination_mode=cursor
+```
+The JSON object returned contains `next`, `previous` and `results`. Please refer to **Limit Offset Pagination** for meanings of these fields.
+
+Similarly, the default page size is determined by the [`PAGINATE_COUNT`](../configuration/dynamic-settings.md#paginate_count) configuration parameter. To retrieve a hundred devices at a time, you would make a request for:
+```
+GET http://netbox/api/dcim/devices/?pagination_mode=cursor&limit=100
+```
+
+### Maximum Page Size
 
 The maximum number of objects that can be returned is limited by the [`MAX_PAGE_SIZE`](../configuration/miscellaneous.md#max_page_size) configuration parameter, which is 1000 by default. Setting this to `0` or `None` will remove the maximum limit. An API consumer can then pass `?limit=0` to retrieve _all_ matching objects with a single request.
 
