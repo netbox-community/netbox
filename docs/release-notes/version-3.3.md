@@ -6,12 +6,12 @@
 
 * Device position and rack unit values are now reported as decimals (e.g. `1.0` or `1.5`) to support modeling half-height rack units.
 * The `nat_outside` relation on the IP address model now returns a list of zero or more related IP addresses, rather than a single instance (or None).
-* Several fields on the cable API serializers have been altered to support multiple-object cable terminations:
+* Several fields on the cable API serializers have been altered or removed to support multiple-object cable terminations:
 
 | Old Name             | Old Type | New Name              | New Type |
 |----------------------|----------|-----------------------|----------|
-| `termination_a_type` | string   | `a_terminations_type` | string   |
-| `termination_b_type` | string   | `b_terminations_type` | string   |
+| `termination_a_type` | string   | _Removed_             | -        |
+| `termination_b_type` | string   | _Removed_             | -        |
 | `termination_a_id`   | integer  | _Removed_             | -        |
 | `termination_b_id`   | integer  | _Removed_             | -        |
 | `termination_a`      | object   | `a_terminations`      | list     |

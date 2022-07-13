@@ -157,8 +157,8 @@ def get_cable_form(a_type, b_type):
 
             if self.instance and self.instance.pk:
                 # Initialize A/B terminations when modifying an existing Cable instance
-                self.initial['a_terminations'] = self.instance.get_a_terminations()
-                self.initial['b_terminations'] = self.instance.get_b_terminations()
+                self.initial['a_terminations'] = self.instance.a_terminations
+                self.initial['b_terminations'] = self.instance.b_terminations
 
         def save(self, *args, **kwargs):
 

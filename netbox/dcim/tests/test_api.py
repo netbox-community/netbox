@@ -7,6 +7,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
+from netbox.api.serializers import GenericObjectSerializer
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
@@ -1864,6 +1865,17 @@ class CableTest(APIViewTestCases.APIViewTestCase):
     # TODO: Allow updating cable terminations
     test_update_object = None
 
+    def model_to_dict(self, *args, **kwargs):
+        data = super().model_to_dict(*args, **kwargs)
+
+        # Serialize termination objects
+        if 'a_terminations' in data:
+            data['a_terminations'] = GenericObjectSerializer(data['a_terminations'], many=True).data
+        if 'b_terminations' in data:
+            data['b_terminations'] = GenericObjectSerializer(data['b_terminations'], many=True).data
+
+        return data
+
     @classmethod
     def setUpTestData(cls):
         site = Site.objects.create(name='Site 1', slug='site-1')
@@ -1893,24 +1905,36 @@ class CableTest(APIViewTestCases.APIViewTestCase):
 
         cls.create_data = [
             {
-                'a_terminations_type': 'dcim.interface',
-                'a_terminations': [interfaces[4].pk],
-                'b_terminations_type': 'dcim.interface',
-                'b_terminations': [interfaces[14].pk],
+                'a_terminations': [{
+                    'object_type': 'dcim.interface',
+                    'object_id': interfaces[4].pk,
+                }],
+                'b_terminations': [{
+                    'object_type': 'dcim.interface',
+                    'object_id': interfaces[14].pk,
+                }],
                 'label': 'Cable 4',
             },
             {
-                'a_terminations_type': 'dcim.interface',
-                'a_terminations': [interfaces[5].pk],
-                'b_terminations_type': 'dcim.interface',
-                'b_terminations': [interfaces[15].pk],
+                'a_terminations': [{
+                    'object_type': 'dcim.interface',
+                    'object_id': interfaces[5].pk,
+                }],
+                'b_terminations': [{
+                    'object_type': 'dcim.interface',
+                    'object_id': interfaces[15].pk,
+                }],
                 'label': 'Cable 5',
             },
             {
-                'a_terminations_type': 'dcim.interface',
-                'a_terminations': [interfaces[6].pk],
-                'b_terminations_type': 'dcim.interface',
-                'b_terminations': [interfaces[16].pk],
+                'a_terminations': [{
+                    'object_type': 'dcim.interface',
+                    'object_id': interfaces[6].pk,
+                }],
+                'b_terminations': [{
+                    'object_type': 'dcim.interface',
+                    'object_id': interfaces[16].pk,
+                }],
                 'label': 'Cable 6',
             },
         ]

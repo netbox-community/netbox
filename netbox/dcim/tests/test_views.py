@@ -12,6 +12,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
+from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
@@ -2640,8 +2641,8 @@ class CableTestCase(
         cls.form_data = {
             # TODO: Revisit this limitation
             # Changing terminations not supported when editing an existing Cable
-            'a_terminations': interfaces[0].pk,
-            'b_terminations': interfaces[3].pk,
+            'a_terminations': [interfaces[0].pk],
+            'b_terminations': [interfaces[3].pk],
             'type': CableTypeChoices.TYPE_CAT6,
             'status': LinkStatusChoices.STATUS_PLANNED,
             'label': 'Label',
@@ -2666,6 +2667,17 @@ class CableTestCase(
             'length': 50,
             'length_unit': CableLengthUnitChoices.UNIT_METER,
         }
+
+    def model_to_dict(self, *args, **kwargs):
+        data = super().model_to_dict(*args, **kwargs)
+
+        # Serialize termination objects
+        if 'a_terminations' in data:
+            data['a_terminations'] = [obj.pk for obj in data['a_terminations']]
+        if 'b_terminations' in data:
+            data['b_terminations'] = [obj.pk for obj in data['b_terminations']]
+
+        return data
 
 
 class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):

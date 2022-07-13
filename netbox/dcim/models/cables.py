@@ -93,11 +93,12 @@ class Cable(NetBoxModel):
         # Cache the original status so we can check later if it's been changed
         self._orig_status = self.status
 
-        # Assign any *new* CableTerminations for the instance. These will replace any existing
-        # terminations on save().
-        if a_terminations is not None:
+        self._terminations_modified = False
+
+        # Assign or retrieve A/B terminations
+        if a_terminations:
             self.a_terminations = a_terminations
-        if b_terminations is not None:
+        if b_terminations:
             self.b_terminations = b_terminations
 
     def __str__(self):
@@ -106,6 +107,34 @@ class Cable(NetBoxModel):
 
     def get_absolute_url(self):
         return reverse('dcim:cable', args=[self.pk])
+
+    @property
+    def a_terminations(self):
+        if hasattr(self, '_a_terminations'):
+            return self._a_terminations
+        # Query self.terminations.all() to leverage cached results
+        return [
+            ct.termination for ct in self.terminations.all() if ct.cable_end == CableEndChoices.SIDE_A
+        ]
+
+    @a_terminations.setter
+    def a_terminations(self, value):
+        self._terminations_modified = True
+        self._a_terminations = value
+
+    @property
+    def b_terminations(self):
+        if hasattr(self, '_b_terminations'):
+            return self._b_terminations
+        # Query self.terminations.all() to leverage cached results
+        return [
+            ct.termination for ct in self.terminations.all() if ct.cable_end == CableEndChoices.SIDE_B
+        ]
+
+    @b_terminations.setter
+    def b_terminations(self, value):
+        self._terminations_modified = True
+        self._b_terminations = value
 
     def clean(self):
         super().clean()
@@ -116,30 +145,28 @@ class Cable(NetBoxModel):
         elif self.length is None:
             self.length_unit = ''
 
-        a_terminations = [
-            CableTermination(cable=self, cable_end='A', termination=t)
-            for t in getattr(self, 'a_terminations', [])
-        ]
-        b_terminations = [
-            CableTermination(cable=self, cable_end='B', termination=t)
-            for t in getattr(self, 'b_terminations', [])
-        ]
+        if self.pk is None and (not self.a_terminations or not self.b_terminations):
+            raise ValidationError("Must define A and B terminations when creating a new cable.")
 
-        # Check that all termination objects for either end are of the same type
-        for terms in (a_terminations, b_terminations):
-            if len(terms) > 1 and not all(t.termination_type == terms[0].termination_type for t in terms[1:]):
-                raise ValidationError("Cannot connect different termination types to same end of cable.")
+        if self._terminations_modified:
 
-        # Check that termination types are compatible
-        if a_terminations and b_terminations:
-            a_type = a_terminations[0].termination_type.model
-            b_type = b_terminations[0].termination_type.model
-            if b_type not in COMPATIBLE_TERMINATION_TYPES.get(a_type):
-                raise ValidationError(f"Incompatible termination types: {a_type} and {b_type}")
+            # Check that all termination objects for either end are of the same type
+            for terms in (self.a_terminations, self.b_terminations):
+                if len(terms) > 1 and not all(isinstance(t, type(terms[0])) for t in terms[1:]):
+                    raise ValidationError("Cannot connect different termination types to same end of cable.")
 
-        # Run clean() on any new CableTerminations
-        for cabletermination in [*a_terminations, *b_terminations]:
-            cabletermination.clean()
+            # Check that termination types are compatible
+            if self.a_terminations and self.b_terminations:
+                a_type = self.a_terminations[0]._meta.model_name
+                b_type = self.b_terminations[0]._meta.model_name
+                if b_type not in COMPATIBLE_TERMINATION_TYPES.get(a_type):
+                    raise ValidationError(f"Incompatible termination types: {a_type} and {b_type}")
+
+            # Run clean() on any new CableTerminations
+            for termination in self.a_terminations:
+                CableTermination(cable=self, cable_end='A', termination=termination).clean()
+            for termination in self.b_terminations:
+                CableTermination(cable=self, cable_end='B', termination=termination).clean()
 
     def save(self, *args, **kwargs):
         _created = self.pk is None
@@ -160,41 +187,27 @@ class Cable(NetBoxModel):
         b_terminations = {ct.termination: ct for ct in self.terminations.filter(cable_end='B')}
 
         # Delete stale CableTerminations
-        if hasattr(self, 'a_terminations'):
+        if self._terminations_modified:
             for termination, ct in a_terminations.items():
-                if termination not in self.a_terminations:
+                if termination.pk and termination not in self.a_terminations:
                     ct.delete()
-        if hasattr(self, 'b_terminations'):
             for termination, ct in b_terminations.items():
-                if termination not in self.b_terminations:
+                if termination.pk and termination not in self.b_terminations:
                     ct.delete()
 
         # Save new CableTerminations (if any)
-        if hasattr(self, 'a_terminations'):
+        if self._terminations_modified:
             for termination in self.a_terminations:
-                if termination not in a_terminations:
+                if not termination.pk or termination not in a_terminations:
                     CableTermination(cable=self, cable_end='A', termination=termination).save()
-        if hasattr(self, 'b_terminations'):
             for termination in self.b_terminations:
-                if termination not in b_terminations:
+                if not termination.pk or termination not in b_terminations:
                     CableTermination(cable=self, cable_end='B', termination=termination).save()
 
         trace_paths.send(Cable, instance=self, created=_created)
 
     def get_status_color(self):
         return LinkStatusChoices.colors.get(self.status)
-
-    def get_a_terminations(self):
-        # Query self.terminations.all() to leverage cached results
-        return [
-            ct.termination for ct in self.terminations.all() if ct.cable_end == CableEndChoices.SIDE_A
-        ]
-
-    def get_b_terminations(self):
-        # Query self.terminations.all() to leverage cached results
-        return [
-            ct.termination for ct in self.terminations.all() if ct.cable_end == CableEndChoices.SIDE_B
-        ]
 
 
 class CableTermination(models.Model):

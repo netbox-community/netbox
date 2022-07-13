@@ -79,7 +79,7 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
         return
 
     # Update cable paths if new terminations have been set
-    if hasattr(instance, 'a_terminations') or hasattr(instance, 'b_terminations'):
+    if instance._terminations_modified:
         a_terminations = []
         b_terminations = []
         for t in instance.terminations.all():

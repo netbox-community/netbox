@@ -15,7 +15,8 @@ from ipam.api.nested_serializers import (
 from ipam.models import ASN, VLAN
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import (
-    NestedGroupModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer, WritableNestedSerializer,
+    GenericObjectSerializer, NestedGroupModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer,
+    WritableNestedSerializer,
 )
 from netbox.config import ConfigItem
 from tenancy.api.nested_serializers import NestedTenantSerializer
@@ -994,10 +995,8 @@ class InventoryItemRoleSerializer(NetBoxModelSerializer):
 
 class CableSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
-    a_terminations_type = serializers.SerializerMethodField(read_only=True)
-    b_terminations_type = serializers.SerializerMethodField(read_only=True)
-    a_terminations = serializers.SerializerMethodField(read_only=True)
-    b_terminations = serializers.SerializerMethodField(read_only=True)
+    a_terminations = GenericObjectSerializer(many=True, required=False)
+    b_terminations = GenericObjectSerializer(many=True, required=False)
     status = ChoiceField(choices=LinkStatusChoices, required=False)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     length_unit = ChoiceField(choices=CableLengthUnitChoices, allow_blank=True, required=False)
@@ -1005,46 +1004,9 @@ class CableSerializer(NetBoxModelSerializer):
     class Meta:
         model = Cable
         fields = [
-            'id', 'url', 'display', 'type', 'a_terminations_type', 'a_terminations', 'b_terminations_type',
-            'b_terminations', 'status', 'tenant', 'label', 'color', 'length', 'length_unit', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'type', 'a_terminations', 'b_terminations', 'status', 'tenant', 'label', 'color',
+            'length', 'length_unit', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-
-    def _get_terminations_type(self, obj, side):
-        assert side in CableEndChoices.values()
-        terms = getattr(obj, f'get_{side.lower()}_terminations')()
-        if terms:
-            ct = ContentType.objects.get_for_model(terms[0])
-            return f"{ct.app_label}.{ct.model}"
-
-    def _get_terminations(self, obj, side):
-        assert side in CableEndChoices.values()
-        terms = getattr(obj, f'get_{side.lower()}_terminations')()
-        if not terms:
-            return []
-
-        termination_type = ContentType.objects.get_for_model(terms[0])
-        serializer = get_serializer_for_model(termination_type.model_class(), prefix='Nested')
-        context = {'request': self.context['request']}
-        data = serializer(terms, context=context, many=True).data
-
-        return data
-
-    @swagger_serializer_method(serializer_or_field=serializers.CharField)
-    def get_a_terminations_type(self, obj):
-        return self._get_terminations_type(obj, CableEndChoices.SIDE_A)
-
-    @swagger_serializer_method(serializer_or_field=serializers.CharField)
-    def get_b_terminations_type(self, obj):
-        return self._get_terminations_type(obj, CableEndChoices.SIDE_B)
-
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
-    def get_a_terminations(self, obj):
-        return self._get_terminations(obj, CableEndChoices.SIDE_A)
-
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
-    def get_b_terminations(self, obj):
-        return self._get_terminations(obj, CableEndChoices.SIDE_B)
 
 
 class TracedCableSerializer(serializers.ModelSerializer):
