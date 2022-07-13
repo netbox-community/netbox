@@ -12,8 +12,8 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
-from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.exceptions import SerializerNotFound
+from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup

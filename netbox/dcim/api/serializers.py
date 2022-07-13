@@ -13,7 +13,7 @@ from ipam.api.nested_serializers import (
     NestedVRFSerializer,
 )
 from ipam.models import ASN, VLAN
-from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import (
     GenericObjectSerializer, NestedGroupModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer,
     WritableNestedSerializer,

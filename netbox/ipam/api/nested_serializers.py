@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from ipam import models
 from ipam.models.l2vpn import L2VPNTermination, L2VPN
-from netbox.api import WritableNestedSerializer
+from netbox.api.serializers import WritableNestedSerializer
 
 __all__ = [
     'NestedAggregateSerializer',

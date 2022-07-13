@@ -9,7 +9,7 @@ from ipam.api.nested_serializers import (
     NestedIPAddressSerializer, NestedL2VPNTerminationSerializer, NestedVLANSerializer, NestedVRFSerializer,
 )
 from ipam.models import VLAN
-from netbox.api import ChoiceField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from virtualization.choices import *

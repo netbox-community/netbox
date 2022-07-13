@@ -2,11 +2,11 @@ from rest_framework import serializers
 
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
-from dcim.api.nested_serializers import NestedCableSerializer, NestedSiteSerializer
+from dcim.api.nested_serializers import NestedSiteSerializer
 from dcim.api.serializers import CabledObjectSerializer
 from ipam.models import ASN
 from ipam.api.nested_serializers import NestedASNSerializer
-from netbox.api import ChoiceField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from .nested_serializers import *

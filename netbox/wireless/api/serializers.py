@@ -3,7 +3,7 @@ from rest_framework import serializers
 from dcim.choices import LinkStatusChoices
 from dcim.api.serializers import NestedInterfaceSerializer
 from ipam.api.serializers import NestedVLANSerializer
-from netbox.api import ChoiceField
+from netbox.api.fields import ChoiceField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from wireless.choices import *

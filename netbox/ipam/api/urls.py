@@ -1,7 +1,6 @@
 from django.urls import path
 
-from netbox.api import NetBoxRouter
-from ipam.models import IPRange, Prefix
+from netbox.api.routers import NetBoxRouter
 from . import views
 
 

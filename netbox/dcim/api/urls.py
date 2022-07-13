@@ -1,4 +1,4 @@
-from netbox.api import NetBoxRouter
+from netbox.api.routers import NetBoxRouter
 from . import views
 
 
