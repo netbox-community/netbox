@@ -12,7 +12,7 @@ __all__ = (
 
 
 CIRCUITTERMINATION_LINK = """
-{% if value.site and value.location %}
+{% if value.location %}
   <a href="{{ value.location.get_absolute_url }}">{{ value.location }}</a>
 {% elif value.site %}
   <a href="{{ value.site.get_absolute_url }}">{{ value.site }}</a>
