@@ -113,8 +113,12 @@ class RackElevationSVG:
 
         # Embed front device type image if one exists
         if self.include_images and device.device_type.front_image:
+            url = device.device_type.front_image.url
+            # Convert any relative URLs to absolute
+            if url.startswith('/'):
+                url = '{}{}'.format(self.base_url, url)
             image = drawing.image(
-                href='{}{}'.format(self.base_url, device.device_type.front_image.url),
+                href=url,
                 insert=start,
                 size=end,
                 class_='device-image'
@@ -139,8 +143,12 @@ class RackElevationSVG:
 
         # Embed rear device type image if one exists
         if self.include_images and device.device_type.rear_image:
+            url = device.device_type.rear_image.url
+            # Convert any relative URLs to absolute
+            if url.startswith('/'):
+                url = '{}{}'.format(self.base_url, url)
             image = drawing.image(
-                href='{}{}'.format(self.base_url, device.device_type.rear_image.url),
+                href=url,
                 insert=start,
                 size=end,
                 class_='device-image'
