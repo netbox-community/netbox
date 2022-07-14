@@ -274,17 +274,17 @@ class CableTerminationTable(NetBoxTable):
         verbose_name='Cable Color'
     )
     link_peer = columns.TemplateColumn(
-        accessor='_link_peer',
+        accessor='link_peers',
         template_code=LINKTERMINATION,
         orderable=False,
-        verbose_name='Link Peer'
+        verbose_name='Link Peers'
     )
     mark_connected = columns.BooleanColumn()
 
 
 class PathEndpointTable(CableTerminationTable):
     connection = columns.TemplateColumn(
-        accessor='_path__last_node',
+        accessor='_path__destinations',
         template_code=LINKTERMINATION,
         verbose_name='Connection',
         orderable=False

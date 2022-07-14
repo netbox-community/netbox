@@ -1,29 +1,15 @@
 LINKTERMINATION = """
-{% if value %}
-  {% if value.parent_object %}
-    <a href="{{ value.parent_object.get_absolute_url }}">{{ value.parent_object }}</a>
-    <i class="mdi mdi-chevron-right"></i>
-  {% endif %}
-  <a href="{{ value.get_absolute_url }}">{{ value }}</a>
-{% endif %}
+{% for termination in value %}
+  <a href="{{ termination.get_absolute_url }}">{{ termination }}</a>{% if not forloop.last %},{% endif %}
+{% empty %}
+  {{ ''|placeholder }}
+{% endfor %}
 """
 
 CABLE_LENGTH = """
 {% load helpers %}
 {% if record.length %}{{ record.length|simplify_decimal }} {{ record.length_unit }}{% endif %}
 """
-
-# CABLE_TERMINATION_PARENT = """
-# {% with value.0 as termination %}
-#   {% if termination.device %}
-#     <a href="{{ termination.device.get_absolute_url }}">{{ termination.device }}</a>
-#   {% elif termination.circuit %}
-#     <a href="{{ termination.circuit.get_absolute_url }}">{{ termination.circuit }}</a>
-#   {% elif termination.power_panel %}
-#     <a href="{{ termination.power_panel.get_absolute_url }}">{{ termination.power_panel }}</a>
-#   {% endif %}
-# {% endwith %}
-# """
 
 DEVICE_LINK = """
 <a href="{% url 'dcim:device' pk=record.pk %}">
