@@ -1,3 +1,5 @@
+import sys
+
 from django.db import migrations
 
 
@@ -42,6 +44,7 @@ def populate_cable_terminations(apps, schema_editor):
 
     # Queue CableTerminations to be created
     cable_terminations = []
+    cable_count = cables.count()
     for i, cable in enumerate(cables, start=1):
         for cable_end in ('a', 'b'):
             # We must manually instantiate the termination object, because GFK fields are not
@@ -57,6 +60,12 @@ def populate_cable_terminations(apps, schema_editor):
                 termination_id=cable[f'termination_{cable_end}_id'],
                 **cache_related_objects(termination)
             ))
+
+        # Output progress occasionally
+        if 'test' not in sys.argv and not i % 100:
+            progress = float(i) * 100 / cable_count
+            sys.stdout.write(f"\r    Updated {i}/{cable_count} cables ({progress:.2f}%)")
+            sys.stdout.flush()
 
     # Bulk create the termination objects
     CableTermination.objects.bulk_create(cable_terminations, batch_size=100)
