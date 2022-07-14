@@ -52,8 +52,7 @@ django-tables2
 
 # User-defined tags for objects
 # https://github.com/alex/django-taggit
-# Will evaluate v3.0 during NetBox v3.3 beta
-django-taggit>=2.1.0,<3.0
+django-taggit
 
 # A Django field for representing time zones
 # https://github.com/mfogel/django-timezone-field/

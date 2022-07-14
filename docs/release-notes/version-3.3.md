@@ -1,6 +1,6 @@
 # NetBox v3.3
 
-## v3.3.0 (FUTURE)
+## v3.3-beta1 (2022-07-14)
 
 ### Breaking Changes
 
