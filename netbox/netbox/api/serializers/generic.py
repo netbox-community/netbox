@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
-from netbox.api import ContentTypeField
+from netbox.api.fields import ContentTypeField
 from utilities.utils import content_type_identifier
 
 __all__ = (
