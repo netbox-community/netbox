@@ -11,7 +11,7 @@ __all__ = (
 )
 
 
-CIRCUITTERMINATION_LINK = """
+CIRCUIT_TERMINATION_LINK = """
 {% if value.location %}
   <a href="{{ value.location.get_absolute_url }}">{{ value.location }}</a>
 {% elif value.site %}
@@ -52,11 +52,11 @@ class CircuitTable(NetBoxTable):
     status = columns.ChoiceFieldColumn()
     tenant = TenantColumn()
     termination_a = tables.TemplateColumn(
-        template_code=CIRCUITTERMINATION_LINK,
+        template_code=CIRCUIT_TERMINATION_LINK,
         verbose_name='Side A'
     )
     termination_z = tables.TemplateColumn(
-        template_code=CIRCUITTERMINATION_LINK,
+        template_code=CIRCUIT_TERMINATION_LINK,
         verbose_name='Side Z'
     )
     commit_rate = CommitRateColumn()
