@@ -99,6 +99,7 @@ Custom field UI visibility has no impact on API operation.
 ### Bug Fixes
 
 * [#9728](https://github.com/netbox-community/netbox/issues/9728) - Fix validation when assigning a virtual machine to a device
+* [#9729](https://github.com/netbox-community/netbox/issues/9729) - Fix ordering of content type creation to ensure compatability with demo data
 
 ### Plugins API
 

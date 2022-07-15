@@ -3,7 +3,6 @@ from django.db import migrations
 
 def populate_cable_terminations(apps, schema_editor):
     Cable = apps.get_model('dcim', 'Cable')
-    ContentType = apps.get_model('contenttypes', 'ContentType')
 
     cable_termination_models = (
         apps.get_model('dcim', 'ConsolePort'),
@@ -18,12 +17,17 @@ def populate_cable_terminations(apps, schema_editor):
     )
 
     for model in cable_termination_models:
-        ct = ContentType.objects.get_for_model(model)
         model.objects.filter(
-            id__in=Cable.objects.filter(termination_a_type=ct).values_list('termination_a_id', flat=True)
+            id__in=Cable.objects.filter(
+                termination_a_type__app_label=model._meta.app_label,
+                termination_a_type__model=model._meta.model_name
+            ).values_list('termination_a_id', flat=True)
         ).update(cable_end='A')
         model.objects.filter(
-            id__in=Cable.objects.filter(termination_b_type=ct).values_list('termination_b_id', flat=True)
+            id__in=Cable.objects.filter(
+                termination_b_type__app_label=model._meta.app_label,
+                termination_b_type__model=model._meta.model_name
+            ).values_list('termination_b_id', flat=True)
         ).update(cable_end='B')
 
 
