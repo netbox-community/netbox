@@ -10,6 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from extras.models import ExportTemplate
 from netbox.api.exceptions import SerializerNotFound
+from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from .mixins import *
 
@@ -60,7 +61,7 @@ class NetBoxModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ObjectVali
         if self.brief:
             logger.debug("Request is for 'brief' format; initializing nested serializer")
             try:
-                serializer = get_serializer_for_model(self.queryset.model, prefix='Nested')
+                serializer = get_serializer_for_model(self.queryset.model, prefix=NESTED_SERIALIZER_PREFIX)
                 logger.debug(f"Using serializer {serializer}")
                 return serializer
             except SerializerNotFound:

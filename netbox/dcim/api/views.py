@@ -22,6 +22,7 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
 from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.config import get_config
+from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine
@@ -69,14 +70,14 @@ class PathEndpointMixin(object):
                 break
 
             # Serialize each object
-            serializer_a = get_serializer_for_model(near_end, prefix='Nested')
+            serializer_a = get_serializer_for_model(near_end, prefix=NESTED_SERIALIZER_PREFIX)
             x = serializer_a(near_end, context={'request': request}).data
             if cable is not None:
                 y = serializers.TracedCableSerializer(cable, context={'request': request}).data
             else:
                 y = None
             if far_end is not None:
-                serializer_b = get_serializer_for_model(far_end, prefix='Nested')
+                serializer_b = get_serializer_for_model(far_end, prefix=NESTED_SERIALIZER_PREFIX)
                 z = serializer_b(far_end, context={'request': request}).data
             else:
                 z = None

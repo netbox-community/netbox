@@ -3,6 +3,7 @@ from rest_framework.fields import Field
 
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
+from netbox.constants import NESTED_SERIALIZER_PREFIX
 
 
 #
@@ -51,10 +52,10 @@ class CustomFieldsDataField(Field):
         for cf in self._get_custom_fields():
             value = cf.deserialize(obj.get(cf.name))
             if value is not None and cf.type == CustomFieldTypeChoices.TYPE_OBJECT:
-                serializer = get_serializer_for_model(cf.object_type.model_class(), prefix='Nested')
+                serializer = get_serializer_for_model(cf.object_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
                 value = serializer(value, context=self.parent.context).data
             elif value is not None and cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
-                serializer = get_serializer_for_model(cf.object_type.model_class(), prefix='Nested')
+                serializer = get_serializer_for_model(cf.object_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
                 value = serializer(value, many=True, context=self.parent.context).data
             data[cf.name] = value
 
