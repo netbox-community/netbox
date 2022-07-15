@@ -64,6 +64,8 @@ def populate_cable_terminations(apps, schema_editor):
         # Output progress occasionally
         if 'test' not in sys.argv and not i % 100:
             progress = float(i) * 100 / cable_count
+            if i == 100:
+                print('')
             sys.stdout.write(f"\r    Updated {i}/{cable_count} cables ({progress:.2f}%)")
             sys.stdout.flush()
 
