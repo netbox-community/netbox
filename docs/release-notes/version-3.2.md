@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#9741](https://github.com/netbox-community/netbox/issues/9741) - Check for UserConfig instance during user login
+* [#9745](https://github.com/netbox-community/netbox/issues/9745) - Add wireless LANs and links to global search
 
 ### Bug Fixes
 
