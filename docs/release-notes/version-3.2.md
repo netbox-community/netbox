@@ -2,6 +2,10 @@
 
 ## v3.2.7 (FUTURE)
 
+### Enhancements
+
+* [#9741](https://github.com/netbox-community/netbox/issues/9741) - Check for UserConfig instance during user login
+
 ### Bug Fixes
 
 * [#9715](https://github.com/netbox-community/netbox/issues/9715) - Fix `SOCIAL_AUTH_PIPELINE` config parameter not taking effect
