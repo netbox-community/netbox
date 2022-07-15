@@ -1,6 +1,6 @@
 # NetBox v3.3
 
-## v3.3-beta1 (2022-07-14)
+## v3.3.0 (FUTURE)
 
 ### Breaking Changes
 
@@ -95,6 +95,10 @@ Custom field UI visibility has no impact on API operation.
 * [#9177](https://github.com/netbox-community/netbox/issues/9177) - Add tenant assignment for wireless LANs & links
 * [#9536](https://github.com/netbox-community/netbox/issues/9536) - Track API token usage times
 * [#9582](https://github.com/netbox-community/netbox/issues/9582) - Enable assigning config contexts based on device location
+
+### Bug Fixes
+
+* [#9728](https://github.com/netbox-community/netbox/issues/9728) - Fix validation when assigning a virtual machine to a device
 
 ### Plugins API
 

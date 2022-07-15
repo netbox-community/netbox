@@ -189,7 +189,8 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         queryset=Device.objects.all(),
         required=False,
         query_params={
-            'cluster_id': '$cluster'
+            'cluster_id': '$cluster',
+            'site_id': '$site',
         },
         help_text="Optionally pin this VM to a specific host device within the cluster"
     )

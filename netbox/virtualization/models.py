@@ -349,6 +349,10 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
             })
 
         # Validate assigned cluster device
+        if self.device and not self.cluster:
+            raise ValidationError({
+                'device': f'Must specify a cluster when assigning a host device.'
+            })
         if self.device and self.device not in self.cluster.devices.all():
             raise ValidationError({
                 'device': f'The selected device ({self.device} is not assigned to this cluster ({self.cluster}).'
