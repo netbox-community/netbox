@@ -2,6 +2,11 @@
 
 ## v3.2.7 (FUTURE)
 
+### Bug Fixes
+
+* [#9715](https://github.com/netbox-community/netbox/issues/9715) - Fix `SOCIAL_AUTH_PIPELINE` config parameter not taking effect
+* [#9734](https://github.com/netbox-community/netbox/issues/9734) - Fix stealing focus by select fields in forms
+
 ---
 
 ## v3.2.6 (2022-07-11)

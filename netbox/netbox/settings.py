@@ -476,13 +476,6 @@ if SENTRY_ENABLED:
 # Django social auth
 #
 
-# Load all SOCIAL_AUTH_* settings from the user configuration
-for param in dir(configuration):
-    if param.startswith('SOCIAL_AUTH_'):
-        globals()[param] = getattr(configuration, param)
-
-SOCIAL_AUTH_JSONFIELD_ENABLED = True
-
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
     'social_core.pipeline.social_auth.social_uid',
@@ -495,6 +488,14 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
 )
+
+# Load all SOCIAL_AUTH_* settings from the user configuration
+for param in dir(configuration):
+    if param.startswith('SOCIAL_AUTH_'):
+        globals()[param] = getattr(configuration, param)
+
+# Force usage of PostgreSQL's JSONB field for extra data
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
 
 
 #
