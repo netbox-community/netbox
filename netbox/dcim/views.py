@@ -2850,7 +2850,7 @@ class CableEditView(generic.ObjectEditView):
             termination_a = obj.terminations.filter(cable_end='A').first()
             a_type = termination_a.termination._meta.model if termination_a else None
             termination_b = obj.terminations.filter(cable_end='B').first()
-            b_type = termination_b.termination._meta.model if termination_a else None
+            b_type = termination_b.termination._meta.model if termination_b else None
             self.form = forms.get_cable_form(a_type, b_type)
 
         return obj
