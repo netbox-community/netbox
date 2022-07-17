@@ -411,13 +411,12 @@ export class APISelect {
     } finally {
       this.setOptionStyles();
       this.enable();
+      this.base.dispatchEvent(this.loadEvent);
 
-      // Set the focus to the search field if the select is open
-      if (this.slim.slim.content.classList.contains("ss-open")) {
+      // Set the focus to the search field if the select is open and no already in focus
+      if (this.slim.data.contentOpen && document.activeElement !== this.slim.slim.search.input) {
         this.slim.slim.search.input.focus();
       }
-
-      this.base.dispatchEvent(this.loadEvent);
     }
   }
 
