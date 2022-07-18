@@ -100,6 +100,8 @@ Custom field UI visibility has no impact on API operation.
 
 * [#9728](https://github.com/netbox-community/netbox/issues/9728) - Fix validation when assigning a virtual machine to a device
 * [#9729](https://github.com/netbox-community/netbox/issues/9729) - Fix ordering of content type creation to ensure compatability with demo data
+* [#9730](https://github.com/netbox-community/netbox/issues/9730) - Fix validation error when creating a new cable via UI form
+* [#9733](https://github.com/netbox-community/netbox/issues/9733) - Handle split paths during trace when fanning out to front ports with differing cables
 
 ### Plugins API
 

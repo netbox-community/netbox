@@ -463,6 +463,10 @@ class CablePath(models.Model):
         """
         from circuits.models import CircuitTermination
 
+        # Ensure all originating terminations are attached to the same link
+        if len(terminations) > 1:
+            assert all(t.link == terminations[0].link for t in terminations[1:])
+
         path = []
         position_stack = []
         is_complete = False
@@ -474,6 +478,12 @@ class CablePath(models.Model):
             # Terminations must all be of the same type
             assert all(isinstance(t, type(terminations[0])) for t in terminations[1:])
 
+            # Check for a split path (e.g. rear port fanning out to multiple front ports with
+            # different cables attached)
+            if len(set(t.link for t in terminations)) > 1:
+                is_split = True
+                break
+
             # Step 1: Record the near-end termination object(s)
             path.append([
                 object_to_path_node(t) for t in terminations
@@ -481,7 +491,6 @@ class CablePath(models.Model):
 
             # Step 2: Determine the attached link (Cable or WirelessLink), if any
             link = terminations[0].link
-            assert all(t.link == link for t in terminations[1:])
             if link is None and len(path) == 1:
                 # If this is the start of the path and no link exists, return None
                 return None
