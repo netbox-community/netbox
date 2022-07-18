@@ -10,7 +10,7 @@
 ### Bug Fixes
 
 * [#9715](https://github.com/netbox-community/netbox/issues/9715) - Fix `SOCIAL_AUTH_PIPELINE` config parameter not taking effect
-* [#9734](https://github.com/netbox-community/netbox/issues/9734) - Fix stealing focus by select fields in forms
+* [#9754](https://github.com/netbox-community/netbox/issues/9754) - Fix regression introduced by #9632
 * [#9746](https://github.com/netbox-community/netbox/issues/9746) - Permit filtering interfaces by arbitrary speed value in UI
 
 ---
