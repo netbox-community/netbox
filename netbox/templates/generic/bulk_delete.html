@@ -36,8 +36,8 @@ Context:
           {{ field }}
         {% endfor %}
         <div class="text-end">
-          <a href="{{ return_url }}" class="btn btn-outline-dark">Cancel</a>
           <button type="submit" name="_confirm" class="btn btn-danger">Delete {{ table.rows|length }} {{ model|meta:"verbose_name_plural" }}</button>
+          <a href="{{ return_url }}" class="btn btn-outline-dark">Cancel</a>
         </div>
       </form>
     </div>
