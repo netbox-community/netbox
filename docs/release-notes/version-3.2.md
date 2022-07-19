@@ -10,6 +10,7 @@
 ### Bug Fixes
 
 * [#9437](https://github.com/netbox-community/netbox/issues/9437) - Standardize form submission buttons and behavior when using enter key
+* [#9499](https://github.com/netbox-community/netbox/issues/9499) - Fix filtered bulk deletion of VM Interfaces
 * [#9634](https://github.com/netbox-community/netbox/issues/9634) - Fix image URLs in rack elevations when using external storage
 * [#9715](https://github.com/netbox-community/netbox/issues/9715) - Fix `SOCIAL_AUTH_PIPELINE` config parameter not taking effect
 * [#9754](https://github.com/netbox-community/netbox/issues/9754) - Fix regression introduced by #9632
