@@ -343,7 +343,7 @@ REARPORT_BUTTONS = """
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ record.pk }}&b_terminations_type=dcim.consoleport&return_url={% url 'dcim:device_rearports' pk=object.pk %}">Console Port</a></li>
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ record.pk }}&b_terminations_type=dcim.frontport&return_url={% url 'dcim:device_rearports' pk=object.pk %}">Front Port</a></li>
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ record.pk }}&b_terminations_type=dcim.rearport&return_url={% url 'dcim:device_rearports' pk=object.pk %}">Rear Port</a></li>
-                <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ record.pk }}&b_terminations_type=circuits.circuitterminations&return_url={% url 'dcim:device_rearports' pk=object.pk %}">Circuit Termination</a></li>
+                <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ record.pk }}&b_terminations_type=circuits.circuittermination&return_url={% url 'dcim:device_rearports' pk=object.pk %}">Circuit Termination</a></li>
             </ul>
         </span>
     {% else %}
