@@ -103,6 +103,9 @@ CORS_ORIGIN_REGEX_WHITELIST = [
 # on a production system.
 DEBUG = False
 
+# Set to True in addition to DEBUG above to enable the creation of new database migrations.
+DEVELOPER = False
+
 # Email settings
 EMAIL = {
     'SERVER': 'localhost',
