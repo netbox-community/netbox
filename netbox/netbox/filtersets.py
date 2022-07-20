@@ -125,7 +125,7 @@ class BaseFilterSet(django_filters.FilterSet):
             return {}
 
         # Skip nonstandard lookup expressions
-        if existing_filter.method is not None or existing_filter.lookup_expr not in ['exact', 'in']:
+        if existing_filter.method is not None or existing_filter.lookup_expr not in ['exact', 'iexact', 'in']:
             return {}
 
         # Choose the lookup expression map based on the filter type

@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#9705](https://github.com/netbox-community/netbox/issues/9705) - Support filter expressions for the `serial` field on racks, devices, and inventory items
 * [#9741](https://github.com/netbox-community/netbox/issues/9741) - Check for UserConfig instance during user login
 * [#9745](https://github.com/netbox-community/netbox/issues/9745) - Add wireless LANs and links to global search
 
