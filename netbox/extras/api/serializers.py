@@ -15,6 +15,7 @@ from extras.utils import FeatureQuery
 from netbox.api.exceptions import SerializerNotFound
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer
+from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
 from users.api.nested_serializers import NestedUserSerializer
@@ -193,7 +194,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_parent(self, obj):
-        serializer = get_serializer_for_model(obj.parent, prefix='Nested')
+        serializer = get_serializer_for_model(obj.parent, prefix=NESTED_SERIALIZER_PREFIX)
         return serializer(obj.parent, context={'request': self.context['request']}).data
 
 
@@ -243,7 +244,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_assigned_object(self, instance):
-        serializer = get_serializer_for_model(instance.assigned_object_type.model_class(), prefix='Nested')
+        serializer = get_serializer_for_model(instance.assigned_object_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         return serializer(instance.assigned_object, context=context).data
 
@@ -469,7 +470,7 @@ class ObjectChangeSerializer(BaseModelSerializer):
             return None
 
         try:
-            serializer = get_serializer_for_model(obj.changed_object, prefix='Nested')
+            serializer = get_serializer_for_model(obj.changed_object, prefix=NESTED_SERIALIZER_PREFIX)
         except SerializerNotFound:
             return obj.object_repr
         context = {

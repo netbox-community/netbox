@@ -163,8 +163,9 @@ class RackElevationSVG:
 
         # Embed device type image if provided
         if self.include_images and image:
+            url = f'{self.base_url}{image.url}' if image.url.startswith('/') else image.url
             image = Image(
-                href=f'{self.base_url}{image.url}',
+                href=url,
                 insert=coords,
                 size=size,
                 class_=f'device-image{css_extra}'

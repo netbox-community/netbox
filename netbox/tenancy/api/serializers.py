@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
+from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.choices import ContactPriorityChoices
 from tenancy.models import *
 from utilities.api import get_serializer_for_model
@@ -108,6 +109,6 @@ class ContactAssignmentSerializer(NetBoxModelSerializer):
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_object(self, instance):
-        serializer = get_serializer_for_model(instance.content_type.model_class(), prefix='Nested')
+        serializer = get_serializer_for_model(instance.content_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         return serializer(instance.object, context=context).data

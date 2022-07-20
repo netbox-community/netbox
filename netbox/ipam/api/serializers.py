@@ -10,6 +10,7 @@ from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, VLANGROUP_SCOPE_TYPES
 from ipam.models import *
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
+from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
@@ -148,7 +149,7 @@ class FHRPGroupAssignmentSerializer(NetBoxModelSerializer):
     def get_interface(self, obj):
         if obj.interface is None:
             return None
-        serializer = get_serializer_for_model(obj.interface, prefix='Nested')
+        serializer = get_serializer_for_model(obj.interface, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         return serializer(obj.interface, context=context).data
 
@@ -194,7 +195,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     def get_scope(self, obj):
         if obj.scope_id is None:
             return None
-        serializer = get_serializer_for_model(obj.scope, prefix='Nested')
+        serializer = get_serializer_for_model(obj.scope, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
 
         return serializer(obj.scope, context=context).data
@@ -378,7 +379,7 @@ class IPAddressSerializer(NetBoxModelSerializer):
     def get_assigned_object(self, obj):
         if obj.assigned_object is None:
             return None
-        serializer = get_serializer_for_model(obj.assigned_object, prefix='Nested')
+        serializer = get_serializer_for_model(obj.assigned_object, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         return serializer(obj.assigned_object, context=context).data
 
@@ -485,6 +486,6 @@ class L2VPNTerminationSerializer(NetBoxModelSerializer):
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_assigned_object(self, instance):
-        serializer = get_serializer_for_model(instance.assigned_object, prefix='Nested')
+        serializer = get_serializer_for_model(instance.assigned_object, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         return serializer(instance.assigned_object, context=context).data

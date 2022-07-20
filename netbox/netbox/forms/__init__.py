@@ -1,6 +1,6 @@
 from django import forms
 
-from netbox.constants import SEARCH_TYPE_HIERARCHY
+from netbox.search import SEARCH_TYPE_HIERARCHY
 from utilities.forms import BootstrapMixin
 from .base import *
 

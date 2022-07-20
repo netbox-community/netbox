@@ -38,7 +38,9 @@ export function initReslug(): void {
     slugLength = Number(slugLengthAttr);
   }
   sourceField.addEventListener('blur', () => {
-    slugField.value = slugify(sourceField.value, slugLength);
+    if (!slugField.value) {
+      slugField.value = slugify(sourceField.value, slugLength);
+    }
   });
   slugButton.addEventListener('click', () => {
     slugField.value = slugify(sourceField.value, slugLength);
