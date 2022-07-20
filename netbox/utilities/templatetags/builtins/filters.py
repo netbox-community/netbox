@@ -144,6 +144,8 @@ def render_markdown(value):
 
         {{ md_source_text|markdown }}
     """
+    if not value:
+        return ''
 
     # Render Markdown
     html = markdown(value, extensions=['def_list', 'fenced_code', 'tables', StrikethroughExtension()])

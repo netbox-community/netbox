@@ -15,6 +15,7 @@ from netbox.api.serializers import (
     NestedGroupModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer, WritableNestedSerializer,
 )
 from netbox.config import ConfigItem
+from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import get_serializer_for_model
@@ -41,7 +42,7 @@ class LinkTerminationSerializer(serializers.ModelSerializer):
         Return the appropriate serializer for the link termination model.
         """
         if obj._link_peer is not None:
-            serializer = get_serializer_for_model(obj._link_peer, prefix='Nested')
+            serializer = get_serializer_for_model(obj._link_peer, prefix=NESTED_SERIALIZER_PREFIX)
             context = {'request': self.context['request']}
             return serializer(obj._link_peer, context=context).data
         return None
@@ -67,7 +68,7 @@ class ConnectedEndpointSerializer(serializers.ModelSerializer):
         Return the appropriate serializer for the type of connected object.
         """
         if obj._path is not None and obj._path.destination is not None:
-            serializer = get_serializer_for_model(obj._path.destination, prefix='Nested')
+            serializer = get_serializer_for_model(obj._path.destination, prefix=NESTED_SERIALIZER_PREFIX)
             context = {'request': self.context['request']}
             return serializer(obj._path.destination, context=context).data
         return None
@@ -543,7 +544,7 @@ class InventoryItemTemplateSerializer(ValidatedModelSerializer):
     def get_component(self, obj):
         if obj.component is None:
             return None
-        serializer = get_serializer_for_model(obj.component, prefix='Nested')
+        serializer = get_serializer_for_model(obj.component, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         return serializer(obj.component, context=context).data
 
@@ -935,7 +936,7 @@ class InventoryItemSerializer(NetBoxModelSerializer):
     def get_component(self, obj):
         if obj.component is None:
             return None
-        serializer = get_serializer_for_model(obj.component, prefix='Nested')
+        serializer = get_serializer_for_model(obj.component, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         return serializer(obj.component, context=context).data
 
@@ -991,7 +992,7 @@ class CableSerializer(NetBoxModelSerializer):
         termination = getattr(obj, 'termination_{}'.format(side.lower()))
         if termination is None:
             return None
-        serializer = get_serializer_for_model(termination, prefix='Nested')
+        serializer = get_serializer_for_model(termination, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         data = serializer(termination, context=context).data
 
@@ -1037,7 +1038,7 @@ class CablePathSerializer(serializers.ModelSerializer):
         """
         Return the appropriate serializer for the origin.
         """
-        serializer = get_serializer_for_model(obj.origin, prefix='Nested')
+        serializer = get_serializer_for_model(obj.origin, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         return serializer(obj.origin, context=context).data
 
@@ -1047,7 +1048,7 @@ class CablePathSerializer(serializers.ModelSerializer):
         Return the appropriate serializer for the destination, if any.
         """
         if obj.destination_id is not None:
-            serializer = get_serializer_for_model(obj.destination, prefix='Nested')
+            serializer = get_serializer_for_model(obj.destination, prefix=NESTED_SERIALIZER_PREFIX)
             context = {'request': self.context['request']}
             return serializer(obj.destination, context=context).data
         return None
@@ -1056,7 +1057,7 @@ class CablePathSerializer(serializers.ModelSerializer):
     def get_path(self, obj):
         ret = []
         for node in obj.get_path():
-            serializer = get_serializer_for_model(node, prefix='Nested')
+            serializer = get_serializer_for_model(node, prefix=NESTED_SERIALIZER_PREFIX)
             context = {'request': self.context['request']}
             ret.append(serializer(node, context=context).data)
         return ret

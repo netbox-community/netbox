@@ -1,5 +1,26 @@
 # NetBox v3.2
 
+## v3.2.7 (2022-07-20)
+
+### Enhancements
+
+* [#9705](https://github.com/netbox-community/netbox/issues/9705) - Support filter expressions for the `serial` field on racks, devices, and inventory items
+* [#9741](https://github.com/netbox-community/netbox/issues/9741) - Check for UserConfig instance during user login
+* [#9745](https://github.com/netbox-community/netbox/issues/9745) - Add wireless LANs and links to global search
+
+### Bug Fixes
+
+* [#9437](https://github.com/netbox-community/netbox/issues/9437) - Standardize form submission buttons and behavior when using enter key
+* [#9499](https://github.com/netbox-community/netbox/issues/9499) - Fix filtered bulk deletion of VM Interfaces
+* [#9634](https://github.com/netbox-community/netbox/issues/9634) - Fix image URLs in rack elevations when using external storage
+* [#9715](https://github.com/netbox-community/netbox/issues/9715) - Fix `SOCIAL_AUTH_PIPELINE` config parameter not taking effect
+* [#9754](https://github.com/netbox-community/netbox/issues/9754) - Fix regression introduced by #9632
+* [#9746](https://github.com/netbox-community/netbox/issues/9746) - Permit filtering interfaces by arbitrary speed value in UI
+* [#9749](https://github.com/netbox-community/netbox/issues/9749) - Retain original slug values when modifying object names
+* [#9775](https://github.com/netbox-community/netbox/issues/9775) - Fix exception when viewing a report with no description
+
+---
+
 ## v3.2.6 (2022-07-11)
 
 ### Enhancements

@@ -982,8 +982,8 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     )
     speed = forms.IntegerField(
         required=False,
-        label='Select Speed',
-        widget=SelectSpeedWidget(attrs={'readonly': None})
+        label='Speed',
+        widget=SelectSpeedWidget()
     )
     duplex = MultipleChoiceField(
         choices=InterfaceDuplexChoices,

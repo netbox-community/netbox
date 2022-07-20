@@ -307,7 +307,7 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         to_field_name='slug',
         label='Role (slug)',
     )
-    serial = django_filters.CharFilter(
+    serial = MultiValueCharFilter(
         lookup_expr='iexact'
     )
 
@@ -1002,10 +1002,13 @@ class ModuleFilterSet(NetBoxModelFilterSet):
         queryset=Device.objects.all(),
         label='Device (ID)',
     )
+    serial = MultiValueCharFilter(
+        lookup_expr='iexact'
+    )
 
     class Meta:
         model = Module
-        fields = ['id', 'serial', 'asset_tag']
+        fields = ['id', 'asset_tag']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1400,7 +1403,7 @@ class InventoryItemFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
     )
     component_type = ContentTypeFilter()
     component_id = MultiValueNumberFilter()
-    serial = django_filters.CharFilter(
+    serial = MultiValueCharFilter(
         lookup_expr='iexact'
     )
 

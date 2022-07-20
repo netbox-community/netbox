@@ -471,6 +471,7 @@ class VMInterfaceBulkImportView(generic.BulkImportView):
 
 class VMInterfaceBulkEditView(generic.BulkEditView):
     queryset = VMInterface.objects.all()
+    filterset = filtersets.VMInterfaceFilterSet
     table = tables.VMInterfaceTable
     form = forms.VMInterfaceBulkEditForm
 
@@ -482,6 +483,7 @@ class VMInterfaceBulkRenameView(generic.BulkRenameView):
 
 class VMInterfaceBulkDeleteView(generic.BulkDeleteView):
     queryset = VMInterface.objects.all()
+    filterset = filtersets.VMInterfaceFilterSet
     table = tables.VMInterfaceTable
 
 
