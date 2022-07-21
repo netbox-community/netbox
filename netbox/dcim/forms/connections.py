@@ -138,7 +138,7 @@ def get_cable_form(a_type, b_type):
                         label='Side',
                         disabled_indicator='_occupied',
                         query_params={
-                            'circuit_id': f'termination_{cable_end}_circuit',
+                            'circuit_id': f'$termination_{cable_end}_circuit',
                         }
                     )
 
