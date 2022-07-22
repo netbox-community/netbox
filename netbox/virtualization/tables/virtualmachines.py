@@ -48,6 +48,9 @@ class VirtualMachineTable(TenancyColumnsMixin, NetBoxTable):
         order_by=('primary_ip4', 'primary_ip6'),
         verbose_name='IP Address'
     )
+    contacts = columns.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = columns.TagColumn(
         url_name='virtualization:virtualmachine_list'
     )
@@ -56,7 +59,7 @@ class VirtualMachineTable(TenancyColumnsMixin, NetBoxTable):
         model = VirtualMachine
         fields = (
             'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'tenant_group', 'platform', 'vcpus', 'memory', 'disk',
-            'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'tags', 'created', 'last_updated',
+            'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
