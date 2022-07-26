@@ -103,6 +103,7 @@ Custom field UI visibility has no impact on API operation.
 * [#9730](https://github.com/netbox-community/netbox/issues/9730) - Fix validation error when creating a new cable via UI form
 * [#9733](https://github.com/netbox-community/netbox/issues/9733) - Handle split paths during trace when fanning out to front ports with differing cables
 * [#9765](https://github.com/netbox-community/netbox/issues/9765) - Report correct segment count under cable trace UI view
+* [#9844](https://github.com/netbox-community/netbox/issues/9844) - Fix interface api request when creating/editing L2VPN termination
 
 ### Plugins API
 
