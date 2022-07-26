@@ -94,30 +94,19 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.fields['pk'].queryset = self.model.objects.all()
+
+        self._extend_nullable_fields()
 
     def _get_form_field(self, customfield):
         return customfield.to_form_field(set_initial=False, enforce_required=False)
 
-    def _append_customfield_fields(self):
-        """
-        Append form fields for all CustomFields assigned to this object type.
-        """
-        nullable_custom_fields = []
-        for customfield in self._get_custom_fields(self._get_content_type()):
-            field_name = f'cf_{customfield.name}'
-            self.fields[field_name] = self._get_form_field(customfield)
-
-            # Record non-required custom fields as nullable
-            if not customfield.required:
-                nullable_custom_fields.append(field_name)
-
-            # Annotate the field in the list of CustomField form fields
-            self.custom_fields[field_name] = customfield
-
-        # Annotate nullable custom fields (if any) on the form instance
-        if nullable_custom_fields:
-            self.nullable_fields = (*self.nullable_fields, *nullable_custom_fields)
+    def _extend_nullable_fields(self):
+        nullable_custom_fields = [
+            name for name, customfield in self.custom_fields.items() if not customfield.required
+        ]
+        self.nullable_fields = (*self.nullable_fields, *nullable_custom_fields)
 
 
 class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, forms.Form):

@@ -7,7 +7,7 @@
       <div class="card-body">
         {% for group_name, fields in custom_fields.items %}
           {% if group_name %}
-            <h6><strong>{{ group_name }}</strong></h6>
+            <h6>{{ group_name }}</h6>
           {% endif %}
           <table class="table table-hover attr-table">
             {% for field, value in fields.items %}

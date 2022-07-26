@@ -19,6 +19,7 @@ class CustomFieldsMixin:
 
     def __init__(self, *args, **kwargs):
         self.custom_fields = {}
+        self.custom_field_groups = {}
 
         super().__init__(*args, **kwargs)
 
@@ -58,3 +59,6 @@ class CustomFieldsMixin:
 
             # Annotate the field in the list of CustomField form fields
             self.custom_fields[field_name] = customfield
+            if customfield.group_name not in self.custom_field_groups:
+                self.custom_field_groups[customfield.group_name] = []
+            self.custom_field_groups[customfield.group_name].append(field_name)
