@@ -108,6 +108,7 @@ Custom field UI visibility has no impact on API operation.
 * [#9829](https://github.com/netbox-community/netbox/issues/9829) - Arrange custom fields by group when editing objects
 * [#9843](https://github.com/netbox-community/netbox/issues/9843) - Fix rendering of custom field values (regression from #9647)
 * [#9844](https://github.com/netbox-community/netbox/issues/9844) - Fix interface api request when creating/editing L2VPN termination
+* [#9847](https://github.com/netbox-community/netbox/issues/9847) - Respect `desc_units` when ordering rack units
 
 ### Plugins API
 

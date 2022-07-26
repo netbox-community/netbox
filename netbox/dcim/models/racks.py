@@ -244,10 +244,9 @@ class Rack(NetBoxModel):
         """
         Return a list of unit numbers, top to bottom.
         """
-        max_position = self.u_height + decimal.Decimal(0.5)
         if self.desc_units:
-            drange(0.5, max_position, 0.5)
-        return drange(max_position, 0.5, -0.5)
+            return drange(decimal.Decimal(1.0), self.u_height + 1, 0.5)
+        return drange(self.u_height + decimal.Decimal(0.5), 0.5, -0.5)
 
     def get_status_color(self):
         return RackStatusChoices.colors.get(self.status)
