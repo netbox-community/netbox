@@ -105,6 +105,7 @@ Custom field UI visibility has no impact on API operation.
 * [#9765](https://github.com/netbox-community/netbox/issues/9765) - Report correct segment count under cable trace UI view
 * [#9794](https://github.com/netbox-community/netbox/issues/9794) - Fix link to connect a rear port to a circuit termination
 * [#9818](https://github.com/netbox-community/netbox/issues/9818) - Fix circuit side selection when connecting a cable to a circuit termination
+* [#9843](https://github.com/netbox-community/netbox/issues/9843) - Fix rendering of custom field values (regression from #9647)
 * [#9844](https://github.com/netbox-community/netbox/issues/9844) - Fix interface api request when creating/editing L2VPN termination
 
 ### Plugins API
