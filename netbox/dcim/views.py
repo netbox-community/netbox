@@ -2707,6 +2707,7 @@ class DeviceBulkAddModuleBayView(generic.BulkComponentCreateView):
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
+    patterned_fields = ('name', 'label', 'position')
 
 
 class DeviceBulkAddDeviceBayView(generic.BulkComponentCreateView):
