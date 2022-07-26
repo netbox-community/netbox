@@ -906,8 +906,9 @@ class L2VPNTerminationForm(NetBoxModelForm):
         label='L2VPN',
         fetch_trigger='open'
     )
-    device = DynamicModelChoiceField(
+    device_vlan = DynamicModelChoiceField(
         queryset=Device.objects.all(),
+        label="Available on Device",
         required=False,
         query_params={}
     )
@@ -915,9 +916,14 @@ class L2VPNTerminationForm(NetBoxModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         query_params={
-            'available_on_device': '$device'
+            'available_on_device': '$device_vlan'
         },
         label='VLAN'
+    )
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        query_params={}
     )
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
