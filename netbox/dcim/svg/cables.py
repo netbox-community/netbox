@@ -178,7 +178,7 @@ class CableTraceSVG:
         """
         Draw a set of parent objects.
         """
-        width = self.width / len(obj_list)
+        width = self.width / len(obj_list) if len(obj_list) > 0 else self.width
         for i, obj in enumerate(obj_list):
             node = Node(
                 position=(i * width, self.cursor),
@@ -197,7 +197,7 @@ class CableTraceSVG:
         """
         nodes = []
         nodes_height = 0
-        width = self.width / len(terminations)
+        width = self.width / len(terminations) if len(terminations) > 0 else self.width
 
         for i, term in enumerate(terminations):
             node = Node(
