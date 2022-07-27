@@ -123,5 +123,5 @@ class CableTable(TenancyColumnsMixin, NetBoxTable):
             'length', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'id', 'label', 'a_terminations', 'b_terminations', 'status', 'type',
+            'pk', 'id', 'label', 'device_a', 'a_terminations', 'device_b', 'b_terminations', 'status', 'type',
         )
