@@ -2,6 +2,10 @@
 
 ## v3.2.8 (FUTURE)
 
+### Enhancements
+
+* [#9825](https://github.com/netbox-community/netbox/issues/9825) - Add contacts column to virtual machines table
+
 ---
 
 ## v3.2.7 (2022-07-20)
