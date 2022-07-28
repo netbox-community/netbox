@@ -1089,8 +1089,8 @@ class InterfaceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         DeviceType.objects.bulk_create(device_types)
 
         InterfaceTemplate.objects.bulk_create((
-            InterfaceTemplate(device_type=device_types[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED, mgmt_only=True),
-            InterfaceTemplate(device_type=device_types[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_GBIC, mgmt_only=False),
+            InterfaceTemplate(device_type=device_types[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED, mgmt_only=True, poe_mode=InterfacePoEModeChoices.MODE_PD, poe_type=InterfacePoETypeChoices.TYPE_1_8023AF),
+            InterfaceTemplate(device_type=device_types[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_GBIC, mgmt_only=False, poe_mode=InterfacePoEModeChoices.MODE_PSE, poe_type=InterfacePoETypeChoices.TYPE_2_8023AT),
             InterfaceTemplate(device_type=device_types[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_SFP, mgmt_only=False),
         ))
 
@@ -1111,6 +1111,14 @@ class InterfaceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'mgmt_only': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'mgmt_only': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_poe_mode(self):
+        params = {'poe_mode': [InterfacePoEModeChoices.MODE_PD, InterfacePoEModeChoices.MODE_PSE]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_poe_type(self):
+        params = {'poe_type': [InterfacePoETypeChoices.TYPE_1_8023AF, InterfacePoETypeChoices.TYPE_2_8023AT]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

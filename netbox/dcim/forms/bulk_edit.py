@@ -818,8 +818,22 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
     description = forms.CharField(
         required=False
     )
+    poe_mode = forms.ChoiceField(
+        choices=add_blank_choice(InterfacePoEModeChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect(),
+        label='PoE mode'
+    )
+    poe_type = forms.ChoiceField(
+        choices=add_blank_choice(InterfacePoETypeChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect(),
+        label='PoE type'
+    )
 
-    nullable_fields = ('label', 'description')
+    nullable_fields = ('label', 'description', 'poe_mode', 'poe_type')
 
 
 class FrontPortTemplateBulkEditForm(BulkEditForm):

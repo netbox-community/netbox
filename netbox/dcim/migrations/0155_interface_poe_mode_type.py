@@ -20,4 +20,14 @@ class Migration(migrations.Migration):
             name='poe_type',
             field=models.CharField(blank=True, max_length=50),
         ),
+        migrations.AddField(
+            model_name='interfacetemplate',
+            name='poe_mode',
+            field=models.CharField(blank=True, max_length=50),
+        ),
+        migrations.AddField(
+            model_name='interfacetemplate',
+            name='poe_type',
+            field=models.CharField(blank=True, max_length=50),
+        ),
     ]

@@ -1027,11 +1027,13 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     )
     poe_mode = MultipleChoiceField(
         choices=InterfacePoEModeChoices,
-        required=False
+        required=False,
+        label='PoE mode'
     )
     poe_type = MultipleChoiceField(
         choices=InterfacePoEModeChoices,
-        required=False
+        required=False,
+        label='PoE type'
     )
     rf_role = MultipleChoiceField(
         choices=WirelessRoleChoices,

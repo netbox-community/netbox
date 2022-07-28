@@ -1052,12 +1052,14 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description', 'poe_mode', 'poe_type',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
             'module_type': forms.HiddenInput(),
             'type': StaticSelect(),
+            'poe_mode': StaticSelect(),
+            'poe_type': StaticSelect(),
         }
 
 

@@ -229,6 +229,8 @@ class DeviceType(NetBoxModel):
                     'mgmt_only': c.mgmt_only,
                     'label': c.label,
                     'description': c.description,
+                    'poe_mode': c.poe_mode,
+                    'poe_type': c.poe_type,
                 }
                 for c in self.interfacetemplates.all()
             ]

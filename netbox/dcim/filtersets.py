@@ -652,6 +652,12 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         choices=InterfaceTypeChoices,
         null_value=None
     )
+    poe_mode = django_filters.MultipleChoiceFilter(
+        choices=InterfacePoEModeChoices
+    )
+    poe_type = django_filters.MultipleChoiceFilter(
+        choices=InterfacePoETypeChoices
+    )
 
     class Meta:
         model = InterfaceTemplate

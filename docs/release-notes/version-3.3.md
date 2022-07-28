@@ -97,7 +97,7 @@ Custom field UI visibility has no impact on API operation.
 * [#9536](https://github.com/netbox-community/netbox/issues/9536) - Track API token usage times
 * [#9582](https://github.com/netbox-community/netbox/issues/9582) - Enable assigning config contexts based on device location
 
-### Bug Fixes
+### Bug Fixes (from Beta1)
 
 * [#9728](https://github.com/netbox-community/netbox/issues/9728) - Fix validation when assigning a virtual machine to a device
 * [#9729](https://github.com/netbox-community/netbox/issues/9729) - Fix ordering of content type creation to ensure compatability with demo data
@@ -177,6 +177,8 @@ Custom field UI visibility has no impact on API operation.
     * `connected_endpoint_reachable` has been renamed to `connected_endpoints_reachable`
     * Added the optional `poe_mode` and `poe_type` fields
     * Added the `l2vpn_termination` read-only field
+* dcim.InterfaceTemplate
+    * Added the optional `poe_mode` and `poe_type` fields
 * dcim.Location
     * Added required `status` field (default value: `active`)
 * dcim.PowerOutlet

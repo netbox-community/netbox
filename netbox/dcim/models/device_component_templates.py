@@ -1,6 +1,6 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
@@ -318,6 +318,18 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         default=False,
         verbose_name='Management only'
     )
+    poe_mode = models.CharField(
+        max_length=50,
+        choices=InterfacePoEModeChoices,
+        blank=True,
+        verbose_name='PoE mode'
+    )
+    poe_type = models.CharField(
+        max_length=50,
+        choices=InterfacePoETypeChoices,
+        blank=True,
+        verbose_name='PoE type'
+    )
 
     component_model = Interface
 
@@ -334,6 +346,8 @@ class InterfaceTemplate(ModularComponentTemplateModel):
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
             mgmt_only=self.mgmt_only,
+            poe_mode=self.poe_mode,
+            poe_type=self.poe_type,
             **kwargs
         )
 

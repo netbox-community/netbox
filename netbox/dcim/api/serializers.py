@@ -469,12 +469,22 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
         default=None
     )
     type = ChoiceField(choices=InterfaceTypeChoices)
+    poe_mode = ChoiceField(
+        choices=InterfacePoEModeChoices,
+        required=False,
+        allow_blank=True
+    )
+    poe_type = ChoiceField(
+        choices=InterfacePoETypeChoices,
+        required=False,
+        allow_blank=True
+    )
 
     class Meta:
         model = InterfaceTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description',
-            'created', 'last_updated',
+            'poe_mode', 'poe_type', 'created', 'last_updated',
         ]
 
 
