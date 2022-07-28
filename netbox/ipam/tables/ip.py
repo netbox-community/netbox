@@ -369,6 +369,11 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         orderable=False,
         verbose_name='NAT (Inside)'
     )
+    nat_outside = tables.Column(
+        linkify=True,
+        orderable=False,
+        verbose_name='NAT (Outside)'
+    )
     assigned = columns.BooleanColumn(
         accessor='assigned_object_id',
         linkify=True,
@@ -381,7 +386,7 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = IPAddress
         fields = (
-            'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'tenant_group', 'nat_inside', 'assigned', 'dns_name', 'description',
+            'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'tenant_group', 'nat_inside', 'nat_outside', 'assigned', 'dns_name', 'description',
             'tags', 'created', 'last_updated',
         )
         default_columns = (
