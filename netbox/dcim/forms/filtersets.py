@@ -287,7 +287,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'tag')),
         ('User', ('user_id',)),
-        ('Rack', ('region_id', 'site_group_id', 'site_id', 'location_id')),
+        ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
     )
     region_id = DynamicModelMultipleChoiceField(
