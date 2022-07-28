@@ -93,6 +93,7 @@ Custom field UI visibility has no impact on API operation.
 * [#8995](https://github.com/netbox-community/netbox/issues/8995) - Enable arbitrary ordering of REST API results
 * [#9070](https://github.com/netbox-community/netbox/issues/9070) - Hide navigation menu items based on user permissions
 * [#9177](https://github.com/netbox-community/netbox/issues/9177) - Add tenant assignment for wireless LANs & links
+* [#9391](https://github.com/netbox-community/netbox/issues/9391) - Remove 500-character limit for custom link text & URL fields
 * [#9536](https://github.com/netbox-community/netbox/issues/9536) - Track API token usage times
 * [#9582](https://github.com/netbox-community/netbox/issues/9582) - Enable assigning config contexts based on device location
 

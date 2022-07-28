@@ -204,12 +204,10 @@ class CustomLink(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     enabled = models.BooleanField(
         default=True
     )
-    link_text = models.CharField(
-        max_length=500,
+    link_text = models.TextField(
         help_text="Jinja2 template code for link text"
     )
-    link_url = models.CharField(
-        max_length=500,
+    link_url = models.TextField(
         verbose_name='Link URL',
         help_text="Jinja2 template code for link URL"
     )
