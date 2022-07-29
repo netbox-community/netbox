@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#9062](https://github.com/netbox-community/netbox/issues/9062) - Add/edit {module} substitution to help text for component template name 
 * [#9762](https://github.com/netbox-community/netbox/issues/9762) - Add `nat_outside` column to the IPAddress table
 * [#9825](https://github.com/netbox-community/netbox/issues/9825) - Add contacts column to virtual machines table
 

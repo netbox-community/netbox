@@ -39,7 +39,10 @@ class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
         related_name='%(class)ss'
     )
     name = models.CharField(
-        max_length=64
+        max_length=64,
+        help_text="""
+        {module} is accepted as a substitution for the module bay position when attached to a module type.
+        """
     )
     _name = NaturalOrderingField(
         target_field='name',
