@@ -50,38 +50,86 @@ When starting with a completely empty database, it might not be immediately clea
 
 Below is the (rough) recommended order in which NetBox objects should be created or imported. While it is not required to follow this exact order, doing so will help ensure the smoothest workflow.
 
-<!-- TODO: Replace this with a dependency graph -->
+1. Tenant groups and tenants
+2. Regions, site groups, sites, and locations
+3. Rack roles and racks
+4. Manufacturers, device types, and module types
+5. Platforms and device roles
+6. Devices and modules
+7. Providers and provider networks
+8. Circuit types and circuits
+9. Wireless LAN groups and wireless LANs
+10. Route targets and VRFs
+11. RIRs and aggregates
+12. IP/VLAN roles
+13. Prefixes, IP ranges, and IP addresses
+14. VLAN groups and VLANs
+15. Cluster types, cluster groups, and clusters
+16. Virtual machines and VM interfaces
 
-1. Tenant groups
-2. Tenants
-3. Regions and/or site groups
-4. Sites
-5. Locations
-6. Rack roles
-7. Racks
-8. Platforms
-9. Manufacturers
-10. Device types
-11. Module types
-12. Device roles
-13. Devices
-14. Providers
-15. Provider networks
-16. Circuit types
-17. Circuits
-18. Wireless LAN groups
-19. Wireless LANs & links
-20. Route targets
-21. VRFs
-22. RIRs
-23. Aggregates
-24. IP/VLAN roles
-25. Prefixes
-26. IP ranges & addresses
-27. VLAN groups
-28. VLANs
-29. Services
-30. Clusters
-31. Virtual machines
-32. VM interfaces
-33. L2 VPNs
+This is not a comprehensive list, but should suffice for the initial data imports. Beyond these, it the order in which objects are added doesn't have much if any impact.
+
+The graphs below illustrate some of the core dependencies among different models in NetBox for your reference.
+
+!!! note "Self-Nesting Models"
+    Each model in the graphs below which show a looping arrow pointing back to itself can be nested in a recursive hierarchy. For example, you can have regions representing both countries and cities, with the latter nested underneath the former.
+
+### Tenancy
+
+```mermaid
+flowchart TD
+    TenantGroup --> TenantGroup
+    TenantGroup --> Tenant
+    Tenant --> Site & Device & Prefix & VLAN & ...
+```
+
+### Sites, Racks, and Devices
+
+```mermaid
+flowchart TD
+    Region --> Region
+    SiteGroup --> SiteGroup
+    DeviceRole & Platform --> Device
+    Region & SiteGroup --> Site
+    Site --> Location & Device
+    Location --> Location
+    Location --> Rack & Device
+    Rack --> Device
+    Manufacturer --> DeviceType & ModuleType
+    DeviceType  --> Device
+    Device & ModuleType ---> Module
+    Device & Module --> Interface
+```
+
+### VRFs, Prefixes, IP Addresses, and VLANs
+
+```mermaid
+flowchart TD
+    VLANGroup --> VLAN
+    Role --> VLAN & IPRange & Prefix
+    RIR --> Aggregate
+    RouteTarget --> VRF
+    Aggregate & VRF --> Prefix
+    VRF --> IPRange & IPAddress
+    Prefix --> VLAN & IPRange & IPAddress
+```
+
+### Circuits
+
+```mermaid
+flowchart TD
+    Provider & CircuitType --> Circuit
+    Provider --> ProviderNetwork
+    Circuit --> CircuitTermination
+```
+
+### Clusters and Virtual Machines
+
+```mermaid
+flowchart TD
+    ClusterGroup & ClusterType --> Cluster
+    Cluster --> VirtualMachine
+    Site --> Cluster & VirtualMachine
+    Device & Platform --> VirtualMachine
+    VirtualMachine --> VMInterface
+```
