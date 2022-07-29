@@ -813,6 +813,11 @@ class InterfaceTypeChoices(ChoiceSet):
 
     # ATM/DSL
     TYPE_XDSL = 'xdsl'
+    
+    # Telephone
+    TYPE_ANALOG = 'analog'
+    TYPE_S0 = 's0'
+    TYPE_UP0 = 'up0'
 
     # Stacking
     TYPE_STACKWISE = 'cisco-stackwise'
@@ -948,6 +953,14 @@ class InterfaceTypeChoices(ChoiceSet):
             'ATM',
             (
                 (TYPE_XDSL, 'xDSL'),
+            )
+        ),
+        (
+            'Telephone',
+            (
+                (TYPE_ANALOG, 'Analog'),
+                (TYPE_S0, 'S0'),
+                (TYPE_UP0, 'UP0'),
             )
         ),
         (
@@ -1144,6 +1157,8 @@ class CableTypeChoices(ChoiceSet):
     TYPE_SMF_OS2 = 'smf-os2'
     TYPE_AOC = 'aoc'
     TYPE_POWER = 'power'
+    TYPE_DSL = 'dsl-2-wire'
+    TYPE_ISDN = 'isdn-4-wire'
 
     CHOICES = (
         (
@@ -1160,6 +1175,8 @@ class CableTypeChoices(ChoiceSet):
                 (TYPE_DAC_PASSIVE, 'Direct Attach Copper (Passive)'),
                 (TYPE_MRJ21_TRUNK, 'MRJ21 Trunk'),
                 (TYPE_COAXIAL, 'Coaxial'),
+                (TYPE_DSL, 'DSL (2-Wire)'),
+                (TYPE_ISDN, 'ISDN (4-Wire)')
             ),
         ),
         (
