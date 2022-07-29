@@ -1,5 +1,6 @@
 import functools
 import re
+from collections import OrderedDict
 
 __all__ = (
     'Condition',
@@ -103,7 +104,14 @@ class Condition:
         return value in self.value
 
     def eval_contains(self, value):
-        return self.value in value
+        # For tags because tags are list of dicts
+        if (type(value) is list and 
+                value and 
+                type(next(iter(value))) is OrderedDict and 
+                next(iter(value)) is not None):
+            return next((item for item in value if item["slug"] == self.value), None) is not None
+        else:
+            return self.value in value
 
     # Regular expressions
 
