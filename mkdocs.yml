@@ -67,6 +67,9 @@ nav:
         - 5. HTTP Server: 'installation/5-http-server.md'
         - 6. LDAP (Optional): 'installation/6-ldap.md'
         - Upgrading NetBox: 'installation/upgrading.md'
+    - Getting Started:
+        - Planning: 'getting-started/planning.md'
+        - Populating Data: 'getting-started/populating-data.md'
     - Configuration:
         - Configuring NetBox: 'configuration/index.md'
         - Required Settings: 'configuration/required-settings.md'
