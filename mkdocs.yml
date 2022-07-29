@@ -57,7 +57,7 @@ markdown_extensions:
     - pymdownx.tabbed:
         alternate_style: true
 nav:
-    - Introduction: 'index.md'
+    - Introduction: 'introduction.md'
     - Installation:
         - Installing NetBox: 'installation/index.md'
         - 1. PostgreSQL: 'installation/1-postgresql.md'
