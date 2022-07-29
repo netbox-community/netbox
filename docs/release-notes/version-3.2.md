@@ -267,7 +267,7 @@ Custom field object assignment is fully supported in the REST API, and functions
 
 #### Custom Status Choices ([#8054](https://github.com/netbox-community/netbox/issues/8054))
 
-Custom choices can be now added to most object status fields in NetBox. This is done by defining the [`FIELD_CHOICES`](../configuration/optional-settings.md#field_choices) configuration parameter to map field identifiers to an iterable of custom choices an (optionally) colors. These choices are populated automatically when NetBox initializes. For example, the following configuration will add three custom choices for the site status field, each with a designated color:
+Custom choices can be now added to most object status fields in NetBox. This is done by defining the [`FIELD_CHOICES`](../configuration/data-validation.md#field_choices) configuration parameter to map field identifiers to an iterable of custom choices an (optionally) colors. These choices are populated automatically when NetBox initializes. For example, the following configuration will add three custom choices for the site status field, each with a designated color:
 
 ```python
 FIELD_CHOICES = {
@@ -291,7 +291,7 @@ FIELD_CHOICES = {
 
 #### Improved User Preferences ([#7759](https://github.com/netbox-community/netbox/issues/7759))
 
-A robust new mechanism for managing user preferences is included in this release. The user preferences form has been improved for better usability, and administrators can now define default preferences for all users with the [`DEFAULT_USER_PREFERENCES`](../configuration/dynamic-settings.md##default_user_preferences) configuration parameter. For example, this can be used to define the columns which appear by default in a table:
+A robust new mechanism for managing user preferences is included in this release. The user preferences form has been improved for better usability, and administrators can now define default preferences for all users with the [`DEFAULT_USER_PREFERENCES`](../configuration/default-values.md#default_user_preferences) configuration parameter. For example, this can be used to define the columns which appear by default in a table:
 
 ```python
 DEFAULT_USER_PREFERENCES = {

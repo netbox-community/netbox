@@ -2,7 +2,7 @@
 
 ## REST API Integration
 
-When it is necessary to provide authentication credentials (such as when [`LOGIN_REQUIRED`](../configuration/optional-settings.md#login_required) has been enabled), it is recommended to render export templates via the REST API. This allows the client to specify an authentication token. To render an export template via the REST API, make a `GET` request to the model's list endpoint and append the `export` parameter specifying the export template name. For example:
+When it is necessary to provide authentication credentials (such as when [`LOGIN_REQUIRED`](../configuration/security.md#login_required) has been enabled), it is recommended to render export templates via the REST API. This allows the client to specify an authentication token. To render an export template via the REST API, make a `GET` request to the model's list endpoint and append the `export` parameter specifying the export template name. For example:
 
 ```
 GET /api/dcim/sites/?export=MyTemplateName
