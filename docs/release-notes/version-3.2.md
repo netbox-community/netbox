@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#9762](https://github.com/netbox-community/netbox/issues/9762) - Add `nat_outside` column to the IPAddress table
 * [#9825](https://github.com/netbox-community/netbox/issues/9825) - Add contacts column to virtual machines table
 
 ---
