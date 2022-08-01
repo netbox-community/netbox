@@ -333,14 +333,18 @@ class AggregateBulkImportView(generic.BulkImportView):
 
 
 class AggregateBulkEditView(generic.BulkEditView):
-    queryset = Aggregate.objects.prefetch_related('rir')
+    queryset = Aggregate.objects.annotate(
+        child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
+    )
     filterset = filtersets.AggregateFilterSet
     table = tables.AggregateTable
     form = forms.AggregateBulkEditForm
 
 
 class AggregateBulkDeleteView(generic.BulkDeleteView):
-    queryset = Aggregate.objects.prefetch_related('rir')
+    queryset = Aggregate.objects.annotate(
+        child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
+    )
     filterset = filtersets.AggregateFilterSet
     table = tables.AggregateTable
 
