@@ -181,7 +181,7 @@ class CustomField(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
             model = ct.model_class()
             instances = model.objects.filter(**{f'custom_field_data__{self.name}__isnull': False})
             for instance in instances:
-                del(instance.custom_field_data[self.name])
+                del instance.custom_field_data[self.name]
             model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
 
     def rename_object_data(self, old_name, new_name):

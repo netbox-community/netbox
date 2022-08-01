@@ -2,6 +2,23 @@
 
 ## v3.2.8 (FUTURE)
 
+### Enhancements
+
+* [#9062](https://github.com/netbox-community/netbox/issues/9062) - Add/edit {module} substitution to help text for component template name
+* [#9637](https://github.com/netbox-community/netbox/issues/9637) - Add site group field to rack reservation form
+* [#9762](https://github.com/netbox-community/netbox/issues/9762) - Add `nat_outside` column to the IPAddress table
+* [#9825](https://github.com/netbox-community/netbox/issues/9825) - Add contacts column to virtual machines table
+* [#9881](https://github.com/netbox-community/netbox/issues/9881) - Increase granularity in utilization graph values
+* [#9882](https://github.com/netbox-community/netbox/issues/9882) - Add manufacturer column to modules table
+* [#9883](https://github.com/netbox-community/netbox/issues/9883) - Linkify location column in power panels table
+
+### Bug Fixes
+
+* [#9871](https://github.com/netbox-community/netbox/issues/9871) - Fix utilization graph value alignments
+* [#9884](https://github.com/netbox-community/netbox/issues/9884) - Prevent querying assigned VRF on prefix object init
+* [#9885](https://github.com/netbox-community/netbox/issues/9885) - Fix child prefix counts when editing/deleting aggregates in bulk
+* [#9891](https://github.com/netbox-community/netbox/issues/9891) - Ensure consistent ordering for tags during object serialization
+
 ---
 
 ## v3.2.7 (2022-07-20)

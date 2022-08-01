@@ -163,8 +163,8 @@ class RackTestCase(TestCase):
         }
         self.assertEqual(rack1_inventory_front[10.0]['device'], device1)
         self.assertEqual(rack1_inventory_front[10.5]['device'], device1)
-        del(rack1_inventory_front[10.0])
-        del(rack1_inventory_front[10.5])
+        del rack1_inventory_front[10.0]
+        del rack1_inventory_front[10.5]
         for u in rack1_inventory_front.values():
             self.assertIsNone(u['device'])
 
@@ -174,8 +174,8 @@ class RackTestCase(TestCase):
         }
         self.assertEqual(rack1_inventory_rear[10.0]['device'], device1)
         self.assertEqual(rack1_inventory_rear[10.5]['device'], device1)
-        del(rack1_inventory_rear[10.0])
-        del(rack1_inventory_rear[10.5])
+        del rack1_inventory_rear[10.0]
+        del rack1_inventory_rear[10.5]
         for u in rack1_inventory_rear.values():
             self.assertIsNone(u['device'])
 

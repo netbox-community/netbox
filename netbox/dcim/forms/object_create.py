@@ -64,6 +64,14 @@ class ModularComponentTemplateCreateForm(ComponentCreateForm):
     """
     Creation form for component templates that can be assigned to either a DeviceType *or* a ModuleType.
     """
+    name_pattern = ExpandableNameField(
+        label='Name',
+        help_text="""
+                Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range
+                are not supported. Example: <code>[ge,xe]-0/0/[0-9]</code>.  {module} is accepted as a substitution for
+                the module bay position.
+                """
+    )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
         required=False

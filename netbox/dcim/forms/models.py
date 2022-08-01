@@ -325,7 +325,7 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
     )
 
     fieldsets = (
-        ('Reservation', ('region', 'site', 'location', 'rack', 'units', 'user', 'description', 'tags')),
+        ('Reservation', ('region', 'site_group', 'site', 'location', 'rack', 'units', 'user', 'description', 'tags')),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
 
