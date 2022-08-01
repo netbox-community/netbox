@@ -848,7 +848,7 @@ class ServiceCreateForm(ServiceForm):
         # Fields which may be populated from a ServiceTemplate are not required
         for field in ('name', 'protocol', 'ports'):
             self.fields[field].required = False
-            del(self.fields[field].widget.attrs['required'])
+            del self.fields[field].widget.attrs['required']
 
     def clean(self):
         if self.cleaned_data['service_template']:
