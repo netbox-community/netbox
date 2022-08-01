@@ -9,6 +9,7 @@
 * [#9762](https://github.com/netbox-community/netbox/issues/9762) - Add `nat_outside` column to the IPAddress table
 * [#9825](https://github.com/netbox-community/netbox/issues/9825) - Add contacts column to virtual machines table
 * [#9881](https://github.com/netbox-community/netbox/issues/9881) - Increase granularity in utilization graph values
+* [#9883](https://github.com/netbox-community/netbox/issues/9883) - Linkify location column in power panels table
 
 ### Bug Fixes
 
