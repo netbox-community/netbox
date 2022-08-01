@@ -148,7 +148,7 @@ def serialize_object(obj, extra=None):
     # Include any tags. Check for tags cached on the instance; fall back to using the manager.
     if is_taggable(obj):
         tags = getattr(obj, '_tags', None) or obj.tags.all()
-        data['tags'] = [tag.name for tag in tags]
+        data['tags'] = sorted([tag.name for tag in tags])
 
     # Append any extra data
     if extra is not None:
