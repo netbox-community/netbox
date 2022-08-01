@@ -492,14 +492,14 @@ class JournalEntryDeleteView(generic.ObjectDeleteView):
 
 
 class JournalEntryBulkEditView(generic.BulkEditView):
-    queryset = JournalEntry.objects.prefetch_related('created_by')
+    queryset = JournalEntry.objects.all()
     filterset = filtersets.JournalEntryFilterSet
     table = tables.JournalEntryTable
     form = forms.JournalEntryBulkEditForm
 
 
 class JournalEntryBulkDeleteView(generic.BulkDeleteView):
-    queryset = JournalEntry.objects.prefetch_related('created_by')
+    queryset = JournalEntry.objects.all()
     filterset = filtersets.JournalEntryFilterSet
     table = tables.JournalEntryTable
 
