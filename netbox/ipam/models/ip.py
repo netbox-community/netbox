@@ -373,7 +373,7 @@ class Prefix(GetAvailablePrefixesMixin, NetBoxModel):
 
         # Cache the original prefix and VRF so we can check if they have changed on post_save
         self._prefix = self.prefix
-        self._vrf = self.vrf
+        self._vrf_id = self.vrf_id
 
     def __str__(self):
         return str(self.prefix)

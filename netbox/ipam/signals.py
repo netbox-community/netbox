@@ -30,14 +30,14 @@ def update_children_depth(prefix):
 def handle_prefix_saved(instance, created, **kwargs):
 
     # Prefix has changed (or new instance has been created)
-    if created or instance.vrf != instance._vrf or instance.prefix != instance._prefix:
+    if created or instance.vrf_id != instance._vrf_id or instance.prefix != instance._prefix:
 
         update_parents_children(instance)
         update_children_depth(instance)
 
         # If this is not a new prefix, clean up parent/children of previous prefix
         if not created:
-            old_prefix = Prefix(vrf=instance._vrf, prefix=instance._prefix)
+            old_prefix = Prefix(vrf_id=instance._vrf_id, prefix=instance._prefix)
             update_parents_children(old_prefix)
             update_children_depth(old_prefix)
 

@@ -11,6 +11,7 @@
 
 ### Bug Fixes
 
+* [#9884](https://github.com/netbox-community/netbox/issues/9884) - Prevent querying assigned VRF on prefix object init
 * [#9891](https://github.com/netbox-community/netbox/issues/9891) - Ensure consistent ordering for tags during object serialization
 
 ---
