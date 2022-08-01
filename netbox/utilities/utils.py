@@ -1,7 +1,6 @@
 import datetime
 import decimal
 import json
-from collections import OrderedDict
 from decimal import Decimal
 from itertools import count, groupby
 
@@ -218,7 +217,7 @@ def deepmerge(original, new):
     """
     Deep merge two dictionaries (new into original) and return a new dict
     """
-    merged = OrderedDict(original)
+    merged = dict(original)
     for key, val in new.items():
         if key in original and isinstance(original[key], dict) and val and isinstance(val, dict):
             merged[key] = deepmerge(original[key], val)

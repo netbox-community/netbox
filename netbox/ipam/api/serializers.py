@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
@@ -227,13 +225,13 @@ class AvailableVLANSerializer(serializers.Serializer):
     group = NestedVLANGroupSerializer(read_only=True)
 
     def to_representation(self, instance):
-        return OrderedDict([
-            ('vid', instance),
-            ('group', NestedVLANGroupSerializer(
+        return {
+            'vid': instance,
+            'group': NestedVLANGroupSerializer(
                 self.context['group'],
                 context={'request': self.context['request']}
-            ).data),
-        ])
+            ).data,
+        }
 
 
 class CreateAvailableVLANSerializer(NetBoxModelSerializer):
@@ -318,11 +316,11 @@ class AvailablePrefixSerializer(serializers.Serializer):
             vrf = NestedVRFSerializer(self.context['vrf'], context={'request': self.context['request']}).data
         else:
             vrf = None
-        return OrderedDict([
-            ('family', instance.version),
-            ('prefix', str(instance)),
-            ('vrf', vrf),
-        ])
+        return {
+            'family': instance.version,
+            'prefix': str(instance),
+            'vrf': vrf,
+        }
 
 
 #
@@ -397,11 +395,11 @@ class AvailableIPSerializer(serializers.Serializer):
             vrf = NestedVRFSerializer(self.context['vrf'], context={'request': self.context['request']}).data
         else:
             vrf = None
-        return OrderedDict([
-            ('family', self.context['parent'].family),
-            ('address', f"{instance}/{self.context['parent'].mask_length}"),
-            ('vrf', vrf),
-        ])
+        return {
+            'family': self.context['parent'].family,
+            'address': f"{instance}/{self.context['parent'].mask_length}",
+            'vrf': vrf,
+        }
 
 
 #

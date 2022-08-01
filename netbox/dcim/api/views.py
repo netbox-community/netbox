@@ -1,5 +1,4 @@
 import socket
-from collections import OrderedDict
 
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
@@ -484,7 +483,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
             return HttpResponseForbidden()
 
         napalm_methods = request.GET.getlist('method')
-        response = OrderedDict([(m, None) for m in napalm_methods])
+        response = {m: None for m in napalm_methods}
 
         config = get_config()
         username = config.NAPALM_USERNAME

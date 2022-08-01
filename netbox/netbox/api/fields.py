@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.core.exceptions import ObjectDoesNotExist
 from netaddr import IPNetwork
 from rest_framework import serializers
@@ -48,10 +46,10 @@ class ChoiceField(serializers.Field):
     def to_representation(self, obj):
         if obj == '':
             return None
-        return OrderedDict([
-            ('value', obj),
-            ('label', self._choices[obj])
-        ])
+        return {
+            'value': obj,
+            'label': self._choices[obj],
+        }
 
     def to_internal_value(self, data):
         if data == '':

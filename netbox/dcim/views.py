@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -945,18 +943,18 @@ class DeviceTypeImportView(generic.ObjectImportView):
     ]
     queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeImportForm
-    related_object_forms = OrderedDict((
-        ('console-ports', forms.ConsolePortTemplateImportForm),
-        ('console-server-ports', forms.ConsoleServerPortTemplateImportForm),
-        ('power-ports', forms.PowerPortTemplateImportForm),
-        ('power-outlets', forms.PowerOutletTemplateImportForm),
-        ('interfaces', forms.InterfaceTemplateImportForm),
-        ('rear-ports', forms.RearPortTemplateImportForm),
-        ('front-ports', forms.FrontPortTemplateImportForm),
-        ('module-bays', forms.ModuleBayTemplateImportForm),
-        ('device-bays', forms.DeviceBayTemplateImportForm),
-        ('inventory-items', forms.InventoryItemTemplateImportForm),
-    ))
+    related_object_forms = {
+        'console-ports': forms.ConsolePortTemplateImportForm,
+        'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
+        'power-ports': forms.PowerPortTemplateImportForm,
+        'power-outlets': forms.PowerOutletTemplateImportForm,
+        'interfaces': forms.InterfaceTemplateImportForm,
+        'rear-ports': forms.RearPortTemplateImportForm,
+        'front-ports': forms.FrontPortTemplateImportForm,
+        'module-bays': forms.ModuleBayTemplateImportForm,
+        'device-bays': forms.DeviceBayTemplateImportForm,
+        'inventory-items': forms.InventoryItemTemplateImportForm,
+    }
 
     def prep_related_object_data(self, parent, data):
         data.update({'device_type': parent})
@@ -1075,15 +1073,15 @@ class ModuleTypeImportView(generic.ObjectImportView):
     ]
     queryset = ModuleType.objects.all()
     model_form = forms.ModuleTypeImportForm
-    related_object_forms = OrderedDict((
-        ('console-ports', forms.ConsolePortTemplateImportForm),
-        ('console-server-ports', forms.ConsoleServerPortTemplateImportForm),
-        ('power-ports', forms.PowerPortTemplateImportForm),
-        ('power-outlets', forms.PowerOutletTemplateImportForm),
-        ('interfaces', forms.InterfaceTemplateImportForm),
-        ('rear-ports', forms.RearPortTemplateImportForm),
-        ('front-ports', forms.FrontPortTemplateImportForm),
-    ))
+    related_object_forms = {
+        'console-ports': forms.ConsolePortTemplateImportForm,
+        'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
+        'power-ports': forms.PowerPortTemplateImportForm,
+        'power-outlets': forms.PowerOutletTemplateImportForm,
+        'interfaces': forms.InterfaceTemplateImportForm,
+        'rear-ports': forms.RearPortTemplateImportForm,
+        'front-ports': forms.FrontPortTemplateImportForm,
+    }
 
     def prep_related_object_data(self, parent, data):
         data.update({'module_type': parent})
