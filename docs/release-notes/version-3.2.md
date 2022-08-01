@@ -14,6 +14,7 @@
 
 ### Bug Fixes
 
+* [#9871](https://github.com/netbox-community/netbox/issues/9871) - Fix utilization graph value alignments
 * [#9884](https://github.com/netbox-community/netbox/issues/9884) - Prevent querying assigned VRF on prefix object init
 * [#9885](https://github.com/netbox-community/netbox/issues/9885) - Fix child prefix counts when editing/deleting aggregates in bulk
 * [#9891](https://github.com/netbox-community/netbox/issues/9891) - Ensure consistent ordering for tags during object serialization
