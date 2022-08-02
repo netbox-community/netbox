@@ -993,12 +993,12 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
     site = MultiValueCharFilter(
         method='filter_site',
         field_name='slug',
-        label='Device (slug)',
+        label='Site (slug)',
     )
     site_id = MultiValueNumberFilter(
         method='filter_site',
         field_name='pk',
-        label='Device (ID)',
+        label='Site (ID)',
     )
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='interface__device__name',

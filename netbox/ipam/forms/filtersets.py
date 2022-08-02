@@ -11,7 +11,7 @@ from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
     add_blank_choice, ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    MultipleChoiceField, StaticSelect, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    MultipleChoiceField, StaticSelect, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES, APISelectMultiple,
 )
 from virtualization.models import VirtualMachine
 
@@ -508,8 +508,8 @@ class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
     model = L2VPNTermination
     fieldsets = (
-        (None, ('l2vpn_id', 'assigned_object_type_id', )),
-        ('Assigned Object', ('region_id', 'site_id', 'device_id', 'virtual_machine_id', 'vlan_id')),
+        (None, ('l2vpn_id', )),
+        ('Assigned Object', ('assigned_object_type_id', 'region_id', 'site_id', 'device_id', 'virtual_machine_id', 'vlan_id')),
     )
     l2vpn_id = DynamicModelChoiceField(
         queryset=L2VPN.objects.all(),
@@ -517,9 +517,10 @@ class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
         label='L2VPN'
     )
     assigned_object_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.all(),
+        queryset=ContentType.objects.filter(L2VPN_ASSIGNMENT_MODELS),
         required=False,
-        label='Object type'
+        label=_('Assigned Object Type'),
+        limit_choices_to=L2VPN_ASSIGNMENT_MODELS
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
