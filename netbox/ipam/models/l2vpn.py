@@ -113,3 +113,18 @@ class L2VPNTermination(NetBoxModel):
                     f'{l2vpn_type} L2VPNs cannot have more than two terminations; found {terminations_count} already '
                     f'defined.'
                 )
+
+    @property
+    def assigned_object_parent(self):
+        obj_type = ContentType.objects.get_for_model(self.assigned_object)
+        if obj_type.model == 'vminterface':
+            return self.assigned_object.virtual_machine
+        elif obj_type.model == 'interface':
+            return self.assigned_object.device
+        elif obj_type.model == 'vminterface':
+            return self.assigned_object.virtual_machine
+        return None
+
+    @property
+    def assigned_object_site(self):
+        return self.assigned_object_parent.site

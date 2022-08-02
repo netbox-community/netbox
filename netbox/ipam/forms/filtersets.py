@@ -508,7 +508,8 @@ class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
     model = L2VPNTermination
     fieldsets = (
-        (None, ('l2vpn_id', 'assigned_object_type_id')),
+        (None, ('l2vpn_id', 'assigned_object_type_id', )),
+        ('Assigned Object', ('region_id', 'site_id', 'device_id', 'virtual_machine_id', 'vlan_id')),
     )
     l2vpn_id = DynamicModelChoiceField(
         queryset=L2VPN.objects.all(),
@@ -519,4 +520,45 @@ class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
         queryset=ContentType.objects.all(),
         required=False,
         label='Object type'
+    )
+    region_id = DynamicModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        label=_('Region')
+    )
+    site_id = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'region_id': '$region_id'
+        },
+        label=_('Site')
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$site_id'
+        },
+        label=_('Device')
+    )
+    vlan_id = DynamicModelMultipleChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$site_id'
+        },
+        label=_('VLAN')
+    )
+    virtual_machine_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$site_id'
+        },
+        label=_('Virtual Machine')
     )

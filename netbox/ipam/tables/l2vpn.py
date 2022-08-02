@@ -53,8 +53,17 @@ class L2VPNTerminationTable(NetBoxTable):
         linkify=True,
         orderable=False
     )
+    assigned_object_parent = tables.Column(
+        linkify=True,
+        orderable=False
+    )
+    assigned_object_site = tables.Column(
+        linkify=True,
+        orderable=False
+    )
 
     class Meta(NetBoxTable.Meta):
         model = L2VPNTermination
-        fields = ('pk', 'l2vpn', 'assigned_object_type', 'assigned_object', 'actions')
+        fields = ('pk', 'l2vpn', 'assigned_object_type', 'assigned_object', 'assigned_object_parent',
+                  'assigned_object_site', 'actions')
         default_columns = ('pk', 'l2vpn', 'assigned_object_type', 'assigned_object', 'actions')
