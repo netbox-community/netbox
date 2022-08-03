@@ -1,7 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 from netbox.api.fields import ContentTypeField
+from netbox.constants import NESTED_SERIALIZER_PREFIX
+from utilities.api import get_serializer_for_model
 from utilities.utils import content_type_identifier
 
 __all__ = (
@@ -17,6 +20,7 @@ class GenericObjectSerializer(serializers.Serializer):
         queryset=ContentType.objects.all()
     )
     object_id = serializers.IntegerField()
+    object = serializers.SerializerMethodField(read_only=True)
 
     def to_internal_value(self, data):
         data = super().to_internal_value(data)
@@ -25,7 +29,17 @@ class GenericObjectSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         ct = ContentType.objects.get_for_model(instance)
-        return {
+        data = {
             'object_type': content_type_identifier(ct),
             'object_id': instance.pk,
         }
+        if 'request' in self.context:
+            data['object'] = self.get_object(instance)
+
+        return data
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_object(self, obj):
+        serializer = get_serializer_for_model(obj, prefix=NESTED_SERIALIZER_PREFIX)
+        # context = {'request': self.context['request']}
+        return serializer(obj, context=self.context).data
