@@ -116,7 +116,10 @@ def retrace_cable_paths(instance, **kwargs):
 @receiver(post_delete, sender=CableTermination)
 def nullify_connected_endpoints(instance, **kwargs):
     """
-    Disassociate the Cable from the termination object.
+    Disassociate the Cable from the termination object, and retrace any affected CablePaths.
     """
     model = instance.termination_type.model_class()
     model.objects.filter(pk=instance.termination_id).update(cable=None, cable_end='')
+
+    for cablepath in CablePath.objects.filter(_nodes__contains=instance.cable):
+        cablepath.retrace()

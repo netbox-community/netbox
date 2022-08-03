@@ -104,6 +104,7 @@ Custom field UI visibility has no impact on API operation.
 * [#9730](https://github.com/netbox-community/netbox/issues/9730) - Fix validation error when creating a new cable via UI form
 * [#9733](https://github.com/netbox-community/netbox/issues/9733) - Handle split paths during trace when fanning out to front ports with differing cables
 * [#9765](https://github.com/netbox-community/netbox/issues/9765) - Report correct segment count under cable trace UI view
+* [#9778](https://github.com/netbox-community/netbox/issues/9778) - Fix exception during cable deletion after deleting a connected termination
 * [#9788](https://github.com/netbox-community/netbox/issues/9788) - Ensure denormalized fields on CableTermination are kept in sync with related objects
 * [#9789](https://github.com/netbox-community/netbox/issues/9789) - Fix rendering of cable traces ending at provider networks
 * [#9794](https://github.com/netbox-community/netbox/issues/9794) - Fix link to connect a rear port to a circuit termination

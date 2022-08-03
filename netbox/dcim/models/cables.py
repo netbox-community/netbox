@@ -431,11 +431,7 @@ class CablePath(models.Model):
         """
         Return the list of originating objects.
         """
-        if hasattr(self, '_path_objects'):
-            return self.path_objects[0]
-        return [
-            path_node_to_object(node) for node in self.path[0]
-        ]
+        return self.path_objects[0]
 
     @property
     def destinations(self):
@@ -444,11 +440,7 @@ class CablePath(models.Model):
         """
         if not self.is_complete:
             return []
-        if hasattr(self, '_path_objects'):
-            return self.path_objects[-1]
-        return [
-            path_node_to_object(node) for node in self.path[-1]
-        ]
+        return self.path_objects[-1]
 
     @property
     def segment_count(self):
@@ -462,6 +454,9 @@ class CablePath(models.Model):
         of the same type and must belong to the same parent object.
         """
         from circuits.models import CircuitTermination
+
+        if not terminations:
+            return None
 
         # Ensure all originating terminations are attached to the same link
         if len(terminations) > 1:
@@ -529,6 +524,9 @@ class CablePath(models.Model):
             ])
 
             # Step 6: Determine the "next hop" terminations, if applicable
+            if not remote_terminations:
+                break
+
             if isinstance(remote_terminations[0], FrontPort):
                 # Follow FrontPorts to their corresponding RearPorts
                 rear_ports = RearPort.objects.filter(
@@ -640,7 +638,11 @@ class CablePath(models.Model):
             nodes = []
             for node in step:
                 ct_id, object_id = decompile_path_node(node)
-                nodes.append(prefetched[ct_id][object_id])
+                try:
+                    nodes.append(prefetched[ct_id][object_id])
+                except KeyError:
+                    # Ignore stale (deleted) object IDs
+                    pass
             path.append(nodes)
 
         return path

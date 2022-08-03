@@ -362,8 +362,11 @@ class CableTraceSVG:
                     terminations = self.draw_terminations(far_ends)
                     for term in terminations:
                         self.draw_fanout(term, cable)
-                else:
+                elif far_ends:
                     self.draw_terminations(far_ends)
+                else:
+                    # Link is not connected to anything
+                    break
 
                 # Far end parent
                 parent_objects = set(end.parent_object for end in far_ends)
