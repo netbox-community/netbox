@@ -11,9 +11,11 @@
 * [#9881](https://github.com/netbox-community/netbox/issues/9881) - Increase granularity in utilization graph values
 * [#9882](https://github.com/netbox-community/netbox/issues/9882) - Add manufacturer column to modules table
 * [#9883](https://github.com/netbox-community/netbox/issues/9883) - Linkify location column in power panels table
+* [#9906](https://github.com/netbox-community/netbox/issues/9906) - Include `color` attribute in front & rear port YAML import/export
 
 ### Bug Fixes
 
+* [#9827](https://github.com/netbox-community/netbox/issues/9827) - Fix assignment of module bay position during bulk creation
 * [#9871](https://github.com/netbox-community/netbox/issues/9871) - Fix utilization graph value alignments
 * [#9884](https://github.com/netbox-community/netbox/issues/9884) - Prevent querying assigned VRF on prefix object init
 * [#9885](https://github.com/netbox-community/netbox/issues/9885) - Fix child prefix counts when editing/deleting aggregates in bulk
