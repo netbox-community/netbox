@@ -1600,3 +1600,24 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vlan': ['VLAN 1', 'VLAN 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        site = Site.objects.all().first()
+        params = {'site_id': [site.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'site': ['site-1']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_device(self):
+        device = Device.objects.all().first()
+        params = {'device_id': [device.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'device': ['Device 1']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_virtual_machine(self):
+        virtual_machine = VirtualMachine.objects.all().first()
+        params = {'virtual_machine_id': [virtual_machine.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'virtual_machine': ['Virtual Machine 1']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
