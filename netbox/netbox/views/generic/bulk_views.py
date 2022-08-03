@@ -795,6 +795,7 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
     model_form = None
     filterset = None
     table = None
+    patterned_fields = ('name', 'label')
 
     def get_required_permission(self):
         return f'dcim.add_{self.queryset.model._meta.model_name}'
@@ -830,16 +831,16 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
                         for obj in data['pk']:
 
-                            names = data['name_pattern']
-                            labels = data['label_pattern'] if 'label_pattern' in data else None
-                            for i, name in enumerate(names):
-                                label = labels[i] if labels else None
-
+                            pattern_count = len(data[f'{self.patterned_fields[0]}_pattern'])
+                            for i in range(pattern_count):
                                 component_data = {
-                                    self.parent_field: obj.pk,
-                                    'name': name,
-                                    'label': label
+                                    self.parent_field: obj.pk
                                 }
+
+                                for field_name in self.patterned_fields:
+                                    if data.get(f'{field_name}_pattern'):
+                                        component_data[field_name] = data[f'{field_name}_pattern'][i]
+
                                 component_data.update(data)
                                 component_form = self.model_form(component_data)
                                 if component_form.is_valid():
