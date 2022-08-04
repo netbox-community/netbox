@@ -6,7 +6,7 @@
 
 !!! tip "Dynamic Configuration Parameter"
 
-NetBox will use these credentials when authenticating to remote devices via the supported [NAPALM integration](../additional-features/napalm.md), if installed. Both parameters are optional.
+NetBox will use these credentials when authenticating to remote devices via the supported [NAPALM integration](../integrations/napalm.md), if installed. Both parameters are optional.
 
 !!! note
     If SSH public key authentication has been set up on the remote device(s) for the system account under which NetBox runs, these parameters are not needed.

@@ -91,7 +91,7 @@ Lists of objects can be filtered using a set of query parameters. For example, t
 GET /api/dcim/interfaces/?device_id=123
 ```
 
-See the [filtering documentation](filtering.md) for more details.
+See the [filtering documentation](../reference/filtering.md) for more details.
 
 ## Serialization
 
@@ -269,7 +269,7 @@ The brief format is supported for both lists and individual objects.
 
 ### Excluding Config Contexts
 
-When retrieving devices and virtual machines via the REST API, each will included its rendered [configuration context data](../models/extras/configcontext.md) by default. Users with large amounts of context data will likely observe suboptimal performance when returning multiple objects, particularly with very high page sizes. To combat this, context data may be excluded from the response data by attaching the query parameter `?exclude=config_context` to the request. This parameter works for both list and detail views.
+When retrieving devices and virtual machines via the REST API, each will include its rendered [configuration context data](../features/context-data.md) by default. Users with large amounts of context data will likely observe suboptimal performance when returning multiple objects, particularly with very high page sizes. To combat this, context data may be excluded from the response data by attaching the query parameter `?exclude=config_context` to the request. This parameter works for both list and detail views.
 
 ## Pagination
 
@@ -387,7 +387,7 @@ curl -s -X GET http://netbox/api/ipam/ip-addresses/5618/ | jq '.'
 
 ### Creating a New Object
 
-To create a new object, make a `POST` request to the model's _list_ endpoint with JSON data pertaining to the object being created. Note that a REST API token is required for all write operations; see the [authentication documentation](authentication.md) for more information. Also be sure to set the `Content-Type` HTTP header to `application/json`.
+To create a new object, make a `POST` request to the model's _list_ endpoint with JSON data pertaining to the object being created. Note that a REST API token is required for all write operations; see the [authentication section](#authenticating-to-the-api) for more information. Also be sure to set the `Content-Type` HTTP header to `application/json`.
 
 ```no-highlight
 curl -s -X POST \
@@ -561,3 +561,96 @@ http://netbox/api/dcim/sites/ \
 
 !!! note
     The bulk deletion of objects is an all-or-none operation, meaning that if NetBox fails to delete any of the specified objects (e.g. due a dependency by a related object), the entire operation will be aborted and none of the objects will be deleted.
+
+## Authentication
+
+The NetBox REST API primarily employs token-based authentication. For convenience, cookie-based authentication can also be used when navigating the browsable API.
+
+### Tokens
+
+A token is a unique identifier mapped to a NetBox user account. Each user may have one or more tokens which he or she can use for authentication when making REST API requests. To create a token, navigate to the API tokens page under your user profile.
+
+!!! note
+    All users can create and manage REST API tokens under the user control panel in the UI. The ability to view, add, change, or delete tokens via the REST API itself is controlled by the relevant model permissions, assigned to users and/or groups in the admin UI. These permissions should be used with great care to avoid accidentally permitting a user to create tokens for other user accounts.
+
+Each token contains a 160-bit key represented as 40 hexadecimal characters. When creating a token, you'll typically leave the key field blank so that a random key will be automatically generated. However, NetBox allows you to specify a key in case you need to restore a previously deleted token to operation.
+
+By default, a token can be used to perform all actions via the API that a user would be permitted to do via the web UI. Deselecting the "write enabled" option will restrict API requests made with the token to read operations (e.g. GET) only.
+
+Additionally, a token can be set to expire at a specific time. This can be useful if an external client needs to be granted temporary access to NetBox.
+
+#### Client IP Restriction
+
+!!! note
+    This feature was introduced in NetBox v3.3.
+
+Each API token can optionally be restricted by client IP address. If one or more allowed IP prefixes/addresses is defined for a token, authentication will fail for any client connecting from an IP address outside the defined range(s). This enables restricting the use a token to a specific client. (By default, any client IP address is permitted.)
+
+
+### Authenticating to the API
+
+An authentication token is attached to a request by setting the `Authorization` header to the string `Token` followed by a space and the user's token:
+
+```
+$ curl -H "Authorization: Token $TOKEN" \
+-H "Accept: application/json; indent=4" \
+https://netbox/api/dcim/sites/
+{
+    "count": 10,
+    "next": null,
+    "previous": null,
+    "results": [...]
+}
+```
+
+A token is not required for read-only operations which have been exempted from permissions enforcement (using the [`EXEMPT_VIEW_PERMISSIONS`](../configuration/security.md#exempt_view_permissions) configuration parameter). However, if a token _is_ required but not present in a request, the API will return a 403 (Forbidden) response:
+
+```
+$ curl https://netbox/api/dcim/sites/
+{
+    "detail": "Authentication credentials were not provided."
+}
+```
+
+When a token is used to authenticate a request, its `last_updated` time updated to the current time if its last use was recorded more than 60 seconds ago (or was never recorded). This allows users to determine which tokens have been active recently.
+
+!!! note
+    The "last used" time for tokens will not be updated while maintenance mode is enabled.
+
+### Initial Token Provisioning
+
+Ideally, each user should provision his or her own REST API token(s) via the web UI. However, you may encounter where a token must be created by a user via the REST API itself. NetBox provides a special endpoint to provision tokens using a valid username and password combination.
+
+To provision a token via the REST API, make a `POST` request to the `/api/users/tokens/provision/` endpoint:
+
+```
+$ curl -X POST \
+-H "Content-Type: application/json" \
+-H "Accept: application/json; indent=4" \
+https://netbox/api/users/tokens/provision/ \
+--data '{
+    "username": "hankhill",
+    "password": "I<3C3H8",
+}'
+```
+
+Note that we are _not_ passing an existing REST API token with this request. If the supplied credentials are valid, a new REST API token will be automatically created for the user. Note that the key will be automatically generated, and write ability will be enabled.
+
+```json
+{
+    "id": 6,
+    "url": "https://netbox/api/users/tokens/6/",
+    "display": "3c9cb9 (hankhill)",
+    "user": {
+        "id": 2,
+        "url": "https://netbox/api/users/users/2/",
+        "display": "hankhill",
+        "username": "hankhill"
+    },
+    "created": "2021-06-11T20:09:13.339367Z",
+    "expires": null,
+    "key": "9fc9b897abec9ada2da6aec9dbc34596293c9cb9",
+    "write_enabled": true,
+    "description": ""
+}
+```

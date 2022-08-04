@@ -127,7 +127,7 @@ A web user or API consumer can request an arbitrary number of objects by appendi
 
 Default: False
 
-Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../additional-features/prometheus-metrics.md) documentation for more details.
+Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../integrations/prometheus-metrics.md) documentation for more details.
 
 ---
 

@@ -357,7 +357,7 @@ And the response:
 ...
 ```
 
-All GraphQL requests are made at the `/graphql` URL (which also serves the GraphiQL UI). The API is currently read-only, however users who wish to disable it until needed can do so by setting the `GRAPHQL_ENABLED` configuration parameter to False. For more detail on NetBox's GraphQL implementation, see [the GraphQL API documentation](../graphql-api/overview.md).
+All GraphQL requests are made at the `/graphql` URL (which also serves the GraphiQL UI). The API is currently read-only, however users who wish to disable it until needed can do so by setting the `GRAPHQL_ENABLED` configuration parameter to False. For more detail on NetBox's GraphQL implementation, see [the GraphQL API documentation](../integrations/graphql-api.md).
 
 #### IP Ranges ([#834](https://github.com/netbox-community/netbox/issues/834))
 

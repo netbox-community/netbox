@@ -39,4 +39,4 @@ Sometimes you'll find that data you need to populate in NetBox can be easily red
 
 You can also use the REST API to facilitate the population of data in NetBox. The REST API offers full programmatic control over the creation of objects, subject to the same validation rules enforced by the UI forms. Additionally, the REST API supports the bulk creation of multiple objects using a single request.
 
-For more information about this option, see the [REST API documentation](../rest-api/overview.md).
+For more information about this option, see the [REST API documentation](../integrations/rest-api.md).

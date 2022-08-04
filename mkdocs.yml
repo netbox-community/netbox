@@ -62,6 +62,26 @@ markdown_extensions:
         alternate_style: true
 nav:
     - Introduction: 'introduction.md'
+    - Features:
+        - Facilities: 'features/facilities.md'
+        - Tenancy: 'features/tenancy.md'
+        - Contacts: 'features/contacts.md'
+        - Devices & Cabling: 'features/devices-cabling.md'
+        - Power Tracking: 'features/power-tracking.md'
+        - IPAM: 'features/ipam.md'
+        - VLAN Management: 'features/vlan-management.md'
+        - Service Mapping: 'features/services.md'
+        - L2VPN & Overlay: 'features/l2vpn-overlay.md'
+        - Circuits: 'features/circuits.md'
+        - Wireless: 'features/wireless.md'
+        - Context Data: 'features/context-data.md'
+        - Change Logging: 'features/change-logging.md'
+        - Journaling: 'features/journaling.md'
+        - Webhooks: 'features/webhooks.md'
+        - Tags: 'features/tags.md'
+        - Customization: 'features/customization.md'
+        - Object-Based Permissions: 'features/permissions.md'
+        - Single Sign-On (SSO): 'features/sso.md'
     - Installation & Upgrade:
         - Installing NetBox: 'installation/index.md'
         - 1. PostgreSQL: 'installation/1-postgresql.md'
@@ -90,19 +110,16 @@ nav:
         - Development: 'configuration/development.md'
     - Customization:
         - Custom Fields: 'customization/custom-fields.md'
+        - Custom Links: 'customization/custom-links.md'
         - Custom Validation: 'customization/custom-validation.md'
-        - Custom Links: 'models/extras/customlink.md'
         - Export Templates: 'customization/export-templates.md'
-        - Custom Scripts: 'customization/custom-scripts.md'
         - Reports: 'customization/reports.md'
-    - Additional Features:
-        - Change Logging: 'additional-features/change-logging.md'
-        - Context Data: 'models/extras/configcontext.md'
-        - Journaling: 'additional-features/journaling.md'
-        - NAPALM: 'additional-features/napalm.md'
-        - Prometheus Metrics: 'additional-features/prometheus-metrics.md'
-        - Tags: 'models/extras/tag.md'
-        - Webhooks: 'additional-features/webhooks.md'
+        - Custom Scripts: 'customization/custom-scripts.md'
+    - Integrations:
+        - REST API: 'integrations/rest-api.md'
+        - GraphQL API: 'integrations/graphql-api.md'
+        - NAPALM: 'integrations/napalm.md'
+        - Prometheus Metrics: 'integrations/prometheus-metrics.md'
     - Plugins:
         - Using Plugins: 'plugins/index.md'
         - Developing Plugins:
@@ -128,12 +145,6 @@ nav:
         - Housekeeping: 'administration/housekeeping.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
-    - REST API:
-        - Overview: 'rest-api/overview.md'
-        - Filtering & Ordering: 'rest-api/filtering.md'
-        - Authentication: 'rest-api/authentication.md'
-    - GraphQL API:
-        - Overview: 'graphql-api/overview.md'
     - Data Model:
         - Circuits:
             - Circuit: 'models/circuits/circuit.md'
@@ -143,8 +154,6 @@ nav:
             - Provider Network: 'models/circuits/providernetwork.md'
         - DCIM:
             - Cable: 'models/dcim/cable.md'
-            - CablePath: 'models/dcim/cablepath.md'
-            - CableTermination: 'models/dcim/cabletermination.md'
             - ConsolePort: 'models/dcim/consoleport.md'
             - ConsolePortTemplate: 'models/dcim/consoleporttemplate.md'
             - ConsoleServerPort: 'models/dcim/consoleserverport.md'
@@ -203,7 +212,6 @@ nav:
             - VRF: 'models/ipam/vrf.md'
         - Tenancy:
             - Contact: 'models/tenancy/contact.md'
-            - ContactAssignment: 'models/tenancy/contactassignment.md'
             - ContactGroup: 'models/tenancy/contactgroup.md'
             - ContactRole: 'models/tenancy/contactrole.md'
             - Tenant: 'models/tenancy/tenant.md'
@@ -219,6 +227,7 @@ nav:
             - WirelessLANGroup: 'models/wireless/wirelesslangroup.md'
             - WirelessLink: 'models/wireless/wirelesslink.md'
     - Reference:
+        - Filtering: 'reference/filtering.md'
         - Conditions: 'reference/conditions.md'
         - Markdown: 'reference/markdown.md'
     - Development:
