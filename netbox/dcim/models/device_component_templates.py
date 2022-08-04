@@ -39,7 +39,10 @@ class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
         related_name='%(class)ss'
     )
     name = models.CharField(
-        max_length=64
+        max_length=64,
+        help_text="""
+        {module} is accepted as a substitution for the module bay position when attached to a module type.
+        """
     )
     _name = NaturalOrderingField(
         target_field='name',
@@ -157,6 +160,14 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
             **kwargs
         )
 
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'type': self.type,
+            'label': self.label,
+            'description': self.description,
+        }
+
 
 class ConsoleServerPortTemplate(ModularComponentTemplateModel):
     """
@@ -184,6 +195,14 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
             type=self.type,
             **kwargs
         )
+
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'type': self.type,
+            'label': self.label,
+            'description': self.description,
+        }
 
 
 class PowerPortTemplate(ModularComponentTemplateModel):
@@ -235,6 +254,16 @@ class PowerPortTemplate(ModularComponentTemplateModel):
                 raise ValidationError({
                     'allocated_draw': f"Allocated draw cannot exceed the maximum draw ({self.maximum_draw}W)."
                 })
+
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'type': self.type,
+            'maximum_draw': self.maximum_draw,
+            'allocated_draw': self.allocated_draw,
+            'label': self.label,
+            'description': self.description,
+        }
 
 
 class PowerOutletTemplate(ModularComponentTemplateModel):
@@ -298,6 +327,16 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
             **kwargs
         )
 
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'type': self.type,
+            'power_port': self.power_port.name if self.power_port else None,
+            'feed_leg': self.feed_leg,
+            'label': self.label,
+            'description': self.description,
+        }
+
 
 class InterfaceTemplate(ModularComponentTemplateModel):
     """
@@ -350,6 +389,17 @@ class InterfaceTemplate(ModularComponentTemplateModel):
             poe_type=self.poe_type,
             **kwargs
         )
+
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'type': self.type,
+            'mgmt_only': self.mgmt_only,
+            'label': self.label,
+            'description': self.description,
+            'poe_mode': self.poe_mode,
+            'poe_type': self.poe_type,
+        }
 
 
 class FrontPortTemplate(ModularComponentTemplateModel):
@@ -424,6 +474,16 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             **kwargs
         )
 
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'type': self.type,
+            'rear_port': self.rear_port.name,
+            'rear_port_position': self.rear_port_position,
+            'label': self.label,
+            'description': self.description,
+        }
+
 
 class RearPortTemplate(ModularComponentTemplateModel):
     """
@@ -463,6 +523,15 @@ class RearPortTemplate(ModularComponentTemplateModel):
             **kwargs
         )
 
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'type': self.type,
+            'positions': self.positions,
+            'label': self.label,
+            'description': self.description,
+        }
+
 
 class ModuleBayTemplate(ComponentTemplateModel):
     """
@@ -488,6 +557,14 @@ class ModuleBayTemplate(ComponentTemplateModel):
             position=self.position
         )
 
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'label': self.label,
+            'position': self.position,
+            'description': self.description,
+        }
+
 
 class DeviceBayTemplate(ComponentTemplateModel):
     """
@@ -511,6 +588,13 @@ class DeviceBayTemplate(ComponentTemplateModel):
             raise ValidationError(
                 f"Subdevice role of device type ({self.device_type}) must be set to \"parent\" to allow device bays."
             )
+
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'label': self.label,
+            'description': self.description,
+        }
 
 
 class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):

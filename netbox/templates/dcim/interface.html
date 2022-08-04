@@ -219,7 +219,7 @@
                 <tr>
                   <th scope="row">Path Status</th>
                   <td>
-                    {% if object.path.is_active %}
+                    {% if object.path.is_complete and object.path.is_active %}
                       <span class="badge bg-success">Reachable</span>
                     {% else %}
                       <span class="badge bg-danger">Not Reachable</span>

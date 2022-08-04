@@ -1,6 +1,6 @@
 # NetBox v3.3
 
-## v3.3.0 (FUTURE)
+## v3.3-beta2 (2022-08-03)
 
 ### Breaking Changes
 
@@ -104,6 +104,9 @@ Custom field UI visibility has no impact on API operation.
 * [#9730](https://github.com/netbox-community/netbox/issues/9730) - Fix validation error when creating a new cable via UI form
 * [#9733](https://github.com/netbox-community/netbox/issues/9733) - Handle split paths during trace when fanning out to front ports with differing cables
 * [#9765](https://github.com/netbox-community/netbox/issues/9765) - Report correct segment count under cable trace UI view
+* [#9778](https://github.com/netbox-community/netbox/issues/9778) - Fix exception during cable deletion after deleting a connected termination
+* [#9788](https://github.com/netbox-community/netbox/issues/9788) - Ensure denormalized fields on CableTermination are kept in sync with related objects
+* [#9789](https://github.com/netbox-community/netbox/issues/9789) - Fix rendering of cable traces ending at provider networks
 * [#9794](https://github.com/netbox-community/netbox/issues/9794) - Fix link to connect a rear port to a circuit termination
 * [#9818](https://github.com/netbox-community/netbox/issues/9818) - Fix circuit side selection when connecting a cable to a circuit termination
 * [#9829](https://github.com/netbox-community/netbox/issues/9829) - Arrange custom fields by group when editing objects
@@ -123,6 +126,7 @@ Custom field UI visibility has no impact on API operation.
 
 * [#9261](https://github.com/netbox-community/netbox/issues/9261) - `NetBoxTable` no longer automatically clears pre-existing calls to `prefetch_related()` on its queryset
 * [#9434](https://github.com/netbox-community/netbox/issues/9434) - Enabled `django-rich` test runner for more user-friendly output
+* [#9903](https://github.com/netbox-community/netbox/issues/9903) - Implement a mechanism for automatically updating denormalized fields
 
 ### REST API Changes
 

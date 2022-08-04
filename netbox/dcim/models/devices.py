@@ -1,5 +1,4 @@
 import decimal
-from collections import OrderedDict
 
 import yaml
 from django.contrib.contenttypes.fields import GenericRelation
@@ -164,117 +163,54 @@ class DeviceType(NetBoxModel):
         return reverse('dcim:devicetype', args=[self.pk])
 
     def to_yaml(self):
-        data = OrderedDict((
-            ('manufacturer', self.manufacturer.name),
-            ('model', self.model),
-            ('slug', self.slug),
-            ('part_number', self.part_number),
-            ('u_height', float(self.u_height)),
-            ('is_full_depth', self.is_full_depth),
-            ('subdevice_role', self.subdevice_role),
-            ('airflow', self.airflow),
-            ('comments', self.comments),
-        ))
+        data = {
+            'manufacturer': self.manufacturer.name,
+            'model': self.model,
+            'slug': self.slug,
+            'part_number': self.part_number,
+            'u_height': float(self.u_height),
+            'is_full_depth': self.is_full_depth,
+            'subdevice_role': self.subdevice_role,
+            'airflow': self.airflow,
+            'comments': self.comments,
+        }
 
         # Component templates
         if self.consoleporttemplates.exists():
             data['console-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.consoleporttemplates.all()
+                c.to_yaml() for c in self.consoleporttemplates.all()
             ]
         if self.consoleserverporttemplates.exists():
             data['console-server-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.consoleserverporttemplates.all()
+                c.to_yaml() for c in self.consoleserverporttemplates.all()
             ]
         if self.powerporttemplates.exists():
             data['power-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'maximum_draw': c.maximum_draw,
-                    'allocated_draw': c.allocated_draw,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.powerporttemplates.all()
+                c.to_yaml() for c in self.powerporttemplates.all()
             ]
         if self.poweroutlettemplates.exists():
             data['power-outlets'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'power_port': c.power_port.name if c.power_port else None,
-                    'feed_leg': c.feed_leg,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.poweroutlettemplates.all()
+                c.to_yaml() for c in self.poweroutlettemplates.all()
             ]
         if self.interfacetemplates.exists():
             data['interfaces'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'mgmt_only': c.mgmt_only,
-                    'label': c.label,
-                    'description': c.description,
-                    'poe_mode': c.poe_mode,
-                    'poe_type': c.poe_type,
-                }
-                for c in self.interfacetemplates.all()
+                c.to_yaml() for c in self.interfacetemplates.all()
             ]
         if self.frontporttemplates.exists():
             data['front-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'rear_port': c.rear_port.name,
-                    'rear_port_position': c.rear_port_position,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.frontporttemplates.all()
+                c.to_yaml() for c in self.frontporttemplates.all()
             ]
         if self.rearporttemplates.exists():
             data['rear-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'positions': c.positions,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.rearporttemplates.all()
+                c.to_yaml() for c in self.rearporttemplates.all()
             ]
         if self.modulebaytemplates.exists():
             data['module-bays'] = [
-                {
-                    'name': c.name,
-                    'label': c.label,
-                    'position': c.position,
-                    'description': c.description,
-                }
-                for c in self.modulebaytemplates.all()
+                c.to_yaml() for c in self.modulebaytemplates.all()
             ]
         if self.devicebaytemplates.exists():
             data['device-bays'] = [
-                {
-                    'name': c.name,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.devicebaytemplates.all()
+                c.to_yaml() for c in self.devicebaytemplates.all()
             ]
 
         return yaml.dump(dict(data), sort_keys=False)
@@ -406,91 +342,41 @@ class ModuleType(NetBoxModel):
         return reverse('dcim:moduletype', args=[self.pk])
 
     def to_yaml(self):
-        data = OrderedDict((
-            ('manufacturer', self.manufacturer.name),
-            ('model', self.model),
-            ('part_number', self.part_number),
-            ('comments', self.comments),
-        ))
+        data = {
+            'manufacturer': self.manufacturer.name,
+            'model': self.model,
+            'part_number': self.part_number,
+            'comments': self.comments,
+        }
 
         # Component templates
         if self.consoleporttemplates.exists():
             data['console-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.consoleporttemplates.all()
+                c.to_yaml() for c in self.consoleporttemplates.all()
             ]
         if self.consoleserverporttemplates.exists():
             data['console-server-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.consoleserverporttemplates.all()
+                c.to_yaml() for c in self.consoleserverporttemplates.all()
             ]
         if self.powerporttemplates.exists():
             data['power-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'maximum_draw': c.maximum_draw,
-                    'allocated_draw': c.allocated_draw,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.powerporttemplates.all()
+                c.to_yaml() for c in self.powerporttemplates.all()
             ]
         if self.poweroutlettemplates.exists():
             data['power-outlets'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'power_port': c.power_port.name if c.power_port else None,
-                    'feed_leg': c.feed_leg,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.poweroutlettemplates.all()
+                c.to_yaml() for c in self.poweroutlettemplates.all()
             ]
         if self.interfacetemplates.exists():
             data['interfaces'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'mgmt_only': c.mgmt_only,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.interfacetemplates.all()
+                c.to_yaml() for c in self.interfacetemplates.all()
             ]
         if self.frontporttemplates.exists():
             data['front-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'rear_port': c.rear_port.name,
-                    'rear_port_position': c.rear_port_position,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.frontporttemplates.all()
+                c.to_yaml() for c in self.frontporttemplates.all()
             ]
         if self.rearporttemplates.exists():
             data['rear-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'positions': c.positions,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.rearporttemplates.all()
+                c.to_yaml() for c in self.rearporttemplates.all()
             ]
 
         return yaml.dump(dict(data), sort_keys=False)

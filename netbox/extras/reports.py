@@ -3,7 +3,6 @@ import inspect
 import logging
 import pkgutil
 import traceback
-from collections import OrderedDict
 
 from django.conf import settings
 from django.utils import timezone
@@ -114,7 +113,7 @@ class Report(object):
 
     def __init__(self):
 
-        self._results = OrderedDict()
+        self._results = {}
         self.active_test = None
         self.failed = False
 
@@ -125,13 +124,13 @@ class Report(object):
         for method in dir(self):
             if method.startswith('test_') and callable(getattr(self, method)):
                 test_methods.append(method)
-                self._results[method] = OrderedDict([
-                    ('success', 0),
-                    ('info', 0),
-                    ('warning', 0),
-                    ('failure', 0),
-                    ('log', []),
-                ])
+                self._results[method] = {
+                    'success': 0,
+                    'info': 0,
+                    'warning': 0,
+                    'failure': 0,
+                    'log': [],
+                }
         if not test_methods:
             raise Exception("A report must contain at least one test method.")
         self.test_methods = test_methods

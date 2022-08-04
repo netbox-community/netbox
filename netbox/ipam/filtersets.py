@@ -980,20 +980,64 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         to_field_name='slug',
         label='L2VPN (slug)',
     )
-    device = MultiValueCharFilter(
-        method='filter_device',
-        field_name='name',
+    region = MultiValueCharFilter(
+        method='filter_region',
+        field_name='slug',
+        label='Region (slug)',
+    )
+    region_id = MultiValueNumberFilter(
+        method='filter_region',
+        field_name='pk',
+        label='Region (ID)',
+    )
+    site = MultiValueCharFilter(
+        method='filter_site',
+        field_name='slug',
+        label='Site (slug)',
+    )
+    site_id = MultiValueNumberFilter(
+        method='filter_site',
+        field_name='pk',
+        label='Site (ID)',
+    )
+    device = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface__device__name',
+        queryset=Device.objects.all(),
+        to_field_name='name',
         label='Device (name)',
     )
-    device_id = MultiValueNumberFilter(
-        method='filter_device',
-        field_name='pk',
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface__device',
+        queryset=Device.objects.all(),
         label='Device (ID)',
+    )
+    virtual_machine = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface__virtual_machine__name',
+        queryset=VirtualMachine.objects.all(),
+        to_field_name='name',
+        label='Virtual machine (name)',
+    )
+    virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface__virtual_machine',
+        queryset=VirtualMachine.objects.all(),
+        label='Virtual machine (ID)',
+    )
+    interface = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface__name',
+        queryset=Interface.objects.all(),
+        to_field_name='name',
+        label='Interface (name)',
     )
     interface_id = django_filters.ModelMultipleChoiceFilter(
         field_name='interface',
         queryset=Interface.objects.all(),
         label='Interface (ID)',
+    )
+    vminterface = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface__name',
+        queryset=VMInterface.objects.all(),
+        to_field_name='name',
+        label='VM interface (name)',
     )
     vminterface_id = django_filters.ModelMultipleChoiceFilter(
         field_name='vminterface',
@@ -1027,13 +1071,22 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         qs_filter = Q(l2vpn__name__icontains=value)
         return queryset.filter(qs_filter)
 
-    def filter_device(self, queryset, name, value):
-        devices = Device.objects.filter(**{'{}__in'.format(name): value})
-        if not devices.exists():
-            return queryset.none()
-        interface_ids = []
-        for device in devices:
-            interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
-        return queryset.filter(
-            interface__in=interface_ids
+    def filter_site(self, queryset, name, value):
+        qs = queryset.filter(
+            Q(
+                Q(**{'vlan__site__{}__in'.format(name): value}) |
+                Q(**{'interface__device__site__{}__in'.format(name): value}) |
+                Q(**{'vminterface__virtual_machine__site__{}__in'.format(name): value})
+            )
         )
+        return qs
+
+    def filter_region(self, queryset, name, value):
+        qs = queryset.filter(
+            Q(
+                Q(**{'vlan__site__region__{}__in'.format(name): value}) |
+                Q(**{'interface__device__site__region__{}__in'.format(name): value}) |
+                Q(**{'vminterface__virtual_machine__site__region__{}__in'.format(name): value})
+            )
+        )
+        return qs

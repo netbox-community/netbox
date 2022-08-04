@@ -24,11 +24,12 @@ def object_to_path_node(obj):
 
 def path_node_to_object(repr):
     """
-    Given the string representation of a path node, return the corresponding instance.
+    Given the string representation of a path node, return the corresponding instance. If the object no longer
+    exists, return None.
     """
     ct_id, object_id = decompile_path_node(repr)
     ct = ContentType.objects.get_for_id(ct_id)
-    return ct.model_class().objects.get(pk=object_id)
+    return ct.model_class().objects.filter(pk=object_id).first()
 
 
 def create_cablepath(terminations):

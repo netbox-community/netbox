@@ -1,5 +1,4 @@
 import socket
-from collections import OrderedDict
 
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
@@ -64,20 +63,20 @@ class PathEndpointMixin(object):
             return HttpResponse(drawing.render().tostring(), content_type='image/svg+xml')
 
         # Serialize path objects, iterating over each three-tuple in the path
-        for near_end, cable, far_end in obj.trace():
-            if near_end is not None:
-                serializer_a = get_serializer_for_model(near_end[0], prefix=NESTED_SERIALIZER_PREFIX)
-                near_end = serializer_a(near_end, many=True, context={'request': request}).data
+        for near_ends, cable, far_ends in obj.trace():
+            if near_ends:
+                serializer_a = get_serializer_for_model(near_ends[0], prefix=NESTED_SERIALIZER_PREFIX)
+                near_ends = serializer_a(near_ends, many=True, context={'request': request}).data
             else:
                 # Path is split; stop here
                 break
-            if cable is not None:
+            if cable:
                 cable = serializers.TracedCableSerializer(cable[0], context={'request': request}).data
-            if far_end is not None:
-                serializer_b = get_serializer_for_model(far_end[0], prefix=NESTED_SERIALIZER_PREFIX)
-                far_end = serializer_b(far_end, many=True, context={'request': request}).data
+            if far_ends:
+                serializer_b = get_serializer_for_model(far_ends[0], prefix=NESTED_SERIALIZER_PREFIX)
+                far_ends = serializer_b(far_ends, many=True, context={'request': request}).data
 
-            path.append((near_end, cable, far_end))
+            path.append((near_ends, cable, far_ends))
 
         return Response(path)
 
@@ -484,7 +483,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
             return HttpResponseForbidden()
 
         napalm_methods = request.GET.getlist('method')
-        response = OrderedDict([(m, None) for m in napalm_methods])
+        response = {m: None for m in napalm_methods}
 
         config = get_config()
         username = config.NAPALM_USERNAME

@@ -30,4 +30,4 @@ class RegistryTest(TestCase):
         reg['foo'] = 123
 
         with self.assertRaises(TypeError):
-            del(reg['foo'])
+            del reg['foo']

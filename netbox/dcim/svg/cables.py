@@ -362,21 +362,26 @@ class CableTraceSVG:
                     terminations = self.draw_terminations(far_ends)
                     for term in terminations:
                         self.draw_fanout(term, cable)
-                else:
+                elif far_ends:
                     self.draw_terminations(far_ends)
+                else:
+                    # Link is not connected to anything
+                    break
 
                 # Far end parent
                 parent_objects = set(end.parent_object for end in far_ends)
                 self.draw_parent_objects(parent_objects)
 
+            # Render a far-end object not connected via a link (e.g. a ProviderNetwork or Site associated with
+            # a CircuitTermination)
             elif far_ends:
 
                 # Attachment
                 attachment = self.draw_attachment()
                 self.connectors.append(attachment)
 
-                # ProviderNetwork
-                self.draw_parent_objects(set(end.parent_object for end in far_ends))
+                # Object
+                self.draw_parent_objects(far_ends)
 
         # Determine drawing size
         self.drawing = svgwrite.Drawing(

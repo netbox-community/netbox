@@ -14,6 +14,9 @@ class ModuleTypeTable(NetBoxTable):
         linkify=True,
         verbose_name='Module Type'
     )
+    manufacturer = tables.Column(
+        linkify=True
+    )
     instance_count = columns.LinkedCountColumn(
         viewname='dcim:module_list',
         url_params={'module_type_id': 'pk'},
@@ -41,6 +44,10 @@ class ModuleTable(NetBoxTable):
     module_bay = tables.Column(
         linkify=True
     )
+    manufacturer = tables.Column(
+        accessor=tables.A('module_type__manufacturer'),
+        linkify=True
+    )
     module_type = tables.Column(
         linkify=True
     )
@@ -52,8 +59,9 @@ class ModuleTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Module
         fields = (
-            'pk', 'id', 'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'comments', 'tags',
+            'pk', 'id', 'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag', 'comments',
+            'tags',
         )
         default_columns = (
-            'pk', 'id', 'device', 'module_bay', 'module_type', 'serial', 'asset_tag',
+            'pk', 'id', 'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag',
         )

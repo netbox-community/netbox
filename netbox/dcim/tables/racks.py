@@ -109,6 +109,10 @@ class RackReservationTable(TenancyColumnsMixin, NetBoxTable):
         accessor=Accessor('rack__site'),
         linkify=True
     )
+    location = tables.Column(
+        accessor=Accessor('rack__location'),
+        linkify=True
+    )
     rack = tables.Column(
         linkify=True
     )
@@ -123,7 +127,7 @@ class RackReservationTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = RackReservation
         fields = (
-            'pk', 'id', 'reservation', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'tenant_group', 'description', 'tags',
+            'pk', 'id', 'reservation', 'site', 'location', 'rack', 'unit_list', 'user', 'created', 'tenant', 'tenant_group', 'description', 'tags',
             'actions', 'created', 'last_updated',
         )
         default_columns = ('pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'description')

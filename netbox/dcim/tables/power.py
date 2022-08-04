@@ -21,6 +21,9 @@ class PowerPanelTable(NetBoxTable):
     site = tables.Column(
         linkify=True
     )
+    location = tables.Column(
+        linkify=True
+    )
     powerfeed_count = columns.LinkedCountColumn(
         viewname='dcim:powerfeed_list',
         url_params={'power_panel_id': 'pk'},
@@ -35,7 +38,9 @@ class PowerPanelTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = PowerPanel
-        fields = ('pk', 'id', 'name', 'site', 'location', 'powerfeed_count', 'contacts', 'tags', 'created', 'last_updated',)
+        fields = (
+            'pk', 'id', 'name', 'site', 'location', 'powerfeed_count', 'contacts', 'tags', 'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'site', 'location', 'powerfeed_count')
 
 

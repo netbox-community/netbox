@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -324,7 +322,7 @@ class SiteListView(generic.ObjectListView):
 
 
 class SiteView(generic.ObjectView):
-    queryset = Site.objects.prefetch_related('region', 'tenant__group')
+    queryset = Site.objects.prefetch_related('tenant__group')
 
     def get_extra_context(self, request, instance):
         stats = {
@@ -359,7 +357,7 @@ class SiteView(generic.ObjectView):
             site=instance,
             position__isnull=True,
             parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer')
+        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
 
         asns = ASN.objects.restrict(request.user, 'view').filter(sites=instance)
         asn_count = asns.count()
@@ -391,14 +389,14 @@ class SiteBulkImportView(generic.BulkImportView):
 
 
 class SiteBulkEditView(generic.BulkEditView):
-    queryset = Site.objects.prefetch_related('region', 'tenant')
+    queryset = Site.objects.all()
     filterset = filtersets.SiteFilterSet
     table = tables.SiteTable
     form = forms.SiteBulkEditForm
 
 
 class SiteBulkDeleteView(generic.BulkDeleteView):
-    queryset = Site.objects.prefetch_related('region', 'tenant')
+    queryset = Site.objects.all()
     filterset = filtersets.SiteFilterSet
     table = tables.SiteTable
 
@@ -454,7 +452,7 @@ class LocationView(generic.ObjectView):
             location=instance,
             position__isnull=True,
             parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer')
+        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
 
         return {
             'rack_count': rack_count,
@@ -572,7 +570,7 @@ class RackRoleBulkDeleteView(generic.BulkDeleteView):
 #
 
 class RackListView(generic.ObjectListView):
-    queryset = Rack.objects.prefetch_related('devices__device_type').annotate(
+    queryset = Rack.objects.annotate(
         device_count=count_related(Device, 'rack')
     )
     filterset = filtersets.RackFilterSet
@@ -631,7 +629,7 @@ class RackView(generic.ObjectView):
             rack=instance,
             position__isnull=True,
             parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer')
+        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
 
         peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=instance.site)
 
@@ -682,14 +680,14 @@ class RackBulkImportView(generic.BulkImportView):
 
 
 class RackBulkEditView(generic.BulkEditView):
-    queryset = Rack.objects.prefetch_related('site', 'location', 'tenant', 'role')
+    queryset = Rack.objects.all()
     filterset = filtersets.RackFilterSet
     table = tables.RackTable
     form = forms.RackBulkEditForm
 
 
 class RackBulkDeleteView(generic.BulkDeleteView):
-    queryset = Rack.objects.prefetch_related('site', 'location', 'tenant', 'role')
+    queryset = Rack.objects.all()
     filterset = filtersets.RackFilterSet
     table = tables.RackTable
 
@@ -706,7 +704,7 @@ class RackReservationListView(generic.ObjectListView):
 
 
 class RackReservationView(generic.ObjectView):
-    queryset = RackReservation.objects.prefetch_related('rack')
+    queryset = RackReservation.objects.all()
 
 
 class RackReservationEditView(generic.ObjectEditView):
@@ -742,14 +740,14 @@ class RackReservationImportView(generic.BulkImportView):
 
 
 class RackReservationBulkEditView(generic.BulkEditView):
-    queryset = RackReservation.objects.prefetch_related('rack', 'user')
+    queryset = RackReservation.objects.all()
     filterset = filtersets.RackReservationFilterSet
     table = tables.RackReservationTable
     form = forms.RackReservationBulkEditForm
 
 
 class RackReservationBulkDeleteView(generic.BulkDeleteView):
-    queryset = RackReservation.objects.prefetch_related('rack', 'user')
+    queryset = RackReservation.objects.all()
     filterset = filtersets.RackReservationFilterSet
     table = tables.RackReservationTable
 
@@ -831,7 +829,7 @@ class ManufacturerBulkDeleteView(generic.BulkDeleteView):
 #
 
 class DeviceTypeListView(generic.ObjectListView):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
+    queryset = DeviceType.objects.annotate(
         instance_count=count_related(Device, 'device_type')
     )
     filterset = filtersets.DeviceTypeFilterSet
@@ -840,7 +838,7 @@ class DeviceTypeListView(generic.ObjectListView):
 
 
 class DeviceTypeView(generic.ObjectView):
-    queryset = DeviceType.objects.prefetch_related('manufacturer')
+    queryset = DeviceType.objects.all()
 
     def get_extra_context(self, request, instance):
         instance_count = Device.objects.restrict(request.user).filter(device_type=instance).count()
@@ -945,18 +943,18 @@ class DeviceTypeImportView(generic.ObjectImportView):
     ]
     queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeImportForm
-    related_object_forms = OrderedDict((
-        ('console-ports', forms.ConsolePortTemplateImportForm),
-        ('console-server-ports', forms.ConsoleServerPortTemplateImportForm),
-        ('power-ports', forms.PowerPortTemplateImportForm),
-        ('power-outlets', forms.PowerOutletTemplateImportForm),
-        ('interfaces', forms.InterfaceTemplateImportForm),
-        ('rear-ports', forms.RearPortTemplateImportForm),
-        ('front-ports', forms.FrontPortTemplateImportForm),
-        ('module-bays', forms.ModuleBayTemplateImportForm),
-        ('device-bays', forms.DeviceBayTemplateImportForm),
-        ('inventory-items', forms.InventoryItemTemplateImportForm),
-    ))
+    related_object_forms = {
+        'console-ports': forms.ConsolePortTemplateImportForm,
+        'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
+        'power-ports': forms.PowerPortTemplateImportForm,
+        'power-outlets': forms.PowerOutletTemplateImportForm,
+        'interfaces': forms.InterfaceTemplateImportForm,
+        'rear-ports': forms.RearPortTemplateImportForm,
+        'front-ports': forms.FrontPortTemplateImportForm,
+        'module-bays': forms.ModuleBayTemplateImportForm,
+        'device-bays': forms.DeviceBayTemplateImportForm,
+        'inventory-items': forms.InventoryItemTemplateImportForm,
+    }
 
     def prep_related_object_data(self, parent, data):
         data.update({'device_type': parent})
@@ -964,7 +962,7 @@ class DeviceTypeImportView(generic.ObjectImportView):
 
 
 class DeviceTypeBulkEditView(generic.BulkEditView):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
+    queryset = DeviceType.objects.annotate(
         instance_count=count_related(Device, 'device_type')
     )
     filterset = filtersets.DeviceTypeFilterSet
@@ -973,7 +971,7 @@ class DeviceTypeBulkEditView(generic.BulkEditView):
 
 
 class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
+    queryset = DeviceType.objects.annotate(
         instance_count=count_related(Device, 'device_type')
     )
     filterset = filtersets.DeviceTypeFilterSet
@@ -985,7 +983,7 @@ class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
 #
 
 class ModuleTypeListView(generic.ObjectListView):
-    queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
+    queryset = ModuleType.objects.annotate(
         instance_count=count_related(Module, 'module_type')
     )
     filterset = filtersets.ModuleTypeFilterSet
@@ -994,7 +992,7 @@ class ModuleTypeListView(generic.ObjectListView):
 
 
 class ModuleTypeView(generic.ObjectView):
-    queryset = ModuleType.objects.prefetch_related('manufacturer')
+    queryset = ModuleType.objects.all()
 
     def get_extra_context(self, request, instance):
         instance_count = Module.objects.restrict(request.user).filter(module_type=instance).count()
@@ -1075,15 +1073,15 @@ class ModuleTypeImportView(generic.ObjectImportView):
     ]
     queryset = ModuleType.objects.all()
     model_form = forms.ModuleTypeImportForm
-    related_object_forms = OrderedDict((
-        ('console-ports', forms.ConsolePortTemplateImportForm),
-        ('console-server-ports', forms.ConsoleServerPortTemplateImportForm),
-        ('power-ports', forms.PowerPortTemplateImportForm),
-        ('power-outlets', forms.PowerOutletTemplateImportForm),
-        ('interfaces', forms.InterfaceTemplateImportForm),
-        ('rear-ports', forms.RearPortTemplateImportForm),
-        ('front-ports', forms.FrontPortTemplateImportForm),
-    ))
+    related_object_forms = {
+        'console-ports': forms.ConsolePortTemplateImportForm,
+        'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
+        'power-ports': forms.PowerPortTemplateImportForm,
+        'power-outlets': forms.PowerOutletTemplateImportForm,
+        'interfaces': forms.InterfaceTemplateImportForm,
+        'rear-ports': forms.RearPortTemplateImportForm,
+        'front-ports': forms.FrontPortTemplateImportForm,
+    }
 
     def prep_related_object_data(self, parent, data):
         data.update({'module_type': parent})
@@ -1091,7 +1089,7 @@ class ModuleTypeImportView(generic.ObjectImportView):
 
 
 class ModuleTypeBulkEditView(generic.BulkEditView):
-    queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
+    queryset = ModuleType.objects.annotate(
         instance_count=count_related(Module, 'module_type')
     )
     filterset = filtersets.ModuleTypeFilterSet
@@ -1100,7 +1098,7 @@ class ModuleTypeBulkEditView(generic.BulkEditView):
 
 
 class ModuleTypeBulkDeleteView(generic.BulkDeleteView):
-    queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
+    queryset = ModuleType.objects.annotate(
         instance_count=count_related(Module, 'module_type')
     )
     filterset = filtersets.ModuleTypeFilterSet
@@ -1611,9 +1609,7 @@ class DeviceListView(generic.ObjectListView):
 
 
 class DeviceView(generic.ObjectView):
-    queryset = Device.objects.prefetch_related(
-        'site__region', 'location', 'rack', 'tenant__group', 'device_role', 'platform', 'primary_ip4', 'primary_ip6'
-    )
+    queryset = Device.objects.all()
 
     def get_extra_context(self, request, instance):
         # VirtualChassis members
@@ -1790,14 +1786,14 @@ class ChildDeviceBulkImportView(generic.BulkImportView):
 
 
 class DeviceBulkEditView(generic.BulkEditView):
-    queryset = Device.objects.prefetch_related('tenant', 'site', 'rack', 'device_role', 'device_type__manufacturer')
+    queryset = Device.objects.prefetch_related('device_type__manufacturer')
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
     form = forms.DeviceBulkEditForm
 
 
 class DeviceBulkDeleteView(generic.BulkDeleteView):
-    queryset = Device.objects.prefetch_related('tenant', 'site', 'rack', 'device_role', 'device_type__manufacturer')
+    queryset = Device.objects.prefetch_related('device_type__manufacturer')
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
 
@@ -1807,7 +1803,7 @@ class DeviceBulkDeleteView(generic.BulkDeleteView):
 #
 
 class ModuleListView(generic.ObjectListView):
-    queryset = Module.objects.prefetch_related('device', 'module_type__manufacturer')
+    queryset = Module.objects.prefetch_related('module_type__manufacturer')
     filterset = filtersets.ModuleFilterSet
     filterset_form = forms.ModuleFilterForm
     table = tables.ModuleTable
@@ -1833,14 +1829,14 @@ class ModuleBulkImportView(generic.BulkImportView):
 
 
 class ModuleBulkEditView(generic.BulkEditView):
-    queryset = Module.objects.prefetch_related('device', 'module_type__manufacturer')
+    queryset = Module.objects.prefetch_related('module_type__manufacturer')
     filterset = filtersets.ModuleFilterSet
     table = tables.ModuleTable
     form = forms.ModuleBulkEditForm
 
 
 class ModuleBulkDeleteView(generic.BulkDeleteView):
-    queryset = Module.objects.prefetch_related('device', 'module_type__manufacturer')
+    queryset = Module.objects.prefetch_related('module_type__manufacturer')
     filterset = filtersets.ModuleFilterSet
     table = tables.ModuleTable
 
@@ -2566,7 +2562,7 @@ class InventoryItemBulkImportView(generic.BulkImportView):
 
 
 class InventoryItemBulkEditView(generic.BulkEditView):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer', 'role')
+    queryset = InventoryItem.objects.all()
     filterset = filtersets.InventoryItemFilterSet
     table = tables.InventoryItemTable
     form = forms.InventoryItemBulkEditForm
@@ -2577,7 +2573,7 @@ class InventoryItemBulkRenameView(generic.BulkRenameView):
 
 
 class InventoryItemBulkDeleteView(generic.BulkDeleteView):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer', 'role')
+    queryset = InventoryItem.objects.all()
     table = tables.InventoryItemTable
     template_name = 'dcim/inventoryitem_bulk_delete.html'
 
@@ -2867,14 +2863,20 @@ class CableBulkImportView(generic.BulkImportView):
 
 
 class CableBulkEditView(generic.BulkEditView):
-    queryset = Cable.objects.prefetch_related('terminations')
+    queryset = Cable.objects.prefetch_related(
+        'terminations__termination', 'terminations___device', 'terminations___rack', 'terminations___location',
+        'terminations___site',
+    )
     filterset = filtersets.CableFilterSet
     table = tables.CableTable
     form = forms.CableBulkEditForm
 
 
 class CableBulkDeleteView(generic.BulkDeleteView):
-    queryset = Cable.objects.prefetch_related('terminations')
+    queryset = Cable.objects.prefetch_related(
+        'terminations__termination', 'terminations___device', 'terminations___rack', 'terminations___location',
+        'terminations___site',
+    )
     filterset = filtersets.CableFilterSet
     table = tables.CableTable
 
@@ -2930,7 +2932,7 @@ class InterfaceConnectionsListView(generic.ObjectListView):
 #
 
 class VirtualChassisListView(generic.ObjectListView):
-    queryset = VirtualChassis.objects.prefetch_related('master').annotate(
+    queryset = VirtualChassis.objects.annotate(
         member_count=count_related(Device, 'virtual_chassis')
     )
     table = tables.VirtualChassisTable
@@ -3158,9 +3160,7 @@ class VirtualChassisBulkDeleteView(generic.BulkDeleteView):
 #
 
 class PowerPanelListView(generic.ObjectListView):
-    queryset = PowerPanel.objects.prefetch_related(
-        'site', 'location'
-    ).annotate(
+    queryset = PowerPanel.objects.annotate(
         powerfeed_count=count_related(PowerFeed, 'power_panel')
     )
     filterset = filtersets.PowerPanelFilterSet
@@ -3169,10 +3169,10 @@ class PowerPanelListView(generic.ObjectListView):
 
 
 class PowerPanelView(generic.ObjectView):
-    queryset = PowerPanel.objects.prefetch_related('site', 'location')
+    queryset = PowerPanel.objects.all()
 
     def get_extra_context(self, request, instance):
-        power_feeds = PowerFeed.objects.restrict(request.user).filter(power_panel=instance).prefetch_related('rack')
+        power_feeds = PowerFeed.objects.restrict(request.user).filter(power_panel=instance)
         powerfeed_table = tables.PowerFeedTable(
             data=power_feeds,
             orderable=False
@@ -3202,16 +3202,14 @@ class PowerPanelBulkImportView(generic.BulkImportView):
 
 
 class PowerPanelBulkEditView(generic.BulkEditView):
-    queryset = PowerPanel.objects.prefetch_related('site', 'location')
+    queryset = PowerPanel.objects.all()
     filterset = filtersets.PowerPanelFilterSet
     table = tables.PowerPanelTable
     form = forms.PowerPanelBulkEditForm
 
 
 class PowerPanelBulkDeleteView(generic.BulkDeleteView):
-    queryset = PowerPanel.objects.prefetch_related(
-        'site', 'location'
-    ).annotate(
+    queryset = PowerPanel.objects.annotate(
         powerfeed_count=count_related(PowerFeed, 'power_panel')
     )
     filterset = filtersets.PowerPanelFilterSet
@@ -3230,7 +3228,7 @@ class PowerFeedListView(generic.ObjectListView):
 
 
 class PowerFeedView(generic.ObjectView):
-    queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack')
+    queryset = PowerFeed.objects.all()
 
 
 class PowerFeedEditView(generic.ObjectEditView):
@@ -3249,7 +3247,7 @@ class PowerFeedBulkImportView(generic.BulkImportView):
 
 
 class PowerFeedBulkEditView(generic.BulkEditView):
-    queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack')
+    queryset = PowerFeed.objects.all()
     filterset = filtersets.PowerFeedFilterSet
     table = tables.PowerFeedTable
     form = forms.PowerFeedBulkEditForm
@@ -3260,6 +3258,6 @@ class PowerFeedBulkDisconnectView(BulkDisconnectView):
 
 
 class PowerFeedBulkDeleteView(generic.BulkDeleteView):
-    queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack')
+    queryset = PowerFeed.objects.all()
     filterset = filtersets.PowerFeedFilterSet
     table = tables.PowerFeedTable

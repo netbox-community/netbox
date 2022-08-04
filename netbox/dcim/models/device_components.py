@@ -212,10 +212,13 @@ class PathEndpoint(models.Model):
                 break
 
             path.extend(origin._path.path_objects)
-            while (len(path)) % 3:
-                # Pad to ensure we have complete three-tuples (e.g. for paths that end at a non-connected FrontPort)
-                # by inserting empty entries immediately prior to the path's destination node(s)
-                path.append([])
+
+            # If the path ends at a non-connected pass-through port, pad out the link and far-end terminations
+            if len(path) % 3 == 1:
+                path.extend(([], []))
+            # If the path ends at a site or provider network, inject a null "link" to render an attachment
+            elif len(path) % 3 == 2:
+                path.insert(-1, [])
 
             # Check for a bridged relationship to continue the trace
             destinations = origin._path.destinations

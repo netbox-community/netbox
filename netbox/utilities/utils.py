@@ -1,7 +1,6 @@
 import datetime
 import decimal
 import json
-from collections import OrderedDict
 from decimal import Decimal
 from itertools import count, groupby
 
@@ -149,7 +148,7 @@ def serialize_object(obj, extra=None):
     # Include any tags. Check for tags cached on the instance; fall back to using the manager.
     if is_taggable(obj):
         tags = getattr(obj, '_tags', None) or obj.tags.all()
-        data['tags'] = [tag.name for tag in tags]
+        data['tags'] = sorted([tag.name for tag in tags])
 
     # Append any extra data
     if extra is not None:
@@ -218,7 +217,7 @@ def deepmerge(original, new):
     """
     Deep merge two dictionaries (new into original) and return a new dict
     """
-    merged = OrderedDict(original)
+    merged = dict(original)
     for key, val in new.items():
         if key in original and isinstance(original[key], dict) and val and isinstance(val, dict):
             merged[key] = deepmerge(original[key], val)
