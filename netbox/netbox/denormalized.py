@@ -33,6 +33,10 @@ def update_denormalized_fields(sender, instance, created, raw, **kwargs):
     """
     Check if the sender has denormalized fields registered, and update them as necessary.
     """
+    def _get_field_value(instance, field_name):
+        field = instance._meta.get_field(field_name)
+        return field.value_from_object(instance)
+
     # Skip for new objects or those being populated from raw data
     if created or raw:
         return
@@ -45,7 +49,7 @@ def update_denormalized_fields(sender, instance, created, raw, **kwargs):
         }
         update_params = {
             # Map the denormalized field names to the instance's values
-            denorm: getattr(instance, origin) for denorm, origin in mappings.items()
+            denorm: _get_field_value(instance, origin) for denorm, origin in mappings.items()
         }
 
         # TODO: Improve efficiency here by placing conditions on the query?
