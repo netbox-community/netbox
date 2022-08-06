@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from glob import escape
 from typing import Optional
 
 import django_tables2 as tables
@@ -8,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
+from django.utils.html import escape 
 from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
 from django_tables2.columns import library
@@ -430,25 +430,28 @@ class CustomFieldColumn(tables.Column):
     def _likify_item(item):
         if hasattr(item, 'get_absolute_url'):
             return f'<a href="{item.get_absolute_url()}">{item}</a>'
-        return item
+        return escape(item)
 
     def render(self, value):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is True:
-            return escape('<i class="mdi mdi-check-bold text-success"></i>')
+            return mark_safe('<i class="mdi mdi-check-bold text-success"></i>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is False:
-            return escape('<i class="mdi mdi-close-thick text-danger"></i>')
+            return mark_safe('<i class="mdi mdi-close-thick text-danger"></i>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
-            return escape(f'<a href="{value}">{value}</a>')
+            return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
             return ', '.join(v for v in value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
-            return escape(', '.join([
+            print (mark_safe(', '.join([
+                self._likify_item(obj) for obj in self.customfield.deserialize(value)
+            ])))
+            return mark_safe(', '.join([
                 self._likify_item(obj) for obj in self.customfield.deserialize(value)
             ]))
         if value is not None:
             obj = self.customfield.deserialize(value)
-            return escape(self._likify_item(obj))
-        return escape(self.default)
+            return mark_safe(self._likify_item(obj))
+        return self.default
 
     def value(self, value):
         if isinstance(value, list):
