@@ -429,7 +429,7 @@ class CustomFieldColumn(tables.Column):
     @staticmethod
     def _likify_item(item):
         if hasattr(item, 'get_absolute_url'):
-            return f'<a href="{item.get_absolute_url()}">{item}</a>'
+            return f'<a href="{item.get_absolute_url()}">{escape(item)}</a>'
         return escape(item)
 
     def render(self, value):
@@ -442,9 +442,6 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
             return ', '.join(v for v in value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
-            print (mark_safe(', '.join([
-                self._likify_item(obj) for obj in self.customfield.deserialize(value)
-            ])))
             return mark_safe(', '.join([
                 self._likify_item(obj) for obj in self.customfield.deserialize(value)
             ]))
