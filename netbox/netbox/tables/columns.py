@@ -442,9 +442,9 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
             return ', '.join(v for v in value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
-            return mark_safe(', '.join([
+            return mark_safe(', '.join(
                 self._likify_item(obj) for obj in self.customfield.deserialize(value)
-            ]))
+            ))
         if value is not None:
             obj = self.customfield.deserialize(value)
             return mark_safe(self._likify_item(obj))
