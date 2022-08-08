@@ -74,11 +74,11 @@ class TokenProvisionView(APIView):
         serializer.is_valid()
 
         # Authenticate the user account based on the provided credentials
-        user = authenticate(
-            request=request,
-            username=serializer.data['username'],
-            password=serializer.data['password']
-        )
+        username = serializer.data.get('username')
+        password = serializer.data.get('password')
+        if not username or not password:
+            raise AuthenticationFailed("Username and password must be provided to provision a token.")
+        user = authenticate(request=request, username=username, password=password)
         if user is None:
             raise AuthenticationFailed("Invalid username/password")
 
