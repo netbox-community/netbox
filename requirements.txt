@@ -26,7 +26,7 @@ netaddr==0.8.0
 Pillow==9.2.0
 psycopg2-binary==2.9.3
 PyYAML==6.0
-sentry-sdk==1.9.0
+sentry-sdk==1.9.2
 social-auth-app-django==5.0.0
 social-auth-core==4.3.0
 svgwrite==1.4.3
