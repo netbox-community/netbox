@@ -133,6 +133,7 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
             'http_method': StaticSelect(),
             'additional_headers': forms.Textarea(attrs={'class': 'font-monospace'}),
             'body_template': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
         }
 
 

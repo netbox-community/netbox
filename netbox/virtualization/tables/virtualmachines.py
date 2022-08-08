@@ -48,6 +48,9 @@ class VirtualMachineTable(TenancyColumnsMixin, NetBoxTable):
         order_by=('primary_ip4', 'primary_ip6'),
         verbose_name='IP Address'
     )
+    contacts = columns.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = columns.TagColumn(
         url_name='virtualization:virtualmachine_list'
     )
@@ -55,8 +58,9 @@ class VirtualMachineTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VirtualMachine
         fields = (
-            'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'tenant_group', 'platform', 'vcpus', 'memory', 'disk',
-            'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'tenant_group', 'platform', 'vcpus', 'memory',
+            'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'contacts', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
@@ -77,9 +81,6 @@ class VMInterfaceTable(BaseInterfaceTable):
     vrf = tables.Column(
         linkify=True
     )
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
-    )
     tags = columns.TagColumn(
         url_name='virtualization:vminterface_list'
     )
@@ -88,8 +89,7 @@ class VMInterfaceTable(BaseInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'vrf', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'contacts', 'created',
-            'last_updated',
+            'vrf', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 
