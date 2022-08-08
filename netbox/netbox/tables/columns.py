@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
 from django_tables2.columns import library
@@ -428,8 +429,8 @@ class CustomFieldColumn(tables.Column):
     @staticmethod
     def _likify_item(item):
         if hasattr(item, 'get_absolute_url'):
-            return f'<a href="{item.get_absolute_url()}">{item}</a>'
-        return item
+            return f'<a href="{item.get_absolute_url()}">{escape(item)}</a>'
+        return escape(item)
 
     def render(self, value):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is True:
@@ -437,7 +438,7 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is False:
             return mark_safe('<i class="mdi mdi-close-thick text-danger"></i>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
-            return mark_safe(f'<a href="{value}">{value}</a>')
+            return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
             return ', '.join(v for v in value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
