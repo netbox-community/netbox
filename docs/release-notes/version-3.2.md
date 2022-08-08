@@ -23,6 +23,7 @@
 * [#9919](https://github.com/netbox-community/netbox/issues/9919) - Fix potential XSS avenue via linked objects in tables
 * [#9948](https://github.com/netbox-community/netbox/issues/9948) - Fix TypeError exception when requesting API tokens list as non-authenticated user
 * [#9949](https://github.com/netbox-community/netbox/issues/9949) - Fix KeyError exception resulting from invalid API token provisioning request
+* [#9952](https://github.com/netbox-community/netbox/issues/9952) - Prevent InvalidMove when attempting to assign a nested child object as parent
 
 ---
 
