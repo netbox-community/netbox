@@ -91,7 +91,7 @@ class LoginView(View):
         data = request.POST if request.method == "POST" else request.GET
         redirect_url = data.get('next', settings.LOGIN_REDIRECT_URL)
 
-        if redirect_url and redirect_url.startswith('/'):
+        if redirect_url and redirect_url.startswith('/') and not redirect_url.startswith('//'):
             logger.debug(f"Redirecting user to {redirect_url}")
         else:
             if redirect_url:
