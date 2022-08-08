@@ -3083,7 +3083,7 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
             if membership_form.is_valid():
 
                 membership_form.save()
-                msg = 'Added member <a href="{}">{}</a>'.format(device.get_absolute_url(), escape(device))
+                msg = f'Added member <a href="{device.get_absolute_url()}">{escape(device)}</a>'
                 messages.success(request, mark_safe(msg))
 
                 if '_addanother' in request.POST:
@@ -3128,8 +3128,7 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
         # Protect master device from being removed
         virtual_chassis = VirtualChassis.objects.filter(master=device).first()
         if virtual_chassis is not None:
-            msg = 'Unable to remove master device {} from the virtual chassis.'.format(escape(device))
-            messages.error(request, mark_safe(msg))
+            messages.error(request, f'Unable to remove master device {device} from the virtual chassis.')
             return redirect(device.get_absolute_url())
 
         if form.is_valid():
