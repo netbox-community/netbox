@@ -58,6 +58,8 @@ class TokenViewSet(NetBoxModelViewSet):
         # Workaround for schema generation (drf_yasg)
         if getattr(self, 'swagger_fake_view', False):
             return queryset.none()
+        if not self.request.user.is_authenticated:
+            return queryset.none()
         if self.request.user.is_superuser:
             return queryset
         return queryset.filter(user=self.request.user)

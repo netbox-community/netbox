@@ -21,6 +21,7 @@
 * [#9885](https://github.com/netbox-community/netbox/issues/9885) - Fix child prefix counts when editing/deleting aggregates in bulk
 * [#9891](https://github.com/netbox-community/netbox/issues/9891) - Ensure consistent ordering for tags during object serialization
 * [#9919](https://github.com/netbox-community/netbox/issues/9919) - Fix potential XSS avenue via linked objects in tables
+* [#9948](https://github.com/netbox-community/netbox/issues/9948) - Fix TypeError exception when requesting API tokens list as non-authenticated user
 * [#9949](https://github.com/netbox-community/netbox/issues/9949) - Fix KeyError exception resulting from invalid API token provisioning request
 
 ---
