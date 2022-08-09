@@ -40,19 +40,19 @@ Like regions, site groups can be arranged in a recursive hierarchy for grouping 
 
 The use of both regions and site groups affords to independent but complementary dimensions across which sites can be organized.
 
-## Site
+## Sites
 
 A site typically represents a building within a region and/or site group. Each site is assigned an operational status (e.g. active or planned), and can have a discrete mailing address and GPS coordinates assigned to it.
 
-## Location
+## Locations
 
 A location can be any logical subdivision within a building, such as a floor or room. Like regions and site groups, locations can be nested into a self-recursive hierarchy for maximum flexibility. And like sites, each location has an operational status assigned to it.
 
-## Rack
+## Racks
 
 Finally, NetBox models each equipment rack as a discrete object within a site and location. These are physical objects into which devices are installed. Each rack can be assigned an operational status, type, facility ID, and other attributes related to inventory tracking. Each rack also must define a height (in rack units) and width, and may optionally specify its physical dimensions.
 
-Each rack must be associated to a site, but the assignment to a location within that site is optional. Users can also create custom roles to which racks can be assigned.
+Each rack must be associated to a site, but the assignment to a location within that site is optional. Users can also create custom roles to which racks can be assigned. NetBox supports tracking rack space in half-unit increments, so it's possible to mount devices at e.g. position 2.5 within a rack.
 
 !!! tip "Devices"
     You'll notice in the diagram above that a device can be installed within a site, location, or rack. This approach affords plenty of flexibility as not all sites need to define child locations, and not all devices reside in racks.
