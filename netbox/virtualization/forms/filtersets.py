@@ -89,7 +89,7 @@ class VirtualMachineFilterForm(
         (None, ('q', 'tag')),
         ('Cluster', ('cluster_group_id', 'cluster_type_id', 'cluster_id')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
-        ('Attriubtes', ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data')),
+        ('Attributes', ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
