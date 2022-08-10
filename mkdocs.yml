@@ -73,8 +73,8 @@ nav:
         - Context Data: 'features/context-data.md'
         - Change Logging: 'features/change-logging.md'
         - Journaling: 'features/journaling.md'
-        - Webhooks: 'features/webhooks.md'
         - Tags: 'features/tags.md'
+        - Integrations: 'features/integrations.md'
         - Customization: 'features/customization.md'
         - Object-Based Permissions: 'features/permissions.md'
         - Single Sign-On (SSO): 'features/sso.md'
@@ -114,6 +114,7 @@ nav:
     - Integrations:
         - REST API: 'integrations/rest-api.md'
         - GraphQL API: 'integrations/graphql-api.md'
+        - Webhooks: 'integrations/webhooks.md'
         - NAPALM: 'integrations/napalm.md'
         - Prometheus Metrics: 'integrations/prometheus-metrics.md'
     - Plugins:
@@ -188,6 +189,9 @@ nav:
             - Site: 'models/dcim/site.md'
             - SiteGroup: 'models/dcim/sitegroup.md'
             - VirtualChassis: 'models/dcim/virtualchassis.md'
+        - Extras:
+            - ConfigContext: 'models/extras/configcontext.md'
+            - Tag: 'models/extras/tag.md'
         - IPAM:
             - ASN: 'models/ipam/asn.md'
             - Aggregate: 'models/ipam/aggregate.md'

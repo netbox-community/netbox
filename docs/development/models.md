@@ -9,7 +9,7 @@ The Django [content types](https://docs.djangoproject.com/en/stable/ref/contrib/
 ### Features Matrix
 
 * [Change logging](../features/change-logging.md) - Changes to these objects are automatically recorded in the change log
-* [Webhooks](../features/webhooks.md) - NetBox is capable of generating outgoing webhooks for these objects
+* [Webhooks](../integrations/webhooks.md) - NetBox is capable of generating outgoing webhooks for these objects
 * [Custom fields](../customization/custom-fields.md) - These models support the addition of user-defined fields
 * [Export templates](../customization/export-templates.md) - Users can create custom export templates for these models
 * [Tagging](../features/tags.md) - The models can be tagged with user-defined tags
