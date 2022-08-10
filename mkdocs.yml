@@ -67,7 +67,6 @@ nav:
         - Power Tracking: 'features/power-tracking.md'
         - IPAM: 'features/ipam.md'
         - VLAN Management: 'features/vlan-management.md'
-        - Service Mapping: 'features/services.md'
         - L2VPN & Overlay: 'features/l2vpn-overlay.md'
         - Circuits: 'features/circuits.md'
         - Wireless: 'features/wireless.md'
