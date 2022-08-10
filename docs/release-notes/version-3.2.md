@@ -2,6 +2,8 @@
 
 ## v3.2.9 (FUTURE)
 
+* [#9161](https://github.com/netbox-community/netbox/issues/9161) - Pretty print JSON custom field data when editing
+
 ---
 
 ## v3.2.8 (2022-08-08)

@@ -136,7 +136,7 @@ class ImportForm(BootstrapMixin, forms.Form):
     Generic form for creating an object from JSON/YAML data
     """
     data = forms.CharField(
-        widget=forms.Textarea,
+        widget=forms.Textarea(attrs={'class': 'font-monospace'}),
         help_text="Enter object data in JSON or YAML format. Note: Only a single object/document is supported."
     )
     format = forms.ChoiceField(
