@@ -10,6 +10,8 @@
             <th>Name</th>
             <th>Role</th>
             <th>Priority</th>
+            <th>Phone</th>
+            <th>Email</th>
             <th></th>
           </tr>
           {% for contact in contacts %}
@@ -17,6 +19,20 @@
               <td>{{ contact.contact|linkify }}</td>
               <td>{{ contact.role|placeholder }}</td>
               <td>{{ contact.get_priority_display|placeholder }}</td>
+              <td>
+                {% if contact.contact.phone %}
+                  <a href="tel:{{ contact.contact.phone }}">{{ contact.contact.phone }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+              <td>
+                {% if contact.contact.email %}
+                  <a href="mailto:{{ contact.contact.email }}">{{ contact.contact.email }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
               <td class="text-end noprint">
                 {% if perms.tenancy.change_contactassignment %}
                   <a href="{% url 'tenancy:contactassignment_edit' pk=contact.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning btn-sm lh-1" title="Edit">
