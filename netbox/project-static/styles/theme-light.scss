@@ -22,7 +22,6 @@ $theme-colors: (
   'danger': $danger,
   'light': $light,
   'dark': $dark,
-
   // General-purpose palette
   'blue': $blue-500,
   'indigo': $indigo-500,
@@ -36,7 +35,7 @@ $theme-colors: (
   'cyan': $cyan-500,
   'gray': $gray-500,
   'black': $black,
-  'white': $white,
+  'white': $white
 );
 
 $light: $gray-200;

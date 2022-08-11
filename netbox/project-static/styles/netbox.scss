@@ -416,6 +416,27 @@ nav.search {
   }
 }
 
+// Styles for the quicksearch and its clear button; 
+// Overrides input-group styles and adds transition effects
+.quicksearch {
+  input[type="search"] {
+    border-radius: $border-radius  !important;
+  }
+
+  button {
+    margin-left: -32px !important;
+    z-index: 100 !important;
+    outline: none !important;
+    border-radius: $border-radius  !important;
+    transition: visibility 0s, opacity 0.2s linear;
+  }
+
+  button :hover {
+    opacity: 50%;
+    transition: visibility 0s, opacity 0.1s linear;
+  }
+}
+
 main.layout {
   display: flex;
   flex-wrap: nowrap;
