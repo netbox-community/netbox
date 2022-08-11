@@ -6,6 +6,7 @@
 
 * [#9161](https://github.com/netbox-community/netbox/issues/9161) - Pretty print JSON custom field data when editing
 * [#9625](https://github.com/netbox-community/netbox/issues/9625) - Add phone & email details to contacts panel
+* [#9857](https://github.com/netbox-community/netbox/issues/9857) - Add clear button to quick search fields
 
 ---
 
