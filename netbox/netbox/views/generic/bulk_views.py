@@ -632,7 +632,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             replace = form.cleaned_data['replace']
             if form.cleaned_data['use_regex']:
                 try:
-                    obj.new_name = re.sub(find, replace, obj.name)
+                    obj.new_name = re.sub(find, replace, obj.name or '')
                 # Catch regex group reference errors
                 except re.error:
                     obj.new_name = obj.name
@@ -676,9 +676,6 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
         else:
             form = self.form(initial={'pk': request.POST.getlist('pk')})
             selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
-            for object in selected_objects:
-                # Do something to raise error message to user
-                pass
 
         return render(request, self.template_name, {
             'form': form,
