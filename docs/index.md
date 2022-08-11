@@ -24,7 +24,7 @@ Unlike general-purpose CMDBs, NetBox has curated a data model which caters speci
 
 ## Customizable & Extensible
 
-In addition to its expansive and robust data model, NetBox offers myriad mechanisms through it can be customized and extended.
+In addition to its expansive and robust data model, NetBox offers myriad mechanisms through which it can be customized and extended.
 
 * Custom fields
 * Custom model validation
@@ -39,10 +39,10 @@ Because NetBox is an open source application licensed under [Apache 2](https://w
 
 ## Getting Started
 
-* Public Demo
-* Installation Guide
-* Docker install
-* NetBox Cloud
+* Try out our [public demo](https://demo.netbox.dev/) if you want to jump right in
+* The [installation guide](./installation/index.md) will help you get your own deployment up and running
+* Or try the community [Docker image](https://github.com/netbox-community/netbox-docker) for a low-touch approach
+* [NetBox Cloud](https://www.getnetbox.io/) is a hosted solution offered by NS1
 
 !!! tip "NetBox Development"
     Interested in contributing to NetBox? Check out our [GitHub repository](https://github.com/netbox-community/netbox) to get started!
