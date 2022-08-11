@@ -37,6 +37,8 @@ REDIS = {
         # Set this to True to skip TLS certificate verification
         # This can expose the connection to attacks, be careful
         # 'INSECURE_SKIP_TLS_VERIFY': False,
+        # Set a path to a certificate authority, typically used with a self signed certificate.
+        #'CA_CERT_PATH': '/etc/ssl/certs/ca.crt',
     },
     'caching': {
         'HOST': 'localhost',
@@ -50,6 +52,8 @@ REDIS = {
         # Set this to True to skip TLS certificate verification
         # This can expose the connection to attacks, be careful
         # 'INSECURE_SKIP_TLS_VERIFY': False,
+        # Set a path to a certificate authority, typically used with a self signed certificate.
+        #'CA_CERT_PATH': '/etc/ssl/certs/ca.crt',
     }
 }
 
