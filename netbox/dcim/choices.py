@@ -818,7 +818,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_GPON = 'gpon'
     TYPE_XG_PON = 'xg-pon'
     TYPE_XGS_PON = 'xgs-pon'
-    TYPE_TWDM_PON = 'twdm-pon'
+    TYPE_NG_PON2 = 'ng-pon2'
     TYPE_EPON = 'epon'
     TYPE_10G_EPON = '10g-epon'
 
@@ -964,7 +964,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_GPON, 'GPON (2.5 Gbps / 1.25 Gps)'),
                 (TYPE_XG_PON, 'XG-PON (10 Gbps / 2.5 Gbps)'),
                 (TYPE_XGS_PON, 'XGS-PON (10 Gbps)'),
-                (TYPE_TWDM_PON, 'TWDM-PON (NG-PON2) (4x10 Gbps)'),
+                (TYPE_NG_PON2, 'NG-PON2 (TWDM-PON) (4x10 Gbps)'),
                 (TYPE_EPON, 'EPON (1 Gbps)'),
                 (TYPE_10G_EPON, '10G-EPON (10 Gbps)'),
             )
