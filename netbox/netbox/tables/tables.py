@@ -7,6 +7,7 @@ from django.db.models.fields.related import RelatedField
 from django_tables2.data import TableQuerysetData
 
 from extras.models import CustomField, CustomLink
+from extras.choices import CustomFieldTypeChoices
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 
@@ -180,7 +181,7 @@ class NetBoxTable(BaseTable):
         content_type = ContentType.objects.get_for_model(self._meta.model)
         custom_fields = CustomField.objects.filter(content_types=content_type)
         extra_columns.extend([
-            (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in custom_fields
+            (f'cf_{cf.name}', columns.CustomFieldMarkdownColumn(cf) if cf.type == CustomFieldTypeChoices.TYPE_LONGTEXT else columns.CustomFieldColumn(cf)) for cf in custom_fields
         ])
         custom_links = CustomLink.objects.filter(content_type=content_type, enabled=True)
         extra_columns.extend([

@@ -550,3 +550,28 @@ class MarkdownColumn(tables.TemplateColumn):
 
     def value(self, value):
         return value
+
+
+class CustomFieldMarkdownColumn(tables.TemplateColumn):
+    """
+    Render a Markdown string in a longtext custom column.
+    """
+    template_code = """
+    {% if value %}
+      {{ value|markdown }}
+    {% else %}
+      &mdash;
+    {% endif %}
+    """
+
+    def __init__(self, customfield, *args, **kwargs):
+        self.customfield = customfield
+        kwargs['accessor'] = Accessor(f'custom_field_data__{customfield.name}')
+        kwargs['template_code'] = self.template_code
+        if 'verbose_name' not in kwargs:
+            kwargs['verbose_name'] = customfield.label or customfield.name
+
+        super().__init__(*args, **kwargs)
+
+    def value(self, value):
+        return value
