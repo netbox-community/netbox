@@ -12,7 +12,7 @@ The Django [content types](https://docs.djangoproject.com/en/stable/ref/contrib/
 * [Webhooks](../integrations/webhooks.md) - NetBox is capable of generating outgoing webhooks for these objects
 * [Custom fields](../customization/custom-fields.md) - These models support the addition of user-defined fields
 * [Export templates](../customization/export-templates.md) - Users can create custom export templates for these models
-* [Tagging](../features/tags.md) - The models can be tagged with user-defined tags
+* [Tagging](../models/extras/tag.md) - The models can be tagged with user-defined tags
 * [Journaling](../features/journaling.md) - These models support persistent historical commentary
 * Nesting - These models can be nested recursively to create a hierarchy
 

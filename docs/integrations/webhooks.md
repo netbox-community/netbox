@@ -85,7 +85,7 @@ A webhook may include a set of conditional logic expressed in JSON used to contr
 }
 ```
 
-For more detail, see the reference documentation for NetBox's [conditional logic](../../reference/conditions.md).
+For more detail, see the reference documentation for NetBox's [conditional logic](../reference/conditions.md).
 
 ## Webhook Processing
 

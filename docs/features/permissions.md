@@ -1,3 +1,0 @@
-# Object-Based Permissions
-
-TODO

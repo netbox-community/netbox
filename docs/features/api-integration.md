@@ -1,4 +1,4 @@
-# Integrations
+# API & Integration
 
 NetBox includes a slew of features which enable integration with other tools and resources powering your network.
 
