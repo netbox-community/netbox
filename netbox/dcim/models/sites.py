@@ -295,10 +295,10 @@ class Site(NetBoxModel):
         to='extras.ImageAttachment'
     )
 
-    clone_fields = [
-        'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'description', 'physical_address',
-        'shipping_address', 'latitude', 'longitude',
-    ]
+    clone_fields = (
+        'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'physical_address', 'shipping_address',
+        'latitude', 'longitude', 'description',
+    )
 
     class Meta:
         ordering = ('_name',)
@@ -372,7 +372,7 @@ class Location(NestedGroupModel):
         to='extras.ImageAttachment'
     )
 
-    clone_fields = ['site', 'parent', 'status', 'tenant', 'description']
+    clone_fields = ('site', 'parent', 'status', 'tenant', 'description')
 
     class Meta:
         ordering = ['site', 'name']

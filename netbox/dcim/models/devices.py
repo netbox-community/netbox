@@ -135,9 +135,9 @@ class DeviceType(NetBoxModel):
         blank=True
     )
 
-    clone_fields = [
+    clone_fields = (
         'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
-    ]
+    )
 
     class Meta:
         ordering = ['manufacturer', 'model']
@@ -630,9 +630,10 @@ class Device(NetBoxModel, ConfigContextModel):
 
     objects = ConfigContextModelQuerySet.as_manager()
 
-    clone_fields = [
-        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'airflow', 'cluster',
-    ]
+    clone_fields = (
+        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'face', 'status', 'airflow',
+        'cluster', 'virtual_chassis',
+    )
 
     class Meta:
         ordering = ('_name', 'pk')  # Name may be null

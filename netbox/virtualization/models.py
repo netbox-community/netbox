@@ -153,9 +153,9 @@ class Cluster(NetBoxModel):
         to='tenancy.ContactAssignment'
     )
 
-    clone_fields = [
-        'type', 'group', 'tenant', 'site',
-    ]
+    clone_fields = (
+        'type', 'group', 'status', 'tenant', 'site',
+    )
 
     class Meta:
         ordering = ['name']
@@ -299,9 +299,9 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
 
     objects = ConfigContextModelQuerySet.as_manager()
 
-    clone_fields = [
+    clone_fields = (
         'site', 'cluster', 'device', 'tenant', 'platform', 'status', 'role', 'vcpus', 'memory', 'disk',
-    ]
+    )
 
     class Meta:
         ordering = ('_name', 'pk')  # Name may be non-unique

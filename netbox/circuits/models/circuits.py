@@ -125,9 +125,9 @@ class Circuit(NetBoxModel):
         null=True
     )
 
-    clone_fields = [
+    clone_fields = (
         'provider', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate', 'description',
-    ]
+    )
 
     class Meta:
         ordering = ['provider', 'cid']

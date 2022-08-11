@@ -183,10 +183,10 @@ class Rack(NetBoxModel):
         to='extras.ImageAttachment'
     )
 
-    clone_fields = [
+    clone_fields = (
         'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
         'outer_depth', 'outer_unit',
-    ]
+    )
 
     class Meta:
         ordering = ('site', 'location', '_name', 'pk')  # (site, location, name) may be non-unique

@@ -175,9 +175,9 @@ class Aggregate(GetAvailablePrefixesMixin, NetBoxModel):
         blank=True
     )
 
-    clone_fields = [
+    clone_fields = (
         'rir', 'tenant', 'date_added', 'description',
-    ]
+    )
 
     class Meta:
         ordering = ('prefix', 'pk')  # prefix may be non-unique
@@ -360,9 +360,9 @@ class Prefix(GetAvailablePrefixesMixin, NetBoxModel):
 
     objects = PrefixQuerySet.as_manager()
 
-    clone_fields = [
+    clone_fields = (
         'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
-    ]
+    )
 
     class Meta:
         ordering = (F('vrf').asc(nulls_first=True), 'prefix', 'pk')  # (vrf, prefix) may be non-unique
@@ -608,9 +608,9 @@ class IPRange(NetBoxModel):
         blank=True
     )
 
-    clone_fields = [
+    clone_fields = (
         'vrf', 'tenant', 'status', 'role', 'description',
-    ]
+    )
 
     class Meta:
         ordering = (F('vrf').asc(nulls_first=True), 'start_address', 'pk')  # (vrf, start_address) may be non-unique
@@ -836,9 +836,9 @@ class IPAddress(NetBoxModel):
 
     objects = IPAddressManager()
 
-    clone_fields = [
-        'vrf', 'tenant', 'status', 'role', 'description',
-    ]
+    clone_fields = (
+        'vrf', 'tenant', 'status', 'role', 'dns_name', 'description',
+    )
 
     class Meta:
         ordering = ('address', 'pk')  # address may be non-unique

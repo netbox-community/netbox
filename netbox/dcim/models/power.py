@@ -126,10 +126,10 @@ class PowerFeed(NetBoxModel, PathEndpoint, CabledObjectModel):
         blank=True
     )
 
-    clone_fields = [
+    clone_fields = (
         'power_panel', 'rack', 'status', 'type', 'mark_connected', 'supply', 'phase', 'voltage', 'amperage',
-        'max_utilization', 'available_power',
-    ]
+        'max_utilization',
+    )
 
     class Meta:
         ordering = ['power_panel', 'name']
