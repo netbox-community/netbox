@@ -5,6 +5,10 @@ Complementing its IPAM capabilities, NetBox also tracks VLAN information to assi
 ```mermaid
 flowchart TD
     VLANGroup & Role --> VLAN
+
+click Role "../../models/ipam/role/"
+click VLAN "../../models/ipam/vlan/"
+click VLANGroup "../../models/ipam/vlangroup/"
 ```
 
 ## VLAN Groups

@@ -17,8 +17,15 @@ flowchart TD
     Aggregate & Role --> Prefix
     Prefix --> Prefix
     Prefix --> IPRange & IPAddress
+
+click Aggregate "../../models/ipam/aggregate/"
+click IPAddress "../../models/ipam/ipaddress/"
+click IPRange "../../models/ipam/iprange/"
+click Prefix "../../models/ipam/prefix/"
+click RIR "../../models/ipam/rir/"
+click Role "../../models/ipam/role/"
 ```
-    
+
 !!! tip "Automatic Hierarchies"
     IP objects in NetBox never need to be manually assigned to the parent objects. The construction of hierarchies is handled automatically by the application according to the inherent rules of IP addressing.
 

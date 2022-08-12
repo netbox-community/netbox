@@ -7,6 +7,10 @@ flowchart TD
     ContactGroup --> ContactGroup & Contact
     ContactRole & Contact --> assignment([Assignment])
     assignment --> Object
+
+click Contact "../../models/tenancy/contact/"
+click ContactGroup "../../models/tenancy/contactgroup/"
+click ContactRole "../../models/tenancy/contactrole/"
 ```
 
 ## Contact Groups

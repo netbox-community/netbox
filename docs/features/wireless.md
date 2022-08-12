@@ -7,6 +7,9 @@ Just as NetBox provides robust modeling for physical cable plants, it also suppo
 ```mermaid
 flowchart TD
     WirelessLANGroup --> WirelessLANGroup & WirelessLAN
+
+click WirelessLAN "../../models/wireless/wirelesslan/"
+click WirelessLANGroup "../../models/wireless/wirelesslangroup/"
 ```
 
 A wireless LAN is a multi-access network shared by multiple wireless clients, identified by a common service set identifier (SSID) and authentication parameters. Wireless LANs can be organized into self-nesting groups, and each wireless LAN may optionally be bound to a particular VLAN. This allows easily mapping wireless networks to their wired counterparts.

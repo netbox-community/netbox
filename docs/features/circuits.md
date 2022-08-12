@@ -7,6 +7,12 @@ flowchart TD
     ASN --> Provider
     Provider --> ProviderNetwork & Circuit
     CircuitType --> Circuit
+
+click ASN "../../models/circuits/asn/"
+click Circuit "../../models/circuits/circuit/"
+click CircuitType "../../models/circuits/circuittype/"
+click Provider "../../models/circuits/provider/"
+click ProviderNetwork "../../models/circuits/providernetwork/"
 ```
 
 ## Providers

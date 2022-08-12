@@ -78,9 +78,15 @@ The graphs below illustrate some of the core dependencies among different models
 
 ```mermaid
 flowchart TD
-    TenantGroup --> TenantGroup
-    TenantGroup --> Tenant
+    TenantGroup --> TenantGroup & Tenant
     Tenant --> Site & Device & Prefix & VLAN & ...
+
+click Device "../../models/dcim/device/"
+click Prefix "../../models/ipam/prefix/"
+click Site "../../models/dcim/site/"
+click Tenant "../../models/tenancy/tenant/"
+click TenantGroup "../../models/tenancy/tenantgroup/"
+click VLAN "../../models/ipam/vlan/"
 ```
 
 ### Sites, Racks, and Devices
@@ -99,6 +105,21 @@ flowchart TD
     DeviceType  --> Device
     Device & ModuleType ---> Module
     Device & Module --> Interface
+
+click Device "../../models/dcim/device/"
+click DeviceRole "../../models/dcim/devicerole/"
+click DeviceType "../../models/dcim/devicetype/"
+click Interface "../../models/dcim/interface/"
+click Location "../../models/dcim/location/"
+click Manufacturer "../../models/dcim/manufacturer/"
+click Module "../../models/dcim/module/"
+click ModuleType "../../models/dcim/moduletype/"
+click Platform "../../models/dcim/platform/"
+click Rack "../../models/dcim/rack/"
+click RackRole "../../models/dcim/rackrole/"
+click Region "../../models/dcim/region/"
+click Site "../../models/dcim/site/"
+click SiteGroup "../../models/dcim/sitegroup/"
 ```
 
 ### VRFs, Prefixes, IP Addresses, and VLANs
@@ -112,6 +133,16 @@ flowchart TD
     Aggregate & VRF --> Prefix
     VRF --> IPRange & IPAddress
     Prefix --> VLAN & IPRange & IPAddress
+
+click Aggregate "../../models/ipam/aggregate/"
+click IPAddress "../../models/ipam/ipaddress/"
+click IPRange "../../models/ipam/iprange/"
+click Prefix "../../models/ipam/prefix/"
+click RIR "../../models/ipam/rir/"
+click Role "../../models/ipam/role/"
+click VLAN "../../models/ipam/vlan/"
+click VLANGroup "../../models/ipam/vlangroup/"
+click VRF "../../models/ipam/vrf/"
 ```
 
 ### Circuits
@@ -121,6 +152,12 @@ flowchart TD
     Provider & CircuitType --> Circuit
     Provider --> ProviderNetwork
     Circuit --> CircuitTermination
+
+click Circuit "../../models/circuits/circuit/"
+click CircuitTermination "../../models/circuits/circuittermination/"
+click CircuitType "../../models/circuits/circuittype/"
+click Provider "../../models/circuits/provider/"
+click ProviderNetwork "../../models/circuits/providernetwork/"
 ```
 
 ### Clusters and Virtual Machines
@@ -132,4 +169,12 @@ flowchart TD
     Site --> Cluster & VirtualMachine
     Device & Platform --> VirtualMachine
     VirtualMachine --> VMInterface
+
+click Cluster "../../models/virtualization/cluster/"
+click ClusterGroup "../../models/virtualization/clustergroup/"
+click ClusterType "../../models/virtualization/clustertype/"
+click Device "../../models/dcim/device/"
+click Platform "../../models/dcim/platform/"
+click VirtualMachine "../../models/virtualization/virtualmachine/"
+click VMInterface "../../models/virtualization/vminterface/"
 ```

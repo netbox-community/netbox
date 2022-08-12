@@ -6,6 +6,9 @@ Most core objects within NetBox's data model support _tenancy_. This is the asso
 flowchart TD
     TenantGroup --> TenantGroup & Tenant
     Tenant --> Site & Device & Prefix & Circuit & ...
+
+click Tenant "../../models/tenancy/tenant/"
+click TenantGroup "../../models/tenancy/tenantgroup/"
 ```
 
 ## Tenant Groups

@@ -13,6 +13,14 @@ flowchart TD
     Rack --> Device
     Site --> Rack
     RackRole --> Rack
+
+click Device "../../models/dcim/device/"
+click Location "../../models/dcim/location/"
+click Rack "../../models/dcim/rack/"
+click RackRole "../../models/dcim/rackrole/"
+click Region "../../models/dcim/region/"
+click Site "../../models/dcim/site/"
+click SiteGroup "../../models/dcim/sitegroup/"
 ```
 
 ## Regions

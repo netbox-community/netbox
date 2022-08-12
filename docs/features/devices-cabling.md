@@ -11,6 +11,14 @@ flowchart TD
     DeviceRole & Platform & DeviceType --> Device
     Device & ModuleType ---> Module
     Device & Module --> Interface & ConsolePort & PowerPort & ...
+
+click Device "../../models/dcim/device/"
+click DeviceRole "../../models/dcim/devicerole/"
+click DeviceType "../../models/dcim/devicetype/"
+click Manufacturer "../../models/dcim/manufacturer/"
+click Module "../../models/dcim/module/"
+click ModuleType "../../models/dcim/moduletype/"
+click Platform "../../models/dcim/platform/"
 ```
 
 ## Manufacturers
