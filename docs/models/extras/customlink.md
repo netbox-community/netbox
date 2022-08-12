@@ -1,5 +1,7 @@
 # Custom Links
 
+Users can add custom links to object views in NetBox to reference external resources. For example, you might create a custom link for devices pointing to a monitoring system. See the [custom links documentation](../../customization/custom-links.md) for more information.
+
 ## Fields
 
 ### Name

@@ -1,5 +1,7 @@
 # Export Templates
 
+Export templates are used to render arbitrary data from a set of NetBox objects. For example, you might want to automatically generate a network monitoring service configuration from a list of device objects. See the [export templates documentation](../../customization/export-templates.md) for more information.
+
 ## Fields
 
 ### Name

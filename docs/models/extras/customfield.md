@@ -1,5 +1,7 @@
 # Custom Fields
 
+NetBox administrators can extend NetBox's built-in data model by adding custom fields to most object types. See the [custom fields documentation](../../customization/custom-fields.md) for more information.
+
 ## Fields
 
 ### Model(s)

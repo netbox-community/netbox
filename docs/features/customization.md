@@ -6,6 +6,18 @@ While NetBox strives to meet the needs of every network, the needs of users to c
 
 Most objects in NetBox can be assigned user-created tags to aid with organization and filtering. Tag values are completely arbitrary: They may be used to store data in key-value pairs, or they may be employed simply as labels against which objects can be filtered. Each tag can also be assigned a color for quicker differentiation in the user interface.
 
+Objects can be filtered by the tags they have applied. For example, the following API request will retrieve all devices tagged as "monitored":
+
+```no-highlight
+GET /api/dcim/devices/?tag=monitored
+```
+
+The `tag` filter can be specified multiple times to match only objects which have _all_ the specified tags assigned:
+
+```no-highlight
+GET /api/dcim/devices/?tag=monitored&tag=deprecated
+```
+
 ## Custom Fields
 
 While NetBox provides a rather extensive data model out of the box, the need may arise to store certain additional data associated with NetBox objects. For example, you might need to record the invoice ID alongside an installed device, or record an approving authority when creating a new IP prefix. NetBox administrators can create custom fields on built-in objects to meet these needs.
