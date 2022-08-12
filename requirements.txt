@@ -34,3 +34,6 @@ tzdata==2022.1
 
 # Workaround for #7401
 jsonschema==3.2.0
+
+# Workaround for #9986
+pytz==2022.1
