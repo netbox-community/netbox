@@ -389,10 +389,10 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
                 )
                 logger.info(f"{msg} {obj} (PK: {obj.pk})")
                 if hasattr(obj, 'get_absolute_url'):
-                    msg = '{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), escape(obj))
+                    msg = mark_safe(f'{msg} <a href="{obj.get_absolute_url()}">{escape(obj)}</a>')
                 else:
-                    msg = '{} {}'.format(msg, escape(obj))
-                messages.success(request, mark_safe(msg))
+                    msg = f'{msg} {obj}'
+                messages.success(request, msg)
 
                 if '_addanother' in request.POST:
                     redirect_url = request.path

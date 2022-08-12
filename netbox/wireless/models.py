@@ -113,6 +113,8 @@ class WirelessLAN(WirelessAuthenticationBase, NetBoxModel):
         blank=True
     )
 
+    clone_fields = ('ssid', 'group', 'tenant', 'description')
+
     class Meta:
         ordering = ('ssid', 'pk')
         verbose_name = 'Wireless LAN'

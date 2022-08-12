@@ -97,22 +97,11 @@ Custom field UI visibility has no impact on API operation.
 * [#9536](https://github.com/netbox-community/netbox/issues/9536) - Track API token usage times
 * [#9582](https://github.com/netbox-community/netbox/issues/9582) - Enable assigning config contexts based on device location
 
-### Bug Fixes (from Beta1)
+### Bug Fixes (from Beta2)
 
-* [#9728](https://github.com/netbox-community/netbox/issues/9728) - Fix validation when assigning a virtual machine to a device
-* [#9729](https://github.com/netbox-community/netbox/issues/9729) - Fix ordering of content type creation to ensure compatability with demo data
-* [#9730](https://github.com/netbox-community/netbox/issues/9730) - Fix validation error when creating a new cable via UI form
-* [#9733](https://github.com/netbox-community/netbox/issues/9733) - Handle split paths during trace when fanning out to front ports with differing cables
-* [#9765](https://github.com/netbox-community/netbox/issues/9765) - Report correct segment count under cable trace UI view
-* [#9778](https://github.com/netbox-community/netbox/issues/9778) - Fix exception during cable deletion after deleting a connected termination
-* [#9788](https://github.com/netbox-community/netbox/issues/9788) - Ensure denormalized fields on CableTermination are kept in sync with related objects
-* [#9789](https://github.com/netbox-community/netbox/issues/9789) - Fix rendering of cable traces ending at provider networks
-* [#9794](https://github.com/netbox-community/netbox/issues/9794) - Fix link to connect a rear port to a circuit termination
-* [#9818](https://github.com/netbox-community/netbox/issues/9818) - Fix circuit side selection when connecting a cable to a circuit termination
-* [#9829](https://github.com/netbox-community/netbox/issues/9829) - Arrange custom fields by group when editing objects
-* [#9843](https://github.com/netbox-community/netbox/issues/9843) - Fix rendering of custom field values (regression from #9647)
-* [#9844](https://github.com/netbox-community/netbox/issues/9844) - Fix interface api request when creating/editing L2VPN termination
-* [#9847](https://github.com/netbox-community/netbox/issues/9847) - Respect `desc_units` when ordering rack units
+* [#9900](https://github.com/netbox-community/netbox/issues/9900) - Pre-populate site & rack fields for cable connection form
+* [#9938](https://github.com/netbox-community/netbox/issues/9938) - Exclude virtual interfaces from terminations list when connecting a cable
+* [#9939](https://github.com/netbox-community/netbox/issues/9939) - Fix list of next nodes for split paths under trace view
 
 ### Plugins API
 

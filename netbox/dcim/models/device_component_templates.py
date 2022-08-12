@@ -478,6 +478,7 @@ class FrontPortTemplate(ModularComponentTemplateModel):
         return {
             'name': self.name,
             'type': self.type,
+            'color': self.color,
             'rear_port': self.rear_port.name,
             'rear_port_position': self.rear_port_position,
             'label': self.label,
@@ -527,6 +528,7 @@ class RearPortTemplate(ModularComponentTemplateModel):
         return {
             'name': self.name,
             'type': self.type,
+            'color': self.color,
             'positions': self.positions,
             'label': self.label,
             'description': self.description,

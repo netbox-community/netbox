@@ -84,6 +84,7 @@ def get_cable_form(a_type, b_type):
                         disabled_indicator='_occupied',
                         query_params={
                             'device_id': f'$termination_{cable_end}_device',
+                            'kind': 'physical',  # Exclude virtual interfaces
                         }
                     )
 

@@ -1,6 +1,20 @@
 # NetBox v3.2
 
-## v3.2.8 (FUTURE)
+## v3.2.9 (FUTURE)
+
+### Enhancements
+
+* [#9161](https://github.com/netbox-community/netbox/issues/9161) - Pretty print JSON custom field data when editing
+* [#9625](https://github.com/netbox-community/netbox/issues/9625) - Add phone & email details to contacts panel
+* [#9857](https://github.com/netbox-community/netbox/issues/9857) - Add clear button to quick search fields
+
+### Bug Fixes
+
+* [#9986](https://github.com/netbox-community/netbox/issues/9986) - Workaround for upstream timezone data bug
+
+---
+
+## v3.2.8 (2022-08-08)
 
 ### Enhancements
 
@@ -11,13 +25,20 @@
 * [#9881](https://github.com/netbox-community/netbox/issues/9881) - Increase granularity in utilization graph values
 * [#9882](https://github.com/netbox-community/netbox/issues/9882) - Add manufacturer column to modules table
 * [#9883](https://github.com/netbox-community/netbox/issues/9883) - Linkify location column in power panels table
+* [#9906](https://github.com/netbox-community/netbox/issues/9906) - Include `color` attribute in front & rear port YAML import/export
 
 ### Bug Fixes
 
+* [#9827](https://github.com/netbox-community/netbox/issues/9827) - Fix assignment of module bay position during bulk creation
 * [#9871](https://github.com/netbox-community/netbox/issues/9871) - Fix utilization graph value alignments
 * [#9884](https://github.com/netbox-community/netbox/issues/9884) - Prevent querying assigned VRF on prefix object init
 * [#9885](https://github.com/netbox-community/netbox/issues/9885) - Fix child prefix counts when editing/deleting aggregates in bulk
 * [#9891](https://github.com/netbox-community/netbox/issues/9891) - Ensure consistent ordering for tags during object serialization
+* [#9919](https://github.com/netbox-community/netbox/issues/9919) - Fix potential XSS avenue via linked objects in tables
+* [#9948](https://github.com/netbox-community/netbox/issues/9948) - Fix TypeError exception when requesting API tokens list as non-authenticated user
+* [#9949](https://github.com/netbox-community/netbox/issues/9949) - Fix KeyError exception resulting from invalid API token provisioning request
+* [#9950](https://github.com/netbox-community/netbox/issues/9950) - Prevent redirection to arbitrary URLs via `next` parameter on login URL
+* [#9952](https://github.com/netbox-community/netbox/issues/9952) - Prevent InvalidMove when attempting to assign a nested child object as parent
 
 ---
 

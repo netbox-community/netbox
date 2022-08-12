@@ -86,8 +86,8 @@ def placeholder(value):
     """
     if value not in ('', None):
         return value
-    placeholder = '<span class="text-muted">&mdash;</span>'
-    return mark_safe(placeholder)
+
+    return mark_safe('<span class="text-muted">&mdash;</span>')
 
 
 @register.filter()

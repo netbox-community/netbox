@@ -677,6 +677,6 @@ class CablePath(models.Model):
         """
         Return all available next segments in a split cable path.
         """
-        rearport = path_node_to_object(self._nodes[-1])
+        rearports = self.path_objects[-1]
 
-        return FrontPort.objects.filter(rear_port=rearport)
+        return FrontPort.objects.filter(rear_port__in=rearports)

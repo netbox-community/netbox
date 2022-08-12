@@ -263,7 +263,7 @@ class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint):
         help_text='Port speed in bits per second'
     )
 
-    clone_fields = ['device', 'type', 'speed']
+    clone_fields = ('device', 'module', 'type', 'speed')
 
     class Meta:
         ordering = ('device', '_name')
@@ -290,7 +290,7 @@ class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
         help_text='Port speed in bits per second'
     )
 
-    clone_fields = ['device', 'type', 'speed']
+    clone_fields = ('device', 'module', 'type', 'speed')
 
     class Meta:
         ordering = ('device', '_name')
@@ -327,7 +327,7 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
         help_text="Allocated power draw (watts)"
     )
 
-    clone_fields = ['device', 'maximum_draw', 'allocated_draw']
+    clone_fields = ('device', 'module', 'maximum_draw', 'allocated_draw')
 
     class Meta:
         ordering = ('device', '_name')
@@ -441,7 +441,7 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint):
         help_text="Phase (for three-phase feeds)"
     )
 
-    clone_fields = ['device', 'type', 'power_port', 'feed_leg']
+    clone_fields = ('device', 'module', 'type', 'power_port', 'feed_leg')
 
     class Meta:
         ordering = ('device', '_name')
@@ -672,7 +672,10 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         related_query_name='interface',
     )
 
-    clone_fields = ['device', 'parent', 'bridge', 'lag', 'type', 'mgmt_only', 'poe_mode', 'poe_type']
+    clone_fields = (
+        'device', 'module', 'parent', 'bridge', 'lag', 'type', 'mgmt_only', 'mtu', 'mode', 'speed', 'duplex', 'rf_role',
+        'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'poe_mode', 'poe_type', 'vrf',
+    )
 
     class Meta:
         ordering = ('device', CollateAsChar('_name'))
@@ -890,7 +893,7 @@ class FrontPort(ModularComponentModel, CabledObjectModel):
         ]
     )
 
-    clone_fields = ['device', 'type']
+    clone_fields = ('device', 'type', 'color')
 
     class Meta:
         ordering = ('device', '_name')
@@ -937,7 +940,7 @@ class RearPort(ModularComponentModel, CabledObjectModel):
             MaxValueValidator(REARPORT_POSITIONS_MAX)
         ]
     )
-    clone_fields = ['device', 'type', 'positions']
+    clone_fields = ('device', 'type', 'color', 'positions')
 
     class Meta:
         ordering = ('device', '_name')
@@ -972,7 +975,7 @@ class ModuleBay(ComponentModel):
         help_text='Identifier to reference when renaming installed components'
     )
 
-    clone_fields = ['device']
+    clone_fields = ('device',)
 
     class Meta:
         ordering = ('device', '_name')
@@ -994,7 +997,7 @@ class DeviceBay(ComponentModel):
         null=True
     )
 
-    clone_fields = ['device']
+    clone_fields = ('device',)
 
     class Meta:
         ordering = ('device', '_name')
@@ -1131,7 +1134,7 @@ class InventoryItem(MPTTModel, ComponentModel):
 
     objects = TreeManager()
 
-    clone_fields = ['device', 'parent', 'role', 'manufacturer', 'part_id']
+    clone_fields = ('device', 'parent', 'role', 'manufacturer', 'part_id',)
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')

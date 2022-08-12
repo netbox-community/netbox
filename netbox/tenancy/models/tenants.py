@@ -76,9 +76,9 @@ class Tenant(NetBoxModel):
         to='tenancy.ContactAssignment'
     )
 
-    clone_fields = [
+    clone_fields = (
         'group', 'description',
-    ]
+    )
 
     class Meta:
         ordering = ['name']

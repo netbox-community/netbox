@@ -42,3 +42,9 @@ table td {
     visibility: visible !important;
   }
 }
+
+// Hides the last child of an element
+.hide-last-child :last-child {
+  visibility: hidden;
+  opacity: 0;
+}
