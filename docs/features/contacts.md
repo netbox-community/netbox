@@ -26,3 +26,20 @@ A contact role defines the relationship of a contact to an assigned object. For 
 A contact should represent an individual or permanent point of contact. Each contact must define a name, and may optionally include a title, phone number, email address, and related details.
 
 Contacts are reused for assignments, so each unique contact must be created only once and can be assigned to any number of NetBox objects, and there is no limit to the number of assigned contacts an object may have. Most core objects in NetBox can have contacts assigned to them.
+
+The following models support the assignment of contacts:
+
+* circuits.Circuit
+* circuits.Provider
+* dcim.Device
+* dcim.Location
+* dcim.Manufacturer
+* dcim.PowerPanel
+* dcim.Rack
+* dcim.Region
+* dcim.Site
+* dcim.SiteGroup
+* tenancy.Tenant
+* virtualization.Cluster
+* virtualization.ClusterGroup
+* virtualization.VirtualMachine
