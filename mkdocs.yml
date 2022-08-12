@@ -70,6 +70,7 @@ nav:
         - L2VPN & Overlay: 'features/l2vpn-overlay.md'
         - Circuits: 'features/circuits.md'
         - Wireless: 'features/wireless.md'
+        - Virtualization: 'features/virtualization.md'
         - Tenancy: 'features/tenancy.md'
         - Contacts: 'features/contacts.md'
         - Context Data: 'features/context-data.md'
