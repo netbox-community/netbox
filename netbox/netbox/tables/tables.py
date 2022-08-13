@@ -7,7 +7,6 @@ from django.db.models.fields.related import RelatedField
 from django_tables2.data import TableQuerysetData
 
 from extras.models import CustomField, CustomLink
-from extras.choices import CustomFieldTypeChoices
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 
