@@ -181,7 +181,8 @@ class NetBoxTable(BaseTable):
         content_type = ContentType.objects.get_for_model(self._meta.model)
         custom_fields = CustomField.objects.filter(content_types=content_type)
         extra_columns.extend([
-            (f'cf_{cf.name}', columns.CustomFieldMarkdownColumn(cf) if cf.type == CustomFieldTypeChoices.TYPE_LONGTEXT else columns.CustomFieldColumn(cf)) for cf in custom_fields
+            # (f'cf_{cf.name}', columns.CustomFieldMarkdownColumn(cf) if cf.type == CustomFieldTypeChoices.TYPE_LONGTEXT else columns.CustomFieldColumn(cf)) for cf in custom_fields
+            (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in custom_fields
         ])
         custom_links = CustomLink.objects.filter(content_type=content_type, enabled=True)
         extra_columns.extend([

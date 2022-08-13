@@ -418,6 +418,14 @@ class CustomFieldColumn(tables.Column):
     """
     Display custom fields in the appropriate format.
     """
+    template_code = """
+    {% if value %}
+      {{ value|markdown }}
+    {% else %}
+      &mdash;
+    {% endif %}
+    """
+
     def __init__(self, customfield, *args, **kwargs):
         self.customfield = customfield
         kwargs['accessor'] = Accessor(f'custom_field_data__{customfield.name}')
@@ -445,6 +453,8 @@ class CustomFieldColumn(tables.Column):
             return mark_safe(', '.join(
                 self._likify_item(obj) for obj in self.customfield.deserialize(value)
             ))
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_LONGTEXT:
+            return Template(self.template_code).render(Context({"value": value}))
         if value is not None:
             obj = self.customfield.deserialize(value)
             return mark_safe(self._likify_item(obj))
