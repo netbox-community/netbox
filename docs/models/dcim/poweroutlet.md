@@ -4,6 +4,9 @@ Power outlets represent the outlets on a power distribution unit (PDU) or other 
 
 For example, imagine a PDU with one power port which draws from a three-phase feed and 48 power outlets arranged into three banks of 16 outlets each. Outlets 1-16 would be associated with leg A on the port, and outlets 17-32 and 33-48 would be associated with legs B and C, respectively.
 
+!!! tip
+    Like most device components, power outlets are instantiated automatically from [power outlet templates](./poweroutlettemplate.md) assigned to the selected device type when a device is created.
+
 ## Fields
 
 ### Device

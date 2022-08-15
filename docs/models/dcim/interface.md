@@ -2,6 +2,9 @@
 
 Interfaces in NetBox represent network interfaces used to exchange data with connected devices. On modern networks, these are most commonly Ethernet, but other types are supported as well. IP addresses and VLANs can be assigned to interfaces.
 
+!!! tip
+    Like most device components, interfaces are instantiated automatically from [interface templates](./interfacetemplate.md) assigned to the selected device type when a device is created.
+
 !!! note
     Although both devices and virtual machines both can have interfaces assigned, a separate model is used for each. Thus, device interfaces have some properties that are not present on virtual machine interfaces and vice versa.
 

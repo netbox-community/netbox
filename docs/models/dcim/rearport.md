@@ -5,6 +5,9 @@ Like [front ports](./frontport.md), rear ports are pass-through ports which repr
 !!! note
     Front and rear ports need not necessarily reside on the actual front or rear device face. This terminology is used primarily to distinguish between the two components in a pass-through port pairing.
 
+!!! tip
+    Like most device components, rear ports are instantiated automatically from [rear port templates](./rearporttemplate.md) assigned to the selected device type when a device is created.
+
 ## Fields
 
 ### Device

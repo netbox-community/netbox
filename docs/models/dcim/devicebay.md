@@ -7,6 +7,9 @@ Child devices are first-class Devices in their own right: That is, they are full
 !!! note
     Device bays are **not** suitable for modeling line cards (such as those commonly found in chassis-based routers and switches), as these components depend on the control plane of the parent device to operate. Instead, these should be modeled as [modules](./module.md) installed within [module bays](./modulebay.md).
 
+!!! tip
+    Like most device components, device bays are instantiated automatically from [device bay templates](./devicebaytemplate.md) assigned to the selected device type when a device is created.
+
 ## Fields
 
 ### Device

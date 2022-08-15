@@ -4,6 +4,9 @@ Inventory items represent hardware components installed within a device, such as
 
 Inventory items are hierarchical in nature, such that any individual item may be designated as the parent for other items. For example, an inventory item might be created to represent a line card which houses several SFP optics, each of which exists as a child item within the device. An inventory item may also be associated with a specific component within the same device. For example, you may wish to associate a transceiver with an interface.
 
+!!! tip
+    Like most device components, inventory items can be instantiated automatically from [templates](./inventoryitemtemplate.md) assigned to the selected device type when a device is created.
+
 ## Fields
 
 ### Device

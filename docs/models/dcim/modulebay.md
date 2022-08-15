@@ -5,6 +5,9 @@ Module bays represent a space or slot within a device in which a field-replaceab
 !!! note
     If you need to model child devices rather than modules, use a [device bay](./devicebay.md) instead.
 
+!!! tip
+    Like most device components, module bays are instantiated automatically from [module bay templates](./modulebaytemplate.md) assigned to the selected device type when a device is created.
+
 ## Fields
 
 ### Device

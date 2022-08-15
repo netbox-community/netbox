@@ -2,6 +2,9 @@
 
 Front ports are pass-through ports which represent physical cable connections that comprise part of a longer path. For example, the ports on the front face of a UTP patch panel would be modeled in NetBox as front ports. Each port is assigned a physical type, and must be mapped to a specific [rear port](./rearport.md) on the same device. A single rear port may be mapped to multiple front ports, using numeric positions to annotate the specific alignment of each.
 
+!!! tip
+    Like most device components, front ports are instantiated automatically from [front port templates](./frontporttemplate.md) assigned to the selected device type when a device is created.
+
 ## Fields
 
 ### Device
