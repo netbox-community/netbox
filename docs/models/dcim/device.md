@@ -72,6 +72,13 @@ The device's operational status.
 
 A device may be associated with a particular [platform](./platform.md) to indicate its operating system. Note that only platforms assigned to the associated manufacturer (or to no manufacturer) will be available for selection.
 
+### Primary IPv4 & IPv6 Addresses
+
+Each device may designate one primary IPv4 address and/or one primary IPv6 address for management purposes.
+
+!!! tip
+    NetBox will prefer IPv6 addresses over IPv4 addresses by default. This can be changed by setting the `PREFER_IPV4` configuration parameter.
+
 ### Cluster
 
 If this device will serve as a host for a virtualization [cluster](../virtualization/cluster.md), it can be assigned here. (Host devices can also be assigned by editing the cluster.)
