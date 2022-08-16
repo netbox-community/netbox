@@ -1,4 +1,5 @@
 {% extends 'generic/object_list.html' %}
+{% load buttons %}
 
 {% block bulk_buttons %}
   {% if perms.dcim.change_device %}
@@ -73,5 +74,15 @@
       </ul>
     </div>
   {% endif %}
-  {{ block.super }}
+  {% if 'bulk_edit' in actions %}
+    <div class="btn-group" role="group">
+      {% bulk_edit_button model query_params=request.GET %}
+      <button type="submit" name="_rename" formaction="{% url 'dcim:device_bulk_rename' %}?return_url={% url 'dcim:device_list' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-outline-warning btn-sm">
+        <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
+      </button>
+    </div>
+  {% endif %}
+  {% if 'bulk_delete' in actions %}
+    {% bulk_delete_button model query_params=request.GET %}
+  {% endif %}
 {% endblock %}

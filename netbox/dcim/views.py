@@ -1798,6 +1798,12 @@ class DeviceBulkDeleteView(generic.BulkDeleteView):
     table = tables.DeviceTable
 
 
+class DeviceBulkRenameView(generic.BulkRenameView):
+    queryset = Device.objects.all()
+    filterset = filtersets.DeviceFilterSet
+    table = tables.DeviceTable
+
+
 #
 # Devices
 #
