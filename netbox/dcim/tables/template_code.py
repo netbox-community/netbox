@@ -100,7 +100,7 @@ LOCATION_BUTTONS = """
 
 MODULAR_COMPONENT_TEMPLATE_BUTTONS = """
 {% load helpers %}
-{% if perms.dcim.add_inventoryitemtemplate %}
+{% if perms.dcim.add_inventoryitemtemplate and record.device_type_id %}
 <a href="{% url 'dcim:inventoryitemtemplate_add' %}?device_type={{ record.device_type_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={{ request.path }}" title="Add inventory item" class="btn btn-primary btn-sm">
   <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
 </a>

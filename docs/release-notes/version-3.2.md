@@ -14,6 +14,7 @@
 
 ### Bug Fixes
 
+* [#9491](https://github.com/netbox-community/netbox/issues/9491) - Remove button for adding inventory item templates to module type components
 * [#9979](https://github.com/netbox-community/netbox/issues/9979) - Fix Markdown rendering for custom fields in table columns
 * [#9986](https://github.com/netbox-community/netbox/issues/9986) - Workaround for upstream timezone data bug
 
