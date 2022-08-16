@@ -20,9 +20,23 @@ NetBox allows us to specify the portions of IP space that are interesting to us 
 * 192.168.0.0/16 (RFC 1918)
 * One or more /48s within fd00::/8 (IPv6 unique local addressing)
 
-Each aggregate is assigned to a RIR. For "public" aggregates, this will be the real-world authority which has granted your organization permission to use the specified IP space on the public Internet. For "private" aggregates, this will be a statutory authority, such as RFC 1918. Each aggregate can also annotate that date on which it was allocated, where applicable.
+Each aggregate is assigned to a [RIR](./rir.md). For "public" aggregates, this will be the real-world authority which has granted your organization permission to use the specified IP space on the public Internet. For "private" aggregates, this will be a statutory authority, such as RFC 1918. Each aggregate can also annotate that date on which it was allocated, where applicable.
 
-Prefixes are automatically arranged beneath their parent aggregates in NetBox. Typically you'll want to create aggregates only for the prefixes and IP addresses that your organization actually manages: There is no need to define aggregates for provider-assigned space which is only used on Internet circuits, for example.
+Prefixes are automatically arranged beneath their parent aggregates in NetBox. Typically, you'll want to create aggregates only for the prefixes and IP addresses that your organization actually manages: There is no need to define aggregates for provider-assigned space which is only used on Internet circuits, for example.
 
 !!! note
-    Because aggregates represent swaths of the global IP space, they cannot overlap with one another: They can only exist side-by-side. For instance, you cannot define both 10.0.0.0/8 and 10.16.0.0/16 as aggregates, because they overlap. 10.16.0.0/16 in this example would be created as a container prefix and automatically grouped under the 10.0.0.0/8 aggregate. Remember, the purpose of aggregates is to establish the root of your IP addressing hierarchy.
+    Because aggregates represent segments of the global IP space, they cannot overlap with one another: They can only exist side-by-side. For instance, you cannot define both 10.0.0.0/8 and 10.16.0.0/16 as aggregates, because they overlap. 10.16.0.0/16 in this example would be created as a container prefix and automatically grouped under the 10.0.0.0/8 aggregate. Remember, the purpose of aggregates is to establish the root of your IP addressing hierarchy.
+
+## Fields
+
+### Prefix
+
+The IPv4 or IPv6 network this aggregate represents.
+
+### RIR
+
+The [Regional Internet Registry](./rir.md) or similar authority which governs allocations of this address space from the global pool.
+
+### Date Added
+
+The date on which the address space was allocated or deployed.
