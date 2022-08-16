@@ -5,12 +5,15 @@
 ### Enhancements
 
 * [#8595](https://github.com/netbox-community/netbox/issues/8595) - Add PON interface types
+* [#8723](https://github.com/netbox-community/netbox/issues/8723) - Enable bulk renaming of devices
 * [#9161](https://github.com/netbox-community/netbox/issues/9161) - Pretty print JSON custom field data when editing
+* [#9505](https://github.com/netbox-community/netbox/issues/9505) - Display extra addressing details for IPv4 prefixes
 * [#9625](https://github.com/netbox-community/netbox/issues/9625) - Add phone & email details to contacts panel
 * [#9857](https://github.com/netbox-community/netbox/issues/9857) - Add clear button to quick search fields
 
 ### Bug Fixes
 
+* [#9979](https://github.com/netbox-community/netbox/issues/9979) - Fix Markdown rendering for custom fields in table columns
 * [#9986](https://github.com/netbox-community/netbox/issues/9986) - Workaround for upstream timezone data bug
 
 ---
