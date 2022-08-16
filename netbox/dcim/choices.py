@@ -814,6 +814,9 @@ class InterfaceTypeChoices(ChoiceSet):
     # ATM/DSL
     TYPE_XDSL = 'xdsl'
 
+    # Coaxial
+    TYPE_DOCSIS = 'docsis'
+
     # PON
     TYPE_GPON = 'gpon'
     TYPE_XG_PON = 'xg-pon'
@@ -956,6 +959,12 @@ class InterfaceTypeChoices(ChoiceSet):
             'ATM',
             (
                 (TYPE_XDSL, 'xDSL'),
+            )
+        ),
+        (
+            'Coaxial',
+            (
+                (TYPE_DOCSIS, 'DOCSIS'),
             )
         ),
         (

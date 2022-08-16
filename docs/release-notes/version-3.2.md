@@ -10,6 +10,7 @@
 * [#9505](https://github.com/netbox-community/netbox/issues/9505) - Display extra addressing details for IPv4 prefixes
 * [#9625](https://github.com/netbox-community/netbox/issues/9625) - Add phone & email details to contacts panel
 * [#9857](https://github.com/netbox-community/netbox/issues/9857) - Add clear button to quick search fields
+* [#9933](https://github.com/netbox-community/netbox/issues/9933) - Add DOCSIS interface type
 
 ### Bug Fixes
 
