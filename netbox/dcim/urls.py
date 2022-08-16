@@ -248,6 +248,7 @@ urlpatterns = [
     path('devices/import/', views.DeviceBulkImportView.as_view(), name='device_import'),
     path('devices/import/child-devices/', views.ChildDeviceBulkImportView.as_view(), name='device_import_child'),
     path('devices/edit/', views.DeviceBulkEditView.as_view(), name='device_bulk_edit'),
+    path('devices/rename/', views.DeviceBulkRenameView.as_view(), name='device_bulk_rename'),
     path('devices/delete/', views.DeviceBulkDeleteView.as_view(), name='device_bulk_delete'),
     path('devices/<int:pk>/', views.DeviceView.as_view(), name='device'),
     path('devices/<int:pk>/edit/', views.DeviceEditView.as_view(), name='device_edit'),

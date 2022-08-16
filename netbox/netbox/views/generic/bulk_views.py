@@ -603,7 +603,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             replace = form.cleaned_data['replace']
             if form.cleaned_data['use_regex']:
                 try:
-                    obj.new_name = re.sub(find, replace, obj.name)
+                    obj.new_name = re.sub(find, replace, obj.name or '')
                 # Catch regex group reference errors
                 except re.error:
                     obj.new_name = obj.name
