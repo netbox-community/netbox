@@ -14,6 +14,7 @@ from django_tables2.columns import library
 from django_tables2.utils import Accessor
 
 from extras.choices import CustomFieldTypeChoices
+from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import content_type_identifier, content_type_name, get_viewname
 
 __all__ = (
@@ -418,14 +419,6 @@ class CustomFieldColumn(tables.Column):
     """
     Display custom fields in the appropriate format.
     """
-    template_code = """
-    {% if value %}
-      {{ value|markdown }}
-    {% else %}
-      &mdash;
-    {% endif %}
-    """
-
     def __init__(self, customfield, *args, **kwargs):
         self.customfield = customfield
         kwargs['accessor'] = Accessor(f'custom_field_data__{customfield.name}')
@@ -435,7 +428,7 @@ class CustomFieldColumn(tables.Column):
         super().__init__(*args, **kwargs)
 
     @staticmethod
-    def _likify_item(item):
+    def _linkify_item(item):
         if hasattr(item, 'get_absolute_url'):
             return f'<a href="{item.get_absolute_url()}">{escape(item)}</a>'
         return escape(item)
@@ -451,13 +444,13 @@ class CustomFieldColumn(tables.Column):
             return ', '.join(v for v in value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             return mark_safe(', '.join(
-                self._likify_item(obj) for obj in self.customfield.deserialize(value)
+                self._linkify_item(obj) for obj in self.customfield.deserialize(value)
             ))
-        if self.customfield.type == CustomFieldTypeChoices.TYPE_LONGTEXT:
-            return Template(self.template_code).render(Context({"value": value}))
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_LONGTEXT and value:
+            return render_markdown(value)
         if value is not None:
             obj = self.customfield.deserialize(value)
-            return mark_safe(self._likify_item(obj))
+            return mark_safe(self._linkify_item(obj))
         return self.default
 
     def value(self, value):
