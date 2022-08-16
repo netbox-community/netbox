@@ -145,6 +145,14 @@
           </tr>
         </table>
       </div>
+      {% if object.prefix.version == 4 %}
+      <div class="card-footer text-end noprint">
+        <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#prefix-modal">
+          <i class="mdi mdi-details" aria-hidden="true"></i>
+                    Details
+        </a>
+      </div>
+      {% endif %}
     </div>
     {% include 'inc/panels/custom_fields.html' %}
     {% include 'inc/panels/tags.html' %}
@@ -160,4 +168,54 @@
         {% plugin_full_width_page object %}
     </div>
 </div>
+{% if object.prefix.version == 4 %}
+  <div class="modal fade" id="prefix-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Prefix Details</h5>
+        </div>
+        <div class="modal-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <td>
+                Network Mask
+              </td>
+              <td>
+                {{ object.prefix.netmask }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Wildcard Mask
+              </td>
+              <td>
+                {{ object.prefix.hostmask }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Network Address
+              </td>
+              <td>
+                {{ object.prefix.network }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Broadcast Address
+              </td>
+              <td>
+                {{ object.prefix.broadcast }}
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
 {% endblock %}
