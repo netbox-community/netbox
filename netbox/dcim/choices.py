@@ -814,6 +814,17 @@ class InterfaceTypeChoices(ChoiceSet):
     # ATM/DSL
     TYPE_XDSL = 'xdsl'
 
+    # Coaxial
+    TYPE_DOCSIS = 'docsis'
+
+    # PON
+    TYPE_GPON = 'gpon'
+    TYPE_XG_PON = 'xg-pon'
+    TYPE_XGS_PON = 'xgs-pon'
+    TYPE_NG_PON2 = 'ng-pon2'
+    TYPE_EPON = 'epon'
+    TYPE_10G_EPON = '10g-epon'
+
     # Stacking
     TYPE_STACKWISE = 'cisco-stackwise'
     TYPE_STACKWISE_PLUS = 'cisco-stackwise-plus'
@@ -948,6 +959,23 @@ class InterfaceTypeChoices(ChoiceSet):
             'ATM',
             (
                 (TYPE_XDSL, 'xDSL'),
+            )
+        ),
+        (
+            'Coaxial',
+            (
+                (TYPE_DOCSIS, 'DOCSIS'),
+            )
+        ),
+        (
+            'PON',
+            (
+                (TYPE_GPON, 'GPON (2.5 Gbps / 1.25 Gps)'),
+                (TYPE_XG_PON, 'XG-PON (10 Gbps / 2.5 Gbps)'),
+                (TYPE_XGS_PON, 'XGS-PON (10 Gbps)'),
+                (TYPE_NG_PON2, 'NG-PON2 (TWDM-PON) (4x10 Gbps)'),
+                (TYPE_EPON, 'EPON (1 Gbps)'),
+                (TYPE_10G_EPON, '10G-EPON (10 Gbps)'),
             )
         ),
         (

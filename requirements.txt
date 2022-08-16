@@ -19,13 +19,13 @@ gunicorn==20.1.0
 Jinja2==3.1.2
 Markdown==3.4.1
 markdown-include==0.7.0
-mkdocs-material==8.3.9
+mkdocs-material==8.4.0
 mkdocstrings[python-legacy]==0.19.0
 netaddr==0.8.0
 Pillow==9.2.0
 psycopg2-binary==2.9.3
 PyYAML==6.0
-sentry-sdk==1.9.2
+sentry-sdk==1.9.5
 social-auth-app-django==5.0.0
 social-auth-core==4.3.0
 svgwrite==1.4.3
@@ -34,3 +34,6 @@ tzdata==2022.1
 
 # Workaround for #7401
 jsonschema==3.2.0
+
+# Workaround for #9986
+pytz==2022.1

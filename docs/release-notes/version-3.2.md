@@ -1,5 +1,25 @@
 # NetBox v3.2
 
+## v3.2.9 (2022-08-16)
+
+### Enhancements
+
+* [#8595](https://github.com/netbox-community/netbox/issues/8595) - Add PON interface types
+* [#8723](https://github.com/netbox-community/netbox/issues/8723) - Enable bulk renaming of devices
+* [#9161](https://github.com/netbox-community/netbox/issues/9161) - Pretty print JSON custom field data when editing
+* [#9505](https://github.com/netbox-community/netbox/issues/9505) - Display extra addressing details for IPv4 prefixes
+* [#9625](https://github.com/netbox-community/netbox/issues/9625) - Add phone & email details to contacts panel
+* [#9857](https://github.com/netbox-community/netbox/issues/9857) - Add clear button to quick search fields
+* [#9933](https://github.com/netbox-community/netbox/issues/9933) - Add DOCSIS interface type
+
+### Bug Fixes
+
+* [#9491](https://github.com/netbox-community/netbox/issues/9491) - Remove button for adding inventory item templates to module type components
+* [#9979](https://github.com/netbox-community/netbox/issues/9979) - Fix Markdown rendering for custom fields in table columns
+* [#9986](https://github.com/netbox-community/netbox/issues/9986) - Workaround for upstream timezone data bug
+
+---
+
 ## v3.2.8 (2022-08-08)
 
 ### Enhancements

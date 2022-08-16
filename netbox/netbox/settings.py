@@ -29,7 +29,7 @@ django.utils.encoding.force_text = force_str
 # Environment setup
 #
 
-VERSION = '3.2.8'
+VERSION = '3.2.9'
 
 # Hostname
 HOSTNAME = platform.node()

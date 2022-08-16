@@ -18,7 +18,7 @@ from netbox.models.features import ExportTemplatesMixin, WebhooksMixin
 from utilities import filters
 from utilities.forms import (
     CSVChoiceField, CSVMultipleChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    LaxURLField, StaticSelectMultiple, StaticSelect, add_blank_choice,
+    JSONField, LaxURLField, StaticSelectMultiple, StaticSelect, add_blank_choice,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
@@ -343,7 +343,7 @@ class CustomField(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
 
         # JSON
         elif self.type == CustomFieldTypeChoices.TYPE_JSON:
-            field = forms.JSONField(required=required, initial=initial)
+            field = JSONField(required=required, initial=initial)
 
         # Object
         elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
