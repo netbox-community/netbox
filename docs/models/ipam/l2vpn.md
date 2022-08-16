@@ -1,8 +1,20 @@
 # L2VPN
 
-A L2VPN object is NetBox is a representation of a layer 2 bridge technology such as VXLAN, VPLS or EPL.  Each L2VPN can be identified by name as well as an optional unique identifier (VNI would be an example).
+A L2VPN object is NetBox is a representation of a layer 2 bridge technology such as VXLAN, VPLS, or EPL. Each L2VPN can be identified by name as well as by an optional unique identifier (VNI would be an example). Once created, L2VPNs can be terminated to [interfaces](../dcim/interface.md) and [VLANs](./vlan.md).
 
-Each L2VPN instance must have one of the following type associated with it:
+## Fields
+
+### Name
+
+A unique human-friendly name.
+
+### Slug
+
+A unique URL-friendly identifier. (This value can be used for filtering.)
+
+### Type
+
+The technology employed in forming and operating the L2VPN. Choices include:
 
 * VPLS
 * VPWS
@@ -13,9 +25,17 @@ Each L2VPN instance must have one of the following type associated with it:
 * EP-TREE
 * EVP-TREE
 * VXLAN
-* VXLAN EVPN
+* VXLAN-EVPN
 * MPLS-EVPN
 * PBB-EVPN
 
 !!! note
-    Choosing VPWS, EPL, EP-LAN, EP-TREE will result in only being able to add two terminations to a given L2VPN.
+    Designating the type as VPWS, EPL, EP-LAN, EP-TREE will limit the L2VPN instance to two terminations.
+
+### Identifier
+
+An optional unique numeric identifier.
+
+### Import & Export Targets
+
+The [route targets](./routetarget.md) associated with this L2VPN to control the import and export of forwarding information.

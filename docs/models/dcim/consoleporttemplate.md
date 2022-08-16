@@ -1,3 +1,3 @@
-## Console Port Templates
+# Console Port Templates
 
-A template for a console port that will be created on all instantiations of the parent device type. Each console port can be assigned a physical type.
+A template for a console port that will be created on all instantiations of the parent device type. See the [console port](./consoleport.md) documentation for more detail.

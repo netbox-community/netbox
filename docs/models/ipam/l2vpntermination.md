@@ -1,15 +1,18 @@
 # L2VPN Termination
 
-A L2VPN Termination is the termination point of a L2VPN.  Certain types of L2VPNs may only have 2 termination points (point-to-point) while others may have many terminations (multipoint).
-
-Each termination consists of a L2VPN it is a member of as well as the connected endpoint which can be an interface or a VLAN.
-
-The following types of L2VPNs are considered point-to-point:
+A L2VPN termination is the attachment of an [L2VPN](./l2vpn.md) to an [interface](../dcim/interface.md) or [VLAN](./vlan.md). Note that the L2VPNs of the following types may have only two terminations assigned to them:
 
 * VPWS
 * EPL
 * EP-LAN
 * EP-TREE
 
-!!! note
-    Choosing any of the above types will result in only being able to add 2 terminations to a given L2VPN.
+## Fields
+
+### L2VPN
+
+The [L2VPN](./l2vpn.md) instance.
+
+### VLAN or Interface
+
+The [VLAN](./vlan.md), [device interface](../dcim/interface.md), or [virtual machine interface](../virtualization/virtualmachine.md) attached to the L2VPN.
