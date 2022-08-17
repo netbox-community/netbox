@@ -1,6 +1,6 @@
 from django import forms
 
-from dcim.choices import InterfaceTypeChoices, PortTypeChoices
+from dcim.choices import InterfacePoEModeChoices, InterfacePoETypeChoices, InterfaceTypeChoices, PortTypeChoices
 from dcim.models import *
 from utilities.forms import BootstrapMixin
 
@@ -112,11 +112,21 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     type = forms.ChoiceField(
         choices=InterfaceTypeChoices.CHOICES
     )
+    poe_mode = forms.ChoiceField(
+        choices=InterfacePoEModeChoices,
+        required=False,
+        label='PoE mode'
+    )
+    poe_type = forms.ChoiceField(
+        choices=InterfacePoETypeChoices,
+        required=False,
+        label='PoE type'
+    )
 
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description', 'poe_mode', 'poe_type',
         ]
 
 

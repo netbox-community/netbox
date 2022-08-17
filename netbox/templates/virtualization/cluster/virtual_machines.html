@@ -14,12 +14,12 @@
     </div>
     <div class="noprint bulk-buttons">
       <div class="bulk-button-group">
-        {% if perms.virtualization.change_virtualmachine %}
+        {% if 'bulk_edit' in actions %}
           <button type="submit" name="_edit" formaction="{% url 'virtualization:virtualmachine_bulk_edit' %}?return_url={% url 'virtualization:cluster_virtualmachines' pk=object.pk %}" class="btn btn-warning btn-sm">
             <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
           </button>
         {% endif %}
-        {% if perms.virtualization.delete_virtualmachine %}
+        {% if 'bulk_delete' in actions %}
           <button type="submit" name="_delete" formaction="{% url 'virtualization:virtualmachine_bulk_delete' %}?return_url={% url 'virtualization:cluster_virtualmachines' pk=object.pk %}" class="btn btn-danger btn-sm">
             <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
           </button>

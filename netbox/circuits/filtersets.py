@@ -1,10 +1,10 @@
 import django_filters
 from django.db.models import Q
 
-from dcim.filtersets import CableTerminationFilterSet
+from dcim.filtersets import CabledObjectFilterSet
 from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
-from netbox.filtersets import ChangeLoggedModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet
+from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import TreeNodeMultipleChoiceFilter
 from .choices import *
@@ -183,7 +183,7 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
 
     class Meta:
         model = Circuit
-        fields = ['id', 'cid', 'description', 'install_date', 'commit_rate']
+        fields = ['id', 'cid', 'description', 'install_date', 'termination_date', 'commit_rate']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -198,7 +198,7 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
         ).distinct()
 
 
-class CircuitTerminationFilterSet(ChangeLoggedModelFilterSet, CableTerminationFilterSet):
+class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -224,7 +224,7 @@ class CircuitTerminationFilterSet(ChangeLoggedModelFilterSet, CableTerminationFi
 
     class Meta:
         model = CircuitTermination
-        fields = ['id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description']
+        fields = ['id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description', 'cable_end']
 
     def search(self, queryset, name, value):
         if not value.strip():

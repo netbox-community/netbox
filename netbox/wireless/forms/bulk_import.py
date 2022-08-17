@@ -2,6 +2,7 @@ from dcim.choices import LinkStatusChoices
 from dcim.models import Interface
 from ipam.models import VLAN
 from netbox.forms import NetBoxModelCSVForm
+from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVModelChoiceField, SlugField
 from wireless.choices import *
 from wireless.models import *
@@ -40,6 +41,12 @@ class WirelessLANCSVForm(NetBoxModelCSVForm):
         to_field_name='name',
         help_text='Bridged VLAN'
     )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
     auth_type = CSVChoiceField(
         choices=WirelessAuthTypeChoices,
         required=False,
@@ -53,7 +60,7 @@ class WirelessLANCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = WirelessLAN
-        fields = ('ssid', 'group', 'description', 'vlan', 'auth_type', 'auth_cipher', 'auth_psk')
+        fields = ('ssid', 'group', 'vlan', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk')
 
 
 class WirelessLinkCSVForm(NetBoxModelCSVForm):
@@ -66,6 +73,12 @@ class WirelessLinkCSVForm(NetBoxModelCSVForm):
     )
     interface_b = CSVModelChoiceField(
         queryset=Interface.objects.all()
+    )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
     )
     auth_type = CSVChoiceField(
         choices=WirelessAuthTypeChoices,
@@ -80,4 +93,6 @@ class WirelessLinkCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = WirelessLink
-        fields = ('interface_a', 'interface_b', 'ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk')
+        fields = (
+            'interface_a', 'interface_b', 'ssid', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
+        )

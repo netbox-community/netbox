@@ -1,7 +1,12 @@
 {% load form_helpers %}
 
-{% for field in form %}
-    {% if field.name in form.custom_fields %}
-        {% render_field field %}
-    {% endif %}
+{% for group, fields in form.custom_field_groups.items %}
+  {% if group %}
+  <div class="row">
+    <h6 class="offset-sm-3 mb-3">{{ group }}</h6>
+  </div>
+  {% endif %}
+  {% for name in fields %}
+    {% render_field form|getfield:name %}
+  {% endfor %}
 {% endfor %}

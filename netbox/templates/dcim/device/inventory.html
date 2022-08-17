@@ -17,7 +17,7 @@
 
     <div class="noprint bulk-buttons">
       <div class="bulk-button-group">
-        {% if perms.dcim.change_inventoryitem %}
+        {% if 'bulk_edit' in actions %}
           <div class="btn-group" role="group">
             <button type="submit" name="_edit" formaction="{% url 'dcim:inventoryitem_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_inventory' pk=object.pk %}" class="btn btn-warning btn-sm">
               <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
@@ -27,7 +27,7 @@
             </button>
           </div>
         {% endif %}
-        {% if perms.dcim.delete_inventoryitem %}
+        {% if 'bulk_delete' in actions %}
           <button type="submit" name="_delete" formaction="{% url 'dcim:inventoryitem_bulk_delete' %}?return_url={% url 'dcim:device_inventory' pk=object.pk %}" class="btn btn-danger btn-sm">
             <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
           </button>

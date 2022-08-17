@@ -3,11 +3,11 @@ from django.contrib.auth.models import Group, User
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError, ValidationError
-from django.db.models import Q
 
-from users.constants import OBJECTPERMISSION_OBJECT_TYPES
+from users.constants import CONSTRAINT_TOKEN_USER, OBJECTPERMISSION_OBJECT_TYPES
 from users.models import ObjectPermission, Token
 from utilities.forms.fields import ContentTypeMultipleChoiceField
+from utilities.permissions import qs_filter_from_constraints
 
 __all__ = (
     'GroupAdminForm',
@@ -51,7 +51,7 @@ class TokenAdminForm(forms.ModelForm):
 
     class Meta:
         fields = [
-            'user', 'key', 'write_enabled', 'expires', 'description'
+            'user', 'key', 'write_enabled', 'expires', 'description', 'allowed_ips'
         ]
         model = Token
 
@@ -125,7 +125,10 @@ class ObjectPermissionForm(forms.ModelForm):
             for ct in object_types:
                 model = ct.model_class()
                 try:
-                    model.objects.filter(*[Q(**c) for c in constraints]).exists()
+                    tokens = {
+                        CONSTRAINT_TOKEN_USER: 0,  # Replace token with a null user ID
+                    }
+                    model.objects.filter(qs_filter_from_constraints(constraints, tokens)).exists()
                 except FieldError as e:
                     raise ValidationError({
                         'constraints': f'Invalid filter for {model}: {e}'

@@ -1,279 +1,171 @@
+from django import forms
+
 from circuits.models import Circuit, CircuitTermination, Provider
 from dcim.models import *
-from extras.models import Tag
-from netbox.forms import NetBoxModelForm
-from tenancy.forms import TenancyForm
-from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect
-
-__all__ = (
-    'ConnectCableToCircuitTerminationForm',
-    'ConnectCableToConsolePortForm',
-    'ConnectCableToConsoleServerPortForm',
-    'ConnectCableToFrontPortForm',
-    'ConnectCableToInterfaceForm',
-    'ConnectCableToPowerFeedForm',
-    'ConnectCableToPowerPortForm',
-    'ConnectCableToPowerOutletForm',
-    'ConnectCableToRearPortForm',
-)
+from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from .models import CableForm
 
 
-class ConnectCableToDeviceForm(TenancyForm, NetBoxModelForm):
-    """
-    Base form for connecting a Cable to a Device component
-    """
-    termination_b_region = DynamicModelChoiceField(
-        queryset=Region.objects.all(),
-        label='Region',
-        required=False
-    )
-    termination_b_sitegroup = DynamicModelChoiceField(
-        queryset=SiteGroup.objects.all(),
-        label='Site group',
-        required=False
-    )
-    termination_b_site = DynamicModelChoiceField(
-        queryset=Site.objects.all(),
-        label='Site',
-        required=False,
-        query_params={
-            'region_id': '$termination_b_region',
-            'group_id': '$termination_b_sitegroup',
-        }
-    )
-    termination_b_location = DynamicModelChoiceField(
-        queryset=Location.objects.all(),
-        label='Location',
-        required=False,
-        null_option='None',
-        query_params={
-            'site_id': '$termination_b_site'
-        }
-    )
-    termination_b_rack = DynamicModelChoiceField(
-        queryset=Rack.objects.all(),
-        label='Rack',
-        required=False,
-        null_option='None',
-        query_params={
-            'site_id': '$termination_b_site',
-            'location_id': '$termination_b_location',
-        }
-    )
-    termination_b_device = DynamicModelChoiceField(
-        queryset=Device.objects.all(),
-        label='Device',
-        required=False,
-        query_params={
-            'site_id': '$termination_b_site',
-            'location_id': '$termination_b_location',
-            'rack_id': '$termination_b_rack',
-        }
-    )
+def get_cable_form(a_type, b_type):
 
-    class Meta:
-        model = Cable
-        fields = [
-            'termination_b_region', 'termination_b_sitegroup', 'termination_b_site', 'termination_b_rack',
-            'termination_b_device', 'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color',
-            'length', 'length_unit', 'tags',
-        ]
-        widgets = {
-            'status': StaticSelect,
-            'type': StaticSelect,
-            'length_unit': StaticSelect,
-        }
+    class FormMetaclass(forms.models.ModelFormMetaclass):
 
-    def clean_termination_b_id(self):
-        # Return the PK rather than the object
-        return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
+        def __new__(mcs, name, bases, attrs):
 
+            for cable_end, term_cls in (('a', a_type), ('b', b_type)):
 
-class ConnectCableToConsolePortForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
-        queryset=ConsolePort.objects.all(),
-        label='Name',
-        disabled_indicator='_occupied',
-        query_params={
-            'device_id': '$termination_b_device'
-        }
-    )
+                attrs[f'termination_{cable_end}_region'] = DynamicModelChoiceField(
+                    queryset=Region.objects.all(),
+                    label='Region',
+                    required=False,
+                    initial_params={
+                        'sites': f'$termination_{cable_end}_site'
+                    }
+                )
+                attrs[f'termination_{cable_end}_sitegroup'] = DynamicModelChoiceField(
+                    queryset=SiteGroup.objects.all(),
+                    label='Site group',
+                    required=False,
+                    initial_params={
+                        'sites': f'$termination_{cable_end}_site'
+                    }
+                )
+                attrs[f'termination_{cable_end}_site'] = DynamicModelChoiceField(
+                    queryset=Site.objects.all(),
+                    label='Site',
+                    required=False,
+                    query_params={
+                        'region_id': f'$termination_{cable_end}_region',
+                        'group_id': f'$termination_{cable_end}_sitegroup',
+                    }
+                )
+                attrs[f'termination_{cable_end}_location'] = DynamicModelChoiceField(
+                    queryset=Location.objects.all(),
+                    label='Location',
+                    required=False,
+                    null_option='None',
+                    query_params={
+                        'site_id': f'$termination_{cable_end}_site'
+                    }
+                )
 
+                # Device component
+                if hasattr(term_cls, 'device'):
 
-class ConnectCableToConsoleServerPortForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
-        queryset=ConsoleServerPort.objects.all(),
-        label='Name',
-        disabled_indicator='_occupied',
-        query_params={
-            'device_id': '$termination_b_device'
-        }
-    )
+                    attrs[f'termination_{cable_end}_rack'] = DynamicModelChoiceField(
+                        queryset=Rack.objects.all(),
+                        label='Rack',
+                        required=False,
+                        null_option='None',
+                        initial_params={
+                            'devices': f'$termination_{cable_end}_device'
+                        },
+                        query_params={
+                            'site_id': f'$termination_{cable_end}_site',
+                            'location_id': f'$termination_{cable_end}_location',
+                        }
+                    )
+                    attrs[f'termination_{cable_end}_device'] = DynamicModelChoiceField(
+                        queryset=Device.objects.all(),
+                        label='Device',
+                        required=False,
+                        initial_params={
+                            f'{term_cls._meta.model_name}s__in': f'${cable_end}_terminations'
+                        },
+                        query_params={
+                            'site_id': f'$termination_{cable_end}_site',
+                            'location_id': f'$termination_{cable_end}_location',
+                            'rack_id': f'$termination_{cable_end}_rack',
+                        }
+                    )
+                    attrs[f'{cable_end}_terminations'] = DynamicModelMultipleChoiceField(
+                        queryset=term_cls.objects.all(),
+                        label=term_cls._meta.verbose_name.title(),
+                        disabled_indicator='_occupied',
+                        query_params={
+                            'device_id': f'$termination_{cable_end}_device',
+                            'kind': 'physical',  # Exclude virtual interfaces
+                        }
+                    )
 
+                # PowerFeed
+                elif term_cls == PowerFeed:
 
-class ConnectCableToPowerPortForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
-        queryset=PowerPort.objects.all(),
-        label='Name',
-        disabled_indicator='_occupied',
-        query_params={
-            'device_id': '$termination_b_device'
-        }
-    )
+                    attrs[f'termination_{cable_end}_powerpanel'] = DynamicModelChoiceField(
+                        queryset=PowerPanel.objects.all(),
+                        label='Power Panel',
+                        required=False,
+                        initial_params={
+                            'powerfeeds__in': f'${cable_end}_terminations'
+                        },
+                        query_params={
+                            'site_id': f'$termination_{cable_end}_site',
+                            'location_id': f'$termination_{cable_end}_location',
+                        }
+                    )
+                    attrs[f'{cable_end}_terminations'] = DynamicModelMultipleChoiceField(
+                        queryset=term_cls.objects.all(),
+                        label='Power Feed',
+                        disabled_indicator='_occupied',
+                        query_params={
+                            'powerpanel_id': f'$termination_{cable_end}_powerpanel',
+                        }
+                    )
 
+                # CircuitTermination
+                elif term_cls == CircuitTermination:
 
-class ConnectCableToPowerOutletForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
-        queryset=PowerOutlet.objects.all(),
-        label='Name',
-        disabled_indicator='_occupied',
-        query_params={
-            'device_id': '$termination_b_device'
-        }
-    )
+                    attrs[f'termination_{cable_end}_provider'] = DynamicModelChoiceField(
+                        queryset=Provider.objects.all(),
+                        label='Provider',
+                        initial_params={
+                            'circuits': f'$termination_{cable_end}_circuit'
+                        },
+                        required=False
+                    )
+                    attrs[f'termination_{cable_end}_circuit'] = DynamicModelChoiceField(
+                        queryset=Circuit.objects.all(),
+                        label='Circuit',
+                        initial_params={
+                            'terminations__in': f'${cable_end}_terminations'
+                        },
+                        query_params={
+                            'provider_id': f'$termination_{cable_end}_provider',
+                            'site_id': f'$termination_{cable_end}_site',
+                        }
+                    )
+                    attrs[f'{cable_end}_terminations'] = DynamicModelMultipleChoiceField(
+                        queryset=term_cls.objects.all(),
+                        label='Side',
+                        disabled_indicator='_occupied',
+                        query_params={
+                            'circuit_id': f'$termination_{cable_end}_circuit',
+                        }
+                    )
 
+            return super().__new__(mcs, name, bases, attrs)
 
-class ConnectCableToInterfaceForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
-        queryset=Interface.objects.all(),
-        label='Name',
-        disabled_indicator='_occupied',
-        query_params={
-            'device_id': '$termination_b_device',
-            'kind': 'physical',
-        }
-    )
+    class _CableForm(CableForm, metaclass=FormMetaclass):
 
+        def __init__(self, *args, **kwargs):
 
-class ConnectCableToFrontPortForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
-        queryset=FrontPort.objects.all(),
-        label='Name',
-        disabled_indicator='_occupied',
-        query_params={
-            'device_id': '$termination_b_device'
-        }
-    )
+            # TODO: Temporary hack to work around list handling limitations with utils.normalize_querydict()
+            for field_name in ('a_terminations', 'b_terminations'):
+                if field_name in kwargs.get('initial', {}) and type(kwargs['initial'][field_name]) is not list:
+                    kwargs['initial'][field_name] = [kwargs['initial'][field_name]]
 
+            super().__init__(*args, **kwargs)
 
-class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
-    termination_b_id = DynamicModelChoiceField(
-        queryset=RearPort.objects.all(),
-        label='Name',
-        disabled_indicator='_occupied',
-        query_params={
-            'device_id': '$termination_b_device'
-        }
-    )
+            if self.instance and self.instance.pk:
+                # Initialize A/B terminations when modifying an existing Cable instance
+                self.initial['a_terminations'] = self.instance.a_terminations
+                self.initial['b_terminations'] = self.instance.b_terminations
 
+        def clean(self):
+            super().clean()
 
-class ConnectCableToCircuitTerminationForm(TenancyForm, NetBoxModelForm):
-    termination_b_provider = DynamicModelChoiceField(
-        queryset=Provider.objects.all(),
-        label='Provider',
-        required=False
-    )
-    termination_b_region = DynamicModelChoiceField(
-        queryset=Region.objects.all(),
-        label='Region',
-        required=False
-    )
-    termination_b_sitegroup = DynamicModelChoiceField(
-        queryset=SiteGroup.objects.all(),
-        label='Site group',
-        required=False
-    )
-    termination_b_site = DynamicModelChoiceField(
-        queryset=Site.objects.all(),
-        label='Site',
-        required=False,
-        query_params={
-            'region_id': '$termination_b_region',
-            'group_id': '$termination_b_sitegroup',
-        }
-    )
-    termination_b_circuit = DynamicModelChoiceField(
-        queryset=Circuit.objects.all(),
-        label='Circuit',
-        query_params={
-            'provider_id': '$termination_b_provider',
-            'site_id': '$termination_b_site',
-        }
-    )
-    termination_b_id = DynamicModelChoiceField(
-        queryset=CircuitTermination.objects.all(),
-        label='Side',
-        disabled_indicator='_occupied',
-        query_params={
-            'circuit_id': '$termination_b_circuit'
-        }
-    )
+            # Set the A/B terminations on the Cable instance
+            self.instance.a_terminations = self.cleaned_data['a_terminations']
+            self.instance.b_terminations = self.cleaned_data['b_terminations']
 
-    class Meta(ConnectCableToDeviceForm.Meta):
-        fields = [
-            'termination_b_provider', 'termination_b_region', 'termination_b_sitegroup', 'termination_b_site',
-            'termination_b_circuit', 'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color',
-            'length', 'length_unit', 'tags',
-        ]
-
-    def clean_termination_b_id(self):
-        # Return the PK rather than the object
-        return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
-
-
-class ConnectCableToPowerFeedForm(TenancyForm, NetBoxModelForm):
-    termination_b_region = DynamicModelChoiceField(
-        queryset=Region.objects.all(),
-        label='Region',
-        required=False
-    )
-    termination_b_sitegroup = DynamicModelChoiceField(
-        queryset=SiteGroup.objects.all(),
-        label='Site group',
-        required=False
-    )
-    termination_b_site = DynamicModelChoiceField(
-        queryset=Site.objects.all(),
-        label='Site',
-        required=False,
-        query_params={
-            'region_id': '$termination_b_region',
-            'group_id': '$termination_b_sitegroup',
-        }
-    )
-    termination_b_location = DynamicModelChoiceField(
-        queryset=Location.objects.all(),
-        label='Location',
-        required=False,
-        query_params={
-            'site_id': '$termination_b_site'
-        }
-    )
-    termination_b_powerpanel = DynamicModelChoiceField(
-        queryset=PowerPanel.objects.all(),
-        label='Power Panel',
-        required=False,
-        query_params={
-            'site_id': '$termination_b_site',
-            'location_id': '$termination_b_location',
-        }
-    )
-    termination_b_id = DynamicModelChoiceField(
-        queryset=PowerFeed.objects.all(),
-        label='Name',
-        disabled_indicator='_occupied',
-        query_params={
-            'power_panel_id': '$termination_b_powerpanel'
-        }
-    )
-
-    class Meta(ConnectCableToDeviceForm.Meta):
-        fields = [
-            'termination_b_region', 'termination_b_sitegroup', 'termination_b_site', 'termination_b_location',
-            'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label',
-            'color', 'length', 'length_unit', 'tags',
-        ]
-
-    def clean_termination_b_id(self):
-        # Return the PK rather than the object
-        return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
+    return _CableForm

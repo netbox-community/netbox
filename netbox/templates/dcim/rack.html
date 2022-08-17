@@ -250,13 +250,13 @@
             <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
               <div style="margin-left: 30px">
                 <h4>Front</h4>
-                {% include 'dcim/inc/rack_elevation.html' with face='front' %}
+                {% include 'dcim/inc/rack_elevation.html' with face='front' extra_params=svg_extra %}
               </div>
             </div>
             <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
               <div style="margin-left: 30px">
                 <h4>Rear</h4>
-                {% include 'dcim/inc/rack_elevation.html' with face='rear' %}
+                {% include 'dcim/inc/rack_elevation.html' with face='rear' extra_params=svg_extra %}
               </div>
             </div>
         </div>

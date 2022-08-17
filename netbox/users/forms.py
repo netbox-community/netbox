@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm
+from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.html import mark_safe
 
+from ipam.formfields import IPNetworkFormField
 from netbox.preferences import PREFERENCES
 from utilities.forms import BootstrapMixin, DateTimePicker, StaticSelect
 from utilities.utils import flatten_dict
@@ -99,11 +101,18 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
         required=False,
         help_text="If no key is provided, one will be generated automatically."
     )
+    allowed_ips = SimpleArrayField(
+        base_field=IPNetworkFormField(),
+        required=False,
+        label='Allowed IPs',
+        help_text='Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. '
+                  'Example: <code>10.1.1.0/24,192.168.10.16/32,2001:db8:1::/64</code>',
+    )
 
     class Meta:
         model = Token
         fields = [
-            'key', 'write_enabled', 'expires', 'description',
+            'key', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
         widgets = {
             'expires': DateTimePicker(),

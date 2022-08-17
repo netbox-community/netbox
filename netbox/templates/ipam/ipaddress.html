@@ -91,8 +91,14 @@
                       </td>
                   </tr>
                   <tr>
-                      <th scope="row">NAT (outside)</th>
-                      <td>{{ object.nat_outside|linkify|placeholder }}</td>
+                      <th scope="row">Outside NAT IPs</th>
+                      <td>
+                        {% for ip in object.nat_outside.all %}
+                          {{ ip|linkify }}<br/>
+                        {% empty %}
+                          {{ ''|placeholder }}
+                        {% endfor %}
+                      </td>
                   </tr>
               </table>
           </div>

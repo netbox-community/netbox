@@ -2,7 +2,7 @@ from django.contrib.auth.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
-from netbox.api import ChoiceField, ContentTypeField
+from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.choices import ContactPriorityChoices

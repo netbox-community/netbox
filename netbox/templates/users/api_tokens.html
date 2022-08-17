@@ -1,63 +1,25 @@
 {% extends 'users/base.html' %}
 {% load helpers %}
+{% load render_table from django_tables2 %}
 
 {% block title %}API Tokens{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col col-md-10 offset-md-1">
-            {% for token in tokens %}
-                <div class="card{% if token.is_expired %} bg-danger{% endif %}">
-                    <div class="card-header">
-                        <div class="float-end noprint">
-                            <a class="m-1 btn btn-sm btn-success copy-token" data-clipboard-target="#token_{{ token.pk }}">Copy</a>
-                            <a href="{% url 'user:token_edit' pk=token.pk %}" class="m-1 btn btn-sm btn-warning">Edit</a>
-                            <a href="{% url 'user:token_delete' pk=token.pk %}" class="m-1 btn btn-sm btn-danger">Delete</a>
-                        </div>
-                        <i class="mdi mdi-key"></i>
-                        <samp><span id="token_{{ token.pk }}">{{ token.key }}</span></samp>
-                        {% if token.is_expired %}
-                            <span class="badge bg-danger">Expired</span>
-                        {% endif %}
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col col-md-4">
-                                <small class="text-muted">Created</small><br />
-                                {{ token.created|annotated_date }}
-                            </div>
-                            <div class="col col-md-4">
-                                <small class="text-muted">Expires</small><br />
-                                {% if token.expires %}
-                                    {{ token.expires|annotated_date }}
-                                {% else %}
-                                    <span>Never</span>
-                                {% endif %}
-                            </div>
-                            <div class="col col-md-4">
-                                <small class="text-muted">Create/Edit/Delete Operations</small><br />
-                                {% if token.write_enabled %}
-                                    <span class="badge bg-success">Enabled</span>
-                                {% else %}
-                                    <span class="badge bg-danger">Disabled</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% if token.description %}
-                            <br /><span>{{ token.description }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-            {% empty %}
-              <h6><i class="mdi mdi-information"></i> You do not have any API tokens.</h6>
-              <p>Tokens are used to authenticate REST and GraphQL API requests.</p>
-            {% endfor %}
-            <div class="text-end">
-              <a href="{% url 'user:token_add' %}" class="btn btn-sm btn-primary my-3">
-                <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
-                Add a Token
-              </a>
-            </div>
-        </div>
+<div class="row">
+	<div class="col col-md-12 text-end">
+    <a href="{% url 'users:token_add' %}" class="btn btn-sm btn-primary my-3">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add a Token
+    </a>
+  </div>
+</div>
+<div class="row mb-3">
+	<div class="col col-md-12">
+    <div class="card">
+      <div class="card-body table-responsive">
+        {% render_table table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+      </div>
     </div>
+  </div>
+</div>
 {% endblock %}

@@ -2,7 +2,8 @@ from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
-from netbox.api import ContentTypeField, WritableNestedSerializer
+from netbox.api.fields import ContentTypeField
+from netbox.api.serializers import WritableNestedSerializer
 from users.models import ObjectPermission, Token
 
 __all__ = [

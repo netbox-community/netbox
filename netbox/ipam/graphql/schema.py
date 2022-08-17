@@ -17,6 +17,12 @@ class IPAMQuery(graphene.ObjectType):
     ip_range = ObjectField(IPRangeType)
     ip_range_list = ObjectListField(IPRangeType)
 
+    l2vpn = ObjectField(L2VPNType)
+    l2vpn_list = ObjectListField(L2VPNType)
+
+    l2vpn_termination = ObjectField(L2VPNTerminationType)
+    l2vpn_termination_list = ObjectListField(L2VPNTerminationType)
+
     prefix = ObjectField(PrefixType)
     prefix_list = ObjectListField(PrefixType)
 

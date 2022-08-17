@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from netbox.api import WritableNestedSerializer
+from netbox.api.serializers import WritableNestedSerializer
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 __all__ = [

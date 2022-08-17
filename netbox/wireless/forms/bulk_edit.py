@@ -3,6 +3,7 @@ from django import forms
 from dcim.choices import LinkStatusChoices
 from ipam.models import VLAN
 from netbox.forms import NetBoxModelBulkEditForm
+from tenancy.models import Tenant
 from utilities.forms import add_blank_choice, DynamicModelChoiceField
 from wireless.choices import *
 from wireless.constants import SSID_MAX_LENGTH
@@ -47,6 +48,10 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label='SSID'
     )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
     description = forms.CharField(
         required=False
     )
@@ -65,11 +70,11 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
 
     model = WirelessLAN
     fieldsets = (
-        (None, ('group', 'vlan', 'ssid', 'description')),
+        (None, ('group', 'ssid', 'vlan', 'tenant', 'description')),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
     )
     nullable_fields = (
-        'ssid', 'group', 'vlan', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
+        'ssid', 'group', 'vlan', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
     )
 
 
@@ -81,6 +86,10 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(LinkStatusChoices),
+        required=False
+    )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
         required=False
     )
     description = forms.CharField(
@@ -101,9 +110,9 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
 
     model = WirelessLink
     fieldsets = (
-        (None, ('ssid', 'status', 'description')),
+        (None, ('ssid', 'status', 'tenant', 'description')),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk'))
     )
     nullable_fields = (
-        'ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
+        'ssid', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
     )

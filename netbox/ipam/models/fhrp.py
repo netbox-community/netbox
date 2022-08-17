@@ -48,7 +48,7 @@ class FHRPGroup(NetBoxModel):
         related_query_name='fhrpgroup'
     )
 
-    clone_fields = ('protocol', 'auth_type', 'auth_key')
+    clone_fields = ('protocol', 'auth_type', 'auth_key', 'description')
 
     class Meta:
         ordering = ['protocol', 'group_id', 'pk']

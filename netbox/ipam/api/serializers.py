@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
@@ -8,7 +6,7 @@ from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerial
 from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, VLANGROUP_SCOPE_TYPES
 from ipam.models import *
-from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer
@@ -20,6 +18,9 @@ from .nested_serializers import *
 #
 # ASNs
 #
+from .nested_serializers import NestedL2VPNSerializer
+from ..models.l2vpn import L2VPNTermination, L2VPN
+
 
 class ASNSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
@@ -205,13 +206,14 @@ class VLANSerializer(NetBoxModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=VLANStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
+    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True)
     prefix_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VLAN
         fields = [
-            'id', 'url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'tags',
-            'custom_fields', 'created', 'last_updated', 'prefix_count',
+            'id', 'url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description',
+            'l2vpn_termination', 'tags', 'custom_fields', 'created', 'last_updated', 'prefix_count',
         ]
 
 
@@ -223,13 +225,13 @@ class AvailableVLANSerializer(serializers.Serializer):
     group = NestedVLANGroupSerializer(read_only=True)
 
     def to_representation(self, instance):
-        return OrderedDict([
-            ('vid', instance),
-            ('group', NestedVLANGroupSerializer(
+        return {
+            'vid': instance,
+            'group': NestedVLANGroupSerializer(
                 self.context['group'],
                 context={'request': self.context['request']}
-            ).data),
-        ])
+            ).data,
+        }
 
 
 class CreateAvailableVLANSerializer(NetBoxModelSerializer):
@@ -314,11 +316,11 @@ class AvailablePrefixSerializer(serializers.Serializer):
             vrf = NestedVRFSerializer(self.context['vrf'], context={'request': self.context['request']}).data
         else:
             vrf = None
-        return OrderedDict([
-            ('family', instance.version),
-            ('prefix', str(instance)),
-            ('vrf', vrf),
-        ])
+        return {
+            'family': instance.version,
+            'prefix': str(instance),
+            'vrf': vrf,
+        }
 
 
 #
@@ -361,7 +363,7 @@ class IPAddressSerializer(NetBoxModelSerializer):
     )
     assigned_object = serializers.SerializerMethodField(read_only=True)
     nat_inside = NestedIPAddressSerializer(required=False, allow_null=True)
-    nat_outside = NestedIPAddressSerializer(required=False, read_only=True)
+    nat_outside = NestedIPAddressSerializer(many=True, read_only=True)
 
     class Meta:
         model = IPAddress
@@ -370,7 +372,6 @@ class IPAddressSerializer(NetBoxModelSerializer):
             'assigned_object_id', 'assigned_object', 'nat_inside', 'nat_outside', 'dns_name', 'description', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
-        read_only_fields = ['family', 'nat_outside']
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_assigned_object(self, obj):
@@ -394,11 +395,11 @@ class AvailableIPSerializer(serializers.Serializer):
             vrf = NestedVRFSerializer(self.context['vrf'], context={'request': self.context['request']}).data
         else:
             vrf = None
-        return OrderedDict([
-            ('family', self.context['parent'].family),
-            ('address', f"{instance}/{self.context['parent'].mask_length}"),
-            ('vrf', vrf),
-        ])
+        return {
+            'family': self.context['parent'].family,
+            'address': f"{instance}/{self.context['parent'].mask_length}",
+            'vrf': vrf,
+        }
 
 
 #
@@ -435,3 +436,54 @@ class ServiceSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'device', 'virtual_machine', 'name', 'ports', 'protocol', 'ipaddresses',
             'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
+
+#
+# L2VPN
+#
+
+
+class L2VPNSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:l2vpn-detail')
+    type = ChoiceField(choices=L2VPNTypeChoices, required=False)
+    import_targets = SerializedPKRelatedField(
+        queryset=RouteTarget.objects.all(),
+        serializer=NestedRouteTargetSerializer,
+        required=False,
+        many=True
+    )
+    export_targets = SerializedPKRelatedField(
+        queryset=RouteTarget.objects.all(),
+        serializer=NestedRouteTargetSerializer,
+        required=False,
+        many=True
+    )
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+
+    class Meta:
+        model = L2VPN
+        fields = [
+            'id', 'url', 'display', 'identifier', 'name', 'slug', 'type', 'import_targets', 'export_targets',
+            'description', 'tenant', 'tags', 'custom_fields', 'created', 'last_updated'
+        ]
+
+
+class L2VPNTerminationSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:l2vpntermination-detail')
+    l2vpn = NestedL2VPNSerializer()
+    assigned_object_type = ContentTypeField(
+        queryset=ContentType.objects.all()
+    )
+    assigned_object = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = L2VPNTermination
+        fields = [
+            'id', 'url', 'display', 'l2vpn', 'assigned_object_type', 'assigned_object_id',
+            'assigned_object', 'tags', 'custom_fields', 'created', 'last_updated'
+        ]
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_assigned_object(self, instance):
+        serializer = get_serializer_for_model(instance.assigned_object, prefix=NESTED_SERIALIZER_PREFIX)
+        context = {'request': self.context['request']}
+        return serializer(instance.assigned_object, context=context).data

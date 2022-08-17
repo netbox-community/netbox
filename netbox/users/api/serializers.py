@@ -2,7 +2,8 @@ from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
-from netbox.api import ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
+from netbox.api.fields import ContentTypeField, IPNetworkSerializer, SerializedPKRelatedField
+from netbox.api.serializers import ValidatedModelSerializer
 from users.models import ObjectPermission, Token
 from .nested_serializers import *
 
@@ -64,10 +65,19 @@ class TokenSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:token-detail')
     key = serializers.CharField(min_length=40, max_length=40, allow_blank=True, required=False)
     user = NestedUserSerializer()
+    allowed_ips = serializers.ListField(
+        child=IPNetworkSerializer(),
+        required=False,
+        allow_empty=True,
+        default=[]
+    )
 
     class Meta:
         model = Token
-        fields = ('id', 'url', 'display', 'user', 'created', 'expires', 'key', 'write_enabled', 'description')
+        fields = (
+            'id', 'url', 'display', 'user', 'created', 'expires', 'last_used', 'key', 'write_enabled', 'description',
+            'allowed_ips',
+        )
 
     def to_internal_value(self, data):
         if 'key' not in data:

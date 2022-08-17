@@ -112,9 +112,9 @@ class Contact(NetBoxModel):
         blank=True
     )
 
-    clone_fields = [
-        'group',
-    ]
+    clone_fields = (
+        'group', 'name', 'title', 'phone', 'email', 'address', 'link',
+    )
 
     class Meta:
         ordering = ['name']
@@ -155,7 +155,7 @@ class ContactAssignment(WebhooksMixin, ChangeLoggedModel):
         blank=True
     )
 
-    clone_fields = ('content_type', 'object_id')
+    clone_fields = ('content_type', 'object_id', 'role', 'priority')
 
     class Meta:
         ordering = ('priority', 'contact')

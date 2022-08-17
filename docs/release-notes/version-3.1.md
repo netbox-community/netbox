@@ -313,8 +313,6 @@ Some parameters of NetBox's configuration are now accessible via the admin UI. T
 
 Dynamic configuration parameters may also still be defined within `configuration.py`, and the settings defined here take precedence over those defined via the user interface.
 
-For a complete list of supported parameters, please see the [dynamic configuration documentation](../configuration/dynamic-settings.md). 
-
 #### First Hop Redundancy Protocol (FHRP) Groups ([#6235](https://github.com/netbox-community/netbox/issues/6235))
 
 A new FHRP group model has been introduced to aid in modeling the configurations of protocols such as HSRP, VRRP, and GLBP. Each FHRP group may be assigned one or more virtual IP addresses, as well as an authentication type and key. Member device and VM interfaces may be associated with one or more FHRP groups, with each assignment receiving a numeric priority designation.

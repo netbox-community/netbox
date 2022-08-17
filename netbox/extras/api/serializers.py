@@ -5,15 +5,15 @@ from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 from dcim.api.nested_serializers import (
-    NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedPlatformSerializer, NestedRegionSerializer,
-    NestedSiteSerializer, NestedSiteGroupSerializer,
+    NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedLocationSerializer, NestedPlatformSerializer,
+    NestedRegionSerializer, NestedSiteSerializer, NestedSiteGroupSerializer,
 )
-from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
+from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
-from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.exceptions import SerializerNotFound
+from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
@@ -85,13 +85,14 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     )
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
     data_type = serializers.SerializerMethodField()
+    ui_visibility = ChoiceField(choices=CustomFieldVisibilityChoices, required=False)
 
     class Meta:
         model = CustomField
         fields = [
-            'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'description',
-            'required', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
-            'validation_regex', 'choices', 'created', 'last_updated',
+            'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
+            'description', 'required', 'filter_logic', 'ui_visibility', 'default', 'weight', 'validation_minimum',
+            'validation_maximum', 'validation_regex', 'choices', 'created', 'last_updated',
         ]
 
     def get_data_type(self, obj):
@@ -272,6 +273,12 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
+    locations = SerializedPKRelatedField(
+        queryset=Location.objects.all(),
+        serializer=NestedLocationSerializer,
+        required=False,
+        many=True
+    )
     device_types = SerializedPKRelatedField(
         queryset=DeviceType.objects.all(),
         serializer=NestedDeviceTypeSerializer,
@@ -331,8 +338,8 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         model = ConfigContext
         fields = [
             'id', 'url', 'display', 'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites',
-            'device_types', 'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
-            'tenants', 'tags', 'data', 'created', 'last_updated',
+            'locations', 'device_types', 'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters',
+            'tenant_groups', 'tenants', 'tags', 'data', 'created', 'last_updated',
         ]
 
 

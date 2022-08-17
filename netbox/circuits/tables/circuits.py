@@ -68,8 +68,9 @@ class CircuitTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Circuit
         fields = (
-            'pk', 'id', 'cid', 'provider', 'type', 'status', 'tenant', 'tenant_group', 'termination_a', 'termination_z', 'install_date',
-            'commit_rate', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'cid', 'provider', 'type', 'status', 'tenant', 'tenant_group', 'termination_a', 'termination_z',
+            'install_date', 'termination_date', 'commit_rate', 'description', 'comments', 'contacts', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
             'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'description',

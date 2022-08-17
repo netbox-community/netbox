@@ -1,5 +1,5 @@
 from dcim.choices import InterfaceModeChoices
-from dcim.models import DeviceRole, Platform, Site
+from dcim.models import Device, DeviceRole, Platform, Site
 from ipam.models import VRF
 from netbox.forms import NetBoxModelCSVForm
 from tenancy.models import Tenant
@@ -44,6 +44,10 @@ class ClusterCSVForm(NetBoxModelCSVForm):
         required=False,
         help_text='Assigned cluster group'
     )
+    status = CSVChoiceField(
+        choices=ClusterStatusChoices,
+        help_text='Operational status'
+    )
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -59,7 +63,7 @@ class ClusterCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Cluster
-        fields = ('name', 'type', 'group', 'site', 'comments')
+        fields = ('name', 'type', 'group', 'status', 'site', 'comments')
 
 
 class VirtualMachineCSVForm(NetBoxModelCSVForm):
@@ -67,10 +71,23 @@ class VirtualMachineCSVForm(NetBoxModelCSVForm):
         choices=VirtualMachineStatusChoices,
         help_text='Operational status'
     )
+    site = CSVModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Assigned site'
+    )
     cluster = CSVModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
+        required=False,
         help_text='Assigned cluster'
+    )
+    device = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Assigned device within cluster'
     )
     role = CSVModelChoiceField(
         queryset=DeviceRole.objects.filter(
@@ -96,7 +113,8 @@ class VirtualMachineCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = VirtualMachine
         fields = (
-            'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+            'name', 'status', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
+            'comments',
         )
 
 

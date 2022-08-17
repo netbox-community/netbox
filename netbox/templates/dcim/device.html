@@ -46,7 +46,18 @@
                         </tr>
                         <tr>
                             <th scope="row">Rack</th>
-                            <td>{{ object.rack|linkify|placeholder }}</td>
+                            <td>
+                                {% if object.rack %}
+                                    {{ object.rack|linkify }}
+                                    <div class="float-end noprint">
+                                      <a href="{{ object.rack.get_absolute_url }}?device={{ object.pk }}" class="btn btn-primary btn-sm" title="Highlight device">
+                                        <i class="mdi mdi-view-day-outline"></i>
+                                      </a>
+                                    </div>
+                                {% else %}
+                                    {{ ''|placeholder }}
+                                {% endif %}
+                            </td>
                         </tr>
                         <tr>
                             <th scope="row">Position</th>

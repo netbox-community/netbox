@@ -10,6 +10,7 @@
     {% render_field form.provider %}
     {% render_field form.circuit %}
     {% render_field form.term_side %}
+    {% render_field form.tags %}
     {% render_field form.mark_connected %}
     {% with providernetwork_tab_active=form.initial.provider_network %}
       <div class="row mb-2">
@@ -46,5 +47,12 @@
     {% render_field form.xconnect_id %}
     {% render_field form.pp_info %}
     {% render_field form.description %}
+  </div>
+
+  <div class="field-group my-5">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Custom Fields</h5>
+    </div>
+    {% render_custom_fields form %}
   </div>
 {% endblock %}
