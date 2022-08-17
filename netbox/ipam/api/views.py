@@ -344,9 +344,25 @@ class AvailableVLANsView(ObjectValidationMixin, APIView):
     @swagger_auto_schema(responses={200: serializers.AvailableVLANSerializer(many=True)})
     def get(self, request, pk):
         vlangroup = get_object_or_404(VLANGroup.objects.restrict(request.user), pk=pk)
-        available_vlans = vlangroup.get_available_vids()
+        config = get_config()
+        PAGINATE_COUNT = config.PAGINATE_COUNT
+        MAX_PAGE_SIZE = config.MAX_PAGE_SIZE
 
-        serializer = serializers.AvailableVLANSerializer(available_vlans, many=True, context={
+        try:
+            limit = int(request.query_params.get('limit', PAGINATE_COUNT))
+        except ValueError:
+            limit = PAGINATE_COUNT
+        if MAX_PAGE_SIZE:
+            limit = min(limit, MAX_PAGE_SIZE)
+
+        # Calculate available VLANs within the group
+        vlan_list = []
+        for index, vlan in enumerate(vlangroup.get_available_vids(), start=1):
+            vlan_list.append(vlan)
+            if index == limit:
+                break
+
+        serializer = serializers.AvailableVLANSerializer(vlan_list, many=True, context={
             'request': request,
             'group': vlangroup,
         })
