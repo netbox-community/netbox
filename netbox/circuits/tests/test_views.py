@@ -130,6 +130,7 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
             'tenant': None,
             'install_date': datetime.date(2020, 1, 1),
+            'termination_date': datetime.date(2021, 1, 1),
             'commit_rate': 1000,
             'description': 'A new circuit',
             'comments': 'Some comments',
@@ -245,7 +246,7 @@ class CircuitTerminationTestCase(
             device=device,
             name='Interface 1'
         )
-        Cable(termination_a=circuittermination, termination_b=interface).save()
+        Cable(a_terminations=[circuittermination], b_terminations=[interface]).save()
 
         response = self.client.get(reverse('circuits:circuittermination_trace', kwargs={'pk': circuittermination.pk}))
         self.assertHttpStatus(response, 200)

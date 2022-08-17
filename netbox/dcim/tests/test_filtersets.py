@@ -265,9 +265,9 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
             location.save()
 
         locations = (
-            Location(name='Location 1', slug='location-1', site=sites[0], parent=parent_locations[0], description='A'),
-            Location(name='Location 2', slug='location-2', site=sites[1], parent=parent_locations[1], description='B'),
-            Location(name='Location 3', slug='location-3', site=sites[2], parent=parent_locations[2], description='C'),
+            Location(name='Location 1', slug='location-1', site=sites[0], parent=parent_locations[0], status=LocationStatusChoices.STATUS_PLANNED, description='A'),
+            Location(name='Location 2', slug='location-2', site=sites[1], parent=parent_locations[1], status=LocationStatusChoices.STATUS_STAGING, description='B'),
+            Location(name='Location 3', slug='location-3', site=sites[2], parent=parent_locations[2], status=LocationStatusChoices.STATUS_DECOMMISSIONING, description='C'),
         )
         for location in locations:
             location.save()
@@ -278,6 +278,10 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_slug(self):
         params = {'slug': ['location-1', 'location-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_status(self):
+        params = {'status': [LocationStatusChoices.STATUS_PLANNED, LocationStatusChoices.STATUS_STAGING]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -1085,8 +1089,8 @@ class InterfaceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         DeviceType.objects.bulk_create(device_types)
 
         InterfaceTemplate.objects.bulk_create((
-            InterfaceTemplate(device_type=device_types[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED, mgmt_only=True),
-            InterfaceTemplate(device_type=device_types[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_GBIC, mgmt_only=False),
+            InterfaceTemplate(device_type=device_types[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED, mgmt_only=True, poe_mode=InterfacePoEModeChoices.MODE_PD, poe_type=InterfacePoETypeChoices.TYPE_1_8023AF),
+            InterfaceTemplate(device_type=device_types[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_GBIC, mgmt_only=False, poe_mode=InterfacePoEModeChoices.MODE_PSE, poe_type=InterfacePoETypeChoices.TYPE_2_8023AT),
             InterfaceTemplate(device_type=device_types[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_SFP, mgmt_only=False),
         ))
 
@@ -1107,6 +1111,14 @@ class InterfaceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'mgmt_only': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'mgmt_only': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_poe_mode(self):
+        params = {'poe_mode': [InterfacePoEModeChoices.MODE_PD, InterfacePoEModeChoices.MODE_PSE]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_poe_type(self):
+        params = {'poe_type': [InterfacePoETypeChoices.TYPE_1_8023AF, InterfacePoETypeChoices.TYPE_2_8023AT]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -1948,8 +1960,8 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
         ConsolePort.objects.bulk_create(console_ports)
 
         # Cables
-        Cable(termination_a=console_ports[0], termination_b=console_server_ports[0]).save()
-        Cable(termination_a=console_ports[1], termination_b=console_server_ports[1]).save()
+        Cable(a_terminations=[console_ports[0]], b_terminations=[console_server_ports[0]]).save()
+        Cable(a_terminations=[console_ports[1]], b_terminations=[console_server_ports[1]]).save()
         # Third port is not connected
 
     def test_name(self):
@@ -2095,8 +2107,8 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         ConsoleServerPort.objects.bulk_create(console_server_ports)
 
         # Cables
-        Cable(termination_a=console_server_ports[0], termination_b=console_ports[0]).save()
-        Cable(termination_a=console_server_ports[1], termination_b=console_ports[1]).save()
+        Cable(a_terminations=[console_server_ports[0]], b_terminations=[console_ports[0]]).save()
+        Cable(a_terminations=[console_server_ports[1]], b_terminations=[console_ports[1]]).save()
         # Third port is not connected
 
     def test_name(self):
@@ -2242,8 +2254,8 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         PowerPort.objects.bulk_create(power_ports)
 
         # Cables
-        Cable(termination_a=power_ports[0], termination_b=power_outlets[0]).save()
-        Cable(termination_a=power_ports[1], termination_b=power_outlets[1]).save()
+        Cable(a_terminations=[power_ports[0]], b_terminations=[power_outlets[0]]).save()
+        Cable(a_terminations=[power_ports[1]], b_terminations=[power_outlets[1]]).save()
         # Third port is not connected
 
     def test_name(self):
@@ -2397,8 +2409,8 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
         PowerOutlet.objects.bulk_create(power_outlets)
 
         # Cables
-        Cable(termination_a=power_outlets[0], termination_b=power_ports[0]).save()
-        Cable(termination_a=power_outlets[1], termination_b=power_ports[1]).save()
+        Cable(a_terminations=[power_outlets[0]], b_terminations=[power_ports[0]]).save()
+        Cable(a_terminations=[power_outlets[1]], b_terminations=[power_ports[1]]).save()
         # Third port is not connected
 
     def test_name(self):
@@ -2547,20 +2559,115 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis, vc_position=2, vc_priority=2)
 
         interfaces = (
-            Interface(device=devices[0], module=modules[0], name='Interface 1', label='A', type=InterfaceTypeChoices.TYPE_1GE_SFP, enabled=True, mgmt_only=True, mtu=100, mode=InterfaceModeChoices.MODE_ACCESS, mac_address='00-00-00-00-00-01', description='First', vrf=vrfs[0], speed=1000000, duplex='half'),
-            Interface(device=devices[1], module=modules[1], name='Interface 2', label='B', type=InterfaceTypeChoices.TYPE_1GE_GBIC, enabled=True, mgmt_only=True, mtu=200, mode=InterfaceModeChoices.MODE_TAGGED, mac_address='00-00-00-00-00-02', description='Second', vrf=vrfs[1], speed=1000000, duplex='full'),
-            Interface(device=devices[2], module=modules[2], name='Interface 3', label='C', type=InterfaceTypeChoices.TYPE_1GE_FIXED, enabled=False, mgmt_only=False, mtu=300, mode=InterfaceModeChoices.MODE_TAGGED_ALL, mac_address='00-00-00-00-00-03', description='Third', vrf=vrfs[2], speed=100000, duplex='half'),
-            Interface(device=devices[3], name='Interface 4', label='D', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True, tx_power=40, speed=100000, duplex='full'),
-            Interface(device=devices[3], name='Interface 5', label='E', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True, tx_power=40),
-            Interface(device=devices[3], name='Interface 6', label='F', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False, mgmt_only=False, tx_power=40),
-            Interface(device=devices[3], name='Interface 7', type=InterfaceTypeChoices.TYPE_80211AC, rf_role=WirelessRoleChoices.ROLE_AP, rf_channel=WirelessChannelChoices.CHANNEL_24G_1, rf_channel_frequency=2412, rf_channel_width=22),
-            Interface(device=devices[3], name='Interface 8', type=InterfaceTypeChoices.TYPE_80211AC, rf_role=WirelessRoleChoices.ROLE_STATION, rf_channel=WirelessChannelChoices.CHANNEL_5G_32, rf_channel_frequency=5160, rf_channel_width=20),
+            Interface(
+                device=devices[0],
+                module=modules[0],
+                name='Interface 1',
+                label='A',
+                type=InterfaceTypeChoices.TYPE_1GE_SFP,
+                enabled=True,
+                mgmt_only=True,
+                mtu=100,
+                mode=InterfaceModeChoices.MODE_ACCESS,
+                mac_address='00-00-00-00-00-01',
+                description='First',
+                vrf=vrfs[0],
+                speed=1000000,
+                duplex='half',
+                poe_mode=InterfacePoEModeChoices.MODE_PSE,
+                poe_type=InterfacePoETypeChoices.TYPE_1_8023AF
+            ),
+            Interface(
+                device=devices[1],
+                module=modules[1],
+                name='Interface 2',
+                label='B',
+                type=InterfaceTypeChoices.TYPE_1GE_GBIC,
+                enabled=True,
+                mgmt_only=True,
+                mtu=200,
+                mode=InterfaceModeChoices.MODE_TAGGED,
+                mac_address='00-00-00-00-00-02',
+                description='Second',
+                vrf=vrfs[1],
+                speed=1000000,
+                duplex='full',
+                poe_mode=InterfacePoEModeChoices.MODE_PD,
+                poe_type=InterfacePoETypeChoices.TYPE_1_8023AF
+            ),
+            Interface(
+                device=devices[2],
+                module=modules[2],
+                name='Interface 3',
+                label='C',
+                type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+                enabled=False,
+                mgmt_only=False,
+                mtu=300,
+                mode=InterfaceModeChoices.MODE_TAGGED_ALL,
+                mac_address='00-00-00-00-00-03',
+                description='Third',
+                vrf=vrfs[2],
+                speed=100000,
+                duplex='half',
+                poe_mode=InterfacePoEModeChoices.MODE_PSE,
+                poe_type=InterfacePoETypeChoices.TYPE_2_8023AT
+            ),
+            Interface(
+                device=devices[3],
+                name='Interface 4',
+                label='D',
+                type=InterfaceTypeChoices.TYPE_OTHER,
+                enabled=True,
+                mgmt_only=True,
+                tx_power=40,
+                speed=100000,
+                duplex='full',
+                poe_mode=InterfacePoEModeChoices.MODE_PD,
+                poe_type=InterfacePoETypeChoices.TYPE_2_8023AT
+            ),
+            Interface(
+                device=devices[3],
+                name='Interface 5',
+                label='E',
+                type=InterfaceTypeChoices.TYPE_OTHER,
+                enabled=True,
+                mgmt_only=True,
+                tx_power=40
+            ),
+            Interface(
+                device=devices[3],
+                name='Interface 6',
+                label='F',
+                type=InterfaceTypeChoices.TYPE_OTHER,
+                enabled=False,
+                mgmt_only=False,
+                tx_power=40
+            ),
+            Interface(
+                device=devices[3],
+                name='Interface 7',
+                type=InterfaceTypeChoices.TYPE_80211AC,
+                rf_role=WirelessRoleChoices.ROLE_AP,
+                rf_channel=WirelessChannelChoices.CHANNEL_24G_1,
+                rf_channel_frequency=2412,
+                rf_channel_width=22
+            ),
+            Interface(
+                device=devices[3],
+                name='Interface 8',
+                type=InterfaceTypeChoices.TYPE_80211AC,
+                rf_role=WirelessRoleChoices.ROLE_STATION,
+                rf_channel=WirelessChannelChoices.CHANNEL_5G_32,
+                rf_channel_frequency=5160,
+                rf_channel_width=20
+            ),
         )
         Interface.objects.bulk_create(interfaces)
 
         # Cables
-        Cable(termination_a=interfaces[0], termination_b=interfaces[3]).save()
-        Cable(termination_a=interfaces[1], termination_b=interfaces[4]).save()
+        Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[3]]).save()
+        Cable(a_terminations=[interfaces[1]], b_terminations=[interfaces[4]]).save()
         # Third pair is not connected
 
     def test_name(self):
@@ -2599,6 +2706,14 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'mgmt_only': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'mgmt_only': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_poe_mode(self):
+        params = {'poe_mode': [InterfacePoEModeChoices.MODE_PD, InterfacePoEModeChoices.MODE_PSE]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_poe_type(self):
+        params = {'poe_type': [InterfacePoETypeChoices.TYPE_1_8023AF, InterfacePoETypeChoices.TYPE_2_8023AT]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_mode(self):
@@ -2827,8 +2942,8 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         FrontPort.objects.bulk_create(front_ports)
 
         # Cables
-        Cable(termination_a=front_ports[0], termination_b=front_ports[3]).save()
-        Cable(termination_a=front_ports[1], termination_b=front_ports[4]).save()
+        Cable(a_terminations=[front_ports[0]], b_terminations=[front_ports[3]]).save()
+        Cable(a_terminations=[front_ports[1]], b_terminations=[front_ports[4]]).save()
         # Third port is not connected
 
     def test_name(self):
@@ -2973,8 +3088,8 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         RearPort.objects.bulk_create(rear_ports)
 
         # Cables
-        Cable(termination_a=rear_ports[0], termination_b=rear_ports[3]).save()
-        Cable(termination_a=rear_ports[1], termination_b=rear_ports[4]).save()
+        Cable(a_terminations=[rear_ports[0]], b_terminations=[rear_ports[3]]).save()
+        Cable(a_terminations=[rear_ports[1]], b_terminations=[rear_ports[4]]).save()
         # Third port is not connected
 
     def test_name(self):
@@ -3558,6 +3673,21 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Site.objects.bulk_create(sites)
 
+        locations = (
+            Location(name='Location 1', site=sites[0], slug='location-1'),
+            Location(name='Location 2', site=sites[1], slug='location-1'),
+            Location(name='Location 3', site=sites[2], slug='location-1'),
+        )
+        for location in locations:
+            location.save()
+
+        racks = (
+            Rack(name='Rack 1', site=sites[0], location=locations[0]),
+            Rack(name='Rack 2', site=sites[1], location=locations[1]),
+            Rack(name='Rack 3', site=sites[2], location=locations[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1'),
             Tenant(name='Tenant 2', slug='tenant-2'),
@@ -3565,24 +3695,17 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Tenant.objects.bulk_create(tenants)
 
-        racks = (
-            Rack(name='Rack 1', site=sites[0]),
-            Rack(name='Rack 2', site=sites[1]),
-            Rack(name='Rack 3', site=sites[2]),
-        )
-        Rack.objects.bulk_create(racks)
-
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=1),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=2),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=1),
-            Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=2),
-            Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=1),
-            Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=2),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], location=locations[0], position=1),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], location=locations[0], position=2),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], location=locations[1], position=1),
+            Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], location=locations[1], position=2),
+            Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], location=locations[2], position=1),
+            Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], location=locations[2], position=2),
         )
         Device.objects.bulk_create(devices)
 
@@ -3606,13 +3729,13 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         console_server_port = ConsoleServerPort.objects.create(device=devices[0], name='Console Server Port 1')
 
         # Cables
-        Cable(termination_a=interfaces[1], termination_b=interfaces[2], label='Cable 1', type=CableTypeChoices.TYPE_CAT3, tenant=tenants[0], status=LinkStatusChoices.STATUS_CONNECTED, color='aa1409', length=10, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[3], termination_b=interfaces[4], label='Cable 2', type=CableTypeChoices.TYPE_CAT3, tenant=tenants[0], status=LinkStatusChoices.STATUS_CONNECTED, color='aa1409', length=20, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[5], termination_b=interfaces[6], label='Cable 3', type=CableTypeChoices.TYPE_CAT5E, tenant=tenants[1], status=LinkStatusChoices.STATUS_CONNECTED, color='f44336', length=30, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[7], termination_b=interfaces[8], label='Cable 4', type=CableTypeChoices.TYPE_CAT5E, tenant=tenants[1], status=LinkStatusChoices.STATUS_PLANNED, color='f44336', length=40, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[9], termination_b=interfaces[10], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
-        Cable(termination_a=interfaces[11], termination_b=interfaces[0], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
-        Cable(termination_a=console_port, termination_b=console_server_port, label='Cable 7').save()
+        Cable(a_terminations=[interfaces[1]], b_terminations=[interfaces[2]], label='Cable 1', type=CableTypeChoices.TYPE_CAT3, tenant=tenants[0], status=LinkStatusChoices.STATUS_CONNECTED, color='aa1409', length=10, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(a_terminations=[interfaces[3]], b_terminations=[interfaces[4]], label='Cable 2', type=CableTypeChoices.TYPE_CAT3, tenant=tenants[0], status=LinkStatusChoices.STATUS_CONNECTED, color='aa1409', length=20, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(a_terminations=[interfaces[5]], b_terminations=[interfaces[6]], label='Cable 3', type=CableTypeChoices.TYPE_CAT5E, tenant=tenants[1], status=LinkStatusChoices.STATUS_CONNECTED, color='f44336', length=30, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(a_terminations=[interfaces[7]], b_terminations=[interfaces[8]], label='Cable 4', type=CableTypeChoices.TYPE_CAT5E, tenant=tenants[1], status=LinkStatusChoices.STATUS_PLANNED, color='f44336', length=40, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(a_terminations=[interfaces[9]], b_terminations=[interfaces[10]], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
+        Cable(a_terminations=[interfaces[11]], b_terminations=[interfaces[0]], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
+        Cable(a_terminations=[console_port], b_terminations=[console_server_port], label='Cable 7').save()
 
     def test_label(self):
         params = {'label': ['Cable 1', 'Cable 2']}
@@ -3654,6 +3777,13 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'rack': [racks[0].name, racks[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'location': [locations[0].name, locations[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
     def test_site(self):
         site = Site.objects.all()[:2]
         params = {'site_id': [site[0].pk, site[1].pk]}
@@ -3675,7 +3805,10 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_termination_ids(self):
-        interface_ids = Cable.objects.values_list('termination_a_id', flat=True)[:3]
+        interface_ids = CableTermination.objects.filter(
+            cable__in=Cable.objects.all()[:3],
+            cable_end='A'
+        ).values_list('termination_id', flat=True)
         params = {
             'termination_a_type': 'dcim.interface',
             'termination_a_id': list(interface_ids),
@@ -3819,8 +3952,8 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
             PowerPort(device=device, name='Power Port 2'),
         ]
         PowerPort.objects.bulk_create(power_ports)
-        Cable(termination_a=power_feeds[0], termination_b=power_ports[0]).save()
-        Cable(termination_a=power_feeds[1], termination_b=power_ports[1]).save()
+        Cable(a_terminations=[power_feeds[0]], b_terminations=[power_ports[0]]).save()
+        Cable(a_terminations=[power_feeds[1]], b_terminations=[power_ports[1]]).save()
 
     def test_name(self):
         params = {'name': ['Power Feed 1', 'Power Feed 2']}

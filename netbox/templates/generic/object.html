@@ -59,7 +59,7 @@ Context:
       {# Extra buttons #}
       {% block extra_controls %}{% endblock %}
 
-      {% if object.clone_fields and request.user|can_add:object %}
+      {% if request.user|can_add:object %}
         {% clone_button object %}
       {% endif %}
       {% if request.user|can_change:object %}

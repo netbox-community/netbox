@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -52,6 +50,11 @@ class ConfigContext(WebhooksMixin, ChangeLoggedModel):
     )
     sites = models.ManyToManyField(
         to='dcim.Site',
+        related_name='+',
+        blank=True
+    )
+    locations = models.ManyToManyField(
+        to='dcim.Location',
         related_name='+',
         blank=True
     )
@@ -138,11 +141,10 @@ class ConfigContextModel(models.Model):
 
     def get_config_context(self):
         """
+        Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs.
         Return the rendered configuration context for a device or VM.
         """
-
-        # Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs
-        data = OrderedDict()
+        data = {}
 
         if not hasattr(self, 'config_context_data'):
             # The annotation is not available, so we fall back to manually querying for the config context objects

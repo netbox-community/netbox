@@ -12,6 +12,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
+from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
@@ -175,9 +176,9 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
 
         locations = (
-            Location(name='Location 1', slug='location-1', site=site, tenant=tenant),
-            Location(name='Location 2', slug='location-2', site=site, tenant=tenant),
-            Location(name='Location 3', slug='location-3', site=site, tenant=tenant),
+            Location(name='Location 1', slug='location-1', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
+            Location(name='Location 2', slug='location-2', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
+            Location(name='Location 3', slug='location-3', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
         )
         for location in locations:
             location.save()
@@ -188,16 +189,17 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'Location X',
             'slug': 'location-x',
             'site': site.pk,
+            'status': LocationStatusChoices.STATUS_PLANNED,
             'tenant': tenant.pk,
             'description': 'A new location',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "site,tenant,name,slug,description",
-            "Site 1,Tenant 1,Location 4,location-4,Fourth location",
-            "Site 1,Tenant 1,Location 5,location-5,Fifth location",
-            "Site 1,Tenant 1,Location 6,location-6,Sixth location",
+            "site,tenant,name,slug,status,description",
+            "Site 1,Tenant 1,Location 4,location-4,planned,Fourth location",
+            "Site 1,Tenant 1,Location 5,location-5,planned,Fifth location",
+            "Site 1,Tenant 1,Location 6,location-6,planned,Sixth location",
         )
 
         cls.bulk_edit_data = {
@@ -1960,7 +1962,7 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             device=consoleport.device,
             name='Console Server Port 1'
         )
-        Cable(termination_a=consoleport, termination_b=consoleserverport).save()
+        Cable(a_terminations=[consoleport], b_terminations=[consoleserverport]).save()
 
         response = self.client.get(reverse('dcim:consoleport_trace', kwargs={'pk': consoleport.pk}))
         self.assertHttpStatus(response, 200)
@@ -2016,7 +2018,7 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             device=consoleserverport.device,
             name='Console Port 1'
         )
-        Cable(termination_a=consoleserverport, termination_b=consoleport).save()
+        Cable(a_terminations=[consoleserverport], b_terminations=[consoleport]).save()
 
         response = self.client.get(reverse('dcim:consoleserverport_trace', kwargs={'pk': consoleserverport.pk}))
         self.assertHttpStatus(response, 200)
@@ -2078,7 +2080,7 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             device=powerport.device,
             name='Power Outlet 1'
         )
-        Cable(termination_a=powerport, termination_b=poweroutlet).save()
+        Cable(a_terminations=[powerport], b_terminations=[poweroutlet]).save()
 
         response = self.client.get(reverse('dcim:powerport_trace', kwargs={'pk': powerport.pk}))
         self.assertHttpStatus(response, 200)
@@ -2143,7 +2145,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
     def test_trace(self):
         poweroutlet = PowerOutlet.objects.first()
         powerport = PowerPort.objects.first()
-        Cable(termination_a=poweroutlet, termination_b=powerport).save()
+        Cable(a_terminations=[poweroutlet], b_terminations=[powerport]).save()
 
         response = self.client.get(reverse('dcim:poweroutlet_trace', kwargs={'pk': poweroutlet.pk}))
         self.assertHttpStatus(response, 200)
@@ -2204,6 +2206,8 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'description': 'A front port',
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'tx_power': 10,
+            'poe_mode': InterfacePoEModeChoices.MODE_PSE,
+            'poe_type': InterfacePoETypeChoices.TYPE_1_8023AF,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
@@ -2225,6 +2229,8 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'duplex': 'half',
             'mgmt_only': True,
             'description': 'A front port',
+            'poe_mode': InterfacePoEModeChoices.MODE_PSE,
+            'poe_type': InterfacePoETypeChoices.TYPE_1_8023AF,
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
@@ -2244,6 +2250,8 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'duplex': 'full',
             'mgmt_only': True,
             'description': 'New description',
+            'poe_mode': InterfacePoEModeChoices.MODE_PD,
+            'poe_type': InterfacePoETypeChoices.TYPE_2_8023AT,
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'tx_power': 10,
             'untagged_vlan': vlans[0].pk,
@@ -2252,16 +2260,16 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            f"device,name,type,vrf.pk",
-            f"Device 1,Interface 4,1000base-t,{vrfs[0].pk}",
-            f"Device 1,Interface 5,1000base-t,{vrfs[0].pk}",
-            f"Device 1,Interface 6,1000base-t,{vrfs[0].pk}",
+            f"device,name,type,vrf.pk,poe_mode,poe_type",
+            f"Device 1,Interface 4,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
+            f"Device 1,Interface 5,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
+            f"Device 1,Interface 6,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
         )
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         interface1, interface2 = Interface.objects.all()[:2]
-        Cable(termination_a=interface1, termination_b=interface2).save()
+        Cable(a_terminations=[interface1], b_terminations=[interface2]).save()
 
         response = self.client.get(reverse('dcim:interface_trace', kwargs={'pk': interface1.pk}))
         self.assertHttpStatus(response, 200)
@@ -2332,7 +2340,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             device=frontport.device,
             name='Interface 1'
         )
-        Cable(termination_a=frontport, termination_b=interface).save()
+        Cable(a_terminations=[frontport], b_terminations=[interface]).save()
 
         response = self.client.get(reverse('dcim:frontport_trace', kwargs={'pk': frontport.pk}))
         self.assertHttpStatus(response, 200)
@@ -2390,7 +2398,7 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             device=rearport.device,
             name='Interface 1'
         )
-        Cable(termination_a=rearport, termination_b=interface).save()
+        Cable(a_terminations=[rearport], b_terminations=[interface]).save()
 
         response = self.client.get(reverse('dcim:rearport_trace', kwargs={'pk': rearport.pk}))
         self.assertHttpStatus(response, 200)
@@ -2623,19 +2631,18 @@ class CableTestCase(
         )
         Interface.objects.bulk_create(interfaces)
 
-        Cable(termination_a=interfaces[0], termination_b=interfaces[3], type=CableTypeChoices.TYPE_CAT6).save()
-        Cable(termination_a=interfaces[1], termination_b=interfaces[4], type=CableTypeChoices.TYPE_CAT6).save()
-        Cable(termination_a=interfaces[2], termination_b=interfaces[5], type=CableTypeChoices.TYPE_CAT6).save()
+        Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[3]], type=CableTypeChoices.TYPE_CAT6).save()
+        Cable(a_terminations=[interfaces[1]], b_terminations=[interfaces[4]], type=CableTypeChoices.TYPE_CAT6).save()
+        Cable(a_terminations=[interfaces[2]], b_terminations=[interfaces[5]], type=CableTypeChoices.TYPE_CAT6).save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         interface_ct = ContentType.objects.get_for_model(Interface)
         cls.form_data = {
+            # TODO: Revisit this limitation
             # Changing terminations not supported when editing an existing Cable
-            'termination_a_type': interface_ct.pk,
-            'termination_a_id': interfaces[0].pk,
-            'termination_b_type': interface_ct.pk,
-            'termination_b_id': interfaces[3].pk,
+            'a_terminations': [interfaces[0].pk],
+            'b_terminations': [interfaces[3].pk],
             'type': CableTypeChoices.TYPE_CAT6,
             'status': LinkStatusChoices.STATUS_PLANNED,
             'label': 'Label',
@@ -2660,6 +2667,17 @@ class CableTestCase(
             'length': 50,
             'length_unit': CableLengthUnitChoices.UNIT_METER,
         }
+
+    def model_to_dict(self, *args, **kwargs):
+        data = super().model_to_dict(*args, **kwargs)
+
+        # Serialize termination objects
+        if 'a_terminations' in data:
+            data['a_terminations'] = [obj.pk for obj in data['a_terminations']]
+        if 'b_terminations' in data:
+            data['b_terminations'] = [obj.pk for obj in data['b_terminations']]
+
+        return data
 
 
 class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -2857,7 +2875,7 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             device=device,
             name='Power Port 1'
         )
-        Cable(termination_a=powerfeed, termination_b=powerport).save()
+        Cable(a_terminations=[powerfeed], b_terminations=[powerport]).save()
 
         response = self.client.get(reverse('dcim:powerfeed_trace', kwargs={'pk': powerfeed.pk}))
         self.assertHttpStatus(response, 200)

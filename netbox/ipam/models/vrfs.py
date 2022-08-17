@@ -55,9 +55,9 @@ class VRF(NetBoxModel):
         blank=True
     )
 
-    clone_fields = [
+    clone_fields = (
         'tenant', 'enforce_unique', 'description',
-    ]
+    )
 
     class Meta:
         ordering = ('name', 'rd', 'pk')  # (name, rd) may be non-unique

@@ -2,14 +2,50 @@
 
 How you choose to employ sites when modeling your network may vary depending on the nature of your organization, but generally a site will equate to a building or campus. For example, a chain of banks might create a site to represent each of its branches, a site for its corporate headquarters, and two additional sites for its presence in two colocation facilities.
 
-Each site must be assigned a unique name and may optionally be assigned to a region and/or tenant. The following operational statuses are available:
+## Fields
 
-* Planned
-* Staging
-* Active
-* Decommissioning
-* Retired
+### Name
 
-The site model also provides a facility ID field which can be used to annotate a facility ID (such as a datacenter name) associated with the site. Each site may also have an autonomous system (AS) number and time zone associated with it. (Time zones are provided by the [pytz](https://pypi.org/project/pytz/) package.)
+The site's unique name.
 
-The site model also includes several fields for storing contact and address information as well as geolocation data (GPS coordinates).
+### Slug
+
+A unique URL-friendly identifier. (This value can be used for filtering.)
+
+### Status
+
+The site's operational status.
+
+!!! tip
+    Additional statuses may be defined by setting `Site.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
+
+### Region
+
+The parent [region](./region.md) to which the site belongs, if any.
+
+### Facility
+
+Data center or facility designation for identifying the site.
+
+### ASNs
+
+Each site can have multiple [AS numbers](../ipam/asn.md) assigned to it.
+
+### Time Zone
+
+The site's local time zone. (Time zones are provided by the [pytz](https://pypi.org/project/pytz/) package.)
+
+### Physical Address
+
+The site's physical address, used for mapping.
+
+### Shipping Address
+
+The address to use for deliveries destined for the site.
+
+!!! tip
+    You can also designate [points of contact](../../features/contacts.md) for each site to provide additional contact details.
+
+### Latitude & Longitude
+
+GPS coordinates of the site for geolocation.

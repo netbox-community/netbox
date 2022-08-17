@@ -186,4 +186,26 @@ urlpatterns = [
     path('services/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='service_changelog', kwargs={'model': Service}),
     path('services/<int:pk>/journal/', ObjectJournalView.as_view(), name='service_journal', kwargs={'model': Service}),
 
+    # L2VPN
+    path('l2vpns/', views.L2VPNListView.as_view(), name='l2vpn_list'),
+    path('l2vpns/add/', views.L2VPNEditView.as_view(), name='l2vpn_add'),
+    path('l2vpns/import/', views.L2VPNBulkImportView.as_view(), name='l2vpn_import'),
+    path('l2vpns/edit/', views.L2VPNBulkEditView.as_view(), name='l2vpn_bulk_edit'),
+    path('l2vpns/delete/', views.L2VPNBulkDeleteView.as_view(), name='l2vpn_bulk_delete'),
+    path('l2vpns/<int:pk>/', views.L2VPNView.as_view(), name='l2vpn'),
+    path('l2vpns/<int:pk>/edit/', views.L2VPNEditView.as_view(), name='l2vpn_edit'),
+    path('l2vpns/<int:pk>/delete/', views.L2VPNDeleteView.as_view(), name='l2vpn_delete'),
+    path('l2vpns/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='l2vpn_changelog', kwargs={'model': L2VPN}),
+    path('l2vpns/<int:pk>/journal/', ObjectJournalView.as_view(), name='l2vpn_journal', kwargs={'model': L2VPN}),
+
+    path('l2vpn-terminations/', views.L2VPNTerminationListView.as_view(), name='l2vpntermination_list'),
+    path('l2vpn-terminations/add/', views.L2VPNTerminationEditView.as_view(), name='l2vpntermination_add'),
+    path('l2vpn-terminations/import/', views.L2VPNTerminationBulkImportView.as_view(), name='l2vpntermination_import'),
+    path('l2vpn-terminations/edit/', views.L2VPNTerminationBulkEditView.as_view(), name='l2vpntermination_bulk_edit'),
+    path('l2vpn-terminations/delete/', views.L2VPNTerminationBulkDeleteView.as_view(), name='l2vpntermination_bulk_delete'),
+    path('l2vpn-terminations/<int:pk>/', views.L2VPNTerminationView.as_view(), name='l2vpntermination'),
+    path('l2vpn-terminations/<int:pk>/edit/', views.L2VPNTerminationEditView.as_view(), name='l2vpntermination_edit'),
+    path('l2vpn-terminations/<int:pk>/delete/', views.L2VPNTerminationDeleteView.as_view(), name='l2vpntermination_delete'),
+    path('l2vpn-terminations/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='l2vpntermination_changelog', kwargs={'model': L2VPNTermination}),
+    path('l2vpn-terminations/<int:pk>/journal/', ObjectJournalView.as_view(), name='l2vpntermination_journal', kwargs={'model': L2VPNTermination}),
 ]

@@ -197,24 +197,11 @@ class BaseFilterSet(django_filters.FilterSet):
 
 
 class ChangeLoggedModelFilterSet(BaseFilterSet):
-    created = django_filters.DateTimeFilter()
-    created__gte = django_filters.DateTimeFilter(
-        field_name='created',
-        lookup_expr='gte'
-    )
-    created__lte = django_filters.DateTimeFilter(
-        field_name='created',
-        lookup_expr='lte'
-    )
-    last_updated = django_filters.DateTimeFilter()
-    last_updated__gte = django_filters.DateTimeFilter(
-        field_name='last_updated',
-        lookup_expr='gte'
-    )
-    last_updated__lte = django_filters.DateTimeFilter(
-        field_name='last_updated',
-        lookup_expr='lte'
-    )
+    """
+    Base FilterSet for ChangeLoggedModel classes.
+    """
+    created = filters.MultiValueDateTimeFilter()
+    last_updated = filters.MultiValueDateTimeFilter()
 
 
 class NetBoxModelFilterSet(ChangeLoggedModelFilterSet):

@@ -281,6 +281,7 @@ class ConfigContextView(generic.ObjectView):
             ('Regions', instance.regions.all),
             ('Site Groups', instance.site_groups.all),
             ('Sites', instance.sites.all),
+            ('Locations', instance.locations.all),
             ('Device Types', instance.device_types.all),
             ('Roles', instance.roles.all),
             ('Platforms', instance.platforms.all),
@@ -311,7 +312,6 @@ class ConfigContextView(generic.ObjectView):
 class ConfigContextEditView(generic.ObjectEditView):
     queryset = ConfigContext.objects.all()
     form = forms.ConfigContextForm
-    template_name = 'extras/configcontext_edit.html'
 
 
 class ConfigContextBulkEditView(generic.BulkEditView):
@@ -492,14 +492,14 @@ class JournalEntryDeleteView(generic.ObjectDeleteView):
 
 
 class JournalEntryBulkEditView(generic.BulkEditView):
-    queryset = JournalEntry.objects.prefetch_related('created_by')
+    queryset = JournalEntry.objects.all()
     filterset = filtersets.JournalEntryFilterSet
     table = tables.JournalEntryTable
     form = forms.JournalEntryBulkEditForm
 
 
 class JournalEntryBulkDeleteView(generic.BulkDeleteView):
-    queryset = JournalEntry.objects.prefetch_related('created_by')
+    queryset = JournalEntry.objects.all()
     filterset = filtersets.JournalEntryFilterSet
     table = tables.JournalEntryTable
 

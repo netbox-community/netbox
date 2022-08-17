@@ -6,7 +6,6 @@ import pkgutil
 import sys
 import traceback
 import threading
-from collections import OrderedDict
 
 import yaml
 from django import forms
@@ -496,7 +495,7 @@ def get_scripts(use_names=False):
     Return a dict of dicts mapping all scripts to their modules. Set use_names to True to use each module's human-
     defined name in place of the actual module name.
     """
-    scripts = OrderedDict()
+    scripts = {}
     # Iterate through all modules within the scripts path. These are the user-created files in which reports are
     # defined.
     for importer, module_name, _ in pkgutil.iter_modules([settings.SCRIPTS_ROOT]):
@@ -510,7 +509,7 @@ def get_scripts(use_names=False):
 
         if use_names and hasattr(module, 'name'):
             module_name = module.name
-        module_scripts = OrderedDict()
+        module_scripts = {}
         script_order = getattr(module, "script_order", ())
         ordered_scripts = [cls for cls in script_order if is_script(cls)]
         unordered_scripts = [cls for _, cls in inspect.getmembers(module, is_script) if cls not in script_order]

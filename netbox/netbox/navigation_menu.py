@@ -174,7 +174,7 @@ DEVICES_MENU = Menu(
 
 CONNECTIONS_MENU = Menu(
     label='Connections',
-    icon_class='mdi mdi-ethernet',
+    icon_class='mdi mdi-connection',
     groups=(
         MenuGroup(
             label='Connections',
@@ -266,6 +266,20 @@ IPAM_MENU = Menu(
                 get_model_item('ipam', 'fhrpgroup', 'FHRP Groups'),
                 get_model_item('ipam', 'servicetemplate', 'Service Templates'),
                 get_model_item('ipam', 'service', 'Services'),
+            ),
+        ),
+    ),
+)
+
+OVERLAY_MENU = Menu(
+    label='Overlay',
+    icon_class='mdi mdi-graph-outline',
+    groups=(
+        MenuGroup(
+            label='L2VPNs',
+            items=(
+                get_model_item('ipam', 'l2vpn', 'L2VPNs'),
+                get_model_item('ipam', 'l2vpntermination', 'Terminations'),
             ),
         ),
     ),
@@ -380,6 +394,7 @@ MENUS = [
     CONNECTIONS_MENU,
     WIRELESS_MENU,
     IPAM_MENU,
+    OVERLAY_MENU,
     VIRTUALIZATION_MENU,
     CIRCUITS_MENU,
     POWER_MENU,

@@ -24,4 +24,4 @@ def rebuild_cablepaths(instance, raw=False, **kwargs):
     if not raw:
         peer_termination = instance.get_peer_termination()
         if peer_termination:
-            rebuild_paths(peer_termination)
+            rebuild_paths([peer_termination])

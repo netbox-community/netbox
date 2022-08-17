@@ -4,8 +4,10 @@ from django.db import models
 from django.urls import reverse
 
 from circuits.choices import *
-from dcim.models import LinkTermination
-from netbox.models import ChangeLoggedModel, OrganizationalModel, NetBoxModel
+from dcim.models import CabledObjectModel
+from netbox.models import (
+    ChangeLoggedModel, CustomFieldsMixin, CustomLinksMixin, OrganizationalModel, NetBoxModel, TagsMixin,
+)
 from netbox.models.features import WebhooksMixin
 
 __all__ = (
@@ -78,7 +80,12 @@ class Circuit(NetBoxModel):
     install_date = models.DateField(
         blank=True,
         null=True,
-        verbose_name='Date installed'
+        verbose_name='Installed'
+    )
+    termination_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name='Terminates'
     )
     commit_rate = models.PositiveIntegerField(
         blank=True,
@@ -118,9 +125,9 @@ class Circuit(NetBoxModel):
         null=True
     )
 
-    clone_fields = [
-        'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description',
-    ]
+    clone_fields = (
+        'provider', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate', 'description',
+    )
 
     class Meta:
         ordering = ['provider', 'cid']
@@ -136,7 +143,14 @@ class Circuit(NetBoxModel):
         return CircuitStatusChoices.colors.get(self.status)
 
 
-class CircuitTermination(WebhooksMixin, ChangeLoggedModel, LinkTermination):
+class CircuitTermination(
+    CustomFieldsMixin,
+    CustomLinksMixin,
+    TagsMixin,
+    WebhooksMixin,
+    ChangeLoggedModel,
+    CabledObjectModel
+):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,

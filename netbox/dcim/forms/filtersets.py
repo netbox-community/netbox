@@ -166,7 +166,7 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
     model = Location
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Parent', ('region_id', 'site_group_id', 'site_id', 'parent_id')),
+        ('Attributes', ('region_id', 'site_group_id', 'site_id', 'parent_id', 'status')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
@@ -197,6 +197,10 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
             'site_id': '$site_id',
         },
         label=_('Parent')
+    )
+    status = MultipleChoiceField(
+        choices=LocationStatusChoices,
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -739,7 +743,7 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Cable
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Location', ('site_id', 'rack_id', 'device_id')),
+        ('Location', ('site_id', 'location_id', 'rack_id', 'device_id')),
         ('Attributes', ('type', 'status', 'color', 'length', 'length_unit')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
     )
@@ -756,13 +760,23 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         },
         label=_('Site')
     )
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label=_('Location'),
+        null_option='None',
+        query_params={
+            'site_id': '$site_id'
+        }
+    )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         label=_('Rack'),
         null_option='None',
         query_params={
-            'site_id': '$site_id'
+            'site_id': '$site_id',
+            'location_id': '$location_id',
         }
     )
     device_id = DynamicModelMultipleChoiceField(
@@ -770,8 +784,9 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         required=False,
         query_params={
             'site_id': '$site_id',
-            'tenant_id': '$tenant_id',
+            'location_id': '$location_id',
             'rack_id': '$rack_id',
+            'tenant_id': '$tenant_id',
         },
         label=_('Device')
     )
@@ -982,6 +997,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         (None, ('q', 'tag')),
         ('Attributes', ('name', 'label', 'kind', 'type', 'speed', 'duplex', 'enabled', 'mgmt_only')),
         ('Addressing', ('vrf_id', 'mac_address', 'wwn')),
+        ('PoE', ('poe_mode', 'poe_type')),
         ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id')),
     )
@@ -1021,6 +1037,16 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     wwn = forms.CharField(
         required=False,
         label='WWN'
+    )
+    poe_mode = MultipleChoiceField(
+        choices=InterfacePoEModeChoices,
+        required=False,
+        label='PoE mode'
+    )
+    poe_type = MultipleChoiceField(
+        choices=InterfacePoEModeChoices,
+        required=False,
+        label='PoE type'
     )
     rf_role = MultipleChoiceField(
         choices=WirelessRoleChoices,

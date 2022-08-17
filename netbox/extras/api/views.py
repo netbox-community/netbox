@@ -138,7 +138,7 @@ class JournalEntryViewSet(NetBoxModelViewSet):
 
 class ConfigContextViewSet(NetBoxModelViewSet):
     queryset = ConfigContext.objects.prefetch_related(
-        'regions', 'site_groups', 'sites', 'roles', 'platforms', 'tenant_groups', 'tenants',
+        'regions', 'site_groups', 'sites', 'locations', 'roles', 'platforms', 'tenant_groups', 'tenants',
     )
     serializer_class = serializers.ConfigContextSerializer
     filterset_class = filtersets.ConfigContextFilterSet

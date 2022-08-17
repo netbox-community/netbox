@@ -1,11 +1,15 @@
-from collections import OrderedDict
-
-import pytz
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from netaddr import IPNetwork
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
+
+__all__ = (
+    'ChoiceField',
+    'ContentTypeField',
+    'IPNetworkSerializer',
+    'SerializedPKRelatedField',
+)
 
 
 class ChoiceField(serializers.Field):
@@ -42,10 +46,10 @@ class ChoiceField(serializers.Field):
     def to_representation(self, obj):
         if obj == '':
             return None
-        return OrderedDict([
-            ('value', obj),
-            ('label', self._choices[obj])
-        ])
+        return {
+            'value': obj,
+            'label': self._choices[obj],
+        }
 
     def to_internal_value(self, data):
         if data == '':
@@ -102,6 +106,17 @@ class ContentTypeField(RelatedField):
 
     def to_representation(self, obj):
         return f"{obj.app_label}.{obj.model}"
+
+
+class IPNetworkSerializer(serializers.Serializer):
+    """
+    Representation of an IP network value (e.g. 192.0.2.0/24).
+    """
+    def to_representation(self, instance):
+        return str(instance)
+
+    def to_internal_value(self, value):
+        return IPNetwork(value)
 
 
 class SerializedPKRelatedField(PrimaryKeyRelatedField):

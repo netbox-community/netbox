@@ -7,9 +7,8 @@ from django.test import TestCase
 
 from circuits.models import Provider
 from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
-from extras.choices import (
-    CustomFieldTypeChoices, CustomFieldFilterLogicChoices, JournalEntryKindChoices, ObjectChangeActionChoices,
-)
+from dcim.models import Location
+from extras.choices import *
 from extras.filtersets import *
 from extras.models import *
 from ipam.models import IPAddress
@@ -32,21 +31,24 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
                 type=CustomFieldTypeChoices.TYPE_TEXT,
                 required=True,
                 weight=100,
-                filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE
+                filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE,
+                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE
             ),
             CustomField(
                 name='Custom Field 2',
                 type=CustomFieldTypeChoices.TYPE_INTEGER,
                 required=False,
                 weight=200,
-                filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT
+                filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT,
+                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY
             ),
             CustomField(
                 name='Custom Field 3',
                 type=CustomFieldTypeChoices.TYPE_BOOLEAN,
                 required=False,
                 weight=300,
-                filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
+                filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED,
+                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN
             ),
         )
         CustomField.objects.bulk_create(custom_fields)
@@ -74,6 +76,10 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
 
     def test_filter_logic(self):
         params = {'filter_logic': CustomFieldFilterLogicChoices.FILTER_LOOSE}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_ui_visibility(self):
+        params = {'ui_visibility': CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
@@ -431,9 +437,9 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         regions = (
-            Region(name='Test Region 1', slug='test-region-1'),
-            Region(name='Test Region 2', slug='test-region-2'),
-            Region(name='Test Region 3', slug='test-region-3'),
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
         )
         for r in regions:
             r.save()
@@ -447,11 +453,19 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
             site_group.save()
 
         sites = (
-            Site(name='Test Site 1', slug='test-site-1'),
-            Site(name='Test Site 2', slug='test-site-2'),
-            Site(name='Test Site 3', slug='test-site-3'),
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
         )
         Site.objects.bulk_create(sites)
+
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
 
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_types = (
@@ -523,6 +537,7 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
             c.regions.set([regions[i]])
             c.site_groups.set([site_groups[i]])
             c.sites.set([sites[i]])
+            c.locations.set([locations[i]])
             c.device_types.set([device_types[i]])
             c.roles.set([device_roles[i]])
             c.platforms.set([platforms[i]])
@@ -562,6 +577,13 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device_type(self):

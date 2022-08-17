@@ -1,5 +1,14 @@
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+
+__all__ = (
+    'get_permission_for_model',
+    'permission_is_exempt',
+    'qs_filter_from_constraints',
+    'resolve_permission',
+    'resolve_permission_ct',
+)
 
 
 def get_permission_for_model(model, action):
@@ -69,3 +78,29 @@ def permission_is_exempt(name):
             return True
 
     return False
+
+
+def qs_filter_from_constraints(constraints, tokens=None):
+    """
+    Construct a Q filter object from an iterable of ObjectPermission constraints.
+
+    Args:
+        tokens: A dictionary mapping string tokens to be replaced with a value.
+    """
+    if tokens is None:
+        tokens = {}
+
+    def _replace_tokens(value, tokens):
+        if type(value) is list:
+            return list(map(lambda v: tokens.get(v, v), value))
+        return tokens.get(value, value)
+
+    params = Q()
+    for constraint in constraints:
+        if constraint:
+            params |= Q(**{k: _replace_tokens(v, tokens) for k, v in constraint.items()})
+        else:
+            # Found null constraint; permit model-level access
+            return Q()
+
+    return params

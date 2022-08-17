@@ -1,37 +1,29 @@
 # Export Templates
 
-NetBox allows users to define custom templates that can be used when exporting objects. To create an export template, navigate to Customization > Export Templates.
+Export templates are used to render arbitrary data from a set of NetBox objects. For example, you might want to automatically generate a network monitoring service configuration from a list of device objects. See the [export templates documentation](../../customization/export-templates.md) for more information.
 
-Each export template is associated with a certain type of object. For instance, if you create an export template for VLANs, your custom template will appear under the "Export" button on the VLANs list. Each export template must have a name, and may optionally designate a specific export [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types) and/or file extension.
+## Fields
 
-Export templates must be written in [Jinja2](https://jinja.palletsprojects.com/).
+### Name
 
-!!! note
-    The name `table` is reserved for internal use.
+The name of the export template. This will appear in the "export" dropdown list in the NetBox UI.
 
-!!! warning
-    Export templates are rendered using user-submitted code, which may pose security risks under certain conditions. Only grant permission to create or modify export templates to trusted users.
+### Content Type
 
-The list of objects returned from the database when rendering an export template is stored in the `queryset` variable, which you'll typically want to iterate through using a `for` loop. Object properties can be access by name. For example:
+The type of NetBox object to which the export template applies.
 
-```jinja2
-{% for rack in queryset %}
-Rack: {{ rack.name }}
-Site: {{ rack.site.name }}
-Height: {{ rack.u_height }}U
-{% endfor %}
-```
+### Template Code
 
-To access custom fields of an object within a template, use the `cf` attribute. For example, `{{ obj.cf.color }}` will return the value (if any) for a custom field named `color` on `obj`.
+Jinja2 template code for rendering the exported data.
 
-If you need to use the config context data in an export template, you'll should use the function `get_config_context` to get all the config context data. For example:
-```
-{% for server in queryset %}
-{% set data = server.get_config_context() %}
-{{ data.syslog }}
-{% endfor %}
-```
+### MIME Type
 
-The `as_attachment` attribute of an export template controls its behavior when rendered. If true, the rendered content will be returned to the user as a downloadable file. If false, it will be displayed within the browser. (This may be handy e.g. for generating HTML content.)
+The MIME type to indicate in the response when rendering the export template (optional). Defaults to `text/plain`.
 
-A MIME type and file extension can optionally be defined for each export template. The default MIME type is `text/plain`.
+### File Extension
+
+The file extension to append to the file name in the response (optional).
+
+### As Attachment
+
+If selected, the rendered content will be returned as a file attachment, rather than displayed directly in-browser (where supported).
