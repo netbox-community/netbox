@@ -1,10 +1,10 @@
 # NetBox v3.3
 
-## v3.3-beta2 (2022-08-03)
+## v3.3.0 (FUTURE)
 
 ### Breaking Changes
 
-* Device position and rack unit values are now reported as decimals (e.g. `1.0` or `1.5`) to support modeling half-height rack units.
+* Device position, device type height, and rack unit values are now reported as decimals (e.g. `1.0` or `1.5`) to support modeling half-height rack units.
 * The `nat_outside` relation on the IP address model now returns a list of zero or more related IP addresses, rather than a single instance (or None).
 * Several fields on the cable API serializers have been altered or removed to support multiple-object cable terminations:
 
@@ -33,26 +33,26 @@
 
 #### Multi-object Cable Terminations ([#9102](https://github.com/netbox-community/netbox/issues/9102))
 
-When creating a cable in NetBox, each end can now be attached to multiple objects. This allows accurate modeling of duplex fiber connections to individual termination ports and breakout cables, as examples. (Note that all terminations attached to one end of a cable must be the same object type, but do not need to connect to the same parent object.) Additionally, cable terminations can now be modified without needing to delete and recreate the cable.
+When creating a cable in NetBox, each end can now be attached to multiple termination points. This allows accurate modeling of duplex fiber connections to individual termination ports and breakout cables, for example. (Note that all terminations attached to one end of a cable must be the same object type, but do not need to connect to the same parent object.) Additionally, cable terminations can now be modified without needing to delete and recreate the cable.
 
 #### L2VPN Modeling ([#8157](https://github.com/netbox-community/netbox/issues/8157))
 
-NetBox can now model a variety of L2 VPN technologies, including VXLAN, VPLS, and others. Each L2VPN can be terminated to multiple device or virtual machine interfaces and/or VLANs to track connectivity across an overlay. Similarly to VRFs, each L2VPN can also have import and export route targets associated with it.
+NetBox can now model a variety of L2 VPN technologies, including VXLAN, VPLS, and others. Interfaces and VLANs can be attached to L2VPNs to track connectivity across an overlay. Similarly to VRFs, each L2VPN can also have import and export route targets associated with it.
 
 #### PoE Interface Attributes ([#1099](https://github.com/netbox-community/netbox/issues/1099))
 
-Two new fields have been added to the device interface model to track power over Ethernet (PoE) capabilities:
+Two new fields have been added to the device interface model to track Power over Ethernet (PoE) capabilities:
 
 * **PoE mode**: Power supplying equipment (PSE) or powered device (PD)
 * **PoE type**: Applicable IEEE standard or other power type 
 
 #### Half-Height Rack Units ([#51](https://github.com/netbox-community/netbox/issues/51))
 
-Device type height can now be specified in 0.5U increments, allowing for the creation of half-height devices. Additionally, a device can be installed at the half-unit mark within a rack (e.g. U2.5). For example, two half-height devices positioned in sequence will consume a single rack unit; two consecutive 1.5U devices will consume 3U of space.
+Device type height can now be specified in 0.5U increments, allowing for the creation of devices consume partial rack units. Additionally, a device can be installed at the half-unit mark within a rack (e.g. U2.5). For example, two half-height devices positioned in sequence will consume a single rack unit; two consecutive 1.5U devices will consume 3U of space.
 
 #### Restrict API Tokens by Client IP ([#8233](https://github.com/netbox-community/netbox/issues/8233))
 
-API tokens can now be restricted to use by certain client IP addresses or networks. For example, an API token with its `allowed_ips` list set to `[192.0.2.0/24]` will only permit authentication from API clients within that network; requests from other sources will fail authentication. This can be very useful for restricting the use of a token to specific clients.
+API tokens can now be restricted to use by certain client IP addresses or networks. For example, an API token with its `allowed_ips` list set to `[192.0.2.0/24]` will permit authentication only from API clients within that network; requests from other sources will fail authentication. This enables administrators to restrict the use of a token to specific clients.
 
 #### Reference User in Permission Constraints ([#9074](https://github.com/netbox-community/netbox/issues/9074))
 
@@ -66,11 +66,11 @@ NetBox's permission constraints have been expanded to support referencing the cu
 
 #### Custom Field Grouping ([#8495](https://github.com/netbox-community/netbox/issues/8495))
 
-A `group_name` field has been added to the custom field model to enable organizing related custom fields by group. Similarly to custom links, custom links which have been assigned to a common group will be rendered within that group when viewing an object in the UI. (Custom field grouping has no effect on API operation.)
+A `group_name` field has been added to the custom field model to enable organizing related custom fields by group. Similarly to custom links, custom fields which have been assigned to the same group will be rendered within that group when viewing an object in the UI. (Custom field grouping has no effect on API operation.)
 
 #### Toggle Custom Field Visibility ([#9166](https://github.com/netbox-community/netbox/issues/9166))
 
-The behavior of each custom field within the NetBox UI can now be controlled individually by toggling its UI visibility. Three settings are available:
+The behavior of each custom field within the NetBox UI can now be controlled individually by toggling its UI visibility. Three options are available:
 
 * **Read/write**: The custom field is included when viewing and editing objects (default).
 * **Read-only**: The custom field is displayed when viewing an object, but it cannot be edited via the UI. (It will appear in the form as a read-only field.)
