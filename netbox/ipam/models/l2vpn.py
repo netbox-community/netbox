@@ -15,11 +15,13 @@ class L2VPN(NetBoxModel):
         unique=True
     )
     slug = models.SlugField()
-    type = models.CharField(max_length=50, choices=L2VPNTypeChoices)
+    type = models.CharField(
+        max_length=50,
+        choices=L2VPNTypeChoices
+    )
     identifier = models.BigIntegerField(
         null=True,
-        blank=True,
-        unique=True
+        blank=True
     )
     import_targets = models.ManyToManyField(
         to='ipam.RouteTarget',

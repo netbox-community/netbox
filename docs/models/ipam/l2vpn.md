@@ -34,7 +34,7 @@ The technology employed in forming and operating the L2VPN. Choices include:
 
 ### Identifier
 
-An optional unique numeric identifier.
+An optional numeric identifier. This can be used to track a pseudowire ID, for example.
 
 ### Import & Export Targets
 
