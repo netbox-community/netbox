@@ -2,6 +2,10 @@
 
 ## v3.3.1 (FUTURE)
 
+### Bug Fixes
+
+* [#10053](https://github.com/netbox-community/netbox/issues/10053) - Custom fields header should not be displayed when editing circuit terminations with no custom fields
+
 ---
 
 ## v3.3.0 (2022-08-17)
