@@ -8,6 +8,11 @@ from ipam.choices import L2VPNTypeChoices
 from ipam.constants import L2VPN_ASSIGNMENT_MODELS
 from netbox.models import NetBoxModel
 
+__all__ = (
+    'L2VPN',
+    'L2VPNTermination',
+)
+
 
 class L2VPN(NetBoxModel):
     name = models.CharField(
@@ -78,6 +83,8 @@ class L2VPNTermination(NetBoxModel):
         ct_field='assigned_object_type',
         fk_field='assigned_object_id'
     )
+
+    clone_fields = ('l2vpn',)
 
     class Meta:
         ordering = ('l2vpn',)
