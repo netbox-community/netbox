@@ -1,5 +1,9 @@
 LINKTERMINATION = """
 {% for termination in value %}
+  {% if termination.parent_object %}
+    <a href="{{ termination.parent_object.get_absolute_url }}">{{ termination.parent_object }}</a>
+    <i class="mdi mdi-chevron-right"></i>
+  {% endif %}
   <a href="{{ termination.get_absolute_url }}">{{ termination }}</a>{% if not forloop.last %},{% endif %}
 {% empty %}
   {{ ''|placeholder }}

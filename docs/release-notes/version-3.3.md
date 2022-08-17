@@ -99,6 +99,7 @@ Custom field UI visibility has no impact on API operation.
 
 ### Bug Fixes (from Beta2)
 
+* [#9758](https://github.com/netbox-community/netbox/issues/9758) - Display parent object of connected termination
 * [#9900](https://github.com/netbox-community/netbox/issues/9900) - Pre-populate site & rack fields for cable connection form
 * [#9938](https://github.com/netbox-community/netbox/issues/9938) - Exclude virtual interfaces from terminations list when connecting a cable
 * [#9939](https://github.com/netbox-community/netbox/issues/9939) - Fix list of next nodes for split paths under trace view
