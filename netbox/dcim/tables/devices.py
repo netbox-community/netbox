@@ -274,17 +274,17 @@ class CableTerminationTable(NetBoxTable):
         verbose_name='Cable Color'
     )
     link_peer = columns.TemplateColumn(
-        accessor='_link_peer',
+        accessor='link_peers',
         template_code=LINKTERMINATION,
         orderable=False,
-        verbose_name='Link Peer'
+        verbose_name='Link Peers'
     )
     mark_connected = columns.BooleanColumn()
 
 
 class PathEndpointTable(CableTerminationTable):
     connection = columns.TemplateColumn(
-        accessor='_path__last_node',
+        accessor='_path__destinations',
         template_code=LINKTERMINATION,
         verbose_name='Connection',
         orderable=False
@@ -518,10 +518,10 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         model = Interface
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
-            'speed', 'duplex', 'mode', 'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency',
-            'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
-            'wireless_lans', 'link_peer', 'connection', 'tags', 'vrf', 'ip_addresses', 'fhrp_groups', 'untagged_vlan',
-            'tagged_vlans', 'created', 'last_updated',
+            'speed', 'duplex', 'mode', 'mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role', 'rf_channel',
+            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable',
+            'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vrf', 'ip_addresses',
+            'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 

@@ -18,6 +18,21 @@ NetBox v3.0 and later require the following:
 
 As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by cloning the `master` branch of the git repository. 
 
+!!! warning
+    Use the same method as you used to install Netbox originally
+
+If you are not sure how Netbox was installed originally, check with this
+command:
+
+```
+ls -ld /opt/netbox /opt/netbox/.git
+```
+
+If Netbox was installed from a release package, then `/opt/netbox` will be a
+symlink pointing to the current version, and `/opt/netbox/.git` will not
+exist.  If it was installed from git, then `/opt/netbox` and
+`/opt/netbox/.git` will both exist as normal directories.
+
 ### Option A: Download a Release
 
 Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive. Extract it to your desired path. In this example, we'll use `/opt/netbox`.

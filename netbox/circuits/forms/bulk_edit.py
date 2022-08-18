@@ -7,7 +7,7 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea,
+    add_blank_choice, CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea,
     StaticSelect,
 )
 
@@ -122,6 +122,14 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
+    install_date = forms.DateField(
+        required=False,
+        widget=DatePicker()
+    )
+    termination_date = forms.DateField(
+        required=False,
+        widget=DatePicker()
+    )
     commit_rate = forms.IntegerField(
         required=False,
         label='Commit rate (Kbps)'
@@ -137,7 +145,9 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Circuit
     fieldsets = (
-        (None, ('type', 'provider', 'status', 'tenant', 'commit_rate', 'description')),
+        ('Circuit', ('provider', 'type', 'status', 'description')),
+        ('Service Parameters', ('install_date', 'termination_date', 'commit_rate')),
+        ('Tenancy', ('tenant',)),
     )
     nullable_fields = (
         'tenant', 'commit_rate', 'description', 'comments',

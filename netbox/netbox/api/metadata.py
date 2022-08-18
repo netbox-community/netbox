@@ -5,7 +5,7 @@ from rest_framework import exceptions
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.request import clone_request
 
-from netbox.api import ContentTypeField
+from netbox.api.fields import ContentTypeField
 
 
 class BulkOperationMetadata(SimpleMetadata):

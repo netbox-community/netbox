@@ -2,8 +2,10 @@ from django.urls import reverse
 from rest_framework import status
 
 from dcim.choices import InterfaceModeChoices
+from dcim.models import Site
 from ipam.models import VLAN, VRF
-from utilities.testing import APITestCase, APIViewTestCases
+from utilities.testing import APITestCase, APIViewTestCases, create_test_device
+from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
@@ -85,6 +87,7 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
     model = Cluster
     brief_fields = ['display', 'id', 'name', 'url', 'virtualmachine_count']
     bulk_update_data = {
+        'status': 'offline',
         'comments': 'New comment',
     }
 
@@ -104,9 +107,9 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
         ClusterGroup.objects.bulk_create(cluster_groups)
 
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_types[0], group=cluster_groups[0]),
-            Cluster(name='Cluster 2', type=cluster_types[0], group=cluster_groups[0]),
-            Cluster(name='Cluster 3', type=cluster_types[0], group=cluster_groups[0]),
+            Cluster(name='Cluster 1', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
+            Cluster(name='Cluster 2', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
+            Cluster(name='Cluster 3', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
         )
         Cluster.objects.bulk_create(clusters)
 
@@ -115,16 +118,19 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Cluster 4',
                 'type': cluster_types[1].pk,
                 'group': cluster_groups[1].pk,
+                'status': ClusterStatusChoices.STATUS_STAGING,
             },
             {
                 'name': 'Cluster 5',
                 'type': cluster_types[1].pk,
                 'group': cluster_groups[1].pk,
+                'status': ClusterStatusChoices.STATUS_STAGING,
             },
             {
                 'name': 'Cluster 6',
                 'type': cluster_types[1].pk,
                 'group': cluster_groups[1].pk,
+                'status': ClusterStatusChoices.STATUS_STAGING,
             },
         ]
 
@@ -141,31 +147,49 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
         clustergroup = ClusterGroup.objects.create(name='Cluster Group 1', slug='cluster-group-1')
 
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+
         clusters = (
-            Cluster(name='Cluster 1', type=clustertype, group=clustergroup),
-            Cluster(name='Cluster 2', type=clustertype, group=clustergroup),
+            Cluster(name='Cluster 1', type=clustertype, site=sites[0], group=clustergroup),
+            Cluster(name='Cluster 2', type=clustertype, site=sites[1], group=clustergroup),
+            Cluster(name='Cluster 3', type=clustertype),
         )
         Cluster.objects.bulk_create(clusters)
 
+        device1 = create_test_device('device1', site=sites[0], cluster=clusters[0])
+        device2 = create_test_device('device2', site=sites[1], cluster=clusters[1])
+
         virtual_machines = (
-            VirtualMachine(name='Virtual Machine 1', cluster=clusters[0], local_context_data={'A': 1}),
-            VirtualMachine(name='Virtual Machine 2', cluster=clusters[0], local_context_data={'B': 2}),
-            VirtualMachine(name='Virtual Machine 3', cluster=clusters[0], local_context_data={'C': 3}),
+            VirtualMachine(name='Virtual Machine 1', site=sites[0], cluster=clusters[0], device=device1, local_context_data={'A': 1}),
+            VirtualMachine(name='Virtual Machine 2', site=sites[0], cluster=clusters[0], local_context_data={'B': 2}),
+            VirtualMachine(name='Virtual Machine 3', site=sites[0], cluster=clusters[0], local_context_data={'C': 3}),
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
 
         cls.create_data = [
             {
                 'name': 'Virtual Machine 4',
+                'site': sites[1].pk,
                 'cluster': clusters[1].pk,
+                'device': device2.pk,
             },
             {
                 'name': 'Virtual Machine 5',
+                'site': sites[1].pk,
                 'cluster': clusters[1].pk,
             },
             {
                 'name': 'Virtual Machine 6',
-                'cluster': clusters[1].pk,
+                'site': sites[1].pk,
+            },
+            {
+                'name': 'Virtual Machine 7',
+                'cluster': clusters[2].pk,
             },
         ]
 

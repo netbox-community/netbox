@@ -1,11 +1,11 @@
 import logging
 
-from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
-from .choices import LinkStatusChoices
-from .models import Cable, CablePath, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
+from .choices import CableEndChoices, LinkStatusChoices
+from .models import Cable, CablePath, CableTermination, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
+from .models.cables import trace_paths
 from .utils import create_cablepath, rebuild_paths
 
 
@@ -68,73 +68,58 @@ def clear_virtualchassis_members(instance, **kwargs):
 # Cables
 #
 
-
-@receiver(post_save, sender=Cable)
+@receiver(trace_paths, sender=Cable)
 def update_connected_endpoints(instance, created, raw=False, **kwargs):
     """
-    When a Cable is saved, check for and update its two connected endpoints
+    When a Cable is saved with new terminations, retrace any affected cable paths.
     """
     logger = logging.getLogger('netbox.dcim.cable')
     if raw:
         logger.debug(f"Skipping endpoint updates for imported cable {instance}")
         return
 
-    # Cache the Cable on its two termination points
-    if instance.termination_a.cable != instance:
-        logger.debug(f"Updating termination A for cable {instance}")
-        instance.termination_a.cable = instance
-        instance.termination_a._link_peer = instance.termination_b
-        instance.termination_a.save()
-    if instance.termination_b.cable != instance:
-        logger.debug(f"Updating termination B for cable {instance}")
-        instance.termination_b.cable = instance
-        instance.termination_b._link_peer = instance.termination_a
-        instance.termination_b.save()
-
-    # Create/update cable paths
-    if created:
-        for termination in (instance.termination_a, instance.termination_b):
-            if isinstance(termination, PathEndpoint):
-                create_cablepath(termination)
+    # Update cable paths if new terminations have been set
+    if instance._terminations_modified:
+        a_terminations = []
+        b_terminations = []
+        for t in instance.terminations.all():
+            if t.cable_end == CableEndChoices.SIDE_A:
+                a_terminations.append(t.termination)
             else:
-                rebuild_paths(termination)
+                b_terminations.append(t.termination)
+        for nodes in [a_terminations, b_terminations]:
+            # Examine type of first termination to determine object type (all must be the same)
+            if not nodes:
+                continue
+            if isinstance(nodes[0], PathEndpoint):
+                create_cablepath(nodes)
+            else:
+                rebuild_paths(nodes)
+
+    # Update status of CablePaths if Cable status has been changed
     elif instance.status != instance._orig_status:
-        # We currently don't support modifying either termination of an existing Cable. (This
-        # may change in the future.) However, we do need to capture status changes and update
-        # any CablePaths accordingly.
         if instance.status != LinkStatusChoices.STATUS_CONNECTED:
-            CablePath.objects.filter(path__contains=instance).update(is_active=False)
+            CablePath.objects.filter(_nodes__contains=instance).update(is_active=False)
         else:
-            rebuild_paths(instance)
+            rebuild_paths([instance])
 
 
 @receiver(post_delete, sender=Cable)
+def retrace_cable_paths(instance, **kwargs):
+    """
+    When a Cable is deleted, check for and update its connected endpoints
+    """
+    for cablepath in CablePath.objects.filter(_nodes__contains=instance):
+        cablepath.retrace()
+
+
+@receiver(post_delete, sender=CableTermination)
 def nullify_connected_endpoints(instance, **kwargs):
     """
-    When a Cable is deleted, check for and update its two connected endpoints
+    Disassociate the Cable from the termination object, and retrace any affected CablePaths.
     """
-    logger = logging.getLogger('netbox.dcim.cable')
+    model = instance.termination_type.model_class()
+    model.objects.filter(pk=instance.termination_id).update(cable=None, cable_end='')
 
-    # Disassociate the Cable from its termination points
-    if instance.termination_a is not None:
-        logger.debug(f"Nullifying termination A for cable {instance}")
-        model = instance.termination_a._meta.model
-        model.objects.filter(pk=instance.termination_a.pk).update(_link_peer_type=None, _link_peer_id=None)
-    if instance.termination_b is not None:
-        logger.debug(f"Nullifying termination B for cable {instance}")
-        model = instance.termination_b._meta.model
-        model.objects.filter(pk=instance.termination_b.pk).update(_link_peer_type=None, _link_peer_id=None)
-
-    # Delete and retrace any dependent cable paths
-    for cablepath in CablePath.objects.filter(path__contains=instance):
-        cp = CablePath.from_origin(cablepath.origin)
-        if cp:
-            CablePath.objects.filter(pk=cablepath.pk).update(
-                path=cp.path,
-                destination_type=ContentType.objects.get_for_model(cp.destination) if cp.destination else None,
-                destination_id=cp.destination.pk if cp.destination else None,
-                is_active=cp.is_active,
-                is_split=cp.is_split
-            )
-        else:
-            cablepath.delete()
+    for cablepath in CablePath.objects.filter(_nodes__contains=instance.cable):
+        cablepath.retrace()

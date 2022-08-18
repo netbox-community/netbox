@@ -158,6 +158,12 @@ class LocationBulkEditForm(NetBoxModelBulkEditForm):
             'site_id': '$site'
         }
     )
+    status = forms.ChoiceField(
+        choices=add_blank_choice(LocationStatusChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -169,7 +175,7 @@ class LocationBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Location
     fieldsets = (
-        (None, ('site', 'parent', 'tenant', 'description')),
+        (None, ('site', 'parent', 'status', 'tenant', 'description')),
     )
     nullable_fields = ('parent', 'tenant', 'description')
 
@@ -812,8 +818,22 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
     description = forms.CharField(
         required=False
     )
+    poe_mode = forms.ChoiceField(
+        choices=add_blank_choice(InterfacePoEModeChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect(),
+        label='PoE mode'
+    )
+    poe_type = forms.ChoiceField(
+        choices=add_blank_choice(InterfacePoETypeChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect(),
+        label='PoE type'
+    )
 
-    nullable_fields = ('label', 'description')
+    nullable_fields = ('label', 'description', 'poe_mode', 'poe_type')
 
 
 class FrontPortTemplateBulkEditForm(BulkEditForm):
@@ -1063,6 +1083,20 @@ class InterfaceBulkEditForm(
         widget=BulkEditNullBooleanSelect,
         label='Management only'
     )
+    poe_mode = forms.ChoiceField(
+        choices=add_blank_choice(InterfacePoEModeChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect(),
+        label='PoE mode'
+    )
+    poe_type = forms.ChoiceField(
+        choices=add_blank_choice(InterfacePoETypeChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect(),
+        label='PoE type'
+    )
     mark_connected = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect
@@ -1105,14 +1139,15 @@ class InterfaceBulkEditForm(
         (None, ('module', 'type', 'label', 'speed', 'duplex', 'description')),
         ('Addressing', ('vrf', 'mac_address', 'wwn')),
         ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
+        ('PoE', ('poe_mode', 'poe_type')),
         ('Related Interfaces', ('parent', 'bridge', 'lag')),
         ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
         ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width')),
     )
     nullable_fields = (
         'module', 'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'description',
-        'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'vlan_group', 'untagged_vlan',
-        'tagged_vlans', 'vrf',
+        'poe_mode', 'poe_type', 'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
+        'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vrf',
     )
 
     def __init__(self, *args, **kwargs):

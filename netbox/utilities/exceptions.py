@@ -1,6 +1,13 @@
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
+__all__ = (
+    'AbortRequest',
+    'AbortTransaction',
+    'PermissionsViolation',
+    'RQWorkerNotRunningException',
+)
+
 
 class AbortTransaction(Exception):
     """
@@ -9,12 +16,20 @@ class AbortTransaction(Exception):
     pass
 
 
+class AbortRequest(Exception):
+    """
+    Raised to cleanly abort a request (for example, by a pre_save signal receiver).
+    """
+    def __init__(self, message):
+        self.message = message
+
+
 class PermissionsViolation(Exception):
     """
     Raised when an operation was prevented because it would violate the
     allowed permissions.
     """
-    pass
+    message = "Operation failed due to object-level permissions violation"
 
 
 class RQWorkerNotRunningException(APIException):

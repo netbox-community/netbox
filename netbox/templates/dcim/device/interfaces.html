@@ -17,7 +17,7 @@
 
   <div class="noprint bulk-buttons">
     <div class="bulk-button-group">
-      {% if perms.dcim.change_interface %}
+      {% if 'bulk_edit' in actions %}
         <div class="btn-group" role="group">
           <button type="submit" name="_edit"
             formaction="{% url 'dcim:interface_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}"
@@ -32,14 +32,14 @@
         </div>
       {% endif %}
       <div class="btn-group" role="group">
-        {% if perms.dcim.delete_interface %}
+        {% if 'bulk_delete' in actions %}
           <button type="submit" name="_delete"
             formaction="{% url 'dcim:interface_bulk_delete' %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}"
             class="btn btn-danger btn-sm">
             <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
           </button>
         {% endif %}
-        {% if perms.dcim.change_interface %}
+        {% if 'bulk_edit' in actions %}
           <button type="submit" name="_disconnect"
             formaction="{% url 'dcim:interface_bulk_disconnect' %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}"
             class="btn btn-outline-danger btn-sm">
@@ -49,18 +49,18 @@
       </div>
     </div>
     {% if perms.dcim.add_interface %}
-    <div class="bulk-button-group">
-      <a href="{% url 'dcim:interface_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}"
-        class="btn btn-primary btn-sm">
-        <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Interfaces
-      </a>
-    </div>
+      <div class="bulk-button-group">
+        <a href="{% url 'dcim:interface_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}"
+          class="btn btn-primary btn-sm">
+          <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Interfaces
+        </a>
+      </div>
     {% endif %}
   </div>
 </form>
 {% endblock %}
 
 {% block modals %}
-{{ block.super }}
-{% table_config_form table %}
+  {{ block.super }}
+  {% table_config_form table %}
 {% endblock modals %}

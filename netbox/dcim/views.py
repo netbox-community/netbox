@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -12,7 +10,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from circuits.models import Circuit
+from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
@@ -27,6 +25,18 @@ from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices
 from .constants import NONCONNECTABLE_IFACE_TYPES
 from .models import *
+
+CABLE_TERMINATION_TYPES = {
+    'dcim.consoleport': ConsolePort,
+    'dcim.consoleserverport': ConsoleServerPort,
+    'dcim.powerport': PowerPort,
+    'dcim.poweroutlet': PowerOutlet,
+    'dcim.interface': Interface,
+    'dcim.frontport': FrontPort,
+    'dcim.rearport': RearPort,
+    'dcim.powerfeed': PowerFeed,
+    'circuits.circuittermination': CircuitTermination,
+}
 
 
 class DeviceComponentsView(generic.ObjectChildrenView):
@@ -312,7 +322,7 @@ class SiteListView(generic.ObjectListView):
 
 
 class SiteView(generic.ObjectView):
-    queryset = Site.objects.prefetch_related('region', 'tenant__group')
+    queryset = Site.objects.prefetch_related('tenant__group')
 
     def get_extra_context(self, request, instance):
         stats = {
@@ -347,7 +357,7 @@ class SiteView(generic.ObjectView):
             site=instance,
             position__isnull=True,
             parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer')
+        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
 
         asns = ASN.objects.restrict(request.user, 'view').filter(sites=instance)
         asn_count = asns.count()
@@ -379,14 +389,14 @@ class SiteBulkImportView(generic.BulkImportView):
 
 
 class SiteBulkEditView(generic.BulkEditView):
-    queryset = Site.objects.prefetch_related('region', 'tenant')
+    queryset = Site.objects.all()
     filterset = filtersets.SiteFilterSet
     table = tables.SiteTable
     form = forms.SiteBulkEditForm
 
 
 class SiteBulkDeleteView(generic.BulkDeleteView):
-    queryset = Site.objects.prefetch_related('region', 'tenant')
+    queryset = Site.objects.all()
     filterset = filtersets.SiteFilterSet
     table = tables.SiteTable
 
@@ -442,7 +452,7 @@ class LocationView(generic.ObjectView):
             location=instance,
             position__isnull=True,
             parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer')
+        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
 
         return {
             'rack_count': rack_count,
@@ -561,7 +571,7 @@ class RackRoleBulkDeleteView(generic.BulkDeleteView):
 
 class RackListView(generic.ObjectListView):
     required_prerequisites = [Site]
-    queryset = Rack.objects.prefetch_related('devices__device_type').annotate(
+    queryset = Rack.objects.annotate(
         device_count=count_related(Device, 'rack')
     )
     filterset = filtersets.RackFilterSet
@@ -620,7 +630,7 @@ class RackView(generic.ObjectView):
             rack=instance,
             position__isnull=True,
             parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer')
+        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
 
         peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=instance.site)
 
@@ -638,6 +648,11 @@ class RackView(generic.ObjectView):
 
         device_count = Device.objects.restrict(request.user, 'view').filter(rack=instance).count()
 
+        # Determine any additional parameters to pass when embedding the rack elevations
+        svg_extra = '&'.join([
+            f'highlight=id:{pk}' for pk in request.GET.getlist('device')
+        ])
+
         return {
             'device_count': device_count,
             'reservations': reservations,
@@ -645,6 +660,7 @@ class RackView(generic.ObjectView):
             'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
+            'svg_extra': svg_extra,
         }
 
 
@@ -665,14 +681,14 @@ class RackBulkImportView(generic.BulkImportView):
 
 
 class RackBulkEditView(generic.BulkEditView):
-    queryset = Rack.objects.prefetch_related('site', 'location', 'tenant', 'role')
+    queryset = Rack.objects.all()
     filterset = filtersets.RackFilterSet
     table = tables.RackTable
     form = forms.RackBulkEditForm
 
 
 class RackBulkDeleteView(generic.BulkDeleteView):
-    queryset = Rack.objects.prefetch_related('site', 'location', 'tenant', 'role')
+    queryset = Rack.objects.all()
     filterset = filtersets.RackFilterSet
     table = tables.RackTable
 
@@ -689,7 +705,7 @@ class RackReservationListView(generic.ObjectListView):
 
 
 class RackReservationView(generic.ObjectView):
-    queryset = RackReservation.objects.prefetch_related('rack')
+    queryset = RackReservation.objects.all()
 
 
 class RackReservationEditView(generic.ObjectEditView):
@@ -725,14 +741,14 @@ class RackReservationImportView(generic.BulkImportView):
 
 
 class RackReservationBulkEditView(generic.BulkEditView):
-    queryset = RackReservation.objects.prefetch_related('rack', 'user')
+    queryset = RackReservation.objects.all()
     filterset = filtersets.RackReservationFilterSet
     table = tables.RackReservationTable
     form = forms.RackReservationBulkEditForm
 
 
 class RackReservationBulkDeleteView(generic.BulkDeleteView):
-    queryset = RackReservation.objects.prefetch_related('rack', 'user')
+    queryset = RackReservation.objects.all()
     filterset = filtersets.RackReservationFilterSet
     table = tables.RackReservationTable
 
@@ -814,7 +830,7 @@ class ManufacturerBulkDeleteView(generic.BulkDeleteView):
 #
 
 class DeviceTypeListView(generic.ObjectListView):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
+    queryset = DeviceType.objects.annotate(
         instance_count=count_related(Device, 'device_type')
     )
     filterset = filtersets.DeviceTypeFilterSet
@@ -823,7 +839,7 @@ class DeviceTypeListView(generic.ObjectListView):
 
 
 class DeviceTypeView(generic.ObjectView):
-    queryset = DeviceType.objects.prefetch_related('manufacturer')
+    queryset = DeviceType.objects.all()
 
     def get_extra_context(self, request, instance):
         instance_count = Device.objects.restrict(request.user).filter(device_type=instance).count()
@@ -928,18 +944,18 @@ class DeviceTypeImportView(generic.ObjectImportView):
     ]
     queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeImportForm
-    related_object_forms = OrderedDict((
-        ('console-ports', forms.ConsolePortTemplateImportForm),
-        ('console-server-ports', forms.ConsoleServerPortTemplateImportForm),
-        ('power-ports', forms.PowerPortTemplateImportForm),
-        ('power-outlets', forms.PowerOutletTemplateImportForm),
-        ('interfaces', forms.InterfaceTemplateImportForm),
-        ('rear-ports', forms.RearPortTemplateImportForm),
-        ('front-ports', forms.FrontPortTemplateImportForm),
-        ('module-bays', forms.ModuleBayTemplateImportForm),
-        ('device-bays', forms.DeviceBayTemplateImportForm),
-        ('inventory-items', forms.InventoryItemTemplateImportForm),
-    ))
+    related_object_forms = {
+        'console-ports': forms.ConsolePortTemplateImportForm,
+        'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
+        'power-ports': forms.PowerPortTemplateImportForm,
+        'power-outlets': forms.PowerOutletTemplateImportForm,
+        'interfaces': forms.InterfaceTemplateImportForm,
+        'rear-ports': forms.RearPortTemplateImportForm,
+        'front-ports': forms.FrontPortTemplateImportForm,
+        'module-bays': forms.ModuleBayTemplateImportForm,
+        'device-bays': forms.DeviceBayTemplateImportForm,
+        'inventory-items': forms.InventoryItemTemplateImportForm,
+    }
 
     def prep_related_object_data(self, parent, data):
         data.update({'device_type': parent})
@@ -947,7 +963,7 @@ class DeviceTypeImportView(generic.ObjectImportView):
 
 
 class DeviceTypeBulkEditView(generic.BulkEditView):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
+    queryset = DeviceType.objects.annotate(
         instance_count=count_related(Device, 'device_type')
     )
     filterset = filtersets.DeviceTypeFilterSet
@@ -956,7 +972,7 @@ class DeviceTypeBulkEditView(generic.BulkEditView):
 
 
 class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
+    queryset = DeviceType.objects.annotate(
         instance_count=count_related(Device, 'device_type')
     )
     filterset = filtersets.DeviceTypeFilterSet
@@ -968,7 +984,7 @@ class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
 #
 
 class ModuleTypeListView(generic.ObjectListView):
-    queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
+    queryset = ModuleType.objects.annotate(
         instance_count=count_related(Module, 'module_type')
     )
     filterset = filtersets.ModuleTypeFilterSet
@@ -977,7 +993,7 @@ class ModuleTypeListView(generic.ObjectListView):
 
 
 class ModuleTypeView(generic.ObjectView):
-    queryset = ModuleType.objects.prefetch_related('manufacturer')
+    queryset = ModuleType.objects.all()
 
     def get_extra_context(self, request, instance):
         instance_count = Module.objects.restrict(request.user).filter(module_type=instance).count()
@@ -1058,15 +1074,15 @@ class ModuleTypeImportView(generic.ObjectImportView):
     ]
     queryset = ModuleType.objects.all()
     model_form = forms.ModuleTypeImportForm
-    related_object_forms = OrderedDict((
-        ('console-ports', forms.ConsolePortTemplateImportForm),
-        ('console-server-ports', forms.ConsoleServerPortTemplateImportForm),
-        ('power-ports', forms.PowerPortTemplateImportForm),
-        ('power-outlets', forms.PowerOutletTemplateImportForm),
-        ('interfaces', forms.InterfaceTemplateImportForm),
-        ('rear-ports', forms.RearPortTemplateImportForm),
-        ('front-ports', forms.FrontPortTemplateImportForm),
-    ))
+    related_object_forms = {
+        'console-ports': forms.ConsolePortTemplateImportForm,
+        'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
+        'power-ports': forms.PowerPortTemplateImportForm,
+        'power-outlets': forms.PowerOutletTemplateImportForm,
+        'interfaces': forms.InterfaceTemplateImportForm,
+        'rear-ports': forms.RearPortTemplateImportForm,
+        'front-ports': forms.FrontPortTemplateImportForm,
+    }
 
     def prep_related_object_data(self, parent, data):
         data.update({'module_type': parent})
@@ -1074,7 +1090,7 @@ class ModuleTypeImportView(generic.ObjectImportView):
 
 
 class ModuleTypeBulkEditView(generic.BulkEditView):
-    queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
+    queryset = ModuleType.objects.annotate(
         instance_count=count_related(Module, 'module_type')
     )
     filterset = filtersets.ModuleTypeFilterSet
@@ -1083,7 +1099,7 @@ class ModuleTypeBulkEditView(generic.BulkEditView):
 
 
 class ModuleTypeBulkDeleteView(generic.BulkDeleteView):
-    queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
+    queryset = ModuleType.objects.annotate(
         instance_count=count_related(Module, 'module_type')
     )
     filterset = filtersets.ModuleTypeFilterSet
@@ -1594,9 +1610,7 @@ class DeviceListView(generic.ObjectListView):
 
 
 class DeviceView(generic.ObjectView):
-    queryset = Device.objects.prefetch_related(
-        'site__region', 'location', 'rack', 'tenant__group', 'device_role', 'platform', 'primary_ip4', 'primary_ip6'
-    )
+    queryset = Device.objects.all()
 
     def get_extra_context(self, request, instance):
         # VirtualChassis members
@@ -1710,7 +1724,7 @@ class DeviceLLDPNeighborsView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         interfaces = instance.vc_interfaces().restrict(request.user, 'view').prefetch_related(
-            '_path__destination'
+            '_path'
         ).exclude(
             type__in=NONCONNECTABLE_IFACE_TYPES
         )
@@ -1773,14 +1787,14 @@ class ChildDeviceBulkImportView(generic.BulkImportView):
 
 
 class DeviceBulkEditView(generic.BulkEditView):
-    queryset = Device.objects.prefetch_related('tenant', 'site', 'rack', 'device_role', 'device_type__manufacturer')
+    queryset = Device.objects.prefetch_related('device_type__manufacturer')
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
     form = forms.DeviceBulkEditForm
 
 
 class DeviceBulkDeleteView(generic.BulkDeleteView):
-    queryset = Device.objects.prefetch_related('tenant', 'site', 'rack', 'device_role', 'device_type__manufacturer')
+    queryset = Device.objects.prefetch_related('device_type__manufacturer')
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
 
@@ -1796,7 +1810,7 @@ class DeviceBulkRenameView(generic.BulkRenameView):
 #
 
 class ModuleListView(generic.ObjectListView):
-    queryset = Module.objects.prefetch_related('device', 'module_type__manufacturer')
+    queryset = Module.objects.prefetch_related('module_type__manufacturer')
     filterset = filtersets.ModuleFilterSet
     filterset_form = forms.ModuleFilterForm
     table = tables.ModuleTable
@@ -1822,14 +1836,14 @@ class ModuleBulkImportView(generic.BulkImportView):
 
 
 class ModuleBulkEditView(generic.BulkEditView):
-    queryset = Module.objects.prefetch_related('device', 'module_type__manufacturer')
+    queryset = Module.objects.prefetch_related('module_type__manufacturer')
     filterset = filtersets.ModuleFilterSet
     table = tables.ModuleTable
     form = forms.ModuleBulkEditForm
 
 
 class ModuleBulkDeleteView(generic.BulkDeleteView):
-    queryset = Module.objects.prefetch_related('device', 'module_type__manufacturer')
+    queryset = Module.objects.prefetch_related('module_type__manufacturer')
     filterset = filtersets.ModuleFilterSet
     table = tables.ModuleTable
 
@@ -2555,7 +2569,7 @@ class InventoryItemBulkImportView(generic.BulkImportView):
 
 
 class InventoryItemBulkEditView(generic.BulkEditView):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer', 'role')
+    queryset = InventoryItem.objects.all()
     filterset = filtersets.InventoryItemFilterSet
     table = tables.InventoryItemTable
     form = forms.InventoryItemBulkEditForm
@@ -2566,7 +2580,7 @@ class InventoryItemBulkRenameView(generic.BulkRenameView):
 
 
 class InventoryItemBulkDeleteView(generic.BulkDeleteView):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer', 'role')
+    queryset = InventoryItem.objects.all()
     table = tables.InventoryItemTable
     template_name = 'dcim/inventoryitem_bulk_delete.html'
 
@@ -2744,7 +2758,10 @@ class DeviceBulkAddInventoryItemView(generic.BulkComponentCreateView):
 #
 
 class CableListView(generic.ObjectListView):
-    queryset = Cable.objects.all()
+    queryset = Cable.objects.prefetch_related(
+        'terminations__termination', 'terminations___device', 'terminations___rack', 'terminations___location',
+        'terminations___site',
+    )
     filterset = filtersets.CableFilterSet
     filterset_form = forms.CableFilterForm
     table = tables.CableTable
@@ -2777,7 +2794,7 @@ class PathTraceView(generic.ObjectView):
 
         # Otherwise, find all CablePaths which traverse the specified object
         else:
-            related_paths = CablePath.objects.filter(path__contains=instance).prefetch_related('origin')
+            related_paths = CablePath.objects.filter(_nodes__contains=instance)
             # Check for specification of a particular path (when tracing pass-through ports)
             try:
                 path_id = int(request.GET.get('cablepath_id'))
@@ -2798,8 +2815,8 @@ class PathTraceView(generic.ObjectView):
         total_length, is_definitive = path.get_total_length() if path else (None, False)
 
         # Determine the path to the SVG trace image
-        api_viewname = f"{path.origin._meta.app_label}-api:{path.origin._meta.model_name}-trace"
-        svg_url = f"{reverse(api_viewname, kwargs={'pk': path.origin.pk})}?render=svg"
+        api_viewname = f"{path.origin_type.app_label}-api:{path.origin_type.model}-trace"
+        svg_url = f"{reverse(api_viewname, kwargs={'pk': path.origins[0].pk})}?render=svg"
 
         return {
             'path': path,
@@ -2810,76 +2827,37 @@ class PathTraceView(generic.ObjectView):
         }
 
 
-class CableCreateView(generic.ObjectEditView):
+class CableEditView(generic.ObjectEditView):
     queryset = Cable.objects.all()
-    template_name = 'dcim/cable_connect.html'
+    template_name = 'dcim/cable_edit.html'
 
     def dispatch(self, request, *args, **kwargs):
 
-        # Set the form class based on the type of component being connected
-        self.form = {
-            'console-port': forms.ConnectCableToConsolePortForm,
-            'console-server-port': forms.ConnectCableToConsoleServerPortForm,
-            'power-port': forms.ConnectCableToPowerPortForm,
-            'power-outlet': forms.ConnectCableToPowerOutletForm,
-            'interface': forms.ConnectCableToInterfaceForm,
-            'front-port': forms.ConnectCableToFrontPortForm,
-            'rear-port': forms.ConnectCableToRearPortForm,
-            'power-feed': forms.ConnectCableToPowerFeedForm,
-            'circuit-termination': forms.ConnectCableToCircuitTerminationForm,
-        }[kwargs.get('termination_b_type')]
+        # If creating a new Cable, initialize the form class using URL query params
+        if 'pk' not in kwargs:
+            self.form = forms.get_cable_form(
+                a_type=CABLE_TERMINATION_TYPES.get(request.GET.get('a_terminations_type')),
+                b_type=CABLE_TERMINATION_TYPES.get(request.GET.get('b_terminations_type'))
+            )
 
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, **kwargs):
-        # Always return a new instance
-        return self.queryset.model()
+        """
+        Hack into get_object() to set the form class when editing an existing Cable, since ObjectEditView
+        doesn't currently provide a hook for dynamic class resolution.
+        """
+        obj = super().get_object(**kwargs)
 
-    def alter_object(self, obj, request, url_args, url_kwargs):
-        termination_a_type = url_kwargs.get('termination_a_type')
-        termination_a_id = url_kwargs.get('termination_a_id')
-        termination_b_type_name = url_kwargs.get('termination_b_type')
-        self.termination_b_type = ContentType.objects.get(model=termination_b_type_name.replace('-', ''))
-
-        # Initialize Cable termination attributes
-        obj.termination_a = termination_a_type.objects.get(pk=termination_a_id)
-        obj.termination_b_type = self.termination_b_type
+        if obj.pk:
+            # TODO: Optimize this logic
+            termination_a = obj.terminations.filter(cable_end='A').first()
+            a_type = termination_a.termination._meta.model if termination_a else None
+            termination_b = obj.terminations.filter(cable_end='B').first()
+            b_type = termination_b.termination._meta.model if termination_b else None
+            self.form = forms.get_cable_form(a_type, b_type)
 
         return obj
-
-    def get(self, request, *args, **kwargs):
-        obj = self.get_object(**kwargs)
-        obj = self.alter_object(obj, request, args, kwargs)
-
-        # Parse initial data manually to avoid setting field values as lists
-        initial_data = {k: request.GET[k] for k in request.GET}
-
-        # Set initial site and rack based on side A termination (if not already set)
-        termination_a_site = getattr(obj.termination_a.parent_object, 'site', None)
-        if termination_a_site and 'termination_b_region' not in initial_data:
-            initial_data['termination_b_region'] = termination_a_site.region
-        if termination_a_site and 'termination_b_site_group' not in initial_data:
-            initial_data['termination_b_site_group'] = termination_a_site.group
-        if 'termination_b_site' not in initial_data:
-            initial_data['termination_b_site'] = termination_a_site
-        if 'termination_b_rack' not in initial_data:
-            initial_data['termination_b_rack'] = getattr(obj.termination_a.parent_object, 'rack', None)
-
-        form = self.form(instance=obj, initial=initial_data)
-
-        return render(request, self.template_name, {
-            'obj': obj,
-            'obj_type': Cable._meta.verbose_name,
-            'termination_b_type': self.termination_b_type.name,
-            'form': form,
-            'return_url': self.get_return_url(request, obj),
-        })
-
-
-class CableEditView(generic.ObjectEditView):
-    queryset = Cable.objects.all()
-    form = forms.CableForm
-    template_name = 'dcim/cable_edit.html'
 
 
 class CableDeleteView(generic.ObjectDeleteView):
@@ -2893,14 +2871,20 @@ class CableBulkImportView(generic.BulkImportView):
 
 
 class CableBulkEditView(generic.BulkEditView):
-    queryset = Cable.objects.prefetch_related('termination_a', 'termination_b')
+    queryset = Cable.objects.prefetch_related(
+        'terminations__termination', 'terminations___device', 'terminations___rack', 'terminations___location',
+        'terminations___site',
+    )
     filterset = filtersets.CableFilterSet
     table = tables.CableTable
     form = forms.CableBulkEditForm
 
 
 class CableBulkDeleteView(generic.BulkDeleteView):
-    queryset = Cable.objects.prefetch_related('termination_a', 'termination_b')
+    queryset = Cable.objects.prefetch_related(
+        'terminations__termination', 'terminations___device', 'terminations___rack', 'terminations___location',
+        'terminations___site',
+    )
     filterset = filtersets.CableFilterSet
     table = tables.CableTable
 
@@ -2956,7 +2940,7 @@ class InterfaceConnectionsListView(generic.ObjectListView):
 #
 
 class VirtualChassisListView(generic.ObjectListView):
-    queryset = VirtualChassis.objects.prefetch_related('master').annotate(
+    queryset = VirtualChassis.objects.annotate(
         member_count=count_related(Device, 'virtual_chassis')
     )
     table = tables.VirtualChassisTable
@@ -3183,9 +3167,7 @@ class VirtualChassisBulkDeleteView(generic.BulkDeleteView):
 #
 
 class PowerPanelListView(generic.ObjectListView):
-    queryset = PowerPanel.objects.prefetch_related(
-        'site', 'location'
-    ).annotate(
+    queryset = PowerPanel.objects.annotate(
         powerfeed_count=count_related(PowerFeed, 'power_panel')
     )
     filterset = filtersets.PowerPanelFilterSet
@@ -3194,10 +3176,10 @@ class PowerPanelListView(generic.ObjectListView):
 
 
 class PowerPanelView(generic.ObjectView):
-    queryset = PowerPanel.objects.prefetch_related('site', 'location')
+    queryset = PowerPanel.objects.all()
 
     def get_extra_context(self, request, instance):
-        power_feeds = PowerFeed.objects.restrict(request.user).filter(power_panel=instance).prefetch_related('rack')
+        power_feeds = PowerFeed.objects.restrict(request.user).filter(power_panel=instance)
         powerfeed_table = tables.PowerFeedTable(
             data=power_feeds,
             orderable=False
@@ -3227,16 +3209,14 @@ class PowerPanelBulkImportView(generic.BulkImportView):
 
 
 class PowerPanelBulkEditView(generic.BulkEditView):
-    queryset = PowerPanel.objects.prefetch_related('site', 'location')
+    queryset = PowerPanel.objects.all()
     filterset = filtersets.PowerPanelFilterSet
     table = tables.PowerPanelTable
     form = forms.PowerPanelBulkEditForm
 
 
 class PowerPanelBulkDeleteView(generic.BulkDeleteView):
-    queryset = PowerPanel.objects.prefetch_related(
-        'site', 'location'
-    ).annotate(
+    queryset = PowerPanel.objects.annotate(
         powerfeed_count=count_related(PowerFeed, 'power_panel')
     )
     filterset = filtersets.PowerPanelFilterSet
@@ -3255,7 +3235,7 @@ class PowerFeedListView(generic.ObjectListView):
 
 
 class PowerFeedView(generic.ObjectView):
-    queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack')
+    queryset = PowerFeed.objects.all()
 
 
 class PowerFeedEditView(generic.ObjectEditView):
@@ -3274,7 +3254,7 @@ class PowerFeedBulkImportView(generic.BulkImportView):
 
 
 class PowerFeedBulkEditView(generic.BulkEditView):
-    queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack')
+    queryset = PowerFeed.objects.all()
     filterset = filtersets.PowerFeedFilterSet
     table = tables.PowerFeedTable
     form = forms.PowerFeedBulkEditForm
@@ -3285,6 +3265,6 @@ class PowerFeedBulkDisconnectView(BulkDisconnectView):
 
 
 class PowerFeedBulkDeleteView(generic.BulkDeleteView):
-    queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack')
+    queryset = PowerFeed.objects.all()
     filterset = filtersets.PowerFeedFilterSet
     table = tables.PowerFeedTable

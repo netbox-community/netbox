@@ -1,6 +1,7 @@
-from django.db.models import Q, QuerySet
+from django.db.models import QuerySet
 
-from utilities.permissions import permission_is_exempt
+from users.constants import CONSTRAINT_TOKEN_USER
+from utilities.permissions import permission_is_exempt, qs_filter_from_constraints
 
 
 class RestrictedQuerySet(QuerySet):
@@ -28,23 +29,13 @@ class RestrictedQuerySet(QuerySet):
 
         # Filter the queryset to include only objects with allowed attributes
         else:
-            attrs = Q()
-            for perm_attrs in user._object_perm_cache[permission_required]:
-                if type(perm_attrs) is list:
-                    for p in perm_attrs:
-                        attrs |= Q(**p)
-                elif perm_attrs:
-                    attrs |= Q(**perm_attrs)
-                else:
-                    # Any permission with null constraints grants access to _all_ instances
-                    attrs = Q()
-                    break
-            else:
-                # for else, when no break
-                # avoid duplicates when JOIN on many-to-many fields without using DISTINCT.
-                # DISTINCT acts globally on the entire request, which may not be desirable.
-                allowed_objects = self.model.objects.filter(attrs)
-                attrs = Q(pk__in=allowed_objects)
-            qs = self.filter(attrs)
+            tokens = {
+                CONSTRAINT_TOKEN_USER: user,
+            }
+            attrs = qs_filter_from_constraints(user._object_perm_cache[permission_required], tokens)
+            # #8715: Avoid duplicates when JOIN on many-to-many fields without using DISTINCT.
+            # DISTINCT acts globally on the entire request, which may not be desirable.
+            allowed_objects = self.model.objects.filter(attrs)
+            qs = self.filter(pk__in=allowed_objects)
 
         return qs

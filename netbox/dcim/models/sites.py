@@ -295,10 +295,10 @@ class Site(NetBoxModel):
         to='extras.ImageAttachment'
     )
 
-    clone_fields = [
-        'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'description', 'physical_address',
-        'shipping_address', 'latitude', 'longitude',
-    ]
+    clone_fields = (
+        'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'physical_address', 'shipping_address',
+        'latitude', 'longitude', 'description',
+    )
 
     class Meta:
         ordering = ('_name',)
@@ -341,6 +341,11 @@ class Location(NestedGroupModel):
         null=True,
         db_index=True
     )
+    status = models.CharField(
+        max_length=50,
+        choices=LocationStatusChoices,
+        default=LocationStatusChoices.STATUS_ACTIVE
+    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
@@ -367,7 +372,7 @@ class Location(NestedGroupModel):
         to='extras.ImageAttachment'
     )
 
-    clone_fields = ['site', 'parent', 'tenant', 'description']
+    clone_fields = ('site', 'parent', 'status', 'tenant', 'description')
 
     class Meta:
         ordering = ['site', 'name']
@@ -412,6 +417,9 @@ class Location(NestedGroupModel):
 
     def get_absolute_url(self):
         return reverse('dcim:location', args=[self.pk])
+
+    def get_status_color(self):
+        return LocationStatusChoices.colors.get(self.status)
 
     def clean(self):
         super().clean()

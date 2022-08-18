@@ -61,9 +61,9 @@ class Provider(NetBoxModel):
         to='tenancy.ContactAssignment'
     )
 
-    clone_fields = [
+    clone_fields = (
         'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact',
-    ]
+    )
 
     class Meta:
         ordering = ['name']

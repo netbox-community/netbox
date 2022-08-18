@@ -42,9 +42,9 @@ class CustomFieldCSVForm(CSVModelForm):
     class Meta:
         model = CustomField
         fields = (
-            'name', 'label', 'type', 'content_types', 'object_type', 'required', 'description', 'weight',
+            'name', 'label', 'group_name', 'type', 'content_types', 'object_type', 'required', 'description', 'weight',
             'filter_logic', 'default', 'choices', 'weight', 'validation_minimum', 'validation_maximum',
-            'validation_regex',
+            'validation_regex', 'ui_visibility',
         )
 
 

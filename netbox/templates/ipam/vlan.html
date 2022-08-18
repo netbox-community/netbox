@@ -64,6 +64,10 @@
                             <th scope="row">Description</th>
                             <td>{{ object.description|placeholder }}</td>
                         </tr>
+                        <tr>
+                          <th scope="row">L2VPN</th>
+                          <td>{{ object.l2vpn_termination.l2vpn|linkify|placeholder }}</td>
+                        </tr>
                     </table>
                 </div>
             </div>

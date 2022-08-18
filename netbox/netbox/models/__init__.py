@@ -2,6 +2,7 @@ from django.core.validators import ValidationError
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
+from extras.utils import is_taggable
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
 from netbox.models.features import *
@@ -55,6 +56,25 @@ class NetBoxModel(NetBoxFeatureSet, models.Model):
     @classmethod
     def get_prerequisite_models(cls):
         return []
+
+    def clone(self):
+        """
+        Return a dictionary of attributes suitable for creating a copy of the current instance. This is used for pre-
+        populating an object creation form in the UI.
+        """
+        attrs = {}
+
+        for field_name in getattr(self, 'clone_fields', []):
+            field = self._meta.get_field(field_name)
+            field_value = field.value_from_object(self)
+            if field_value not in (None, ''):
+                attrs[field_name] = field_value
+
+        # Include tags (if applicable)
+        if is_taggable(self):
+            attrs['tags'] = [tag.pk for tag in self.tags.all()]
+
+        return attrs
 
 
 class NestedGroupModel(NetBoxFeatureSet, MPTTModel):

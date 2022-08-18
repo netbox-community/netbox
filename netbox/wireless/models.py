@@ -102,10 +102,19 @@ class WirelessLAN(WirelessAuthenticationBase, NetBoxModel):
         null=True,
         verbose_name='VLAN'
     )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='wireless_lans',
+        blank=True,
+        null=True
+    )
     description = models.CharField(
         max_length=200,
         blank=True
     )
+
+    clone_fields = ('ssid', 'group', 'tenant', 'description')
 
     class Meta:
         ordering = ('ssid', 'pk')
@@ -143,6 +152,13 @@ class WirelessLink(WirelessAuthenticationBase, NetBoxModel):
         max_length=50,
         choices=LinkStatusChoices,
         default=LinkStatusChoices.STATUS_CONNECTED
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='wireless_links',
+        blank=True,
+        null=True
     )
     description = models.CharField(
         max_length=200,

@@ -1,42 +1,62 @@
 {% load helpers %}
-<table class="table table-hover panel-body attr-table">
-    {% if termination.device %}
-        {# Device component #}
-        <tr>
-            <td>Device</td>
-            <td>{{ termination.device|linkify }}</td>
-        </tr>
-        <tr>
-            <td>Site</td>
-            <td>{{ termination.device.site|linkify }}</td>
-        </tr>
-        {% if termination.device.rack %}
-            <tr>
-                <td>Rack</td>
-                <td>{{ termination.device.rack|linkify }}</td>
-            </tr>
-        {% endif %}
-        <tr>
-            <td>Type</td>
-            <td>{{ termination|meta:"verbose_name"|capfirst }}</td>
-        </tr>
-        <tr>
-            <td>Component</td>
-            <td>{{ termination|linkify }}</td>
-        </tr>
-    {% else %}
-        {# Circuit termination #}
-        <tr>
-            <td>Provider</td>
-            <td>{{ termination.circuit.provider|linkify }}</td>
-        </tr>
-        <tr>
-            <td>Circuit</td>
-            <td>{{ termination.circuit|linkify }}</td>
-        </tr>
-        <tr>
-            <td>Termination</td>
-            <td>{{ termination }}</td>
-        </tr>
+{% if terminations.0 %}
+  <table class="table table-hover panel-body attr-table">
+    {% if terminations.0.device %}
+      {# Device component #}
+      <tr>
+        <td>Site</td>
+        <td>{{ terminations.0.device.site|linkify }}</td>
+      </tr>
+      <tr>
+        <td>Rack</td>
+        <td>{{ terminations.0.device.rack|linkify|placeholder }}</td>
+      </tr>
+      <tr>
+        <td>Device</td>
+        <td>{{ terminations.0.device|linkify }}</td>
+      </tr>
+      <tr>
+        <td>{{ terminations.0|meta:"verbose_name"|capfirst }}</td>
+        <td>
+          {% for term in terminations %}
+            {{ term|linkify }}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        </td>
+      </tr>
+    {% elif terminations.0.power_panel %}
+      {# Power feed #}
+      <tr>
+        <td>Site</td>
+        <td>{{ terminations.0.power_panel.site|linkify }}</td>
+      </tr>
+      <tr>
+        <td>Power Panel</td>
+        <td>{{ terminations.0.power_panel|linkify }}</td>
+      </tr>
+      <tr>
+        <td>{{ terminations.0|meta:"verbose_name"|capfirst }}</td>
+        <td>
+          {% for term in terminations %}
+            {{ term|linkify }}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        </td>
+      </tr>
+    {% elif terminations.0.circuit %}
+      {# Circuit termination #}
+      <tr>
+        <td>Provider</td>
+        <td>{{ terminations.0.circuit.provider|linkify }}</td>
+      </tr>
+      <tr>
+        <td>Circuit</td>
+        <td>
+          {% for term in terminations %}
+            {{ term.circuit|linkify }} ({{ term }}){% if not forloop.last %},{% endif %}
+          {% endfor %}
+        </td>
+      </tr>
     {% endif %}
-</table>
+  </table>
+{% else %}
+  <span class="text-muted">No termination</span>
+{% endif %}

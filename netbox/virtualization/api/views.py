@@ -54,7 +54,7 @@ class ClusterViewSet(NetBoxModelViewSet):
 
 class VirtualMachineViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
     queryset = VirtualMachine.objects.prefetch_related(
-        'cluster__site', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'tags'
+        'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'tags'
     )
     filterset_class = filtersets.VirtualMachineFilterSet
 

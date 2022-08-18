@@ -58,7 +58,7 @@ class CircuitViewSet(NetBoxModelViewSet):
 
 class CircuitTerminationViewSet(PassThroughPortMixin, NetBoxModelViewSet):
     queryset = CircuitTermination.objects.prefetch_related(
-        'circuit', 'site', 'provider_network', 'cable'
+        'circuit', 'site', 'provider_network', 'cable__terminations'
     )
     serializer_class = serializers.CircuitTerminationSerializer
     filterset_class = filtersets.CircuitTerminationFilterSet

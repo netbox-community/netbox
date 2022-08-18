@@ -1,3 +1,5 @@
+import decimal
+
 import yaml
 
 from django.apps import apps
@@ -99,8 +101,10 @@ class DeviceType(NetBoxModel):
         blank=True,
         help_text='Discrete part number (optional)'
     )
-    u_height = models.PositiveSmallIntegerField(
-        default=1,
+    u_height = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        default=1.0,
         verbose_name='Height (U)'
     )
     is_full_depth = models.BooleanField(
@@ -133,9 +137,9 @@ class DeviceType(NetBoxModel):
         blank=True
     )
 
-    clone_fields = [
+    clone_fields = (
         'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
-    ]
+    )
 
     class Meta:
         ordering = ['manufacturer', 'model']
@@ -170,7 +174,7 @@ class DeviceType(NetBoxModel):
             'model': self.model,
             'slug': self.slug,
             'part_number': self.part_number,
-            'u_height': self.u_height,
+            'u_height': float(self.u_height),
             'is_full_depth': self.is_full_depth,
             'subdevice_role': self.subdevice_role,
             'airflow': self.airflow,
@@ -219,6 +223,12 @@ class DeviceType(NetBoxModel):
 
     def clean(self):
         super().clean()
+
+        # U height must be divisible by 0.5
+        if self.u_height % decimal.Decimal(0.5):
+            raise ValidationError({
+                'u_height': "U height must be in increments of 0.5 rack units."
+            })
 
         # If editing an existing DeviceType to have a larger u_height, first validate that *all* instances of it have
         # room to expand within their racks. This validation will impose a very high performance penalty when there are
@@ -551,10 +561,12 @@ class Device(NetBoxModel, ConfigContextModel):
         blank=True,
         null=True
     )
-    position = models.PositiveSmallIntegerField(
+    position = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
         blank=True,
         null=True,
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(1), MaxValueValidator(99.5)],
         verbose_name='Position (U)',
         help_text='The lowest-numbered unit occupied by the device'
     )
@@ -628,9 +640,10 @@ class Device(NetBoxModel, ConfigContextModel):
 
     objects = ConfigContextModelQuerySet.as_manager()
 
-    clone_fields = [
-        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'airflow', 'cluster',
-    ]
+    clone_fields = (
+        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'face', 'status', 'airflow',
+        'cluster', 'virtual_chassis',
+    )
 
     class Meta:
         ordering = ('_name', 'pk')  # Name may be null
@@ -708,7 +721,11 @@ class Device(NetBoxModel, ConfigContextModel):
                     'position': "Cannot select a rack position without assigning a rack.",
                 })
 
-        # Validate position/face combination
+        # Validate rack position and face
+        if self.position and self.position % decimal.Decimal(0.5):
+            raise ValidationError({
+                'position': "Position must be in increments of 0.5 rack units."
+            })
         if self.position and not self.face:
             raise ValidationError({
                 'face': "Must specify rack face when defining rack position.",

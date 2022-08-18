@@ -37,7 +37,7 @@ This class performs two crucial functions:
 1. Apply any fields, methods, and/or attributes necessary to the operation of these features
 2. Register the model with NetBox as utilizing these features
 
-Simply subclass BaseModel when defining a model in your plugin:
+Simply subclass NetBoxModel when defining a model in your plugin:
 
 ```python
 # models.py
@@ -47,6 +47,24 @@ from netbox.models import NetBoxModel
 class MyModel(NetBoxModel):
     foo = models.CharField()
     ...
+```
+
+### The `clone()` Method
+
+!!! info
+    This method was introduced in NetBox v3.3.
+
+The `NetBoxModel` class includes a `clone()` method to be used for gathering attributes which can be used to create a "cloned" instance. This is used primarily for form initialization, e.g. when using the "clone" button in the NetBox UI. By default, this method will replicate any fields listed in the model's `clone_fields` list, if defined.
+
+Plugin models can leverage this method by defining `clone_fields` as a list of field names to be replicated, or override this method to replace or extend its content:
+
+```python
+class MyModel(NetBoxModel):
+
+    def clone(self):
+        attrs = super().clone()
+        attrs['extra-value'] = 123
+        return attrs
 ```
 
 ### Enabling Features Individually
@@ -138,7 +156,7 @@ class StatusChoices(ChoiceSet):
     key = 'MyModel.status'
 ```
 
-To extend or replace the default values for this choice set, a NetBox administrator can then reference it under the [`FIELD_CHOICES`](../../configuration/optional-settings.md#field_choices) configuration parameter. For example, the `status` field on `MyModel` in `my_plugin` would be referenced as:
+To extend or replace the default values for this choice set, a NetBox administrator can then reference it under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter. For example, the `status` field on `MyModel` in `my_plugin` would be referenced as:
 
 ```python
 FIELD_CHOICES = {

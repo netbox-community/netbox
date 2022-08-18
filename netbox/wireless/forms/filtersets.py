@@ -3,6 +3,7 @@ from django.utils.translation import gettext as _
 
 from dcim.choices import LinkStatusChoices
 from netbox.forms import NetBoxModelFilterSetForm
+from tenancy.forms import TenancyFilterForm
 from utilities.forms import add_blank_choice, DynamicModelMultipleChoiceField, StaticSelect, TagFilterField
 from wireless.choices import *
 from wireless.models import *
@@ -24,11 +25,12 @@ class WirelessLANGroupFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class WirelessLANFilterForm(NetBoxModelFilterSetForm):
+class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = WirelessLAN
     fieldsets = (
         (None, ('q', 'tag')),
         ('Attributes', ('ssid', 'group_id',)),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
     )
     ssid = forms.CharField(
@@ -57,8 +59,14 @@ class WirelessLANFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class WirelessLinkFilterForm(NetBoxModelFilterSetForm):
+class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = WirelessLink
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Attributes', ('ssid', 'status',)),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
+    )
     ssid = forms.CharField(
         required=False,
         label='SSID'
