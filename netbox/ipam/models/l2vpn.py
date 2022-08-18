@@ -53,6 +53,8 @@ class L2VPN(NetBoxModel):
         to='tenancy.ContactAssignment'
     )
 
+    clone_fields = ('type',)
+
     class Meta:
         ordering = ('name', 'identifier')
         verbose_name = 'L2VPN'

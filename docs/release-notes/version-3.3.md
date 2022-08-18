@@ -2,6 +2,10 @@
 
 ## v3.3.1 (FUTURE)
 
+### Enhancements
+
+* [#10061](https://github.com/netbox-community/netbox/issues/10061) - Replicate type when cloning L2VPN instances
+
 ### Bug Fixes
 
 * [#10040](https://github.com/netbox-community/netbox/issues/10040) - Fix exception when ordering prefixes by flat representation
