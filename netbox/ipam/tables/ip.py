@@ -59,6 +59,8 @@ VRF_LINK = """
 NAT_OUTSIDE_LINK = """
 {% if record.nat_outside.count > 0 %}
     {% for nat in record.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+{% else %}
+    &mdash;
 {% endif %}
 """
 
