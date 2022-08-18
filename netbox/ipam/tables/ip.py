@@ -56,6 +56,12 @@ VRF_LINK = """
 {% endif %}
 """
 
+NAT_OUTSIDE_LINK = """
+{% if record.nat_outside.count > 0 %}
+    {% for nat in record.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+{% endif %}
+"""
+
 
 #
 # RIRs
@@ -360,8 +366,8 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         orderable=False,
         verbose_name='NAT (Inside)'
     )
-    nat_outside = tables.Column(
-        linkify=True,
+    nat_outside = tables.TemplateColumn(
+        template_code=NAT_OUTSIDE_LINK,
         orderable=False,
         verbose_name='NAT (Outside)'
     )
