@@ -40,6 +40,10 @@ Context:
         </div>
       {% endif %}
 
+      {% if required_model %}
+        {% include 'inc/missing_prerequisites.html' %}
+      {% endif %}
+
       <form action="" method="post" enctype="multipart/form-data" class="form-object-edit mt-5">
         {% csrf_token %}
 

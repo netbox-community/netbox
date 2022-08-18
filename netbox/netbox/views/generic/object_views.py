@@ -20,6 +20,7 @@ from utilities.permissions import get_permission_for_model
 from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin
 from .base import BaseObjectView
+from .utils import get_prerequisite_model
 
 __all__ = (
     'ComponentCreateView',
@@ -342,12 +343,19 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         form = self.form(instance=obj, initial=initial_data)
         restrict_form_fields(form, request.user)
 
-        return render(request, self.template_name, {
+        context = {
             'object': obj,
             'form': form,
             'return_url': self.get_return_url(request, obj),
             **self.get_extra_context(request, obj),
-        })
+        }
+
+        requirement = get_prerequisite_model(self.queryset)
+        if requirement:
+            context['required_model'] = requirement
+            context['model'] = self.queryset.model
+
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         """

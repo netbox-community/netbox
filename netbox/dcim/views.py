@@ -560,6 +560,7 @@ class RackRoleBulkDeleteView(generic.BulkDeleteView):
 #
 
 class RackListView(generic.ObjectListView):
+    required_prerequisites = [Site]
     queryset = Rack.objects.prefetch_related('devices__device_type').annotate(
         device_count=count_related(Device, 'rack')
     )

@@ -25,6 +25,7 @@ from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.views import GetReturnURLMixin
 from .base import BaseMultiObjectView
+from .utils import get_prerequisite_model
 
 __all__ = (
     'BulkComponentCreateView',
@@ -143,6 +144,7 @@ class ObjectListView(BaseMultiObjectView):
         """
         model = self.queryset.model
         content_type = ContentType.objects.get_for_model(model)
+        requirement = get_prerequisite_model(self.queryset)
 
         if self.filterset:
             self.queryset = self.filterset(request.GET, self.queryset).qs
@@ -198,6 +200,8 @@ class ObjectListView(BaseMultiObjectView):
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
             **self.get_extra_context(request),
         }
+        if requirement:
+            context['required_model'] = requirement
 
         return render(request, self.template_name, context)
 
@@ -255,6 +259,17 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
         form = self.form()
         model_form = self.model_form(initial=initial)
+
+        context = {
+            'obj_type': self.model_form._meta.model._meta.verbose_name,
+            'form': form,
+            'model_form': model_form,
+            'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
+        }
+
+        if requirement:
+            context['required_model'] = requirement
 
         return render(request, self.template_name, {
             'obj_type': self.model_form._meta.model._meta.verbose_name,

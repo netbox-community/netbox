@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.apps import apps
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -201,6 +202,10 @@ class Rack(NetBoxModel):
         if self.facility_id:
             return f'{self.name} ({self.facility_id})'
         return self.name
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [apps.get_model('dcim.Site'), ]
 
     def get_absolute_url(self):
         return reverse('dcim:rack', args=[self.pk])

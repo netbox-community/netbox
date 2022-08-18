@@ -52,6 +52,10 @@ class NetBoxModel(NetBoxFeatureSet, models.Model):
     class Meta:
         abstract = True
 
+    @classmethod
+    def get_prerequisite_models(cls):
+        return []
+
 
 class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
     """
