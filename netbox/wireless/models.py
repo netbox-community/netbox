@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -173,6 +174,10 @@ class WirelessLink(WirelessAuthenticationBase, NetBoxModel):
 
     def __str__(self):
         return f'#{self.pk}'
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [apps.get_model('dcim.Interface'), ]
 
     def get_absolute_url(self):
         return reverse('wireless:wirelesslink', args=[self.pk])

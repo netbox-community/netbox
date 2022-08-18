@@ -473,6 +473,10 @@ class RackReservation(NetBoxModel):
     def __str__(self):
         return "Reservation for rack {}".format(self.rack)
 
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [apps.get_model('dcim.Site'), Rack, ]
+
     def get_absolute_url(self):
         return reverse('dcim:rackreservation', args=[self.pk])
 

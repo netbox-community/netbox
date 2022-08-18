@@ -89,6 +89,10 @@ class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_prerequisite_models(cls):
+        return []
+
     def clean(self):
         super().clean()
 
@@ -126,3 +130,7 @@ class OrganizationalModel(NetBoxFeatureSet, models.Model):
     class Meta:
         abstract = True
         ordering = ('name',)
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return []

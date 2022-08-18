@@ -1,5 +1,6 @@
 {% load buttons %}
 
 <div class="alert alert-warning" role="alert">
-  <i class="mdi mdi-alert"></i> <strong>Note:</strong> Before you can add a {{ model|meta:"verbose_name" }} you must first add a {{ required_model|meta:"verbose_name" }} here {% add_button required_model %}
+  <i class="mdi mdi-alert"></i> <strong>Note:</strong> Before you can add a {{ model|meta:"verbose_name" }} you must first create a
+    <strong>{{ required_model|meta:"verbose_name"|title }}</strong> which can be added here: {% add_button required_model %}
 </div>

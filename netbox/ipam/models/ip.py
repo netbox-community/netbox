@@ -124,6 +124,10 @@ class ASN(NetBoxModel):
     def __str__(self):
         return f'AS{self.asn_with_asdot}'
 
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [RIR, ]
+
     def get_absolute_url(self):
         return reverse('ipam:asn', args=[self.pk])
 
@@ -184,6 +188,10 @@ class Aggregate(GetAvailablePrefixesMixin, NetBoxModel):
 
     def __str__(self):
         return str(self.prefix)
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [RIR, ]
 
     def get_absolute_url(self):
         return reverse('ipam:aggregate', args=[self.pk])

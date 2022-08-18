@@ -162,6 +162,10 @@ class Cluster(NetBoxModel):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [ClusterType, ]
+
     def get_absolute_url(self):
         return reverse('virtualization:cluster', args=[self.pk])
 
@@ -287,6 +291,10 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [Cluster, ]
 
     def get_absolute_url(self):
         return reverse('virtualization:virtualmachine', args=[self.pk])

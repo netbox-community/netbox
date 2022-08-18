@@ -1,4 +1,6 @@
 import yaml
+
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -154,6 +156,10 @@ class DeviceType(NetBoxModel):
         # Save references to the original front/rear images
         self._original_front_image = self.front_image
         self._original_rear_image = self.rear_image
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [Manufacturer, ]
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
@@ -327,6 +333,10 @@ class ModuleType(NetBoxModel):
 
     def __str__(self):
         return self.model
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [Manufacturer, ]
 
     def get_absolute_url(self):
         return reverse('dcim:moduletype', args=[self.pk])
@@ -644,6 +654,10 @@ class Device(NetBoxModel, ConfigContextModel):
         elif self.device_type:
             return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
         return super().__str__()
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [apps.get_model('dcim.Site'), DeviceRole, DeviceType, ]
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
