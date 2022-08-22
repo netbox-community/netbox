@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#6454](https://github.com/netbox-community/netbox/issues/6454) - Include contextual help when creating first objects in UI
 * [#10061](https://github.com/netbox-community/netbox/issues/10061) - Replicate type when cloning L2VPN instances
 * [#10066](https://github.com/netbox-community/netbox/issues/10066) - Use fixed column widths for custom field values in UI
 
@@ -11,6 +12,8 @@
 
 * [#10040](https://github.com/netbox-community/netbox/issues/10040) - Fix exception when ordering prefixes by flat representation
 * [#10053](https://github.com/netbox-community/netbox/issues/10053) - Custom fields header should not be displayed when editing circuit terminations with no custom fields
+* [#10057](https://github.com/netbox-community/netbox/issues/10057) - Fix AttributeError exception when global search results include rack reservations
+* [#10059](https://github.com/netbox-community/netbox/issues/10059) - Add identifier column to L2VPN table
 * [#10089](https://github.com/netbox-community/netbox/issues/10089) - `linkify` template filter should escape object representation
 
 ---
