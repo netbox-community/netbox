@@ -327,7 +327,10 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         """
         return obj
 
-    def get_extra_addanother_params(self, request, params: dict):
+    def get_extra_addanother_params(self, request, params):
+        """
+        Return a QueryDict of extra params to use on the Add Another button.
+        """
         return params
 
     #
