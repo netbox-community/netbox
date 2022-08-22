@@ -34,7 +34,7 @@ class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
         model = L2VPN
         fields = (
             'pk', 'name', 'slug', 'type', 'description', 'import_targets', 'export_targets', 'tenant', 'tenant_group',
-            'actions',
+            'actions', 'identifier',
         )
         default_columns = ('pk', 'name', 'type', 'description', 'actions')
 
