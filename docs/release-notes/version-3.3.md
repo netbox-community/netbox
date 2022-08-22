@@ -10,6 +10,7 @@
 
 * [#10040](https://github.com/netbox-community/netbox/issues/10040) - Fix exception when ordering prefixes by flat representation
 * [#10053](https://github.com/netbox-community/netbox/issues/10053) - Custom fields header should not be displayed when editing circuit terminations with no custom fields
+* [#10089](https://github.com/netbox-community/netbox/issues/10089) - `linkify` template filter should escape object representation
 
 ---
 
