@@ -341,24 +341,21 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         """
         obj = self.get_object(**kwargs)
         obj = self.alter_object(obj, request, args, kwargs)
+        model = self.queryset.model
 
         initial_data = normalize_querydict(request.GET)
         form = self.form(instance=obj, initial=initial_data)
         restrict_form_fields(form, request.user)
 
-        context = {
+        requirement = get_prerequisite_model(self.queryset)
+        return render(request, self.template_name, {
+            'model': model,
             'object': obj,
             'form': form,
             'return_url': self.get_return_url(request, obj),
+            'prerequisite_model': requirement if requirement else None,
             **self.get_extra_context(request, obj),
-        }
-
-        requirement = get_prerequisite_model(self.queryset)
-        if requirement:
-            context['required_model'] = requirement
-            context['model'] = self.queryset.model
-
-        return render(request, self.template_name, context)
+        })
 
     def post(self, request, *args, **kwargs):
         """

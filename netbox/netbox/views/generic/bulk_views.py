@@ -172,11 +172,9 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             'table': table,
             'actions': actions,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
+            'prerequisite_model': requirement if requirement else None,
             **self.get_extra_context(request),
         }
-
-        if requirement:
-            context['required_model'] = requirement
 
         return render(request, self.template_name, context)
 
@@ -234,17 +232,6 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
         form = self.form()
         model_form = self.model_form(initial=initial)
-
-        context = {
-            'obj_type': self.model_form._meta.model._meta.verbose_name,
-            'form': form,
-            'model_form': model_form,
-            'return_url': self.get_return_url(request),
-            **self.get_extra_context(request),
-        }
-
-        if requirement:
-            context['required_model'] = requirement
 
         return render(request, self.template_name, {
             'obj_type': self.model_form._meta.model._meta.verbose_name,

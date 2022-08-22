@@ -28,6 +28,14 @@ class NetBoxFeatureSet(
     class Meta:
         abstract = True
 
+    @classmethod
+    def get_prerequisite_models(cls):
+        """
+        Return a list of model types that are required to create this model or empty list if none.  This is used for
+        showing prequisite warnings in the UI on the list and detail views.
+        """
+        return []
+
 
 #
 # Base model classes
@@ -52,10 +60,6 @@ class NetBoxModel(NetBoxFeatureSet, models.Model):
 
     class Meta:
         abstract = True
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return []
 
     def clone(self):
         """
@@ -109,10 +113,6 @@ class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
     def __str__(self):
         return self.name
 
-    @classmethod
-    def get_prerequisite_models(cls):
-        return []
-
     def clean(self):
         super().clean()
 
@@ -150,7 +150,3 @@ class OrganizationalModel(NetBoxFeatureSet, models.Model):
     class Meta:
         abstract = True
         ordering = ('name',)
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return []
