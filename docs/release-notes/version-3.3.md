@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#10061](https://github.com/netbox-community/netbox/issues/10061) - Replicate type when cloning L2VPN instances
+* [#10066](https://github.com/netbox-community/netbox/issues/10066) - Use fixed column widths for custom field values in UI
 
 ### Bug Fixes
 

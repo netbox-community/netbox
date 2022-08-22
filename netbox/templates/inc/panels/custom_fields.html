@@ -12,9 +12,9 @@
           <table class="table table-hover attr-table">
             {% for field, value in fields.items %}
               <tr>
-                <td>
+                <th scope="row">
                   <span title="{{ field.description|escape }}">{{ field }}</span>
-                </td>
+                </th>
                 <td>
                   {% customfield_value field value %}
                 </td>
