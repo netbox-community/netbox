@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -53,6 +54,10 @@ class PowerPanel(NetBoxModel):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [apps.get_model('dcim.Site'), ]
 
     def get_absolute_url(self):
         return reverse('dcim:powerpanel', args=[self.pk])
@@ -137,6 +142,10 @@ class PowerFeed(NetBoxModel, PathEndpoint, CabledObjectModel):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [PowerPanel, ]
 
     def get_absolute_url(self):
         return reverse('dcim:powerfeed', args=[self.pk])

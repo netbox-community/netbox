@@ -411,6 +411,10 @@ class Location(NestedGroupModel):
 
         super().validate_unique(exclude=exclude)
 
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [Site, ]
+
     def get_absolute_url(self):
         return reverse('dcim:location', args=[self.pk])
 

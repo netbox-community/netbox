@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -102,6 +103,10 @@ class L2VPNTermination(NetBoxModel):
         if self.pk is not None:
             return f'{self.assigned_object} <> {self.l2vpn}'
         return super().__str__()
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [apps.get_model('ipam.L2VPN'), ]
 
     def get_absolute_url(self):
         return reverse('ipam:l2vpntermination', args=[self.pk])

@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -135,6 +136,10 @@ class Circuit(NetBoxModel):
 
     def __str__(self):
         return self.cid
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [apps.get_model('circuits.Provider'), CircuitType]
 
     def get_absolute_url(self):
         return reverse('circuits:circuit', args=[self.pk])
