@@ -124,7 +124,6 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         """
         model = self.queryset.model
         content_type = ContentType.objects.get_for_model(model)
-        requirement = get_prerequisite_model(self.queryset)
 
         if self.filterset:
             self.queryset = self.filterset(request.GET, self.queryset).qs
@@ -172,7 +171,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             'table': table,
             'actions': actions,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
-            'prerequisite_model': requirement if requirement else None,
+            'prerequisite_model': get_prerequisite_model(self.queryset),
             **self.get_extra_context(request),
         }
 
