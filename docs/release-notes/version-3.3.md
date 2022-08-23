@@ -17,6 +17,7 @@
 * [#10059](https://github.com/netbox-community/netbox/issues/10059) - Add identifier column to L2VPN table
 * [#10089](https://github.com/netbox-community/netbox/issues/10089) - `linkify` template filter should escape object representation
 * [#10108](https://github.com/netbox-community/netbox/issues/10108) - Linkify inside NAT IPs for primary device IPs in UI
+* [#10111](https://github.com/netbox-community/netbox/issues/10111) - Wrap search QS to catch ValueError on identifier field
 
 ---
 

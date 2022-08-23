@@ -965,7 +965,11 @@ class L2VPNFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = Q(identifier=value) | Q(name__icontains=value) | Q(description__icontains=value)
+        qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
+        try:
+            qs_filter |= Q(identifier=int(value))
+        except ValueError:
+            pass
         return queryset.filter(qs_filter)
 
 
@@ -1070,6 +1074,12 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
             return queryset
         qs_filter = Q(l2vpn__name__icontains=value)
         return queryset.filter(qs_filter)
+
+    def filter_assigned_object(self, queryset, name, value):
+        qs = queryset.filter(
+            Q(**{'{}__in'.format(name): value})
+        )
+        return qs
 
     def filter_site(self, queryset, name, value):
         qs = queryset.filter(
