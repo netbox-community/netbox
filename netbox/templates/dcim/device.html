@@ -179,8 +179,8 @@
                                 <a href="{{ object.primary_ip4.get_absolute_url }}">{{ object.primary_ip4.address.ip }}</a>
                                 {% if object.primary_ip4.nat_inside %}
                                   (NAT for {{ object.primary_ip4.nat_inside.address.ip|linkify }})
-                                {% elif object.primary_ip4.nat_outside %}
-                                  (NAT: {{ object.primary_ip4.nat_outside.address.ip|linkify }})
+                                {% elif object.primary_ip4.nat_outside.exists %}
+                                  (NAT for {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                                 {% endif %}
                               {% else %}
                                 {{ ''|placeholder }}
@@ -194,8 +194,8 @@
                                 <a href="{{ object.primary_ip6.get_absolute_url }}">{{ object.primary_ip6.address.ip }}</a>
                                 {% if object.primary_ip6.nat_inside %}
                                   (NAT for {{ object.primary_ip6.nat_inside.address.ip|linkify }})
-                                {% elif object.primary_ip6.nat_outside %}
-                                  (NAT: {{ object.primary_ip6.nat_outside.address.ip|linkify }})
+                                {% elif object.primary_ip6.nat_outside.exists %}
+                                  (NAT for {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                                 {% endif %}
                               {% else %}
                                 {{ ''|placeholder }}
