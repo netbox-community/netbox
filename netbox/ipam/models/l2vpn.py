@@ -67,6 +67,12 @@ class L2VPN(NetBoxModel):
     def get_absolute_url(self):
         return reverse('ipam:l2vpn', args=[self.pk])
 
+    def can_add_termination(self):
+        if self.type in L2VPNTypeChoices.P2P and self.terminations.count() >= 2:
+            return False
+        else:
+            return True
+
 
 class L2VPNTermination(NetBoxModel):
     l2vpn = models.ForeignKey(
