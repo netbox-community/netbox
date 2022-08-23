@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.functional import cached_property
 
 from ipam.choices import L2VPNTypeChoices
 from ipam.constants import L2VPN_ASSIGNMENT_MODELS
@@ -67,6 +68,7 @@ class L2VPN(NetBoxModel):
     def get_absolute_url(self):
         return reverse('ipam:l2vpn', args=[self.pk])
 
+    @cached_property
     def can_add_termination(self):
         if self.type in L2VPNTypeChoices.P2P and self.terminations.count() >= 2:
             return False
