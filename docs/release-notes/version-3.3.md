@@ -12,9 +12,11 @@
 
 * [#10040](https://github.com/netbox-community/netbox/issues/10040) - Fix exception when ordering prefixes by flat representation
 * [#10053](https://github.com/netbox-community/netbox/issues/10053) - Custom fields header should not be displayed when editing circuit terminations with no custom fields
+* [#10055](https://github.com/netbox-community/netbox/issues/10055) - Fix extraneous NAT indicator by device primary IP
 * [#10057](https://github.com/netbox-community/netbox/issues/10057) - Fix AttributeError exception when global search results include rack reservations
 * [#10059](https://github.com/netbox-community/netbox/issues/10059) - Add identifier column to L2VPN table
 * [#10089](https://github.com/netbox-community/netbox/issues/10089) - `linkify` template filter should escape object representation
+* [#10108](https://github.com/netbox-community/netbox/issues/10108) - Linkify inside NAT IPs for primary device IPs in UI
 
 ---
 
