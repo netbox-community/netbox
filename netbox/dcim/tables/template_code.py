@@ -239,7 +239,7 @@ INTERFACE_BUTTONS = """
         <li><a class="dropdown-item" href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Inventory Item</a></li>
       {% endif %}
       {% if perms.dcim.add_interface %}
-        <li><a class="dropdown-item" href="{% url 'dcim:interface_add' %}?device={{ record.device_id }}&parent={{ record.pk }}&name_pattern={{ record.name }}.&type={{ record.type }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Child Interface</a></li>
+        <li><a class="dropdown-item" href="{% url 'dcim:interface_add' %}?device={{ record.device_id }}&parent={{ record.pk }}&name_pattern={{ record.name }}.&type=virtual&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Child Interface</a></li>
       {% endif %}
     </ul>
   </span>
