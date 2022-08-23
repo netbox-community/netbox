@@ -35,13 +35,16 @@ class GetAvailablePrefixesMixin:
 
     def get_available_prefixes(self):
         """
-        Return all available Prefixes within this aggregate as an IPSet.
+        Return all available prefixes within this Aggregate or Prefix as an IPSet.
         """
-        prefix = netaddr.IPSet(self.prefix)
-        child_prefixes = netaddr.IPSet([child.prefix for child in self.get_child_prefixes()])
-        available_prefixes = prefix - child_prefixes
+        params = {
+            'prefix__net_contained': str(self.prefix)
+        }
+        if hasattr(self, 'vrf'):
+            params['vrf'] = self.vrf
 
-        return available_prefixes
+        child_prefixes = Prefix.objects.filter(**params).values_list('prefix', flat=True)
+        return netaddr.IPSet(self.prefix) - netaddr.IPSet(child_prefixes)
 
     def get_first_available_prefix(self):
         """
