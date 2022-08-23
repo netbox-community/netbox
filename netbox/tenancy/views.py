@@ -366,14 +366,11 @@ class ContactAssignmentEditView(generic.ObjectEditView):
             instance.object = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
         return instance
 
-    def get_extra_addanother_params(self, request, params: dict):
-        if not params:
-            params = QueryDict(mutable=True)
-
-        params['content_type'] = request.GET.get('content_type')
-        params['object_id'] = request.GET.get('object_id')
-
-        return params
+    def get_extra_addanother_params(self, request):
+        return {
+            'content_type': request.GET.get('content_type'),
+            'object_id': request.GET.get('object_id'),
+        }
 
 
 class ContactAssignmentDeleteView(generic.ObjectDeleteView):
