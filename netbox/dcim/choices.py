@@ -792,7 +792,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_80211AX = 'ieee802.11ax'
     TYPE_80211AY = 'ieee802.11ay'
     TYPE_802151 = 'ieee802.15.1'
-    TYPE_OTHER_WIRELESS = 'other-Wireless'
+    TYPE_OTHER_WIRELESS = 'other-wireless'
 
     # Cellular
     TYPE_GSM = 'gsm'
