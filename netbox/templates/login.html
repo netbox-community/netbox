@@ -42,7 +42,7 @@
     {% if auth_backends %}
       <h6 class="mt-4 mb-3">Or use a single sign-on (SSO) provider:</h6>
       {% for name, backend in auth_backends.items %}
-        {% if name == 'saml' %}
+        {% if name == 'saml' and backend.idps %}
           {% for idp in backend.idps %}
             <h5>
               {% if backend.icon_name %}<i class="mdi mdi-{{ backend.icon_name }}"></i>{% endif %}
