@@ -1982,7 +1982,7 @@ class ConnectedDeviceTest(APITestCase):
 
 class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
     model = VirtualChassis
-    brief_fields = ['display', 'id', 'master', 'member_count', 'name', 'url']
+    brief_fields = ['display', 'id', 'master', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):

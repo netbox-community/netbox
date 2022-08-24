@@ -432,11 +432,10 @@ class NestedCableSerializer(BaseModelSerializer):
 class NestedVirtualChassisSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
     master = NestedDeviceSerializer()
-    member_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = models.VirtualChassis
-        fields = ['id', 'url', 'display', 'name', 'master', 'member_count']
+        fields = ['id', 'url', 'display', 'name', 'master']
 
 
 #
