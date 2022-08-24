@@ -241,6 +241,9 @@ INTERFACE_BUTTONS = """
       {% if perms.dcim.add_interface %}
         <li><a class="dropdown-item" href="{% url 'dcim:interface_add' %}?device={{ record.device_id }}&parent={{ record.pk }}&name_pattern={{ record.name }}.&type=virtual&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Child Interface</a></li>
       {% endif %}
+      {% if perms.ipam.add_fhrpgroupassignment %}
+        <li><a class="dropdown-item" href="{% url 'ipam:fhrpgroupassignment_add' %}?interface_type={{ record|content_type_id }}&interface_id={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Assign FHRP Group</a></li>
+      {% endif %}
     </ul>
   </span>
 {% endif %}
