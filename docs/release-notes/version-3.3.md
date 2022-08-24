@@ -22,6 +22,7 @@
 * [#10108](https://github.com/netbox-community/netbox/issues/10108) - Linkify inside NAT IPs for primary device IPs in UI
 * [#10109](https://github.com/netbox-community/netbox/issues/10109) - Fix available prefixes calculation for container prefixes in the global table
 * [#10111](https://github.com/netbox-community/netbox/issues/10111) - Wrap search QS to catch ValueError on identifier field
+* [#10134](https://github.com/netbox-community/netbox/issues/10134) - Custom fields data serializer should return a 400 response for invalid data
 
 ---
 
