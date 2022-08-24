@@ -5,6 +5,8 @@
 ### Enhancements
 
 * [#6454](https://github.com/netbox-community/netbox/issues/6454) - Include contextual help when creating first objects in UI
+* [#10033](https://github.com/netbox-community/netbox/issues/10033) - Disable "add termination" button for point-to-point L2VPNs with two terminations
+* [#10037](https://github.com/netbox-community/netbox/issues/10037) - Add link to create child interface to interface context menu
 * [#10061](https://github.com/netbox-community/netbox/issues/10061) - Replicate type when cloning L2VPN instances
 * [#10066](https://github.com/netbox-community/netbox/issues/10066) - Use fixed column widths for custom field values in UI
 
@@ -16,6 +18,7 @@
 * [#10057](https://github.com/netbox-community/netbox/issues/10057) - Fix AttributeError exception when global search results include rack reservations
 * [#10059](https://github.com/netbox-community/netbox/issues/10059) - Add identifier column to L2VPN table
 * [#10089](https://github.com/netbox-community/netbox/issues/10089) - `linkify` template filter should escape object representation
+* [#10094](https://github.com/netbox-community/netbox/issues/10094) - Fix 404 when using "create and add another" to add contact assignments
 * [#10108](https://github.com/netbox-community/netbox/issues/10108) - Linkify inside NAT IPs for primary device IPs in UI
 * [#10109](https://github.com/netbox-community/netbox/issues/10109) - Fix available prefixes calculation for container prefixes in the global table
 * [#10111](https://github.com/netbox-community/netbox/issues/10111) - Wrap search QS to catch ValueError on identifier field
