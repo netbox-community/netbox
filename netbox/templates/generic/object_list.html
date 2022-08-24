@@ -100,6 +100,11 @@ Context:
         <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
 
         {# Object table #}
+
+            {% if prerequisite_model %}
+              {% include 'inc/missing_prerequisites.html' %}
+            {% endif %}
+
         <div class="card">
           <div class="card-body" id="object_list">
             {% include 'htmx/table.html' %}

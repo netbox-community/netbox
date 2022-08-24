@@ -360,8 +360,8 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         orderable=False,
         verbose_name='NAT (Inside)'
     )
-    nat_outside = tables.Column(
-        linkify=True,
+    nat_outside = tables.ManyToManyColumn(
+        linkify_item=True,
         orderable=False,
         verbose_name='NAT (Outside)'
     )
