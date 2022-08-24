@@ -9,6 +9,7 @@
 * [#10037](https://github.com/netbox-community/netbox/issues/10037) - Add link to create child interface to interface context menu
 * [#10061](https://github.com/netbox-community/netbox/issues/10061) - Replicate type when cloning L2VPN instances
 * [#10066](https://github.com/netbox-community/netbox/issues/10066) - Use fixed column widths for custom field values in UI
+* [#10133](https://github.com/netbox-community/netbox/issues/10133) - Enable nullifying device location during bulk edit
 
 ### Bug Fixes
 

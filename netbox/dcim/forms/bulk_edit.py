@@ -480,7 +480,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         ('Hardware', ('manufacturer', 'device_type', 'airflow', 'serial')),
     )
     nullable_fields = (
-        'tenant', 'platform', 'serial', 'airflow',
+        'location', 'tenant', 'platform', 'serial', 'airflow',
     )
 
 
