@@ -42,17 +42,10 @@
     {% if auth_backends %}
       <h6 class="mt-4 mb-3">Or use a single sign-on (SSO) provider:</h6>
       {% for name, display in auth_backends.items %}
-        {% if name == 'saml' %}
-          <h5>
-            {% if display.1 %}<i class="mdi mdi-{{ display.1 }}"></i>{% endif %}
-            <a href="{% url 'social:begin' backend=name %}" class="my-2">{{ display.0 }}</a>
-          </h5>
-        {% else %}
-          <h5>
-            {% if display.1 %}<i class="mdi mdi-{{ display.1 }}"></i>{% endif %}
-            <a href="{% url 'social:begin' backend=name %}" class="my-2">{{ display.0 }}</a>
-          </h5>
-        {% endif %}
+        <h5>
+          {% if display.1 %}<i class="mdi mdi-{{ display.1 }}"></i>{% endif %}
+          <a href="{% url 'social:begin' backend=name %}" class="my-2">{{ display.0 }}</a>
+        </h5>
       {% endfor %}
     {% endif %}
 
