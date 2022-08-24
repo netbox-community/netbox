@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6454](https://github.com/netbox-community/netbox/issues/6454) - Include contextual help when creating first objects in UI
+* [#10031](https://github.com/netbox-community/netbox/issues/10031) - Enforce `application/json` content type for REST API requests
 * [#10033](https://github.com/netbox-community/netbox/issues/10033) - Disable "add termination" button for point-to-point L2VPNs with two terminations
 * [#10037](https://github.com/netbox-community/netbox/issues/10037) - Add link to create child interface to interface context menu
 * [#10061](https://github.com/netbox-community/netbox/issues/10061) - Replicate type when cloning L2VPN instances

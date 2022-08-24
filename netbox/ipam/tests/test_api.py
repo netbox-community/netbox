@@ -390,7 +390,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
             self.assertEqual(response.data['description'], data['description'])
 
         # Try to create one more IP
-        response = self.client.post(url, {}, **self.header)
+        response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
@@ -487,7 +487,7 @@ class IPRangeTest(APIViewTestCases.APIViewTestCase):
             self.assertEqual(response.data['description'], data['description'])
 
         # Try to create one more IP
-        response = self.client.post(url, {}, **self.header)
+        response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
