@@ -24,7 +24,8 @@ class WirelessAuthenticationBase(models.Model):
     auth_type = models.CharField(
         max_length=50,
         choices=WirelessAuthTypeChoices,
-        blank=True
+        blank=True,
+        verbose_name="Auth Type",
     )
     auth_cipher = models.CharField(
         max_length=50,
@@ -135,13 +136,15 @@ class WirelessLink(WirelessAuthenticationBase, NetBoxModel):
         to='dcim.Interface',
         limit_choices_to={'type__in': WIRELESS_IFACE_TYPES},
         on_delete=models.PROTECT,
-        related_name='+'
+        related_name='+',
+        verbose_name="Interface A",
     )
     interface_b = models.ForeignKey(
         to='dcim.Interface',
         limit_choices_to={'type__in': WIRELESS_IFACE_TYPES},
         on_delete=models.PROTECT,
-        related_name='+'
+        related_name='+',
+        verbose_name="Interface B",
     )
     ssid = models.CharField(
         max_length=SSID_MAX_LENGTH,
