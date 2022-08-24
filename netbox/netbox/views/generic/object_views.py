@@ -328,6 +328,12 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         """
         return obj
 
+    def get_extra_addanother_params(self, request):
+        """
+        Return a dictionary of extra parameters to use on the Add Another button.
+        """
+        return {}
+
     #
     # Request handlers
     #
@@ -403,6 +409,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
 
                     # If cloning is supported, pre-populate a new instance of the form
                     params = prepare_cloned_fields(obj)
+                    params.update(self.get_extra_addanother_params(request))
                     if params:
                         if 'return_url' in request.GET:
                             params['return_url'] = request.GET.get('return_url')
