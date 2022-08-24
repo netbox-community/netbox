@@ -21,7 +21,10 @@ class L2VPN(NetBoxModel):
         max_length=100,
         unique=True
     )
-    slug = models.SlugField()
+    slug = models.SlugField(
+        max_length=100,
+        unique=True
+    )
     type = models.CharField(
         max_length=50,
         choices=L2VPNTypeChoices
