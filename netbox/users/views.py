@@ -55,9 +55,9 @@ class LoginView(View):
             }
 
             if name == 'saml':
-                data['idps'] = get_saml_idps()
+                data['saml_idps'] = get_saml_idps()
 
-            auth_backend[name] = data
+            auth_backends[name] = data
 
         return render(request, self.template_name, {
             'form': form,
