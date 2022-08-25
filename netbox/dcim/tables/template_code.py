@@ -244,6 +244,9 @@ INTERFACE_BUTTONS = """
       {% if perms.ipam.add_l2vpntermination %}
         <li><a class="dropdown-item" href="{% url 'ipam:l2vpntermination_add' %}?device={{ object.pk }}&interface={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">L2VPN Termination</a></li>
       {% endif %}
+      {% if perms.ipam.add_fhrpgroupassignment %}
+        <li><a class="dropdown-item" href="{% url 'ipam:fhrpgroupassignment_add' %}?interface_type={{ record|content_type_id }}&interface_id={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Assign FHRP Group</a></li>
+      {% endif %}
     </ul>
   </span>
 {% endif %}
