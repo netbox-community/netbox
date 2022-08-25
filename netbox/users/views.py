@@ -10,14 +10,14 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 from social_core.backends.utils import load_backends
 
 from extras.models import ObjectChange
 from extras.tables import ObjectChangeTable
-from netbox.authentication import get_auth_backend_display
+from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from utilities.forms import ConfirmationForm
 from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
@@ -39,6 +39,14 @@ class LoginView(View):
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
+    def gen_auth_data(self, name, url):
+        display_name, icon_name = get_auth_backend_display(name)
+        return {
+            'display_name': display_name,
+            'icon_name': icon_name,
+            'url': url,
+        }
+
     def get(self, request):
         form = LoginForm(request)
 
@@ -46,9 +54,19 @@ class LoginView(View):
             logger = logging.getLogger('netbox.auth.login')
             return self.redirect_to_next(request, logger)
 
-        auth_backends = {
-            name: get_auth_backend_display(name) for name in load_backends(settings.AUTHENTICATION_BACKENDS).keys()
-        }
+        auth_backends = []
+        saml_idps = get_saml_idps()
+        for name in load_backends(settings.AUTHENTICATION_BACKENDS).keys():
+            url = reverse('social:begin', args=[name, ])
+            if name.lower() == 'saml' and saml_idps:
+                for idp in saml_idps:
+                    params = {'idp': idp}
+                    idp_url = f'{url}?{urlencode(params)}'
+                    data = self.gen_auth_data(name, idp_url)
+                    data['display_name'] = f'{data["display_name"]} ({idp})'
+                    auth_backends.append(data)
+            else:
+                auth_backends.append(self.gen_auth_data(name, url))
 
         return render(request, self.template_name, {
             'form': form,
