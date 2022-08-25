@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 
 from circuits.models import Circuit
@@ -364,6 +365,12 @@ class ContactAssignmentEditView(generic.ObjectEditView):
             content_type = get_object_or_404(ContentType, pk=request.GET.get('content_type'))
             instance.object = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
         return instance
+
+    def get_extra_addanother_params(self, request):
+        return {
+            'content_type': request.GET.get('content_type'),
+            'object_id': request.GET.get('object_id'),
+        }
 
 
 class ContactAssignmentDeleteView(generic.ObjectDeleteView):

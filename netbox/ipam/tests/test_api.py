@@ -390,7 +390,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
             self.assertEqual(response.data['description'], data['description'])
 
         # Try to create one more IP
-        response = self.client.post(url, {}, **self.header)
+        response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
@@ -487,7 +487,7 @@ class IPRangeTest(APIViewTestCases.APIViewTestCase):
             self.assertEqual(response.data['description'], data['description'])
 
         # Try to create one more IP
-        response = self.client.post(url, {}, **self.header)
+        response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
@@ -973,9 +973,9 @@ class L2VPNTerminationTest(APIViewTestCases.APIViewTestCase):
         VLAN.objects.bulk_create(vlans)
 
         l2vpns = (
-            L2VPN(name='L2VPN 1', type='vxlan', identifier=650001),
-            L2VPN(name='L2VPN 2', type='vpws', identifier=650002),
-            L2VPN(name='L2VPN 3', type='vpls'),  # No RD
+            L2VPN(name='L2VPN 1', slug='l2vpn-1', type='vxlan', identifier=650001),
+            L2VPN(name='L2VPN 2', slug='l2vpn-2', type='vpws', identifier=650002),
+            L2VPN(name='L2VPN 3', slug='l2vpn-3', type='vpls'),  # No RD
         )
         L2VPN.objects.bulk_create(l2vpns)
 
