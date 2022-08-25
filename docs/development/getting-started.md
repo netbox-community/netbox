@@ -54,6 +54,12 @@ NetBox ships with a [git pre-commit hook](https://githooks.com/) script that aut
 cd .git/hooks/
 ln -s ../../scripts/git-hooks/pre-commit
 ```
+For the pre-commit hooks to work, you will also need to install the pycodestyle package:
+
+```no-highlight
+python -m pip install pycodestyle
+```
+...and setup the yarn packages as shown in the [Web UI Development Guide](web-ui.md)
 
 ### 3. Create a Python Virtual Environment
 
@@ -117,6 +123,10 @@ This ensures that your development environment is now complete and operational. 
 
 !!! tip "IDE Integration"
     Some IDEs, such as the highly-recommended [PyCharm](https://www.jetbrains.com/pycharm/), will integrate with Django's development server and allow you to run it directly within the IDE. This is strongly encouraged as it makes for a much more convenient development environment.
+
+## UI Development
+
+For UI development you will need to review the [Web UI Development Guide](web-ui.md)
 
 ## Populating Demo Data
 
