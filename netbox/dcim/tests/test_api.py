@@ -461,16 +461,19 @@ class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
                 'manufacturer': manufacturers[1].pk,
                 'model': 'Device Type 4',
                 'slug': 'device-type-4',
+                'u_height': 0,
             },
             {
                 'manufacturer': manufacturers[1].pk,
                 'model': 'Device Type 5',
                 'slug': 'device-type-5',
+                'u_height': 0.5,
             },
             {
                 'manufacturer': manufacturers[1].pk,
                 'model': 'Device Type 6',
                 'slug': 'device-type-6',
+                'u_height': 1,
             },
         ]
 

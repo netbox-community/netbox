@@ -310,7 +310,7 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
         max_digits=4,
         decimal_places=1,
         label='Position (U)',
-        min_value=decimal.Decimal(0.5),
+        min_value=0,
         default=1.0
     )
     subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False)
