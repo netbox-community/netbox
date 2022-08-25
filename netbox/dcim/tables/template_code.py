@@ -226,7 +226,7 @@ POWEROUTLET_BUTTONS = """
 """
 
 INTERFACE_BUTTONS = """
-{% if perms.ipam.add_ipaddress or perms.dcim.add_inventoryitem %}
+{% if perms.dcim.edit_interface %}
   <span class="dropdown">
     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Add">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
@@ -237,6 +237,15 @@ INTERFACE_BUTTONS = """
       {% endif %}
       {% if perms.dcim.add_inventoryitem %}
         <li><a class="dropdown-item" href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Inventory Item</a></li>
+      {% endif %}
+      {% if perms.dcim.add_interface %}
+        <li><a class="dropdown-item" href="{% url 'dcim:interface_add' %}?device={{ record.device_id }}&parent={{ record.pk }}&name_pattern={{ record.name }}.&type=virtual&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Child Interface</a></li>
+      {% endif %}
+      {% if perms.ipam.add_l2vpntermination %}
+        <li><a class="dropdown-item" href="{% url 'ipam:l2vpntermination_add' %}?device={{ object.pk }}&interface={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">L2VPN Termination</a></li>
+      {% endif %}
+      {% if perms.ipam.add_fhrpgroupassignment %}
+        <li><a class="dropdown-item" href="{% url 'ipam:fhrpgroupassignment_add' %}?interface_type={{ record|content_type_id }}&interface_id={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Assign FHRP Group</a></li>
       {% endif %}
     </ul>
   </span>

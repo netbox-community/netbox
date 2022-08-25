@@ -2,7 +2,7 @@
 
 ## Model Types
 
-A NetBox model represents a discrete object type such as a device or IP address. Each model is defined as a Python class and has its own SQL table. All NetBox data models can be categorized by type.
+A NetBox model represents a discrete object type such as a device or IP address. Per [Django convention](https://docs.djangoproject.com/en/stable/topics/db/models/), each model is defined as a Python class and has its own SQL table. All NetBox data models can be categorized by type.
 
 The Django [content types](https://docs.djangoproject.com/en/stable/ref/contrib/contenttypes/) framework can be used to reference models within the database. A ContentType instance references a model by its `app_label` and `name`: For example, the Site model is referred to as `dcim.site`. The content type combined with an object's primary key form a globally unique identifier for the object (e.g. `dcim.site:123`).
 

@@ -124,7 +124,7 @@ class TokenTest(
         user = User.objects.create_user(**data)
         url = reverse('users-api:token_provision')
 
-        response = self.client.post(url, **self.header, data=data)
+        response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 201)
         self.assertIn('key', response.data)
         self.assertEqual(len(response.data['key']), 40)
@@ -141,7 +141,7 @@ class TokenTest(
         }
         url = reverse('users-api:token_provision')
 
-        response = self.client.post(url, **self.header, data=data)
+        response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 403)
 
 

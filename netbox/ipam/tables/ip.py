@@ -32,15 +32,6 @@ PREFIX_LINK = """
 <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.site %}&site={{ object.site.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
 """
 
-PREFIXFLAT_LINK = """
-{% load helpers %}
-{% if record.pk %}
-    <a href="{% url 'ipam:prefix' pk=record.pk %}">{{ record.prefix }}</a>
-{% else %}
-    {{ record.prefix }}
-{% endif %}
-"""
-
 IPADDRESS_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.address }}</a>
@@ -229,9 +220,9 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
         export_raw=True,
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    prefix_flat = tables.TemplateColumn(
-        template_code=PREFIXFLAT_LINK,
-        attrs={'td': {'class': 'text-nowrap'}},
+    prefix_flat = tables.Column(
+        accessor=Accessor('prefix'),
+        linkify=True,
         verbose_name='Prefix (Flat)',
     )
     depth = tables.Column(
@@ -369,8 +360,8 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         orderable=False,
         verbose_name='NAT (Inside)'
     )
-    nat_outside = tables.Column(
-        linkify=True,
+    nat_outside = tables.ManyToManyColumn(
+        linkify_item=True,
         orderable=False,
         verbose_name='NAT (Outside)'
     )

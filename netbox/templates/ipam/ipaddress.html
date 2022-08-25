@@ -91,10 +91,13 @@
                       </td>
                   </tr>
                   <tr>
-                      <th scope="row">Outside NAT IPs</th>
+                      <th scope="row">NAT (Outside)</th>
                       <td>
                         {% for ip in object.nat_outside.all %}
-                          {{ ip|linkify }}<br/>
+                          {{ ip|linkify }}
+                          {% if ip.assigned_object %}
+                            ({{ ip.assigned_object.parent_object|linkify }})
+                          {% endif %}<br/>
                         {% empty %}
                           {{ ''|placeholder }}
                         {% endfor %}

@@ -55,6 +55,10 @@ def get_auth_backend_display(name):
     return AUTH_BACKEND_ATTRS.get(name, (name, None))
 
 
+def get_saml_idps():
+    return getattr(settings, "SOCIAL_AUTH_SAML_ENABLED_IDPS", {}).keys()
+
+
 class ObjectPermissionMixin:
 
     def get_all_permissions(self, user_obj, obj=None):

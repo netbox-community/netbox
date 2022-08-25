@@ -62,7 +62,7 @@ DCIM_TYPES = {
         'url': 'dcim:rack_list',
     },
     'rackreservation': {
-        'queryset': RackReservation.objects.prefetch_related('site', 'rack', 'user'),
+        'queryset': RackReservation.objects.prefetch_related('rack', 'user'),
         'filterset': dcim.filtersets.RackReservationFilterSet,
         'table': dcim.tables.RackReservationTable,
         'url': 'dcim:rackreservation_list',

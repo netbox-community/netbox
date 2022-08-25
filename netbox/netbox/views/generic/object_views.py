@@ -21,6 +21,7 @@ from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fi
 from utilities.views import GetReturnURLMixin
 from .base import BaseObjectView
 from .mixins import ActionsMixin, TableMixin
+from .utils import get_prerequisite_model
 
 __all__ = (
     'ComponentCreateView',
@@ -327,6 +328,12 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         """
         return obj
 
+    def get_extra_addanother_params(self, request):
+        """
+        Return a dictionary of extra parameters to use on the Add Another button.
+        """
+        return {}
+
     #
     # Request handlers
     #
@@ -340,15 +347,18 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         """
         obj = self.get_object(**kwargs)
         obj = self.alter_object(obj, request, args, kwargs)
+        model = self.queryset.model
 
         initial_data = normalize_querydict(request.GET)
         form = self.form(instance=obj, initial=initial_data)
         restrict_form_fields(form, request.user)
 
         return render(request, self.template_name, {
+            'model': model,
             'object': obj,
             'form': form,
             'return_url': self.get_return_url(request, obj),
+            'prerequisite_model': get_prerequisite_model(self.queryset),
             **self.get_extra_context(request, obj),
         })
 
@@ -399,6 +409,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
 
                     # If cloning is supported, pre-populate a new instance of the form
                     params = prepare_cloned_fields(obj)
+                    params.update(self.get_extra_addanother_params(request))
                     if params:
                         if 'return_url' in request.GET:
                             params['return_url'] = request.GET.get('return_url')

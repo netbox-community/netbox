@@ -26,6 +26,7 @@ from utilities.permissions import get_permission_for_model
 from utilities.views import GetReturnURLMixin
 from .base import BaseMultiObjectView
 from .mixins import ActionsMixin, TableMixin
+from .utils import get_prerequisite_model
 
 __all__ = (
     'BulkComponentCreateView',
@@ -165,13 +166,16 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
                 'table': table,
             })
 
-        return render(request, self.template_name, {
+        context = {
             'model': model,
             'table': table,
             'actions': actions,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
+            'prerequisite_model': get_prerequisite_model(self.queryset),
             **self.get_extra_context(request),
-        })
+        }
+
+        return render(request, self.template_name, context)
 
 
 class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):

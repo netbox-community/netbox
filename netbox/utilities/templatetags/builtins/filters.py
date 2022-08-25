@@ -5,7 +5,7 @@ import re
 import yaml
 from django import template
 from django.contrib.contenttypes.models import ContentType
-from django.utils.html import strip_tags
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
@@ -35,7 +35,7 @@ def linkify(instance, attr=None):
     text = getattr(instance, attr) if attr is not None else str(instance)
     try:
         url = instance.get_absolute_url()
-        return mark_safe(f'<a href="{url}">{text}</a>')
+        return mark_safe(f'<a href="{url}">{escape(text)}</a>')
     except (AttributeError, TypeError):
         return text
 
