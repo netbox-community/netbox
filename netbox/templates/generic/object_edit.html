@@ -31,6 +31,11 @@ Context:
   <div class="tab-content">
     <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
 
+      {# Warn about missing prerequisite objects #}
+      {% if prerequisite_model %}
+        {% include 'inc/missing_prerequisites.html' %}
+      {% endif %}
+
       {# Link to model documentation #}
       {% if object and settings.DOCS_ROOT %}
         <div class="float-end">
@@ -38,10 +43,6 @@ Context:
             <i class="mdi mdi-help-circle"></i> Help
           </a>
         </div>
-      {% endif %}
-
-      {% if prerequisite_model %}
-        {% include 'inc/missing_prerequisites.html' %}
       {% endif %}
 
       <form action="" method="post" enctype="multipart/form-data" class="form-object-edit mt-5">
