@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 from social_core.backends.utils import load_backends
@@ -39,6 +39,14 @@ class LoginView(View):
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
+    def gen_auth_data(self, name, url):
+        display_name, icon_name = get_auth_backend_display(name)
+        return {
+            'display_name': display_name,
+            'icon_name': icon_name,
+            'url': url,
+        }
+
     def get(self, request):
         form = LoginForm(request)
 
@@ -46,18 +54,19 @@ class LoginView(View):
             logger = logging.getLogger('netbox.auth.login')
             return self.redirect_to_next(request, logger)
 
-        auth_backends = {}
+        auth_backends = []
+        saml_idps = get_saml_idps()
         for name in load_backends(settings.AUTHENTICATION_BACKENDS).keys():
-            display_name, icon_name = get_auth_backend_display(name)
-            data = {
-                'display_name': display_name,
-                'icon_name': icon_name,
-            }
-
-            if name == 'saml':
-                data['saml_idps'] = get_saml_idps()
-
-            auth_backends[name] = data
+            url = reverse('social:begin', args=[name, ])
+            if name.lower() == 'saml' and saml_idps:
+                for idp in saml_idps:
+                    params = {'idp': idp}
+                    idp_url = f'{url}?{urlencode(params)}'
+                    data = self.gen_auth_data(name, idp_url)
+                    data['display_name'] = f'{data["display_name"]} ({idp})'
+                    auth_backends.append(data)
+            else:
+                auth_backends.append(self.gen_auth_data(name, url))
 
         return render(request, self.template_name, {
             'form': form,
