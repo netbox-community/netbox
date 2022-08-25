@@ -2,6 +2,10 @@
 
 ## v3.3.2 (FUTURE)
 
+### Bug Fixes
+
+* [#10155](https://github.com/netbox-community/netbox/issues/10155) - Fix rear port display when editing front port template for module type 
+
 ---
 
 ## v3.3.1 (2022-08-25)

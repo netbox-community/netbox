@@ -1069,6 +1069,7 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
         required=False,
         query_params={
             'devicetype_id': '$device_type',
+            'moduletype_id': '$module_type',
         }
     )
 
