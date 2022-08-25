@@ -54,7 +54,7 @@ NetBox ships with a [git pre-commit hook](https://githooks.com/) script that aut
 cd .git/hooks/
 ln -s ../../scripts/git-hooks/pre-commit
 ```
-For the pre-commit hooks to work, you will also need to install the pycodestyle package for the pre-commit hooks to work:
+For the pre-commit hooks to work, you will also need to install the pycodestyle package:
 
 ```no-highlight
 python -m pip install pycodestyle
