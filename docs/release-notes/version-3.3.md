@@ -8,7 +8,9 @@
 * [#9935](https://github.com/netbox-community/netbox/issues/9935) - Add 802.11ay and "other" wireless interface types
 * [#10031](https://github.com/netbox-community/netbox/issues/10031) - Enforce `application/json` content type for REST API requests
 * [#10033](https://github.com/netbox-community/netbox/issues/10033) - Disable "add termination" button for point-to-point L2VPNs with two terminations
-* [#10037](https://github.com/netbox-community/netbox/issues/10037) - Add link to create child interface to interface context menu
+* [#10037](https://github.com/netbox-community/netbox/issues/10037) - Add "child interface" option to actions dropdown in interfaces list
+* [#10038](https://github.com/netbox-community/netbox/issues/10038) - Add "L2VPN termination" option to actions dropdown in interfaces list
+* [#10039](https://github.com/netbox-community/netbox/issues/10039) - Add "assign FHRP group" option to actions dropdown in interfaces list
 * [#10061](https://github.com/netbox-community/netbox/issues/10061) - Replicate type when cloning L2VPN instances
 * [#10066](https://github.com/netbox-community/netbox/issues/10066) - Use fixed column widths for custom field values in UI
 * [#10133](https://github.com/netbox-community/netbox/issues/10133) - Enable nullifying device location during bulk edit

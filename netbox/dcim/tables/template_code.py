@@ -226,7 +226,7 @@ POWEROUTLET_BUTTONS = """
 """
 
 INTERFACE_BUTTONS = """
-{% if perms.ipam.add_ipaddress or perms.dcim.add_inventoryitem %}
+{% if perms.dcim.edit_interface %}
   <span class="dropdown">
     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Add">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
