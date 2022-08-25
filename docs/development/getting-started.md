@@ -35,6 +35,8 @@ base_requirements.txt  contrib          docs         mkdocs.yml  NOTICE     requ
 CHANGELOG.md           CONTRIBUTING.md  LICENSE.txt  netbox      README.md  scripts
 ```
 
+### 2. Create a New Branch
+
 The NetBox project utilizes three persistent git branches to track work:
 
 * `master` - Serves as a snapshot of the current stable release
@@ -46,7 +48,21 @@ Typically, you'll base pull requests off of the `develop` branch, or off of `fea
 !!! warning
     **Never** merge pull requests into the `master` branch: This branch only ever merges pull requests from the `develop` branch, to effect a new release.
 
-### 2. Enable Pre-Commit Hooks
+To create a new branch, first ensure that you've checked out the desired base branch, then run:
+
+```no-highlight
+git checkout -B $branchname
+```
+
+When naming a new git branch, contributors are strongly encouraged to use the relevant issue number followed by a very brief description of the work:
+
+```no-highlight
+$issue-$description
+```
+
+The description should be just two or three words to imply the focus of the work being performed. For example, bug #1234 to fix a TypeError exception when creating a device might be named `1234-device-typerror`. This ensures that branches are always follow some logical ordering (e.g. when running `git branch -a`) and helps other developers quickly identify the purpose of each.
+
+### 3. Enable Pre-Commit Hooks
 
 NetBox ships with a [git pre-commit hook](https://githooks.com/) script that automatically checks for style compliance and missing database migrations prior to committing changes. This helps avoid erroneous commits that result in CI test failures. You are encouraged to enable it by creating a link to `scripts/git-hooks/pre-commit`:
 
@@ -59,9 +75,9 @@ For the pre-commit hooks to work, you will also need to install the pycodestyle 
 ```no-highlight
 python -m pip install pycodestyle
 ```
-...and setup the yarn packages as shown in the [Web UI Development Guide](web-ui.md)
+...and set up the yarn packages as shown in the [Web UI Development Guide](web-ui.md)
 
-### 3. Create a Python Virtual Environment
+### 4. Create a Python Virtual Environment
 
 A [virtual environment](https://docs.python.org/3/tutorial/venv.html) (or "venv" for short) is like a container for a set of Python packages. These allow you to build environments suited to specific projects without interfering with system packages or other projects. When installed per the documentation, NetBox uses a virtual environment in production.
 
@@ -85,7 +101,7 @@ source ~/.venv/netbox/bin/activate
 
 Notice that the console prompt changes to indicate the active environment. This updates the necessary system environment variables to ensure that any Python scripts are run within the virtual environment.
 
-### 4. Install Required Packages
+### 5. Install Required Packages
 
 With the virtual environment activated, install the project's required Python packages using the `pip` module. Required packages are defined in `requirements.txt`. Each line in this file specifies the name and specific version of a required package.
 
@@ -93,7 +109,7 @@ With the virtual environment activated, install the project's required Python pa
 python -m pip install -r requirements.txt
 ```
 
-### 5. Configure NetBox
+### 6. Configure NetBox
 
 Within the `netbox/netbox/` directory, copy `configuration_example.py` to `configuration.py` and update the following parameters:
 
@@ -104,7 +120,7 @@ Within the `netbox/netbox/` directory, copy `configuration_example.py` to `confi
 * `DEBUG`: Set to `True`
 * `DEVELOPER`: Set to `True` (this enables the creation of new database migrations)
 
-### 6. Start the Development Server
+### 7. Start the Development Server
 
 Django provides a lightweight, auto-updating [HTTP/WSGI server](https://docs.djangoproject.com/en/stable/ref/django-admin/#runserver) for development use. It is started with the `runserver` management command:
 
