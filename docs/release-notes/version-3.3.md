@@ -21,6 +21,7 @@
 * [#10057](https://github.com/netbox-community/netbox/issues/10057) - Fix AttributeError exception when global search results include rack reservations
 * [#10059](https://github.com/netbox-community/netbox/issues/10059) - Add identifier column to L2VPN table
 * [#10070](https://github.com/netbox-community/netbox/issues/10070) - Add unique constraint for L2VPN slug
+* [#10087](https://github.com/netbox-community/netbox/issues/10087) - Correct display of far end in console/power/interface connections tables
 * [#10089](https://github.com/netbox-community/netbox/issues/10089) - `linkify` template filter should escape object representation
 * [#10094](https://github.com/netbox-community/netbox/issues/10094) - Fix 404 when using "create and add another" to add contact assignments
 * [#10108](https://github.com/netbox-community/netbox/issues/10108) - Linkify inside NAT IPs for primary device IPs in UI
