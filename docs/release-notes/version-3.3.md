@@ -6,6 +6,7 @@
 
 * [#10155](https://github.com/netbox-community/netbox/issues/10155) - Fix rear port display when editing front port template for module type 
 * [#10156](https://github.com/netbox-community/netbox/issues/10156) - Avoid forcing SVG image links to open in a new window
+* [#10161](https://github.com/netbox-community/netbox/issues/10161) - Restore "set null" option for custom fields during bulk edit
 
 ---
 
