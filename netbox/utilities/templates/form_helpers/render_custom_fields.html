@@ -7,6 +7,10 @@
   </div>
   {% endif %}
   {% for name in fields %}
-    {% render_field form|getfield:name %}
+    {% if name in form.nullable_fields %}
+      {% render_field form|getfield:name bulk_nullable=True %}
+    {% else %}
+      {% render_field form|getfield:name %}
+    {% endif %}
   {% endfor %}
 {% endfor %}
