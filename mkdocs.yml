@@ -249,6 +249,7 @@ nav:
         - User Preferences: 'development/user-preferences.md'
         - Web UI: 'development/web-ui.md'
         - Release Checklist: 'development/release-checklist.md'
+        - git Cheat Sheet: 'development/git-cheat-sheet.md'
     - Release Notes:
         - Summary: 'release-notes/index.md'
         - Version 3.3: 'release-notes/version-3.3.md'
