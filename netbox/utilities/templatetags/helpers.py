@@ -48,7 +48,7 @@ def humanize_speed(speed):
     """
     Humanize speeds given in Kbps. Examples:
 
-        1544 => "1.544 Mbps"
+        1544 => "1.6 Mbps"
         100000 => "100 Mbps"
         10000000 => "10 Gbps"
     """
@@ -61,7 +61,7 @@ def humanize_speed(speed):
     elif speed >= 1000 and speed % 1000 == 0:
         return '{} Mbps'.format(int(speed / 1000))
     elif speed >= 1000:
-        return '{} Mbps'.format(float(speed) / 1000)
+        return '{:.1f} Mbps'.format(float(speed) / 1000)
     else:
         return '{} Kbps'.format(speed)
 
