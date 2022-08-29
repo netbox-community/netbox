@@ -4,12 +4,14 @@
 
 ![Master branch build status](https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master)
 
-NetBox is an infrastructure resource modeling (IRM) tool designed to empower
-network automation, used by thousands of organizations around the world.
-Initially conceived by the network engineering team at
-[DigitalOcean](https://www.digitalocean.com/), NetBox was developed specifically
-to address the needs of network and infrastructure engineers. It is intended to
-function as a domain-specific source of truth for network operations.
+NetBox is the leading solution for modeling and documenting modern networks. By
+combining the traditional disciplines of IP address management (IPAM) and
+datacenter infrastructure management (DCIM) with powerful APIs and extensions,
+NetBox provides the ideal "source of truth" to power network automation.
+Available as open source software under the Apache 2.0 license, NetBox is
+employed by thousands of organizations around the world.
+
+![Screenshot of Netbox UI](docs/media/screenshots/netbox-ui.png "NetBox UI")
 
 Myriad infrastructure components can be modeled in NetBox, including:
 
@@ -21,6 +23,7 @@ Myriad infrastructure components can be modeled in NetBox, including:
 * Virtual machines and clusters
 * IP prefixes, ranges, and addresses
 * VRFs and route targets
+* L2VPN and overlays
 * FHRP groups (VRRP, HSRP, etc.)
 * AS numbers
 * VLANs and scoped VLAN groups
@@ -45,11 +48,13 @@ customized and extended through the use of:
 NetBox also features a complete REST API as well as a GraphQL API for easily
 integrating with other tools and systems.
 
+The complete documentation for NetBox can be found at [docs.netbox.dev](https://docs.netbox.dev/).
+A public demo instance is available at [demo.netbox.dev](https://demo.netbox.dev).
+
 NetBox runs as a web application atop the [Django](https://www.djangoproject.com/)
 Python framework with a [PostgreSQL](https://www.postgresql.org/) database. For a
-complete list of requirements, see `requirements.txt`. The code is available [on GitHub](https://github.com/netbox-community/netbox).
-
-The complete documentation for NetBox can be found at [docs.netbox.dev](https://docs.netbox.dev/). A public demo instance is available at https://demo.netbox.dev.
+complete list of requirements, see `requirements.txt`. The code is available
+[on GitHub](https://github.com/netbox-community/netbox).
 
 <div align="center">
   <h4>Thank you to our sponsors!</h4>
@@ -89,8 +94,6 @@ If you are interested in contributing to the development of NetBox, please read
 our [contributing guide](CONTRIBUTING.md) prior to beginning any work.
 
 ### Screenshots
-
-![Screenshot of main page (light mode)](docs/media/screenshots/home-light.png "Main page (light mode)")
 
 ![Screenshot of main page (dark mode)](docs/media/screenshots/home-dark.png "Main page (dark mode)")
 
