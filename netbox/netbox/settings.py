@@ -535,6 +535,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.OptionalLimitOffsetPagination',
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'netbox.api.authentication.TokenPermissions',
