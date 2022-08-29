@@ -34,12 +34,12 @@ To utilize a filter set in a subclass of one of NetBox's generic views (such as 
 ```python
 # views.py
 from netbox.views.generic import ObjectListView
-from .filtersets import MyModelFitlerSet
+from .filtersets import MyModelFilterSet
 from .models import MyModel
 
 class MyModelListView(ObjectListView):
     queryset = MyModel.objects.all()
-    filterset = MyModelFitlerSet
+    filterset = MyModelFilterSet
 ```
 
 To enable a filter set on a  REST API endpoint, set the `filterset_class` attribute on the API view:
