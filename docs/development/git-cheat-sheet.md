@@ -23,6 +23,29 @@ Receiving objects: 100% (95112/95112), 60.40 MiB | 45.82 MiB/s, done.
 Resolving deltas: 100% (74979/74979), done.
 ```
 
+### Pull New Commits
+
+To update your local branch with any recent upstream commits, run `git pull`.
+
+``` title="Command"
+git pull
+```
+
+``` title="Example"
+$ git pull
+remote: Enumerating objects: 1, done.
+remote: Counting objects: 100% (1/1), done.
+remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (1/1), done.
+From https://github.com/netbox-community/netbox
+   28bc76695..e0741cc9a  develop    -> origin/develop
+Updating 28bc76695..e0741cc9a
+Fast-forward
+ docs/release-notes/version-3.3.md | 1 +
+ netbox/netbox/settings.py         | 1 +
+ 2 files changed, 2 insertions(+)
+```
+
 ### List Branches
 
 `git branch` lists all local branches. Appending `-a` to this command will list both local (green) and remote (red) branches.
@@ -198,29 +221,6 @@ $ git commit -m "Fixes #123: Fixed the thing that was broken"
 !!! tip "Automatically Closing Issues"
     GitHub will [automatically close](https://github.blog/2013-01-22-closing-issues-via-commit-messages/) any issues referenced in a commit message by `Fixes:` or `Closes:` when the commit is merged into the repository's default branch. Contributors are strongly encouraged to follow this convention when forming commit messages. (Use "Closes" for feature requests and "Fixes" for bugs.)
 
-### Modify the Previous Commit
-
-Sometimes you'll find that you've overlooked a necessary change and need to commit again. If you haven't pushed your most recent commit and just need to make a small tweak or two, you can _amend_ your most recent commit instead of creating a new one.
-
-First, stage the desired files with `git add` and verify the changes, the issue the `git commit` command with the `--amend` argument. You can also append the `--no-edit` argument if you would like to keep the previous commit message.
-
-``` title="Command"
-git commit --amend --no-edit
-```
-
-``` title="Example"
-$ git add -A
-$ git diff --staged
-$ git commit --amend --no-edit
-[testing 239b16921] Added a new file
- Date: Fri Aug 26 16:30:05 2022 -0400
- 2 files changed, 1 insertion(+)
- create mode 100644 newfile.py
-```
-
-!!! warning "Don't Amend After Pushing"
-    Never amend a commit you've already pushed upstream, as doing so will break the commit tree. Create a new commit instead.
-
 ### Push a Commit Upstream
 
 Once you've made a commit locally, it needs to be pushed upstream to the _remote_ repository (typically called "origin"). This is done with the `git push` command. If this is a new branch that doesn't yet exist on the remote repository, you'll need to set the upstream for it when pushing.
@@ -248,3 +248,55 @@ Branch 'testing' set up to track remote branch 'testing' from 'origin'.
 
 !!! info
     If this branch already exists on the remote repository, `git push` is sufficient.
+
+## Fixing Mistakes
+
+### Modify the Previous Commit
+
+Sometimes you'll find that you've overlooked a necessary change and need to commit again. If you haven't pushed your most recent commit and just need to make a small tweak or two, you can _amend_ your most recent commit instead of creating a new one.
+
+First, stage the desired files with `git add` and verify the changes, the issue the `git commit` command with the `--amend` argument. You can also append the `--no-edit` argument if you would like to keep the previous commit message.
+
+``` title="Command"
+git commit --amend --no-edit
+```
+
+``` title="Example"
+$ git add -A
+$ git diff --staged
+$ git commit --amend --no-edit
+[testing 239b16921] Added a new file
+ Date: Fri Aug 26 16:30:05 2022 -0400
+ 2 files changed, 1 insertion(+)
+ create mode 100644 newfile.py
+```
+
+!!! danger "Don't Amend After Pushing"
+    Never amend a commit you've already pushed upstream, as doing so will break the commit tree. Create a new commit instead.
+
+### Undo the Last Commit
+
+The `git reset` command can be used to undo the most recent commit. (`HEAD~` is equivalent to `HEAD~1` and references the commit prior to the current HEAD.) After making and staging your changes, commit using `-c ORIG_HEAD` to replace the erroneous commit.
+
+``` title="Command"
+git reset HEAD~
+```
+
+``` title="Example"
+$ git add -A
+$ git commit -m "Erroneous commit"
+[testing 09ce06736] Erroneous commit
+ Date: Mon Aug 29 15:20:04 2022 -0400
+ 1 file changed, 1 insertion(+)
+ create mode 100644 BADCHANGE
+$ git reset HEAD~
+$ rm BADFILE
+$ git add -A
+$ git commit -m "Fixed commit"
+[testing c585709f3] Fixed commit
+ Date: Mon Aug 29 15:22:38 2022 -0400
+ 1 file changed, 65 insertions(+), 20 deletions(-)
+```
+
+!!! danger "Don't Reset After Pushing"
+    Resetting only works until you've pushed your local changes upstream. If you've already pushed upstream, use `git revert` instead. This will create a _new_ commit that reverts the erroneous one, but ensures that the git history remains intact.
