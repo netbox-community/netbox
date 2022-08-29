@@ -90,7 +90,7 @@
                         <tr>
                             <th scope="row">Device Type</th>
                             <td>
-                                {{ object.device_type|linkify }} ({{ object.device_type.u_height }}U)
+                                {{ object.device_type|linkify:"get_full_name" }} ({{ object.device_type.u_height }}U)
                             </td>
                         </tr>
                         <tr>

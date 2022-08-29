@@ -168,6 +168,10 @@ class DeviceType(NetBoxModel):
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
 
+    @property
+    def get_full_name(self):
+        return f"{ self.manufacturer } { self.model }"
+
     def to_yaml(self):
         data = {
             'manufacturer': self.manufacturer.name,
