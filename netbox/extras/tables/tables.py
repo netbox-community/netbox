@@ -193,7 +193,7 @@ class ObjectChangeTable(NetBoxTable):
         verbose_name='Type'
     )
     object_repr = tables.TemplateColumn(
-        accessor=tables.A('object_repr'),
+        accessor=tables.A('changed_object'),
         template_code=OBJECTCHANGE_OBJECT,
         verbose_name='Object'
     )
