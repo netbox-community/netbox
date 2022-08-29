@@ -13,8 +13,8 @@ OBJECTCHANGE_FULL_NAME = """
 """
 
 OBJECTCHANGE_OBJECT = """
-{% if record.changed_object and record.changed_object.get_absolute_url %}
-    <a href="{{ record.changed_object.get_absolute_url }}">{{ record.object_repr }}</a>
+{% if value.changed_object and value.changed_object.get_absolute_url %}
+    <a href="{{ value.changed_object.get_absolute_url }}">{{ record.object_repr }}</a>
 {% else %}
     {{ record.object_repr }}
 {% endif %}
