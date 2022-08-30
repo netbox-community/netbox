@@ -51,7 +51,7 @@ class RackTable(TenancyColumnsMixin, NetBoxTable):
     status = columns.ChoiceFieldColumn()
     role = columns.ColoredLabelColumn()
     u_height = tables.TemplateColumn(
-        template_code="{{ record.u_height }}U",
+        template_code="{{ value }}U",
         verbose_name='Height'
     )
     comments = columns.MarkdownColumn()

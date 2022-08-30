@@ -9,7 +9,7 @@ CONFIGCONTEXT_ACTIONS = """
 
 OBJECTCHANGE_FULL_NAME = """
 {% load helpers %}
-{{ record.user.get_full_name|placeholder }}
+{{ value.get_full_name|placeholder }}
 """
 
 OBJECTCHANGE_OBJECT = """

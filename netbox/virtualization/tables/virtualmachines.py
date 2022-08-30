@@ -12,7 +12,7 @@ __all__ = (
 )
 
 VMINTERFACE_BUTTONS = """
-{% if perms.virtualization.edit_vminterface %}
+{% if perms.virtualization.change_vminterface %}
   <span class="dropdown">
     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Add">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span>

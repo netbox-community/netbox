@@ -47,7 +47,7 @@ IPADDRESS_ASSIGN_LINK = """
 """
 
 VRF_LINK = """
-{% if record.vrf %}
+{% if value %}
     <a href="{{ record.vrf.get_absolute_url }}">{{ record.vrf }}</a>
 {% elif object.vrf %}
     <a href="{{ object.vrf.get_absolute_url }}">{{ object.vrf }}</a>
