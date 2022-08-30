@@ -4,10 +4,13 @@
 
 ### Bug Fixes
 
+* [#9962](https://github.com/netbox-community/netbox/issues/9962) - SSO login should respect `next` URL query parameter
+* [#9963](https://github.com/netbox-community/netbox/issues/9963) - Fix support for custom `CSRF_COOKIE_NAME` value
 * [#10155](https://github.com/netbox-community/netbox/issues/10155) - Fix rear port display when editing front port template for module type 
 * [#10156](https://github.com/netbox-community/netbox/issues/10156) - Avoid forcing SVG image links to open in a new window
 * [#10161](https://github.com/netbox-community/netbox/issues/10161) - Restore "set null" option for custom fields during bulk edit
 * [#10177](https://github.com/netbox-community/netbox/issues/10177) - Correct display of custom fields when editing VM interfaces
+* [#10178](https://github.com/netbox-community/netbox/issues/10178) - Display manufacturer name alongside device type under device view
 * [#10181](https://github.com/netbox-community/netbox/issues/10181) - Restore MultiPartParser (regression from #10031)
 
 ---
