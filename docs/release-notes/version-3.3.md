@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#10043](https://github.com/netbox-community/netbox/issues/10043) - Add support for `limit` query parameter to available VLANs API endpoint
 * [#10060](https://github.com/netbox-community/netbox/issues/10060) - Add journal entries to global search
 
 ### Bug Fixes
