@@ -2,8 +2,13 @@
 
 ## v3.3.2 (FUTURE)
 
+### Enhancements
+
+* [#10060](https://github.com/netbox-community/netbox/issues/10060) - Add journal entries to global search
+
 ### Bug Fixes
 
+* [#9895](https://github.com/netbox-community/netbox/issues/9895) - Various corrections to OpenAPI spec
 * [#9962](https://github.com/netbox-community/netbox/issues/9962) - SSO login should respect `next` URL query parameter
 * [#9963](https://github.com/netbox-community/netbox/issues/9963) - Fix support for custom `CSRF_COOKIE_NAME` value
 * [#10155](https://github.com/netbox-community/netbox/issues/10155) - Fix rear port display when editing front port template for module type 
