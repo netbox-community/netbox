@@ -1,17 +1,14 @@
 <!--
-    Thank you for your interest in contributing to NetBox! Please note
-    that our contribution policy requires that a feature request or bug
-    report be approved and assigned prior to filing a pull request. This
-    helps avoid wasting time and effort on something that we might not
-    be able to accept.
+    Thank you for your interest in contributing to NetBox! Please note that
+    our contribution policy requires that a feature request or bug report be
+    approved and assigned prior to filing a pull request. This helps avoid
+    wasting time and effort on something that we might not be able to accept.
 
-    Please indicate the assigned feature request or bug report below.
     IF YOUR PULL REQUEST DOES NOT REFERENCE AN ISSUE WHICH HAS BEEN ASSIGNED
-    TO YOU, IT WE BE CLOSED AUTOMATICALLY. For example:
-
-    ### Fixes: #1234
+    TO YOU, IT WE BE CLOSED AUTOMATICALLY.
 -->
-### Fixes: <ISSUE NUMBER GOES HERE>
+### Fixes: #1234 <!-- Replace this with your issue number --->
+
 <!--
     Please include a summary of the proposed changes below.
 -->
