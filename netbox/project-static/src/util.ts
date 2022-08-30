@@ -1,8 +1,10 @@
-import Cookie from 'cookie';
-
 type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 type ReqData = URLSearchParams | Dict | undefined | unknown;
 type SelectedOption = { name: string; options: string[] };
+
+declare global {
+    interface Window { CSRF_TOKEN: any; }
+}
 
 /**
  * Infer valid HTMLElement props based on element name.
@@ -93,23 +95,12 @@ export function isElement(obj: Element | null | undefined): obj is Element {
   return typeof obj !== null && typeof obj !== 'undefined';
 }
 
-/**
- * Retrieve the CSRF token from cookie storage.
- */
-function getCsrfToken(): string {
-  const { csrftoken: csrfToken } = Cookie.parse(document.cookie);
-  if (typeof csrfToken === 'undefined') {
-    throw new Error('Invalid or missing CSRF token');
-  }
-  return csrfToken;
-}
-
 export async function apiRequest<R extends Dict, D extends ReqData = undefined>(
   url: string,
   method: Method,
   data?: D,
 ): Promise<APIResponse<R>> {
-  const token = getCsrfToken();
+  const token = window.CSRF_TOKEN;
   const headers = new Headers({ 'X-CSRFToken': token });
 
   let body;
