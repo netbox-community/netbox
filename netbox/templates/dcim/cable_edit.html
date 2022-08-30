@@ -1,17 +1,7 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/object_edit.html' %}
 {% load static %}
 {% load helpers %}
 {% load form_helpers %}
-
-{% block title %}Connect Cable{% endblock %}
-
-{% block tabs %}
-<ul class="nav nav-tabs px-3">
-  <li class="nav-item" role="presentation">
-    <a href="#" role="tab" data-bs-toggle="tab" class="nav-link active">Connect Cable</a>
-  </li>
-</ul>
-{% endblock %}
 
 {% block content-wrapper %}
   <div class="tab-content">
@@ -116,8 +106,12 @@
       </div>
       <div class="row my-3">
         <div class="col col-md-12 text-center">
+          {% if object.pk %}
+            <button type="submit" name="_update" class="btn btn-primary">Save</button>
+          {% else %}
+            <button type="submit" name="_create" class="btn btn-primary">Create</button>
+          {% endif %}
           <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-          <button type="submit" name="_update" class="btn btn-primary">Connect</button>
         </div>
       </div>
     </form>
