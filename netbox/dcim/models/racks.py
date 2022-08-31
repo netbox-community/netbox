@@ -350,7 +350,7 @@ class Rack(NetBoxModel):
         # Remove units without enough space above them to accommodate a device of the specified height
         available_units = []
         for u in units:
-            if set(drange(u, u + u_height, 0.5)).issubset(units):
+            if set(drange(u, u + decimal.Decimal(u_height), 0.5)).issubset(units):
                 available_units.append(u)
 
         return list(reversed(available_units))
@@ -415,12 +415,13 @@ class Rack(NetBoxModel):
         """
         # Determine unoccupied units
         total_units = len(list(self.units))
-        available_units = self.get_available_units()
+        available_units = self.get_available_units(u_height=0.5)
 
         # Remove reserved units
-        for u in self.get_reserved_units():
-            if u in available_units:
-                available_units.remove(u)
+        for ru in self.get_reserved_units():
+            for u in drange(ru, ru + 1, 0.5):
+                if u in available_units:
+                    available_units.remove(u)
 
         occupied_unit_count = total_units - len(available_units)
         percentage = float(occupied_unit_count) / total_units * 100
