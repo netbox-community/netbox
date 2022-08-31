@@ -11,6 +11,7 @@
 
 ### Bug Fixes
 
+* [#9328](https://github.com/netbox-community/netbox/issues/9328) - Hide available IPs when non-default ordering is applied
 * [#9895](https://github.com/netbox-community/netbox/issues/9895) - Various corrections to OpenAPI spec
 * [#9962](https://github.com/netbox-community/netbox/issues/9962) - SSO login should respect `next` URL query parameter
 * [#9963](https://github.com/netbox-community/netbox/issues/9963) - Fix support for custom `CSRF_COOKIE_NAME` value
