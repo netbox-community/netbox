@@ -18,9 +18,16 @@
                 <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">Front</a>
                 <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">Rear</a>
             </div>
-            <div class="btn-group btn-group-sm" role="group">
-                <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request reverse=None %}" class="btn btn-outline-secondary{% if not reverse %} active{% endif %}">Normal</a>
-                <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request reverse='true' %}" class="btn btn-outline-secondary{% if reverse %} active{% endif %}">Reversed</a>
+            <div class="dropdown">
+              <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="mdi mdi-sort"></i>&nbsp;Sort By ({{ sort }})
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item{% if sort == 'name' %} active{% endif %}" href="{% url 'dcim:rack_elevation_list' %}{% querystring request sort='name' %}">Name (A-Z)</a></li>
+                <li><a class="dropdown-item{% if sort == '-name' %} active{% endif %}" href="{% url 'dcim:rack_elevation_list' %}{% querystring request  sort='-name' %}">Name (Z-A)</a></li>
+                <li><a class="dropdown-item{% if sort == 'facility' %} active{% endif %}" href="{% url 'dcim:rack_elevation_list' %}{% querystring request sort='facility' %}">Facility ID (A-Z)</a></li>
+                <li><a class="dropdown-item{% if sort == '-facility' %} active{% endif %}" href="{% url 'dcim:rack_elevation_list' %}{% querystring request sort='-facility' %}">Facility ID (Z-A)</a></li>
+              </ul>
             </div>
         </div>
     </div>
