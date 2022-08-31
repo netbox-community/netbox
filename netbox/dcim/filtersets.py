@@ -1084,6 +1084,12 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='slug',
         label='Location (slug)',
     )
+    rack = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__rack__name',
+        queryset=Rack.objects.all(),
+        to_field_name='name',
+        label='Rack (name)',
+    )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label='Device (ID)',
