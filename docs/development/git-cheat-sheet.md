@@ -246,8 +246,12 @@ To https://github.com/netbox-community/netbox
 Branch 'testing' set up to track remote branch 'testing' from 'origin'.
 ```
 
-!!! info
-    If this branch already exists on the remote repository, `git push` is sufficient.
+!!! tip
+    You can apply the following git configuration to automatically set the upstream for all new branches. This obviates the need to specify `-u origin`.
+    
+    ```
+    git config --global push.default current
+    ```
 
 ## The GitHub CLI Client
 
@@ -308,7 +312,7 @@ $ git commit --amend --no-edit
 ```
 
 !!! danger "Don't Amend After Pushing"
-    Never amend a commit you've already pushed upstream, as doing so will break the commit tree. Create a new commit instead.
+    Never amend a commit you've already pushed upstream unless you're **certain** no one else is working on the same branch. Force-pushing will overwrite the change history, which will break any commits from other contributors. When in doubt, create a new commit instead.
 
 ### Undo the Last Commit
 
