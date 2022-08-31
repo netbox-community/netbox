@@ -190,6 +190,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
         ]
         validators = []
 
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_scope(self, obj):
         if obj.scope_id is None:
             return None
