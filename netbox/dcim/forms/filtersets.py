@@ -90,6 +90,10 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         required=False,
+        query_params={
+            'site_id': '$site_id',
+            'location_id': '$location_id',
+        },
         label=_('Rack')
     )
     virtual_chassis_id = DynamicModelMultipleChoiceField(
