@@ -6,8 +6,10 @@
 
     IF YOUR PULL REQUEST DOES NOT REFERENCE AN ISSUE WHICH HAS BEEN ASSIGNED
     TO YOU, IT WE BE CLOSED AUTOMATICALLY.
+
+    Specify your assigned issue number on the line below.
 -->
-### Fixes: #1234 <!-- Replace this with your issue number --->
+### Fixes: #1234
 
 <!--
     Please include a summary of the proposed changes below.
