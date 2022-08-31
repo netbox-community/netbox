@@ -249,6 +249,42 @@ Branch 'testing' set up to track remote branch 'testing' from 'origin'.
 !!! info
     If this branch already exists on the remote repository, `git push` is sufficient.
 
+## The GitHub CLI Client
+
+GitHub provides a [free CLI client](https://cli.github.com/) to simplify many aspects of interacting with GitHub repositories. Note that this utility is separate from `git`, and must be [installed separately](https://github.com/cli/cli#installation).
+
+This guide provides some examples of common operations, but be sure to check out the [GitHub CLI manual](https://cli.github.com/manual/) for a complete accounting of available commands.
+
+### List Open Pull Requests
+
+``` title="Command"
+gh pr list
+```
+
+``` title="Example"
+$ gh pr list
+
+Showing 3 of 3 open pull requests in netbox-community/netbox
+
+#10223  #7503 API Bulk-Create of Devices does not check Rack-Space  7503-bulkdevice             about 17 hours ago
+#9716   Closes #9599: Add cursor pagination mode                    lyuyangh:cursor-pagination  about 1 month ago
+#9498   Adds replication and adoption for module import             sleepinggenius2:issue_9361  about 2 months ago
+```
+
+### Check Out a PR
+
+This command will automatically check out the remote branch associated with an open pull request.
+
+``` title="Command"
+gh pr checkout $number
+```
+
+``` title="Example"
+$ gh pr checkout 10223
+Branch '7503-bulkdevice' set up to track remote branch '7503-bulkdevice' from 'origin'.
+Switched to a new branch '7503-bulkdevice'
+```
+
 ## Fixing Mistakes
 
 ### Modify the Previous Commit
@@ -300,3 +336,49 @@ $ git commit -m "Fixed commit"
 
 !!! danger "Don't Reset After Pushing"
     Resetting only works until you've pushed your local changes upstream. If you've already pushed upstream, use `git revert` instead. This will create a _new_ commit that reverts the erroneous one, but ensures that the git history remains intact.
+
+### Rebase from Upstream
+
+If a change has been pushed to the upstream branch since you most recently pulled it, attempting to push a new local commit will fail:
+
+```
+$ git push
+To https://github.com/netbox-community/netbox.git
+ ! [rejected]            develop -> develop (fetch first)
+error: failed to push some refs to 'https://github.com/netbox-community/netbox.git'
+hint: Updates were rejected because the remote contains work that you do
+hint: not have locally. This is usually caused by another repository pushing
+hint: to the same ref. You may want to first integrate the remote changes
+hint: (e.g., 'git pull ...') before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+```
+
+To resolve this, first fetch the upstream branch to update your local copy, and then [rebase](https://git-scm.com/book/en/v2/Git-Branching-Rebasing) your local branch to include the new changes. Once the rebase has completed, you can push your local commits upstream.
+
+``` title="Commands"
+git fetch
+git rebase origin/$branchname
+```
+
+``` title="Example"
+$ git fetch
+remote: Enumerating objects: 1, done.
+remote: Counting objects: 100% (1/1), done.
+remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (1/1), done.
+From https://github.com/netbox-community/netbox
+   815b2d8a2..8c35ebbb7  develop    -> origin/develop
+$ git rebase origin/develop
+First, rewinding head to replay your work on top of it...
+Applying: Further tweaks to the PR template
+Applying: Changelog for #10176, #10217
+$ git push
+Counting objects: 9, done.
+Delta compression using up to 16 threads.
+Compressing objects: 100% (9/9), done.
+Writing objects: 100% (9/9), 1.02 KiB | 1.02 MiB/s, done.
+Total 9 (delta 6), reused 0 (delta 0)
+remote: Resolving deltas: 100% (6/6), completed with 5 local objects.
+To https://github.com/netbox-community/netbox.git
+   8c35ebbb7..ada745324  develop -> develop
+```
