@@ -24,6 +24,7 @@
 * [#10181](https://github.com/netbox-community/netbox/issues/10181) - Restore MultiPartParser (regression from #10031)
 * [#10208](https://github.com/netbox-community/netbox/issues/10208) - Fix permissions evaluation for interface actions dropdown menu
 * [#10217](https://github.com/netbox-community/netbox/issues/10217) - Handle exception when trace splits to multiple rear ports
+* [#10220](https://github.com/netbox-community/netbox/issues/10220) - Validate IP version when assigning primary IPs to a virtual machine
 
 ---
 
