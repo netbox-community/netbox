@@ -368,9 +368,14 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
 
         # Validate primary IP addresses
         interfaces = self.interfaces.all()
-        for field in ['primary_ip4', 'primary_ip6']:
+        for family in (4, 6):
+            field = f'primary_ip{family}'
             ip = getattr(self, field)
             if ip is not None:
+                if ip.address.version != family:
+                    raise ValidationError({
+                        field: f"Must be an IPv{family} address. ({ip} is an IPv{ip.address.version} address.)",
+                    })
                 if ip.assigned_object in interfaces:
                     pass
                 elif ip.nat_inside is not None and ip.nat_inside.assigned_object in interfaces:
