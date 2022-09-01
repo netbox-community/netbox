@@ -622,6 +622,7 @@ class RackElevationListView(generic.ObjectListView):
             'page': page,
             'total_count': total_count,
             'sort': sort,
+            'sort_display_name': ORDERING_CHOICES[sort],
             'sort_choices': ORDERING_CHOICES,
             'rack_face': rack_face,
             'filter_form': forms.RackElevationFilterForm(request.GET),
