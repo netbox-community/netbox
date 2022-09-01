@@ -868,6 +868,7 @@ class Device(NetBoxModel, ConfigContextModel):
         for device in devices:
             device.site = self.site
             device.rack = self.rack
+            device.location = self.location
             device.save()
 
     @property
