@@ -23,10 +23,9 @@
                 <i class="mdi mdi-sort"></i>&nbsp;Sort By ({{ sort }})
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item{% if sort == 'name' %} active{% endif %}" href="{% url 'dcim:rack_elevation_list' %}{% querystring request sort='name' %}">Name (A-Z)</a></li>
-                <li><a class="dropdown-item{% if sort == '-name' %} active{% endif %}" href="{% url 'dcim:rack_elevation_list' %}{% querystring request  sort='-name' %}">Name (Z-A)</a></li>
-                <li><a class="dropdown-item{% if sort == 'facility' %} active{% endif %}" href="{% url 'dcim:rack_elevation_list' %}{% querystring request sort='facility' %}">Facility ID (A-Z)</a></li>
-                <li><a class="dropdown-item{% if sort == '-facility' %} active{% endif %}" href="{% url 'dcim:rack_elevation_list' %}{% querystring request sort='-facility' %}">Facility ID (Z-A)</a></li>
+                {% for sort_key, sort_display_name in sort_choices.items %}
+                  <li><a class="dropdown-item{% if sort == sort_key %} active{% endif %}" href="{% url 'dcim:rack_elevation_list' %}{% querystring request sort=sort_key %}">{{ sort_display_name }}</a></li>
+                {% endfor %}
               </ul>
             </div>
         </div>

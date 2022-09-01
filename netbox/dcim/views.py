@@ -589,17 +589,17 @@ class RackElevationListView(generic.ObjectListView):
         racks = filtersets.RackFilterSet(request.GET, self.queryset).qs
         total_count = racks.count()
 
-        # Determine ordering
+        ORDERING_CHOICES = {
+            'name': 'Name (A-Z)',
+            '-name': 'Name (Z-A)',
+            'facility_id': 'Facility ID (A-Z)',
+            '-facility_id': 'Facility ID (Z-A)',
+        }
         sort = request.GET.get('sort', "name")
-        if sort:
-            if sort == 'name':
-                racks = racks.order_by('name')
-            elif sort == '-name':
-                racks = racks.order_by('-name')
-            elif sort == 'facility':
-                racks = racks.order_by('facility_id')
-            elif sort == '-facility':
-                racks = racks.order_by('-facility_id')
+        if sort not in ORDERING_CHOICES:
+            sort = 'name'
+
+        racks = racks.order_by(sort)
 
         # Pagination
         per_page = get_paginate_count(request)
@@ -622,6 +622,7 @@ class RackElevationListView(generic.ObjectListView):
             'page': page,
             'total_count': total_count,
             'sort': sort,
+            'sort_choices': ORDERING_CHOICES,
             'rack_face': rack_face,
             'filter_form': forms.RackElevationFilterForm(request.GET),
         })
