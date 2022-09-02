@@ -39,12 +39,12 @@ class LoginView(View):
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
-    def gen_auth_data(self, name, url):
+    def gen_auth_data(self, name, url, params):
         display_name, icon_name = get_auth_backend_display(name)
         return {
             'display_name': display_name,
             'icon_name': icon_name,
-            'url': url,
+            'url': f'{url}?{urlencode(params)}',
         }
 
     def get(self, request):
@@ -58,15 +58,18 @@ class LoginView(View):
         saml_idps = get_saml_idps()
         for name in load_backends(settings.AUTHENTICATION_BACKENDS).keys():
             url = reverse('social:begin', args=[name, ])
+            params = {}
+            next = request.GET.get('next')
+            if next:
+                params['next'] = next
             if name.lower() == 'saml' and saml_idps:
                 for idp in saml_idps:
-                    params = {'idp': idp}
-                    idp_url = f'{url}?{urlencode(params)}'
-                    data = self.gen_auth_data(name, idp_url)
+                    params['idp'] = idp
+                    data = self.gen_auth_data(name, url, params)
                     data['display_name'] = f'{data["display_name"]} ({idp})'
                     auth_backends.append(data)
             else:
-                auth_backends.append(self.gen_auth_data(name, url))
+                auth_backends.append(self.gen_auth_data(name, url, params))
 
         return render(request, self.template_name, {
             'form': form,

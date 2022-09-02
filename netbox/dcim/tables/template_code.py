@@ -4,7 +4,7 @@ LINKTERMINATION = """
     <a href="{{ termination.parent_object.get_absolute_url }}">{{ termination.parent_object }}</a>
     <i class="mdi mdi-chevron-right"></i>
   {% endif %}
-  <a href="{{ termination.get_absolute_url }}">{{ termination }}</a>{% if not forloop.last %},{% endif %}
+  <a href="{{ termination.get_absolute_url }}">{{ termination }}</a>{% if not forloop.last %}<br />{% endif %}
 {% empty %}
   {{ ''|placeholder }}
 {% endfor %}
@@ -33,7 +33,7 @@ DEVICEBAY_STATUS = """
 
 INTERFACE_IPADDRESSES = """
 <div class="table-badge-group">
-  {% for ip in record.ip_addresses.all %}
+  {% for ip in value.all %}
     {% if ip.status != 'active' %}
       <a href="{{ ip.get_absolute_url }}" class="table-badge badge bg-{{ ip.get_status_color }}" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ ip.get_status_display }}">{{ ip }}</a>
     {% else %}
@@ -53,7 +53,7 @@ INTERFACE_FHRPGROUPS = """
 
 INTERFACE_TAGGED_VLANS = """
 {% if record.mode == 'tagged' %}
-    {% for vlan in record.tagged_vlans.all %}
+    {% for vlan in value.all %}
         <a href="{{ vlan.get_absolute_url }}">{{ vlan }}</a><br />
     {% endfor %}
 {% elif record.mode == 'tagged-all' %}
@@ -62,7 +62,7 @@ INTERFACE_TAGGED_VLANS = """
 """
 
 INTERFACE_WIRELESS_LANS = """
-{% for wlan in record.wireless_lans.all %}
+{% for wlan in value.all %}
   <a href="{{ wlan.get_absolute_url }}">{{ wlan }}</a><br />
 {% endfor %}
 """
@@ -226,7 +226,7 @@ POWEROUTLET_BUTTONS = """
 """
 
 INTERFACE_BUTTONS = """
-{% if perms.dcim.edit_interface %}
+{% if perms.dcim.change_interface %}
   <span class="dropdown">
     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Add">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span>

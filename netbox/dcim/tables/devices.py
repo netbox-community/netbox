@@ -483,6 +483,12 @@ class BaseInterfaceTable(NetBoxTable):
         orderable=False,
         verbose_name='FHRP Groups'
     )
+    l2vpn = tables.Column(
+        accessor=tables.A('l2vpn_termination__l2vpn'),
+        linkify=True,
+        orderable=False,
+        verbose_name='L2VPN'
+    )
     untagged_vlan = tables.Column(linkify=True)
     tagged_vlans = columns.TemplateColumn(
         template_code=INTERFACE_TAGGED_VLANS,
@@ -520,8 +526,8 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
             'speed', 'duplex', 'mode', 'mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role', 'rf_channel',
             'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable',
-            'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vrf', 'ip_addresses',
-            'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
+            'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vrf', 'l2vpn',
+            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -554,8 +560,8 @@ class DeviceInterfaceTable(InterfaceTable):
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'enabled', 'type', 'parent', 'bridge', 'lag',
             'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
-            'wireless_lans', 'link_peer', 'connection', 'tags', 'ip_addresses', 'fhrp_groups', 'untagged_vlan',
-            'tagged_vlans', 'actions',
+            'wireless_lans', 'link_peer', 'connection', 'tags', 'vrf', 'l2vpn', 'ip_addresses', 'fhrp_groups',
+            'untagged_vlan', 'tagged_vlans', 'actions',
         )
         order_by = ('name',)
         default_columns = (

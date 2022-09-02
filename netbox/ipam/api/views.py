@@ -174,6 +174,21 @@ class L2VPNTerminationViewSet(NetBoxModelViewSet):
 # Views
 #
 
+def get_results_limit(request):
+    """
+    Return the lesser of the specified limit (if any) and the configured MAX_PAGE_SIZE.
+    """
+    config = get_config()
+    try:
+        limit = int(request.query_params.get('limit', config.PAGINATE_COUNT)) or config.MAX_PAGE_SIZE
+    except ValueError:
+        limit = config.PAGINATE_COUNT
+    if config.MAX_PAGE_SIZE:
+        limit = min(limit, config.MAX_PAGE_SIZE)
+
+    return limit
+
+
 class AvailablePrefixesView(ObjectValidationMixin, APIView):
     queryset = Prefix.objects.all()
 
@@ -265,16 +280,7 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
     @swagger_auto_schema(responses={200: serializers.AvailableIPSerializer(many=True)})
     def get(self, request, pk):
         parent = self.get_parent(request, pk)
-        config = get_config()
-        PAGINATE_COUNT = config.PAGINATE_COUNT
-        MAX_PAGE_SIZE = config.MAX_PAGE_SIZE
-
-        try:
-            limit = int(request.query_params.get('limit', PAGINATE_COUNT))
-        except ValueError:
-            limit = PAGINATE_COUNT
-        if MAX_PAGE_SIZE:
-            limit = min(limit, MAX_PAGE_SIZE)
+        limit = get_results_limit(request)
 
         # Calculate available IPs within the parent
         ip_list = []
@@ -357,8 +363,9 @@ class AvailableVLANsView(ObjectValidationMixin, APIView):
     @swagger_auto_schema(responses={200: serializers.AvailableVLANSerializer(many=True)})
     def get(self, request, pk):
         vlangroup = get_object_or_404(VLANGroup.objects.restrict(request.user), pk=pk)
-        available_vlans = vlangroup.get_available_vids()
+        limit = get_results_limit(request)
 
+        available_vlans = vlangroup.get_available_vids()[:limit]
         serializer = serializers.AvailableVLANSerializer(available_vlans, many=True, context={
             'request': request,
             'group': vlangroup,

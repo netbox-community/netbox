@@ -183,6 +183,7 @@ class ObjectChangeTable(NetBoxTable):
         verbose_name='Username'
     )
     full_name = tables.TemplateColumn(
+        accessor=tables.A('user'),
         template_code=OBJECTCHANGE_FULL_NAME,
         verbose_name='Full Name',
         orderable=False
@@ -192,6 +193,7 @@ class ObjectChangeTable(NetBoxTable):
         verbose_name='Type'
     )
     object_repr = tables.TemplateColumn(
+        accessor=tables.A('changed_object'),
         template_code=OBJECTCHANGE_OBJECT,
         verbose_name='Object'
     )

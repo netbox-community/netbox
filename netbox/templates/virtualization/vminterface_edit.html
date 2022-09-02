@@ -21,10 +21,22 @@
       {% endif %}
       {% render_field form.name %}
       {% render_field form.description %}
-      {% render_field form.mac_address %}
-      {% render_field form.vrf %}
-      {% render_field form.mtu %}
       {% render_field form.tags %}
+    </div>
+
+    <div class="field-group my-5">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Addressing</h5>
+        </div>
+      {% render_field form.vrf %}
+      {% render_field form.mac_address %}
+    </div>
+
+    <div class="field-group my-5">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Operation</h5>
+        </div>
+      {% render_field form.mtu %}
       {% render_field form.enabled %}
     </div>
 

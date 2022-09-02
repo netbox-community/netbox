@@ -151,7 +151,7 @@ class RackElevationSVG:
         css_extra = ' shaded' if is_shaded else ''
 
         # Create hyperlink element
-        link = Hyperlink(href=f'{self.base_url}{device.get_absolute_url()}', target='_blank')
+        link = Hyperlink(href=f'{self.base_url}{device.get_absolute_url()}', target="_parent")
         link.set_desc(description)
 
         # Add rect element to hyperlink
@@ -235,10 +235,7 @@ class RackElevationSVG:
                     self.margin_width,
                     u_height * self.unit_height
                 )
-                link = Hyperlink(
-                    href='{}{}'.format(self.base_url, reservation.get_absolute_url()),
-                    target='_blank'
-                )
+                link = Hyperlink(href=f'{self.base_url}{reservation.get_absolute_url()}', target='_parent')
                 link.set_desc(f'Reservation #{reservation.pk}: {reservation.description}')
                 link.add(
                     Rect(coords, size, class_='reservation')
@@ -268,7 +265,7 @@ class RackElevationSVG:
                 y_offset + self.unit_height / 2
             )
 
-            link = Hyperlink(href=url_string.format(unit), target='_blank')
+            link = Hyperlink(href=url_string.format(unit), target='_parent')
             link.add(Rect((x_offset, y_offset), (self.unit_width, self.unit_height), class_='slot'))
             link.add(Text('add device', insert=text_coords, class_='add-device'))
 

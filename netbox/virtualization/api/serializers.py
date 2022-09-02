@@ -100,7 +100,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
             'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_config_context(self, obj):
         return obj.get_config_context()
 

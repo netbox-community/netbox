@@ -1,5 +1,39 @@
 # NetBox v3.3
 
+## v3.3.2 (2022-09-02)
+
+### Enhancements
+
+* [#9477](https://github.com/netbox-community/netbox/issues/9477) - Enable clearing applied table column ordering
+* [#10034](https://github.com/netbox-community/netbox/issues/10034) - Add L2VPN column to interface and VLAN tables
+* [#10043](https://github.com/netbox-community/netbox/issues/10043) - Add support for `limit` query parameter to available VLANs API endpoint
+* [#10060](https://github.com/netbox-community/netbox/issues/10060) - Add journal entries to global search
+* [#10195](https://github.com/netbox-community/netbox/issues/10195) - Enable filtering of device components by rack
+* [#10233](https://github.com/netbox-community/netbox/issues/10233) - Enable sorting rack elevations by facility ID
+
+### Bug Fixes
+
+* [#9328](https://github.com/netbox-community/netbox/issues/9328) - Hide available IPs when non-default ordering is applied
+* [#9481](https://github.com/netbox-community/netbox/issues/9481) - Update child device location when parent location changes
+* [#9832](https://github.com/netbox-community/netbox/issues/9832) - Improve error message when validating rack reservation units
+* [#9895](https://github.com/netbox-community/netbox/issues/9895) - Various corrections to OpenAPI spec
+* [#9962](https://github.com/netbox-community/netbox/issues/9962) - SSO login should respect `next` URL query parameter
+* [#9963](https://github.com/netbox-community/netbox/issues/9963) - Fix support for custom `CSRF_COOKIE_NAME` value
+* [#10155](https://github.com/netbox-community/netbox/issues/10155) - Fix rear port display when editing front port template for module type 
+* [#10156](https://github.com/netbox-community/netbox/issues/10156) - Avoid forcing SVG image links to open in a new window
+* [#10161](https://github.com/netbox-community/netbox/issues/10161) - Restore "set null" option for custom fields during bulk edit
+* [#10176](https://github.com/netbox-community/netbox/issues/10176) - Correct utilization display for empty racks
+* [#10177](https://github.com/netbox-community/netbox/issues/10177) - Correct display of custom fields when editing VM interfaces
+* [#10178](https://github.com/netbox-community/netbox/issues/10178) - Display manufacturer name alongside device type under device view
+* [#10181](https://github.com/netbox-community/netbox/issues/10181) - Restore MultiPartParser (regression from #10031)
+* [#10184](https://github.com/netbox-community/netbox/issues/10184) - Fix vertical alignment when displaying object attributes with buttons
+* [#10208](https://github.com/netbox-community/netbox/issues/10208) - Fix permissions evaluation for interface actions dropdown menu
+* [#10217](https://github.com/netbox-community/netbox/issues/10217) - Handle exception when trace splits to multiple rear ports
+* [#10220](https://github.com/netbox-community/netbox/issues/10220) - Validate IP version when assigning primary IPs to a virtual machine
+* [#10231](https://github.com/netbox-community/netbox/issues/10231) - Correct API schema definition for several serializer fields
+
+---
+
 ## v3.3.1 (2022-08-25)
 
 ### Enhancements

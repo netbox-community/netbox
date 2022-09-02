@@ -46,10 +46,10 @@
                         </tr>
                         <tr>
                             <th scope="row">Rack</th>
-                            <td>
+                            <td class="position-relative">
                                 {% if object.rack %}
                                     {{ object.rack|linkify }}
-                                    <div class="float-end noprint">
+                                    <div class="position-absolute top-50 end-0 translate-middle-y noprint">
                                       <a href="{{ object.rack.get_absolute_url }}?device={{ object.pk }}" class="btn btn-primary btn-sm" title="Highlight device">
                                         <i class="mdi mdi-view-day-outline"></i>
                                       </a>
@@ -90,7 +90,7 @@
                         <tr>
                             <th scope="row">Device Type</th>
                             <td>
-                                {{ object.device_type|linkify }} ({{ object.device_type.u_height }}U)
+                                {{ object.device_type|linkify:"get_full_name" }} ({{ object.device_type.u_height }}U)
                             </td>
                         </tr>
                         <tr>

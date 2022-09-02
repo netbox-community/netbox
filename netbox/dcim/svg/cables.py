@@ -94,7 +94,7 @@ class Connector(Group):
         self.add(cable)
 
         # Add link
-        link = Hyperlink(href=url, target='_blank')
+        link = Hyperlink(href=url, target='_parent')
 
         # Add text label(s)
         cursor = start[1]
@@ -281,7 +281,7 @@ class CableTraceSVG:
         self.cursor += PADDING * 2
 
         # Add link
-        link = Hyperlink(href=f'{self.base_url}{wirelesslink.get_absolute_url()}', target='_blank')
+        link = Hyperlink(href=f'{self.base_url}{wirelesslink.get_absolute_url()}', target='_parent')
 
         # Add text label(s)
         for i, label in enumerate(labels):

@@ -38,7 +38,7 @@ class GenericObjectSerializer(serializers.Serializer):
 
         return data
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_object(self, obj):
         serializer = get_serializer_for_model(obj, prefix=NESTED_SERIALIZER_PREFIX)
         # context = {'request': self.context['request']}

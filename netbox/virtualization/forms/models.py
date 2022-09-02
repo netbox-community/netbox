@@ -323,6 +323,14 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
         label='VRF'
     )
 
+    fieldsets = (
+        ('Interface', ('virtual_machine', 'name', 'description', 'tags')),
+        ('Addressing', ('vrf', 'mac_address')),
+        ('Operation', ('mtu', 'enabled')),
+        ('Related Interfaces', ('parent', 'bridge')),
+        ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
+    )
+
     class Meta:
         model = VMInterface
         fields = [

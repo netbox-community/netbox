@@ -579,7 +579,7 @@ class InventoryItemTemplateSerializer(ValidatedModelSerializer):
             'description', 'component_type', 'component_id', 'component', 'created', 'last_updated', '_depth',
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_component(self, obj):
         if obj.component is None:
             return None
@@ -693,13 +693,13 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
             'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_config_context(self, obj):
         return obj.get_config_context()
 
 
 class DeviceNAPALMSerializer(serializers.Serializer):
-    method = serializers.DictField()
+    method = serializers.JSONField()
 
 
 #
@@ -975,7 +975,7 @@ class InventoryItemSerializer(NetBoxModelSerializer):
             'custom_fields', 'created', 'last_updated', '_depth',
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_component(self, obj):
         if obj.component is None:
             return None
@@ -1046,7 +1046,7 @@ class CableTerminationSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id', 'termination'
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_termination(self, obj):
         serializer = get_serializer_for_model(obj.termination, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}

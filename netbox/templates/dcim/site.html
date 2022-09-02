@@ -85,11 +85,11 @@
           </tr>
           <tr>
             <th scope="row">Physical Address</th>
-            <td>
+            <td class="position-relative">
               {% if object.physical_address %}
-                <div class="float-end noprint">
+                <div class="position-absolute top-50 end-0 translate-middle-y noprint">
                   <a href="{{ config.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-sm">
-                    <i class="mdi mdi-map-marker"></i> Map It
+                    <i class="mdi mdi-map-marker"></i> Map
                   </a>
                 </div>
                 <span>{{ object.physical_address|linebreaksbr }}</span>
@@ -104,9 +104,9 @@
           </tr>
           <tr>
             <th scope="row">GPS Coordinates</th>
-            <td>
+            <td class="position-relative">
               {% if object.latitude and object.longitude %}
-                <div class="float-end noprint">
+                <div class="position-absolute top-50 end-0 translate-middle-y noprint">
                   <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
                     <i class="mdi mdi-map-marker"></i> Map It
                   </a>

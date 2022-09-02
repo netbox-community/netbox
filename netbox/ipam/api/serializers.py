@@ -143,7 +143,7 @@ class FHRPGroupAssignmentSerializer(NetBoxModelSerializer):
             'last_updated',
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_interface(self, obj):
         if obj.interface is None:
             return None
@@ -190,6 +190,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
         ]
         validators = []
 
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_scope(self, obj):
         if obj.scope_id is None:
             return None
@@ -373,7 +374,7 @@ class IPAddressSerializer(NetBoxModelSerializer):
             'custom_fields', 'created', 'last_updated',
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_assigned_object(self, obj):
         if obj.assigned_object is None:
             return None
@@ -482,7 +483,7 @@ class L2VPNTerminationSerializer(NetBoxModelSerializer):
             'assigned_object', 'tags', 'custom_fields', 'created', 'last_updated'
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_assigned_object(self, instance):
         serializer = get_serializer_for_model(instance.assigned_object, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}

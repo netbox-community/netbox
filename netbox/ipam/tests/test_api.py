@@ -699,9 +699,18 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
         """
         Test retrieval of all available VLANs within a group.
         """
-        self.add_permissions('ipam.view_vlangroup', 'ipam.view_vlan')
-        vlangroup = VLANGroup.objects.first()
+        MIN_VID = 100
+        MAX_VID = 199
 
+        self.add_permissions('ipam.view_vlangroup', 'ipam.view_vlan')
+        vlangroup = VLANGroup.objects.create(
+            name='VLAN Group X',
+            slug='vlan-group-x',
+            min_vid=MIN_VID,
+            max_vid=MAX_VID
+        )
+
+        # Create a set of VLANs within the group
         vlans = (
             VLAN(vid=10, name='VLAN 10', group=vlangroup),
             VLAN(vid=20, name='VLAN 20', group=vlangroup),
@@ -711,12 +720,16 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
 
         # Retrieve all available VLANs
         url = reverse('ipam-api:vlangroup-available-vlans', kwargs={'pk': vlangroup.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(len(response.data), 4094 - len(vlans))
+        response = self.client.get(f'{url}?limit=0', **self.header)
+        self.assertEqual(len(response.data), MAX_VID - MIN_VID + 1)
         available_vlans = {vlan['vid'] for vlan in response.data}
         for vlan in vlans:
             self.assertNotIn(vlan.vid, available_vlans)
+
+        # Retrieve a maximum number of available VLANs
+        url = reverse('ipam-api:vlangroup-available-vlans', kwargs={'pk': vlangroup.pk})
+        response = self.client.get(f'{url}?limit=10', **self.header)
+        self.assertEqual(len(response.data), 10)
 
     def test_create_single_available_vlan(self):
         """
