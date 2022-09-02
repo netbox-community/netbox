@@ -116,7 +116,6 @@ class NumericArrayField(SimpleArrayField):
                                         f'Must be numeric and ranges must be in ascending order')
         return super().clean(value)
 
-
     def to_python(self, value):
         if not value:
             return []
