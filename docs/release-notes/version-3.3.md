@@ -1,6 +1,6 @@
 # NetBox v3.3
 
-## v3.3.2 (FUTURE)
+## v3.3.2 (2022-09-02)
 
 ### Enhancements
 
@@ -15,6 +15,7 @@
 
 * [#9328](https://github.com/netbox-community/netbox/issues/9328) - Hide available IPs when non-default ordering is applied
 * [#9481](https://github.com/netbox-community/netbox/issues/9481) - Update child device location when parent location changes
+* [#9832](https://github.com/netbox-community/netbox/issues/9832) - Improve error message when validating rack reservation units
 * [#9895](https://github.com/netbox-community/netbox/issues/9895) - Various corrections to OpenAPI spec
 * [#9962](https://github.com/netbox-community/netbox/issues/9962) - SSO login should respect `next` URL query parameter
 * [#9963](https://github.com/netbox-community/netbox/issues/9963) - Fix support for custom `CSRF_COOKIE_NAME` value
