@@ -403,6 +403,7 @@ class ScriptSerializer(serializers.Serializer):
     vars = serializers.SerializerMethodField(read_only=True)
     result = NestedJobResultSerializer()
 
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_vars(self, instance):
         return {
             k: v.__class__.__name__ for k, v in instance._get_vars().items()

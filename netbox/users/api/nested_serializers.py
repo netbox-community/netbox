@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 from netbox.api.fields import ContentTypeField
@@ -56,8 +57,10 @@ class NestedObjectPermissionSerializer(WritableNestedSerializer):
         model = ObjectPermission
         fields = ['id', 'url', 'display', 'name', 'enabled', 'object_types', 'groups', 'users', 'actions']
 
+    @swagger_serializer_method(serializer_or_field=serializers.ListField)
     def get_groups(self, obj):
         return [g.name for g in obj.groups.all()]
 
+    @swagger_serializer_method(serializer_or_field=serializers.ListField)
     def get_users(self, obj):
         return [u.username for u in obj.users.all()]
