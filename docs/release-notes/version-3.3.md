@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#9477](https://github.com/netbox-community/netbox/issues/9477) - Enable clearing applied table column ordering
+* [#10034](https://github.com/netbox-community/netbox/issues/10034) - Add L2VPN column to interface and VLAN tables
 * [#10043](https://github.com/netbox-community/netbox/issues/10043) - Add support for `limit` query parameter to available VLANs API endpoint
 * [#10060](https://github.com/netbox-community/netbox/issues/10060) - Add journal entries to global search
 * [#10195](https://github.com/netbox-community/netbox/issues/10195) - Enable filtering of device components by rack
