@@ -8,10 +8,12 @@
 * [#10043](https://github.com/netbox-community/netbox/issues/10043) - Add support for `limit` query parameter to available VLANs API endpoint
 * [#10060](https://github.com/netbox-community/netbox/issues/10060) - Add journal entries to global search
 * [#10195](https://github.com/netbox-community/netbox/issues/10195) - Enable filtering of device components by rack
+* [#10233](https://github.com/netbox-community/netbox/issues/10233) - Enable sorting rack elevations by facility ID
 
 ### Bug Fixes
 
 * [#9328](https://github.com/netbox-community/netbox/issues/9328) - Hide available IPs when non-default ordering is applied
+* [#9481](https://github.com/netbox-community/netbox/issues/9481) - Update child device location when parent location changes
 * [#9895](https://github.com/netbox-community/netbox/issues/9895) - Various corrections to OpenAPI spec
 * [#9962](https://github.com/netbox-community/netbox/issues/9962) - SSO login should respect `next` URL query parameter
 * [#9963](https://github.com/netbox-community/netbox/issues/9963) - Fix support for custom `CSRF_COOKIE_NAME` value
@@ -26,6 +28,7 @@
 * [#10208](https://github.com/netbox-community/netbox/issues/10208) - Fix permissions evaluation for interface actions dropdown menu
 * [#10217](https://github.com/netbox-community/netbox/issues/10217) - Handle exception when trace splits to multiple rear ports
 * [#10220](https://github.com/netbox-community/netbox/issues/10220) - Validate IP version when assigning primary IPs to a virtual machine
+* [#10231](https://github.com/netbox-community/netbox/issues/10231) - Correct API schema definition for several serializer fields
 
 ---
 
