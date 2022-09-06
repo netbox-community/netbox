@@ -52,6 +52,13 @@ REMOTE_AUTH_BACKEND = 'social_core.backends.azuread.AzureADOAuth2'
 SOCIAL_AUTH_AZUREAD_OAUTH2_KEY = '{APPLICATION_ID}'
 SOCIAL_AUTH_AZUREAD_OAUTH2_SECRET = '{SECRET_VALUE}'
 ```
+For GCC High / DoD or other cloud endpoints, additonally add this line:
+
+Additonal cloud endpoints [HERE](https://docs.microsoft.com/en-us/python/api/azure-identity/azure.identity.azureauthorityhosts?view=azure-python)
+
+```python
+SOCIAL_AUTH_AZUREAD_OAUTH2_AUTHORITY_HOST = 'login.microsoftonline.us'
+```
 
 ### 2. Restart NetBox
 
