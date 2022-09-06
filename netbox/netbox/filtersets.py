@@ -80,6 +80,10 @@ class BaseFilterSet(django_filters.FilterSet):
         },
     })
 
+    def __init__(self, *args, **kwargs):
+        self.base_filters = self.get_filters()
+        super().__init__(*args, **kwargs)
+
     @staticmethod
     def _get_filter_lookup_dict(existing_filter):
         # Choose the lookup expression map based on the filter type
