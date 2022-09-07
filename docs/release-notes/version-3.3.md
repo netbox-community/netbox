@@ -2,6 +2,10 @@
 
 ## v3.3.3 (FUTURE)
 
+### Enhancements
+
+* [#10268](https://github.com/netbox-community/netbox/issues/10268) - Omit trailing ".0" in device positions within UI
+
 ### Bug Fixes
 
 * [#9231](https://github.com/netbox-community/netbox/issues/9231) - Fix `empty` lookup expression for string filters
