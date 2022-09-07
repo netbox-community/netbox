@@ -81,7 +81,7 @@ class BaseFilterSet(django_filters.FilterSet):
     })
 
     def __init__(self, *args, **kwargs):
-        self.base_filters = self.get_filters()
+        self.base_filters = self.__class__.get_filters()
         super().__init__(*args, **kwargs)
 
     @staticmethod
