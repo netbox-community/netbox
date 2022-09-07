@@ -2,6 +2,12 @@
 
 ## v3.3.3 (FUTURE)
 
+### Bug Fixes
+
+* [#9231](https://github.com/netbox-community/netbox/issues/9231) - Fix `empty` lookup expression for string filters
+* [#10270](https://github.com/netbox-community/netbox/issues/10270) - Fix custom field validation when creating new services
+* [#10278](https://github.com/netbox-community/netbox/issues/10278) - Fix "create & add another" for image attachments
+
 ---
 
 ## v3.3.2 (2022-09-02)
