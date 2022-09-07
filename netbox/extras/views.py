@@ -441,6 +441,12 @@ class ImageAttachmentEditView(generic.ObjectEditView):
     def get_return_url(self, request, obj=None):
         return obj.parent.get_absolute_url() if obj else super().get_return_url(request)
 
+    def get_extra_addanother_params(self, request):
+        return {
+            'content_type': request.GET.get('content_type'),
+            'object_id': request.GET.get('object_id'),
+        }
+
 
 class ImageAttachmentDeleteView(generic.ObjectDeleteView):
     queryset = ImageAttachment.objects.all()
