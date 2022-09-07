@@ -457,7 +457,6 @@ class VMInterfaceCreateView(generic.ComponentCreateView):
 class VMInterfaceEditView(generic.ObjectEditView):
     queryset = VMInterface.objects.all()
     form = forms.VMInterfaceForm
-    template_name = 'virtualization/vminterface_edit.html'
 
 
 class VMInterfaceDeleteView(generic.ObjectDeleteView):

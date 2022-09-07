@@ -986,47 +986,57 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
 # Device component templates
 #
 
+class ComponentTemplateForm(BootstrapMixin, forms.ModelForm):
+    device_type = DynamicModelChoiceField(
+        queryset=DeviceType.objects.all()
+    )
 
-class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
+
+class ModularComponentTemplateForm(BootstrapMixin, forms.ModelForm):
+    device_type = DynamicModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        required=False
+    )
+    module_type = DynamicModelChoiceField(
+        queryset=ModuleType.objects.all(),
+        required=False
+    )
+
+
+class ConsolePortTemplateForm(ModularComponentTemplateForm):
     class Meta:
         model = ConsolePortTemplate
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'description',
         ]
         widgets = {
-            'device_type': forms.HiddenInput(),
-            'module_type': forms.HiddenInput(),
             'type': StaticSelect,
         }
 
 
-class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
+class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'description',
         ]
         widgets = {
-            'device_type': forms.HiddenInput(),
-            'module_type': forms.HiddenInput(),
             'type': StaticSelect,
         }
 
 
-class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
+class PowerPortTemplateForm(ModularComponentTemplateForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
         ]
         widgets = {
-            'device_type': forms.HiddenInput(),
-            'module_type': forms.HiddenInput(),
             'type': StaticSelect(),
         }
 
 
-class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
+class PowerOutletTemplateForm(ModularComponentTemplateForm):
     power_port = DynamicModelChoiceField(
         queryset=PowerPortTemplate.objects.all(),
         required=False,
@@ -1041,29 +1051,25 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
             'device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
         ]
         widgets = {
-            'device_type': forms.HiddenInput(),
-            'module_type': forms.HiddenInput(),
             'type': StaticSelect(),
             'feed_leg': StaticSelect(),
         }
 
 
-class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
+class InterfaceTemplateForm(ModularComponentTemplateForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description', 'poe_mode', 'poe_type',
         ]
         widgets = {
-            'device_type': forms.HiddenInput(),
-            'module_type': forms.HiddenInput(),
             'type': StaticSelect(),
             'poe_mode': StaticSelect(),
             'poe_type': StaticSelect(),
         }
 
 
-class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
+class FrontPortTemplateForm(ModularComponentTemplateForm):
     rear_port = DynamicModelChoiceField(
         queryset=RearPortTemplate.objects.all(),
         required=False,
@@ -1080,48 +1086,38 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
             'description',
         ]
         widgets = {
-            'device_type': forms.HiddenInput(),
-            'module_type': forms.HiddenInput(),
             'type': StaticSelect(),
         }
 
 
-class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
+class RearPortTemplateForm(ModularComponentTemplateForm):
     class Meta:
         model = RearPortTemplate
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions', 'description',
         ]
         widgets = {
-            'device_type': forms.HiddenInput(),
-            'module_type': forms.HiddenInput(),
             'type': StaticSelect(),
         }
 
 
-class ModuleBayTemplateForm(BootstrapMixin, forms.ModelForm):
+class ModuleBayTemplateForm(ComponentTemplateForm):
     class Meta:
         model = ModuleBayTemplate
         fields = [
             'device_type', 'name', 'label', 'position', 'description',
         ]
-        widgets = {
-            'device_type': forms.HiddenInput(),
-        }
 
 
-class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
+class DeviceBayTemplateForm(ComponentTemplateForm):
     class Meta:
         model = DeviceBayTemplate
         fields = [
             'device_type', 'name', 'label', 'description',
         ]
-        widgets = {
-            'device_type': forms.HiddenInput(),
-        }
 
 
-class InventoryItemTemplateForm(BootstrapMixin, forms.ModelForm):
+class InventoryItemTemplateForm(ComponentTemplateForm):
     parent = DynamicModelChoiceField(
         queryset=InventoryItemTemplate.objects.all(),
         required=False,
@@ -1154,9 +1150,6 @@ class InventoryItemTemplateForm(BootstrapMixin, forms.ModelForm):
             'device_type', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'description',
             'component_type', 'component_id',
         ]
-        widgets = {
-            'device_type': forms.HiddenInput(),
-        }
 
 
 #
@@ -1164,6 +1157,9 @@ class InventoryItemTemplateForm(BootstrapMixin, forms.ModelForm):
 #
 
 class ConsolePortForm(NetBoxModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
     module = DynamicModelChoiceField(
         queryset=Module.objects.all(),
         required=False,
@@ -1178,13 +1174,15 @@ class ConsolePortForm(NetBoxModelForm):
             'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
-            'device': forms.HiddenInput(),
             'type': StaticSelect(),
             'speed': StaticSelect(),
         }
 
 
 class ConsoleServerPortForm(NetBoxModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
     module = DynamicModelChoiceField(
         queryset=Module.objects.all(),
         required=False,
@@ -1199,13 +1197,15 @@ class ConsoleServerPortForm(NetBoxModelForm):
             'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
-            'device': forms.HiddenInput(),
             'type': StaticSelect(),
             'speed': StaticSelect(),
         }
 
 
 class PowerPortForm(NetBoxModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
     module = DynamicModelChoiceField(
         queryset=Module.objects.all(),
         required=False,
@@ -1222,12 +1222,14 @@ class PowerPortForm(NetBoxModelForm):
             'tags',
         ]
         widgets = {
-            'device': forms.HiddenInput(),
             'type': StaticSelect(),
         }
 
 
 class PowerOutletForm(NetBoxModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
     module = DynamicModelChoiceField(
         queryset=Module.objects.all(),
         required=False,
@@ -1250,13 +1252,15 @@ class PowerOutletForm(NetBoxModelForm):
             'tags',
         ]
         widgets = {
-            'device': forms.HiddenInput(),
             'type': StaticSelect(),
             'feed_leg': StaticSelect(),
         }
 
 
 class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
     module = DynamicModelChoiceField(
         queryset=Module.objects.all(),
         required=False,
@@ -1352,7 +1356,6 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
             'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
         ]
         widgets = {
-            'device': forms.HiddenInput(),
             'type': StaticSelect(),
             'speed': SelectSpeedWidget(),
             'poe_mode': StaticSelect(),
@@ -1383,6 +1386,9 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
 
 
 class FrontPortForm(NetBoxModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
     module = DynamicModelChoiceField(
         queryset=Module.objects.all(),
         required=False,
@@ -1404,12 +1410,14 @@ class FrontPortForm(NetBoxModelForm):
             'description', 'tags',
         ]
         widgets = {
-            'device': forms.HiddenInput(),
             'type': StaticSelect(),
         }
 
 
 class RearPortForm(NetBoxModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
     module = DynamicModelChoiceField(
         queryset=Module.objects.all(),
         required=False,
@@ -1424,33 +1432,32 @@ class RearPortForm(NetBoxModelForm):
             'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
-            'device': forms.HiddenInput(),
             'type': StaticSelect(),
         }
 
 
 class ModuleBayForm(NetBoxModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
 
     class Meta:
         model = ModuleBay
         fields = [
             'device', 'name', 'label', 'position', 'description', 'tags',
         ]
-        widgets = {
-            'device': forms.HiddenInput(),
-        }
 
 
 class DeviceBayForm(NetBoxModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
 
     class Meta:
         model = DeviceBay
         fields = [
             'device', 'name', 'label', 'description', 'tags',
         ]
-        widgets = {
-            'device': forms.HiddenInput(),
-        }
 
 
 class PopulateDeviceBayForm(BootstrapMixin, forms.Form):

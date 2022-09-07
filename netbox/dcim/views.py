@@ -1120,9 +1120,8 @@ class ModuleTypeBulkDeleteView(generic.BulkDeleteView):
 
 class ConsolePortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsolePortTemplate.objects.all()
-    form = forms.ModularComponentTemplateCreateForm
+    form = forms.ConsolePortTemplateCreateForm
     model_form = forms.ConsolePortTemplateForm
-    template_name = 'dcim/component_template_create.html'
 
 
 class ConsolePortTemplateEditView(generic.ObjectEditView):
@@ -1155,9 +1154,8 @@ class ConsolePortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class ConsoleServerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsoleServerPortTemplate.objects.all()
-    form = forms.ModularComponentTemplateCreateForm
+    form = forms.ConsoleServerPortTemplateCreateForm
     model_form = forms.ConsoleServerPortTemplateForm
-    template_name = 'dcim/component_template_create.html'
 
 
 class ConsoleServerPortTemplateEditView(generic.ObjectEditView):
@@ -1190,9 +1188,8 @@ class ConsoleServerPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class PowerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerPortTemplate.objects.all()
-    form = forms.ModularComponentTemplateCreateForm
+    form = forms.PowerPortTemplateCreateForm
     model_form = forms.PowerPortTemplateForm
-    template_name = 'dcim/component_template_create.html'
 
 
 class PowerPortTemplateEditView(generic.ObjectEditView):
@@ -1225,9 +1222,8 @@ class PowerPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class PowerOutletTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerOutletTemplate.objects.all()
-    form = forms.ModularComponentTemplateCreateForm
+    form = forms.PowerOutletTemplateCreateForm
     model_form = forms.PowerOutletTemplateForm
-    template_name = 'dcim/component_template_create.html'
 
 
 class PowerOutletTemplateEditView(generic.ObjectEditView):
@@ -1260,9 +1256,8 @@ class PowerOutletTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class InterfaceTemplateCreateView(generic.ComponentCreateView):
     queryset = InterfaceTemplate.objects.all()
-    form = forms.ModularComponentTemplateCreateForm
+    form = forms.InterfaceTemplateCreateForm
     model_form = forms.InterfaceTemplateForm
-    template_name = 'dcim/component_template_create.html'
 
 
 class InterfaceTemplateEditView(generic.ObjectEditView):
@@ -1297,15 +1292,6 @@ class FrontPortTemplateCreateView(generic.ComponentCreateView):
     queryset = FrontPortTemplate.objects.all()
     form = forms.FrontPortTemplateCreateForm
     model_form = forms.FrontPortTemplateForm
-    template_name = 'dcim/frontporttemplate_create.html'
-
-    def initialize_forms(self, request):
-        form, model_form = super().initialize_forms(request)
-
-        model_form.fields.pop('rear_port')
-        model_form.fields.pop('rear_port_position')
-
-        return form, model_form
 
 
 class FrontPortTemplateEditView(generic.ObjectEditView):
@@ -1338,9 +1324,8 @@ class FrontPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class RearPortTemplateCreateView(generic.ComponentCreateView):
     queryset = RearPortTemplate.objects.all()
-    form = forms.ModularComponentTemplateCreateForm
+    form = forms.RearPortTemplateCreateForm
     model_form = forms.RearPortTemplateForm
-    template_name = 'dcim/component_template_create.html'
 
 
 class RearPortTemplateEditView(generic.ObjectEditView):
@@ -1375,7 +1360,6 @@ class ModuleBayTemplateCreateView(generic.ComponentCreateView):
     queryset = ModuleBayTemplate.objects.all()
     form = forms.ModuleBayTemplateCreateForm
     model_form = forms.ModuleBayTemplateForm
-    template_name = 'dcim/modulebaytemplate_create.html'
     patterned_fields = ('name', 'label', 'position')
 
 
@@ -1409,9 +1393,8 @@ class ModuleBayTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class DeviceBayTemplateCreateView(generic.ComponentCreateView):
     queryset = DeviceBayTemplate.objects.all()
-    form = forms.ComponentTemplateCreateForm
+    form = forms.DeviceBayTemplateCreateForm
     model_form = forms.DeviceBayTemplateForm
-    template_name = 'dcim/component_template_create.html'
 
 
 class DeviceBayTemplateEditView(generic.ObjectEditView):
@@ -1444,9 +1427,8 @@ class DeviceBayTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class InventoryItemTemplateCreateView(generic.ComponentCreateView):
     queryset = InventoryItemTemplate.objects.all()
-    form = forms.ModularComponentTemplateCreateForm
+    form = forms.InventoryItemTemplateCreateForm
     model_form = forms.InventoryItemTemplateForm
-    template_name = 'dcim/inventoryitemtemplate_create.html'
 
     def alter_object(self, instance, request):
         # Set component (if any)
@@ -1874,7 +1856,7 @@ class ConsolePortView(generic.ObjectView):
 
 class ConsolePortCreateView(generic.ComponentCreateView):
     queryset = ConsolePort.objects.all()
-    form = forms.DeviceComponentCreateForm
+    form = forms.ConsolePortCreateForm
     model_form = forms.ConsolePortForm
 
 
@@ -1933,7 +1915,7 @@ class ConsoleServerPortView(generic.ObjectView):
 
 class ConsoleServerPortCreateView(generic.ComponentCreateView):
     queryset = ConsoleServerPort.objects.all()
-    form = forms.DeviceComponentCreateForm
+    form = forms.ConsoleServerPortCreateForm
     model_form = forms.ConsoleServerPortForm
 
 
@@ -1992,7 +1974,7 @@ class PowerPortView(generic.ObjectView):
 
 class PowerPortCreateView(generic.ComponentCreateView):
     queryset = PowerPort.objects.all()
-    form = forms.DeviceComponentCreateForm
+    form = forms.PowerPortCreateForm
     model_form = forms.PowerPortForm
 
 
@@ -2051,7 +2033,7 @@ class PowerOutletView(generic.ObjectView):
 
 class PowerOutletCreateView(generic.ComponentCreateView):
     queryset = PowerOutlet.objects.all()
-    form = forms.DeviceComponentCreateForm
+    form = forms.PowerOutletCreateForm
     model_form = forms.PowerOutletForm
 
 
@@ -2154,42 +2136,13 @@ class InterfaceView(generic.ObjectView):
 
 class InterfaceCreateView(generic.ComponentCreateView):
     queryset = Interface.objects.all()
-    form = forms.DeviceComponentCreateForm
+    form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
-    # template_name = 'dcim/interface_create.html'
-
-    # TODO: Figure out what to do with this
-    # def post(self, request):
-    #     """
-    #     Override inherited post() method to handle request to assign newly created
-    #     interface objects (first object) to an IP Address object.
-    #     """
-    #     form = self.form(request.POST, initial=request.GET)
-    #     new_objs = self.validate_form(request, form)
-    #
-    #     if form.is_valid() and not form.errors:
-    #         if '_addanother' in request.POST:
-    #             return redirect(request.get_full_path())
-    #         elif new_objs is not None and '_assignip' in request.POST and len(new_objs) >= 1 and \
-    #                 request.user.has_perm('ipam.add_ipaddress'):
-    #             first_obj = new_objs[0].pk
-    #             return redirect(
-    #                 f'/ipam/ip-addresses/add/?interface={first_obj}&return_url={self.get_return_url(request)}'
-    #             )
-    #         else:
-    #             return redirect(self.get_return_url(request))
-    #
-    #     return render(request, self.template_name, {
-    #         'obj_type': self.queryset.model._meta.verbose_name,
-    #         'form': form,
-    #         'return_url': self.get_return_url(request),
-    #     })
 
 
 class InterfaceEditView(generic.ObjectEditView):
     queryset = Interface.objects.all()
     form = forms.InterfaceForm
-    template_name = 'dcim/interface_edit.html'
 
 
 class InterfaceDeleteView(generic.ObjectDeleteView):
@@ -2243,14 +2196,6 @@ class FrontPortCreateView(generic.ComponentCreateView):
     queryset = FrontPort.objects.all()
     form = forms.FrontPortCreateForm
     model_form = forms.FrontPortForm
-
-    def initialize_forms(self, request):
-        form, model_form = super().initialize_forms(request)
-
-        model_form.fields.pop('rear_port')
-        model_form.fields.pop('rear_port_position')
-
-        return form, model_form
 
 
 class FrontPortEditView(generic.ObjectEditView):
@@ -2308,7 +2253,7 @@ class RearPortView(generic.ObjectView):
 
 class RearPortCreateView(generic.ComponentCreateView):
     queryset = RearPort.objects.all()
-    form = forms.DeviceComponentCreateForm
+    form = forms.RearPortCreateForm
     model_form = forms.RearPortForm
 
 
@@ -2423,7 +2368,7 @@ class DeviceBayView(generic.ObjectView):
 
 class DeviceBayCreateView(generic.ComponentCreateView):
     queryset = DeviceBay.objects.all()
-    form = forms.DeviceComponentCreateForm
+    form = forms.DeviceBayCreateForm
     model_form = forms.DeviceBayForm
 
 
@@ -2552,7 +2497,6 @@ class InventoryItemCreateView(generic.ComponentCreateView):
     queryset = InventoryItem.objects.all()
     form = forms.InventoryItemCreateForm
     model_form = forms.InventoryItemForm
-    template_name = 'dcim/inventoryitem_create.html'
 
     def alter_object(self, instance, request):
         # Set component (if any)

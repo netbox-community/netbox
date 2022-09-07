@@ -2,102 +2,107 @@ from django import forms
 
 from dcim.models import *
 from netbox.forms import NetBoxModelForm
-from utilities.forms import (
-    BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField,
-)
+from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField
+from . import models as model_forms
 
 __all__ = (
-    'ComponentTemplateCreateForm',
-    'DeviceComponentCreateForm',
+    'ComponentCreateForm',
+    'ConsolePortCreateForm',
+    'ConsolePortTemplateCreateForm',
+    'ConsoleServerPortCreateForm',
+    'ConsoleServerPortTemplateCreateForm',
+    'DeviceBayCreateForm',
+    'DeviceBayTemplateCreateForm',
     'FrontPortCreateForm',
     'FrontPortTemplateCreateForm',
+    'InterfaceCreateForm',
+    'InterfaceTemplateCreateForm',
     'InventoryItemCreateForm',
-    'ModularComponentTemplateCreateForm',
+    'InventoryItemTemplateCreateForm',
     'ModuleBayCreateForm',
     'ModuleBayTemplateCreateForm',
+    'PowerOutletCreateForm',
+    'PowerOutletTemplateCreateForm',
+    'PowerPortCreateForm',
+    'PowerPortTemplateCreateForm',
+    'RearPortCreateForm',
+    'RearPortTemplateCreateForm',
     'VirtualChassisCreateForm',
 )
 
 
-class ComponentCreateForm(BootstrapMixin, forms.Form):
+class ComponentCreateForm(forms.Form):
     """
     Subclass this form when facilitating the creation of one or more device component or component templates based on
     a name pattern.
     """
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
-    label_pattern = ExpandableNameField(
-        label='Label',
+    name = ExpandableNameField()
+    label = ExpandableNameField(
         required=False,
         help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
     )
 
-    def clean(self):
-        super().clean()
-
-        # Validate that all patterned fields generate an equal number of values
-        patterned_fields = [
-            field_name for field_name in self.fields if field_name.endswith('_pattern')
-        ]
-        pattern_count = len(self.cleaned_data['name_pattern'])
-        for field_name in patterned_fields:
-            value_count = len(self.cleaned_data[field_name])
-            if self.cleaned_data[field_name] and value_count != pattern_count:
-                raise forms.ValidationError({
-                    field_name: f'The provided pattern specifies {value_count} values, but {pattern_count} are '
-                                f'expected.'
-                }, code='label_pattern_mismatch')
-
-
-class ComponentTemplateCreateForm(ComponentCreateForm):
-    """
-    Creation form for component templates that can be assigned only to a DeviceType.
-    """
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all(),
-    )
-    field_order = ('device_type', 'name_pattern', 'label_pattern')
+    # TODO: Incorporate this validation
+    # def clean(self):
+    #     super().clean()
+    #
+    #     # Validate that all patterned fields generate an equal number of values
+    #     patterned_fields = [
+    #         field_name for field_name in self.fields if field_name.endswith('_pattern')
+    #     ]
+    #     pattern_count = len(self.cleaned_data['name_pattern'])
+    #     for field_name in patterned_fields:
+    #         value_count = len(self.cleaned_data[field_name])
+    #         if self.cleaned_data[field_name] and value_count != pattern_count:
+    #             raise forms.ValidationError({
+    #                 field_name: f'The provided pattern specifies {value_count} values, but {pattern_count} are '
+    #                             f'expected.'
+    #             }, code='label_pattern_mismatch')
 
 
-class ModularComponentTemplateCreateForm(ComponentCreateForm):
-    """
-    Creation form for component templates that can be assigned to either a DeviceType *or* a ModuleType.
-    """
-    name_pattern = ExpandableNameField(
-        label='Name',
-        help_text="""
-                Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range
-                are not supported. Example: <code>[ge,xe]-0/0/[0-9]</code>.  {module} is accepted as a substitution for
-                the module bay position.
-                """
-    )
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all(),
-        required=False
-    )
-    module_type = DynamicModelChoiceField(
-        queryset=ModuleType.objects.all(),
-        required=False
-    )
-    field_order = ('device_type', 'module_type', 'name_pattern', 'label_pattern')
+# class ModularComponentTemplateCreateForm(ComponentCreateForm):
+#     """
+#     Creation form for component templates that can be assigned to either a DeviceType *or* a ModuleType.
+#     """
+#     name = ExpandableNameField(
+#         label='Name',
+#         help_text="""
+#                 Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range
+#                 are not supported. Example: <code>[ge,xe]-0/0/[0-9]</code>. {module} is accepted as a substitution for
+#                 the module bay position.
+#                 """
+#     )
 
 
-class DeviceComponentCreateForm(ComponentCreateForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
-    )
-    field_order = ('device', 'name_pattern', 'label_pattern')
+#
+# Device component templates
+#
+
+class ConsolePortTemplateCreateForm(ComponentCreateForm, model_forms.ConsolePortTemplateForm):
+    pass
 
 
-class FrontPortTemplateCreateForm(ModularComponentTemplateCreateForm):
+class ConsoleServerPortTemplateCreateForm(ComponentCreateForm, model_forms.ConsoleServerPortTemplateForm):
+    pass
+
+
+class PowerPortTemplateCreateForm(ComponentCreateForm, model_forms.PowerPortTemplateForm):
+    pass
+
+
+class PowerOutletTemplateCreateForm(ComponentCreateForm, model_forms.PowerOutletTemplateForm):
+    pass
+
+
+class InterfaceTemplateCreateForm(ComponentCreateForm, model_forms.InterfaceTemplateForm):
+    pass
+
+
+class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemplateForm):
     rear_port_set = forms.MultipleChoiceField(
         choices=[],
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
-    )
-    field_order = (
-        'device_type', 'name_pattern', 'label_pattern', 'rear_port_set',
     )
 
     def __init__(self, *args, **kwargs):
@@ -143,14 +148,55 @@ class FrontPortTemplateCreateForm(ModularComponentTemplateCreateForm):
         }
 
 
-class FrontPortCreateForm(DeviceComponentCreateForm):
+class RearPortTemplateCreateForm(ComponentCreateForm, model_forms.RearPortTemplateForm):
+    pass
+
+
+class DeviceBayTemplateCreateForm(ComponentCreateForm, model_forms.DeviceBayTemplateForm):
+    pass
+
+
+class ModuleBayTemplateCreateForm(ComponentCreateForm, model_forms.ModuleBayTemplateForm):
+    position = ExpandableNameField(
+        label='Position',
+        required=False,
+        help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
+    )
+
+
+class InventoryItemTemplateCreateForm(ComponentCreateForm, model_forms.InventoryItemTemplateForm):
+    pass
+
+
+#
+# Device components
+#
+
+class ConsolePortCreateForm(ComponentCreateForm, model_forms.ConsolePortForm):
+    pass
+
+
+class ConsoleServerPortCreateForm(ComponentCreateForm, model_forms.ConsoleServerPortForm):
+    pass
+
+
+class PowerPortCreateForm(ComponentCreateForm, model_forms.PowerPortForm):
+    pass
+
+
+class PowerOutletCreateForm(ComponentCreateForm, model_forms.PowerOutletForm):
+    pass
+
+
+class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
+    pass
+
+
+class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
     rear_port_set = forms.MultipleChoiceField(
         choices=[],
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
-    )
-    field_order = (
-        'device', 'name_pattern', 'label_pattern', 'rear_port_set',
     )
 
     def __init__(self, *args, **kwargs):
@@ -189,28 +235,30 @@ class FrontPortCreateForm(DeviceComponentCreateForm):
         }
 
 
-class ModuleBayTemplateCreateForm(ComponentTemplateCreateForm):
-    position_pattern = ExpandableNameField(
+class RearPortCreateForm(ComponentCreateForm, model_forms.RearPortForm):
+    pass
+
+
+class DeviceBayCreateForm(ComponentCreateForm, model_forms.DeviceBayForm):
+    pass
+
+
+class ModuleBayCreateForm(ComponentCreateForm, model_forms.ModuleBayForm):
+    position = ExpandableNameField(
         label='Position',
         required=False,
         help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
     )
-    field_order = ('device_type', 'name_pattern', 'label_pattern', 'position_pattern')
-
-
-class ModuleBayCreateForm(DeviceComponentCreateForm):
-    position_pattern = ExpandableNameField(
-        label='Position',
-        required=False,
-        help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
-    )
-    field_order = ('device', 'name_pattern', 'label_pattern', 'position_pattern')
 
 
 class InventoryItemCreateForm(ComponentCreateForm):
     # Device is assigned by the model form
     field_order = ('name_pattern', 'label_pattern')
 
+
+#
+# Virtual chassis
+#
 
 class VirtualChassisCreateForm(NetBoxModelForm):
     region = DynamicModelChoiceField(
