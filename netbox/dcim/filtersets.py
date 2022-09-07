@@ -1304,6 +1304,9 @@ class InterfaceFilterSet(
         to_field_name='rd',
         label='VRF (RD)',
     )
+    is_occupied = django_filters.BooleanFilter(
+        method='filter_is_occupied'
+    )
 
     class Meta:
         model = Interface
@@ -1358,6 +1361,12 @@ class InterfaceFilterSet(
             'virtual': queryset.filter(type__in=VIRTUAL_IFACE_TYPES),
             'wireless': queryset.filter(type__in=WIRELESS_IFACE_TYPES),
         }.get(value, queryset.none())
+
+    def filter_is_occupied(self, queryset, name, value):
+        if value:
+            return queryset.filter(Q(cable__isnull=False) | Q(mark_connected=True))
+        else:
+            return queryset.filter(cable__isnull=True, mark_connected=False)
 
 
 class FrontPortFilterSet(

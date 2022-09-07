@@ -1009,6 +1009,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         ('PoE', ('poe_mode', 'poe_type')),
         ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
+        ('Connection', ('cabled', 'connected', 'is_occupied'))
     )
     kind = MultipleChoiceField(
         choices=InterfaceKindChoices,
@@ -1087,6 +1088,24 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         label='VRF'
     )
     tag = TagFilterField(model)
+    cabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    connected = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    is_occupied = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
 
 
 class FrontPortFilterForm(DeviceComponentFilterForm):
