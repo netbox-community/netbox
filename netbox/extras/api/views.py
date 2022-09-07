@@ -257,7 +257,7 @@ class ScriptViewSet(ViewSet):
     lookup_value_regex = '[^/]+'  # Allow dots
 
     def _get_script(self, pk):
-        module_name, script_name = pk.split('.')
+        module_name, script_name = pk.split('.', maxsplit=1)
         script = get_script(module_name, script_name)
         if script is None:
             raise Http404

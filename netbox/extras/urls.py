@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from extras import models, views
 from netbox.views.generic import ObjectChangeLogView
@@ -105,7 +105,7 @@ urlpatterns = [
 
     # Scripts
     path('scripts/', views.ScriptListView.as_view(), name='script_list'),
-    path('scripts/<str:module>.<str:name>/', views.ScriptView.as_view(), name='script'),
     path('scripts/results/<int:job_result_pk>/', views.ScriptResultView.as_view(), name='script_result'),
+    re_path(r'^scripts/(?P<module>.([^.]+)).(?P<name>.(.+))/', views.ScriptView.as_view(), name='script'),
 
 ]
