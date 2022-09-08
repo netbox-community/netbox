@@ -1000,7 +1000,28 @@ class PowerOutletFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class InterfaceFilterForm(DeviceComponentFilterForm):
+class CabledFilterForm(forms.Form):
+    cabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    connected = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    is_occupied = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+
+
+class InterfaceFilterForm(CabledFilterForm, DeviceComponentFilterForm):
     model = Interface
     fieldsets = (
         (None, ('q', 'tag')),
@@ -1088,24 +1109,6 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         label='VRF'
     )
     tag = TagFilterField(model)
-    cabled = forms.NullBooleanField(
-        required=False,
-        widget=StaticSelect(
-            choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
-    )
-    connected = forms.NullBooleanField(
-        required=False,
-        widget=StaticSelect(
-            choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
-    )
-    is_occupied = forms.NullBooleanField(
-        required=False,
-        widget=StaticSelect(
-            choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
-    )
 
 
 class FrontPortFilterForm(DeviceComponentFilterForm):

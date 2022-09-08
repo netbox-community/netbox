@@ -1144,6 +1144,9 @@ class CabledObjectFilterSet(django_filters.FilterSet):
         lookup_expr='isnull',
         exclude=True
     )
+    is_occupied = django_filters.BooleanFilter(
+        method='filter_is_occupied'
+    )
 
 
 class PathEndpointFilterSet(django_filters.FilterSet):
@@ -1303,9 +1306,6 @@ class InterfaceFilterSet(
         queryset=VRF.objects.all(),
         to_field_name='rd',
         label='VRF (RD)',
-    )
-    is_occupied = django_filters.BooleanFilter(
-        method='filter_is_occupied'
     )
 
     class Meta:
