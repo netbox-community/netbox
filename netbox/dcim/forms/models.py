@@ -1331,6 +1331,12 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
         label='VRF'
     )
 
+    wwn = forms.CharField(
+        empty_value=None,
+        required=False,
+        label='WWN'
+    )
+
     fieldsets = (
         ('Interface', ('device', 'module', 'name', 'type', 'speed', 'duplex', 'label', 'description', 'tags')),
         ('Addressing', ('vrf', 'mac_address', 'wwn')),
