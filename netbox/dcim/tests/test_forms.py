@@ -129,8 +129,8 @@ class LabelTestCase(TestCase):
         """
         interface_data = {
             'device': self.device.pk,
-            'name_pattern': 'eth[0-9]',
-            'label_pattern': 'Interface[0-9]',
+            'name': 'eth[0-9]',
+            'label': 'Interface[0-9]',
         }
         form = InterfaceCreateForm(interface_data)
 
@@ -142,10 +142,10 @@ class LabelTestCase(TestCase):
         """
         bad_interface_data = {
             'device': self.device.pk,
-            'name_pattern': 'eth[0-9]',
-            'label_pattern': 'Interface[0-1]',
+            'name': 'eth[0-9]',
+            'label': 'Interface[0-1]',
         }
         form = InterfaceCreateForm(bad_interface_data)
 
         self.assertFalse(form.is_valid())
-        self.assertIn('label_pattern', form.errors)
+        self.assertIn('label', form.errors)

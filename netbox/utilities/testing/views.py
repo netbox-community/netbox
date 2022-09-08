@@ -466,6 +466,7 @@ class ViewTestCases:
         """
         bulk_create_count = 3
         bulk_create_data = {}
+        validation_excluded_fields = []
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_create_multiple_objects_without_permission(self):
@@ -500,7 +501,7 @@ class ViewTestCases:
             self.assertHttpStatus(response, 302)
             self.assertEqual(initial_count + self.bulk_create_count, self._get_queryset().count())
             for instance in self._get_queryset().order_by('-pk')[:self.bulk_create_count]:
-                self.assertInstanceEqual(instance, self.bulk_create_data)
+                self.assertInstanceEqual(instance, self.bulk_create_data, exclude=self.validation_excluded_fields)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_create_multiple_objects_with_constrained_permission(self):
@@ -532,7 +533,7 @@ class ViewTestCases:
             self.assertHttpStatus(response, 302)
             self.assertEqual(initial_count + self.bulk_create_count, self._get_queryset().count())
             for instance in self._get_queryset().order_by('-pk')[:self.bulk_create_count]:
-                self.assertInstanceEqual(instance, self.bulk_create_data)
+                self.assertInstanceEqual(instance, self.bulk_create_data, exclude=self.validation_excluded_fields)
 
     class BulkImportObjectsViewTestCase(ModelViewTestCase):
         """

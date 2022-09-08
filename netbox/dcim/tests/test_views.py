@@ -1082,6 +1082,7 @@ front-ports:
 
 class ConsolePortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = ConsolePortTemplate
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -1106,7 +1107,7 @@ class ConsolePortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
 
         cls.bulk_create_data = {
             'device_type': devicetypes[1].pk,
-            'name_pattern': 'Console Port Template [4-6]',
+            'name': 'Console Port Template [4-6]',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
         }
 
@@ -1117,6 +1118,7 @@ class ConsolePortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
 
 class ConsoleServerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = ConsoleServerPortTemplate
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -1141,7 +1143,7 @@ class ConsoleServerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateVie
 
         cls.bulk_create_data = {
             'device_type': devicetypes[1].pk,
-            'name_pattern': 'Console Server Port Template [4-6]',
+            'name': 'Console Server Port Template [4-6]',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
         }
 
@@ -1152,6 +1154,7 @@ class ConsoleServerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateVie
 
 class PowerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = PowerPortTemplate
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -1178,7 +1181,7 @@ class PowerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
         cls.bulk_create_data = {
             'device_type': devicetypes[1].pk,
-            'name_pattern': 'Power Port Template [4-6]',
+            'name': 'Power Port Template [4-6]',
             'type': PowerPortTypeChoices.TYPE_IEC_C14,
             'maximum_draw': 100,
             'allocated_draw': 50,
@@ -1193,6 +1196,7 @@ class PowerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
 class PowerOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = PowerOutletTemplate
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -1220,7 +1224,7 @@ class PowerOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
 
         cls.bulk_create_data = {
             'device_type': devicetype.pk,
-            'name_pattern': 'Power Outlet Template [4-6]',
+            'name': 'Power Outlet Template [4-6]',
             'type': PowerOutletTypeChoices.TYPE_IEC_C13,
             'power_port': powerports[0].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
@@ -1234,6 +1238,7 @@ class PowerOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
 
 class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = InterfaceTemplate
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -1259,9 +1264,9 @@ class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
         cls.bulk_create_data = {
             'device_type': devicetypes[1].pk,
-            'name_pattern': 'Interface Template [4-6]',
+            'name': 'Interface Template [4-6]',
             # Test that a label can be applied to each generated interface templates
-            'label_pattern': 'Interface Template Label [3-5]',
+            'label': 'Interface Template Label [3-5]',
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'mgmt_only': True,
         }
@@ -1274,6 +1279,7 @@ class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
 class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = FrontPortTemplate
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -1306,7 +1312,7 @@ class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
         cls.bulk_create_data = {
             'device_type': devicetype.pk,
-            'name_pattern': 'Front Port [4-6]',
+            'name': 'Front Port [4-6]',
             'type': PortTypeChoices.TYPE_8P8C,
             'rear_port_set': [
                 '{}:1'.format(rp.pk) for rp in rearports[3:6]
@@ -1320,6 +1326,7 @@ class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
 class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = RearPortTemplate
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -1345,7 +1352,7 @@ class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase
 
         cls.bulk_create_data = {
             'device_type': devicetypes[1].pk,
-            'name_pattern': 'Rear Port Template [4-6]',
+            'name': 'Rear Port Template [4-6]',
             'type': PortTypeChoices.TYPE_8P8C,
             'positions': 2,
         }
@@ -1357,6 +1364,7 @@ class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase
 
 class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = ModuleBayTemplate
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -1380,7 +1388,7 @@ class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
         cls.bulk_create_data = {
             'device_type': devicetypes[1].pk,
-            'name_pattern': 'Module Bay Template [4-6]',
+            'name': 'Module Bay Template [4-6]',
         }
 
         cls.bulk_edit_data = {
@@ -1390,6 +1398,7 @@ class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
 class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = DeviceBayTemplate
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -1413,7 +1422,7 @@ class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
         cls.bulk_create_data = {
             'device_type': devicetypes[1].pk,
-            'name_pattern': 'Device Bay Template [4-6]',
+            'name': 'Device Bay Template [4-6]',
         }
 
         cls.bulk_edit_data = {
@@ -1423,6 +1432,7 @@ class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
 class InventoryItemTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = InventoryItemTemplate
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -1454,7 +1464,7 @@ class InventoryItemTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
 
         cls.bulk_create_data = {
             'device_type': devicetypes[1].pk,
-            'name_pattern': 'Inventory Item Template [4-6]',
+            'name': 'Inventory Item Template [4-6]',
             'manufacturer': manufacturers[1].pk,
         }
 
@@ -1912,6 +1922,7 @@ class ModuleTestCase(
 
 class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ConsolePort
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -1935,9 +1946,9 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_create_data = {
             'device': device.pk,
-            'name_pattern': 'Console Port [4-6]',
+            'name': 'Console Port [4-6]',
             # Test that a label can be applied to each generated console ports
-            'label_pattern': 'Serial[3-5]',
+            'label': 'Serial[3-5]',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console port',
             'tags': sorted([t.pk for t in tags]),
@@ -1970,6 +1981,7 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ConsoleServerPort
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -1993,7 +2005,7 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_create_data = {
             'device': device.pk,
-            'name_pattern': 'Console Server Port [4-6]',
+            'name': 'Console Server Port [4-6]',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console server port',
             'tags': [t.pk for t in tags],
@@ -2026,6 +2038,7 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = PowerPort
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -2051,7 +2064,7 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_create_data = {
             'device': device.pk,
-            'name_pattern': 'Power Port [4-6]]',
+            'name': 'Power Port [4-6]]',
             'type': PowerPortTypeChoices.TYPE_IEC_C14,
             'maximum_draw': 100,
             'allocated_draw': 50,
@@ -2088,6 +2101,7 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = PowerOutlet
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -2119,7 +2133,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_create_data = {
             'device': device.pk,
-            'name_pattern': 'Power Outlet [4-6]',
+            'name': 'Power Outlet [4-6]',
             'type': PowerOutletTypeChoices.TYPE_IEC_C13,
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
@@ -2153,6 +2167,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = Interface
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -2217,7 +2232,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_create_data = {
             'device': device.pk,
-            'name_pattern': 'Interface [4-6]',
+            'name': 'Interface [4-6]',
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'enabled': False,
             'bridge': interfaces[4].pk,
@@ -2277,6 +2292,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -2312,7 +2328,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_create_data = {
             'device': device.pk,
-            'name_pattern': 'Front Port [4-6]',
+            'name': 'Front Port [4-6]',
             'type': PortTypeChoices.TYPE_8P8C,
             'rear_port_set': [
                 '{}:1'.format(rp.pk) for rp in rearports[3:6]
@@ -2348,6 +2364,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = RearPort
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -2372,7 +2389,7 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_create_data = {
             'device': device.pk,
-            'name_pattern': 'Rear Port [4-6]',
+            'name': 'Rear Port [4-6]',
             'type': PortTypeChoices.TYPE_8P8C,
             'positions': 3,
             'description': 'A rear port',
@@ -2406,6 +2423,7 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ModuleBay
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -2428,7 +2446,7 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_create_data = {
             'device': device.pk,
-            'name_pattern': 'Module Bay [4-6]',
+            'name': 'Module Bay [4-6]',
             'description': 'A module bay',
             'tags': [t.pk for t in tags],
         }
@@ -2447,6 +2465,7 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = DeviceBay
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -2472,7 +2491,7 @@ class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_create_data = {
             'device': device.pk,
-            'name_pattern': 'Device Bay [4-6]',
+            'name': 'Device Bay [4-6]',
             'description': 'A device bay',
             'tags': [t.pk for t in tags],
         }
@@ -2491,6 +2510,7 @@ class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = InventoryItem
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
@@ -2525,7 +2545,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_create_data = {
             'device': device.pk,
-            'name_pattern': 'Inventory Item [4-6]',
+            'name': 'Inventory Item [4-6]',
             'role': roles[1].pk,
             'manufacturer': manufacturer.pk,
             'parent': None,

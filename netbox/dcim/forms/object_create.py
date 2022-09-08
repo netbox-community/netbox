@@ -79,23 +79,38 @@ class ComponentCreateForm(forms.Form):
 #
 
 class ConsolePortTemplateCreateForm(ComponentCreateForm, model_forms.ConsolePortTemplateForm):
-    pass
+    field_order = ('device_type', 'name', 'label')
+
+    class Meta(model_forms.ConsolePortTemplateForm.Meta):
+        exclude = ('name', 'label')
 
 
 class ConsoleServerPortTemplateCreateForm(ComponentCreateForm, model_forms.ConsoleServerPortTemplateForm):
-    pass
+    field_order = ('device_type', 'name', 'label')
+
+    class Meta(model_forms.ConsoleServerPortTemplateForm.Meta):
+        exclude = ('name', 'label')
 
 
 class PowerPortTemplateCreateForm(ComponentCreateForm, model_forms.PowerPortTemplateForm):
-    pass
+    field_order = ('device_type', 'name', 'label')
+
+    class Meta(model_forms.PowerPortTemplateForm.Meta):
+        exclude = ('name', 'label')
 
 
 class PowerOutletTemplateCreateForm(ComponentCreateForm, model_forms.PowerOutletTemplateForm):
-    pass
+    field_order = ('device_type', 'name', 'label')
+
+    class Meta(model_forms.PowerOutletTemplateForm.Meta):
+        exclude = ('name', 'label')
 
 
 class InterfaceTemplateCreateForm(ComponentCreateForm, model_forms.InterfaceTemplateForm):
-    pass
+    field_order = ('device_type', 'name', 'label')
+
+    class Meta(model_forms.InterfaceTemplateForm.Meta):
+        exclude = ('name', 'label')
 
 
 class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemplateForm):
@@ -104,6 +119,10 @@ class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemp
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
     )
+    field_order = ('device_type', 'name', 'label')
+
+    class Meta(model_forms.FrontPortTemplateForm.Meta):
+        exclude = ('name', 'label')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -149,11 +168,17 @@ class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemp
 
 
 class RearPortTemplateCreateForm(ComponentCreateForm, model_forms.RearPortTemplateForm):
-    pass
+    field_order = ('device_type', 'name', 'label')
+
+    class Meta(model_forms.RearPortTemplateForm.Meta):
+        exclude = ('name', 'label')
 
 
 class DeviceBayTemplateCreateForm(ComponentCreateForm, model_forms.DeviceBayTemplateForm):
-    pass
+    field_order = ('device_type', 'name', 'label')
+
+    class Meta(model_forms.DeviceBayTemplateForm.Meta):
+        exclude = ('name', 'label')
 
 
 class ModuleBayTemplateCreateForm(ComponentCreateForm, model_forms.ModuleBayTemplateForm):
@@ -162,10 +187,17 @@ class ModuleBayTemplateCreateForm(ComponentCreateForm, model_forms.ModuleBayTemp
         required=False,
         help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
     )
+    field_order = ('device_type', 'name', 'label')
+
+    class Meta(model_forms.ModuleBayTemplateForm.Meta):
+        exclude = ('name', 'label')
 
 
 class InventoryItemTemplateCreateForm(ComponentCreateForm, model_forms.InventoryItemTemplateForm):
-    pass
+    field_order = ('device_type', 'name', 'label')
+
+    class Meta(model_forms.InventoryItemTemplateForm.Meta):
+        exclude = ('name', 'label')
 
 
 #
@@ -173,23 +205,38 @@ class InventoryItemTemplateCreateForm(ComponentCreateForm, model_forms.Inventory
 #
 
 class ConsolePortCreateForm(ComponentCreateForm, model_forms.ConsolePortForm):
-    pass
+    field_order = ('device', 'name', 'label')
+
+    class Meta(model_forms.ConsolePortForm.Meta):
+        exclude = ('name', 'label')
 
 
 class ConsoleServerPortCreateForm(ComponentCreateForm, model_forms.ConsoleServerPortForm):
-    pass
+    field_order = ('device', 'name', 'label')
+
+    class Meta(model_forms.ConsoleServerPortForm.Meta):
+        exclude = ('name', 'label')
 
 
 class PowerPortCreateForm(ComponentCreateForm, model_forms.PowerPortForm):
-    pass
+    field_order = ('device', 'name', 'label')
+
+    class Meta(model_forms.PowerPortForm.Meta):
+        exclude = ('name', 'label')
 
 
 class PowerOutletCreateForm(ComponentCreateForm, model_forms.PowerOutletForm):
-    pass
+    field_order = ('device', 'name', 'label')
+
+    class Meta(model_forms.PowerOutletForm.Meta):
+        exclude = ('name', 'label')
 
 
 class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
-    pass
+    field_order = ('device', 'name', 'label')
+
+    class Meta(model_forms.InterfaceForm.Meta):
+        exclude = ('name', 'label')
 
 
 class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
@@ -198,6 +245,10 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
     )
+    field_order = ('device', 'name', 'label')
+
+    class Meta(model_forms.FrontPortForm.Meta):
+        exclude = ('name', 'label')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -236,11 +287,17 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
 
 
 class RearPortCreateForm(ComponentCreateForm, model_forms.RearPortForm):
-    pass
+    field_order = ('device', 'name', 'label')
+
+    class Meta(model_forms.RearPortForm.Meta):
+        exclude = ('name', 'label')
 
 
 class DeviceBayCreateForm(ComponentCreateForm, model_forms.DeviceBayForm):
-    pass
+    field_order = ('device', 'name', 'label')
+
+    class Meta(model_forms.DeviceBayForm.Meta):
+        exclude = ('name', 'label')
 
 
 class ModuleBayCreateForm(ComponentCreateForm, model_forms.ModuleBayForm):
@@ -249,11 +306,17 @@ class ModuleBayCreateForm(ComponentCreateForm, model_forms.ModuleBayForm):
         required=False,
         help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
     )
+    field_order = ('device', 'name', 'label')
+
+    class Meta(model_forms.ModuleBayForm.Meta):
+        exclude = ('name', 'label')
 
 
-class InventoryItemCreateForm(ComponentCreateForm):
-    # Device is assigned by the model form
-    field_order = ('name_pattern', 'label_pattern')
+class InventoryItemCreateForm(ComponentCreateForm, model_forms.InventoryItemForm):
+    field_order = ('device', 'name', 'label')
+
+    class Meta(model_forms.InventoryItemForm.Meta):
+        exclude = ('name', 'label')
 
 
 #

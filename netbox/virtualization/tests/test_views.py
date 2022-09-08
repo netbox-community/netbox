@@ -251,6 +251,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = VMInterface
+    validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
