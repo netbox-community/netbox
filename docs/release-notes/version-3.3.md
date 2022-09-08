@@ -9,6 +9,7 @@
 ### Bug Fixes
 
 * [#9231](https://github.com/netbox-community/netbox/issues/9231) - Fix `empty` lookup expression for string filters
+* [#10259](https://github.com/netbox-community/netbox/issues/10259) - Fix `NoReverseMatch` exception when listing available prefixes with "flat" column displayed
 * [#10270](https://github.com/netbox-community/netbox/issues/10270) - Fix custom field validation when creating new services
 * [#10278](https://github.com/netbox-community/netbox/issues/10278) - Fix "create & add another" for image attachments
 

@@ -21,6 +21,14 @@ __all__ = (
 AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
 
 PREFIX_LINK = """
+{% if record.pk %}
+  <a href="{{ record.get_absolute_url }}">{{ record.prefix }}</a>
+{% else %}
+  <a href="{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.site %}&site={{ object.site.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}">{{ record.prefix }}</a>
+{% endif %}
+"""
+
+PREFIX_LINK_WITH_DEPTH = """
 {% load helpers %}
 {% if record.depth %}
     <div class="record-depth">
@@ -29,8 +37,7 @@ PREFIX_LINK = """
         {% endfor %}
     </div>
 {% endif %}
-<a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.site %}&site={{ object.site.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
-"""
+""" + PREFIX_LINK
 
 IPADDRESS_LINK = """
 {% if record.pk %}
@@ -216,14 +223,15 @@ class PrefixUtilizationColumn(columns.UtilizationColumn):
 
 class PrefixTable(TenancyColumnsMixin, NetBoxTable):
     prefix = columns.TemplateColumn(
-        template_code=PREFIX_LINK,
+        template_code=PREFIX_LINK_WITH_DEPTH,
         export_raw=True,
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    prefix_flat = tables.Column(
+    prefix_flat = columns.TemplateColumn(
         accessor=Accessor('prefix'),
-        linkify=True,
-        verbose_name='Prefix (Flat)',
+        template_code=PREFIX_LINK,
+        export_raw=True,
+        verbose_name='Prefix (Flat)'
     )
     depth = tables.Column(
         accessor=Accessor('_depth'),
