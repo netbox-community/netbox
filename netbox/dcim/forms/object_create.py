@@ -39,7 +39,7 @@ class ComponentCreateForm(forms.Form):
     name = ExpandableNameField()
     label = ExpandableNameField(
         required=False,
-        help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
+        help_text='Alphanumeric ranges are supported. (Must match the number of objects being created.)'
     )
 
     replication_fields = ('name', 'label')
@@ -56,20 +56,6 @@ class ComponentCreateForm(forms.Form):
                     field_name: f'The provided pattern specifies {value_count} values, but {pattern_count} are '
                                 f'expected.'
                 }, code='label_pattern_mismatch')
-
-
-# class ModularComponentTemplateCreateForm(ComponentCreateForm):
-#     """
-#     Creation form for component templates that can be assigned to either a DeviceType *or* a ModuleType.
-#     """
-#     name = ExpandableNameField(
-#         label='Name',
-#         help_text="""
-#                 Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range
-#                 are not supported. Example: <code>[ge,xe]-0/0/[0-9]</code>. {module} is accepted as a substitution for
-#                 the module bay position.
-#                 """
-#     )
 
 
 #
@@ -179,7 +165,7 @@ class ModuleBayTemplateCreateForm(ComponentCreateForm, model_forms.ModuleBayTemp
     position = ExpandableNameField(
         label='Position',
         required=False,
-        help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
+        help_text='Alphanumeric ranges are supported. (Must match the number of objects being created.)'
     )
     replication_fields = ('name', 'label', 'position')
 
@@ -225,6 +211,13 @@ class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
 
     class Meta(model_forms.InterfaceForm.Meta):
         exclude = ('name', 'label')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if 'module' in self.fields:
+            self.fields['name'].help_text += ' The string <code>{module}</code> will be replaced with the position ' \
+                                             'of the assigned module, if any'
 
 
 class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
@@ -295,7 +288,7 @@ class ModuleBayCreateForm(ComponentCreateForm, model_forms.ModuleBayForm):
     position = ExpandableNameField(
         label='Position',
         required=False,
-        help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
+        help_text='Alphanumeric ranges are supported. (Must match the number of objects being created.)'
     )
     replication_fields = ('name', 'label', 'position')
 

@@ -1385,7 +1385,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     )
 
     fieldsets = (
-        ('Interface', ('device', 'module', 'name', 'type', 'speed', 'duplex', 'label', 'description', 'tags')),
+        ('Interface', ('device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'description', 'tags')),
         ('Addressing', ('vrf', 'mac_address', 'wwn')),
         ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
         ('Related Interfaces', ('parent', 'bridge', 'lag')),
