@@ -1,4 +1,3 @@
-// test comment
 import Clipboard from 'clipboard';
 import { getElements } from './util';
 
