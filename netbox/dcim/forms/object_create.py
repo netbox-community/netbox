@@ -114,15 +114,17 @@ class InterfaceTemplateCreateForm(ComponentCreateForm, model_forms.InterfaceTemp
 
 
 class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemplateForm):
-    rear_port_set = forms.MultipleChoiceField(
+    rear_port = forms.MultipleChoiceField(
         choices=[],
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
     )
-    field_order = ('device_type', 'name', 'label')
+    field_order = (
+        'device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port', 'description',
+    )
 
     class Meta(model_forms.FrontPortTemplateForm.Meta):
-        exclude = ('name', 'label')
+        exclude = ('name', 'label', 'rear_port', 'rear_port_position')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -154,12 +156,12 @@ class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemp
                     choices.append(
                         ('{}:{}'.format(rear_port.pk, i), '{}:{}'.format(rear_port.name, i))
                     )
-        self.fields['rear_port_set'].choices = choices
+        self.fields['rear_port'].choices = choices
 
     def get_iterative_data(self, iteration):
 
         # Assign rear port and position from selected set
-        rear_port, position = self.cleaned_data['rear_port_set'][iteration].split(':')
+        rear_port, position = self.cleaned_data['rear_port'][iteration].split(':')
 
         return {
             'rear_port': int(rear_port),
@@ -240,15 +242,15 @@ class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
 
 
 class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
-    rear_port_set = forms.MultipleChoiceField(
+    rear_port = forms.MultipleChoiceField(
         choices=[],
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
     )
-    field_order = ('device', 'name', 'label')
+    field_order = ('device', 'module', 'name', 'label', 'type', 'color', 'rear_port')
 
     class Meta(model_forms.FrontPortForm.Meta):
-        exclude = ('name', 'label')
+        exclude = ('name', 'label', 'rear_port', 'rear_port_position')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -273,12 +275,12 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
                     choices.append(
                         ('{}:{}'.format(rear_port.pk, i), '{}:{}'.format(rear_port.name, i))
                     )
-        self.fields['rear_port_set'].choices = choices
+        self.fields['rear_port'].choices = choices
 
     def get_iterative_data(self, iteration):
 
         # Assign rear port and position from selected set
-        rear_port, position = self.cleaned_data['rear_port_set'][iteration].split(':')
+        rear_port, position = self.cleaned_data['rear_port'][iteration].split(':')
 
         return {
             'rear_port': int(rear_port),

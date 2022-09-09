@@ -1279,7 +1279,7 @@ class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
 class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = FrontPortTemplate
-    validation_excluded_fields = ('name', 'label')
+    validation_excluded_fields = ('name', 'label', 'rear_port')
 
     @classmethod
     def setUpTestData(cls):
@@ -1314,9 +1314,7 @@ class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
             'device_type': devicetype.pk,
             'name': 'Front Port [4-6]',
             'type': PortTypeChoices.TYPE_8P8C,
-            'rear_port_set': [
-                '{}:1'.format(rp.pk) for rp in rearports[3:6]
-            ],
+            'rear_port': [f'{rp.pk}:1' for rp in rearports[3:6]],
         }
 
         cls.bulk_edit_data = {
@@ -2292,7 +2290,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort
-    validation_excluded_fields = ('name', 'label')
+    validation_excluded_fields = ('name', 'label', 'rear_port')
 
     @classmethod
     def setUpTestData(cls):
@@ -2330,9 +2328,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'device': device.pk,
             'name': 'Front Port [4-6]',
             'type': PortTypeChoices.TYPE_8P8C,
-            'rear_port_set': [
-                '{}:1'.format(rp.pk) for rp in rearports[3:6]
-            ],
+            'rear_port': [f'{rp.pk}:1' for rp in rearports[3:6]],
             'description': 'New description',
             'tags': [t.pk for t in tags],
         }

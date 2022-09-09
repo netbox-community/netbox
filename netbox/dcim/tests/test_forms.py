@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from dcim.choices import DeviceFaceChoices, DeviceStatusChoices
+from dcim.choices import DeviceFaceChoices, DeviceStatusChoices, InterfaceTypeChoices
 from dcim.forms import *
 from dcim.models import *
 from utilities.testing import create_test_device
@@ -131,6 +131,7 @@ class LabelTestCase(TestCase):
             'device': self.device.pk,
             'name': 'eth[0-9]',
             'label': 'Interface[0-9]',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
         }
         form = InterfaceCreateForm(interface_data)
 
@@ -144,6 +145,7 @@ class LabelTestCase(TestCase):
             'device': self.device.pk,
             'name': 'eth[0-9]',
             'label': 'Interface[0-1]',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
         }
         form = InterfaceCreateForm(bad_interface_data)
 
