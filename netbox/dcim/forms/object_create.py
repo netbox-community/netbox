@@ -33,7 +33,7 @@ __all__ = (
 
 class ComponentCreateForm(forms.Form):
     """
-    Subclass this form when facilitating the creation of one or more device component or component templates based on
+    Subclass this form when facilitating the creation of one or more component or component template objects based on
     a name pattern.
     """
     name = ExpandableNameField()
@@ -42,12 +42,14 @@ class ComponentCreateForm(forms.Form):
         help_text='Alphanumeric ranges are supported. (Must match the number of objects being created.)'
     )
 
+    # Identify the fields which support replication (i.e. ExpandableNameFields). This is referenced by
+    # ComponentCreateView when creating objects.
     replication_fields = ('name', 'label')
 
     def clean(self):
         super().clean()
 
-        # Validate that all patterned fields generate an equal number of values
+        # Validate that all replication fields generate an equal number of values
         pattern_count = len(self.cleaned_data[self.replication_fields[0]])
         for field_name in self.replication_fields:
             value_count = len(self.cleaned_data[field_name])
@@ -99,6 +101,7 @@ class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemp
         help_text='Select one rear port assignment for each front port being created.',
     )
 
+    # Override fieldsets from FrontPortTemplateForm to omit rear_port_position
     fieldsets = (
         (None, ('device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port', 'description')),
     )
@@ -227,6 +230,7 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
         help_text='Select one rear port assignment for each front port being created.',
     )
 
+    # Override fieldsets from FrontPortForm to omit rear_port_position
     fieldsets = (
         (None, (
             'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'mark_connected', 'description', 'tags',
