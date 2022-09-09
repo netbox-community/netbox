@@ -991,12 +991,15 @@ class ComponentTemplateForm(BootstrapMixin, forms.ModelForm):
         queryset=DeviceType.objects.all()
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-class ModularComponentTemplateForm(BootstrapMixin, forms.ModelForm):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all(),
-        required=False
-    )
+        # Disable reassignment of DeviceType when editing an existing instance
+        if self.instance.pk:
+            self.fields['device_type'].disabled = True
+
+
+class ModularComponentTemplateForm(ComponentTemplateForm):
     module_type = DynamicModelChoiceField(
         queryset=ModuleType.objects.all(),
         required=False
@@ -1004,6 +1007,10 @@ class ModularComponentTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class ConsolePortTemplateForm(ModularComponentTemplateForm):
+    fieldsets = (
+        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'description')),
+    )
+
     class Meta:
         model = ConsolePortTemplate
         fields = [
@@ -1015,6 +1022,10 @@ class ConsolePortTemplateForm(ModularComponentTemplateForm):
 
 
 class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
+    fieldsets = (
+        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'description')),
+    )
+
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
@@ -1026,6 +1037,12 @@ class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
 
 
 class PowerPortTemplateForm(ModularComponentTemplateForm):
+    fieldsets = (
+        (None, (
+            'device_type', 'module_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
+        )),
+    )
+
     class Meta:
         model = PowerPortTemplate
         fields = [
@@ -1045,6 +1062,10 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
         }
     )
 
+    fieldsets = (
+        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description')),
+    )
+
     class Meta:
         model = PowerOutletTemplate
         fields = [
@@ -1057,6 +1078,11 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
 
 
 class InterfaceTemplateForm(ModularComponentTemplateForm):
+    fieldsets = (
+        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description')),
+        ('PoE', ('poe_mode', 'poe_type'))
+    )
+
     class Meta:
         model = InterfaceTemplate
         fields = [
@@ -1079,6 +1105,13 @@ class FrontPortTemplateForm(ModularComponentTemplateForm):
         }
     )
 
+    fieldsets = (
+        (None, (
+            'device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
+            'description',
+        )),
+    )
+
     class Meta:
         model = FrontPortTemplate
         fields = [
@@ -1091,6 +1124,10 @@ class FrontPortTemplateForm(ModularComponentTemplateForm):
 
 
 class RearPortTemplateForm(ModularComponentTemplateForm):
+    fieldsets = (
+        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions', 'description')),
+    )
+
     class Meta:
         model = RearPortTemplate
         fields = [
@@ -1102,6 +1139,10 @@ class RearPortTemplateForm(ModularComponentTemplateForm):
 
 
 class ModuleBayTemplateForm(ComponentTemplateForm):
+    fieldsets = (
+        (None, ('device_type', 'name', 'label', 'position', 'description')),
+    )
+
     class Meta:
         model = ModuleBayTemplate
         fields = [
@@ -1110,6 +1151,10 @@ class ModuleBayTemplateForm(ComponentTemplateForm):
 
 
 class DeviceBayTemplateForm(ComponentTemplateForm):
+    fieldsets = (
+        (None, ('device_type', 'name', 'label', 'description')),
+    )
+
     class Meta:
         model = DeviceBayTemplate
         fields = [
@@ -1144,6 +1189,13 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         widget=forms.HiddenInput
     )
 
+    fieldsets = (
+        (None, (
+            'device_type', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'description',
+            'component_type', 'component_id',
+        )),
+    )
+
     class Meta:
         model = InventoryItemTemplate
         fields = [
@@ -1156,10 +1208,20 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
 # Device components
 #
 
-class ConsolePortForm(NetBoxModelForm):
+class DeviceComponentForm(NetBoxModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all()
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Disable reassignment of Device when editing an existing instance
+        if self.instance.pk:
+            self.fields['device'].disabled = True
+
+
+class ModularDeviceComponentForm(NetBoxModelForm):
     module = DynamicModelChoiceField(
         queryset=Module.objects.all(),
         required=False,
@@ -1168,6 +1230,8 @@ class ConsolePortForm(NetBoxModelForm):
         }
     )
 
+
+class ConsolePortForm(ModularDeviceComponentForm):
     fieldsets = (
         (None, (
             'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
@@ -1185,17 +1249,7 @@ class ConsolePortForm(NetBoxModelForm):
         }
 
 
-class ConsoleServerPortForm(NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
-    )
-    module = DynamicModelChoiceField(
-        queryset=Module.objects.all(),
-        required=False,
-        query_params={
-            'device_id': '$device',
-        }
-    )
+class ConsoleServerPortForm(ModularDeviceComponentForm):
 
     fieldsets = (
         (None, (
@@ -1214,17 +1268,7 @@ class ConsoleServerPortForm(NetBoxModelForm):
         }
 
 
-class PowerPortForm(NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
-    )
-    module = DynamicModelChoiceField(
-        queryset=Module.objects.all(),
-        required=False,
-        query_params={
-            'device_id': '$device',
-        }
-    )
+class PowerPortForm(ModularDeviceComponentForm):
 
     fieldsets = (
         (None, (
@@ -1244,17 +1288,7 @@ class PowerPortForm(NetBoxModelForm):
         }
 
 
-class PowerOutletForm(NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
-    )
-    module = DynamicModelChoiceField(
-        queryset=Module.objects.all(),
-        required=False,
-        query_params={
-            'device_id': '$device',
-        }
-    )
+class PowerOutletForm(ModularDeviceComponentForm):
     power_port = DynamicModelChoiceField(
         queryset=PowerPort.objects.all(),
         required=False,
@@ -1282,17 +1316,7 @@ class PowerOutletForm(NetBoxModelForm):
         }
 
 
-class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
-    )
-    module = DynamicModelChoiceField(
-        queryset=Module.objects.all(),
-        required=False,
-        query_params={
-            'device_id': '$device',
-        }
-    )
+class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     parent = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -1410,17 +1434,7 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
             self.fields['bridge'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
 
 
-class FrontPortForm(NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
-    )
-    module = DynamicModelChoiceField(
-        queryset=Module.objects.all(),
-        required=False,
-        query_params={
-            'device_id': '$device',
-        }
-    )
+class FrontPortForm(ModularDeviceComponentForm):
     rear_port = DynamicModelChoiceField(
         queryset=RearPort.objects.all(),
         query_params={
@@ -1446,18 +1460,7 @@ class FrontPortForm(NetBoxModelForm):
         }
 
 
-class RearPortForm(NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
-    )
-    module = DynamicModelChoiceField(
-        queryset=Module.objects.all(),
-        required=False,
-        query_params={
-            'device_id': '$device',
-        }
-    )
-
+class RearPortForm(ModularDeviceComponentForm):
     fieldsets = (
         (None, (
             'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
@@ -1474,11 +1477,7 @@ class RearPortForm(NetBoxModelForm):
         }
 
 
-class ModuleBayForm(NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
-    )
-
+class ModuleBayForm(DeviceComponentForm):
     fieldsets = (
         (None, ('device', 'name', 'label', 'position', 'description', 'tags',)),
     )
@@ -1490,11 +1489,7 @@ class ModuleBayForm(NetBoxModelForm):
         ]
 
 
-class DeviceBayForm(NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
-    )
-
+class DeviceBayForm(DeviceComponentForm):
     fieldsets = (
         (None, ('device', 'name', 'label', 'description', 'tags',)),
     )
@@ -1526,10 +1521,7 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
         ).exclude(pk=device_bay.device.pk)
 
 
-class InventoryItemForm(NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
-    )
+class InventoryItemForm(DeviceComponentForm):
     parent = DynamicModelChoiceField(
         queryset=InventoryItem.objects.all(),
         required=False,
