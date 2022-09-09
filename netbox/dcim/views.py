@@ -1360,7 +1360,6 @@ class ModuleBayTemplateCreateView(generic.ComponentCreateView):
     queryset = ModuleBayTemplate.objects.all()
     form = forms.ModuleBayTemplateCreateForm
     model_form = forms.ModuleBayTemplateForm
-    patterned_fields = ('name', 'label', 'position')
 
 
 class ModuleBayTemplateEditView(generic.ObjectEditView):
@@ -2314,7 +2313,6 @@ class ModuleBayCreateView(generic.ComponentCreateView):
     queryset = ModuleBay.objects.all()
     form = forms.ModuleBayCreateForm
     model_form = forms.ModuleBayForm
-    patterned_fields = ('name', 'label', 'position')
 
 
 class ModuleBayEditView(generic.ObjectEditView):

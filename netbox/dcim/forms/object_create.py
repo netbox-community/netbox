@@ -42,22 +42,20 @@ class ComponentCreateForm(forms.Form):
         help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
     )
 
-    # TODO: Incorporate this validation
-    # def clean(self):
-    #     super().clean()
-    #
-    #     # Validate that all patterned fields generate an equal number of values
-    #     patterned_fields = [
-    #         field_name for field_name in self.fields if field_name.endswith('_pattern')
-    #     ]
-    #     pattern_count = len(self.cleaned_data['name_pattern'])
-    #     for field_name in patterned_fields:
-    #         value_count = len(self.cleaned_data[field_name])
-    #         if self.cleaned_data[field_name] and value_count != pattern_count:
-    #             raise forms.ValidationError({
-    #                 field_name: f'The provided pattern specifies {value_count} values, but {pattern_count} are '
-    #                             f'expected.'
-    #             }, code='label_pattern_mismatch')
+    replication_fields = ('name', 'label')
+
+    def clean(self):
+        super().clean()
+
+        # Validate that all patterned fields generate an equal number of values
+        pattern_count = len(self.cleaned_data[self.replication_fields[0]])
+        for field_name in self.replication_fields:
+            value_count = len(self.cleaned_data[field_name])
+            if self.cleaned_data[field_name] and value_count != pattern_count:
+                raise forms.ValidationError({
+                    field_name: f'The provided pattern specifies {value_count} values, but {pattern_count} are '
+                                f'expected.'
+                }, code='label_pattern_mismatch')
 
 
 # class ModularComponentTemplateCreateForm(ComponentCreateForm):
@@ -190,9 +188,10 @@ class ModuleBayTemplateCreateForm(ComponentCreateForm, model_forms.ModuleBayTemp
         help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
     )
     field_order = ('device_type', 'name', 'label')
+    replication_fields = ('name', 'label', 'position')
 
     class Meta(model_forms.ModuleBayTemplateForm.Meta):
-        exclude = ('name', 'label')
+        exclude = ('name', 'label', 'position')
 
 
 class InventoryItemTemplateCreateForm(ComponentCreateForm, model_forms.InventoryItemTemplateForm):
@@ -309,9 +308,10 @@ class ModuleBayCreateForm(ComponentCreateForm, model_forms.ModuleBayForm):
         help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
     )
     field_order = ('device', 'name', 'label')
+    replication_fields = ('name', 'label', 'position')
 
     class Meta(model_forms.ModuleBayForm.Meta):
-        exclude = ('name', 'label')
+        exclude = ('name', 'label', 'position')
 
 
 class InventoryItemCreateForm(ComponentCreateForm, model_forms.InventoryItemForm):

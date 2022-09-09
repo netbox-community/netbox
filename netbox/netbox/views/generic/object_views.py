@@ -541,7 +541,6 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
     template_name = 'generic/object_edit.html'
     form = None
     model_form = None
-    patterned_fields = ('name', 'label')
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -575,10 +574,10 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         if form.is_valid():
             new_components = []
             data = deepcopy(request.POST)
-            pattern_count = len(form.cleaned_data[self.patterned_fields[0]])
+            pattern_count = len(form.cleaned_data[self.form.replication_fields[0]])
 
             for i in range(pattern_count):
-                for field_name in self.patterned_fields:
+                for field_name in self.form.replication_fields:
                     if form.cleaned_data.get(field_name):
                         data[field_name] = form.cleaned_data[field_name][i]
 
