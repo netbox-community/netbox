@@ -1087,26 +1087,22 @@ class ConsolePortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        devicetypes = (
-            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
-            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
-        )
-        DeviceType.objects.bulk_create(devicetypes)
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
 
         ConsolePortTemplate.objects.bulk_create((
-            ConsolePortTemplate(device_type=devicetypes[0], name='Console Port Template 1'),
-            ConsolePortTemplate(device_type=devicetypes[0], name='Console Port Template 2'),
-            ConsolePortTemplate(device_type=devicetypes[0], name='Console Port Template 3'),
+            ConsolePortTemplate(device_type=devicetype, name='Console Port Template 1'),
+            ConsolePortTemplate(device_type=devicetype, name='Console Port Template 2'),
+            ConsolePortTemplate(device_type=devicetype, name='Console Port Template 3'),
         ))
 
         cls.form_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Console Port Template X',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
         }
 
         cls.bulk_create_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Console Port Template [4-6]',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
         }
@@ -1123,26 +1119,22 @@ class ConsoleServerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateVie
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        devicetypes = (
-            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
-            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
-        )
-        DeviceType.objects.bulk_create(devicetypes)
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
 
         ConsoleServerPortTemplate.objects.bulk_create((
-            ConsoleServerPortTemplate(device_type=devicetypes[0], name='Console Server Port Template 1'),
-            ConsoleServerPortTemplate(device_type=devicetypes[0], name='Console Server Port Template 2'),
-            ConsoleServerPortTemplate(device_type=devicetypes[0], name='Console Server Port Template 3'),
+            ConsoleServerPortTemplate(device_type=devicetype, name='Console Server Port Template 1'),
+            ConsoleServerPortTemplate(device_type=devicetype, name='Console Server Port Template 2'),
+            ConsoleServerPortTemplate(device_type=devicetype, name='Console Server Port Template 3'),
         ))
 
         cls.form_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Console Server Port Template X',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
         }
 
         cls.bulk_create_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Console Server Port Template [4-6]',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
         }
@@ -1159,20 +1151,16 @@ class PowerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        devicetypes = (
-            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
-            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
-        )
-        DeviceType.objects.bulk_create(devicetypes)
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
 
         PowerPortTemplate.objects.bulk_create((
-            PowerPortTemplate(device_type=devicetypes[0], name='Power Port Template 1'),
-            PowerPortTemplate(device_type=devicetypes[0], name='Power Port Template 2'),
-            PowerPortTemplate(device_type=devicetypes[0], name='Power Port Template 3'),
+            PowerPortTemplate(device_type=devicetype, name='Power Port Template 1'),
+            PowerPortTemplate(device_type=devicetype, name='Power Port Template 2'),
+            PowerPortTemplate(device_type=devicetype, name='Power Port Template 3'),
         ))
 
         cls.form_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Power Port Template X',
             'type': PowerPortTypeChoices.TYPE_IEC_C14,
             'maximum_draw': 100,
@@ -1180,7 +1168,7 @@ class PowerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
         }
 
         cls.bulk_create_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Power Port Template [4-6]',
             'type': PowerPortTypeChoices.TYPE_IEC_C14,
             'maximum_draw': 100,
@@ -1243,27 +1231,23 @@ class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        devicetypes = (
-            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
-            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
-        )
-        DeviceType.objects.bulk_create(devicetypes)
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
 
         InterfaceTemplate.objects.bulk_create((
-            InterfaceTemplate(device_type=devicetypes[0], name='Interface Template 1'),
-            InterfaceTemplate(device_type=devicetypes[0], name='Interface Template 2'),
-            InterfaceTemplate(device_type=devicetypes[0], name='Interface Template 3'),
+            InterfaceTemplate(device_type=devicetype, name='Interface Template 1'),
+            InterfaceTemplate(device_type=devicetype, name='Interface Template 2'),
+            InterfaceTemplate(device_type=devicetype, name='Interface Template 3'),
         ))
 
         cls.form_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Interface Template X',
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'mgmt_only': True,
         }
 
         cls.bulk_create_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Interface Template [4-6]',
             # Test that a label can be applied to each generated interface templates
             'label': 'Interface Template Label [3-5]',
@@ -1329,27 +1313,23 @@ class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        devicetypes = (
-            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
-            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
-        )
-        DeviceType.objects.bulk_create(devicetypes)
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
 
         RearPortTemplate.objects.bulk_create((
-            RearPortTemplate(device_type=devicetypes[0], name='Rear Port Template 1'),
-            RearPortTemplate(device_type=devicetypes[0], name='Rear Port Template 2'),
-            RearPortTemplate(device_type=devicetypes[0], name='Rear Port Template 3'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 1'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 2'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 3'),
         ))
 
         cls.form_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Rear Port Template X',
             'type': PortTypeChoices.TYPE_8P8C,
             'positions': 2,
         }
 
         cls.bulk_create_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Rear Port Template [4-6]',
             'type': PortTypeChoices.TYPE_8P8C,
             'positions': 2,
@@ -1367,25 +1347,21 @@ class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        devicetypes = (
-            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
-            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
-        )
-        DeviceType.objects.bulk_create(devicetypes)
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
 
         ModuleBayTemplate.objects.bulk_create((
-            ModuleBayTemplate(device_type=devicetypes[0], name='Module Bay Template 1'),
-            ModuleBayTemplate(device_type=devicetypes[0], name='Module Bay Template 2'),
-            ModuleBayTemplate(device_type=devicetypes[0], name='Module Bay Template 3'),
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay Template 1'),
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay Template 2'),
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay Template 3'),
         ))
 
         cls.form_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Module Bay Template X',
         }
 
         cls.bulk_create_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Module Bay Template [4-6]',
         }
 
@@ -1401,25 +1377,21 @@ class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        devicetypes = (
-            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1', subdevice_role=SubdeviceRoleChoices.ROLE_PARENT),
-            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2', subdevice_role=SubdeviceRoleChoices.ROLE_PARENT),
-        )
-        DeviceType.objects.bulk_create(devicetypes)
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1', subdevice_role=SubdeviceRoleChoices.ROLE_PARENT)
 
         DeviceBayTemplate.objects.bulk_create((
-            DeviceBayTemplate(device_type=devicetypes[0], name='Device Bay Template 1'),
-            DeviceBayTemplate(device_type=devicetypes[0], name='Device Bay Template 2'),
-            DeviceBayTemplate(device_type=devicetypes[0], name='Device Bay Template 3'),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay Template 1'),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay Template 2'),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay Template 3'),
         ))
 
         cls.form_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Device Bay Template X',
         }
 
         cls.bulk_create_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Device Bay Template [4-6]',
         }
 
@@ -1439,29 +1411,24 @@ class InventoryItemTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
             Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
         )
         Manufacturer.objects.bulk_create(manufacturers)
-
-        devicetypes = (
-            DeviceType(manufacturer=manufacturers[0], model='Device Type 1', slug='device-type-1'),
-            DeviceType(manufacturer=manufacturers[0], model='Device Type 2', slug='device-type-2'),
-        )
-        DeviceType.objects.bulk_create(devicetypes)
+        devicetype = DeviceType.objects.create(manufacturer=manufacturers[0], model='Device Type 1', slug='device-type-1')
 
         inventory_item_templates = (
-            InventoryItemTemplate(device_type=devicetypes[0], name='Inventory Item Template 1', manufacturer=manufacturers[0]),
-            InventoryItemTemplate(device_type=devicetypes[0], name='Inventory Item Template 2', manufacturer=manufacturers[0]),
-            InventoryItemTemplate(device_type=devicetypes[0], name='Inventory Item Template 3', manufacturer=manufacturers[0]),
+            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 1', manufacturer=manufacturers[0]),
+            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 2', manufacturer=manufacturers[0]),
+            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 3', manufacturer=manufacturers[0]),
         )
         for item in inventory_item_templates:
             item.save()
 
         cls.form_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Inventory Item Template X',
             'manufacturer': manufacturers[1].pk,
         }
 
         cls.bulk_create_data = {
-            'device_type': devicetypes[1].pk,
+            'device_type': devicetype.pk,
             'name': 'Inventory Item Template [4-6]',
             'manufacturer': manufacturers[1].pk,
         }
