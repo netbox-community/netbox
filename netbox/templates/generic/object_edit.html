@@ -59,9 +59,11 @@ Context:
             {# Render grouped fields according to Form #}
             {% for group, fields in form.fieldsets %}
               <div class="field-group mb-5">
-                <div class="row mb-2">
-                  <h5 class="offset-sm-3">{{ group }}</h5>
-                </div>
+                {% if group %}
+                  <div class="row mb-2">
+                    <h5 class="offset-sm-3">{{ group }}</h5>
+                  </div>
+                {% endif %}
                 {% for name in fields %}
                   {% with field=form|getfield:name %}
                     {% if not field.field.widget.is_hidden %}
