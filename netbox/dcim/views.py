@@ -1862,7 +1862,6 @@ class ConsolePortCreateView(generic.ComponentCreateView):
 class ConsolePortEditView(generic.ObjectEditView):
     queryset = ConsolePort.objects.all()
     form = forms.ConsolePortForm
-    template_name = 'dcim/device_component_edit.html'
 
 
 class ConsolePortDeleteView(generic.ObjectDeleteView):
@@ -1921,7 +1920,6 @@ class ConsoleServerPortCreateView(generic.ComponentCreateView):
 class ConsoleServerPortEditView(generic.ObjectEditView):
     queryset = ConsoleServerPort.objects.all()
     form = forms.ConsoleServerPortForm
-    template_name = 'dcim/device_component_edit.html'
 
 
 class ConsoleServerPortDeleteView(generic.ObjectDeleteView):
@@ -1980,7 +1978,6 @@ class PowerPortCreateView(generic.ComponentCreateView):
 class PowerPortEditView(generic.ObjectEditView):
     queryset = PowerPort.objects.all()
     form = forms.PowerPortForm
-    template_name = 'dcim/device_component_edit.html'
 
 
 class PowerPortDeleteView(generic.ObjectDeleteView):
@@ -2039,7 +2036,6 @@ class PowerOutletCreateView(generic.ComponentCreateView):
 class PowerOutletEditView(generic.ObjectEditView):
     queryset = PowerOutlet.objects.all()
     form = forms.PowerOutletForm
-    template_name = 'dcim/device_component_edit.html'
 
 
 class PowerOutletDeleteView(generic.ObjectDeleteView):
@@ -2200,7 +2196,6 @@ class FrontPortCreateView(generic.ComponentCreateView):
 class FrontPortEditView(generic.ObjectEditView):
     queryset = FrontPort.objects.all()
     form = forms.FrontPortForm
-    template_name = 'dcim/device_component_edit.html'
 
 
 class FrontPortDeleteView(generic.ObjectDeleteView):
@@ -2259,7 +2254,6 @@ class RearPortCreateView(generic.ComponentCreateView):
 class RearPortEditView(generic.ObjectEditView):
     queryset = RearPort.objects.all()
     form = forms.RearPortForm
-    template_name = 'dcim/device_component_edit.html'
 
 
 class RearPortDeleteView(generic.ObjectDeleteView):
@@ -2318,7 +2312,6 @@ class ModuleBayCreateView(generic.ComponentCreateView):
 class ModuleBayEditView(generic.ObjectEditView):
     queryset = ModuleBay.objects.all()
     form = forms.ModuleBayForm
-    template_name = 'dcim/device_component_edit.html'
 
 
 class ModuleBayDeleteView(generic.ObjectDeleteView):
@@ -2373,7 +2366,6 @@ class DeviceBayCreateView(generic.ComponentCreateView):
 class DeviceBayEditView(generic.ObjectEditView):
     queryset = DeviceBay.objects.all()
     form = forms.DeviceBayForm
-    template_name = 'dcim/device_component_edit.html'
 
 
 class DeviceBayDeleteView(generic.ObjectDeleteView):

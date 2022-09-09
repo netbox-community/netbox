@@ -1168,6 +1168,12 @@ class ConsolePortForm(NetBoxModelForm):
         }
     )
 
+    fieldsets = (
+        (None, (
+            'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = ConsolePort
         fields = [
@@ -1189,6 +1195,12 @@ class ConsoleServerPortForm(NetBoxModelForm):
         query_params={
             'device_id': '$device',
         }
+    )
+
+    fieldsets = (
+        (None, (
+            'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
+        )),
     )
 
     class Meta:
@@ -1214,12 +1226,18 @@ class PowerPortForm(NetBoxModelForm):
         }
     )
 
+    fieldsets = (
+        (None, (
+            'device', 'module', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected',
+            'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = PowerPort
         fields = [
             'device', 'module', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected',
-            'description',
-            'tags',
+            'description', 'tags',
         ]
         widgets = {
             'type': StaticSelect(),
@@ -1243,6 +1261,13 @@ class PowerOutletForm(NetBoxModelForm):
         query_params={
             'device_id': '$device',
         }
+    )
+
+    fieldsets = (
+        (None, (
+            'device', 'module', 'name', 'label', 'type', 'power_port', 'feed_leg', 'mark_connected', 'description',
+            'tags',
+        )),
     )
 
     class Meta:
@@ -1403,6 +1428,13 @@ class FrontPortForm(NetBoxModelForm):
         }
     )
 
+    fieldsets = (
+        (None, (
+            'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
+            'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = FrontPort
         fields = [
@@ -1426,6 +1458,12 @@ class RearPortForm(NetBoxModelForm):
         }
     )
 
+    fieldsets = (
+        (None, (
+            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = RearPort
         fields = [
@@ -1441,6 +1479,10 @@ class ModuleBayForm(NetBoxModelForm):
         queryset=Device.objects.all()
     )
 
+    fieldsets = (
+        (None, ('device', 'name', 'label', 'position', 'description', 'tags',)),
+    )
+
     class Meta:
         model = ModuleBay
         fields = [
@@ -1451,6 +1493,10 @@ class ModuleBayForm(NetBoxModelForm):
 class DeviceBayForm(NetBoxModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all()
+    )
+
+    fieldsets = (
+        (None, ('device', 'name', 'label', 'description', 'tags',)),
     )
 
     class Meta:

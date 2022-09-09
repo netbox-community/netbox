@@ -206,35 +206,30 @@ class InventoryItemTemplateCreateForm(ComponentCreateForm, model_forms.Inventory
 #
 
 class ConsolePortCreateForm(ComponentCreateForm, model_forms.ConsolePortForm):
-    field_order = ('device', 'name', 'label')
 
     class Meta(model_forms.ConsolePortForm.Meta):
         exclude = ('name', 'label')
 
 
 class ConsoleServerPortCreateForm(ComponentCreateForm, model_forms.ConsoleServerPortForm):
-    field_order = ('device', 'name', 'label')
 
     class Meta(model_forms.ConsoleServerPortForm.Meta):
         exclude = ('name', 'label')
 
 
 class PowerPortCreateForm(ComponentCreateForm, model_forms.PowerPortForm):
-    field_order = ('device', 'name', 'label')
 
     class Meta(model_forms.PowerPortForm.Meta):
         exclude = ('name', 'label')
 
 
 class PowerOutletCreateForm(ComponentCreateForm, model_forms.PowerOutletForm):
-    field_order = ('device', 'name', 'label')
 
     class Meta(model_forms.PowerOutletForm.Meta):
         exclude = ('name', 'label')
 
 
 class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
-    field_order = ('device', 'name', 'label')
 
     class Meta(model_forms.InterfaceForm.Meta):
         exclude = ('name', 'label')
@@ -246,7 +241,12 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
     )
-    field_order = ('device', 'module', 'name', 'label', 'type', 'color', 'rear_port')
+
+    fieldsets = (
+        (None, (
+            'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'mark_connected', 'description', 'tags',
+        )),
+    )
 
     class Meta(model_forms.FrontPortForm.Meta):
         exclude = ('name', 'label', 'rear_port', 'rear_port_position')
@@ -288,14 +288,12 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
 
 
 class RearPortCreateForm(ComponentCreateForm, model_forms.RearPortForm):
-    field_order = ('device', 'name', 'label')
 
     class Meta(model_forms.RearPortForm.Meta):
         exclude = ('name', 'label')
 
 
 class DeviceBayCreateForm(ComponentCreateForm, model_forms.DeviceBayForm):
-    field_order = ('device', 'name', 'label')
 
     class Meta(model_forms.DeviceBayForm.Meta):
         exclude = ('name', 'label')
@@ -307,7 +305,6 @@ class ModuleBayCreateForm(ComponentCreateForm, model_forms.ModuleBayForm):
         required=False,
         help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
     )
-    field_order = ('device', 'name', 'label')
     replication_fields = ('name', 'label', 'position')
 
     class Meta(model_forms.ModuleBayForm.Meta):
@@ -315,7 +312,6 @@ class ModuleBayCreateForm(ComponentCreateForm, model_forms.ModuleBayForm):
 
 
 class InventoryItemCreateForm(ComponentCreateForm, model_forms.InventoryItemForm):
-    field_order = ('device', 'name', 'label')
 
     class Meta(model_forms.InventoryItemForm.Meta):
         exclude = ('name', 'label')
