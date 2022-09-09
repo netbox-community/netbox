@@ -1096,7 +1096,7 @@ class InterfacePoETypeChoices(ChoiceSet):
                 (PASSIVE_24V_2PAIR, 'Passive 24V (2-pair)'),
                 (PASSIVE_24V_4PAIR, 'Passive 24V (4-pair)'),
                 (PASSIVE_48V_2PAIR, 'Passive 48V (2-pair)'),
-                (PASSIVE_48V_2PAIR, 'Passive 48V (4-pair)'),
+                (PASSIVE_48V_4PAIR, 'Passive 48V (4-pair)'),
             )
         ),
     )
