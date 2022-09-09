@@ -14,6 +14,8 @@
 * [#10270](https://github.com/netbox-community/netbox/issues/10270) - Fix custom field validation when creating new services
 * [#10278](https://github.com/netbox-community/netbox/issues/10278) - Fix "create & add another" for image attachments
 * [#10294](https://github.com/netbox-community/netbox/issues/10294) - Fix spurious changelog diff for interface WWN field
+* [#10304](https://github.com/netbox-community/netbox/issues/10304) - Enable cloning for custom fields & custom links
+* [#10307](https://github.com/netbox-community/netbox/issues/10307) - Correct value for "Passive 48V (4-pair)" PoE type selection
 
 ---
 
