@@ -21,7 +21,7 @@ from extras.conditions import ConditionSet
 from extras.utils import FeatureQuery, image_upload
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
-    CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, TagsMixin, WebhooksMixin,
+    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, TagsMixin, WebhooksMixin,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import render_jinja2
@@ -187,7 +187,7 @@ class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         return render_jinja2(self.payload_url, context)
 
 
-class CustomLink(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
@@ -228,6 +228,10 @@ class CustomLink(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     new_window = models.BooleanField(
         default=False,
         help_text="Force link to open in a new window"
+    )
+
+    clone_fields = (
+        'content_type', 'enabled', 'weight', 'group_name', 'button_class', 'new_window',
     )
 
     class Meta:
