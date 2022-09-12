@@ -1144,6 +1144,15 @@ class CabledObjectFilterSet(django_filters.FilterSet):
         lookup_expr='isnull',
         exclude=True
     )
+    occupied = django_filters.BooleanFilter(
+        method='filter_occupied'
+    )
+
+    def filter_occupied(self, queryset, name, value):
+        if value:
+            return queryset.filter(Q(cable__isnull=False) | Q(mark_connected=True))
+        else:
+            return queryset.filter(cable__isnull=True, mark_connected=False)
 
 
 class PathEndpointFilterSet(django_filters.FilterSet):

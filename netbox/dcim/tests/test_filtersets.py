@@ -1983,12 +1983,6 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
@@ -2037,9 +2031,21 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'occupied': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
@@ -2144,12 +2150,6 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
@@ -2198,9 +2198,21 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'occupied': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
@@ -2313,12 +2325,6 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'allocated_draw': [50, 100]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
@@ -2367,9 +2373,21 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'occupied': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
@@ -2478,12 +2496,6 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'feed_leg': [PowerOutletFeedLegChoices.FEED_LEG_A, PowerOutletFeedLegChoices.FEED_LEG_B]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
@@ -2532,9 +2544,21 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'occupied': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
@@ -2741,12 +2765,6 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-
     def test_enabled(self):
         params = {'enabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
@@ -2880,9 +2898,21 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'occupied': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_kind(self):
@@ -3091,9 +3121,15 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'occupied': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -3255,9 +3291,15 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'occupied': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -4159,9 +4201,9 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_connected(self):
