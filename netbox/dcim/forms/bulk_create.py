@@ -37,6 +37,7 @@ class DeviceBulkAddComponentForm(BootstrapMixin, CustomFieldsMixin, ComponentCre
         queryset=Tag.objects.all(),
         required=False
     )
+    replication_fields = ('name', 'label')
 
 
 class ConsolePortBulkCreateForm(
@@ -102,7 +103,7 @@ class RearPortBulkCreateForm(
 class ModuleBayBulkCreateForm(DeviceBulkAddComponentForm):
     model = ModuleBay
     field_order = ('name', 'label', 'position_pattern', 'description', 'tags')
-
+    replication_fields = ('name', 'label', 'position')
     position_pattern = ExpandableNameField(
         label='Position',
         required=False,
