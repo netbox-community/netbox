@@ -1013,7 +1013,7 @@ class CabledFilterForm(forms.Form):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
-    is_occupied = forms.NullBooleanField(
+    occupied = forms.NullBooleanField(
         required=False,
         widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -1030,7 +1030,7 @@ class InterfaceFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         ('PoE', ('poe_mode', 'poe_type')),
         ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
-        ('Connection', ('cabled', 'connected', 'is_occupied'))
+        ('Connection', ('cabled', 'connected', 'occupied'))
     )
     kind = MultipleChoiceField(
         choices=InterfaceKindChoices,
