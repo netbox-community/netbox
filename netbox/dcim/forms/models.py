@@ -1221,7 +1221,7 @@ class DeviceComponentForm(NetBoxModelForm):
             self.fields['device'].disabled = True
 
 
-class ModularDeviceComponentForm(NetBoxModelForm):
+class ModularDeviceComponentForm(DeviceComponentForm):
     module = DynamicModelChoiceField(
         queryset=Module.objects.all(),
         required=False,
