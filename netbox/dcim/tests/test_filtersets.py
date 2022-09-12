@@ -2885,10 +2885,10 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
-    def is_occupied(self):
-        params = {'is_occupied': 'true'}
+    def test_is_occupied(self):
+        params = {'is_occupied': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'is_occupied': 'false'}
+        params = {'is_occupied': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_kind(self):

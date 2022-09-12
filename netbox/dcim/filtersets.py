@@ -1148,6 +1148,12 @@ class CabledObjectFilterSet(django_filters.FilterSet):
         method='filter_is_occupied'
     )
 
+    def filter_is_occupied(self, queryset, name, value):
+        if value:
+            return queryset.filter(Q(cable__isnull=False) | Q(mark_connected=True))
+        else:
+            return queryset.filter(cable__isnull=True, mark_connected=False)
+
 
 class PathEndpointFilterSet(django_filters.FilterSet):
     connected = django_filters.BooleanFilter(
@@ -1361,12 +1367,6 @@ class InterfaceFilterSet(
             'virtual': queryset.filter(type__in=VIRTUAL_IFACE_TYPES),
             'wireless': queryset.filter(type__in=WIRELESS_IFACE_TYPES),
         }.get(value, queryset.none())
-
-    def filter_is_occupied(self, queryset, name, value):
-        if value:
-            return queryset.filter(Q(cable__isnull=False) | Q(mark_connected=True))
-        else:
-            return queryset.filter(cable__isnull=True, mark_connected=False)
 
 
 class FrontPortFilterSet(
