@@ -2741,12 +2741,6 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-
     def test_enabled(self):
         params = {'enabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
@@ -2883,6 +2877,18 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'cabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'cabled': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'connected': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def is_occupied(self):
+        params = {'is_occupied': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'is_occupied': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_kind(self):
