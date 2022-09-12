@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#8580](https://github.com/netbox-community/netbox/issues/8580) - Add `occupied` filter for cabled objects to filter by cable or `mark_connected`
 * [#10268](https://github.com/netbox-community/netbox/issues/10268) - Omit trailing ".0" in device positions within UI
 
 ### Bug Fixes
@@ -16,6 +17,7 @@
 * [#10294](https://github.com/netbox-community/netbox/issues/10294) - Fix spurious changelog diff for interface WWN field
 * [#10304](https://github.com/netbox-community/netbox/issues/10304) - Enable cloning for custom fields & custom links
 * [#10307](https://github.com/netbox-community/netbox/issues/10307) - Correct value for "Passive 48V (4-pair)" PoE type selection
+* [#10333](https://github.com/netbox-community/netbox/issues/10333) - Show available values for `ui_visibility` field of CustomField for CSV import
 
 ---
 
