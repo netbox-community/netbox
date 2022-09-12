@@ -9,8 +9,13 @@
 ### Bug Fixes
 
 * [#9231](https://github.com/netbox-community/netbox/issues/9231) - Fix `empty` lookup expression for string filters
+* [#10250](https://github.com/netbox-community/netbox/issues/10250) - Fix exception when CableTermination validation fails during bulk import of cables
+* [#10259](https://github.com/netbox-community/netbox/issues/10259) - Fix `NoReverseMatch` exception when listing available prefixes with "flat" column displayed
 * [#10270](https://github.com/netbox-community/netbox/issues/10270) - Fix custom field validation when creating new services
 * [#10278](https://github.com/netbox-community/netbox/issues/10278) - Fix "create & add another" for image attachments
+* [#10294](https://github.com/netbox-community/netbox/issues/10294) - Fix spurious changelog diff for interface WWN field
+* [#10304](https://github.com/netbox-community/netbox/issues/10304) - Enable cloning for custom fields & custom links
+* [#10307](https://github.com/netbox-community/netbox/issues/10307) - Correct value for "Passive 48V (4-pair)" PoE type selection
 
 ---
 

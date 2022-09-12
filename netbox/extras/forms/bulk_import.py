@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
 
-from extras.choices import CustomFieldTypeChoices
+from extras.choices import CustomFieldVisibilityChoices, CustomFieldTypeChoices
 from extras.models import *
 from extras.utils import FeatureQuery
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelForm, CSVMultipleContentTypeField, SlugField
@@ -37,6 +37,10 @@ class CustomFieldCSVForm(CSVModelForm):
         base_field=forms.CharField(),
         required=False,
         help_text='Comma-separated list of field choices'
+    )
+    ui_visibility = CSVChoiceField(
+        choices=CustomFieldVisibilityChoices,
+        help_text='How the custom field is displayed in the user interface'
     )
 
     class Meta:

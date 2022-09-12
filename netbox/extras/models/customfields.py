@@ -14,7 +14,7 @@ from django.utils.safestring import mark_safe
 from extras.choices import *
 from extras.utils import FeatureQuery
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import ExportTemplatesMixin, WebhooksMixin
+from netbox.models.features import CloningMixin, ExportTemplatesMixin, WebhooksMixin
 from utilities import filters
 from utilities.forms import (
     CSVChoiceField, CSVMultipleChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
@@ -41,7 +41,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-class CustomField(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
@@ -143,7 +143,13 @@ class CustomField(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         verbose_name='UI visibility',
         help_text='Specifies the visibility of custom field in the UI'
     )
+
     objects = CustomFieldManager()
+
+    clone_fields = (
+        'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'filter_logic', 'default',
+        'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'ui_visibility',
+    )
 
     class Meta:
         ordering = ['group_name', 'weight', 'name']
