@@ -404,12 +404,8 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_cabled(self):
         params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 10)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 10)
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
     def test_occupied(self):
         params = {'occupied': True}
