@@ -365,6 +365,7 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'tag')),
         ('Hardware', ('manufacturer_id', 'part_number', 'subdevice_role', 'airflow')),
+        ('Images', ('has_front_image', 'has_rear_image')),
         ('Components', (
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', 'device_bays', 'module_bays', 'inventory_items',
@@ -385,6 +386,20 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     airflow = MultipleChoiceField(
         choices=add_blank_choice(DeviceAirflowChoices),
         required=False
+    )
+    has_front_image = forms.NullBooleanField(
+        required=False,
+        label='Has a front image',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    has_rear_image = forms.NullBooleanField(
+        required=False,
+        label='Has a rear image',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
     console_ports = forms.NullBooleanField(
         required=False,
