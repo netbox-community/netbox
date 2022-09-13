@@ -1,10 +1,19 @@
 # Upgrading to a New NetBox Release
 
-## Review the Release Notes
+Upgrading NetBox to a new version is pretty simple, however users are cautioned to always review the release notes and save a backup of their current deployment prior to beginning an upgrade.
+
+NetBox can generally be upgraded directly to any newer release with no interim steps, with the one exception being incrementing major versions. This can be done only from the most recent _minor_ release of the major version. For example, NetBox v2.11.8 can be upgraded to version 3.3.2 following the steps below. However, a deployment of NetBox v2.10.10 or earlier must first be upgraded to any v2.11 release, and then to any v3.x release. (This is to accommodate the consolidation of database schema migrations effected by a major version change).
+
+[![Upgrade paths](../media/installation/upgrade_paths.png)](../media/installation/upgrade_paths.png)
+
+!!! warning "Perform a Backup"
+    Always be sure to save a backup of your current NetBox deployment prior to starting the upgrade process.
+
+## 1. Review the Release Notes
 
 Prior to upgrading your NetBox instance, be sure to carefully review all [release notes](../release-notes/index.md) that have been published since your current version was released. Although the upgrade process typically does not involve additional work, certain releases may introduce breaking or backward-incompatible changes. These are called out in the release notes under the release in which the change went into effect.
 
-## Update Dependencies to Required Versions
+## 2. Update Dependencies to Required Versions
 
 NetBox v3.0 and later require the following:
 
@@ -14,7 +23,7 @@ NetBox v3.0 and later require the following:
 | PostgreSQL | 10              |
 | Redis      | 4.0             |
 
-## Install the Latest Release
+## 3. Install the Latest Release
 
 As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by cloning the `master` branch of the git repository. 
 
@@ -87,7 +96,7 @@ sudo git pull origin master
 
         sudo git checkout v2.11.11
 
-## Run the Upgrade Script
+## 4. Run the Upgrade Script
 
 Once the new code is in place, verify that any optional Python packages required by your deployment (e.g. `napalm` or `django-auth-ldap`) are listed in `local_requirements.txt`. Then, run the upgrade script:
 
@@ -118,7 +127,7 @@ This script performs the following actions:
     been made to your local codebase and should be investigated. Never attempt to create new migrations unless you are
     intentionally modifying the database schema.
 
-## Restart the NetBox Services
+## 5. Restart the NetBox Services
 
 !!! warning
     If you are upgrading from an installation that does not use a Python virtual environment (any release prior to v2.7.9), you'll need to update the systemd service files to reference the new Python and gunicorn executables before restarting the services. These are located in `/opt/netbox/venv/bin/`. See the example service files in `/opt/netbox/contrib/` for reference.
@@ -129,7 +138,7 @@ Finally, restart the gunicorn and RQ services:
 sudo systemctl restart netbox netbox-rq
 ```
 
-## Verify Housekeeping Scheduling
+## 6. Verify Housekeeping Scheduling
 
 If upgrading from a release prior to NetBox v3.0, check that a cron task (or similar scheduled process) has been configured to run NetBox's nightly housekeeping command. A shell script which invokes this command is included at `contrib/netbox-housekeeping.sh`. It can be linked from your system's daily cron task directory, or included within the crontab directly. (If NetBox has been installed in a nonstandard path, be sure to update the system paths within this script first.)
 

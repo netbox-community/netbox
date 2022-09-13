@@ -434,6 +434,14 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
+    has_front_image = django_filters.BooleanFilter(
+        label='Has a front image',
+        method='_has_front_image'
+    )
+    has_rear_image = django_filters.BooleanFilter(
+        label='Has a rear image',
+        method='_has_rear_image'
+    )
     console_ports = django_filters.BooleanFilter(
         method='_console_ports',
         label='Has console ports',
@@ -486,6 +494,18 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
             Q(part_number__icontains=value) |
             Q(comments__icontains=value)
         )
+
+    def _has_front_image(self, queryset, name, value):
+        if value:
+            return queryset.exclude(front_image='')
+        else:
+            return queryset.filter(front_image='')
+
+    def _has_rear_image(self, queryset, name, value):
+        if value:
+            return queryset.exclude(rear_image='')
+        else:
+            return queryset.filter(rear_image='')
 
     def _console_ports(self, queryset, name, value):
         return queryset.exclude(consoleporttemplates__isnull=value)
@@ -1144,6 +1164,15 @@ class CabledObjectFilterSet(django_filters.FilterSet):
         lookup_expr='isnull',
         exclude=True
     )
+    occupied = django_filters.BooleanFilter(
+        method='filter_occupied'
+    )
+
+    def filter_occupied(self, queryset, name, value):
+        if value:
+            return queryset.filter(Q(cable__isnull=False) | Q(mark_connected=True))
+        else:
+            return queryset.filter(cable__isnull=True, mark_connected=False)
 
 
 class PathEndpointFilterSet(django_filters.FilterSet):
