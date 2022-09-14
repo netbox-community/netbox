@@ -100,8 +100,8 @@ urlpatterns = [
 
     # Reports
     path('reports/', views.ReportListView.as_view(), name='report_list'),
-    path('reports/<str:module>.<str:name>/', views.ReportView.as_view(), name='report'),
     path('reports/results/<int:job_result_pk>/', views.ReportResultView.as_view(), name='report_result'),
+    re_path(r'^reports/(?P<module>.([^.]+)).(?P<name>.(.+))/', views.ReportView.as_view(), name='report'),
 
     # Scripts
     path('scripts/', views.ScriptListView.as_view(), name='script_list'),

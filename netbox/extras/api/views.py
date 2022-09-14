@@ -159,7 +159,7 @@ class ReportViewSet(ViewSet):
         # Read the PK as "<module>.<report>"
         if '.' not in pk:
             raise Http404
-        module_name, report_name = pk.split('.', 1)
+        module_name, report_name = pk.split('.', maxsplit=1)
 
         # Raise a 404 on an invalid Report module/name
         report = get_report(module_name, report_name)
@@ -183,8 +183,8 @@ class ReportViewSet(ViewSet):
         }
 
         # Iterate through all available Reports.
-        for module_name, reports in get_reports():
-            for report in reports:
+        for module_name, reports in get_reports().items():
+            for report in reports.values():
 
                 # Attach the relevant JobResult (if any) to each Report.
                 report.result = results.get(report.full_name, None)
