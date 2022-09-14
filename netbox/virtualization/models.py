@@ -2,6 +2,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 
 from dcim.models import BaseInterface, Device
@@ -309,9 +310,18 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
 
     class Meta:
         ordering = ('_name', 'pk')  # Name may be non-unique
-        unique_together = [
-            ['cluster', 'tenant', 'name']
-        ]
+        constraints = (
+            models.UniqueConstraint(
+                name='virtualization_virtualmachine_unique_name_cluster_tenant',
+                fields=('name', 'cluster', 'tenant')
+            ),
+            models.UniqueConstraint(
+                name='virtualization_virtualmachine_unique_name_cluster',
+                fields=('name', 'cluster'),
+                condition=Q(tenant__isnull=True),
+                violation_error_message="Virtual machine name must be unique per site."
+            ),
+        )
 
     def __str__(self):
         return self.name
@@ -322,20 +332,6 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
 
     def get_absolute_url(self):
         return reverse('virtualization:virtualmachine', args=[self.pk])
-
-    def validate_unique(self, exclude=None):
-
-        # Check for a duplicate name on a VM assigned to the same Cluster and no Tenant. This is necessary
-        # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
-        # of the uniqueness constraint without manual intervention.
-        if self.tenant is None and VirtualMachine.objects.exclude(pk=self.pk).filter(
-                name=self.name, cluster=self.cluster, tenant__isnull=True
-        ):
-            raise ValidationError({
-                'name': 'A virtual machine with this name already exists in the assigned cluster.'
-            })
-
-        super().validate_unique(exclude)
 
     def clean(self):
         super().clean()
