@@ -9,3 +9,6 @@ __all__ = (
 class VMInterfaceCreateForm(VMInterfaceForm):
     name = ExpandableNameField()
     replication_fields = ('name',)
+
+    class Meta(VMInterfaceForm.Meta):
+        exclude = ('name',)
