@@ -203,7 +203,7 @@ class DeviceTable(TenancyColumnsMixin, NetBoxTable):
         model = Device
         fields = (
             'pk', 'id', 'name', 'status', 'tenant', 'tenant_group', 'device_role', 'manufacturer', 'device_type',
-            'platform', 'serial', 'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'primary_ip', 'airflow',
+            'platform', 'serial', 'asset_tag', 'site', 'region', 'location', 'rack', 'position', 'face', 'primary_ip', 'airflow',
             'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments',
             'contacts', 'tags', 'created', 'last_updated',
         )
