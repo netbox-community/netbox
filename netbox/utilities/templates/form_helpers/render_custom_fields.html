@@ -1,7 +1,16 @@
 {% load form_helpers %}
 
-{% for field in form %}
-    {% if field.name in form.custom_fields %}
-        {% render_field field %}
+{% for group, fields in form.custom_field_groups.items %}
+  {% if group %}
+  <div class="row">
+    <h6 class="offset-sm-3 mb-3">{{ group }}</h6>
+  </div>
+  {% endif %}
+  {% for name in fields %}
+    {% if name in form.nullable_fields %}
+      {% render_field form|getfield:name bulk_nullable=True %}
+    {% else %}
+      {% render_field form|getfield:name %}
     {% endif %}
+  {% endfor %}
 {% endfor %}

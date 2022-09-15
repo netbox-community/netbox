@@ -215,6 +215,8 @@ The following custom template tags are available in NetBox.
 
 ::: utilities.templatetags.builtins.tags.checkmark
 
+::: utilities.templatetags.builtins.tags.customfield_value
+
 ::: utilities.templatetags.builtins.tags.tag
 
 ## Filters

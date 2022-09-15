@@ -1,6 +1,7 @@
 import django_tables2 as tables
 
 from netbox.tables import NetBoxTable, columns
+from tenancy.tables import TenancyColumnsMixin
 from wireless.models import *
 
 __all__ = (
@@ -8,7 +9,7 @@ __all__ = (
 )
 
 
-class WirelessLinkTable(NetBoxTable):
+class WirelessLinkTable(TenancyColumnsMixin, NetBoxTable):
     id = tables.Column(
         linkify=True,
         verbose_name='ID'
@@ -35,8 +36,8 @@ class WirelessLinkTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = WirelessLink
         fields = (
-            'pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'description',
-            'auth_type', 'auth_cipher', 'auth_psk', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'tenant',
+            'tenant_group', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'auth_type',

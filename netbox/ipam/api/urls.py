@@ -1,7 +1,6 @@
 from django.urls import path
 
-from netbox.api import NetBoxRouter
-from ipam.models import IPRange, Prefix
+from netbox.api.routers import NetBoxRouter
 from . import views
 
 
@@ -44,6 +43,10 @@ router.register('vlans', views.VLANViewSet)
 # Services
 router.register('service-templates', views.ServiceTemplateViewSet)
 router.register('services', views.ServiceViewSet)
+
+# L2VPN
+router.register('l2vpns', views.L2VPNViewSet)
+router.register('l2vpn-terminations', views.L2VPNTerminationViewSet)
 
 app_name = 'ipam-api'
 

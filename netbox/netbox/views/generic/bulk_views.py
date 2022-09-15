@@ -1,6 +1,5 @@
 import logging
 import re
-from collections import defaultdict
 from copy import deepcopy
 
 from django.contrib import messages
@@ -8,15 +7,17 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
+from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2.export import TableExport
+from django.utils.safestring import mark_safe
 
 from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
-from utilities.exceptions import PermissionsViolation
+from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import (
     BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, CSVFileField, restrict_form_fields,
 )
@@ -24,6 +25,8 @@ from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.views import GetReturnURLMixin
 from .base import BaseMultiObjectView
+from .mixins import ActionsMixin, TableMixin
+from .utils import get_prerequisite_model
 
 __all__ = (
     'BulkComponentCreateView',
@@ -36,9 +39,9 @@ __all__ = (
 )
 
 
-class ObjectListView(BaseMultiObjectView):
+class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     """
-    Display multiple objects, all of the same type, as a table.
+    Display multiple objects, all the same type, as a table.
 
     Attributes:
         filterset: A django-filter FilterSet that is applied to the queryset
@@ -50,30 +53,9 @@ class ObjectListView(BaseMultiObjectView):
     template_name = 'generic/object_list.html'
     filterset = None
     filterset_form = None
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete')
-    action_perms = defaultdict(set, **{
-        'add': {'add'},
-        'import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
-    })
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
-
-    def get_table(self, request, bulk_actions=True):
-        """
-        Return the django-tables2 Table instance to be used for rendering the objects list.
-
-        Args:
-            request: The current request
-            bulk_actions: Show checkboxes for object selection
-        """
-        table = self.table(self.queryset, user=request.user)
-        if 'pk' in table.base_columns and bulk_actions:
-            table.columns.show('pk')
-
-        return table
 
     #
     # Export methods
@@ -147,19 +129,14 @@ class ObjectListView(BaseMultiObjectView):
             self.queryset = self.filterset(request.GET, self.queryset).qs
 
         # Determine the available actions
-        actions = []
-        for action in self.actions:
-            if request.user.has_perms([
-                get_permission_for_model(model, name) for name in self.action_perms[action]
-            ]):
-                actions.append(action)
+        actions = self.get_permitted_actions(request.user)
         has_bulk_actions = any([a.startswith('bulk_') for a in actions])
 
         if 'export' in request.GET:
 
             # Export the current table view
             if request.GET['export'] == 'table':
-                table = self.get_table(request, has_bulk_actions)
+                table = self.get_table(self.queryset, request, has_bulk_actions)
                 columns = [name for name, _ in table.selected_columns]
                 return self.export_table(table, columns)
 
@@ -177,12 +154,11 @@ class ObjectListView(BaseMultiObjectView):
 
             # Fall back to default table/YAML export
             else:
-                table = self.get_table(request, has_bulk_actions)
+                table = self.get_table(self.queryset, request, has_bulk_actions)
                 return self.export_table(table)
 
         # Render the objects table
-        table = self.get_table(request, has_bulk_actions)
-        table.configure(request)
+        table = self.get_table(self.queryset, request, has_bulk_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
         if is_htmx(request):
@@ -195,6 +171,7 @@ class ObjectListView(BaseMultiObjectView):
             'table': table,
             'actions': actions,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
+            'prerequisite_model': get_prerequisite_model(self.queryset),
             **self.get_extra_context(request),
         }
 
@@ -292,10 +269,10 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
             except IntegrityError:
                 pass
 
-            except PermissionsViolation:
-                msg = "Object creation failed due to object-level permissions violation"
-                logger.debug(msg)
-                form.add_error(None, msg)
+            except (AbortRequest, PermissionsViolation) as e:
+                logger.debug(e.message)
+                form.add_error(None, e.message)
+                clear_webhooks.send(sender=self)
 
         else:
             logger.debug("Form validation failed")
@@ -420,10 +397,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             except ValidationError:
                 clear_webhooks.send(sender=self)
 
-            except PermissionsViolation:
-                msg = "Object import failed due to object-level permissions violation"
-                logger.debug(msg)
-                form.add_error(None, msg)
+            except (AbortRequest, PermissionsViolation) as e:
+                logger.debug(e.message)
+                form.add_error(None, e.message)
                 clear_webhooks.send(sender=self)
 
         else:
@@ -484,7 +460,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                         setattr(obj, name, None if model_field.null else '')
 
                 # ManyToManyFields
-                elif isinstance(model_field, ManyToManyField):
+                elif isinstance(model_field, (ManyToManyField, ManyToManyRel)):
                     if form.cleaned_data[name]:
                         getattr(obj, name).set(form.cleaned_data[name])
                 # Normal fields
@@ -570,10 +546,9 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                     messages.error(self.request, ", ".join(e.messages))
                     clear_webhooks.send(sender=self)
 
-                except PermissionsViolation:
-                    msg = "Object update failed due to object-level permissions violation"
-                    logger.debug(msg)
-                    form.add_error(None, msg)
+                except (AbortRequest, PermissionsViolation) as e:
+                    logger.debug(e.message)
+                    form.add_error(None, e.message)
                     clear_webhooks.send(sender=self)
 
             else:
@@ -632,7 +607,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             replace = form.cleaned_data['replace']
             if form.cleaned_data['use_regex']:
                 try:
-                    obj.new_name = re.sub(find, replace, obj.name)
+                    obj.new_name = re.sub(find, replace, obj.name or '')
                 # Catch regex group reference errors
                 except re.error:
                     obj.new_name = obj.name
@@ -667,10 +642,9 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                             messages.success(request, f"Renamed {len(selected_objects)} {model_name}")
                             return redirect(self.get_return_url(request))
 
-                except PermissionsViolation:
-                    msg = "Object update failed due to object-level permissions violation"
-                    logger.debug(msg)
-                    form.add_error(None, msg)
+                except (AbortRequest, PermissionsViolation) as e:
+                    logger.debug(e.message)
+                    form.add_error(None, e.message)
                     clear_webhooks.send(sender=self)
 
         else:
@@ -745,9 +719,15 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                         if hasattr(obj, 'snapshot'):
                             obj.snapshot()
                         obj.delete()
+
                 except ProtectedError as e:
                     logger.info("Caught ProtectedError while attempting to delete objects")
                     handle_protectederror(queryset, request, e)
+                    return redirect(self.get_return_url(request))
+
+                except AbortRequest as e:
+                    logger.debug(e.message)
+                    messages.error(request, mark_safe(e.message))
                     return redirect(self.get_return_url(request))
 
                 msg = f"Deleted {deleted_count} {model._meta.verbose_name_plural}"
@@ -794,6 +774,7 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
     model_form = None
     filterset = None
     table = None
+    patterned_fields = ('name', 'label')
 
     def get_required_permission(self):
         return f'dcim.add_{self.queryset.model._meta.model_name}'
@@ -829,16 +810,16 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
                         for obj in data['pk']:
 
-                            names = data['name_pattern']
-                            labels = data['label_pattern'] if 'label_pattern' in data else None
-                            for i, name in enumerate(names):
-                                label = labels[i] if labels else None
-
+                            pattern_count = len(data[f'{self.patterned_fields[0]}_pattern'])
+                            for i in range(pattern_count):
                                 component_data = {
-                                    self.parent_field: obj.pk,
-                                    'name': name,
-                                    'label': label
+                                    self.parent_field: obj.pk
                                 }
+
+                                for field_name in self.patterned_fields:
+                                    if data.get(f'{field_name}_pattern'):
+                                        component_data[field_name] = data[f'{field_name}_pattern'][i]
+
                                 component_data.update(data)
                                 component_form = self.model_form(component_data)
                                 if component_form.is_valid():
@@ -857,10 +838,9 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
                 except IntegrityError:
                     clear_webhooks.send(sender=self)
 
-                except PermissionsViolation:
-                    msg = "Component creation failed due to object-level permissions violation"
-                    logger.debug(msg)
-                    form.add_error(None, msg)
+                except (AbortRequest, PermissionsViolation) as e:
+                    logger.debug(e.message)
+                    form.add_error(None, e.message)
                     clear_webhooks.send(sender=self)
 
                 if not form.errors:

@@ -11,6 +11,8 @@ __all__ = (
     'FHRPGroupAssignmentType',
     'IPAddressType',
     'IPRangeType',
+    'L2VPNType',
+    'L2VPNTerminationType',
     'PrefixType',
     'RIRType',
     'RoleType',
@@ -151,3 +153,17 @@ class VRFType(NetBoxObjectType):
         model = models.VRF
         fields = '__all__'
         filterset_class = filtersets.VRFFilterSet
+
+
+class L2VPNType(NetBoxObjectType):
+    class Meta:
+        model = models.L2VPN
+        fields = '__all__'
+        filtersets_class = filtersets.L2VPNFilterSet
+
+
+class L2VPNTerminationType(NetBoxObjectType):
+    class Meta:
+        model = models.L2VPNTermination
+        fields = '__all__'
+        filtersets_class = filtersets.L2VPNTerminationFilterSet

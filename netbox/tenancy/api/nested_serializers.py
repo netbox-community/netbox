@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from netbox.api import WritableNestedSerializer
+from netbox.api.serializers import WritableNestedSerializer
 from tenancy.models import *
 
 __all__ = [

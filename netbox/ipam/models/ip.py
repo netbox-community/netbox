@@ -35,13 +35,16 @@ class GetAvailablePrefixesMixin:
 
     def get_available_prefixes(self):
         """
-        Return all available Prefixes within this aggregate as an IPSet.
+        Return all available prefixes within this Aggregate or Prefix as an IPSet.
         """
-        prefix = netaddr.IPSet(self.prefix)
-        child_prefixes = netaddr.IPSet([child.prefix for child in self.get_child_prefixes()])
-        available_prefixes = prefix - child_prefixes
+        params = {
+            'prefix__net_contained': str(self.prefix)
+        }
+        if hasattr(self, 'vrf'):
+            params['vrf'] = self.vrf
 
-        return available_prefixes
+        child_prefixes = Prefix.objects.filter(**params).values_list('prefix', flat=True)
+        return netaddr.IPSet(self.prefix) - netaddr.IPSet(child_prefixes)
 
     def get_first_available_prefix(self):
         """
@@ -124,6 +127,10 @@ class ASN(NetBoxModel):
     def __str__(self):
         return f'AS{self.asn_with_asdot}'
 
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [RIR, ]
+
     def get_absolute_url(self):
         return reverse('ipam:asn', args=[self.pk])
 
@@ -175,15 +182,19 @@ class Aggregate(GetAvailablePrefixesMixin, NetBoxModel):
         blank=True
     )
 
-    clone_fields = [
+    clone_fields = (
         'rir', 'tenant', 'date_added', 'description',
-    ]
+    )
 
     class Meta:
         ordering = ('prefix', 'pk')  # prefix may be non-unique
 
     def __str__(self):
         return str(self.prefix)
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [RIR, ]
 
     def get_absolute_url(self):
         return reverse('ipam:aggregate', args=[self.pk])
@@ -360,9 +371,9 @@ class Prefix(GetAvailablePrefixesMixin, NetBoxModel):
 
     objects = PrefixQuerySet.as_manager()
 
-    clone_fields = [
+    clone_fields = (
         'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
-    ]
+    )
 
     class Meta:
         ordering = (F('vrf').asc(nulls_first=True), 'prefix', 'pk')  # (vrf, prefix) may be non-unique
@@ -373,7 +384,7 @@ class Prefix(GetAvailablePrefixesMixin, NetBoxModel):
 
         # Cache the original prefix and VRF so we can check if they have changed on post_save
         self._prefix = self.prefix
-        self._vrf = self.vrf
+        self._vrf_id = self.vrf_id
 
     def __str__(self):
         return str(self.prefix)
@@ -608,9 +619,9 @@ class IPRange(NetBoxModel):
         blank=True
     )
 
-    clone_fields = [
+    clone_fields = (
         'vrf', 'tenant', 'status', 'role', 'description',
-    ]
+    )
 
     class Meta:
         ordering = (F('vrf').asc(nulls_first=True), 'start_address', 'pk')  # (vrf, start_address) may be non-unique
@@ -813,7 +824,7 @@ class IPAddress(NetBoxModel):
         ct_field='assigned_object_type',
         fk_field='assigned_object_id'
     )
-    nat_inside = models.OneToOneField(
+    nat_inside = models.ForeignKey(
         to='self',
         on_delete=models.SET_NULL,
         related_name='nat_outside',
@@ -836,9 +847,9 @@ class IPAddress(NetBoxModel):
 
     objects = IPAddressManager()
 
-    clone_fields = [
-        'vrf', 'tenant', 'status', 'role', 'description',
-    ]
+    clone_fields = (
+        'vrf', 'tenant', 'status', 'role', 'dns_name', 'description',
+    )
 
     class Meta:
         ordering = ('address', 'pk')  # address may be non-unique
@@ -856,6 +867,25 @@ class IPAddress(NetBoxModel):
             vrf=self.vrf,
             address__net_host=str(self.address.ip)
         ).exclude(pk=self.pk)
+
+    def get_next_available_ip(self):
+        """
+        Return the next available IP address within this IP's network (if any)
+        """
+        if self.address and self.address.broadcast:
+            start_ip = self.address.ip + 1
+            end_ip = self.address.broadcast - 1
+            if start_ip <= end_ip:
+                available_ips = netaddr.IPSet(netaddr.IPRange(start_ip, end_ip))
+                available_ips -= netaddr.IPSet([
+                    address.ip for address in IPAddress.objects.filter(
+                        vrf=self.vrf,
+                        address__gt=self.address,
+                        address__net_contained_or_equal=self.address.cidr
+                    ).values_list('address', flat=True)
+                ])
+                if available_ips:
+                    return next(iter(available_ips))
 
     def clean(self):
         super().clean()
@@ -906,6 +936,15 @@ class IPAddress(NetBoxModel):
         self.dns_name = self.dns_name.lower()
 
         super().save(*args, **kwargs)
+
+    def clone(self):
+        attrs = super().clone()
+
+        # Populate the address field with the next available IP (if any)
+        if next_available_ip := self.get_next_available_ip():
+            attrs['address'] = f'{next_available_ip}/{self.address.prefixlen}'
+
+        return attrs
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)

@@ -194,7 +194,7 @@ class LocationForm(TenancyForm, NetBoxModelForm):
 
     fieldsets = (
         ('Location', (
-            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tags',
+            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'status', 'description', 'tags',
         )),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
@@ -202,8 +202,12 @@ class LocationForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Location
         fields = (
-            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tenant_group', 'tenant', 'tags',
+            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'status', 'description', 'tenant_group', 'tenant',
+            'tags',
         )
+        widgets = {
+            'status': StaticSelect(),
+        }
 
 
 class RackRoleForm(NetBoxModelForm):
@@ -321,7 +325,7 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
     )
 
     fieldsets = (
-        ('Reservation', ('region', 'site', 'location', 'rack', 'units', 'user', 'description', 'tags')),
+        ('Reservation', ('region', 'site_group', 'site', 'location', 'rack', 'units', 'user', 'description', 'tags')),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
 
@@ -467,7 +471,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             'location_id': '$location',
         }
     )
-    position = forms.IntegerField(
+    position = forms.DecimalField(
         required=False,
         help_text="The lowest-numbered unit occupied by the device",
         widget=APISelect(
@@ -521,13 +525,28 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         required=False,
         label=''
     )
+    virtual_chassis = DynamicModelChoiceField(
+        queryset=VirtualChassis.objects.all(),
+        required=False
+    )
+    vc_position = forms.IntegerField(
+        required=False,
+        label='Position',
+        help_text="The position in the virtual chassis this device is identified by"
+    )
+    vc_priority = forms.IntegerField(
+        required=False,
+        label='Priority',
+        help_text="The priority of the device in the virtual chassis"
+    )
 
     class Meta:
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'rack',
             'location', 'position', 'face', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6',
-            'cluster_group', 'cluster', 'tenant_group', 'tenant', 'comments', 'tags', 'local_context_data'
+            'cluster_group', 'cluster', 'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority',
+            'comments', 'tags', 'local_context_data'
         ]
         help_texts = {
             'device_role': "The function this device serves",
@@ -1033,12 +1052,14 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description', 'poe_mode', 'poe_type',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
             'module_type': forms.HiddenInput(),
             'type': StaticSelect(),
+            'poe_mode': StaticSelect(),
+            'poe_type': StaticSelect(),
         }
 
 
@@ -1048,6 +1069,7 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
         required=False,
         query_params={
             'devicetype_id': '$device_type',
+            'moduletype_id': '$module_type',
         }
     )
 
@@ -1309,11 +1331,18 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
         label='VRF'
     )
 
+    wwn = forms.CharField(
+        empty_value=None,
+        required=False,
+        label='WWN'
+    )
+
     fieldsets = (
         ('Interface', ('device', 'module', 'name', 'type', 'speed', 'duplex', 'label', 'description', 'tags')),
         ('Addressing', ('vrf', 'mac_address', 'wwn')),
         ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
         ('Related Interfaces', ('parent', 'bridge', 'lag')),
+        ('PoE', ('poe_mode', 'poe_type')),
         ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
         ('Wireless', (
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group', 'wireless_lans',
@@ -1324,14 +1353,16 @@ class InterfaceForm(InterfaceCommonForm, NetBoxModelForm):
         model = Interface
         fields = [
             'device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge', 'lag',
-            'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel',
-            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans',
-            'vrf', 'tags',
+            'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
+            'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans',
+            'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
             'type': StaticSelect(),
             'speed': SelectSpeedWidget(),
+            'poe_mode': StaticSelect(),
+            'poe_type': StaticSelect(),
             'duplex': StaticSelect(),
             'mode': StaticSelect(),
             'rf_role': StaticSelect(),

@@ -1,6 +1,6 @@
 import datetime
+import decimal
 import json
-from collections import OrderedDict
 from decimal import Decimal
 from itertools import count, groupby
 
@@ -148,7 +148,7 @@ def serialize_object(obj, extra=None):
     # Include any tags. Check for tags cached on the instance; fall back to using the manager.
     if is_taggable(obj):
         tags = getattr(obj, '_tags', None) or obj.tags.all()
-        data['tags'] = [tag.name for tag in tags]
+        data['tags'] = sorted([tag.name for tag in tags])
 
     # Append any extra data
     if extra is not None:
@@ -217,13 +217,28 @@ def deepmerge(original, new):
     """
     Deep merge two dictionaries (new into original) and return a new dict
     """
-    merged = OrderedDict(original)
+    merged = dict(original)
     for key, val in new.items():
         if key in original and isinstance(original[key], dict) and val and isinstance(val, dict):
             merged[key] = deepmerge(original[key], val)
         else:
             merged[key] = val
     return merged
+
+
+def drange(start, end, step=decimal.Decimal(1)):
+    """
+    Decimal-compatible implementation of Python's range()
+    """
+    start, end, step = decimal.Decimal(start), decimal.Decimal(end), decimal.Decimal(step)
+    if start < end:
+        while start < end:
+            yield start
+            start += step
+    else:
+        while start > end:
+            yield start
+            start += step
 
 
 def to_meters(length, unit):
@@ -266,26 +281,22 @@ def render_jinja2(template_code, context):
 
 def prepare_cloned_fields(instance):
     """
-    Compile an object's `clone_fields` list into a string of URL query parameters. Tags are automatically cloned where
-    applicable.
+    Generate a QueryDict comprising attributes from an object's clone() method.
     """
+    # Generate the clone attributes from the instance
+    if not hasattr(instance, 'clone'):
+        return QueryDict(mutable=True)
+    attrs = instance.clone()
+
+    # Prepare querydict parameters
     params = []
-    for field_name in getattr(instance, 'clone_fields', []):
-        field = instance._meta.get_field(field_name)
-        field_value = field.value_from_object(instance)
-
-        # Pass False as null for boolean fields
-        if field_value is False:
-            params.append((field_name, ''))
-
-        # Omit empty values
-        elif field_value not in (None, ''):
-            params.append((field_name, field_value))
-
-    # Copy tags
-    if is_taggable(instance):
-        for tag in instance.tags.all():
-            params.append(('tags', tag.pk))
+    for key, value in attrs.items():
+        if type(value) in (list, tuple):
+            params.extend([(key, v) for v in value])
+        elif value not in (False, None):
+            params.append((key, value))
+        else:
+            params.append((key, ''))
 
     # Return a QueryDict with the parameters
     return QueryDict('&'.join([f'{k}={v}' for k, v in params]), mutable=True)
@@ -325,14 +336,34 @@ def flatten_dict(d, prefix='', separator='.'):
     return ret
 
 
+def array_to_ranges(array):
+    """
+    Convert an arbitrary array of integers to a list of consecutive values. Nonconsecutive values are returned as
+    single-item tuples. For example:
+        [0, 1, 2, 10, 14, 15, 16] => [(0, 2), (10,), (14, 16)]"
+    """
+    group = (
+        list(x) for _, x in groupby(sorted(array), lambda x, c=count(): next(c) - x)
+    )
+    return [
+        (g[0], g[-1])[:len(g)] for g in group
+    ]
+
+
 def array_to_string(array):
     """
     Generate an efficient, human-friendly string from a set of integers. Intended for use with ArrayField.
     For example:
         [0, 1, 2, 10, 14, 15, 16] => "0-2, 10, 14-16"
     """
-    group = (list(x) for _, x in groupby(sorted(array), lambda x, c=count(): next(c) - x))
-    return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
+    ret = []
+    ranges = array_to_ranges(array)
+    for value in ranges:
+        if len(value) == 1:
+            ret.append(str(value[0]))
+        else:
+            ret.append(f'{value[0]}-{value[1]}')
+    return ', '.join(ret)
 
 
 def content_type_name(ct):

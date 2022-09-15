@@ -235,12 +235,12 @@ table {
     }
   }
 
-  th.asc a::after {
+  th.asc > a::after {
     content: "\f0140";
     font-family: 'Material Design Icons';
   }
 
-  th.desc a::after {
+  th.desc > a::after {
     content: "\f0143";
     font-family: 'Material Design Icons';
   }
@@ -413,6 +413,27 @@ nav.search {
         text-transform: uppercase;
       }
     }
+  }
+}
+
+// Styles for the quicksearch and its clear button; 
+// Overrides input-group styles and adds transition effects
+.quicksearch {
+  input[type="search"] {
+    border-radius: $border-radius  !important;
+  }
+
+  button {
+    margin-left: -32px !important;
+    z-index: 100 !important;
+    outline: none !important;
+    border-radius: $border-radius  !important;
+    transition: visibility 0s, opacity 0.2s linear;
+  }
+
+  button :hover {
+    opacity: 50%;
+    transition: visibility 0s, opacity 0.1s linear;
   }
 }
 
@@ -714,11 +735,8 @@ textarea.form-control[rows='10'] {
   height: 18rem;
 }
 
-textarea#id_local_context_data,
 textarea.markdown,
-textarea#id_public_key,
-textarea.form-control[name='csv'],
-textarea.form-control[name='data'] {
+textarea.form-control[name='csv'] {
   font-family: $font-family-monospace;
 }
 

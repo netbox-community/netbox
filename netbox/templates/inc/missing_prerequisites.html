@@ -1,0 +1,9 @@
+{% load buttons %}
+
+<div class="alert alert-warning text-end" role="alert">
+  <div class="float-start">
+    <i class="mdi mdi-alert"></i> Before you can add a {{ model|meta:"verbose_name" }} you must first create a
+      <strong>{{ prerequisite_model|meta:"verbose_name" }}</strong>.
+  </div>
+  {% add_button prerequisite_model %}
+</div>

@@ -28,14 +28,15 @@ class CustomFieldTable(NetBoxTable):
     )
     content_types = columns.ContentTypesColumn()
     required = columns.BooleanColumn()
+    ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
 
     class Meta(NetBoxTable.Meta):
         model = CustomField
         fields = (
-            'pk', 'id', 'name', 'content_types', 'label', 'type', 'required', 'weight', 'default',
-            'description', 'filter_logic', 'choices', 'created', 'last_updated',
+            'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'weight', 'default',
+            'description', 'filter_logic', 'ui_visibility', 'choices', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'content_types', 'label', 'type', 'required', 'description')
+        default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
 
 
 #
@@ -166,8 +167,9 @@ class ConfigContextTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ConfigContext
         fields = (
-            'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'roles', 'platforms',
-            'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'created', 'last_updated',
+            'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'locations', 'roles',
+            'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'weight', 'is_active', 'description')
 
@@ -181,6 +183,7 @@ class ObjectChangeTable(NetBoxTable):
         verbose_name='Username'
     )
     full_name = tables.TemplateColumn(
+        accessor=tables.A('user'),
         template_code=OBJECTCHANGE_FULL_NAME,
         verbose_name='Full Name',
         orderable=False
@@ -190,6 +193,7 @@ class ObjectChangeTable(NetBoxTable):
         verbose_name='Type'
     )
     object_repr = tables.TemplateColumn(
+        accessor=tables.A('changed_object'),
         template_code=OBJECTCHANGE_OBJECT,
         verbose_name='Object'
     )

@@ -74,6 +74,14 @@
 
     <div class="field-group my-5">
         <div class="row mb-2">
+          <h5 class="offset-sm-3">Power over Ethernet (PoE)</h5>
+        </div>
+        {% render_field form.poe_mode %}
+        {% render_field form.poe_type %}
+    </div>
+
+    <div class="field-group my-5">
+        <div class="row mb-2">
           <h5 class="offset-sm-3">802.1Q Switching</h5>
         </div>
         {% render_field form.mode %}
@@ -89,16 +97,5 @@
         </div>
         {% render_custom_fields form %}
       </div>
-    {% endif %}
-{% endblock %}
-
-{% block buttons %}
-    <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-    {% if object.pk %}
-        <button type="button" return-url="?return_url={% url 'dcim:interface_edit' pk=object.pk %}" class="btn btn-outline-primary">Save & Continue Editing</button>
-        <button type="submit" name="_update" class="btn btn-primary">Save</button>
-    {% else %}
-        <button type="submit" name="_addanother" class="btn btn-outline-primary">Create & Add Another</button>
-        <button type="submit" name="_create" class="btn btn-primary">Create</button>
     {% endif %}
 {% endblock %}

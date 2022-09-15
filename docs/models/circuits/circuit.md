@@ -1,19 +1,49 @@
 # Circuits
 
-A communications circuit represents a single _physical_ link connecting exactly two endpoints, commonly referred to as its A and Z terminations. A circuit in NetBox may have zero, one, or two terminations defined. It is common to have only one termination defined when you don't necessarily care about the details of the provider side of the circuit, e.g. for Internet access circuits. Both terminations would likely be modeled for circuits which connect one customer site to another.
+A circuit represents a physical point-to-point data connection, typically used to interconnect sites across considerable distances (e.g. to deliver Internet connectivity).
 
-Each circuit is associated with a provider and a user-defined type. For example, you might have Internet access circuits delivered to each site by one provider, and private MPLS circuits delivered by another. Each circuit must be assigned a circuit ID, each of which must be unique per provider.
+## Fields
 
-Each circuit is also assigned one of the following operational statuses:
+### Provider
 
-* Planned
-* Provisioning
-* Active
-* Offline
-* Deprovisioning
-* Decommissioned
+The [provider](./provider.md) to which this circuit belongs.
 
-Circuits also have optional fields for annotating their installation date and commit rate, and may be assigned to NetBox tenants.
+### Circuit ID
 
-!!! note
-    NetBox currently models only physical circuits: those which have exactly two endpoints. It is common to layer virtualized constructs (_virtual circuits_) such as MPLS or EVPN tunnels on top of these, however NetBox does not yet support virtual circuit modeling.
+An identifier for this circuit. This must be unique to the assigned provider. (Circuits assigned to different providers may have the same circuit ID.)
+
+### Circuit Type
+
+Each circuit is classified by a user-defined [circuit type](./circuittype.md). Generally this is something like "Internet access," "MPLS/VPN," etc.
+
+### Status
+
+The operational status of the circuit. By default, the following statuses are available:
+
+| Name           |
+|----------------|
+| Planned        |
+| Provisioning   |
+| Active         |
+| Offline        |
+| Deprovisioning |
+| Decommissioned |
+
+!!! tip "Custom circuit statuses"
+    Additional circuit statuses may be defined by setting `Circuit.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
+
+### Description
+
+A brief description of the circuit.
+
+### Installation Date
+
+The date on which the circuit was installed.
+
+### Termination Date
+
+The date on which the circuit is scheduled to be disconnected.
+
+### Commit Rate
+
+The committed rate (throughput) of the circuit, in kilobits per second.

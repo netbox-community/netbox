@@ -1,6 +1,7 @@
 import django_tables2 as tables
 
 from netbox.tables import NetBoxTable, columns
+from tenancy.tables import TenancyColumnsMixin
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
@@ -56,7 +57,7 @@ class ClusterGroupTable(NetBoxTable):
         default_columns = ('pk', 'name', 'cluster_count', 'description')
 
 
-class ClusterTable(NetBoxTable):
+class ClusterTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -64,9 +65,6 @@ class ClusterTable(NetBoxTable):
         linkify=True
     )
     group = tables.Column(
-        linkify=True
-    )
-    tenant = tables.Column(
         linkify=True
     )
     site = tables.Column(
@@ -93,7 +91,7 @@ class ClusterTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Cluster
         fields = (
-            'pk', 'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'device_count', 'vm_count', 'contacts',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'type', 'group', 'status', 'tenant', 'tenant_group', 'site', 'comments', 'device_count',
+            'vm_count', 'contacts', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'device_count', 'vm_count')
+        default_columns = ('pk', 'name', 'type', 'group', 'status', 'tenant', 'site', 'device_count', 'vm_count')

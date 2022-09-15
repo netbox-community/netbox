@@ -58,6 +58,8 @@ class TokenViewSet(NetBoxModelViewSet):
         # Workaround for schema generation (drf_yasg)
         if getattr(self, 'swagger_fake_view', False):
             return queryset.none()
+        if not self.request.user.is_authenticated:
+            return queryset.none()
         if self.request.user.is_superuser:
             return queryset
         return queryset.filter(user=self.request.user)
@@ -74,11 +76,11 @@ class TokenProvisionView(APIView):
         serializer.is_valid()
 
         # Authenticate the user account based on the provided credentials
-        user = authenticate(
-            request=request,
-            username=serializer.data['username'],
-            password=serializer.data['password']
-        )
+        username = serializer.data.get('username')
+        password = serializer.data.get('password')
+        if not username or not password:
+            raise AuthenticationFailed("Username and password must be provided to provision a token.")
+        user = authenticate(request=request, username=username, password=password)
         if user is None:
             raise AuthenticationFailed("Invalid username/password")
 

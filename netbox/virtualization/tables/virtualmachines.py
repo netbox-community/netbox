@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from dcim.tables.devices import BaseInterfaceTable
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenantColumn
+from tenancy.tables import TenancyColumnsMixin
 from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
@@ -12,10 +12,23 @@ __all__ = (
 )
 
 VMINTERFACE_BUTTONS = """
-{% if perms.ipam.add_ipaddress %}
-    <a href="{% url 'ipam:ipaddress_add' %}?vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-sm btn-success" title="Add IP Address">
-        <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-    </a>
+{% if perms.virtualization.change_vminterface %}
+  <span class="dropdown">
+    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Add">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      {% if perms.ipam.add_ipaddress %}
+        <li><a class="dropdown-item" href="{% url 'ipam:ipaddress_add' %}?vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">IP Address</a></li>
+      {% endif %}
+      {% if perms.ipam.add_l2vpntermination %}
+        <li><a class="dropdown-item" href="{% url 'ipam:l2vpntermination_add' %}?virtual_machine={{ object.pk }}&vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">L2VPN Termination</a></li>
+      {% endif %}
+      {% if perms.ipam.add_fhrpgroupassignment %}
+        <li><a class="dropdown-item" href="{% url 'ipam:fhrpgroupassignment_add' %}?interface_type={{ record|content_type_id }}&interface_id={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">Assign FHRP Group</a></li>
+      {% endif %}
+    </ul>
+  </span>
 {% endif %}
 """
 
@@ -24,17 +37,22 @@ VMINTERFACE_BUTTONS = """
 # Virtual machines
 #
 
-class VirtualMachineTable(NetBoxTable):
+class VirtualMachineTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.Column(
         order_by=('_name',),
         linkify=True
     )
     status = columns.ChoiceFieldColumn()
+    site = tables.Column(
+        linkify=True
+    )
     cluster = tables.Column(
         linkify=True
     )
+    device = tables.Column(
+        linkify=True
+    )
     role = columns.ColoredLabelColumn()
-    tenant = TenantColumn()
     comments = columns.MarkdownColumn()
     primary_ip4 = tables.Column(
         linkify=True,
@@ -49,6 +67,9 @@ class VirtualMachineTable(NetBoxTable):
         order_by=('primary_ip4', 'primary_ip6'),
         verbose_name='IP Address'
     )
+    contacts = columns.ManyToManyColumn(
+        linkify_item=True
+    )
     tags = columns.TagColumn(
         url_name='virtualization:virtualmachine_list'
     )
@@ -56,11 +77,12 @@ class VirtualMachineTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VirtualMachine
         fields = (
-            'pk', 'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'tenant_group', 'platform',
+            'vcpus', 'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'contacts', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
+            'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
         )
 
 
@@ -78,9 +100,6 @@ class VMInterfaceTable(BaseInterfaceTable):
     vrf = tables.Column(
         linkify=True
     )
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
-    )
     tags = columns.TagColumn(
         url_name='virtualization:vminterface_list'
     )
@@ -89,8 +108,7 @@ class VMInterfaceTable(BaseInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'vrf', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'contacts', 'created',
-            'last_updated',
+            'vrf', 'l2vpn', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 
@@ -111,7 +129,7 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'enabled', 'parent', 'bridge', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
+            'vrf', 'l2vpn', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = ('pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses')
         row_attrs = {

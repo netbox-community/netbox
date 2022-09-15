@@ -281,6 +281,7 @@ class ConfigContextView(generic.ObjectView):
             ('Regions', instance.regions.all),
             ('Site Groups', instance.site_groups.all),
             ('Sites', instance.sites.all),
+            ('Locations', instance.locations.all),
             ('Device Types', instance.device_types.all),
             ('Roles', instance.roles.all),
             ('Platforms', instance.platforms.all),
@@ -311,7 +312,6 @@ class ConfigContextView(generic.ObjectView):
 class ConfigContextEditView(generic.ObjectEditView):
     queryset = ConfigContext.objects.all()
     form = forms.ConfigContextForm
-    template_name = 'extras/configcontext_edit.html'
 
 
 class ConfigContextBulkEditView(generic.BulkEditView):
@@ -441,6 +441,12 @@ class ImageAttachmentEditView(generic.ObjectEditView):
     def get_return_url(self, request, obj=None):
         return obj.parent.get_absolute_url() if obj else super().get_return_url(request)
 
+    def get_extra_addanother_params(self, request):
+        return {
+            'content_type': request.GET.get('content_type'),
+            'object_id': request.GET.get('object_id'),
+        }
+
 
 class ImageAttachmentDeleteView(generic.ObjectDeleteView):
     queryset = ImageAttachment.objects.all()
@@ -492,14 +498,14 @@ class JournalEntryDeleteView(generic.ObjectDeleteView):
 
 
 class JournalEntryBulkEditView(generic.BulkEditView):
-    queryset = JournalEntry.objects.prefetch_related('created_by')
+    queryset = JournalEntry.objects.all()
     filterset = filtersets.JournalEntryFilterSet
     table = tables.JournalEntryTable
     form = forms.JournalEntryBulkEditForm
 
 
 class JournalEntryBulkDeleteView(generic.BulkDeleteView):
-    queryset = JournalEntry.objects.prefetch_related('created_by')
+    queryset = JournalEntry.objects.all()
     filterset = filtersets.JournalEntryFilterSet
     table = tables.JournalEntryTable
 

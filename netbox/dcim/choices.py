@@ -24,6 +24,28 @@ class SiteStatusChoices(ChoiceSet):
 
 
 #
+# Locations
+#
+
+class LocationStatusChoices(ChoiceSet):
+    key = 'Location.status'
+
+    STATUS_PLANNED = 'planned'
+    STATUS_STAGING = 'staging'
+    STATUS_ACTIVE = 'active'
+    STATUS_DECOMMISSIONING = 'decommissioning'
+    STATUS_RETIRED = 'retired'
+
+    CHOICES = [
+        (STATUS_PLANNED, 'Planned', 'cyan'),
+        (STATUS_STAGING, 'Staging', 'blue'),
+        (STATUS_ACTIVE, 'Active', 'green'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
+        (STATUS_RETIRED, 'Retired', 'red'),
+    ]
+
+
+#
 # Racks
 #
 
@@ -768,7 +790,9 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_80211AC = 'ieee802.11ac'
     TYPE_80211AD = 'ieee802.11ad'
     TYPE_80211AX = 'ieee802.11ax'
+    TYPE_80211AY = 'ieee802.11ay'
     TYPE_802151 = 'ieee802.15.1'
+    TYPE_OTHER_WIRELESS = 'other-wireless'
 
     # Cellular
     TYPE_GSM = 'gsm'
@@ -813,6 +837,17 @@ class InterfaceTypeChoices(ChoiceSet):
 
     # ATM/DSL
     TYPE_XDSL = 'xdsl'
+
+    # Coaxial
+    TYPE_DOCSIS = 'docsis'
+
+    # PON
+    TYPE_GPON = 'gpon'
+    TYPE_XG_PON = 'xg-pon'
+    TYPE_XGS_PON = 'xgs-pon'
+    TYPE_NG_PON2 = 'ng-pon2'
+    TYPE_EPON = 'epon'
+    TYPE_10G_EPON = '10g-epon'
 
     # Stacking
     TYPE_STACKWISE = 'cisco-stackwise'
@@ -885,7 +920,9 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_80211AC, 'IEEE 802.11ac'),
                 (TYPE_80211AD, 'IEEE 802.11ad'),
                 (TYPE_80211AX, 'IEEE 802.11ax'),
+                (TYPE_80211AY, 'IEEE 802.11ay'),
                 (TYPE_802151, 'IEEE 802.15.1 (Bluetooth)'),
+                (TYPE_OTHER_WIRELESS, 'Other (Wireless)'),
             )
         ),
         (
@@ -951,6 +988,23 @@ class InterfaceTypeChoices(ChoiceSet):
             )
         ),
         (
+            'Coaxial',
+            (
+                (TYPE_DOCSIS, 'DOCSIS'),
+            )
+        ),
+        (
+            'PON',
+            (
+                (TYPE_GPON, 'GPON (2.5 Gbps / 1.25 Gps)'),
+                (TYPE_XG_PON, 'XG-PON (10 Gbps / 2.5 Gbps)'),
+                (TYPE_XGS_PON, 'XGS-PON (10 Gbps)'),
+                (TYPE_NG_PON2, 'NG-PON2 (TWDM-PON) (4x10 Gbps)'),
+                (TYPE_EPON, 'EPON (1 Gbps)'),
+                (TYPE_10G_EPON, '10G-EPON (10 Gbps)'),
+            )
+        ),
+        (
             'Stacking',
             (
                 (TYPE_STACKWISE, 'Cisco StackWise'),
@@ -1000,6 +1054,51 @@ class InterfaceModeChoices(ChoiceSet):
         (MODE_ACCESS, 'Access'),
         (MODE_TAGGED, 'Tagged'),
         (MODE_TAGGED_ALL, 'Tagged (All)'),
+    )
+
+
+class InterfacePoEModeChoices(ChoiceSet):
+
+    MODE_PD = 'pd'
+    MODE_PSE = 'pse'
+
+    CHOICES = (
+        (MODE_PD, 'PD'),
+        (MODE_PSE, 'PSE'),
+    )
+
+
+class InterfacePoETypeChoices(ChoiceSet):
+
+    TYPE_1_8023AF = 'type1-ieee802.3af'
+    TYPE_2_8023AT = 'type2-ieee802.3at'
+    TYPE_3_8023BT = 'type3-ieee802.3bt'
+    TYPE_4_8023BT = 'type4-ieee802.3bt'
+
+    PASSIVE_24V_2PAIR = 'passive-24v-2pair'
+    PASSIVE_24V_4PAIR = 'passive-24v-4pair'
+    PASSIVE_48V_2PAIR = 'passive-48v-2pair'
+    PASSIVE_48V_4PAIR = 'passive-48v-4pair'
+
+    CHOICES = (
+        (
+            'IEEE Standard',
+            (
+                (TYPE_1_8023AF, '802.3af (Type 1)'),
+                (TYPE_2_8023AT, '802.3at (Type 2)'),
+                (TYPE_3_8023BT, '802.3bt (Type 3)'),
+                (TYPE_4_8023BT, '802.3bt (Type 4)'),
+            )
+        ),
+        (
+            'Passive',
+            (
+                (PASSIVE_24V_2PAIR, 'Passive 24V (2-pair)'),
+                (PASSIVE_24V_4PAIR, 'Passive 24V (4-pair)'),
+                (PASSIVE_48V_2PAIR, 'Passive 48V (2-pair)'),
+                (PASSIVE_48V_4PAIR, 'Passive 48V (4-pair)'),
+            )
+        ),
     )
 
 
@@ -1212,6 +1311,22 @@ class CableLengthUnitChoices(ChoiceSet):
         (UNIT_MILE, 'Miles'),
         (UNIT_FOOT, 'Feet'),
         (UNIT_INCH, 'Inches'),
+    )
+
+
+#
+# CableTerminations
+#
+
+class CableEndChoices(ChoiceSet):
+
+    SIDE_A = 'A'
+    SIDE_B = 'B'
+
+    CHOICES = (
+        (SIDE_A, 'A'),
+        (SIDE_B, 'B'),
+        # ('', ''),
     )
 
 

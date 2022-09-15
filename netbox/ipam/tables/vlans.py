@@ -5,7 +5,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Interface
 from ipam.models import *
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenantColumn
+from tenancy.tables import TenancyColumnsMixin, TenantColumn
 from virtualization.models import VMInterface
 
 __all__ = (
@@ -30,7 +30,7 @@ VLAN_LINK = """
 """
 
 VLAN_PREFIXES = """
-{% for prefix in record.prefixes.all %}
+{% for prefix in value.all %}
     <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
 {% endfor %}
 """
@@ -90,7 +90,7 @@ class VLANGroupTable(NetBoxTable):
 # VLANs
 #
 
-class VLANTable(NetBoxTable):
+class VLANTable(TenancyColumnsMixin, NetBoxTable):
     vid = tables.TemplateColumn(
         template_code=VLAN_LINK,
         verbose_name='VID'
@@ -104,12 +104,17 @@ class VLANTable(NetBoxTable):
     group = tables.Column(
         linkify=True
     )
-    tenant = TenantColumn()
     status = columns.ChoiceFieldColumn(
         default=AVAILABLE_LABEL
     )
     role = tables.Column(
         linkify=True
+    )
+    l2vpn = tables.Column(
+        accessor=tables.A('l2vpn_termination__l2vpn'),
+        linkify=True,
+        orderable=False,
+        verbose_name='L2VPN'
     )
     prefixes = columns.TemplateColumn(
         template_code=VLAN_PREFIXES,
@@ -123,8 +128,8 @@ class VLANTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VLAN
         fields = (
-            'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'tenant_group', 'status', 'role',
+            'description', 'tags', 'l2vpn', 'created', 'last_updated',
         )
         default_columns = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description')
         row_attrs = {

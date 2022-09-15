@@ -44,12 +44,12 @@ Context:
                     </div>
                   </div>
                   <div class="form-group">
-                      <div class="col col-md-12 text-end">
-                          {% if return_url %}
-                              <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-                          {% endif %}
-                          <button type="submit" class="btn btn-primary">Submit</button>
-                      </div>
+                    <div class="col col-md-12 text-end">
+                      <button type="submit" class="btn btn-primary">Submit</button>
+                      {% if return_url %}
+                        <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+                      {% endif %}
+                    </div>
                   </div>
                 </form>
                 {% if fields %}

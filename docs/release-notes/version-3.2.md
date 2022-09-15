@@ -1,16 +1,94 @@
 # NetBox v3.2
 
-## v3.2.6 (FUTURE)
+## v3.2.9 (2022-08-16)
+
+### Enhancements
+
+* [#8595](https://github.com/netbox-community/netbox/issues/8595) - Add PON interface types
+* [#8723](https://github.com/netbox-community/netbox/issues/8723) - Enable bulk renaming of devices
+* [#9161](https://github.com/netbox-community/netbox/issues/9161) - Pretty print JSON custom field data when editing
+* [#9505](https://github.com/netbox-community/netbox/issues/9505) - Display extra addressing details for IPv4 prefixes
+* [#9625](https://github.com/netbox-community/netbox/issues/9625) - Add phone & email details to contacts panel
+* [#9857](https://github.com/netbox-community/netbox/issues/9857) - Add clear button to quick search fields
+* [#9933](https://github.com/netbox-community/netbox/issues/9933) - Add DOCSIS interface type
+
+### Bug Fixes
+
+* [#9491](https://github.com/netbox-community/netbox/issues/9491) - Remove button for adding inventory item templates to module type components
+* [#9979](https://github.com/netbox-community/netbox/issues/9979) - Fix Markdown rendering for custom fields in table columns
+* [#9986](https://github.com/netbox-community/netbox/issues/9986) - Workaround for upstream timezone data bug
+
+---
+
+## v3.2.8 (2022-08-08)
+
+### Enhancements
+
+* [#9062](https://github.com/netbox-community/netbox/issues/9062) - Add/edit {module} substitution to help text for component template name
+* [#9637](https://github.com/netbox-community/netbox/issues/9637) - Add site group field to rack reservation form
+* [#9762](https://github.com/netbox-community/netbox/issues/9762) - Add `nat_outside` column to the IPAddress table
+* [#9825](https://github.com/netbox-community/netbox/issues/9825) - Add contacts column to virtual machines table
+* [#9881](https://github.com/netbox-community/netbox/issues/9881) - Increase granularity in utilization graph values
+* [#9882](https://github.com/netbox-community/netbox/issues/9882) - Add manufacturer column to modules table
+* [#9883](https://github.com/netbox-community/netbox/issues/9883) - Linkify location column in power panels table
+* [#9906](https://github.com/netbox-community/netbox/issues/9906) - Include `color` attribute in front & rear port YAML import/export
+
+### Bug Fixes
+
+* [#9827](https://github.com/netbox-community/netbox/issues/9827) - Fix assignment of module bay position during bulk creation
+* [#9871](https://github.com/netbox-community/netbox/issues/9871) - Fix utilization graph value alignments
+* [#9884](https://github.com/netbox-community/netbox/issues/9884) - Prevent querying assigned VRF on prefix object init
+* [#9885](https://github.com/netbox-community/netbox/issues/9885) - Fix child prefix counts when editing/deleting aggregates in bulk
+* [#9891](https://github.com/netbox-community/netbox/issues/9891) - Ensure consistent ordering for tags during object serialization
+* [#9919](https://github.com/netbox-community/netbox/issues/9919) - Fix potential XSS avenue via linked objects in tables
+* [#9948](https://github.com/netbox-community/netbox/issues/9948) - Fix TypeError exception when requesting API tokens list as non-authenticated user
+* [#9949](https://github.com/netbox-community/netbox/issues/9949) - Fix KeyError exception resulting from invalid API token provisioning request
+* [#9950](https://github.com/netbox-community/netbox/issues/9950) - Prevent redirection to arbitrary URLs via `next` parameter on login URL
+* [#9952](https://github.com/netbox-community/netbox/issues/9952) - Prevent InvalidMove when attempting to assign a nested child object as parent
+
+---
+
+## v3.2.7 (2022-07-20)
+
+### Enhancements
+
+* [#9705](https://github.com/netbox-community/netbox/issues/9705) - Support filter expressions for the `serial` field on racks, devices, and inventory items
+* [#9741](https://github.com/netbox-community/netbox/issues/9741) - Check for UserConfig instance during user login
+* [#9745](https://github.com/netbox-community/netbox/issues/9745) - Add wireless LANs and links to global search
+
+### Bug Fixes
+
+* [#9437](https://github.com/netbox-community/netbox/issues/9437) - Standardize form submission buttons and behavior when using enter key
+* [#9499](https://github.com/netbox-community/netbox/issues/9499) - Fix filtered bulk deletion of VM Interfaces
+* [#9634](https://github.com/netbox-community/netbox/issues/9634) - Fix image URLs in rack elevations when using external storage
+* [#9715](https://github.com/netbox-community/netbox/issues/9715) - Fix `SOCIAL_AUTH_PIPELINE` config parameter not taking effect
+* [#9754](https://github.com/netbox-community/netbox/issues/9754) - Fix regression introduced by #9632
+* [#9746](https://github.com/netbox-community/netbox/issues/9746) - Permit filtering interfaces by arbitrary speed value in UI
+* [#9749](https://github.com/netbox-community/netbox/issues/9749) - Retain original slug values when modifying object names
+* [#9775](https://github.com/netbox-community/netbox/issues/9775) - Fix exception when viewing a report with no description
+
+---
+
+## v3.2.6 (2022-07-11)
 
 ### Enhancements
 
 * [#7702](https://github.com/netbox-community/netbox/issues/7702) - Enable dynamic configuration for default powerfeed attributes
 * [#9396](https://github.com/netbox-community/netbox/issues/9396) - Allow filtering modules by bay ID
+* [#9403](https://github.com/netbox-community/netbox/issues/9403) - Enable modifying virtual chassis properties when creating/editing a device
+* [#9540](https://github.com/netbox-community/netbox/issues/9540) - Add filters for assigned device & VM to IP addresses list
+* [#9686](https://github.com/netbox-community/netbox/issues/9686) - Add tenant group column for all object tables with tenant assignments
 
 ### Bug Fixes
 
+* [#8854](https://github.com/netbox-community/netbox/issues/8854) - Fix `REMOTE_AUTH_DEFAULT_GROUPS` for social-auth backends
 * [#9575](https://github.com/netbox-community/netbox/issues/9575) - Fix AttributeError exception for FHRP group with an IP address assigned
 * [#9597](https://github.com/netbox-community/netbox/issues/9597) - Include `installed_module` in module bay REST API serializer
+* [#9632](https://github.com/netbox-community/netbox/issues/9632) - Automatically focus on search box when expanding dropdowns
+* [#9657](https://github.com/netbox-community/netbox/issues/9657) - Fix filtering for custom fields and webhooks in the UI
+* [#9682](https://github.com/netbox-community/netbox/issues/9682) - Fix bulk assignment of ASNs to sites
+* [#9687](https://github.com/netbox-community/netbox/issues/9687) - Don't restrict custom text field lengths when entering via UI form
+* [#9704](https://github.com/netbox-community/netbox/issues/9704) - Include `last_updated` field on JournalEntry REST API serializer
 
 ---
 
@@ -233,7 +311,7 @@ Custom field object assignment is fully supported in the REST API, and functions
 
 #### Custom Status Choices ([#8054](https://github.com/netbox-community/netbox/issues/8054))
 
-Custom choices can be now added to most object status fields in NetBox. This is done by defining the [`FIELD_CHOICES`](../configuration/optional-settings.md#field_choices) configuration parameter to map field identifiers to an iterable of custom choices an (optionally) colors. These choices are populated automatically when NetBox initializes. For example, the following configuration will add three custom choices for the site status field, each with a designated color:
+Custom choices can be now added to most object status fields in NetBox. This is done by defining the [`FIELD_CHOICES`](../configuration/data-validation.md#field_choices) configuration parameter to map field identifiers to an iterable of custom choices an (optionally) colors. These choices are populated automatically when NetBox initializes. For example, the following configuration will add three custom choices for the site status field, each with a designated color:
 
 ```python
 FIELD_CHOICES = {
@@ -257,7 +335,7 @@ FIELD_CHOICES = {
 
 #### Improved User Preferences ([#7759](https://github.com/netbox-community/netbox/issues/7759))
 
-A robust new mechanism for managing user preferences is included in this release. The user preferences form has been improved for better usability, and administrators can now define default preferences for all users with the [`DEFAULT_USER_PREFERENCES`](../configuration/dynamic-settings.md##default_user_preferences) configuration parameter. For example, this can be used to define the columns which appear by default in a table:
+A robust new mechanism for managing user preferences is included in this release. The user preferences form has been improved for better usability, and administrators can now define default preferences for all users with the [`DEFAULT_USER_PREFERENCES`](../configuration/default-values.md#default_user_preferences) configuration parameter. For example, this can be used to define the columns which appear by default in a table:
 
 ```python
 DEFAULT_USER_PREFERENCES = {

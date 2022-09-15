@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -23,7 +24,8 @@ class WirelessAuthenticationBase(models.Model):
     auth_type = models.CharField(
         max_length=50,
         choices=WirelessAuthTypeChoices,
-        blank=True
+        blank=True,
+        verbose_name="Auth Type",
     )
     auth_cipher = models.CharField(
         max_length=50,
@@ -101,10 +103,19 @@ class WirelessLAN(WirelessAuthenticationBase, NetBoxModel):
         null=True,
         verbose_name='VLAN'
     )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='wireless_lans',
+        blank=True,
+        null=True
+    )
     description = models.CharField(
         max_length=200,
         blank=True
     )
+
+    clone_fields = ('ssid', 'group', 'tenant', 'description')
 
     class Meta:
         ordering = ('ssid', 'pk')
@@ -117,21 +128,29 @@ class WirelessLAN(WirelessAuthenticationBase, NetBoxModel):
         return reverse('wireless:wirelesslan', args=[self.pk])
 
 
+def get_wireless_interface_types():
+    # Wrap choices in a callable to avoid generating dummy migrations
+    # when the choices are updated.
+    return {'type__in': WIRELESS_IFACE_TYPES}
+
+
 class WirelessLink(WirelessAuthenticationBase, NetBoxModel):
     """
     A point-to-point connection between two wireless Interfaces.
     """
     interface_a = models.ForeignKey(
         to='dcim.Interface',
-        limit_choices_to={'type__in': WIRELESS_IFACE_TYPES},
+        limit_choices_to=get_wireless_interface_types,
         on_delete=models.PROTECT,
-        related_name='+'
+        related_name='+',
+        verbose_name="Interface A",
     )
     interface_b = models.ForeignKey(
         to='dcim.Interface',
-        limit_choices_to={'type__in': WIRELESS_IFACE_TYPES},
+        limit_choices_to=get_wireless_interface_types,
         on_delete=models.PROTECT,
-        related_name='+'
+        related_name='+',
+        verbose_name="Interface B",
     )
     ssid = models.CharField(
         max_length=SSID_MAX_LENGTH,
@@ -142,6 +161,13 @@ class WirelessLink(WirelessAuthenticationBase, NetBoxModel):
         max_length=50,
         choices=LinkStatusChoices,
         default=LinkStatusChoices.STATUS_CONNECTED
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='wireless_links',
+        blank=True,
+        null=True
     )
     description = models.CharField(
         max_length=200,
@@ -173,6 +199,10 @@ class WirelessLink(WirelessAuthenticationBase, NetBoxModel):
 
     def __str__(self):
         return f'#{self.pk}'
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [apps.get_model('dcim.Interface'), ]
 
     def get_absolute_url(self):
         return reverse('wireless:wirelesslink', args=[self.pk])

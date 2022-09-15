@@ -1,4 +1,3 @@
-from django.contrib.postgres.fields import JSONField
 from drf_yasg import openapi
 from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, SwaggerAutoSchema
 from drf_yasg.utils import get_serializer_ref_name
@@ -6,7 +5,8 @@ from rest_framework.fields import ChoiceField
 from rest_framework.relations import ManyRelatedField
 
 from extras.api.customfields import CustomFieldsDataField
-from netbox.api import ChoiceField, SerializedPKRelatedField, WritableNestedSerializer
+from netbox.api.fields import ChoiceField, SerializedPKRelatedField
+from netbox.api.serializers import WritableNestedSerializer
 
 
 class NetBoxSwaggerAutoSchema(SwaggerAutoSchema):
@@ -128,15 +128,6 @@ class CustomFieldsDataFieldInspector(FieldInspector):
             return SwaggerType(type=openapi.TYPE_OBJECT)
 
         return NotHandled
-
-
-class JSONFieldInspector(FieldInspector):
-    """Required because by default, Swagger sees a JSONField as a string and not dict
-    """
-    def process_result(self, result, method_name, obj, **kwargs):
-        if isinstance(result, openapi.Schema) and isinstance(obj, JSONField):
-            result.type = 'dict'
-        return result
 
 
 class NullablePaginatorInspector(PaginatorInspector):

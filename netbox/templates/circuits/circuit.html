@@ -8,70 +8,78 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-	<div class="col col-md-6">
-        <div class="card">
-            <h5 class="card-header">
-                Circuit
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">Provider</th>
-                        <td>{{ object.provider|linkify }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Circuit ID</th>
-                        <td>{{ object.cid }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Type</th>
-                        <td>{{ object.type|linkify }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Status</th>
-                        <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Tenant</th>
-                        <td>
-                            {% if object.tenant.group %}
-                                {{ object.tenant.group|linkify }} /
-                            {% endif %}
-                            {{ object.tenant|linkify|placeholder }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Install Date</th>
-                        <td>{{ object.install_date|annotated_date|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Commit Rate</th>
-                        <td>{{ object.commit_rate|humanize_speed|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Description</th>
-                        <td>{{ object.description|placeholder }}</td>
-                    </tr>
-                </table>
-            </div>
+  <div class="row">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Circuit</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Provider</th>
+              <td>{{ object.provider|linkify }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Circuit ID</th>
+              <td>{{ object.cid }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Type</th>
+              <td>{{ object.type|linkify }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Status</th>
+              <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+            </tr>
+            <tr>
+              <th scope="row">Tenant</th>
+              <td>
+                {% if object.tenant.group %}
+                  {{ object.tenant.group|linkify }} /
+                {% endif %}
+                {{ object.tenant|linkify|placeholder }}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Install Date</th>
+              <td>{{ object.install_date|annotated_date|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Termination Date</th>
+              <td>{{ object.termination_date|annotated_date|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Commit Rate</th>
+              <td>{{ object.commit_rate|humanize_speed|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+          </table>
         </div>
-        {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/tags.html' %}
-        {% include 'inc/panels/comments.html' %}
-        {% plugin_left_page object %}
-	</div>
-	<div class="col col-md-6">
-    {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_a side='A' %}
-    {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_z side='Z' %}
-    {% include 'inc/panels/contacts.html' %}
-    {% include 'inc/panels/image_attachments.html' %}
-    {% plugin_right_page object %}
-  </div>
-</div>
-<div class="row">
-    <div class="col col-md-12">
-        {% plugin_full_width_page object %}
+      </div>
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/tags.html' %}
+      {% plugin_left_page object %}
     </div>
-</div>
+    <div class="col col-md-6">
+      {% include 'inc/panels/comments.html' %}
+      {% include 'inc/panels/contacts.html' %}
+      {% include 'inc/panels/image_attachments.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-6">
+      {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_a side='A' %}
+    </div>
+    <div class="col col-md-6">
+      {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_z side='Z' %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
 {% endblock %}

@@ -5,16 +5,17 @@ from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 from dcim.api.nested_serializers import (
-    NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedPlatformSerializer, NestedRegionSerializer,
-    NestedSiteSerializer, NestedSiteGroupSerializer,
+    NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedLocationSerializer, NestedPlatformSerializer,
+    NestedRegionSerializer, NestedSiteSerializer, NestedSiteGroupSerializer,
 )
-from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
+from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
-from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.exceptions import SerializerNotFound
+from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer
+from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
 from users.api.nested_serializers import NestedUserSerializer
@@ -84,13 +85,14 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     )
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
     data_type = serializers.SerializerMethodField()
+    ui_visibility = ChoiceField(choices=CustomFieldVisibilityChoices, required=False)
 
     class Meta:
         model = CustomField
         fields = [
-            'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'description',
-            'required', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
-            'validation_regex', 'choices', 'created', 'last_updated',
+            'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
+            'description', 'required', 'filter_logic', 'ui_visibility', 'default', 'weight', 'validation_minimum',
+            'validation_maximum', 'validation_regex', 'choices', 'created', 'last_updated',
         ]
 
     def get_data_type(self, obj):
@@ -190,9 +192,9 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 
         return data
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_parent(self, obj):
-        serializer = get_serializer_for_model(obj.parent, prefix='Nested')
+        serializer = get_serializer_for_model(obj.parent, prefix=NESTED_SERIALIZER_PREFIX)
         return serializer(obj.parent, context={'request': self.context['request']}).data
 
 
@@ -221,7 +223,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
         model = JournalEntry
         fields = [
             'id', 'url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'created',
-            'created_by', 'kind', 'comments', 'tags', 'custom_fields',
+            'created_by', 'kind', 'comments', 'tags', 'custom_fields', 'last_updated',
         ]
 
     def validate(self, data):
@@ -240,9 +242,9 @@ class JournalEntrySerializer(NetBoxModelSerializer):
 
         return data
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_assigned_object(self, instance):
-        serializer = get_serializer_for_model(instance.assigned_object_type.model_class(), prefix='Nested')
+        serializer = get_serializer_for_model(instance.assigned_object_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         return serializer(instance.assigned_object, context=context).data
 
@@ -268,6 +270,12 @@ class ConfigContextSerializer(ValidatedModelSerializer):
     sites = SerializedPKRelatedField(
         queryset=Site.objects.all(),
         serializer=NestedSiteSerializer,
+        required=False,
+        many=True
+    )
+    locations = SerializedPKRelatedField(
+        queryset=Location.objects.all(),
+        serializer=NestedLocationSerializer,
         required=False,
         many=True
     )
@@ -330,8 +338,8 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         model = ConfigContext
         fields = [
             'id', 'url', 'display', 'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites',
-            'device_types', 'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
-            'tenants', 'tags', 'data', 'created', 'last_updated',
+            'locations', 'device_types', 'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters',
+            'tenant_groups', 'tenants', 'tags', 'data', 'created', 'last_updated',
         ]
 
 
@@ -395,6 +403,7 @@ class ScriptSerializer(serializers.Serializer):
     vars = serializers.SerializerMethodField(read_only=True)
     result = NestedJobResultSerializer()
 
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_vars(self, instance):
         return {
             k: v.__class__.__name__ for k, v in instance._get_vars().items()
@@ -453,7 +462,7 @@ class ObjectChangeSerializer(BaseModelSerializer):
             'changed_object_id', 'changed_object', 'prechange_data', 'postchange_data',
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_changed_object(self, obj):
         """
         Serialize a nested representation of the changed object.
@@ -462,7 +471,7 @@ class ObjectChangeSerializer(BaseModelSerializer):
             return None
 
         try:
-            serializer = get_serializer_for_model(obj.changed_object, prefix='Nested')
+            serializer = get_serializer_for_model(obj.changed_object, prefix=NESTED_SERIALIZER_PREFIX)
         except SerializerNotFound:
             return obj.object_repr
         context = {

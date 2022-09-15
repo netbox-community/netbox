@@ -62,6 +62,10 @@
                     <p>Devices</p>
                 </div>
                 <div class="col col-md-4 text-center">
+                    <h2><a href="{% url 'dcim:cable_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.cable_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.cable_count }}</a></h2>
+                    <p>Cables</p>
+                </div>
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'ipam:vrf_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.vrf_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.vrf_count }}</a></h2>
                     <p>VRFs</p>
                 </div>
@@ -102,8 +106,12 @@
                     <p>Clusters</p>
                 </div>
                 <div class="col col-md-4 text-center">
-                    <h2><a href="{% url 'dcim:cable_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.cable_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.cable_count }}</a></h2>
-                    <p>Cables</p>
+                    <h2><a href="{% url 'wireless:wirelesslan_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.wirelesslan_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.wirelesslan_count }}</a></h2>
+                    <p>Wireless LANs</p>
+                </div>
+                <div class="col col-md-4 text-center">
+                    <h2><a href="{% url 'wireless:wirelesslink_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.wirelesslink_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.wirelesslink_count }}</a></h2>
+                    <p>Wireless Links</p>
                 </div>
             </div>
         </div>

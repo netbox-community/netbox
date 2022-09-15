@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 
 from dcim.models import Device, Interface, Site
 from ipam.choices import *
@@ -16,6 +17,8 @@ __all__ = (
     'FHRPGroupCSVForm',
     'IPAddressCSVForm',
     'IPRangeCSVForm',
+    'L2VPNCSVForm',
+    'L2VPNTerminationCSVForm',
     'PrefixCSVForm',
     'RIRCSVForm',
     'RoleCSVForm',
@@ -425,3 +428,83 @@ class ServiceCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = Service
         fields = ('device', 'virtual_machine', 'name', 'protocol', 'ports', 'description')
+
+
+class L2VPNCSVForm(NetBoxModelCSVForm):
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+    )
+    type = CSVChoiceField(
+        choices=L2VPNTypeChoices,
+        help_text='L2VPN type'
+    )
+
+    class Meta:
+        model = L2VPN
+        fields = ('identifier', 'name', 'slug', 'type', 'description')
+
+
+class L2VPNTerminationCSVForm(NetBoxModelCSVForm):
+    l2vpn = CSVModelChoiceField(
+        queryset=L2VPN.objects.all(),
+        required=True,
+        to_field_name='name',
+        label='L2VPN',
+    )
+    device = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Parent device (for interface)'
+    )
+    virtual_machine = CSVModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Parent virtual machine (for interface)'
+    )
+    interface = CSVModelChoiceField(
+        queryset=Interface.objects.none(),  # Can also refer to VMInterface
+        required=False,
+        to_field_name='name',
+        help_text='Assigned interface (device or VM)'
+    )
+    vlan = CSVModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned VLAN'
+    )
+
+    class Meta:
+        model = L2VPNTermination
+        fields = ('l2vpn', 'device', 'virtual_machine', 'interface', 'vlan')
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+
+            # Limit interface queryset by device or VM
+            if data.get('device'):
+                self.fields['interface'].queryset = Interface.objects.filter(
+                    **{f"device__{self.fields['device'].to_field_name}": data['device']}
+                )
+            elif data.get('virtual_machine'):
+                self.fields['interface'].queryset = VMInterface.objects.filter(
+                    **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
+                )
+
+    def clean(self):
+        super().clean()
+
+        if self.cleaned_data.get('device') and self.cleaned_data.get('virtual_machine'):
+            raise ValidationError('Cannot import device and VM interface terminations simultaneously.')
+        if not (self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')):
+            raise ValidationError('Each termination must specify either an interface or a VLAN.')
+        if self.cleaned_data.get('interface') and self.cleaned_data.get('vlan'):
+            raise ValidationError('Cannot assign both an interface and a VLAN.')
+
+        self.instance.assigned_object = self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')

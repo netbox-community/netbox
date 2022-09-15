@@ -248,6 +248,7 @@ urlpatterns = [
     path('devices/import/', views.DeviceBulkImportView.as_view(), name='device_import'),
     path('devices/import/child-devices/', views.ChildDeviceBulkImportView.as_view(), name='device_import_child'),
     path('devices/edit/', views.DeviceBulkEditView.as_view(), name='device_bulk_edit'),
+    path('devices/rename/', views.DeviceBulkRenameView.as_view(), name='device_bulk_rename'),
     path('devices/delete/', views.DeviceBulkDeleteView.as_view(), name='device_bulk_delete'),
     path('devices/<int:pk>/', views.DeviceView.as_view(), name='device'),
     path('devices/<int:pk>/edit/', views.DeviceEditView.as_view(), name='device_edit'),
@@ -294,7 +295,6 @@ urlpatterns = [
     path('console-ports/<int:pk>/delete/', views.ConsolePortDeleteView.as_view(), name='consoleport_delete'),
     path('console-ports/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='consoleport_changelog', kwargs={'model': ConsolePort}),
     path('console-ports/<int:pk>/trace/', views.PathTraceView.as_view(), name='consoleport_trace', kwargs={'model': ConsolePort}),
-    path('console-ports/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='consoleport_connect', kwargs={'termination_a_type': ConsolePort}),
     path('devices/console-ports/add/', views.DeviceBulkAddConsolePortView.as_view(), name='device_bulk_add_consoleport'),
 
     # Console server ports
@@ -310,7 +310,6 @@ urlpatterns = [
     path('console-server-ports/<int:pk>/delete/', views.ConsoleServerPortDeleteView.as_view(), name='consoleserverport_delete'),
     path('console-server-ports/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='consoleserverport_changelog', kwargs={'model': ConsoleServerPort}),
     path('console-server-ports/<int:pk>/trace/', views.PathTraceView.as_view(), name='consoleserverport_trace', kwargs={'model': ConsoleServerPort}),
-    path('console-server-ports/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='consoleserverport_connect', kwargs={'termination_a_type': ConsoleServerPort}),
     path('devices/console-server-ports/add/', views.DeviceBulkAddConsoleServerPortView.as_view(), name='device_bulk_add_consoleserverport'),
 
     # Power ports
@@ -326,7 +325,6 @@ urlpatterns = [
     path('power-ports/<int:pk>/delete/', views.PowerPortDeleteView.as_view(), name='powerport_delete'),
     path('power-ports/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='powerport_changelog', kwargs={'model': PowerPort}),
     path('power-ports/<int:pk>/trace/', views.PathTraceView.as_view(), name='powerport_trace', kwargs={'model': PowerPort}),
-    path('power-ports/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='powerport_connect', kwargs={'termination_a_type': PowerPort}),
     path('devices/power-ports/add/', views.DeviceBulkAddPowerPortView.as_view(), name='device_bulk_add_powerport'),
 
     # Power outlets
@@ -342,7 +340,6 @@ urlpatterns = [
     path('power-outlets/<int:pk>/delete/', views.PowerOutletDeleteView.as_view(), name='poweroutlet_delete'),
     path('power-outlets/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='poweroutlet_changelog', kwargs={'model': PowerOutlet}),
     path('power-outlets/<int:pk>/trace/', views.PathTraceView.as_view(), name='poweroutlet_trace', kwargs={'model': PowerOutlet}),
-    path('power-outlets/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='poweroutlet_connect', kwargs={'termination_a_type': PowerOutlet}),
     path('devices/power-outlets/add/', views.DeviceBulkAddPowerOutletView.as_view(), name='device_bulk_add_poweroutlet'),
 
     # Interfaces
@@ -358,7 +355,6 @@ urlpatterns = [
     path('interfaces/<int:pk>/delete/', views.InterfaceDeleteView.as_view(), name='interface_delete'),
     path('interfaces/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='interface_changelog', kwargs={'model': Interface}),
     path('interfaces/<int:pk>/trace/', views.PathTraceView.as_view(), name='interface_trace', kwargs={'model': Interface}),
-    path('interfaces/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='interface_connect', kwargs={'termination_a_type': Interface}),
     path('devices/interfaces/add/', views.DeviceBulkAddInterfaceView.as_view(), name='device_bulk_add_interface'),
 
     # Front ports
@@ -374,7 +370,6 @@ urlpatterns = [
     path('front-ports/<int:pk>/delete/', views.FrontPortDeleteView.as_view(), name='frontport_delete'),
     path('front-ports/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='frontport_changelog', kwargs={'model': FrontPort}),
     path('front-ports/<int:pk>/trace/', views.PathTraceView.as_view(), name='frontport_trace', kwargs={'model': FrontPort}),
-    path('front-ports/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='frontport_connect', kwargs={'termination_a_type': FrontPort}),
     # path('devices/front-ports/add/', views.DeviceBulkAddFrontPortView.as_view(), name='device_bulk_add_frontport'),
 
     # Rear ports
@@ -390,7 +385,6 @@ urlpatterns = [
     path('rear-ports/<int:pk>/delete/', views.RearPortDeleteView.as_view(), name='rearport_delete'),
     path('rear-ports/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rearport_changelog', kwargs={'model': RearPort}),
     path('rear-ports/<int:pk>/trace/', views.PathTraceView.as_view(), name='rearport_trace', kwargs={'model': RearPort}),
-    path('rear-ports/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='rearport_connect', kwargs={'termination_a_type': RearPort}),
     path('devices/rear-ports/add/', views.DeviceBulkAddRearPortView.as_view(), name='device_bulk_add_rearport'),
 
     # Module bays
@@ -447,6 +441,7 @@ urlpatterns = [
 
     # Cables
     path('cables/', views.CableListView.as_view(), name='cable_list'),
+    path('cables/add/', views.CableEditView.as_view(), name='cable_add'),
     path('cables/import/', views.CableBulkImportView.as_view(), name='cable_import'),
     path('cables/edit/', views.CableBulkEditView.as_view(), name='cable_bulk_edit'),
     path('cables/delete/', views.CableBulkDeleteView.as_view(), name='cable_bulk_delete'),
@@ -500,6 +495,5 @@ urlpatterns = [
     path('power-feeds/<int:pk>/trace/', views.PathTraceView.as_view(), name='powerfeed_trace', kwargs={'model': PowerFeed}),
     path('power-feeds/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='powerfeed_changelog', kwargs={'model': PowerFeed}),
     path('power-feeds/<int:pk>/journal/', ObjectJournalView.as_view(), name='powerfeed_journal', kwargs={'model': PowerFeed}),
-    path('power-feeds/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='powerfeed_connect', kwargs={'termination_a_type': PowerFeed}),
 
 ]

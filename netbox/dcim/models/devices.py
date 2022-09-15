@@ -1,6 +1,8 @@
-from collections import OrderedDict
+import decimal
 
 import yaml
+
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -99,8 +101,10 @@ class DeviceType(NetBoxModel):
         blank=True,
         help_text='Discrete part number (optional)'
     )
-    u_height = models.PositiveSmallIntegerField(
-        default=1,
+    u_height = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        default=1.0,
         verbose_name='Height (U)'
     )
     is_full_depth = models.BooleanField(
@@ -133,9 +137,9 @@ class DeviceType(NetBoxModel):
         blank=True
     )
 
-    clone_fields = [
+    clone_fields = (
         'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
-    ]
+    )
 
     class Meta:
         ordering = ['manufacturer', 'model']
@@ -157,125 +161,78 @@ class DeviceType(NetBoxModel):
         self._original_front_image = self.front_image
         self._original_rear_image = self.rear_image
 
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [Manufacturer, ]
+
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
 
+    @property
+    def get_full_name(self):
+        return f"{ self.manufacturer } { self.model }"
+
     def to_yaml(self):
-        data = OrderedDict((
-            ('manufacturer', self.manufacturer.name),
-            ('model', self.model),
-            ('slug', self.slug),
-            ('part_number', self.part_number),
-            ('u_height', self.u_height),
-            ('is_full_depth', self.is_full_depth),
-            ('subdevice_role', self.subdevice_role),
-            ('airflow', self.airflow),
-            ('comments', self.comments),
-        ))
+        data = {
+            'manufacturer': self.manufacturer.name,
+            'model': self.model,
+            'slug': self.slug,
+            'part_number': self.part_number,
+            'u_height': float(self.u_height),
+            'is_full_depth': self.is_full_depth,
+            'subdevice_role': self.subdevice_role,
+            'airflow': self.airflow,
+            'comments': self.comments,
+        }
 
         # Component templates
         if self.consoleporttemplates.exists():
             data['console-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.consoleporttemplates.all()
+                c.to_yaml() for c in self.consoleporttemplates.all()
             ]
         if self.consoleserverporttemplates.exists():
             data['console-server-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.consoleserverporttemplates.all()
+                c.to_yaml() for c in self.consoleserverporttemplates.all()
             ]
         if self.powerporttemplates.exists():
             data['power-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'maximum_draw': c.maximum_draw,
-                    'allocated_draw': c.allocated_draw,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.powerporttemplates.all()
+                c.to_yaml() for c in self.powerporttemplates.all()
             ]
         if self.poweroutlettemplates.exists():
             data['power-outlets'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'power_port': c.power_port.name if c.power_port else None,
-                    'feed_leg': c.feed_leg,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.poweroutlettemplates.all()
+                c.to_yaml() for c in self.poweroutlettemplates.all()
             ]
         if self.interfacetemplates.exists():
             data['interfaces'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'mgmt_only': c.mgmt_only,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.interfacetemplates.all()
+                c.to_yaml() for c in self.interfacetemplates.all()
             ]
         if self.frontporttemplates.exists():
             data['front-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'rear_port': c.rear_port.name,
-                    'rear_port_position': c.rear_port_position,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.frontporttemplates.all()
+                c.to_yaml() for c in self.frontporttemplates.all()
             ]
         if self.rearporttemplates.exists():
             data['rear-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'positions': c.positions,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.rearporttemplates.all()
+                c.to_yaml() for c in self.rearporttemplates.all()
             ]
         if self.modulebaytemplates.exists():
             data['module-bays'] = [
-                {
-                    'name': c.name,
-                    'label': c.label,
-                    'position': c.position,
-                    'description': c.description,
-                }
-                for c in self.modulebaytemplates.all()
+                c.to_yaml() for c in self.modulebaytemplates.all()
             ]
         if self.devicebaytemplates.exists():
             data['device-bays'] = [
-                {
-                    'name': c.name,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.devicebaytemplates.all()
+                c.to_yaml() for c in self.devicebaytemplates.all()
             ]
 
         return yaml.dump(dict(data), sort_keys=False)
 
     def clean(self):
         super().clean()
+
+        # U height must be divisible by 0.5
+        if self.u_height % decimal.Decimal(0.5):
+            raise ValidationError({
+                'u_height': "U height must be in increments of 0.5 rack units."
+            })
 
         # If editing an existing DeviceType to have a larger u_height, first validate that *all* instances of it have
         # room to expand within their racks. This validation will impose a very high performance penalty when there are
@@ -391,95 +348,49 @@ class ModuleType(NetBoxModel):
     def __str__(self):
         return self.model
 
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [Manufacturer, ]
+
     def get_absolute_url(self):
         return reverse('dcim:moduletype', args=[self.pk])
 
     def to_yaml(self):
-        data = OrderedDict((
-            ('manufacturer', self.manufacturer.name),
-            ('model', self.model),
-            ('part_number', self.part_number),
-            ('comments', self.comments),
-        ))
+        data = {
+            'manufacturer': self.manufacturer.name,
+            'model': self.model,
+            'part_number': self.part_number,
+            'comments': self.comments,
+        }
 
         # Component templates
         if self.consoleporttemplates.exists():
             data['console-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.consoleporttemplates.all()
+                c.to_yaml() for c in self.consoleporttemplates.all()
             ]
         if self.consoleserverporttemplates.exists():
             data['console-server-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.consoleserverporttemplates.all()
+                c.to_yaml() for c in self.consoleserverporttemplates.all()
             ]
         if self.powerporttemplates.exists():
             data['power-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'maximum_draw': c.maximum_draw,
-                    'allocated_draw': c.allocated_draw,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.powerporttemplates.all()
+                c.to_yaml() for c in self.powerporttemplates.all()
             ]
         if self.poweroutlettemplates.exists():
             data['power-outlets'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'power_port': c.power_port.name if c.power_port else None,
-                    'feed_leg': c.feed_leg,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.poweroutlettemplates.all()
+                c.to_yaml() for c in self.poweroutlettemplates.all()
             ]
         if self.interfacetemplates.exists():
             data['interfaces'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'mgmt_only': c.mgmt_only,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.interfacetemplates.all()
+                c.to_yaml() for c in self.interfacetemplates.all()
             ]
         if self.frontporttemplates.exists():
             data['front-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'rear_port': c.rear_port.name,
-                    'rear_port_position': c.rear_port_position,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.frontporttemplates.all()
+                c.to_yaml() for c in self.frontporttemplates.all()
             ]
         if self.rearporttemplates.exists():
             data['rear-ports'] = [
-                {
-                    'name': c.name,
-                    'type': c.type,
-                    'positions': c.positions,
-                    'label': c.label,
-                    'description': c.description,
-                }
-                for c in self.rearporttemplates.all()
+                c.to_yaml() for c in self.rearporttemplates.all()
             ]
 
         return yaml.dump(dict(data), sort_keys=False)
@@ -654,10 +565,12 @@ class Device(NetBoxModel, ConfigContextModel):
         blank=True,
         null=True
     )
-    position = models.PositiveSmallIntegerField(
+    position = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
         blank=True,
         null=True,
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(1), MaxValueValidator(99.5)],
         verbose_name='Position (U)',
         help_text='The lowest-numbered unit occupied by the device'
     )
@@ -731,9 +644,10 @@ class Device(NetBoxModel, ConfigContextModel):
 
     objects = ConfigContextModelQuerySet.as_manager()
 
-    clone_fields = [
-        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'airflow', 'cluster',
-    ]
+    clone_fields = (
+        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'face', 'status', 'airflow',
+        'cluster', 'virtual_chassis',
+    )
 
     class Meta:
         ordering = ('_name', 'pk')  # Name may be null
@@ -757,6 +671,10 @@ class Device(NetBoxModel, ConfigContextModel):
         elif self.device_type:
             return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
         return super().__str__()
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [apps.get_model('dcim.Site'), DeviceRole, DeviceType, ]
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
@@ -807,7 +725,11 @@ class Device(NetBoxModel, ConfigContextModel):
                     'position': "Cannot select a rack position without assigning a rack.",
                 })
 
-        # Validate position/face combination
+        # Validate rack position and face
+        if self.position and self.position % decimal.Decimal(0.5):
+            raise ValidationError({
+                'position': "Position must be in increments of 0.5 rack units."
+            })
         if self.position and not self.face:
             raise ValidationError({
                 'face': "Must specify rack face when defining rack position.",
@@ -946,6 +868,7 @@ class Device(NetBoxModel, ConfigContextModel):
         for device in devices:
             device.site = self.site
             device.rack = self.rack
+            device.location = self.location
             device.save()
 
     @property

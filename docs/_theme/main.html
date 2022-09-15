@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block site_meta %}
+  {{ super() }}
+  {# Disable search indexing unless we're building for ReadTheDocs #}
+  {% if not config.extra.readthedocs %}
+    <meta name="robots" content="noindex">
+  {% endif %}
+{% endblock %}

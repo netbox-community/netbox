@@ -1,3 +1,17 @@
 # Service Templates
 
-Service templates can be used to instantiate services on devices and virtual machines. A template defines a name, protocol, and port number(s), and may optionally include a description. Services can be instantiated from templates and applied to devices and/or virtual machines, and may be associated with specific IP addresses.
+Service templates can be used to instantiate [services](./service.md) on [devices](../dcim/device.md) and [virtual machines](../virtualization/virtualmachine.md).
+
+## Fields
+
+### Name
+
+A service or protocol name.
+
+### Protocol
+
+The wire protocol on which the service runs. Choices include UDP, TCP, and SCTP.
+
+### Ports
+
+One or more numeric ports to which the service is bound. Multiple ports can be expressed using commas and/or hyphens. For example, `80,8001-8003` specifies ports 80, 8001, 8002, and 8003.

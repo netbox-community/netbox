@@ -79,15 +79,19 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Cluster', ('name', 'type', 'group', 'region', 'site_group', 'site', 'tags')),
+        ('Cluster', ('name', 'type', 'group', 'status', 'tags')),
+        ('Site', ('region', 'site_group', 'site')),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
 
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'tenant', 'region', 'site_group', 'site', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'tenant', 'region', 'site_group', 'site', 'comments', 'tags',
         )
+        widgets = {
+            'status': StaticSelect(),
+        }
 
 
 class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
@@ -161,6 +165,10 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
 
 
 class VirtualMachineForm(TenancyForm, NetBoxModelForm):
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -171,9 +179,20 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
+        required=False,
         query_params={
-            'group_id': '$cluster_group'
+            'site_id': '$site',
+            'group_id': '$cluster_group',
         }
+    )
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        query_params={
+            'cluster_id': '$cluster',
+            'site_id': '$site',
+        },
+        help_text="Optionally pin this VM to a specific host device within the cluster"
     )
     role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -193,7 +212,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
 
     fieldsets = (
         ('Virtual Machine', ('name', 'role', 'status', 'tags')),
-        ('Cluster', ('cluster_group', 'cluster')),
+        ('Site/Cluster', ('site', 'cluster_group', 'cluster', 'device')),
         ('Tenancy', ('tenant_group', 'tenant')),
         ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
         ('Resources', ('vcpus', 'memory', 'disk')),
@@ -203,8 +222,9 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = VirtualMachine
         fields = [
-            'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4',
-            'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'tags', 'local_context_data',
+            'name', 'status', 'site', 'cluster_group', 'cluster', 'device', 'role', 'tenant_group', 'tenant',
+            'platform', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'tags',
+            'local_context_data',
         ]
         help_texts = {
             'local_context_data': "Local config context data overwrites all sources contexts in the final rendered "
@@ -301,6 +321,14 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
         queryset=VRF.objects.all(),
         required=False,
         label='VRF'
+    )
+
+    fieldsets = (
+        ('Interface', ('virtual_machine', 'name', 'description', 'tags')),
+        ('Addressing', ('vrf', 'mac_address')),
+        ('Operation', ('mtu', 'enabled')),
+        ('Related Interfaces', ('parent', 'bridge')),
+        ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
     )
 
     class Meta:

@@ -992,7 +992,7 @@ class CustomFieldModelTest(TestCase):
         with self.assertRaises(ValidationError):
             site.clean()
 
-        del(site.cf['bar'])
+        del site.cf['bar']
         site.clean()
 
     def test_missing_required_field(self):

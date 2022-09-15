@@ -21,10 +21,22 @@
       {% endif %}
       {% render_field form.name %}
       {% render_field form.description %}
-      {% render_field form.mac_address %}
-      {% render_field form.vrf %}
-      {% render_field form.mtu %}
       {% render_field form.tags %}
+    </div>
+
+    <div class="field-group my-5">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Addressing</h5>
+        </div>
+      {% render_field form.vrf %}
+      {% render_field form.mac_address %}
+    </div>
+
+    <div class="field-group my-5">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Operation</h5>
+        </div>
+      {% render_field form.mtu %}
       {% render_field form.enabled %}
     </div>
 
@@ -54,15 +66,4 @@
         {% render_custom_fields form %}
       </div>
     {% endif %}
-{% endblock %}
-
-{% block buttons %}
-  <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-  {% if object.pk %}
-    <button type="button" return-url="?return_url={% url 'virtualization:vminterface_edit' pk=object.pk %}" class="btn btn-outline-primary">Save & Continue Editing</button>
-    <button type="submit" name="_update" class="btn btn-primary">Save</button>
-  {% else %}
-    <button type="submit" name="_addanother" class="btn btn-outline-primary">Create & Add Another</button>
-    <button type="submit" name="_create" class="btn btn-primary">Create</button>
-  {% endif %}
 {% endblock %}

@@ -31,6 +31,11 @@ Context:
   <div class="tab-content">
     <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
 
+      {# Warn about missing prerequisite objects #}
+      {% if prerequisite_model %}
+        {% include 'inc/missing_prerequisites.html' %}
+      {% endif %}
+
       {# Link to model documentation #}
       {% if object and settings.DOCS_ROOT %}
         <div class="float-end">
@@ -94,19 +99,19 @@ Context:
 
         <div class="text-end my-3">
           {% block buttons %}
-            <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
             {% if object.pk %}
               <button type="submit" name="_update" class="btn btn-primary">
                 Save
               </button>
             {% else %}
-              <button type="submit" name="_addanother" class="btn btn-outline-primary">
-                Create & Add Another
-              </button>
               <button type="submit" name="_create" class="btn btn-primary">
                 Create
               </button>
+              <button type="submit" name="_addanother" class="btn btn-outline-primary">
+                Create & Add Another
+              </button>
             {% endif %}
+            <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
           {% endblock buttons %}
         </div>
       </form>

@@ -32,23 +32,25 @@
                     {% for iface in interfaces %}
                         <tr id="{{ iface.name }}">
                             <td>{{ iface }}</td>
-                            {% if iface.connected_endpoint.device %}
-                                <td class="configured_device" data="{{ iface.connected_endpoint.device.name }}" data-chassis="{{ iface.connected_endpoint.device.virtual_chassis.name }}">
-                                    <a href="{% url 'dcim:device' pk=iface.connected_endpoint.device.pk %}">{{ iface.connected_endpoint.device }}</a>
-                                </td>
-                                <td class="configured_interface" data="{{ iface.connected_endpoint.name }}">
-                                    <span title="{{ iface.connected_endpoint.get_type_display }}">{{ iface.connected_endpoint }}</span>
-                                </td>
-                            {% elif iface.connected_endpoint.circuit %}
-                                {% with circuit=iface.connected_endpoint.circuit %}
-                                    <td colspan="2">
-                                        <i class="mdi mdi-lightning-bolt" title="Circuit"></i>
-                                        <a href="{{ circuit.get_absolute_url }}">{{ circuit.provider }} {{ circuit }}</a>
-                                    </td>
-                                {% endwith %}
-                            {% else %}
-                                <td class="text-muted" colspan="2">None</td>
-                            {% endif %}
+                            {% with peer=iface.connected_endpoints.0 %}
+                              {% if peer.device %}
+                                  <td class="configured_device" data="{{ peer.device.name }}" data-chassis="{{ peer.device.virtual_chassis.name }}">
+                                      <a href="{% url 'dcim:device' pk=peer.device.pk %}">{{ peer.device }}</a>
+                                  </td>
+                                  <td class="configured_interface" data="{{ peer.name }}">
+                                      <span title="{{ peer.get_type_display }}">{{ peer }}</span>
+                                  </td>
+                              {% elif peer.circuit %}
+                                  {% with circuit=peer.circuit %}
+                                      <td colspan="2">
+                                          <i class="mdi mdi-lightning-bolt" title="Circuit"></i>
+                                          <a href="{{ circuit.get_absolute_url }}">{{ circuit.provider }} {{ circuit }}</a>
+                                      </td>
+                                  {% endwith %}
+                              {% else %}
+                                  <td class="text-muted" colspan="2">None</td>
+                              {% endif %}
+                            {% endwith %}
                             <td class="device"></td>
                             <td class="interface"></td>
                         </tr>

@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from ipam import models
-from netbox.api import WritableNestedSerializer
+from ipam.models.l2vpn import L2VPNTermination, L2VPN
+from netbox.api.serializers import WritableNestedSerializer
 
 __all__ = [
     'NestedAggregateSerializer',
@@ -10,6 +11,8 @@ __all__ = [
     'NestedFHRPGroupAssignmentSerializer',
     'NestedIPAddressSerializer',
     'NestedIPRangeSerializer',
+    'NestedL2VPNSerializer',
+    'NestedL2VPNTerminationSerializer',
     'NestedPrefixSerializer',
     'NestedRIRSerializer',
     'NestedRoleSerializer',
@@ -190,3 +193,28 @@ class NestedServiceSerializer(WritableNestedSerializer):
     class Meta:
         model = models.Service
         fields = ['id', 'url', 'display', 'name', 'protocol', 'ports']
+
+#
+# L2VPN
+#
+
+
+class NestedL2VPNSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:l2vpn-detail')
+
+    class Meta:
+        model = L2VPN
+        fields = [
+            'id', 'url', 'display', 'identifier', 'name', 'slug', 'type'
+        ]
+
+
+class NestedL2VPNTerminationSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:l2vpntermination-detail')
+    l2vpn = NestedL2VPNSerializer()
+
+    class Meta:
+        model = L2VPNTermination
+        fields = [
+            'id', 'url', 'display', 'l2vpn'
+        ]

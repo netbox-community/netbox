@@ -1,7 +1,6 @@
 import re
 
 from django import forms
-from django.conf import settings
 from django.forms.models import fields_for_model
 
 from utilities.choices import unpack_grouped_choices

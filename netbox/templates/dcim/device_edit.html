@@ -86,6 +86,15 @@
       {% render_field form.tenant %}
     </div>
 
+    <div class="field-group my-5">
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">Virtual Chassis</h5>
+      </div>
+      {% render_field form.virtual_chassis %}
+      {% render_field form.vc_position %}
+      {% render_field form.vc_priority %}
+    </div>
+
     {% if form.custom_fields %}
       <div class="field-group my-5">
         <div class="row mb-2">

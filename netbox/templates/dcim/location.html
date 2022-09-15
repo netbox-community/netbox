@@ -44,6 +44,10 @@
             <td>{{ object.parent|linkify|placeholder }}</td>
           </tr>
           <tr>
+            <th scope="row">Status</th>
+            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+          </tr>
+          <tr>
             <th scope="row">Tenant</th>
             <td>
               {% if object.tenant.group %}
@@ -54,9 +58,9 @@
           </tr>
           <tr>
             <th scope="row">Racks</th>
-            <td>
+            <td class="position-relative">
               {% if rack_count %}
-                <div class="float-end noprint">
+                <div class="position-absolute top-50 end-0 translate-middle-y noprint">
                   <a href="{% url 'dcim:rack_elevation_list' %}?location_id={{ object.pk }}" class="btn btn-sm btn-primary" title="View elevations">
                     <i class="mdi mdi-server"></i>
                   </a>

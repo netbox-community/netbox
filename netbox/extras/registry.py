@@ -28,3 +28,4 @@ registry = Registry()
 registry['model_features'] = {
     feature: collections.defaultdict(set) for feature in EXTRAS_FEATURES
 }
+registry['denormalized_fields'] = collections.defaultdict(list)

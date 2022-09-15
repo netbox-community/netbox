@@ -124,6 +124,10 @@ class LocationCSVForm(NetBoxModelCSVForm):
             'invalid_choice': 'Location not found.',
         }
     )
+    status = CSVChoiceField(
+        choices=LocationStatusChoices,
+        help_text='Operational status'
+    )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -133,7 +137,7 @@ class LocationCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Location
-        fields = ('site', 'parent', 'name', 'slug', 'tenant', 'description')
+        fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'description')
 
 
 class RackRoleCSVForm(NetBoxModelCSVForm):
@@ -622,6 +626,16 @@ class InterfaceCSVForm(NetBoxModelCSVForm):
         choices=InterfaceDuplexChoices,
         required=False
     )
+    poe_mode = CSVChoiceField(
+        choices=InterfacePoEModeChoices,
+        required=False,
+        help_text='PoE mode'
+    )
+    poe_type = CSVChoiceField(
+        choices=InterfacePoETypeChoices,
+        required=False,
+        help_text='PoE type'
+    )
     mode = CSVChoiceField(
         choices=InterfaceModeChoices,
         required=False,
@@ -642,9 +656,9 @@ class InterfaceCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = Interface
         fields = (
-            'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'speed', 'duplex', 'enabled', 'mark_connected', 'mac_address',
-            'wwn', 'mtu', 'mgmt_only', 'description', 'mode', 'vrf', 'rf_role', 'rf_channel', 'rf_channel_frequency',
-            'rf_channel_width', 'tx_power',
+            'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'speed', 'duplex', 'enabled',
+            'mark_connected', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
+            'vrf', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -941,7 +955,7 @@ class CableCSVForm(NetBoxModelCSVForm):
         except ObjectDoesNotExist:
             raise forms.ValidationError(f"{side.upper()} side termination not found: {device} {name}")
 
-        setattr(self.instance, f'termination_{side}', termination_object)
+        setattr(self.instance, f'{side}_terminations', [termination_object])
         return termination_object
 
     def clean_side_a_name(self):

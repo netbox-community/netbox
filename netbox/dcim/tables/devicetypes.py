@@ -172,7 +172,7 @@ class InterfaceTemplateTable(ComponentTemplateTable):
 
     class Meta(ComponentTemplateTable.Meta):
         model = InterfaceTemplate
-        fields = ('pk', 'name', 'label', 'mgmt_only', 'type', 'description', 'actions')
+        fields = ('pk', 'name', 'label', 'mgmt_only', 'type', 'description', 'poe_mode', 'poe_type', 'actions')
         empty_text = "None"
 
 

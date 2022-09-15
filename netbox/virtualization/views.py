@@ -209,14 +209,14 @@ class ClusterBulkImportView(generic.BulkImportView):
 
 
 class ClusterBulkEditView(generic.BulkEditView):
-    queryset = Cluster.objects.prefetch_related('type', 'group', 'site')
+    queryset = Cluster.objects.all()
     filterset = filtersets.ClusterFilterSet
     table = tables.ClusterTable
     form = forms.ClusterBulkEditForm
 
 
 class ClusterBulkDeleteView(generic.BulkDeleteView):
-    queryset = Cluster.objects.prefetch_related('type', 'group', 'site')
+    queryset = Cluster.objects.all()
     filterset = filtersets.ClusterFilterSet
     table = tables.ClusterTable
 
@@ -308,7 +308,7 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
 #
 
 class VirtualMachineListView(generic.ObjectListView):
-    queryset = VirtualMachine.objects.all()
+    queryset = VirtualMachine.objects.prefetch_related('primary_ip4', 'primary_ip6')
     filterset = filtersets.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
     table = tables.VirtualMachineTable
@@ -334,7 +334,8 @@ class VirtualMachineView(generic.ObjectView):
         services = Service.objects.restrict(request.user, 'view').filter(
             virtual_machine=instance
         ).prefetch_related(
-            Prefetch('ipaddresses', queryset=IPAddress.objects.restrict(request.user))
+            Prefetch('ipaddresses', queryset=IPAddress.objects.restrict(request.user)),
+            'virtual_machine'
         )
 
         return {
@@ -383,14 +384,14 @@ class VirtualMachineBulkImportView(generic.BulkImportView):
 
 
 class VirtualMachineBulkEditView(generic.BulkEditView):
-    queryset = VirtualMachine.objects.prefetch_related('cluster', 'tenant', 'role')
+    queryset = VirtualMachine.objects.prefetch_related('primary_ip4', 'primary_ip6')
     filterset = filtersets.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
     form = forms.VirtualMachineBulkEditForm
 
 
 class VirtualMachineBulkDeleteView(generic.BulkDeleteView):
-    queryset = VirtualMachine.objects.prefetch_related('cluster', 'tenant', 'role')
+    queryset = VirtualMachine.objects.prefetch_related('primary_ip4', 'primary_ip6')
     filterset = filtersets.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
 
@@ -413,7 +414,7 @@ class VMInterfaceView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         # Get assigned IP addresses
         ipaddress_table = AssignedIPAddressesTable(
-            data=instance.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
+            data=instance.ip_addresses.restrict(request.user, 'view'),
             orderable=False
         )
 
@@ -471,6 +472,7 @@ class VMInterfaceBulkImportView(generic.BulkImportView):
 
 class VMInterfaceBulkEditView(generic.BulkEditView):
     queryset = VMInterface.objects.all()
+    filterset = filtersets.VMInterfaceFilterSet
     table = tables.VMInterfaceTable
     form = forms.VMInterfaceBulkEditForm
 
@@ -482,6 +484,7 @@ class VMInterfaceBulkRenameView(generic.BulkRenameView):
 
 class VMInterfaceBulkDeleteView(generic.BulkDeleteView):
     queryset = VMInterface.objects.all()
+    filterset = filtersets.VMInterfaceFilterSet
     table = tables.VMInterfaceTable
 
 

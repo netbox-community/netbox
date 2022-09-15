@@ -8,7 +8,7 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BulkEditNullBooleanSelect, DatePicker, DynamicModelChoiceField, NumericArrayField, StaticSelect,
+    add_blank_choice, BulkEditNullBooleanSelect, DynamicModelChoiceField, NumericArrayField, StaticSelect,
     DynamicModelMultipleChoiceField,
 )
 
@@ -18,6 +18,8 @@ __all__ = (
     'FHRPGroupBulkEditForm',
     'IPAddressBulkEditForm',
     'IPRangeBulkEditForm',
+    'L2VPNBulkEditForm',
+    'L2VPNTerminationBulkEditForm',
     'PrefixBulkEditForm',
     'RIRBulkEditForm',
     'RoleBulkEditForm',
@@ -440,3 +442,29 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
 
 class ServiceBulkEditForm(ServiceTemplateBulkEditForm):
     model = Service
+
+
+class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
+    type = forms.ChoiceField(
+        choices=add_blank_choice(L2VPNTypeChoices),
+        required=False,
+        widget=StaticSelect()
+    )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    model = L2VPN
+    fieldsets = (
+        (None, ('type', 'description', 'tenant')),
+    )
+    nullable_fields = ('tenant', 'description',)
+
+
+class L2VPNTerminationBulkEditForm(NetBoxModelBulkEditForm):
+    model = L2VPN

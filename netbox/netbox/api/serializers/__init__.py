@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from .base import *
 from .features import *
+from .generic import *
 from .nested import *
 
 
