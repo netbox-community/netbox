@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from dcim.choices import DeviceFaceChoices, DeviceStatusChoices
+from dcim.choices import DeviceFaceChoices, DeviceStatusChoices, InterfaceTypeChoices
 from dcim.forms import *
 from dcim.models import *
 from utilities.testing import create_test_device
@@ -129,10 +129,11 @@ class LabelTestCase(TestCase):
         """
         interface_data = {
             'device': self.device.pk,
-            'name_pattern': 'eth[0-9]',
-            'label_pattern': 'Interface[0-9]',
+            'name': 'eth[0-9]',
+            'label': 'Interface[0-9]',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
         }
-        form = DeviceComponentCreateForm(interface_data)
+        form = InterfaceCreateForm(interface_data)
 
         self.assertTrue(form.is_valid())
 
@@ -142,10 +143,11 @@ class LabelTestCase(TestCase):
         """
         bad_interface_data = {
             'device': self.device.pk,
-            'name_pattern': 'eth[0-9]',
-            'label_pattern': 'Interface[0-1]',
+            'name': 'eth[0-9]',
+            'label': 'Interface[0-1]',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
         }
-        form = DeviceComponentCreateForm(bad_interface_data)
+        form = InterfaceCreateForm(bad_interface_data)
 
         self.assertFalse(form.is_valid())
-        self.assertIn('label_pattern', form.errors)
+        self.assertIn('label', form.errors)

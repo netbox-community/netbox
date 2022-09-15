@@ -13,7 +13,7 @@ class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
         queryset=VirtualMachine.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
-    name_pattern = ExpandableNameField(
+    name = ExpandableNameField(
         label='Name'
     )
 
@@ -27,4 +27,4 @@ class VMInterfaceBulkCreateForm(
     form_from_model(VMInterface, ['enabled', 'mtu', 'description', 'tags']),
     VirtualMachineBulkAddComponentForm
 ):
-    pass
+    replication_fields = ('name',)
