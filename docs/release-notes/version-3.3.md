@@ -11,14 +11,18 @@
 ### Bug Fixes
 
 * [#9231](https://github.com/netbox-community/netbox/issues/9231) - Fix `empty` lookup expression for string filters
+* [#10247](https://github.com/netbox-community/netbox/issues/10247) - Allow changing the pre-populated device/VM when creating new components
 * [#10250](https://github.com/netbox-community/netbox/issues/10250) - Fix exception when CableTermination validation fails during bulk import of cables
+* [#10258](https://github.com/netbox-community/netbox/issues/10258) - Enable the use of reports & scripts packaged in submodules
 * [#10259](https://github.com/netbox-community/netbox/issues/10259) - Fix `NoReverseMatch` exception when listing available prefixes with "flat" column displayed
 * [#10270](https://github.com/netbox-community/netbox/issues/10270) - Fix custom field validation when creating new services
 * [#10278](https://github.com/netbox-community/netbox/issues/10278) - Fix "create & add another" for image attachments
 * [#10294](https://github.com/netbox-community/netbox/issues/10294) - Fix spurious changelog diff for interface WWN field
 * [#10304](https://github.com/netbox-community/netbox/issues/10304) - Enable cloning for custom fields & custom links
+* [#10305](https://github.com/netbox-community/netbox/issues/10305) - Fix Virtual Chassis master field cannot be null according to the API
 * [#10307](https://github.com/netbox-community/netbox/issues/10307) - Correct value for "Passive 48V (4-pair)" PoE type selection
 * [#10333](https://github.com/netbox-community/netbox/issues/10333) - Show available values for `ui_visibility` field of CustomField for CSV import
+* [#10362](https://github.com/netbox-community/netbox/issues/10362) - Correct display of custom fields when editing an L2VPN termination
 
 ---
 
