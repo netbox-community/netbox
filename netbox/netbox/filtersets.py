@@ -80,6 +80,13 @@ class BaseFilterSet(django_filters.FilterSet):
         },
     })
 
+    def __init__(self, *args, **kwargs):
+        # bit of a hack for #9231 - extras.lookup.Empty is registered in apps.ready
+        # however FilterSet Factory is setup before this which creates the
+        # initial filters.  This recreates the filters so Empty is picked up correctly.
+        self.base_filters = self.__class__.get_filters()
+        super().__init__(*args, **kwargs)
+
     @staticmethod
     def _get_filter_lookup_dict(existing_filter):
         # Choose the lookup expression map based on the filter type

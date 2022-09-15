@@ -7,7 +7,7 @@ This section of the documentation discusses installing and configuring the NetBo
 Begin by installing all system packages required by NetBox and its dependencies.
 
 !!! warning "Python 3.8 or later required"
-    NetBox v3.2 requires Python 3.8, 3.9, or 3.10.
+    NetBox requires Python 3.8, 3.9, or 3.10.
 
 === "Ubuntu"
 

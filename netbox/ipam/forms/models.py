@@ -854,6 +854,7 @@ class ServiceCreateForm(ServiceForm):
             del self.fields[field].widget.attrs['required']
 
     def clean(self):
+        super().clean()
         if self.cleaned_data['service_template']:
             # Create a new Service from the specified template
             service_template = self.cleaned_data['service_template']

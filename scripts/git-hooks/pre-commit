@@ -40,10 +40,13 @@ if [ $? != 0 ]; then
 	EXIT=1
 fi
 
-echo "Checking UI ESLint, TypeScript, and Prettier compliance..."
-yarn --cwd "$PWD/netbox/project-static" validate
-if [ $? != 0 ]; then
-	EXIT=1
+git diff --cached --name-only | if grep --quiet 'netbox/project-static/'
+then
+    echo "Checking UI ESLint, TypeScript, and Prettier compliance..."
+    yarn --cwd "$PWD/netbox/project-static" validate
+    if [ $? != 0 ]; then
+    	EXIT=1
+    fi
 fi
 
 if [ $EXIT != 0 ]; then

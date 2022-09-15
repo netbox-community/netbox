@@ -365,6 +365,7 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'tag')),
         ('Hardware', ('manufacturer_id', 'part_number', 'subdevice_role', 'airflow')),
+        ('Images', ('has_front_image', 'has_rear_image')),
         ('Components', (
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', 'device_bays', 'module_bays', 'inventory_items',
@@ -385,6 +386,20 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     airflow = MultipleChoiceField(
         choices=add_blank_choice(DeviceAirflowChoices),
         required=False
+    )
+    has_front_image = forms.NullBooleanField(
+        required=False,
+        label='Has a front image',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    has_rear_image = forms.NullBooleanField(
+        required=False,
+        label='Has a rear image',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
     console_ports = forms.NullBooleanField(
         required=False,
@@ -936,12 +951,37 @@ class PowerFeedFilterForm(NetBoxModelFilterSetForm):
 # Device components
 #
 
-class ConsolePortFilterForm(DeviceComponentFilterForm):
+class CabledFilterForm(forms.Form):
+    cabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    occupied = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+
+
+class PathEndpointFilterForm(CabledFilterForm):
+    connected = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+
+
+class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = ConsolePort
     fieldsets = (
         (None, ('q', 'tag')),
         ('Attributes', ('name', 'label', 'type', 'speed')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
+        ('Connection', ('cabled', 'connected', 'occupied')),
     )
     type = MultipleChoiceField(
         choices=ConsolePortTypeChoices,
@@ -954,12 +994,13 @@ class ConsolePortFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
+class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = ConsoleServerPort
     fieldsets = (
         (None, ('q', 'tag')),
         ('Attributes', ('name', 'label', 'type', 'speed')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
+        ('Connection', ('cabled', 'connected', 'occupied')),
     )
     type = MultipleChoiceField(
         choices=ConsolePortTypeChoices,
@@ -972,12 +1013,13 @@ class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class PowerPortFilterForm(DeviceComponentFilterForm):
+class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = PowerPort
     fieldsets = (
         (None, ('q', 'tag')),
         ('Attributes', ('name', 'label', 'type')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
+        ('Connection', ('cabled', 'connected', 'occupied')),
     )
     type = MultipleChoiceField(
         choices=PowerPortTypeChoices,
@@ -986,12 +1028,13 @@ class PowerPortFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class PowerOutletFilterForm(DeviceComponentFilterForm):
+class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = PowerOutlet
     fieldsets = (
         (None, ('q', 'tag')),
         ('Attributes', ('name', 'label', 'type')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
+        ('Connection', ('cabled', 'connected', 'occupied')),
     )
     type = MultipleChoiceField(
         choices=PowerOutletTypeChoices,
@@ -1000,7 +1043,7 @@ class PowerOutletFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class InterfaceFilterForm(DeviceComponentFilterForm):
+class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = Interface
     fieldsets = (
         (None, ('q', 'tag')),
@@ -1009,6 +1052,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         ('PoE', ('poe_mode', 'poe_type')),
         ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
+        ('Connection', ('cabled', 'connected', 'occupied')),
     )
     kind = MultipleChoiceField(
         choices=InterfaceKindChoices,
@@ -1089,11 +1133,12 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class FrontPortFilterForm(DeviceComponentFilterForm):
+class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
     fieldsets = (
         (None, ('q', 'tag')),
         ('Attributes', ('name', 'label', 'type', 'color')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
+        ('Cable', ('cabled', 'occupied')),
     )
     model = FrontPort
     type = MultipleChoiceField(
@@ -1106,12 +1151,13 @@ class FrontPortFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class RearPortFilterForm(DeviceComponentFilterForm):
+class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
     model = RearPort
     fieldsets = (
         (None, ('q', 'tag')),
         ('Attributes', ('name', 'label', 'type', 'color')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
+        ('Cable', ('cabled', 'occupied')),
     )
     type = MultipleChoiceField(
         choices=PortTypeChoices,
