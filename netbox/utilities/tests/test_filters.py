@@ -340,9 +340,9 @@ class DynamicFilterLookupExpressionTest(TestCase):
     def setUpTestData(cls):
 
         providers = (
-            Provider(name='Provider 1', slug='provider-1', asn=65001),
-            Provider(name='Provider 2', slug='provider-2', asn=65101),
-            Provider(name='Provider 3', slug='provider-3', asn=65201),
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
         )
         Provider.objects.bulk_create(providers)
 
@@ -453,22 +453,6 @@ class DynamicFilterLookupExpressionTest(TestCase):
     def test_site_slug_endswith_negation(self):
         params = {'slug__niew': ['-1']}
         self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
-
-    def test_provider_asn_lt(self):
-        params = {'asn__lt': [65101]}
-        self.assertEqual(ProviderFilterSet(params, Provider.objects.all()).qs.count(), 1)
-
-    def test_provider_asn_lte(self):
-        params = {'asn__lte': [65101]}
-        self.assertEqual(ProviderFilterSet(params, Provider.objects.all()).qs.count(), 2)
-
-    def test_provider_asn_gt(self):
-        params = {'asn__lt': [65101]}
-        self.assertEqual(ProviderFilterSet(params, Provider.objects.all()).qs.count(), 1)
-
-    def test_provider_asn_gte(self):
-        params = {'asn__gte': [65101]}
-        self.assertEqual(ProviderFilterSet(params, Provider.objects.all()).qs.count(), 2)
 
     def test_site_region_negation(self):
         params = {'region__n': ['region-1']}

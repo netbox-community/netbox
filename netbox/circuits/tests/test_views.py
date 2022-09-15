@@ -23,9 +23,9 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ASN.objects.bulk_create(asns)
 
         providers = (
-            Provider(name='Provider 1', slug='provider-1', asn=65001),
-            Provider(name='Provider 2', slug='provider-2', asn=65002),
-            Provider(name='Provider 3', slug='provider-3', asn=65003),
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
         )
         Provider.objects.bulk_create(providers)
         providers[0].asns.set([asns[0], asns[1]])
@@ -96,8 +96,8 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def setUpTestData(cls):
 
         providers = (
-            Provider(name='Provider 1', slug='provider-1', asn=65001),
-            Provider(name='Provider 2', slug='provider-2', asn=65002),
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
         )
         Provider.objects.bulk_create(providers)
 

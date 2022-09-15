@@ -14,20 +14,6 @@ class MyValidator(CustomValidator):
             self.fail("Name must be foo!")
 
 
-min_validator = CustomValidator({
-    'asn': {
-        'min': 65000
-    }
-})
-
-
-max_validator = CustomValidator({
-    'asn': {
-        'max': 65100
-    }
-})
-
-
 min_length_validator = CustomValidator({
     'name': {
         'min_length': 5
@@ -66,22 +52,6 @@ custom_validator = MyValidator()
 
 
 class CustomValidatorTest(TestCase):
-
-    @override_settings(CUSTOM_VALIDATORS={'circuits.provider': [min_validator]})
-    def test_configuration(self):
-        self.assertIn('circuits.provider', settings.CUSTOM_VALIDATORS)
-        validator = settings.CUSTOM_VALIDATORS['circuits.provider'][0]
-        self.assertIsInstance(validator, CustomValidator)
-
-    @override_settings(CUSTOM_VALIDATORS={'circuits.provider': [min_validator]})
-    def test_min(self):
-        with self.assertRaises(ValidationError):
-            Provider(name='Provider 1', slug='provider-1', asn=1).clean()
-
-    @override_settings(CUSTOM_VALIDATORS={'circuits.provider': [max_validator]})
-    def test_max(self):
-        with self.assertRaises(ValidationError):
-            Provider(name='Provider 1', slug='provider-1', asn=65535).clean()
 
     @override_settings(CUSTOM_VALIDATORS={'dcim.site': [min_length_validator]})
     def test_min_length(self):
