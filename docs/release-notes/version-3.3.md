@@ -7,6 +7,7 @@
 * [#8580](https://github.com/netbox-community/netbox/issues/8580) - Add `occupied` filter for cabled objects to filter by cable or `mark_connected`
 * [#9577](https://github.com/netbox-community/netbox/issues/9577) - Add `has_front_image` and `has_rear_image` filters for device types
 * [#10268](https://github.com/netbox-community/netbox/issues/10268) - Omit trailing ".0" in device positions within UI
+* [#10359](https://github.com/netbox-community/netbox/issues/10359) - Add region and site group columns to the devices table
 
 ### Bug Fixes
 
