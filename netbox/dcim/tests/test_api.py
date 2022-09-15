@@ -2057,6 +2057,7 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
 
         cls.bulk_update_data = {
             'domain': 'newdomain',
+            'master': None
         }
 
 

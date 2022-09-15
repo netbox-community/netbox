@@ -251,6 +251,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = VMInterface
+    validation_excluded_fields = ('name',)
 
     @classmethod
     def setUpTestData(cls):
@@ -290,10 +291,10 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'virtual_machine': virtualmachines[1].pk,
+            'virtual_machine': virtualmachines[0].pk,
             'name': 'Interface X',
             'enabled': False,
-            'bridge': interfaces[3].pk,
+            'bridge': interfaces[1].pk,
             'mac_address': EUI('01-02-03-04-05-06'),
             'mtu': 65000,
             'description': 'New description',
@@ -306,7 +307,7 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_create_data = {
             'virtual_machine': virtualmachines[1].pk,
-            'name_pattern': 'Interface [4-6]',
+            'name': 'Interface [4-6]',
             'enabled': False,
             'bridge': interfaces[3].pk,
             'mac_address': EUI('01-02-03-04-05-06'),

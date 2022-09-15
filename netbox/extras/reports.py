@@ -26,20 +26,18 @@ def get_report(module_name, report_name):
     """
     Return a specific report from within a module.
     """
-    file_path = '{}/{}.py'.format(settings.REPORTS_ROOT, module_name)
+    reports = get_reports()
+    module = reports.get(module_name)
 
-    spec = importlib.util.spec_from_file_location(module_name, file_path)
-    module = importlib.util.module_from_spec(spec)
-    try:
-        spec.loader.exec_module(module)
-    except FileNotFoundError:
+    if module is None:
         return None
 
-    report = getattr(module, report_name, None)
+    report = module.get(report_name)
+
     if report is None:
         return None
 
-    return report()
+    return report
 
 
 def get_reports():
@@ -52,7 +50,7 @@ def get_reports():
         ...
     ]
     """
-    module_list = []
+    module_list = {}
 
     # Iterate through all modules within the reports path. These are the user-created files in which reports are
     # defined.
@@ -61,7 +59,16 @@ def get_reports():
         report_order = getattr(module, "report_order", ())
         ordered_reports = [cls() for cls in report_order if is_report(cls)]
         unordered_reports = [cls() for _, cls in inspect.getmembers(module, is_report) if cls not in report_order]
-        module_list.append((module_name, [*ordered_reports, *unordered_reports]))
+
+        module_reports = {}
+
+        for cls in [*ordered_reports, *unordered_reports]:
+            # For reports in submodules use the full import path w/o the root module as the name
+            report_name = cls.full_name.split(".", maxsplit=1)[1]
+            module_reports[report_name] = cls
+
+        if module_reports:
+            module_list[module_name] = module_reports
 
     return module_list
 

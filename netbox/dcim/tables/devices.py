@@ -143,6 +143,15 @@ class DeviceTable(TenancyColumnsMixin, NetBoxTable):
         template_code=DEVICE_LINK
     )
     status = columns.ChoiceFieldColumn()
+    region = tables.Column(
+        accessor=Accessor('site__region'),
+        linkify=True
+    )
+    site_group = tables.Column(
+        accessor=Accessor('site__group'),
+        linkify=True,
+        verbose_name='Site Group'
+    )
     site = tables.Column(
         linkify=True
     )
@@ -203,9 +212,9 @@ class DeviceTable(TenancyColumnsMixin, NetBoxTable):
         model = Device
         fields = (
             'pk', 'id', 'name', 'status', 'tenant', 'tenant_group', 'device_role', 'manufacturer', 'device_type',
-            'platform', 'serial', 'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'primary_ip', 'airflow',
-            'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments',
-            'contacts', 'tags', 'created', 'last_updated',
+            'platform', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'location', 'rack', 'position', 'face',
+            'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position',
+            'vc_priority', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',
