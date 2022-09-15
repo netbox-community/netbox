@@ -23,6 +23,7 @@
 * [#10305](https://github.com/netbox-community/netbox/issues/10305) - Fix Virtual Chassis master field cannot be null according to the API
 * [#10307](https://github.com/netbox-community/netbox/issues/10307) - Correct value for "Passive 48V (4-pair)" PoE type selection
 * [#10333](https://github.com/netbox-community/netbox/issues/10333) - Show available values for `ui_visibility` field of CustomField for CSV import
+* [#10337](https://github.com/netbox-community/netbox/issues/10337) - Display SSO links when local authentication fails
 * [#10362](https://github.com/netbox-community/netbox/issues/10362) - Correct display of custom fields when editing an L2VPN termination
 
 ---

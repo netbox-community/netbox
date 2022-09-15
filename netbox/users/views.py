@@ -47,20 +47,14 @@ class LoginView(View):
             'url': f'{url}?{urlencode(params)}',
         }
 
-    def get(self, request):
-        form = LoginForm(request)
-
-        if request.user.is_authenticated:
-            logger = logging.getLogger('netbox.auth.login')
-            return self.redirect_to_next(request, logger)
-
+    def get_auth_backends(self, request):
         auth_backends = []
         saml_idps = get_saml_idps()
+
         for name in load_backends(settings.AUTHENTICATION_BACKENDS).keys():
-            url = reverse('social:begin', args=[name, ])
+            url = reverse('social:begin', args=[name])
             params = {}
-            next = request.GET.get('next')
-            if next:
+            if next := request.GET.get('next'):
                 params['next'] = next
             if name.lower() == 'saml' and saml_idps:
                 for idp in saml_idps:
@@ -71,9 +65,18 @@ class LoginView(View):
             else:
                 auth_backends.append(self.gen_auth_data(name, url, params))
 
+        return auth_backends
+
+    def get(self, request):
+        form = LoginForm(request)
+
+        if request.user.is_authenticated:
+            logger = logging.getLogger('netbox.auth.login')
+            return self.redirect_to_next(request, logger)
+
         return render(request, self.template_name, {
             'form': form,
-            'auth_backends': auth_backends,
+            'auth_backends': self.get_auth_backends(request),
         })
 
     def post(self, request):
@@ -107,7 +110,7 @@ class LoginView(View):
 
         return render(request, self.template_name, {
             'form': form,
-            'auth_backends': load_backends(settings.AUTHENTICATION_BACKENDS),
+            'auth_backends': self.get_auth_backends(request),
         })
 
     def redirect_to_next(self, request, logger):

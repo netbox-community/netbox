@@ -13,6 +13,16 @@
       </div>
     {% endif %}
 
+    {# Login form errors #}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Errors</h4>
+        <p>
+          {{ form.non_field_errors }}
+        </p>
+      </div>
+    {% endif %}
+
     {# Login form #}
     <div class="form-login">
       <form action="{% url 'login' %}" method="post">
@@ -47,16 +57,6 @@
           <a href="{{ backend.url }}" class="my-2">{{ backend.display_name }}</a>
         </h5>
       {% endfor %}
-    {% endif %}
-
-    {# Login form errors #}
-    {% if form.non_field_errors %}
-      <div class="alert alert-danger" role="alert">
-        <h4 class="alert-heading">Errors</h4>
-        <p>
-          {{ form.non_field_errors }}
-        </p>
-      </div>
     {% endif %}
   </main>
 
