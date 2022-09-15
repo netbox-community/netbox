@@ -37,12 +37,8 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'name': 'Provider X',
             'slug': 'provider-x',
-            'asn': 65123,
             'asns': [asns[6].pk, asns[7].pk],
             'account': '1234',
-            'portal_url': 'http://example.com/portal',
-            'noc_contact': 'noc@example.com',
-            'admin_contact': 'admin@example.com',
             'comments': 'Another provider',
             'tags': [t.pk for t in tags],
         }
@@ -55,11 +51,7 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'asn': 65009,
             'account': '5678',
-            'portal_url': 'http://example.com/portal2',
-            'noc_contact': 'noc2@example.com',
-            'admin_contact': 'admin2@example.com',
             'comments': 'New comments',
         }
 
