@@ -1429,16 +1429,6 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'rf_channel_width': "Populated by selected channel (if set)",
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Restrict LAG/bridge interface assignment by device/VC
-        device_id = self.data['device'] if self.is_bound else self.initial.get('device')
-        device = Device.objects.filter(pk=device_id).first()
-        if device and device.virtual_chassis and device.virtual_chassis.master:
-            self.fields['lag'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
-            self.fields['bridge'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
-
 
 class FrontPortForm(ModularDeviceComponentForm):
     rear_port = DynamicModelChoiceField(

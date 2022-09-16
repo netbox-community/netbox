@@ -2,6 +2,10 @@
 
 ## v3.3.4 (FUTURE)
 
+### Bug Fixes
+
+* [#10387](https://github.com/netbox-community/netbox/issues/10387) - Fix `MultiValueDictKeyError` exception when editing a device interface
+
 ---
 
 ## v3.3.3 (2022-09-15)
