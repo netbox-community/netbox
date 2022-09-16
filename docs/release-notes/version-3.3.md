@@ -1,5 +1,14 @@
 # NetBox v3.3
 
+## v3.3.4 (2022-09-16)
+
+### Bug Fixes
+
+* [#10383](https://github.com/netbox-community/netbox/issues/10383) - Fix assignment of component templates to module types via web UI
+* [#10387](https://github.com/netbox-community/netbox/issues/10387) - Fix `MultiValueDictKeyError` exception when editing a device interface
+
+---
+
 ## v3.3.3 (2022-09-15)
 
 ### Enhancements
