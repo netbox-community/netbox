@@ -1000,10 +1000,21 @@ class ComponentTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class ModularComponentTemplateForm(ComponentTemplateForm):
+    device_type = DynamicModelChoiceField(
+        queryset=DeviceType.objects.all().all(),
+        required=False
+    )
     module_type = DynamicModelChoiceField(
         queryset=ModuleType.objects.all(),
         required=False
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Disable reassignment of ModuleType when editing an existing instance
+        if self.instance.pk:
+            self.fields['module_type'].disabled = True
 
 
 class ConsolePortTemplateForm(ModularComponentTemplateForm):
