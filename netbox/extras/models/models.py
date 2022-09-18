@@ -550,7 +550,11 @@ class JobResult(models.Model):
         )
 
         queue = django_rq.get_queue("default")
-        queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
+        
+        if schedule_at := kwargs.pop("schedule_at", None):
+            queue.enqueue_at(schedule_at, func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
+        else:
+            queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
 
         return job_result
 

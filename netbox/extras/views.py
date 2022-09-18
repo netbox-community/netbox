@@ -15,6 +15,7 @@ from utilities.utils import copy_safe_request, count_related, get_viewname, norm
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
+from .forms.reports import ReportForm
 from .models import *
 from .reports import get_report, get_reports, run_report
 from .scripts import get_scripts, run_script
@@ -562,7 +563,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
 
         return render(request, 'extras/report.html', {
             'report': report,
-            'run_form': ConfirmationForm(),
+            'form': ReportForm(),
         })
 
     def post(self, request, module, name):
@@ -574,6 +575,12 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         report = get_report(module, name)
         if report is None:
             raise Http404
+
+        schedule_at = None
+        form = ReportForm(request.POST)
+
+        if form.is_valid():
+            schedule_at = form.cleaned_data.get("schedule_at")
 
         # Allow execution only if RQ worker process is running
         if not Worker.count(get_connection('default')):
@@ -589,7 +596,8 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
             report.full_name,
             report_content_type,
             request.user,
-            job_timeout=report.job_timeout
+            job_timeout=report.job_timeout,
+            schedule_at=schedule_at,
         )
 
         return redirect('extras:report_result', job_result_pk=job_result.pk)
@@ -707,6 +715,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
 
         elif form.is_valid():
             commit = form.cleaned_data.pop('_commit')
+            schedule_at = form.cleaned_data.pop("_schedule_at")
 
             script_content_type = ContentType.objects.get(app_label='extras', model='script')
 
@@ -719,6 +728,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
                 request=copy_safe_request(request),
                 commit=commit,
                 job_timeout=script.job_timeout,
+                schedule_at=schedule_at,
             )
 
             return redirect('extras:script_result', job_result_pk=job_result.pk)

@@ -28,7 +28,7 @@
     "clipboard": "^2.0.8",
     "color2k": "^1.2.4",
     "dayjs": "^1.10.4",
-    "flatpickr": "4.6.3",
+    "flatpickr": "4.6.13",
     "htmx.org": "^1.6.1",
     "just-debounce-it": "^1.4.0",
     "masonry-layout": "^4.2.2",
