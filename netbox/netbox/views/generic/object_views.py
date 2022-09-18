@@ -538,10 +538,9 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a Device or VirtualMachine.
     """
-    template_name = 'dcim/component_create.html'
+    template_name = 'generic/object_edit.html'
     form = None
     model_form = None
-    patterned_fields = ('name', 'label')
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -549,44 +548,38 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
     def alter_object(self, instance, request):
         return instance
 
-    def initialize_forms(self, request):
+    def initialize_form(self, request):
         data = request.POST if request.method == 'POST' else None
         initial_data = normalize_querydict(request.GET)
 
-        form = self.form(data=data, initial=request.GET)
-        model_form = self.model_form(data=data, initial=initial_data)
+        form = self.form(data=data, initial=initial_data)
 
-        # These fields will be set from the pattern values
-        for field_name in self.patterned_fields:
-            model_form.fields[field_name].widget = HiddenInput()
-
-        return form, model_form
+        return form
 
     def get(self, request):
-        form, model_form = self.initialize_forms(request)
+        form = self.initialize_form(request)
         instance = self.alter_object(self.queryset.model(), request)
 
         return render(request, self.template_name, {
             'object': instance,
-            'replication_form': form,
-            'form': model_form,
+            'form': form,
             'return_url': self.get_return_url(request),
         })
 
     def post(self, request):
         logger = logging.getLogger('netbox.views.ComponentCreateView')
-        form, model_form = self.initialize_forms(request)
+        form = self.initialize_form(request)
         instance = self.alter_object(self.queryset.model(), request)
 
         if form.is_valid():
             new_components = []
             data = deepcopy(request.POST)
-            pattern_count = len(form.cleaned_data[f'{self.patterned_fields[0]}_pattern'])
+            pattern_count = len(form.cleaned_data[self.form.replication_fields[0]])
 
             for i in range(pattern_count):
-                for field_name in self.patterned_fields:
-                    if form.cleaned_data.get(f'{field_name}_pattern'):
-                        data[field_name] = form.cleaned_data[f'{field_name}_pattern'][i]
+                for field_name in self.form.replication_fields:
+                    if form.cleaned_data.get(field_name):
+                        data[field_name] = form.cleaned_data[field_name][i]
 
                 if hasattr(form, 'get_iterative_data'):
                     data.update(form.get_iterative_data(i))
@@ -626,7 +619,6 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
 
         return render(request, self.template_name, {
             'object': instance,
-            'replication_form': form,
-            'form': model_form,
+            'form': form,
             'return_url': self.get_return_url(request),
         })

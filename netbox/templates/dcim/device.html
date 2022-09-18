@@ -70,7 +70,7 @@
                                         {% endif %}
                                     {% endwith %}
                                 {% elif object.rack and object.position %}
-                                    <span>U{{ object.position }} / {{ object.get_face_display }}</span>
+                                    <span>U{{ object.position|floatformat }} / {{ object.get_face_display }}</span>
                                 {% elif object.rack and object.device_type.u_height %}
                                     <span class="badge bg-warning">Not racked</span>
                                 {% else %}

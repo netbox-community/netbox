@@ -344,6 +344,7 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
             Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 4'),
             Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 5'),
             Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 6'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 7'),
         )
         Circuit.objects.bulk_create(circuits)
 
@@ -357,6 +358,7 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
             CircuitTermination(circuit=circuits[3], provider_network=provider_networks[0], term_side='A'),
             CircuitTermination(circuit=circuits[4], provider_network=provider_networks[1], term_side='A'),
             CircuitTermination(circuit=circuits[5], provider_network=provider_networks[2], term_side='A'),
+            CircuitTermination(circuit=circuits[6], provider_network=provider_networks[0], term_side='A', mark_connected=True),
         ))
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
@@ -364,7 +366,7 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_term_side(self):
         params = {'term_side': 'A'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
 
     def test_port_speed(self):
         params = {'port_speed': ['1000', '2000']}
@@ -397,11 +399,19 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_provider_network(self):
         provider_networks = ProviderNetwork.objects.all()[:2]
         params = {'provider_network_id': [provider_networks[0].pk, provider_networks[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_cabled(self):
         params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'occupied': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
 
 
 class ProviderNetworkTestCase(TestCase, ChangeLoggedFilterSetTests):

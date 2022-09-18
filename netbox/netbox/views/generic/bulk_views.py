@@ -774,7 +774,6 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
     model_form = None
     filterset = None
     table = None
-    patterned_fields = ('name', 'label')
 
     def get_required_permission(self):
         return f'dcim.add_{self.queryset.model._meta.model_name}'
@@ -804,23 +803,25 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
                 new_components = []
                 data = deepcopy(form.cleaned_data)
+                replication_data = {
+                    field: data.pop(field) for field in form.replication_fields
+                }
 
                 try:
                     with transaction.atomic():
 
                         for obj in data['pk']:
 
-                            pattern_count = len(data[f'{self.patterned_fields[0]}_pattern'])
+                            pattern_count = len(replication_data[form.replication_fields[0]])
                             for i in range(pattern_count):
                                 component_data = {
                                     self.parent_field: obj.pk
                                 }
-
-                                for field_name in self.patterned_fields:
-                                    if data.get(f'{field_name}_pattern'):
-                                        component_data[field_name] = data[f'{field_name}_pattern'][i]
-
                                 component_data.update(data)
+                                for field, values in replication_data.items():
+                                    if values:
+                                        component_data[field] = values[i]
+
                                 component_form = self.model_form(component_data)
                                 if component_form.is_valid():
                                     instance = component_form.save()
@@ -829,7 +830,7 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
                                 else:
                                     for field, errors in component_form.errors.as_data().items():
                                         for e in errors:
-                                            form.add_error(field, '{} {}: {}'.format(obj, name, ', '.join(e)))
+                                            form.add_error(field, '{}: {}'.format(obj, ', '.join(e)))
 
                         # Enforce object-level permissions
                         if self.queryset.filter(pk__in=[obj.pk for obj in new_components]).count() != len(new_components):
