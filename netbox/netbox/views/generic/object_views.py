@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
 from django.forms.widgets import HiddenInput
 from django.shortcuts import redirect, render
@@ -421,7 +421,11 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
 
                 return redirect(return_url)
 
-            except (AbortRequest, PermissionsViolation) as e:
+            except IntegrityError:
+                form.add_error(None, f"{obj} already exists")
+                clear_webhooks.send(sender=self)
+
+            except (IntegrityError, AbortRequest, PermissionsViolation) as e:
                 logger.debug(e.message)
                 form.add_error(None, e.message)
                 clear_webhooks.send(sender=self)
