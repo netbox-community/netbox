@@ -2,19 +2,17 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
 
-class SearchMixin(models.Model):
+class SearchMixin(object):
     """
     Base class for building search indexes.
     """
 
-    model = None
-    queryset = None
-    filterset = None
-    table = None
-    url = None
-
-    class Meta:
-        abstract = True
+    def __init__(self, model=None, queryset=None, filterset=None, table=None, url=None):
+        self.model = model
+        self.queryset = queryset
+        self.filterset = filterset
+        self.table = table
+        self.url = url
 
     def get_model(self):
         """
@@ -26,8 +24,7 @@ class SearchMixin(models.Model):
             model = self.model
         else:
             raise ImproperlyConfigured(
-                f"{self.__class__.__name__}s is missing a Model. Define "
-                f"{self.__class__.__name__}s.model or override "
+                f"{self.__class__.__name__}s is missing a Model. Set model in init or override"
                 f"{self.__class__.__name__}s.get_model()."
             )
 
@@ -43,8 +40,7 @@ class SearchMixin(models.Model):
             queryset = self.queryset
         else:
             raise ImproperlyConfigured(
-                f"{self.__class__.__name__}s is missing a QuerySet. Define "
-                f"{self.__class__.__name__}s.queryset or override "
+                f"{self.__class__.__name__}s is missing a QuerySet. Set queryset in init or override "
                 f"{self.__class__.__name__}s.get_queryset()."
             )
 
@@ -60,8 +56,7 @@ class SearchMixin(models.Model):
             filterset = self.filterset
         else:
             raise ImproperlyConfigured(
-                f"{self.__class__.__name__}s is missing a FilterSet. Define "
-                f"{self.__class__.__name__}s.filterset or override "
+                f"{self.__class__.__name__}s is missing a FilterSet.  Set filterset in init or override "
                 f"{self.__class__.__name__}s.get_filterset()."
             )
 
@@ -77,8 +72,7 @@ class SearchMixin(models.Model):
             table = self.table
         else:
             raise ImproperlyConfigured(
-                f"{self.__class__.__name__}s is missing a Table. Define "
-                f"{self.__class__.__name__}s.table or override "
+                f"{self.__class__.__name__}s is missing a Table.  Set table in init or override "
                 f"{self.__class__.__name__}s.get_table()."
             )
 
@@ -94,8 +88,7 @@ class SearchMixin(models.Model):
             url = self.url
         else:
             raise ImproperlyConfigured(
-                f"{self.__class__.__name__}s is missing a URL. Define "
-                f"{self.__class__.__name__}s.url or override "
+                f"{self.__class__.__name__}s is missing a URL.  Set url in init or override "
                 f"{self.__class__.__name__}s.get_url()."
             )
 
