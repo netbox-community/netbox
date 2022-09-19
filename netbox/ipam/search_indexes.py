@@ -1,8 +1,9 @@
-import dcim.filtersets
-import dcim.tables
+import ipam.filtersets
+import ipam.tables
 from django.db import models
 from ipam.models import ASN, VLAN, VRF, Aggregate, IPAddress, Prefix, Service
 from search.models import SearchMixin
+from utilities.utils import count_related
 
 
 class VRFIndex(SearchMixin):

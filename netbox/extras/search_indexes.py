@@ -1,8 +1,9 @@
-import dcim.filtersets
-import dcim.tables
+import extras.filtersets
+import extras.tables
 from django.db import models
 from extras.models import JournalEntry
 from search.models import SearchMixin
+from utilities.utils import count_related
 
 
 class JournalEntryIndex(SearchMixin):

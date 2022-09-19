@@ -1,7 +1,8 @@
 from django import forms
+from utilities.forms import BootstrapMixin
 
 from netbox.search import SEARCH_TYPE_HIERARCHY
-from utilities.forms import BootstrapMixin
+
 from .base import *
 
 
@@ -11,7 +12,7 @@ def build_search_choices():
     for category, items in SEARCH_TYPE_HIERARCHY.items():
         subcategories = list()
         for slug, obj in items.items():
-            name = obj['queryset'].model._meta.verbose_name_plural
+            name = obj.queryset.model._meta.verbose_name_plural
             name = name[0].upper() + name[1:]
             subcategories.append((slug, name))
         result.append((category, tuple(subcategories)))
@@ -36,10 +37,6 @@ def build_options():
 
 
 class SearchForm(BootstrapMixin, forms.Form):
-    q = forms.CharField(
-        label='Search'
-    )
-    obj_type = forms.ChoiceField(
-        choices=OBJ_TYPE_CHOICES, required=False, label='Type'
-    )
+    q = forms.CharField(label='Search')
+    obj_type = forms.ChoiceField(choices=OBJ_TYPE_CHOICES, required=False, label='Type')
     options = build_options()

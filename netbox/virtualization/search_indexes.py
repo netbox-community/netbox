@@ -1,21 +1,9 @@
-import dcim.filtersets
-import dcim.tables
-from dcim.models import (
-    Cable,
-    Device,
-    DeviceType,
-    Interface,
-    Location,
-    Module,
-    ModuleType,
-    PowerFeed,
-    Rack,
-    RackReservation,
-    Site,
-    VirtualChassis,
-)
+import virtualization.filtersets
+import virtualization.tables
 from django.db import models
 from search.models import SearchMixin
+from utilities.utils import count_related
+from virtualization.models import Cluster, Device, VirtualMachine
 
 
 class ClusterIndex(SearchMixin):
