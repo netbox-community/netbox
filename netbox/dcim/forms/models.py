@@ -1000,10 +1000,21 @@ class ComponentTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class ModularComponentTemplateForm(ComponentTemplateForm):
+    device_type = DynamicModelChoiceField(
+        queryset=DeviceType.objects.all().all(),
+        required=False
+    )
     module_type = DynamicModelChoiceField(
         queryset=ModuleType.objects.all(),
         required=False
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Disable reassignment of ModuleType when editing an existing instance
+        if self.instance.pk:
+            self.fields['module_type'].disabled = True
 
 
 class ConsolePortTemplateForm(ModularComponentTemplateForm):
@@ -1428,16 +1439,6 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'rf_channel_frequency': "Populated by selected channel (if set)",
             'rf_channel_width': "Populated by selected channel (if set)",
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Restrict LAG/bridge interface assignment by device/VC
-        device_id = self.data['device'] if self.is_bound else self.initial.get('device')
-        device = Device.objects.filter(pk=device_id).first()
-        if device and device.virtual_chassis and device.virtual_chassis.master:
-            self.fields['lag'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
-            self.fields['bridge'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
 
 
 class FrontPortForm(ModularDeviceComponentForm):
