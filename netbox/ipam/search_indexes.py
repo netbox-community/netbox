@@ -1,7 +1,7 @@
 import dcim.filtersets
 import dcim.tables
-from dcim.models import ASN, VLAN, VRF, Aggregate, IPAddress, Prefix, Service
 from django.db import models
+from ipam.models import ASN, VLAN, VRF, Aggregate, IPAddress, Prefix, Service
 from search.models import SearchMixin
 
 
