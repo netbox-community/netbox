@@ -1,18 +1,17 @@
 import hashlib
 import importlib
-import logging
 import os
 import platform
-import re
-import socket
 import sys
 import warnings
 from urllib.parse import urlsplit
 
+import django
 import sentry_sdk
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
+from django.utils.encoding import force_str
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from netbox.config import PARAMS
@@ -20,9 +19,7 @@ from netbox.config import PARAMS
 # Monkey patch to fix Django 4.0 support for graphene-django (see
 # https://github.com/graphql-python/graphene-django/issues/1284)
 # TODO: Remove this when graphene-django 2.16 becomes available
-import django
-from django.utils.encoding import force_str
-django.utils.encoding.force_text = force_str
+django.utils.encoding.force_text = force_str # type: ignore
 
 
 #
@@ -186,7 +183,7 @@ if STORAGE_BACKEND is not None:
     if STORAGE_BACKEND.startswith('storages.'):
 
         try:
-            import storages.utils
+            import storages.utils  # type: ignore
         except ModuleNotFoundError as e:
             if getattr(e, 'name') == 'storages':
                 raise ImproperlyConfigured(
