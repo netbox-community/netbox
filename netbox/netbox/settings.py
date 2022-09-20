@@ -1,5 +1,6 @@
 import hashlib
 import importlib
+import importlib.util
 import os
 import platform
 import sys
@@ -12,6 +13,7 @@ from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 from django.utils.encoding import force_str
+from extras.plugins import PluginConfig
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from netbox.config import PARAMS
@@ -660,13 +662,41 @@ for plugin_name in PLUGINS:
 
     # Determine plugin config and add to INSTALLED_APPS.
     try:
-        plugin_config = plugin.config
-        INSTALLED_APPS.append("{}.{}".format(plugin_config.__module__, plugin_config.__name__))
+        plugin_config: PluginConfig = plugin.config
     except AttributeError:
         raise ImproperlyConfigured(
             "Plugin {} does not provide a 'config' variable. This should be defined in the plugin's __init__.py file "
             "and point to the PluginConfig subclass.".format(plugin_name)
         )
+
+    plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__) # type: ignore
+    # Gather additionnal apps to load alongside this plugin
+    plugin_apps = plugin_config.django_apps
+    if plugin_name in plugin_apps:
+        plugin_apps.pop(plugin_name)
+    if plugin_module not in plugin_apps:
+        plugin_apps.append(plugin_module)
+
+    # Test if we can import all modules (or its parent, for PluginConfigs and AppConfigs)
+    for app in plugin_apps:
+        if "." in app:
+            parts = app.split(".")
+            spec = importlib.util.find_spec(".".join(parts[:-1]))
+        else:
+            spec = importlib.util.find_spec(app)
+        if spec is None:
+            raise ImproperlyConfigured(
+                f"Plugin {plugin_name} provides a 'config' variable which contains invalid 'plugin_apps'. "
+                f"The module {app}, from this list, cannot be imported. Check that the additionnal app has been "
+                "installed within the correct Python environment."
+            )
+
+
+    INSTALLED_APPS.extend(plugin_apps)
+
+    # Preserve uniqueness of the INSTALLED_APPS list, we keep the last occurence
+    sorted_apps = reversed(list(dict.fromkeys(reversed(INSTALLED_APPS))))
+    INSTALLED_APPS = list(sorted_apps)
 
     # Validate user-provided configuration settings and assign defaults
     if plugin_name not in PLUGINS_CONFIG:
