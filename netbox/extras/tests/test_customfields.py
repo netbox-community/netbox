@@ -102,6 +102,32 @@ class CustomFieldTest(TestCase):
             instance.refresh_from_db()
             self.assertIsNone(instance.custom_field_data.get(cf.name))
 
+    def test_decimal_field(self):
+
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='decimal_field',
+            type=CustomFieldTypeChoices.TYPE_DECIMAL,
+            required=False
+        )
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
+
+        for value in (123456.54, 0, -123456.78):
+
+            # Assign a value and check that it is saved
+            instance.custom_field_data[cf.name] = value
+            instance.save()
+            instance.refresh_from_db()
+            self.assertEqual(instance.custom_field_data[cf.name], value)
+
+            # Delete the stored value and check that it is now null
+            instance.custom_field_data.pop(cf.name)
+            instance.save()
+            instance.refresh_from_db()
+            self.assertIsNone(instance.custom_field_data.get(cf.name))
+
     def test_boolean_field(self):
 
         # Create a custom field & check that initial value is null
@@ -1096,6 +1122,11 @@ class CustomFieldModelFilterTest(TestCase):
         cf.save()
         cf.content_types.set([obj_type])
 
+        # Decimal filtering
+        cf = CustomField(name='cf12', type=CustomFieldTypeChoices.TYPE_DECIMAL)
+        cf.save()
+        cf.content_types.set([obj_type])
+
         Site.objects.bulk_create([
             Site(name='Site 1', slug='site-1', custom_field_data={
                 'cf1': 100,
@@ -1109,6 +1140,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf9': ['A', 'X'],
                 'cf10': manufacturers[0].pk,
                 'cf11': [manufacturers[0].pk, manufacturers[3].pk],
+                'cf12': 100.25,
             }),
             Site(name='Site 2', slug='site-2', custom_field_data={
                 'cf1': 200,
@@ -1122,6 +1154,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf9': ['B', 'X'],
                 'cf10': manufacturers[1].pk,
                 'cf11': [manufacturers[1].pk, manufacturers[3].pk],
+                'cf12': 200.25,
             }),
             Site(name='Site 3', slug='site-3', custom_field_data={
                 'cf1': 300,
@@ -1135,6 +1168,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf9': ['C', 'X'],
                 'cf10': manufacturers[2].pk,
                 'cf11': [manufacturers[2].pk, manufacturers[3].pk],
+                'cf12': 300.25,
             }),
         ])
 
@@ -1145,6 +1179,14 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf1__gte': [200]}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf1__lt': [200]}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf1__lte': [200]}, self.queryset).qs.count(), 2)
+
+    def test_filter_decimal(self):
+        self.assertEqual(self.filterset({'cf_cf12': [100.25, 200.25]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf12__n': [200.25]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf12__gt': [200.25]}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf12__gte': [200.25]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf12__lt': [200.25]}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf12__lte': [200.25]}, self.queryset).qs.count(), 2)
 
     def test_filter_boolean(self):
         self.assertEqual(self.filterset({'cf_cf2': True}, self.queryset).qs.count(), 2)

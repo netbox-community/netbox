@@ -219,11 +219,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                 })
 
         # Minimum/maximum values can be set only for numeric fields
-        if self.validation_minimum is not None and self.type != CustomFieldTypeChoices.TYPE_INTEGER:
+        if self.validation_minimum is not None and (self.type != CustomFieldTypeChoices.TYPE_INTEGER and self.type != CustomFieldTypeChoices.TYPE_DECIMAL):
             raise ValidationError({
                 'validation_minimum': "A minimum value may be set only for numeric fields"
             })
-        if self.validation_maximum is not None and self.type != CustomFieldTypeChoices.TYPE_INTEGER:
+        if self.validation_maximum is not None and (self.type != CustomFieldTypeChoices.TYPE_INTEGER and self.type != CustomFieldTypeChoices.TYPE_DECIMAL):
             raise ValidationError({
                 'validation_maximum': "A maximum value may be set only for numeric fields"
             })
