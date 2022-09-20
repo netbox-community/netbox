@@ -653,7 +653,7 @@ class FHRPGroupFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = FHRPGroup
-        fields = ['id', 'group_id', 'auth_key']
+        fields = ['id', 'group_id', 'name', 'auth_key']
 
     def search(self, queryset, name, value):
         if not value.strip():
