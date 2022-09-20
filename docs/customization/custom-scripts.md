@@ -129,6 +129,19 @@ The Script object provides a set of convenient functions for recording messages 
 
 Log messages are returned to the user upon execution of the script. Markdown rendering is supported for log messages.
 
+## Change Logging
+
+To generate the correct change log data when editing an existing object, a snapshot of the object must be taken before making any changes to the object.
+
+```python
+if obj.pk and hasattr(obj, 'snapshot'):
+    obj.snapshot()
+
+obj.property = "New Value"
+obj.full_clean()
+obj.save()
+```
+
 ## Variable Reference
 
 ### Default Options

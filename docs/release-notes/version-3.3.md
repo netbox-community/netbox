@@ -8,6 +8,7 @@
 
 ### Bug Fixes
 
+* [#9497](https://github.com/netbox-community/netbox/issues/9497) - Adjust non-racked device filter on site and location detailed view
 * [#10383](https://github.com/netbox-community/netbox/issues/10383) - Fix assignment of component templates to module types via web UI
 * [#10387](https://github.com/netbox-community/netbox/issues/10387) - Fix `MultiValueDictKeyError` exception when editing a device interface
 
