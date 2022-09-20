@@ -22,6 +22,10 @@ class FHRPGroup(NetBoxModel):
     group_id = models.PositiveSmallIntegerField(
         verbose_name='Group ID'
     )
+    name = models.CharField(
+        max_length=100,
+        blank=True
+    )
     protocol = models.CharField(
         max_length=50,
         choices=FHRPGroupProtocolChoices
