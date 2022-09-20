@@ -107,6 +107,30 @@ class PostgresIcontainsSearchBackend(SearchBackend):
     def _use_hooks(self):
         return False
 
+    def search(self, search_text):
+        results = []
+
+        for obj_type in SEARCH_TYPES.keys():
+
+            queryset = SEARCH_TYPES[obj_type].queryset.restrict(request.user, 'view')
+            filterset = SEARCH_TYPES[obj_type].filterset
+            table = SEARCH_TYPES[obj_type].table
+            url = SEARCH_TYPES[obj_type].url
+
+            # Construct the results table for this object type
+            filtered_queryset = filterset({'q': search_text}, queryset=queryset).qs
+            table = table(filtered_queryset, orderable=False)
+            table.paginate(per_page=SEARCH_MAX_RESULTS)
+
+            if table.page:
+                results.append({
+                    'name': queryset.model._meta.verbose_name_plural,
+                    'table': table,
+                    'url': f"{reverse(url)}?q={search_text}"
+                })
+
+        return results
+
 
 # The main search methods.
 default_search_engine = SearchBackend("default")
