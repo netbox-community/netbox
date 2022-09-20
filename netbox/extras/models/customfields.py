@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, date
+import decimal
 
 import django_filters
 from django import forms
@@ -318,7 +319,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
             )
 
         # Decimal
-        if self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
+        elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
             field = forms.DecimalField(
                 required=required,
                 initial=initial,
@@ -435,6 +436,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         elif self.type == CustomFieldTypeChoices.TYPE_INTEGER:
             filter_class = filters.MultiValueNumberFilter
 
+        # Decimal
+        elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
+            filter_class = filters.MultiValueNumberFilter
+
         # Boolean
         elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             filter_class = django_filters.BooleanFilter
@@ -487,6 +492,15 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
             if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
                 if type(value) is not int:
                     raise ValidationError("Value must be an integer.")
+                if self.validation_minimum is not None and value < self.validation_minimum:
+                    raise ValidationError(f"Value must be at least {self.validation_minimum}")
+                if self.validation_maximum is not None and value > self.validation_maximum:
+                    raise ValidationError(f"Value must not exceed {self.validation_maximum}")
+
+            # Validate decimal
+            if self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
+                if type(value) is not decimal.Decimal:
+                    raise ValidationError("Value must be a decimal.")
                 if self.validation_minimum is not None and value < self.validation_minimum:
                     raise ValidationError(f"Value must be at least {self.validation_minimum}")
                 if self.validation_maximum is not None and value > self.validation_maximum:

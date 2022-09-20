@@ -432,6 +432,7 @@ class CustomFieldAPITest(APITestCase):
                 object_type=ContentType.objects.get_for_model(VLAN),
                 default=[vlans[0].pk, vlans[1].pk],
             ),
+            CustomField(type=CustomFieldTypeChoices.TYPE_DECIMAL, name='decimal_field', default=123.45),
         )
         for cf in custom_fields:
             cf.save()
@@ -458,6 +459,7 @@ class CustomFieldAPITest(APITestCase):
             custom_fields[8].name: ['Bar', 'Baz'],
             custom_fields[9].name: vlans[1].pk,
             custom_fields[10].name: [vlans[2].pk, vlans[3].pk],
+            custom_fields[11].name: 456.78,
         }
         sites[1].save()
 
@@ -474,6 +476,7 @@ class CustomFieldAPITest(APITestCase):
             CustomFieldTypeChoices.TYPE_MULTISELECT: 'array',
             CustomFieldTypeChoices.TYPE_OBJECT: 'object',
             CustomFieldTypeChoices.TYPE_MULTIOBJECT: 'array',
+            CustomFieldTypeChoices.TYPE_DECIMAL: 'decimal',
         }
 
         self.add_permissions('extras.view_customfield')
@@ -508,6 +511,7 @@ class CustomFieldAPITest(APITestCase):
             'multiselect_field': None,
             'object_field': None,
             'multiobject_field': None,
+            'decimal_field': None,
         })
 
     def test_get_single_object_with_custom_field_data(self):
@@ -535,6 +539,7 @@ class CustomFieldAPITest(APITestCase):
             [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
             site2_cfvs['multiobject_field']
         )
+        self.assertEqual(response.data['custom_fields']['decimal_field'], site2_cfvs['decimal_field'])
 
     def test_create_single_object_with_defaults(self):
         """
@@ -569,6 +574,7 @@ class CustomFieldAPITest(APITestCase):
             [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
             cf_defaults['multiobject_field']
         )
+        self.assertEqual(response_cf['decimal_field'], cf_defaults['decimal_field'])
 
         # Validate database data
         site = Site.objects.get(pk=response.data['id'])
@@ -583,6 +589,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(site.custom_field_data['multiselect_field'], cf_defaults['multiselect_field'])
         self.assertEqual(site.custom_field_data['object_field'], cf_defaults['object_field'])
         self.assertEqual(site.custom_field_data['multiobject_field'], cf_defaults['multiobject_field'])
+        self.assertEqual(site.custom_field_data['decimal_field'], cf_defaults['decimal_field'])
 
     def test_create_single_object_with_values(self):
         """
@@ -603,6 +610,7 @@ class CustomFieldAPITest(APITestCase):
                 'multiselect_field': ['Bar', 'Baz'],
                 'object_field': VLAN.objects.get(vid=2).pk,
                 'multiobject_field': list(VLAN.objects.filter(vid__in=[3, 4]).values_list('pk', flat=True)),
+                'decimal_field': 456.78,
             },
         }
         url = reverse('dcim-api:site-list')
@@ -628,6 +636,7 @@ class CustomFieldAPITest(APITestCase):
             [obj['id'] for obj in response_cf['multiobject_field']],
             data_cf['multiobject_field']
         )
+        self.assertEqual(response_cf['decimal_field'], data_cf['decimal_field'])
 
         # Validate database data
         site = Site.objects.get(pk=response.data['id'])
@@ -642,6 +651,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(site.custom_field_data['multiselect_field'], data_cf['multiselect_field'])
         self.assertEqual(site.custom_field_data['object_field'], data_cf['object_field'])
         self.assertEqual(site.custom_field_data['multiobject_field'], data_cf['multiobject_field'])
+        self.assertEqual(site.custom_field_data['decimal_field'], data_cf['decimal_field'])
 
     def test_create_multiple_objects_with_defaults(self):
         """
@@ -690,6 +700,7 @@ class CustomFieldAPITest(APITestCase):
                 [obj['id'] for obj in response_cf['multiobject_field']],
                 cf_defaults['multiobject_field']
             )
+            self.assertEqual(response_cf['decimal_field'], cf_defaults['decimal_field'])
 
             # Validate database data
             site = Site.objects.get(pk=response.data[i]['id'])
@@ -704,6 +715,7 @@ class CustomFieldAPITest(APITestCase):
             self.assertEqual(site.custom_field_data['multiselect_field'], cf_defaults['multiselect_field'])
             self.assertEqual(site.custom_field_data['object_field'], cf_defaults['object_field'])
             self.assertEqual(site.custom_field_data['multiobject_field'], cf_defaults['multiobject_field'])
+            self.assertEqual(site.custom_field_data['decimal_field'], cf_defaults['decimal_field'])
 
     def test_create_multiple_objects_with_values(self):
         """
@@ -721,6 +733,7 @@ class CustomFieldAPITest(APITestCase):
             'multiselect_field': ['Bar', 'Baz'],
             'object_field': VLAN.objects.get(vid=2).pk,
             'multiobject_field': list(VLAN.objects.filter(vid__in=[3, 4]).values_list('pk', flat=True)),
+            'decimal_field': 456.78,
         }
         data = (
             {
@@ -764,6 +777,7 @@ class CustomFieldAPITest(APITestCase):
                 [obj['id'] for obj in response_cf['multiobject_field']],
                 custom_field_data['multiobject_field']
             )
+            self.assertEqual(response_cf['decimal_field'], custom_field_data['decimal_field'])
 
             # Validate database data
             site = Site.objects.get(pk=response.data[i]['id'])
@@ -778,6 +792,7 @@ class CustomFieldAPITest(APITestCase):
             self.assertEqual(site.custom_field_data['multiselect_field'], custom_field_data['multiselect_field'])
             self.assertEqual(site.custom_field_data['object_field'], custom_field_data['object_field'])
             self.assertEqual(site.custom_field_data['multiobject_field'], custom_field_data['multiobject_field'])
+            self.assertEqual(site.custom_field_data['decimal_field'], custom_field_data['decimal_field'])
 
     def test_update_single_object_with_values(self):
         """
@@ -814,6 +829,7 @@ class CustomFieldAPITest(APITestCase):
             [obj['id'] for obj in response_cf['multiobject_field']],
             original_cfvs['multiobject_field']
         )
+        self.assertEqual(response_cf['decimal_field'], data['custom_fields']['decimal_field'])
 
         # Validate database data
         site2.refresh_from_db()
@@ -828,6 +844,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(site2.custom_field_data['multiselect_field'], original_cfvs['multiselect_field'])
         self.assertEqual(site2.custom_field_data['object_field'], original_cfvs['object_field'])
         self.assertEqual(site2.custom_field_data['multiobject_field'], original_cfvs['multiobject_field'])
+        self.assertEqual(site2.custom_field_data['decimal_field'], data['custom_fields']['decimal_field'])
 
     def test_minimum_maximum_values_validation(self):
         site2 = Site.objects.get(name='Site 2')
@@ -896,6 +913,7 @@ class CustomFieldImportTest(TestCase):
             CustomField(name='multiselect', type=CustomFieldTypeChoices.TYPE_MULTISELECT, choices=[
                 'Choice A', 'Choice B', 'Choice C',
             ]),
+            CustomField(name='decimal', type=CustomFieldTypeChoices.TYPE_DECIMAL),
         )
         for cf in custom_fields:
             cf.save()
@@ -906,10 +924,10 @@ class CustomFieldImportTest(TestCase):
         Import a Site in CSV format, including a value for each CustomField.
         """
         data = (
-            ('name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_boolean', 'cf_date', 'cf_url', 'cf_json', 'cf_select', 'cf_multiselect'),
-            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', 'True', '2020-01-01', 'http://example.com/1', '{"foo": 123}', 'Choice A', '"Choice A,Choice B"'),
-            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', 'False', '2020-01-02', 'http://example.com/2', '{"bar": 456}', 'Choice B', '"Choice B,Choice C"'),
-            ('Site 3', 'site-3', 'active', '', '', '', '', '', '', '', '', ''),
+            ('name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_boolean', 'cf_date', 'cf_url', 'cf_json', 'cf_select', 'cf_multiselect', 'cf_decimal'),
+            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', 'True', '2020-01-01', 'http://example.com/1', '{"foo": 123}', 'Choice A', '"Choice A,Choice B"', '123.45'),
+            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', 'False', '2020-01-02', 'http://example.com/2', '{"bar": 456}', 'Choice B', '"Choice B,Choice C"', '456.78'),
+            ('Site 3', 'site-3', 'active', '', '', '', '', '', '', '', '', '', ''),
         )
         csv_data = '\n'.join(','.join(row) for row in data)
 
@@ -919,7 +937,7 @@ class CustomFieldImportTest(TestCase):
 
         # Validate data for site 1
         site1 = Site.objects.get(name='Site 1')
-        self.assertEqual(len(site1.custom_field_data), 9)
+        self.assertEqual(len(site1.custom_field_data), 10)
         self.assertEqual(site1.custom_field_data['text'], 'ABC')
         self.assertEqual(site1.custom_field_data['longtext'], 'Foo')
         self.assertEqual(site1.custom_field_data['integer'], 123)
@@ -929,10 +947,11 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site1.custom_field_data['json'], {"foo": 123})
         self.assertEqual(site1.custom_field_data['select'], 'Choice A')
         self.assertEqual(site1.custom_field_data['multiselect'], ['Choice A', 'Choice B'])
+        self.assertEqual(site1.custom_field_data['decimal'], '123.45')
 
         # Validate data for site 2
         site2 = Site.objects.get(name='Site 2')
-        self.assertEqual(len(site2.custom_field_data), 9)
+        self.assertEqual(len(site2.custom_field_data), 10)
         self.assertEqual(site2.custom_field_data['text'], 'DEF')
         self.assertEqual(site2.custom_field_data['longtext'], 'Bar')
         self.assertEqual(site2.custom_field_data['integer'], 456)
@@ -942,6 +961,7 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site2.custom_field_data['json'], {"bar": 456})
         self.assertEqual(site2.custom_field_data['select'], 'Choice B')
         self.assertEqual(site2.custom_field_data['multiselect'], ['Choice B', 'Choice C'])
+        self.assertEqual(site2.custom_field_data['decimal'], '456.78')
 
         # No custom field data should be set for site 3
         site3 = Site.objects.get(name='Site 3')
