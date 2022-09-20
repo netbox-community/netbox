@@ -1,6 +1,5 @@
 import re
 from datetime import datetime, date
-import decimal
 
 import django_filters
 from django import forms
@@ -499,7 +498,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
 
             # Validate decimal
             if self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
-                if type(value) is not decimal.Decimal:
+                if type(value) is not str:
                     raise ValidationError("Value must be a decimal.")
                 if self.validation_minimum is not None and value < self.validation_minimum:
                     raise ValidationError(f"Value must be at least {self.validation_minimum}")

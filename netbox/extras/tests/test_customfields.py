@@ -432,7 +432,7 @@ class CustomFieldAPITest(APITestCase):
                 object_type=ContentType.objects.get_for_model(VLAN),
                 default=[vlans[0].pk, vlans[1].pk],
             ),
-            CustomField(type=CustomFieldTypeChoices.TYPE_DECIMAL, name='decimal_field', default=123.45),
+            CustomField(type=CustomFieldTypeChoices.TYPE_DECIMAL, name='decimal_field', default='123.45'),
         )
         for cf in custom_fields:
             cf.save()
