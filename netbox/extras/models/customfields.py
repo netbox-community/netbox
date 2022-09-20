@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, date
+import decimal
 
 import django_filters
 from django import forms
@@ -488,7 +489,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                     raise ValidationError(f"Value must match regex '{self.validation_regex}'")
 
             # Validate integer
-            if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
+            elif self.type == CustomFieldTypeChoices.TYPE_INTEGER:
                 if type(value) is not int:
                     raise ValidationError("Value must be an integer.")
                 if self.validation_minimum is not None and value < self.validation_minimum:
@@ -497,20 +498,22 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                     raise ValidationError(f"Value must not exceed {self.validation_maximum}")
 
             # Validate decimal
-            if self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
-                if type(value) is not str:
+            elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
+                if type(value) is not decimal.Decimal:
                     raise ValidationError("Value must be a decimal.")
-                if self.validation_minimum is not None and value < self.validation_minimum:
+
+                converted = decimal.Decimal(value)
+                if self.validation_minimum is not None and converted < self.validation_minimum:
                     raise ValidationError(f"Value must be at least {self.validation_minimum}")
-                if self.validation_maximum is not None and value > self.validation_maximum:
+                if self.validation_maximum is not None and converted > self.validation_maximum:
                     raise ValidationError(f"Value must not exceed {self.validation_maximum}")
 
             # Validate boolean
-            if self.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value not in [True, False, 1, 0]:
+            elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value not in [True, False, 1, 0]:
                 raise ValidationError("Value must be true or false.")
 
             # Validate date
-            if self.type == CustomFieldTypeChoices.TYPE_DATE:
+            elif self.type == CustomFieldTypeChoices.TYPE_DATE:
                 if type(value) is not date:
                     try:
                         datetime.strptime(value, '%Y-%m-%d')
@@ -518,14 +521,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                         raise ValidationError("Date values must be in the format YYYY-MM-DD.")
 
             # Validate selected choice
-            if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+            elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
                 if value not in self.choices:
                     raise ValidationError(
                         f"Invalid choice ({value}). Available choices are: {', '.join(self.choices)}"
                     )
 
             # Validate all selected choices
-            if self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
                 if not set(value).issubset(self.choices):
                     raise ValidationError(
                         f"Invalid choice(s) ({', '.join(value)}). Available choices are: {', '.join(self.choices)}"

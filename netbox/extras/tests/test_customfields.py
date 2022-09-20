@@ -476,7 +476,7 @@ class CustomFieldAPITest(APITestCase):
             CustomFieldTypeChoices.TYPE_MULTISELECT: 'array',
             CustomFieldTypeChoices.TYPE_OBJECT: 'object',
             CustomFieldTypeChoices.TYPE_MULTIOBJECT: 'array',
-            CustomFieldTypeChoices.TYPE_DECIMAL: 'decimal',
+            CustomFieldTypeChoices.TYPE_git: 'decimal',
         }
 
         self.add_permissions('extras.view_customfield')
@@ -1201,8 +1201,8 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf1__lte': [200]}, self.queryset).qs.count(), 2)
 
     def test_filter_decimal(self):
-        self.assertEqual(self.filterset({'cf_cf12': [100.25, 200.25]}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf12__n': [200.25]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf12': [100.25, 200.25]}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf12__n': [200.25]}, self.queryset).qs.count(), 3)
         self.assertEqual(self.filterset({'cf_cf12__gt': [200.25]}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf12__gte': [200.25]}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf12__lt': [200.25]}, self.queryset).qs.count(), 1)
