@@ -317,6 +317,15 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                 max_value=self.validation_maximum
             )
 
+        # Decimal
+        if self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
+            field = forms.DecimalField(
+                required=required,
+                initial=initial,
+                max_digits=10,
+                decimal_places=2,
+            )
+
         # Boolean
         elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             choices = (

@@ -10,6 +10,7 @@ class CustomFieldTypeChoices(ChoiceSet):
     TYPE_TEXT = 'text'
     TYPE_LONGTEXT = 'longtext'
     TYPE_INTEGER = 'integer'
+    TYPE_DECIMAL = 'decimal'
     TYPE_BOOLEAN = 'boolean'
     TYPE_DATE = 'date'
     TYPE_URL = 'url'
@@ -23,6 +24,7 @@ class CustomFieldTypeChoices(ChoiceSet):
         (TYPE_TEXT, 'Text'),
         (TYPE_LONGTEXT, 'Text (long)'),
         (TYPE_INTEGER, 'Integer'),
+        (TYPE_DECIMAL, 'Decimal'),
         (TYPE_BOOLEAN, 'Boolean (true/false)'),
         (TYPE_DATE, 'Date'),
         (TYPE_URL, 'URL'),
