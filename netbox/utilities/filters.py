@@ -23,7 +23,7 @@ def multivalue_field_factory(field_class):
                 field.to_python(v) for v in value if v
             ]
 
-    return type('MultiValue{}'.format(field_class.__name__), (NewField,), dict())
+    return type(f'MultiValue{field_class.__name__}', (NewField,), dict())
 
 
 #
@@ -44,6 +44,10 @@ class MultiValueDateTimeFilter(django_filters.MultipleChoiceFilter):
 
 class MultiValueNumberFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(forms.IntegerField)
+
+
+class MultiValueDecimalFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.DecimalField)
 
 
 class MultiValueTimeFilter(django_filters.MultipleChoiceFilter):

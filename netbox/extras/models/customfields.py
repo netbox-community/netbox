@@ -438,7 +438,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
 
         # Decimal
         elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
-            filter_class = filters.MultiValueNumberFilter
+            filter_class = filters.MultiValueDecimalFilter
 
         # Boolean
         elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
@@ -499,7 +499,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
 
             # Validate decimal
             elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
-                if type(value) is not decimal.Decimal:
+                if type(value) is not decimal.Decimal and type(value) is not str:
                     raise ValidationError("Value must be a decimal.")
 
                 converted = decimal.Decimal(value)
