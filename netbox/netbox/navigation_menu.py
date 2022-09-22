@@ -408,18 +408,28 @@ MENUS = [
 if registry['plugins']['menu_items']:
     plugin_menu_groups = []
 
-    for plugin_name, items in registry['plugins']['menu_items'].items():
-        plugin_menu_groups.append(
-            MenuGroup(
-                label=plugin_name,
-                items=items
+    for plugin_name, data in registry['plugins']['menu_items'].items():
+        if data['header']:
+            menu_groups = [MenuGroup(label=plugin_name, items=data["items"])]
+            icon = data["header"]["icon"]
+            MENUS.append(Menu(
+                label=data["header"]["title"],
+                icon_class=f"mdi {icon}",
+                groups=menu_groups
+            ))
+        else:
+            plugin_menu_groups.append(
+                MenuGroup(
+                    label=plugin_name,
+                    items=data["items"]
+                )
             )
+
+    if plugin_menu_groups:
+        PLUGIN_MENU = Menu(
+            label="Plugins",
+            icon_class="mdi mdi-puzzle",
+            groups=plugin_menu_groups
         )
 
-    PLUGIN_MENU = Menu(
-        label="Plugins",
-        icon_class="mdi mdi-puzzle",
-        groups=plugin_menu_groups
-    )
-
-    MENUS.append(PLUGIN_MENU)
+        MENUS.append(PLUGIN_MENU)

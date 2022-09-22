@@ -58,6 +58,7 @@ class PluginConfig(AppConfig):
     # integrated components.
     graphql_schema = 'graphql.schema'
     menu_items = 'navigation.menu_items'
+    menu_header = 'navigation.menu_heading'
     template_extensions = 'template_content.template_extensions'
     user_preferences = 'preferences.preferences'
 
@@ -70,9 +71,14 @@ class PluginConfig(AppConfig):
             register_template_extensions(template_extensions)
 
         # Register navigation menu items (if defined)
+        try:
+            menu_header = import_object(f"{self.__module__}.{self.menu_header}")
+        except AttributeError:
+            menu_header = None
+
         menu_items = import_object(f"{self.__module__}.{self.menu_items}")
         if menu_items is not None:
-            register_menu_items(self.verbose_name, menu_items)
+            register_menu_items(self.verbose_name, menu_header, menu_items)
 
         # Register GraphQL schema (if defined)
         graphql_schema = import_object(f"{self.__module__}.{self.graphql_schema}")
@@ -246,7 +252,7 @@ class PluginMenuButton:
             self.color = color
 
 
-def register_menu_items(section_name, class_list):
+def register_menu_items(section_name, menu_header, class_list):
     """
     Register a list of PluginMenuItem instances for a given menu section (e.g. plugin name)
     """
@@ -258,7 +264,9 @@ def register_menu_items(section_name, class_list):
             if not isinstance(button, PluginMenuButton):
                 raise TypeError(f"{button} must be an instance of extras.plugins.PluginMenuButton")
 
-    registry['plugins']['menu_items'][section_name] = class_list
+    registry['plugins']['menu_items'][section_name] = {}
+    registry['plugins']['menu_items'][section_name]['header'] = menu_header
+    registry['plugins']['menu_items'][section_name]['items'] = class_list
 
 
 #
