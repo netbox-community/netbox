@@ -81,30 +81,31 @@ class VLANQuerySet(RestrictedQuerySet):
 
         # Find all relevant VLANGroups
         q = Q()
-        if vm.cluster.site:
-            if vm.cluster.site.region:
+        if vm.cluster:
+            if vm.cluster.site:
+                if vm.cluster.site.region:
+                    q |= Q(
+                        scope_type=ContentType.objects.get_by_natural_key('dcim', 'region'),
+                        scope_id__in=vm.cluster.site.region.get_ancestors(include_self=True)
+                    )
+                if vm.cluster.site.group:
+                    q |= Q(
+                        scope_type=ContentType.objects.get_by_natural_key('dcim', 'sitegroup'),
+                        scope_id__in=vm.cluster.site.group.get_ancestors(include_self=True)
+                    )
                 q |= Q(
-                    scope_type=ContentType.objects.get_by_natural_key('dcim', 'region'),
-                    scope_id__in=vm.cluster.site.region.get_ancestors(include_self=True)
+                    scope_type=ContentType.objects.get_by_natural_key('dcim', 'site'),
+                    scope_id=vm.cluster.site_id
                 )
-            if vm.cluster.site.group:
+            if vm.cluster.group:
                 q |= Q(
-                    scope_type=ContentType.objects.get_by_natural_key('dcim', 'sitegroup'),
-                    scope_id__in=vm.cluster.site.group.get_ancestors(include_self=True)
+                    scope_type=ContentType.objects.get_by_natural_key('virtualization', 'clustergroup'),
+                    scope_id=vm.cluster.group_id
                 )
             q |= Q(
-                scope_type=ContentType.objects.get_by_natural_key('dcim', 'site'),
-                scope_id=vm.cluster.site_id
+                scope_type=ContentType.objects.get_by_natural_key('virtualization', 'cluster'),
+                scope_id=vm.cluster_id
             )
-        if vm.cluster.group:
-            q |= Q(
-                scope_type=ContentType.objects.get_by_natural_key('virtualization', 'clustergroup'),
-                scope_id=vm.cluster.group_id
-            )
-        q |= Q(
-            scope_type=ContentType.objects.get_by_natural_key('virtualization', 'cluster'),
-            scope_id=vm.cluster_id
-        )
         vlan_groups = VLANGroup.objects.filter(q)
 
         # Return all applicable VLANs
@@ -113,7 +114,7 @@ class VLANQuerySet(RestrictedQuerySet):
             Q(group__scope_id__isnull=True, site__isnull=True) |  # Global group VLANs
             Q(group__isnull=True, site__isnull=True)  # Global VLANs
         )
-        if vm.cluster.site:
+        if vm.cluster and vm.cluster.site:
             q |= Q(site=vm.cluster.site)
 
         return self.filter(q)
