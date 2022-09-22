@@ -235,12 +235,12 @@ table {
     }
   }
 
-  th.asc a::after {
+  th.asc > a::after {
     content: "\f0140";
     font-family: 'Material Design Icons';
   }
 
-  th.desc a::after {
+  th.desc > a::after {
     content: "\f0143";
     font-family: 'Material Design Icons';
   }

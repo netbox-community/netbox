@@ -2,6 +2,8 @@
 
 The installation instructions provided here have been tested to work on Ubuntu 20.04 and CentOS 8.3. The particular commands needed to install dependencies on other distributions may vary significantly. Unfortunately, this is outside the control of the NetBox maintainers. Please consult your distribution's documentation for assistance with any errors.
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/_y5JRiW_PLM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 The following sections detail how to set up a new instance of NetBox:
 
 1. [PostgreSQL database](1-postgresql.md)

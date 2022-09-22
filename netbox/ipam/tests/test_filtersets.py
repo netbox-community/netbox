@@ -1485,9 +1485,9 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
         RouteTarget.objects.bulk_create(route_targets)
 
         l2vpns = (
-            L2VPN(name='L2VPN 1', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=65001),
-            L2VPN(name='L2VPN 2', type=L2VPNTypeChoices.TYPE_VPWS, identifier=65002),
-            L2VPN(name='L2VPN 3', type=L2VPNTypeChoices.TYPE_VPLS),
+            L2VPN(name='L2VPN 1', slug='l2vpn-1', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=65001),
+            L2VPN(name='L2VPN 2', slug='l2vpn-2', type=L2VPNTypeChoices.TYPE_VPWS, identifier=65002),
+            L2VPN(name='L2VPN 3', slug='l2vpn-3', type=L2VPNTypeChoices.TYPE_VPLS),
         )
         L2VPN.objects.bulk_create(l2vpns)
         l2vpns[0].import_targets.add(route_targets[0])

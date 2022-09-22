@@ -688,7 +688,7 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         Manufacturer.objects.bulk_create(manufacturers)
 
         device_types = (
-            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True),
+            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True, front_image='front.png', rear_image='rear.png'),
             DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR),
             DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD, airflow=DeviceAirflowChoices.AIRFLOW_REAR_TO_FRONT),
         )
@@ -753,9 +753,9 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_is_full_depth(self):
-        params = {'is_full_depth': 'true'}
+        params = {'is_full_depth': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'is_full_depth': 'false'}
+        params = {'is_full_depth': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_subdevice_role(self):
@@ -771,6 +771,18 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_has_front_image(self):
+        params = {'has_front_image': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'has_front_image': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_has_rear_image(self):
+        params = {'has_rear_image': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'has_rear_image': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_console_ports(self):
@@ -1924,10 +1936,17 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2], rack=racks[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -1976,12 +1995,6 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
@@ -2003,6 +2016,20 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rack': [racks[0].name, racks[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -2015,17 +2042,22 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'module_id': [modules[0].pk, modules[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_location(self):
-        locations = Location.objects.all()[:2]
-        params = {'location_id': [locations[0].pk, locations[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'location': [locations[0].slug, locations[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'occupied': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
@@ -2071,10 +2103,17 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2], rack=racks[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -2123,12 +2162,6 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
@@ -2157,6 +2190,13 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rack': [racks[0].name, racks[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -2170,9 +2210,21 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'occupied': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
@@ -2218,10 +2270,17 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2], rack=racks[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -2278,12 +2337,6 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'allocated_draw': [50, 100]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
@@ -2312,6 +2365,13 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rack': [racks[0].name, racks[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -2325,9 +2385,21 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'occupied': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
@@ -2373,10 +2445,17 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2], rack=racks[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -2429,12 +2508,6 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'feed_leg': [PowerOutletFeedLegChoices.FEED_LEG_A, PowerOutletFeedLegChoices.FEED_LEG_B]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
@@ -2463,6 +2536,13 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rack': [racks[0].name, racks[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -2476,9 +2556,21 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'occupied': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
@@ -2524,10 +2616,17 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2], rack=racks[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -2678,12 +2777,6 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-
     def test_enabled(self):
         params = {'enabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
@@ -2793,6 +2886,13 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rack': [racks[0].name, racks[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_virtual_chassis_id(self):
         params = {'virtual_chassis_id': [VirtualChassis.objects.first().pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -2810,9 +2910,21 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'occupied': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_kind(self):
@@ -2899,10 +3011,17 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2], rack=racks[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -2994,6 +3113,13 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rack': [racks[0].name, racks[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -3007,9 +3133,15 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'occupied': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -3055,10 +3187,17 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2], rack=racks[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -3144,6 +3283,13 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rack': [racks[0].name, racks[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -3157,9 +3303,15 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_occupied(self):
+        params = {'occupied': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'occupied': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -3204,10 +3356,17 @@ class ModuleBayTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2], rack=racks[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -3256,6 +3415,13 @@ class ModuleBayTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rack': [racks[0].name, racks[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
@@ -3307,10 +3473,17 @@ class DeviceBayTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2], rack=racks[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -3359,6 +3532,13 @@ class DeviceBayTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rack': [racks[0].name, racks[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
@@ -3416,10 +3596,17 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2], rack=racks[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -3501,6 +3688,13 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'rack': [racks[0].name, racks[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_device(self):
@@ -4019,9 +4213,9 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
-        params = {'cabled': 'true'}
+        params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': 'false'}
+        params = {'cabled': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_connected(self):

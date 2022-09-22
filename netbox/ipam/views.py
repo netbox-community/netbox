@@ -526,10 +526,8 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf', 'tenant', 'tenant__group')
 
     def prep_table_data(self, request, queryset, parent):
-        show_available = bool(request.GET.get('show_available', 'true') == 'true')
-        if show_available:
+        if not request.GET.get('q') and not request.GET.get('sort'):
             return add_available_ipaddresses(parent.prefix, queryset, parent.is_pool)
-
         return queryset
 
     def get_extra_context(self, request, instance):

@@ -790,7 +790,9 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_80211AC = 'ieee802.11ac'
     TYPE_80211AD = 'ieee802.11ad'
     TYPE_80211AX = 'ieee802.11ax'
+    TYPE_80211AY = 'ieee802.11ay'
     TYPE_802151 = 'ieee802.15.1'
+    TYPE_OTHER_WIRELESS = 'other-wireless'
 
     # Cellular
     TYPE_GSM = 'gsm'
@@ -918,7 +920,9 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_80211AC, 'IEEE 802.11ac'),
                 (TYPE_80211AD, 'IEEE 802.11ad'),
                 (TYPE_80211AX, 'IEEE 802.11ax'),
+                (TYPE_80211AY, 'IEEE 802.11ay'),
                 (TYPE_802151, 'IEEE 802.15.1 (Bluetooth)'),
+                (TYPE_OTHER_WIRELESS, 'Other (Wireless)'),
             )
         ),
         (
@@ -1092,7 +1096,7 @@ class InterfacePoETypeChoices(ChoiceSet):
                 (PASSIVE_24V_2PAIR, 'Passive 24V (2-pair)'),
                 (PASSIVE_24V_4PAIR, 'Passive 24V (4-pair)'),
                 (PASSIVE_48V_2PAIR, 'Passive 48V (2-pair)'),
-                (PASSIVE_48V_2PAIR, 'Passive 48V (4-pair)'),
+                (PASSIVE_48V_4PAIR, 'Passive 48V (4-pair)'),
             )
         ),
     )

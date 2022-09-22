@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
+from django.utils.encoding import escape_uri_path
 from django.utils.html import escape
 from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
@@ -210,7 +211,7 @@ class ActionsColumn(tables.Column):
 
         model = table.Meta.model
         request = getattr(table, 'context', {}).get('request')
-        url_appendix = f'?return_url={request.path}' if request else ''
+        url_appendix = f'?return_url={escape_uri_path(request.get_full_path())}' if request else ''
         html = ''
 
         # Compile actions menu

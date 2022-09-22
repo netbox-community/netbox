@@ -299,6 +299,10 @@ class BaseScript:
     def module(cls):
         return cls.__module__
 
+    @classmethod
+    def root_module(cls):
+        return cls.__module__.split(".")[0]
+
     @classproperty
     def job_timeout(self):
         return getattr(self.Meta, 'job_timeout', None)
@@ -514,7 +518,9 @@ def get_scripts(use_names=False):
         ordered_scripts = [cls for cls in script_order if is_script(cls)]
         unordered_scripts = [cls for _, cls in inspect.getmembers(module, is_script) if cls not in script_order]
         for cls in [*ordered_scripts, *unordered_scripts]:
-            module_scripts[cls.__name__] = cls
+            # For scripts in submodules use the full import path w/o the root module as the name
+            script_name = cls.full_name.split(".", maxsplit=1)[1]
+            module_scripts[script_name] = cls
         if module_scripts:
             scripts[module_name] = module_scripts
 

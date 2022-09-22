@@ -281,15 +281,11 @@ class CableTermination(models.Model):
 
         # Validate interface type (if applicable)
         if self.termination_type.model == 'interface' and self.termination.type in NONCONNECTABLE_IFACE_TYPES:
-            raise ValidationError({
-                'termination': f'Cables cannot be terminated to {self.termination.get_type_display()} interfaces'
-            })
+            raise ValidationError(f"Cables cannot be terminated to {self.termination.get_type_display()} interfaces")
 
         # A CircuitTermination attached to a ProviderNetwork cannot have a Cable
         if self.termination_type.model == 'circuittermination' and self.termination.provider_network is not None:
-            raise ValidationError({
-                'termination': "Circuit terminations attached to a provider network may not be cabled."
-            })
+            raise ValidationError("Circuit terminations attached to a provider network may not be cabled.")
 
     def save(self, *args, **kwargs):
 
@@ -677,6 +673,12 @@ class CablePath(models.Model):
         """
         Return all available next segments in a split cable path.
         """
-        rearports = self.path_objects[-1]
+        nodes = self.path_objects[-1]
 
-        return FrontPort.objects.filter(rear_port__in=rearports)
+        # RearPort splitting to multiple FrontPorts with no stack position
+        if type(nodes[0]) is RearPort:
+            return FrontPort.objects.filter(rear_port__in=nodes)
+        # Cable terminating to multiple FrontPorts mapped to different
+        # RearPorts connected to different cables
+        elif type(nodes[0]) is FrontPort:
+            return RearPort.objects.filter(pk__in=[fp.rear_port_id for fp in nodes])

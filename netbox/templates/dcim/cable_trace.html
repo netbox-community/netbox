@@ -22,16 +22,18 @@
                     <h3 class="text-danger">Path split!</h3>
                     <p>Select a node below to continue:</p>
                     <ul class="text-start">
-                        {% for next_node in path.get_split_nodes %}
-                            {% if next_node.cable %}
-                                <li>
-                                    <a href="{% url 'dcim:frontport_trace' pk=next_node.pk %}">{{ next_node }}</a>
-                                    (Cable {{ next_node.cable|linkify }})
-                                </li>
-                            {% else %}
-                                <li class="text-muted">{{ next_node }}</li>
-                            {% endif %}
-                        {% endfor %}
+                      {% for next_node in path.get_split_nodes %}
+                        {% if next_node.cable %}
+                          {% with viewname=next_node|viewname:"trace" %}
+                            <li>
+                              <a href="{% url viewname pk=next_node.pk %}">{{ next_node|meta:"verbose_name"|bettertitle }} {{ next_node }}</a>
+                              (Cable {{ next_node.cable|linkify }})
+                            </li>
+                          {% endwith %}
+                        {% else %}
+                          <li class="text-muted">{{ next_node }}</li>
+                        {% endif %}
+                      {% endfor %}
                     </ul>
                 {% else %}
                     <h3 class="text-center text-success">Trace Completed</h3>

@@ -21,8 +21,8 @@ class Command(BaseCommand):
         reports = get_reports()
 
         # Run reports
-        for module_name, report_list in reports:
-            for report in report_list:
+        for module_name, report_list in reports.items():
+            for report in report_list.values():
                 if module_name in options['reports'] or report.full_name in options['reports']:
 
                     # Run the report and create a new JobResult

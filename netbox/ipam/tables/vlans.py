@@ -30,7 +30,7 @@ VLAN_LINK = """
 """
 
 VLAN_PREFIXES = """
-{% for prefix in record.prefixes.all %}
+{% for prefix in value.all %}
     <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
 {% endfor %}
 """
@@ -110,6 +110,12 @@ class VLANTable(TenancyColumnsMixin, NetBoxTable):
     role = tables.Column(
         linkify=True
     )
+    l2vpn = tables.Column(
+        accessor=tables.A('l2vpn_termination__l2vpn'),
+        linkify=True,
+        orderable=False,
+        verbose_name='L2VPN'
+    )
     prefixes = columns.TemplateColumn(
         template_code=VLAN_PREFIXES,
         orderable=False,
@@ -122,8 +128,8 @@ class VLANTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VLAN
         fields = (
-            'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'tenant_group', 'status', 'role', 'description', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'tenant_group', 'status', 'role',
+            'description', 'tags', 'l2vpn', 'created', 'last_updated',
         )
         default_columns = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description')
         row_attrs = {
