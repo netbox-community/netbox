@@ -509,11 +509,17 @@ class JobResult(models.Model):
         unique=True
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
         ordering = ['obj_type', 'name', '-created']
 
     def __str__(self):
         return str(self.job_id)
+
+    def get_absolute_url(self):
+        # TODO: Fix this to point the right place
+        return reverse('virtualization:clustertype', args=[self.pk])
 
     @property
     def duration(self):
@@ -546,7 +552,7 @@ class JobResult(models.Model):
         args: additional args passed to the callable
         kwargs: additional kargs passed to the callable
         """
-        job_result = cls.objects.create(
+        job_result: JobResult = cls.objects.create(
             name=name,
             obj_type=obj_type,
             user=user,
@@ -556,6 +562,9 @@ class JobResult(models.Model):
         queue = django_rq.get_queue("default")
         
         if schedule_at := kwargs.pop("schedule_at", None):
+            job_result.status = JobResultStatusChoices.STATUS_SCHEDULED
+            job_result.save()
+            
             queue.enqueue_at(schedule_at, func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
         else:
             queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)

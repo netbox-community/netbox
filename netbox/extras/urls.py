@@ -103,6 +103,10 @@ urlpatterns = [
     path('reports/results/<int:job_result_pk>/', views.ReportResultView.as_view(), name='report_result'),
     re_path(r'^reports/(?P<module>.([^.]+)).(?P<name>.(.+))/', views.ReportView.as_view(), name='report'),
 
+    # Job results
+    path('job-results/', views.JobResultListView.as_view(), name='jobresult_view'),
+    # path('custom-fields/<int:pk>/', views.CustomFieldView.as_view(), name='customfield'),
+
     # Scripts
     path('scripts/', views.ScriptListView.as_view(), name='script_list'),
     path('scripts/results/<int:job_result_pk>/', views.ScriptResultView.as_view(), name='script_result'),

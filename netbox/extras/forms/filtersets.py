@@ -19,6 +19,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 __all__ = (
     'ConfigContextFilterForm',
     'CustomFieldFilterForm',
+    'JobResultFilterForm',
     'CustomLinkFilterForm',
     'ExportTemplateFilterForm',
     'JournalEntryFilterForm',
@@ -62,6 +63,13 @@ class CustomFieldFilterForm(FilterForm):
         required=False,
         label=_('UI visibility'),
         widget=StaticSelect()
+    )
+
+
+class JobResultFilterForm(FilterForm):
+    fieldsets = (
+        (None, ('q',)),
+        #('Attributes', ('type', 'content_type_id', 'group_name', 'weight', 'required', 'ui_visibility')),
     )
 
 

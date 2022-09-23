@@ -775,3 +775,14 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, GetScriptMixin, View)
             'result': result,
             'class_name': script.__class__.__name__
         })
+
+
+#
+# Job results
+#
+
+class JobResultListView(generic.ObjectListView):
+    queryset = JobResult.objects.all()
+    filterset = filtersets.JobResultFilterSet
+    filterset_form = forms.JobResultFilterForm
+    table = tables.JobResultTable

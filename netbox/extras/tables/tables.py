@@ -8,6 +8,7 @@ from .template_code import *
 __all__ = (
     'ConfigContextTable',
     'CustomFieldTable',
+    'JobResultTable',
     'CustomLinkTable',
     'ExportTemplateTable',
     'JournalEntryTable',
@@ -37,6 +38,30 @@ class CustomFieldTable(NetBoxTable):
             'description', 'filter_logic', 'ui_visibility', 'choices', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
+
+
+#
+# Custom fields
+#
+
+class JobResultTable(NetBoxTable):
+    name = tables.Column(
+        linkify=True
+    )
+    #obj_type = columns.ContentTypesColumn()
+    required = columns.BooleanColumn()
+    ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
+
+    actions = columns.ActionsColumn(
+        actions=() # TODO: Delete
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = JobResult
+        fields = (
+            'pk', 'id', 'name', 'obj_type', 'created', 'completed', 'user', 'status', 'job_id',
+        )
+        default_columns = ('pk', 'id', 'name', 'obj_type', 'created', 'completed', 'user', 'status', 'job_id')
 
 
 #
