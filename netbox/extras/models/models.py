@@ -518,8 +518,7 @@ class JobResult(models.Model):
         return str(self.job_id)
 
     def get_absolute_url(self):
-        # TODO: Fix this to point the right place
-        return reverse('virtualization:clustertype', args=[self.pk])
+        return reverse('extras:jobresult', args=[self.pk])
 
     @property
     def duration(self):
@@ -560,7 +559,7 @@ class JobResult(models.Model):
         )
 
         queue = django_rq.get_queue("default")
-        
+
         if schedule_at := kwargs.pop("schedule_at", None):
             job_result.status = JobResultStatusChoices.STATUS_SCHEDULED
             job_result.save()

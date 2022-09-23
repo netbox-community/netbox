@@ -781,8 +781,22 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, GetScriptMixin, View)
 # Job results
 #
 
+class JobResultView(generic.ObjectView):
+    queryset = JobResult.objects.all()
+
+
 class JobResultListView(generic.ObjectListView):
     queryset = JobResult.objects.all()
     filterset = filtersets.JobResultFilterSet
     filterset_form = forms.JobResultFilterForm
+    table = tables.JobResultTable
+    actions = ('delete', 'bulk_delete', )
+
+class JobResultDeleteView(generic.ObjectDeleteView):
+    queryset = JobResult.objects.all()
+
+
+class JobResultBulkDeleteView(generic.BulkDeleteView):
+    queryset = JobResult.objects.all()
+    filterset = filtersets.JobResultFilterSet
     table = tables.JobResultTable

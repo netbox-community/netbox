@@ -87,27 +87,6 @@ class CustomFieldFilterSet(BaseFilterSet):
             Q(description__icontains=value)
         )
 
-class JobResultFilterSet(BaseFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
-
-    # TODO: Add filters
-
-    class Meta:
-        model = JobResult
-        fields = [
-            'id', 'name', 'obj_type', 'created', 'completed', 'user', 'status'
-        ]
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(name__icontains=value)
-        )
-
 class CustomLinkFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -472,7 +451,8 @@ class JobResultFilterSet(BaseFilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(user__username__icontains=value)
+            Q(user__username__icontains=value) |
+            Q(name__icontains=value)
         )
 
 

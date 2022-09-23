@@ -48,12 +48,9 @@ class JobResultTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    #obj_type = columns.ContentTypesColumn()
-    required = columns.BooleanColumn()
-    ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
 
     actions = columns.ActionsColumn(
-        actions=() # TODO: Delete
+        actions=('delete',)
     )
 
     class Meta(NetBoxTable.Meta):
