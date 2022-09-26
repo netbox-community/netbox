@@ -9,6 +9,7 @@
 * [#10439](https://github.com/netbox-community/netbox/issues/10439) - Fix form widget styling for DeviceType airflow field
 * [#10445](https://github.com/netbox-community/netbox/issues/10445) - Avoid rounding virtual machine memory values
 * [#10461](https://github.com/netbox-community/netbox/issues/10461) - Enable filtering by read-only custom fields in the UI
+* [#10470](https://github.com/netbox-community/netbox/issues/10470) - Omit read-only custom fields from CSV import forms
 
 ---
 

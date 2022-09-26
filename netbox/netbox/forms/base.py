@@ -63,6 +63,11 @@ class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
     """
     tags = None  # Temporary fix in lieu of tag import support (see #9158)
 
+    def _get_custom_fields(self, content_type):
+        return CustomField.objects.filter(content_types=content_type).filter(
+            ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE
+        )
+
     def _get_form_field(self, customfield):
         return customfield.to_form_field(for_csv_import=True)
 
