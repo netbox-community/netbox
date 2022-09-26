@@ -328,10 +328,10 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
 
     model = FHRPGroup
     fieldsets = (
-        (None, ('protocol', 'group_id', 'description')),
+        (None, ('protocol', 'group_id', 'name', 'description')),
         ('Authentication', ('auth_type', 'auth_key')),
     )
-    nullable_fields = ('auth_type', 'auth_key', 'description')
+    nullable_fields = ('auth_type', 'auth_key', 'name', 'description')
 
 
 class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):

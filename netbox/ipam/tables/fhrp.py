@@ -36,7 +36,7 @@ class FHRPGroupTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = FHRPGroup
         fields = (
-            'pk', 'name', 'group_id', 'protocol', 'auth_type', 'auth_key', 'description', 'ip_addresses', 'member_count',
+            'pk', 'group_id', 'protocol', 'auth_type', 'auth_key', 'name', 'description', 'ip_addresses', 'member_count',
             'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'group_id', 'protocol', 'auth_type', 'description', 'ip_addresses', 'member_count')

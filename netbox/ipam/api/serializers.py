@@ -123,7 +123,7 @@ class FHRPGroupSerializer(NetBoxModelSerializer):
     class Meta:
         model = FHRPGroup
         fields = [
-            'id', 'url', 'display', 'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'ip_addresses',
+            'id', 'name', 'url', 'display', 'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'ip_addresses',
             'tags', 'custom_fields', 'created', 'last_updated',
         ]
 

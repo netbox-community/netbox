@@ -659,7 +659,8 @@ class FHRPGroupFilterSet(NetBoxModelFilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(description__icontains=value)
+            Q(description__icontains=value) |
+            Q(name__icontains=value)
         )
 
     def filter_related_ip(self, queryset, name, value):
