@@ -170,8 +170,6 @@ class CircuitTerminationForm(NetBoxModelForm):
         fields = [
             'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'location', 'provider_network', 'mark_connected',
             'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description', 'tags',
-            'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'location', 'provider_network', 'mark_connected',
-            'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         help_texts = {
             'port_speed': "Physical circuit speed",
