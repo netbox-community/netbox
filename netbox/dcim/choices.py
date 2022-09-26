@@ -1176,6 +1176,8 @@ class PortTypeChoices(ChoiceSet):
     TYPE_URM_P4 = 'urm-p4'
     TYPE_URM_P8 = 'urm-p8'
     TYPE_OTHER = 'other'
+    TYPE_BACKPLAME = 'backplane'
+
 
     CHOICES = (
         (
@@ -1199,6 +1201,7 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_F, 'F Connector'),
                 (TYPE_N, 'N Connector'),
                 (TYPE_MRJ21, 'MRJ21'),
+                (TYPE_BACKPLANE, 'Backplane'),
             ),
         ),
         (
