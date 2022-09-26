@@ -63,7 +63,7 @@ class PluginTest(TestCase):
         Check that plugin MenuItems and MenuButtons are registered.
         """
         self.assertIn('Dummy plugin', registry['plugins']['menu_items'])
-        menu_items = registry['plugins']['menu_items']['Dummy plugin']
+        menu_items = registry['plugins']['menu_items']['Dummy plugin']['items']
         self.assertEqual(len(menu_items), 2)
         self.assertEqual(len(menu_items[0].buttons), 2)
 
