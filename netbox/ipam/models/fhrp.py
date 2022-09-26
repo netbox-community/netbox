@@ -59,7 +59,11 @@ class FHRPGroup(NetBoxModel):
         verbose_name = 'FHRP group'
 
     def __str__(self):
-        name = f'{self.name} {self.get_protocol_display()}: {self.group_id}'
+        name = ''
+        if self.name:
+            name = f'{self.name} '
+
+        name += f'{self.get_protocol_display()}: {self.group_id}'
 
         # Append the first assigned IP addresses (if any) to serve as an additional identifier
         if self.pk:
