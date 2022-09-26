@@ -45,11 +45,11 @@
                             <a href="{% url 'ipam:ipaddress' pk=object.primary_ip4.pk %}">{{ object.primary_ip4.address.ip }}</a>
                             {% if object.primary_ip4.nat_inside %}
                               (NAT for <a href="{{ object.primary_ip4.nat_inside.get_absolute_url }}">{{ object.primary_ip4.nat_inside.address.ip }}</a>)
-                            {% elif object.primary_ip4.nat_outside %}
-                              (NAT: <a href="{{ object.primary_ip4.nat_outside.get_absolute_url }}">{{ object.primary_ip4.nat_outside.address.ip }}</a>)
+                            {% elif object.primary_ip4.nat_outside.exists %}
+                              (NAT for {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                             {% endif %}
                           {% else %}
-                            <span class="text-muted">&mdash;</span>
+                            {{ ''|placeholder }}
                           {% endif %}
                         </td>
                     </tr>
@@ -60,11 +60,11 @@
                             <a href="{% url 'ipam:ipaddress' pk=object.primary_ip6.pk %}">{{ object.primary_ip6.address.ip }}</a>
                             {% if object.primary_ip6.nat_inside %}
                               (NAT for <a href="{{ object.primary_ip6.nat_inside.get_absolute_url }}">{{ object.primary_ip6.nat_inside.address.ip }}</a>)
-                            {% elif object.primary_ip6.nat_outside %}
-                              (NAT: <a href="{{ object.primary_ip6.nat_outside.get_absolute_url }}">{{ object.primary_ip6.nat_outside.address.ip }}</a>)
+                            {% elif object.primary_ip6.nat_outside.exists %}
+                              (NAT for {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                             {% endif %}
                           {% else %}
-                            <span class="text-muted">&mdash;</span>
+                            {{ ''|placeholder }}
                           {% endif %}
                         </td>
                     </tr>
@@ -78,31 +78,39 @@
     </div>
 	<div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">
-                Cluster
-            </h5>
+            <h5 class="card-header">Cluster</h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Site</th>
+                        <td>
+                            {{ object.site|linkify|placeholder }}
+                        </td>
+                    </tr>
                     <tr>
                         <th scope="row">Cluster</th>
                         <td>
                             {% if object.cluster.group %}
                                 {{ object.cluster.group|linkify }} /
                             {% endif %}
-                            {{ object.cluster|linkify }}
+                            {{ object.cluster|linkify|placeholder }}
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">Cluster Type</th>
                         <td>{{ object.cluster.type }}</td>
                     </tr>
+                    <tr>
+                        <th scope="row">Device</th>
+                        <td>
+                            {{ object.device|linkify|placeholder }}
+                        </td>
+                    </tr>
                 </table>
             </div>
         </div>
         <div class="card">
-            <h5 class="card-header">
-                Resources
-            </h5>
+            <h5 class="card-header">Resources</h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
@@ -115,7 +123,7 @@
                             {% if object.memory %}
                                 {{ object.memory|humanize_megabytes }}
                             {% else %}
-                                <span class="text-muted">&mdash;</span>
+                                {{ ''|placeholder }}
                             {% endif %}
                         </td>
                     </tr>
@@ -125,7 +133,7 @@
                             {% if object.disk %}
                                 {{ object.disk }} GB
                             {% else %}
-                                <span class="text-muted">&mdash;</span>
+                                {{ ''|placeholder }}
                             {% endif %}
                         </td>
                     </tr>

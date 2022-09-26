@@ -1,6 +1,7 @@
 from dcim.models import Device, Interface, Location, Region, Site, SiteGroup
 from ipam.models import VLAN, VLANGroup
 from netbox.forms import NetBoxModelForm
+from tenancy.forms import TenancyForm
 from utilities.forms import DynamicModelChoiceField, SlugField, StaticSelect
 from wireless.models import *
 
@@ -25,7 +26,7 @@ class WirelessLANGroupForm(NetBoxModelForm):
         ]
 
 
-class WirelessLANForm(NetBoxModelForm):
+class WirelessLANForm(TenancyForm, NetBoxModelForm):
     group = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
@@ -79,14 +80,15 @@ class WirelessLANForm(NetBoxModelForm):
     fieldsets = (
         ('Wireless LAN', ('ssid', 'group', 'description', 'tags')),
         ('VLAN', ('region', 'site_group', 'site', 'vlan_group', 'vlan',)),
+        ('Tenancy', ('tenant_group', 'tenant')),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
     )
 
     class Meta:
         model = WirelessLAN
         fields = [
-            'ssid', 'group', 'description', 'region', 'site_group', 'site', 'vlan_group', 'vlan', 'auth_type',
-            'auth_cipher', 'auth_psk', 'tags',
+            'ssid', 'group', 'description', 'region', 'site_group', 'site', 'vlan_group', 'vlan', 'tenant_group',
+            'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
         ]
         widgets = {
             'auth_type': StaticSelect,
@@ -94,7 +96,7 @@ class WirelessLANForm(NetBoxModelForm):
         }
 
 
-class WirelessLinkForm(NetBoxModelForm):
+class WirelessLinkForm(TenancyForm, NetBoxModelForm):
     site_a = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -180,6 +182,7 @@ class WirelessLinkForm(NetBoxModelForm):
         ('Side A', ('site_a', 'location_a', 'device_a', 'interface_a')),
         ('Side B', ('site_b', 'location_b', 'device_b', 'interface_b')),
         ('Link', ('status', 'ssid', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
     )
 
@@ -187,7 +190,7 @@ class WirelessLinkForm(NetBoxModelForm):
         model = WirelessLink
         fields = [
             'site_a', 'location_a', 'device_a', 'interface_a', 'site_b', 'location_b', 'device_b', 'interface_b',
-            'status', 'ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
+            'status', 'ssid', 'tenant_group', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
         ]
         widgets = {
             'status': StaticSelect,

@@ -2,16 +2,16 @@
 
 Tags are user-defined labels which can be applied to a variety of objects within NetBox. They can be used to establish dimensions of organization beyond the relationships built into NetBox. For example, you might create a tag to identify a particular ownership or condition across several types of objects.
 
-Each tag has a label, color, and a URL-friendly slug. For example, the slug for a tag named "Dunder Mifflin, Inc." would be `dunder-mifflin-inc`. The slug is generated automatically and makes tags easier to work with as URL parameters. Each tag can also be assigned a description indicating its purpose.
+## Fields
 
-Objects can be filtered by the tags they have applied. For example, the following API request will retrieve all devices tagged as "monitored":
+### Name
 
-```no-highlight
-GET /api/dcim/devices/?tag=monitored
-```
+A unique human-friendly label for the tag.
 
-The `tag` filter can be specified multiple times to match only objects which have _all_ of the specified tags assigned:
+### Slug
 
-```no-highlight
-GET /api/dcim/devices/?tag=monitored&tag=deprecated
-```
+A unique URL-friendly identifier. (This value will be used for filtering.) This is automatically generated from the tag's name, but can be altered as needed.
+
+### Color
+
+The color to use when displaying the tag in the NetBox UI.

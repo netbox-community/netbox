@@ -4,7 +4,7 @@ from django_tables2.utils import Accessor
 
 from ipam.models import *
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenantColumn
+from tenancy.tables import TenancyColumnsMixin, TenantColumn
 
 __all__ = (
     'AggregateTable',
@@ -21,6 +21,14 @@ __all__ = (
 AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
 
 PREFIX_LINK = """
+{% if record.pk %}
+  <a href="{{ record.get_absolute_url }}">{{ record.prefix }}</a>
+{% else %}
+  <a href="{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.site %}&site={{ object.site.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}">{{ record.prefix }}</a>
+{% endif %}
+"""
+
+PREFIX_LINK_WITH_DEPTH = """
 {% load helpers %}
 {% if record.depth %}
     <div class="record-depth">
@@ -29,17 +37,7 @@ PREFIX_LINK = """
         {% endfor %}
     </div>
 {% endif %}
-<a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.site %}&site={{ object.site.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
-"""
-
-PREFIXFLAT_LINK = """
-{% load helpers %}
-{% if record.pk %}
-    <a href="{% url 'ipam:prefix' pk=record.pk %}">{{ record.prefix }}</a>
-{% else %}
-    {{ record.prefix }}
-{% endif %}
-"""
+""" + PREFIX_LINK
 
 IPADDRESS_LINK = """
 {% if record.pk %}
@@ -56,7 +54,7 @@ IPADDRESS_ASSIGN_LINK = """
 """
 
 VRF_LINK = """
-{% if record.vrf %}
+{% if value %}
     <a href="{{ record.vrf.get_absolute_url }}">{{ record.vrf }}</a>
 {% elif object.vrf %}
     <a href="{{ object.vrf.get_absolute_url }}">{{ object.vrf }}</a>
@@ -99,7 +97,7 @@ class RIRTable(NetBoxTable):
 # ASNs
 #
 
-class ASNTable(NetBoxTable):
+class ASNTable(TenancyColumnsMixin, NetBoxTable):
     asn = tables.Column(
         linkify=True
     )
@@ -122,7 +120,6 @@ class ASNTable(NetBoxTable):
         linkify_item=True,
         verbose_name='Sites'
     )
-    tenant = TenantColumn()
     tags = columns.TagColumn(
         url_name='ipam:asn_list'
     )
@@ -130,7 +127,7 @@ class ASNTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ASN
         fields = (
-            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'provider_count', 'tenant', 'description', 'sites', 'tags',
+            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'provider_count', 'tenant', 'tenant_group', 'description', 'sites', 'tags',
             'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'asn', 'rir', 'site_count', 'provider_count', 'sites', 'description', 'tenant')
@@ -140,12 +137,11 @@ class ASNTable(NetBoxTable):
 # Aggregates
 #
 
-class AggregateTable(NetBoxTable):
+class AggregateTable(TenancyColumnsMixin, NetBoxTable):
     prefix = tables.Column(
         linkify=True,
         verbose_name='Aggregate'
     )
-    tenant = TenantColumn()
     date_added = tables.DateColumn(
         format="Y-m-d",
         verbose_name='Added'
@@ -164,7 +160,7 @@ class AggregateTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Aggregate
         fields = (
-            'pk', 'id', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description', 'tags',
+            'pk', 'id', 'prefix', 'rir', 'tenant', 'tenant_group', 'child_count', 'utilization', 'date_added', 'description', 'tags',
             'created', 'last_updated',
         )
         default_columns = ('pk', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description')
@@ -225,15 +221,17 @@ class PrefixUtilizationColumn(columns.UtilizationColumn):
     """
 
 
-class PrefixTable(NetBoxTable):
-    prefix = tables.TemplateColumn(
-        template_code=PREFIX_LINK,
+class PrefixTable(TenancyColumnsMixin, NetBoxTable):
+    prefix = columns.TemplateColumn(
+        template_code=PREFIX_LINK_WITH_DEPTH,
+        export_raw=True,
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    prefix_flat = tables.TemplateColumn(
-        template_code=PREFIXFLAT_LINK,
-        attrs={'td': {'class': 'text-nowrap'}},
-        verbose_name='Prefix (Flat)',
+    prefix_flat = columns.TemplateColumn(
+        accessor=Accessor('prefix'),
+        template_code=PREFIX_LINK,
+        export_raw=True,
+        verbose_name='Prefix (Flat)'
     )
     depth = tables.Column(
         accessor=Accessor('_depth'),
@@ -255,7 +253,6 @@ class PrefixTable(NetBoxTable):
         template_code=VRF_LINK,
         verbose_name='VRF'
     )
-    tenant = TenantColumn()
     site = tables.Column(
         linkify=True
     )
@@ -288,7 +285,7 @@ class PrefixTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site',
+            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'tenant_group', 'site',
             'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', 'created', 'last_updated',
         )
         default_columns = (
@@ -302,7 +299,7 @@ class PrefixTable(NetBoxTable):
 #
 # IP ranges
 #
-class IPRangeTable(NetBoxTable):
+class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
     start_address = tables.Column(
         linkify=True
     )
@@ -316,7 +313,6 @@ class IPRangeTable(NetBoxTable):
     role = tables.Column(
         linkify=True
     )
-    tenant = TenantColumn()
     utilization = columns.UtilizationColumn(
         accessor='utilization',
         orderable=False
@@ -328,7 +324,7 @@ class IPRangeTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = IPRange
         fields = (
-            'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
+            'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'tenant_group', 'description',
             'utilization', 'tags', 'created', 'last_updated',
         )
         default_columns = (
@@ -343,7 +339,7 @@ class IPRangeTable(NetBoxTable):
 # IPAddresses
 #
 
-class IPAddressTable(NetBoxTable):
+class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
     address = tables.TemplateColumn(
         template_code=IPADDRESS_LINK,
         verbose_name='IP Address'
@@ -356,7 +352,6 @@ class IPAddressTable(NetBoxTable):
         default=AVAILABLE_LABEL
     )
     role = columns.ChoiceFieldColumn()
-    tenant = TenantColumn()
     assigned_object = tables.Column(
         linkify=True,
         orderable=False,
@@ -373,6 +368,11 @@ class IPAddressTable(NetBoxTable):
         orderable=False,
         verbose_name='NAT (Inside)'
     )
+    nat_outside = tables.ManyToManyColumn(
+        linkify_item=True,
+        orderable=False,
+        verbose_name='NAT (Outside)'
+    )
     assigned = columns.BooleanColumn(
         accessor='assigned_object_id',
         linkify=True,
@@ -385,7 +385,7 @@ class IPAddressTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = IPAddress
         fields = (
-            'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'assigned', 'dns_name', 'description',
+            'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'tenant_group', 'nat_inside', 'nat_outside', 'assigned', 'dns_name', 'description',
             'tags', 'created', 'last_updated',
         )
         default_columns = (

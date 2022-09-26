@@ -5,6 +5,7 @@ repo_name: netbox-community/netbox
 repo_url: https://github.com/netbox-community/netbox
 theme:
   name: material
+  custom_dir: docs/_theme/
   icon:
     repo: fontawesome/brands/github
   palette:
@@ -37,6 +38,7 @@ plugins:
             show_root_toc_entry: false
             show_source: false
 extra:
+  readthedocs: !ENV READTHEDOCS
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/netbox-community/netbox
@@ -47,18 +49,37 @@ extra_css:
 markdown_extensions:
     - admonition
     - attr_list
-    - markdown_include.include:
-        base_path: 'docs/'
-        headingOffset: 1
     - pymdownx.emoji:
         emoji_index: !!python/name:materialx.emoji.twemoji
         emoji_generator: !!python/name:materialx.emoji.to_svg
-    - pymdownx.superfences
+    - pymdownx.superfences:
+        custom_fences:
+          - name: mermaid
+            class: mermaid
+            format: !!python/name:pymdownx.superfences.fence_code_format
     - pymdownx.tabbed:
         alternate_style: true
 nav:
-    - Introduction: 'index.md'
-    - Installation:
+    - Introduction: 'introduction.md'
+    - Features:
+        - Facilities: 'features/facilities.md'
+        - Devices & Cabling: 'features/devices-cabling.md'
+        - Power Tracking: 'features/power-tracking.md'
+        - IPAM: 'features/ipam.md'
+        - VLAN Management: 'features/vlan-management.md'
+        - L2VPN & Overlay: 'features/l2vpn-overlay.md'
+        - Circuits: 'features/circuits.md'
+        - Wireless: 'features/wireless.md'
+        - Virtualization: 'features/virtualization.md'
+        - Tenancy: 'features/tenancy.md'
+        - Contacts: 'features/contacts.md'
+        - Context Data: 'features/context-data.md'
+        - Change Logging: 'features/change-logging.md'
+        - Journaling: 'features/journaling.md'
+        - Auth & Permissions: 'features/authentication-permissions.md'
+        - API & Integration: 'features/api-integration.md'
+        - Customization: 'features/customization.md'
+    - Installation & Upgrade:
         - Installing NetBox: 'installation/index.md'
         - 1. PostgreSQL: 'installation/1-postgresql.md'
         - 2. Redis: 'installation/2-redis.md'
@@ -67,43 +88,36 @@ nav:
         - 5. HTTP Server: 'installation/5-http-server.md'
         - 6. LDAP (Optional): 'installation/6-ldap.md'
         - Upgrading NetBox: 'installation/upgrading.md'
-        - Migrating to systemd: 'installation/migrating-to-systemd.md'
+    - Getting Started:
+        - Planning: 'getting-started/planning.md'
+        - Populating Data: 'getting-started/populating-data.md'
     - Configuration:
         - Configuring NetBox: 'configuration/index.md'
-        - Required Settings: 'configuration/required-settings.md'
-        - Optional Settings: 'configuration/optional-settings.md'
-        - Dynamic Settings: 'configuration/dynamic-settings.md'
-        - Error Reporting: 'configuration/error-reporting.md'
+        - Required Parameters: 'configuration/required-parameters.md'
+        - System: 'configuration/system.md'
+        - Security: 'configuration/security.md'
         - Remote Authentication: 'configuration/remote-authentication.md'
-    - Core Functionality:
-        - IP Address Management: 'core-functionality/ipam.md'
-        - VLAN Management: 'core-functionality/vlans.md'
-        - Sites and Racks: 'core-functionality/sites-and-racks.md'
-        - Devices and Cabling: 'core-functionality/devices.md'
-        - Device Types: 'core-functionality/device-types.md'
-        - Modules: 'core-functionality/modules.md'
-        - Virtualization: 'core-functionality/virtualization.md'
-        - Service Mapping: 'core-functionality/services.md'
-        - Circuits: 'core-functionality/circuits.md'
-        - Wireless: 'core-functionality/wireless.md'
-        - Power Tracking: 'core-functionality/power.md'
-        - Tenancy: 'core-functionality/tenancy.md'
-        - Contacts: 'core-functionality/contacts.md'
+        - Data & Validation: 'configuration/data-validation.md'
+        - Default Values: 'configuration/default-values.md'
+        - Error Reporting: 'configuration/error-reporting.md'
+        - Plugins: 'configuration/plugins.md'
+        - NAPALM: 'configuration/napalm.md'
+        - Date & Time: 'configuration/date-time.md'
+        - Miscellaneous: 'configuration/miscellaneous.md'
+        - Development: 'configuration/development.md'
     - Customization:
         - Custom Fields: 'customization/custom-fields.md'
+        - Custom Links: 'customization/custom-links.md'
         - Custom Validation: 'customization/custom-validation.md'
-        - Custom Links: 'models/extras/customlink.md'
         - Export Templates: 'customization/export-templates.md'
-        - Custom Scripts: 'customization/custom-scripts.md'
         - Reports: 'customization/reports.md'
-    - Additional Features:
-        - Change Logging: 'additional-features/change-logging.md'
-        - Context Data: 'models/extras/configcontext.md'
-        - Journaling: 'additional-features/journaling.md'
-        - NAPALM: 'additional-features/napalm.md'
-        - Prometheus Metrics: 'additional-features/prometheus-metrics.md'
-        - Tags: 'models/extras/tag.md'
-        - Webhooks: 'additional-features/webhooks.md'
+        - Custom Scripts: 'customization/custom-scripts.md'
+    - Integrations:
+        - REST API: 'integrations/rest-api.md'
+        - GraphQL API: 'integrations/graphql-api.md'
+        - Webhooks: 'integrations/webhooks.md'
+        - NAPALM: 'integrations/napalm.md'
+        - Prometheus Metrics: 'integrations/prometheus-metrics.md'
     - Plugins:
         - Using Plugins: 'plugins/index.md'
         - Developing Plugins:
@@ -118,6 +132,7 @@ nav:
             - REST API: 'plugins/development/rest-api.md'
             - GraphQL API: 'plugins/development/graphql-api.md'
             - Background Tasks: 'plugins/development/background-tasks.md'
+            - Exceptions: 'plugins/development/exceptions.md'
     - Administration:
         - Authentication:
             - Overview: 'administration/authentication/overview.md'
@@ -128,14 +143,100 @@ nav:
         - Housekeeping: 'administration/housekeeping.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
-    - REST API:
-        - Overview: 'rest-api/overview.md'
-        - Filtering: 'rest-api/filtering.md'
-        - Authentication: 'rest-api/authentication.md'
-    - GraphQL API:
-        - Overview: 'graphql-api/overview.md'
+    - Data Model:
+        - Circuits:
+            - Circuit: 'models/circuits/circuit.md'
+            - Circuit Termination: 'models/circuits/circuittermination.md'
+            - Circuit Type: 'models/circuits/circuittype.md'
+            - Provider: 'models/circuits/provider.md'
+            - Provider Network: 'models/circuits/providernetwork.md'
+        - DCIM:
+            - Cable: 'models/dcim/cable.md'
+            - ConsolePort: 'models/dcim/consoleport.md'
+            - ConsolePortTemplate: 'models/dcim/consoleporttemplate.md'
+            - ConsoleServerPort: 'models/dcim/consoleserverport.md'
+            - ConsoleServerPortTemplate: 'models/dcim/consoleserverporttemplate.md'
+            - Device: 'models/dcim/device.md'
+            - DeviceBay: 'models/dcim/devicebay.md'
+            - DeviceBayTemplate: 'models/dcim/devicebaytemplate.md'
+            - DeviceRole: 'models/dcim/devicerole.md'
+            - DeviceType: 'models/dcim/devicetype.md'
+            - FrontPort: 'models/dcim/frontport.md'
+            - FrontPortTemplate: 'models/dcim/frontporttemplate.md'
+            - Interface: 'models/dcim/interface.md'
+            - InterfaceTemplate: 'models/dcim/interfacetemplate.md'
+            - InventoryItem: 'models/dcim/inventoryitem.md'
+            - InventoryItemRole: 'models/dcim/inventoryitemrole.md'
+            - InventoryItemTemplate: 'models/dcim/inventoryitemtemplate.md'
+            - Location: 'models/dcim/location.md'
+            - Manufacturer: 'models/dcim/manufacturer.md'
+            - Module: 'models/dcim/module.md'
+            - ModuleBay: 'models/dcim/modulebay.md'
+            - ModuleBayTemplate: 'models/dcim/modulebaytemplate.md'
+            - ModuleType: 'models/dcim/moduletype.md'
+            - Platform: 'models/dcim/platform.md'
+            - PowerFeed: 'models/dcim/powerfeed.md'
+            - PowerOutlet: 'models/dcim/poweroutlet.md'
+            - PowerOutletTemplate: 'models/dcim/poweroutlettemplate.md'
+            - PowerPanel: 'models/dcim/powerpanel.md'
+            - PowerPort: 'models/dcim/powerport.md'
+            - PowerPortTemplate: 'models/dcim/powerporttemplate.md'
+            - Rack: 'models/dcim/rack.md'
+            - RackReservation: 'models/dcim/rackreservation.md'
+            - RackRole: 'models/dcim/rackrole.md'
+            - RearPort: 'models/dcim/rearport.md'
+            - RearPortTemplate: 'models/dcim/rearporttemplate.md'
+            - Region: 'models/dcim/region.md'
+            - Site: 'models/dcim/site.md'
+            - SiteGroup: 'models/dcim/sitegroup.md'
+            - VirtualChassis: 'models/dcim/virtualchassis.md'
+        - Extras:
+            - ConfigContext: 'models/extras/configcontext.md'
+            - CustomField: 'models/extras/customfield.md'
+            - CustomLink: 'models/extras/customlink.md'
+            - ExportTemplate: 'models/extras/exporttemplate.md'
+            - ImageAttachment: 'models/extras/imageattachment.md'
+            - JournalEntry: 'models/extras/journalentry.md'
+            - Tag: 'models/extras/tag.md'
+            - Webhook: 'models/extras/webhook.md'
+        - IPAM:
+            - ASN: 'models/ipam/asn.md'
+            - Aggregate: 'models/ipam/aggregate.md'
+            - FHRPGroup: 'models/ipam/fhrpgroup.md'
+            - FHRPGroupAssignment: 'models/ipam/fhrpgroupassignment.md'
+            - IPAddress: 'models/ipam/ipaddress.md'
+            - IPRange: 'models/ipam/iprange.md'
+            - L2VPN: 'models/ipam/l2vpn.md'
+            - L2VPNTermination: 'models/ipam/l2vpntermination.md'
+            - Prefix: 'models/ipam/prefix.md'
+            - RIR: 'models/ipam/rir.md'
+            - Role: 'models/ipam/role.md'
+            - RouteTarget: 'models/ipam/routetarget.md'
+            - Service: 'models/ipam/service.md'
+            - ServiceTemplate: 'models/ipam/servicetemplate.md'
+            - VLAN: 'models/ipam/vlan.md'
+            - VLANGroup: 'models/ipam/vlangroup.md'
+            - VRF: 'models/ipam/vrf.md'
+        - Tenancy:
+            - Contact: 'models/tenancy/contact.md'
+            - ContactGroup: 'models/tenancy/contactgroup.md'
+            - ContactRole: 'models/tenancy/contactrole.md'
+            - Tenant: 'models/tenancy/tenant.md'
+            - TenantGroup: 'models/tenancy/tenantgroup.md'
+        - Virtualization:
+            - Cluster: 'models/virtualization/cluster.md'
+            - ClusterGroup: 'models/virtualization/clustergroup.md'
+            - ClusterType: 'models/virtualization/clustertype.md'
+            - VMInterface: 'models/virtualization/vminterface.md'
+            - VirtualMachine: 'models/virtualization/virtualmachine.md'
+        - Wireless:
+            - WirelessLAN: 'models/wireless/wirelesslan.md'
+            - WirelessLANGroup: 'models/wireless/wirelesslangroup.md'
+            - WirelessLink: 'models/wireless/wirelesslink.md'
     - Reference:
+        - Filtering: 'reference/filtering.md'
         - Conditions: 'reference/conditions.md'
+        - Markdown: 'reference/markdown.md'
     - Development:
         - Introduction: 'development/index.md'
         - Getting Started: 'development/getting-started.md'
@@ -148,8 +249,10 @@ nav:
         - User Preferences: 'development/user-preferences.md'
         - Web UI: 'development/web-ui.md'
         - Release Checklist: 'development/release-checklist.md'
+        - git Cheat Sheet: 'development/git-cheat-sheet.md'
     - Release Notes:
         - Summary: 'release-notes/index.md'
+        - Version 3.3: 'release-notes/version-3.3.md'
         - Version 3.2: 'release-notes/version-3.2.md'
         - Version 3.1: 'release-notes/version-3.1.md'
         - Version 3.0: 'release-notes/version-3.0.md'

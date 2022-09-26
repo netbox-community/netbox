@@ -27,6 +27,14 @@ class NetBoxFeatureSet(
     class Meta:
         abstract = True
 
+    @classmethod
+    def get_prerequisite_models(cls):
+        """
+        Return a list of model types that are required to create this model or empty list if none.  This is used for
+        showing prerequisite warnings in the UI on the list and detail views.
+        """
+        return []
+
 
 #
 # Base model classes
@@ -43,7 +51,7 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, models.Model)
         abstract = True
 
 
-class NetBoxModel(NetBoxFeatureSet, models.Model):
+class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
     """
     Primary models represent real objects within the infrastructure being modeled.
     """
@@ -89,9 +97,9 @@ class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
         super().clean()
 
         # An MPTT model cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
+        if self.pk and self.parent and self.parent in self.get_descendants(include_self=True):
             raise ValidationError({
-                "parent": "Cannot assign self as parent."
+                "parent": f"Cannot assign self or child {self._meta.verbose_name} as parent."
             })
 
 

@@ -9,12 +9,13 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from netaddr import IPNetwork
 
+from ipam.fields import IPNetworkField
 from netbox.config import get_config
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import flatten_dict
 from .constants import *
-
 
 __all__ = (
     'ObjectPermission',
@@ -203,6 +204,10 @@ class Token(models.Model):
         blank=True,
         null=True
     )
+    last_used = models.DateTimeField(
+        blank=True,
+        null=True
+    )
     key = models.CharField(
         max_length=40,
         unique=True,
@@ -215,6 +220,14 @@ class Token(models.Model):
     description = models.CharField(
         max_length=200,
         blank=True
+    )
+    allowed_ips = ArrayField(
+        base_field=IPNetworkField(),
+        blank=True,
+        null=True,
+        verbose_name='Allowed IPs',
+        help_text='Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. '
+                  'Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"',
     )
 
     class Meta:
@@ -239,6 +252,19 @@ class Token(models.Model):
         if self.expires is None or timezone.now() < self.expires:
             return False
         return True
+
+    def validate_client_ip(self, client_ip):
+        """
+        Validate the API client IP address against the source IP restrictions (if any) set on the token.
+        """
+        if not self.allowed_ips:
+            return True
+
+        for ip_network in self.allowed_ips:
+            if client_ip in IPNetwork(ip_network):
+                return True
+
+        return False
 
 
 #

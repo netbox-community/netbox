@@ -1,5 +1,6 @@
-from collections import OrderedDict
+import decimal
 
+from django.apps import apps
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -13,11 +14,10 @@ from django.urls import reverse
 from dcim.choices import *
 from dcim.constants import *
 from dcim.svg import RackElevationSVG
-from netbox.config import get_config
 from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.utils import array_to_string
+from utilities.utils import array_to_string, drange
 from .device_components import PowerOutlet, PowerPort
 from .devices import Device
 from .power import PowerFeed
@@ -184,10 +184,10 @@ class Rack(NetBoxModel):
         to='extras.ImageAttachment'
     )
 
-    clone_fields = [
+    clone_fields = (
         'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
         'outer_depth', 'outer_unit',
-    ]
+    )
 
     class Meta:
         ordering = ('site', 'location', '_name', 'pk')  # (site, location, name) may be non-unique
@@ -201,6 +201,10 @@ class Rack(NetBoxModel):
         if self.facility_id:
             return f'{self.name} ({self.facility_id})'
         return self.name
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [apps.get_model('dcim.Site'), ]
 
     def get_absolute_url(self):
         return reverse('dcim:rack', args=[self.pk])
@@ -242,10 +246,12 @@ class Rack(NetBoxModel):
 
     @property
     def units(self):
+        """
+        Return a list of unit numbers, top to bottom.
+        """
         if self.desc_units:
-            return range(1, self.u_height + 1)
-        else:
-            return reversed(range(1, self.u_height + 1))
+            return drange(decimal.Decimal(1.0), self.u_height + 1, 0.5)
+        return drange(self.u_height + decimal.Decimal(0.5), 0.5, -0.5)
 
     def get_status_color(self):
         return RackStatusChoices.colors.get(self.status)
@@ -263,12 +269,12 @@ class Rack(NetBoxModel):
             reference to the device. When False, only the bottom most unit for a device is included and that unit
             contains a height attribute for the device
         """
-
-        elevation = OrderedDict()
+        elevation = {}
         for u in self.units:
+            u_name = f'U{u}'.split('.')[0] if not u % 1 else f'U{u}'
             elevation[u] = {
                 'id': u,
-                'name': f'U{u}',
+                'name': u_name,
                 'face': face,
                 'device': None,
                 'occupied': False
@@ -278,7 +284,7 @@ class Rack(NetBoxModel):
         if self.pk:
 
             # Retrieve all devices installed within the rack
-            queryset = Device.objects.prefetch_related(
+            devices = Device.objects.prefetch_related(
                 'device_type',
                 'device_type__manufacturer',
                 'device_role'
@@ -299,9 +305,9 @@ class Rack(NetBoxModel):
             if user is not None:
                 permitted_device_ids = self.devices.restrict(user, 'view').values_list('pk', flat=True)
 
-            for device in queryset:
+            for device in devices:
                 if expand_devices:
-                    for u in range(device.position, device.position + device.device_type.u_height):
+                    for u in drange(device.position, device.position + device.device_type.u_height, 0.5):
                         if user is None or device.pk in permitted_device_ids:
                             elevation[u]['device'] = device
                         elevation[u]['occupied'] = True
@@ -310,8 +316,6 @@ class Rack(NetBoxModel):
                         elevation[device.position]['device'] = device
                     elevation[device.position]['occupied'] = True
                     elevation[device.position]['height'] = device.device_type.u_height
-                    for u in range(device.position + 1, device.position + device.device_type.u_height):
-                        elevation.pop(u, None)
 
         return [u for u in elevation.values()]
 
@@ -331,12 +335,12 @@ class Rack(NetBoxModel):
             devices = devices.exclude(pk__in=exclude)
 
         # Initialize the rack unit skeleton
-        units = list(range(1, self.u_height + 1))
+        units = list(self.units)
 
         # Remove units consumed by installed devices
         for d in devices:
             if rack_face is None or d.face == rack_face or d.device_type.is_full_depth:
-                for u in range(d.position, d.position + d.device_type.u_height):
+                for u in drange(d.position, d.position + d.device_type.u_height, 0.5):
                     try:
                         units.remove(u)
                     except ValueError:
@@ -346,7 +350,7 @@ class Rack(NetBoxModel):
         # Remove units without enough space above them to accommodate a device of the specified height
         available_units = []
         for u in units:
-            if set(range(u, u + u_height)).issubset(units):
+            if set(drange(u, u + decimal.Decimal(u_height), 0.5)).issubset(units):
                 available_units.append(u)
 
         return list(reversed(available_units))
@@ -356,9 +360,9 @@ class Rack(NetBoxModel):
         Return a dictionary mapping all reserved units within the rack to their reservation.
         """
         reserved_units = {}
-        for r in self.reservations.all():
-            for u in r.units:
-                reserved_units[u] = r
+        for reservation in self.reservations.all():
+            for u in reservation.units:
+                reserved_units[u] = reservation
         return reserved_units
 
     def get_elevation_svg(
@@ -367,9 +371,11 @@ class Rack(NetBoxModel):
             user=None,
             unit_width=None,
             unit_height=None,
-            legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT,
+            legend_width=RACK_ELEVATION_DEFAULT_LEGEND_WIDTH,
+            margin_width=RACK_ELEVATION_DEFAULT_MARGIN_WIDTH,
             include_images=True,
-            base_url=None
+            base_url=None,
+            highlight_params=None
     ):
         """
         Return an SVG of the rack elevation
@@ -381,16 +387,23 @@ class Rack(NetBoxModel):
         :param unit_height: Height of each rack unit for the rendered drawing. Note this is not the total
             height of the elevation
         :param legend_width: Width of the unit legend, in pixels
+        :param margin_width: Width of the rigth-hand margin, in pixels
         :param include_images: Embed front/rear device images where available
         :param base_url: Base URL for links and images. If none, URLs will be relative.
         """
-        elevation = RackElevationSVG(self, user=user, include_images=include_images, base_url=base_url)
-        if unit_width is None or unit_height is None:
-            config = get_config()
-            unit_width = unit_width or config.RACK_ELEVATION_DEFAULT_UNIT_WIDTH
-            unit_height = unit_height or config.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
+        elevation = RackElevationSVG(
+            self,
+            unit_width=unit_width,
+            unit_height=unit_height,
+            legend_width=legend_width,
+            margin_width=margin_width,
+            user=user,
+            include_images=include_images,
+            base_url=base_url,
+            highlight_params=highlight_params
+        )
 
-        return elevation.render(face, unit_width, unit_height, legend_width)
+        return elevation.render(face)
 
     def get_0u_devices(self):
         return self.devices.filter(position=0)
@@ -401,15 +414,17 @@ class Rack(NetBoxModel):
         as utilized.
         """
         # Determine unoccupied units
-        available_units = self.get_available_units()
+        total_units = len(list(self.units))
+        available_units = self.get_available_units(u_height=0.5)
 
         # Remove reserved units
-        for u in self.get_reserved_units():
-            if u in available_units:
-                available_units.remove(u)
+        for ru in self.get_reserved_units():
+            for u in drange(ru, ru + 1, 0.5):
+                if u in available_units:
+                    available_units.remove(u)
 
-        occupied_unit_count = self.u_height - len(available_units)
-        percentage = float(occupied_unit_count) / self.u_height * 100
+        occupied_unit_count = total_units - len(available_units)
+        percentage = float(occupied_unit_count) / total_units * 100
 
         return percentage
 
@@ -422,17 +437,17 @@ class Rack(NetBoxModel):
         if not available_power_total:
             return 0
 
-        pf_powerports = PowerPort.objects.filter(
-            _link_peer_type=ContentType.objects.get_for_model(PowerFeed),
-            _link_peer_id__in=powerfeeds.values_list('id', flat=True)
-        )
-        poweroutlets = PowerOutlet.objects.filter(power_port_id__in=pf_powerports)
-        allocated_draw_total = PowerPort.objects.filter(
-            _link_peer_type=ContentType.objects.get_for_model(PowerOutlet),
-            _link_peer_id__in=poweroutlets.values_list('id', flat=True)
-        ).aggregate(Sum('allocated_draw'))['allocated_draw__sum'] or 0
+        powerports = []
+        for powerfeed in powerfeeds:
+            powerports.extend([
+                peer for peer in powerfeed.link_peers if isinstance(peer, PowerPort)
+            ])
 
-        return int(allocated_draw_total / available_power_total * 100)
+        allocated_draw = sum([
+            powerport.get_power_draw()['allocated'] for powerport in powerports
+        ])
+
+        return int(allocated_draw / available_power_total * 100)
 
 
 class RackReservation(NetBoxModel):
@@ -467,6 +482,10 @@ class RackReservation(NetBoxModel):
 
     def __str__(self):
         return "Reservation for rack {}".format(self.rack)
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [apps.get_model('dcim.Site'), Rack, ]
 
     def get_absolute_url(self):
         return reverse('dcim:rackreservation', args=[self.pk])

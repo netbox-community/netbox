@@ -53,7 +53,7 @@
                                 {% endfor %}
                                 {{ object.location|linkify }}
                             {% else %}
-                                <span class="text-muted">None</span>
+                                {{ ''|placeholder }}
                             {% endif %}
                         </td>
                     </tr>
@@ -115,7 +115,7 @@
                             {% if object.type %}
                                 {{ object.get_type_display }}
                             {% else %}
-                                <span class="text-muted">None</span>
+                                {{ ''|placeholder }}
                             {% endif %}
                         </td>
                     </tr>
@@ -133,7 +133,7 @@
                             {% if object.outer_width %}
                                 <span>{{ object.outer_width }} {{ object.get_outer_unit_display }}</span>
                             {% else %}
-                                <span class="text-muted">&mdash;</span>
+                                {{ ''|placeholder }}
                             {% endif %}
                         </td>
                     </tr>
@@ -143,7 +143,7 @@
                             {% if object.outer_depth %}
                                 <span>{{ object.outer_depth }} {{ object.get_outer_unit_display }}</span>
                             {% else %}
-                                <span class="text-muted">&mdash;</span>
+                                {{ ''|placeholder }}
                             {% endif %}
                         </td>
                     </tr>
@@ -250,13 +250,13 @@
             <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
               <div style="margin-left: 30px">
                 <h4>Front</h4>
-                {% include 'dcim/inc/rack_elevation.html' with face='front' %}
+                {% include 'dcim/inc/rack_elevation.html' with face='front' extra_params=svg_extra %}
               </div>
             </div>
             <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
               <div style="margin-left: 30px">
                 <h4>Rear</h4>
-                {% include 'dcim/inc/rack_elevation.html' with face='rear' %}
+                {% include 'dcim/inc/rack_elevation.html' with face='rear' extra_params=svg_extra %}
               </div>
             </div>
         </div>

@@ -5,13 +5,13 @@ import re
 import yaml
 from django import template
 from django.contrib.contenttypes.models import ContentType
-from django.utils.html import strip_tags
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
 from netbox.config import get_config
 from utilities.markdown import StrikethroughExtension
-from utilities.utils import foreground_color
+from utilities.utils import clean_html, foreground_color
 
 register = template.Library()
 
@@ -35,7 +35,7 @@ def linkify(instance, attr=None):
     text = getattr(instance, attr) if attr is not None else str(instance)
     try:
         url = instance.get_absolute_url()
-        return mark_safe(f'<a href="{url}">{text}</a>')
+        return mark_safe(f'<a href="{url}">{escape(text)}</a>')
     except (AttributeError, TypeError):
         return text
 
@@ -86,8 +86,8 @@ def placeholder(value):
     """
     if value not in ('', None):
         return value
-    placeholder = '<span class="text-muted">&mdash;</span>'
-    return mark_safe(placeholder)
+
+    return mark_safe('<span class="text-muted">&mdash;</span>')
 
 
 @register.filter()
@@ -144,18 +144,8 @@ def render_markdown(value):
 
         {{ md_source_text|markdown }}
     """
-    schemes = '|'.join(get_config().ALLOWED_URL_SCHEMES)
-
-    # Strip HTML tags
-    value = strip_tags(value)
-
-    # Sanitize Markdown links
-    pattern = fr'\[([^\]]+)\]\(\s*(?!({schemes})).*:(.+)\)'
-    value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
-
-    # Sanitize Markdown reference links
-    pattern = fr'\[([^\]]+)\]:\s*(?!({schemes}))\w*:(.+)'
-    value = re.sub(pattern, '[\\1]: \\3', value, flags=re.IGNORECASE)
+    if not value:
+        return ''
 
     # Render Markdown
     html = markdown(value, extensions=['def_list', 'fenced_code', 'tables', StrikethroughExtension()])
@@ -163,6 +153,11 @@ def render_markdown(value):
     # If the string is not empty wrap it in rendered-markdown to style tables
     if html:
         html = f'<div class="rendered-markdown">{html}</div>'
+
+    schemes = get_config().ALLOWED_URL_SCHEMES
+
+    # Sanitize HTML
+    html = clean_html(html, schemes)
 
     return mark_safe(html)
 

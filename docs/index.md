@@ -1,63 +1,55 @@
 ![NetBox](netbox_logo.svg "NetBox logo"){style="height: 100px; margin-bottom: 3em"}
 
-# What is NetBox?
+# The Premiere Network Source of Truth
 
-NetBox is an infrastructure resource modeling (IRM) application designed to empower network automation. Initially conceived by the network engineering team at [DigitalOcean](https://www.digitalocean.com/), NetBox was developed specifically to address the needs of network and infrastructure engineers. NetBox is made available as open source under the Apache 2 license. It encompasses the following aspects of network management:
+NetBox is the leading solution for modeling and documenting modern networks. By combining the traditional disciplines of IP address management (IPAM) and datacenter infrastructure management (DCIM) with powerful APIs and extensions, NetBox provides the ideal "source of truth" to power network automation. Read on to discover why thousands of organizations worldwide put NetBox at the heart of their infrastructure.
 
-* **IP address management (IPAM)** - IP networks and addresses, VRFs, and VLANs
-* **Equipment racks** - Organized by group and site
-* **Devices** - Types of devices and where they are installed
-* **Connections** - Network, console, and power connections among devices
-* **Virtualization** - Virtual machines and clusters
-* **Data circuits** - Long-haul communications circuits and providers
+[![NetBox UI](./media/screenshots/netbox-ui.png)](./media/screenshots/netbox-ui.png)
 
-## What NetBox Is Not
+## :material-server-network: Built for Networks
 
-While NetBox strives to cover many areas of network management, the scope of its feature set is necessarily limited. This ensures that development focuses on core functionality and that scope creep is reasonably contained. To that end, it might help to provide some examples of functionality that NetBox **does not** provide:
+Unlike general-purpose CMDBs, NetBox has curated a data model which caters specifically to the needs of network engineers and operators. It delivers a wide assortment of object types carefully crafted to best serve the needs of infrastructure design and documentation. These cover all facets of network technology, from IP address managements to cabling to overlays and more:
 
-* Network monitoring
-* DNS server
-* RADIUS server
-* Configuration management
-* Facilities management
+* Hierarchical regions, sites, and locations
+* Racks, devices, and device components
+* Cables and wireless connections
+* Power distribution tracking
+* Data circuits and providers
+* Virtual machines and clusters
+* IP prefixes, ranges, and addresses
+* VRFs and route targets
+* FHRP groups (VRRP, HSRP, etc.)
+* AS numbers
+* VLANs and scoped VLAN groups
+* L2VPN overlays
+* Tenancy assignments
+* Contact management
 
-That said, NetBox _can_ be used to great effect in populating external tools with the data they need to perform these functions.
+## :material-hammer-wrench: Customizable & Extensible
 
-## Design Philosophy
+In addition to its expansive and robust data model, NetBox offers myriad mechanisms through which it can be customized and extended. Its powerful plugins architecture enables users to extend the application to meet their needs with minimal development effort.
 
-NetBox was designed with the following tenets foremost in mind.
+* Custom fields
+* Custom model validation
+* Export templates
+* Webhooks
+* Plugins
+* REST & GraphQL APIs
 
-### Replicate the Real World
+## :material-lock-open: Always Open
 
-Careful consideration has been given to the data model to ensure that it can accurately reflect a real-world network. For instance, IP addresses are assigned not to devices, but to specific interfaces attached to a device, and an interface may have multiple IP addresses assigned to it.
+Because NetBox is an open source application licensed under [Apache 2](https://www.apache.org/licenses/LICENSE-2.0.html), its entire code base is completely accessible to the end user, and there's never a risk of vendor lock-in. Additionally, NetBox development is an entirely public, community-driven process to which everyone can provide input.
 
-### Serve as a "Source of Truth"
+!!! tip "NetBox Development"
+    Interested in contributing to NetBox? Check out our [GitHub repository](https://github.com/netbox-community/netbox) to get started!
 
-NetBox intends to represent the _desired_ state of a network versus its _operational_ state. As such, automated import of live network state is strongly discouraged. All data created in NetBox should first be vetted by a human to ensure its integrity. NetBox can then be used to populate monitoring and provisioning systems with a high degree of confidence.
+## :material-language-python: Powered by Python
 
-### Keep it Simple
+NetBox is built on the enormously popular [Django](http://www.djangoproject.com/) framework for the Python programming language, already a favorite among network engineers. Users can leverage their existing skills coding Python tools to extend NetBox's already vast functionality via custom scripts and plugins.
 
-When given a choice between a relatively simple [80% solution](https://en.wikipedia.org/wiki/Pareto_principle) and a much more complex complete solution, the former will typically be favored. This ensures a lean codebase with a low learning curve.
+## :material-flag: Getting Started
 
-## Application Stack
-
-NetBox is built on the [Django](https://djangoproject.com/) Python framework and utilizes a [PostgreSQL](https://www.postgresql.org/) database. It runs as a WSGI service behind your choice of HTTP server.
-
-| Function           | Component         |
-|--------------------|-------------------|
-| HTTP service       | nginx or Apache   |
-| WSGI service       | gunicorn or uWSGI |
-| Application        | Django/Python     |
-| Database           | PostgreSQL 10+    |
-| Task queuing       | Redis/django-rq   |
-| Live device access | NAPALM (optional) |
-
-## Supported Python Versions
-
-NetBox supports Python 3.8, 3.9, and 3.10 environments.
-
-## Getting Started
-
-Minor NetBox releases (e.g. v3.1) are published three times a year; in April, August, and December. These typically introduce major new features and may contain breaking API changes. Patch releases are published roughly every one to two weeks to resolve bugs and fulfill minor feature requests. These are backward-compatible with previous releases unless otherwise noted. The NetBox maintainers strongly recommend running the latest stable release whenever possible.
-
-Please see the [official installation guide](installation/index.md) for detailed instructions on obtaining and installing NetBox.
+* Try out our [public demo](https://demo.netbox.dev/) if you want to jump right in
+* The [installation guide](./installation/index.md) will help you get your own deployment up and running
+* Or try the community [Docker image](https://github.com/netbox-community/netbox-docker) for a low-touch approach
+* [NetBox Cloud](https://www.getnetbox.io/) is a hosted solution offered by NS1

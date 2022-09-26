@@ -1,12 +1,14 @@
 from django.contrib.contenttypes.models import ContentType
+from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 
 from circuits.models import Circuit
 from dcim.models import Cable, Device, Location, Rack, RackReservation, Site
-from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF, ASN
+from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF, ASN
 from netbox.views import generic
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, Cluster
+from wireless.models import WirelessLAN, WirelessLink
 from . import filtersets, forms, tables
 from .models import *
 
@@ -94,7 +96,7 @@ class TenantListView(generic.ObjectListView):
 
 
 class TenantView(generic.ObjectView):
-    queryset = Tenant.objects.prefetch_related('group')
+    queryset = Tenant.objects.all()
 
     def get_extra_context(self, request, instance):
         stats = {
@@ -104,8 +106,9 @@ class TenantView(generic.ObjectView):
             'location_count': Location.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'aggregate_count': Aggregate.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'iprange_count': IPRange.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'ipaddress_count': IPAddress.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
@@ -113,6 +116,8 @@ class TenantView(generic.ObjectView):
             'cluster_count': Cluster.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'cable_count': Cable.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'asn_count': ASN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'wirelesslan_count': WirelessLAN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'wirelesslink_count': WirelessLink.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
         }
 
         return {
@@ -136,14 +141,14 @@ class TenantBulkImportView(generic.BulkImportView):
 
 
 class TenantBulkEditView(generic.BulkEditView):
-    queryset = Tenant.objects.prefetch_related('group')
+    queryset = Tenant.objects.all()
     filterset = filtersets.TenantFilterSet
     table = tables.TenantTable
     form = forms.TenantBulkEditForm
 
 
 class TenantBulkDeleteView(generic.BulkDeleteView):
-    queryset = Tenant.objects.prefetch_related('group')
+    queryset = Tenant.objects.all()
     filterset = filtersets.TenantFilterSet
     table = tables.TenantTable
 
@@ -333,14 +338,14 @@ class ContactBulkImportView(generic.BulkImportView):
 
 
 class ContactBulkEditView(generic.BulkEditView):
-    queryset = Contact.objects.prefetch_related('group')
+    queryset = Contact.objects.all()
     filterset = filtersets.ContactFilterSet
     table = tables.ContactTable
     form = forms.ContactBulkEditForm
 
 
 class ContactBulkDeleteView(generic.BulkDeleteView):
-    queryset = Contact.objects.prefetch_related('group')
+    queryset = Contact.objects.all()
     filterset = filtersets.ContactFilterSet
     table = tables.ContactTable
 
@@ -360,6 +365,12 @@ class ContactAssignmentEditView(generic.ObjectEditView):
             content_type = get_object_or_404(ContentType, pk=request.GET.get('content_type'))
             instance.object = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
         return instance
+
+    def get_extra_addanother_params(self, request):
+        return {
+            'content_type': request.GET.get('content_type'),
+            'object_id': request.GET.get('object_id'),
+        }
 
 
 class ContactAssignmentDeleteView(generic.ObjectDeleteView):

@@ -7,6 +7,7 @@ from django.db.models.fields.related import RelatedField
 from django_tables2.data import TableQuerysetData
 
 from extras.models import CustomField, CustomLink
+from extras.choices import CustomFieldVisibilityChoices
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 
@@ -97,7 +98,7 @@ class BaseTable(tables.Table):
                             break
                     if prefetch_path:
                         prefetch_fields.append('__'.join(prefetch_path))
-            self.data.data = self.data.data.prefetch_related(None).prefetch_related(*prefetch_fields)
+            self.data.data = self.data.data.prefetch_related(*prefetch_fields)
 
     def _get_columns(self, visible=True):
         columns = []
@@ -178,7 +179,10 @@ class NetBoxTable(BaseTable):
 
         # Add custom field & custom link columns
         content_type = ContentType.objects.get_for_model(self._meta.model)
-        custom_fields = CustomField.objects.filter(content_types=content_type)
+        custom_fields = CustomField.objects.filter(
+            content_types=content_type
+        ).exclude(ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN)
+
         extra_columns.extend([
             (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in custom_fields
         ])

@@ -1,17 +1,19 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from dcim.models import Location, Rack, Region, Site, SiteGroup
+from dcim.models import Location, Rack, Region, Site, SiteGroup, Device
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
-from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
-    add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField, MultipleChoiceField, StaticSelect,
-    TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    add_blank_choice, ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    MultipleChoiceField, StaticSelect, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES, APISelectMultiple,
 )
+from virtualization.models import VirtualMachine
 
 __all__ = (
     'AggregateFilterForm',
@@ -19,6 +21,8 @@ __all__ = (
     'FHRPGroupFilterForm',
     'IPAddressFilterForm',
     'IPRangeFilterForm',
+    'L2VPNFilterForm',
+    'L2VPNTerminationFilterForm',
     'PrefixFilterForm',
     'RIRFilterForm',
     'RoleFilterForm',
@@ -265,6 +269,7 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         ('Attributes', ('parent', 'family', 'status', 'role', 'mask_length', 'assigned_to_interface')),
         ('VRF', ('vrf_id', 'present_in_vrf_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Device/VM', ('device_id', 'virtual_machine_id')),
     )
     parent = forms.CharField(
         required=False,
@@ -297,6 +302,16 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         queryset=VRF.objects.all(),
         required=False,
         label=_('Present in VRF')
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Assigned Device'),
+    )
+    virtual_machine_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label=_('Assigned VM'),
     )
     status = MultipleChoiceField(
         choices=IPAddressStatusChoices,
@@ -463,3 +478,88 @@ class ServiceTemplateFilterForm(NetBoxModelFilterSetForm):
 
 class ServiceFilterForm(ServiceTemplateFilterForm):
     model = Service
+
+
+class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+    model = L2VPN
+    fieldsets = (
+        (None, ('q', 'tag')),
+        ('Attributes', ('type', 'import_target_id', 'export_target_id')),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(L2VPNTypeChoices),
+        required=False,
+        widget=StaticSelect()
+    )
+    import_target_id = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        required=False,
+        label=_('Import targets')
+    )
+    export_target_id = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        required=False,
+        label=_('Export targets')
+    )
+    tag = TagFilterField(model)
+
+
+class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
+    model = L2VPNTermination
+    fieldsets = (
+        (None, ('l2vpn_id', )),
+        ('Assigned Object', ('assigned_object_type_id', 'region_id', 'site_id', 'device_id', 'virtual_machine_id', 'vlan_id')),
+    )
+    l2vpn_id = DynamicModelChoiceField(
+        queryset=L2VPN.objects.all(),
+        required=False,
+        label='L2VPN'
+    )
+    assigned_object_type_id = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.filter(L2VPN_ASSIGNMENT_MODELS),
+        required=False,
+        label=_('Assigned Object Type'),
+        limit_choices_to=L2VPN_ASSIGNMENT_MODELS
+    )
+    region_id = DynamicModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        label=_('Region')
+    )
+    site_id = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'region_id': '$region_id'
+        },
+        label=_('Site')
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$site_id'
+        },
+        label=_('Device')
+    )
+    vlan_id = DynamicModelMultipleChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$site_id'
+        },
+        label=_('VLAN')
+    )
+    virtual_machine_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$site_id'
+        },
+        label=_('Virtual Machine')
+    )

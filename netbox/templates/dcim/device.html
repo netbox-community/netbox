@@ -23,7 +23,7 @@
                                     {% endfor %}
                                     {{ object.site.region|linkify }}
                                 {% else %}
-                                    <span class="text-muted">None</span>
+                                    {{ ''|placeholder }}
                                 {% endif %}
                             </td>
                         </tr>
@@ -40,17 +40,22 @@
                                 {% endfor %}
                                 {{ object.location|linkify }}
                             {% else %}
-                                <span class="text-muted">None</span>
+                                {{ ''|placeholder }}
                             {% endif %}
                             </td>
                         </tr>
                         <tr>
                             <th scope="row">Rack</th>
-                            <td>
+                            <td class="position-relative">
                                 {% if object.rack %}
-                                    <a href="{% url 'dcim:rack' pk=object.rack.pk %}">{{ object.rack }}</a>
+                                    {{ object.rack|linkify }}
+                                    <div class="position-absolute top-50 end-0 translate-middle-y noprint">
+                                      <a href="{{ object.rack.get_absolute_url }}?device={{ object.pk }}" class="btn btn-primary btn-sm" title="Highlight device">
+                                        <i class="mdi mdi-view-day-outline"></i>
+                                      </a>
+                                    </div>
                                 {% else %}
-                                    <span class="text-muted">None</span>
+                                    {{ ''|placeholder }}
                                 {% endif %}
                             </td>
                         </tr>
@@ -65,11 +70,11 @@
                                         {% endif %}
                                     {% endwith %}
                                 {% elif object.rack and object.position %}
-                                    <span>U{{ object.position }} / {{ object.get_face_display }}</span>
+                                    <span>U{{ object.position|floatformat }} / {{ object.get_face_display }}</span>
                                 {% elif object.rack and object.device_type.u_height %}
                                     <span class="badge bg-warning">Not racked</span>
                                 {% else %}
-                                    <span class="text-muted">&mdash;</span>
+                                    {{ ''|placeholder }}
                                 {% endif %}
                             </td>
                         </tr>
@@ -85,7 +90,7 @@
                         <tr>
                             <th scope="row">Device Type</th>
                             <td>
-                                {{ object.device_type|linkify }} ({{ object.device_type.u_height }}U)
+                                {{ object.device_type|linkify:"get_full_name" }} ({{ object.device_type.u_height }}U)
                             </td>
                         </tr>
                         <tr>
@@ -150,9 +155,7 @@
         </div>
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">
-                    Management
-                </h5>
+                <h5 class="card-header">Management</h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
                         <tr>
@@ -161,9 +164,7 @@
                         </tr>
                         <tr>
                             <th scope="row">Role</th>
-                            <td>
-                                <a href="{% url 'dcim:device_list' %}?role={{ object.device_role.slug }}">{{ object.device_role }}</a>
-                            </td>
+                            <td>{{ object.device_role|linkify }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Platform</th>
@@ -173,14 +174,14 @@
                             <th scope="row">Primary IPv4</th>
                             <td>
                               {% if object.primary_ip4 %}
-                                <a href="{% url 'ipam:ipaddress' pk=object.primary_ip4.pk %}">{{ object.primary_ip4.address.ip }}</a>
+                                <a href="{{ object.primary_ip4.get_absolute_url }}">{{ object.primary_ip4.address.ip }}</a>
                                 {% if object.primary_ip4.nat_inside %}
-                                  (NAT for {{ object.primary_ip4.nat_inside.address.ip|linkify }})
-                                {% elif object.primary_ip4.nat_outside %}
-                                  (NAT: {{ object.primary_ip4.nat_outside.address.ip|linkify }})
+                                  (NAT for <a href="{{ object.primary_ip4.nat_inside.get_absolute_url }}">{{ object.primary_ip4.nat_inside.address.ip }}</a>)
+                                {% elif object.primary_ip4.nat_outside.exists %}
+                                  (NAT for {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                                 {% endif %}
                               {% else %}
-                                <span class="text-muted">&mdash;</span>
+                                {{ ''|placeholder }}
                               {% endif %}
                             </td>
                         </tr>
@@ -188,14 +189,14 @@
                             <th scope="row">Primary IPv6</th>
                             <td>
                               {% if object.primary_ip6 %}
-                                <a href="{% url 'ipam:ipaddress' pk=object.primary_ip6.pk %}">{{ object.primary_ip6.address.ip }}</a>
+                                <a href="{{ object.primary_ip6.get_absolute_url }}">{{ object.primary_ip6.address.ip }}</a>
                                 {% if object.primary_ip6.nat_inside %}
-                                  (NAT for {{ object.primary_ip6.nat_inside.address.ip|linkify }})
-                                {% elif object.primary_ip6.nat_outside %}
-                                  (NAT: {{ object.primary_ip6.nat_outside.address.ip|linkify }})
+                                  (NAT for <a href="{{ object.primary_ip6.nat_inside.get_absolute_url }}">{{ object.primary_ip6.nat_inside.address.ip }}</a>)
+                                {% elif object.primary_ip6.nat_outside.exists %}
+                                  (NAT for {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                                 {% endif %}
                               {% else %}
-                                <span class="text-muted">&mdash;</span>
+                                {{ ''|placeholder }}
                               {% endif %}
                             </td>
                         </tr>

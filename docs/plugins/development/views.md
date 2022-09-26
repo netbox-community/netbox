@@ -51,15 +51,16 @@ This makes our view accessible at the URL `/plugins/animal-sounds/random/`. (Rem
 
 NetBox provides several generic view classes (documented below) to facilitate common operations, such as creating, viewing, modifying, and deleting objects. Plugins can subclass these views for their own use.
 
-| View Class         | Description                    |
-|--------------------|--------------------------------|
-| `ObjectView`       | View a single object           |
-| `ObjectEditView`   | Create or edit a single object |
-| `ObjectDeleteView` | Delete a single object         |
-| `ObjectListView`   | View a list of objects         |
-| `BulkImportView`   | Import a set of new objects    |
-| `BulkEditView`     | Edit multiple objects          |
-| `BulkDeleteView`   | Delete multiple objects        |
+| View Class           | Description                                            |
+|----------------------|--------------------------------------------------------|
+| `ObjectView`         | View a single object                                   |
+| `ObjectEditView`     | Create or edit a single object                         |
+| `ObjectDeleteView`   | Delete a single object                                 |
+| `ObjectChildrenView` | A list of child objects within the context of a parent |
+| `ObjectListView`     | View a list of objects                                 |
+| `BulkImportView`     | Import a set of new objects                            |
+| `BulkEditView`       | Edit multiple objects                                  |
+| `BulkDeleteView`     | Delete multiple objects                                |
 
 !!! warning
     Please note that only the classes which appear in this documentation are currently supported. Although other classes may be present within the `views.generic` module, they are not yet supported for use by plugins.
@@ -98,6 +99,12 @@ Below are the class definitions for NetBox's object views. These views handle CR
     selection:
       members:
         - get_object
+
+::: netbox.views.generic.ObjectChildrenView
+    selection:
+      members:
+        - get_children
+        - prep_table_data
 
 ## Multi-Object Views
 

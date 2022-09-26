@@ -1,49 +1,95 @@
 # Custom Fields
 
-Each model in NetBox is represented in the database as a discrete table, and each attribute of a model exists as a column within its table. For example, sites are stored in the `dcim_site` table, which has columns named `name`, `facility`, `physical_address`, and so on. As new attributes are added to objects throughout the development of NetBox, tables are expanded to include new rows.
+NetBox administrators can extend NetBox's built-in data model by adding custom fields to most object types. See the [custom fields documentation](../../customization/custom-fields.md) for more information.
 
-However, some users might want to store additional object attributes that are somewhat esoteric in nature, and that would not make sense to include in the core NetBox database schema. For instance, suppose your organization needs to associate each device with a ticket number correlating it with an internal support system record. This is certainly a legitimate use for NetBox, but it's not a common enough need to warrant including a field for _every_ NetBox installation. Instead, you can create a custom field to hold this data.
+## Fields
 
-Within the database, custom fields are stored as JSON data directly alongside each object. This alleviates the need for complex queries when retrieving objects.
+### Model(s)
 
-## Creating Custom Fields
+Select the NetBox object type or types to which this custom field applies.
 
-Custom fields may be created by navigating to Customization > Custom Fields. NetBox supports six types of custom field:
+### Name
 
-* Text: Free-form text (up to 255 characters)
-* Long text: Free-form of any length; supports Markdown rendering
-* Integer: A whole number (positive or negative)
-* Boolean: True or false
-* Date: A date in ISO 8601 format (YYYY-MM-DD)
-* URL: This will be presented as a link in the web UI
-* JSON: Arbitrary data stored in JSON format
-* Selection: A selection of one of several pre-defined custom choices
-* Multiple selection: A selection field which supports the assignment of multiple values
-* Object: A single NetBox object of the type defined by `object_type`
-* Multiple object: One or more NetBox objects of the type defined by `object_type`
+The raw field name. This will be used in the database and API, and should consist only of alphanumeric characters and underscores. (Use the `label` field to designate a human-friendly name for the custom field.)
 
-Each custom field must have a name. This should be a simple database-friendly string (e.g. `tps_report`) and may contain only alphanumeric characters and underscores. You may also assign a corresponding human-friendly label (e.g. "TPS report"); the label will be displayed on web forms. A weight is also required: Higher-weight fields will be ordered lower within a form. (The default weight is 100.) If a description is provided, it will appear beneath the field in a form.
+### Label
 
-Marking a field as required will force the user to provide a value for the field when creating a new object or when saving an existing object. A default value for the field may also be provided. Use "true" or "false" for boolean fields, or the exact value of a choice for selection fields.
+An optional human-friendly name for the custom field. If not defined, the field's `name` attribute will be used.
 
-The filter logic controls how values are matched when filtering objects by the custom field. Loose filtering (the default) matches on a partial value, whereas exact matching requires a complete match of the given string to a field's value. For example, exact filtering with the string "red" will only match the exact value "red", whereas loose filtering will match on the values "red", "red-orange", or "bored". Setting the filter logic to "disabled" disables filtering by the field entirely.
+### Group Name
 
-A custom field must be assigned to one or more object types, or models, in NetBox. Once created, custom fields will automatically appear as part of these models in the web UI and REST API. Note that not all models support custom fields.
+If this custom field should be grouped with others, specify the name of the group here. Custom fields with no group defined will be ordered only by weight and name.
 
-### Custom Field Validation
+### Type
 
-NetBox supports limited custom validation for custom field values. Following are the types of validation enforced for each field type:
+The type of data this field holds. This must be one of the following:
 
-* Text: Regular expression (optional)
-* Integer: Minimum and/or maximum value (optional)
-* Selection: Must exactly match one of the prescribed choices
+| Type               | Description                                                        |
+|--------------------|--------------------------------------------------------------------|
+| Text               | Free-form text (intended for single-line use)                      |
+| Long text          | Free-form of any length; supports Markdown rendering               |
+| Integer            | A whole number (positive or negative)                              |
+| Boolean            | True or false                                                      |
+| Date               | A date in ISO 8601 format (YYYY-MM-DD)                             |
+| URL                | This will be presented as a link in the web UI                     |
+| JSON               | Arbitrary data stored in JSON format                               |
+| Selection          | A selection of one of several pre-defined custom choices           |
+| Multiple selection | A selection field which supports the assignment of multiple values |
+| Object             | A single NetBox object of the type defined by `object_type`        |
+| Multiple object    | One or more NetBox objects of the type defined by `object_type`    |
 
-### Custom Selection Fields
+### Object Type
 
-Each custom selection field must have at least two choices. These are specified as a comma-separated list. Choices appear in forms in the order they are listed. Note that choice values are saved exactly as they appear, so it's best to avoid superfluous punctuation or symbols where possible.
+For object and multiple-object fields only. Designates the type of NetBox object being referenced.
 
-If a default value is specified for a selection field, it must exactly match one of the provided choices. The value of a multiple selection field will always return a list, even if only one value is selected.
+### Weight
 
-### Custom Object Fields
+A numeric weight used to override alphabetic ordering of fields by name. Custom fields with a lower weight will be listed before those with a higher weight. (Note that weight applies within the context of a custom field group, if defined.)
 
-An object or multi-object custom field can be used to refer to a particular NetBox object or objects as the "value" for a custom field. These custom fields must define an `object_type`, which determines the type of object to which custom field instances point.
+### Required
+
+If checked, this custom field must be populated with a valid value for the object to pass validation.
+
+### Description
+
+A brief description of the field's purpose (optional).
+
+### Filter Logic
+
+Defines how filters are evaluated against custom field values.
+
+| Option   | Description                         |
+|----------|-------------------------------------|
+| Disabled | Filtering disabled                  |
+| Loose    | Match any occurrence of the value   |
+| Exact    | Match only the complete field value |
+
+### UI Visibility
+
+Controls how and whether the custom field is displayed within the NetBox user interface.
+
+| Option     | Description                          |
+|------------|--------------------------------------|
+| Read/write | Display and permit editing (default) |
+| Read-only  | Display field but disallow editing   |
+| Hidden     | Do not display field in the UI       |
+
+### Default
+
+The default value to populate for the custom field when creating new objects (optional). This value must be expressed as JSON. If this is a choice or multi-choice field, this must be one of the available choices.
+
+### Choices
+
+For choice and multi-choice custom fields only. A comma-delimited list of the available choices.
+
+### Minimum Value
+
+For numeric custom fields only. The minimum valid value (optional).
+
+### Maximum Value
+
+For numeric custom fields only. The maximum valid value (optional).
+
+### Validation Regex
+
+For string-based custom fields only. A regular expression used to validate the field's value (optional).

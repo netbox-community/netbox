@@ -93,15 +93,16 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Circuit', ('provider', 'cid', 'type', 'status', 'install_date', 'commit_rate', 'description', 'tags')),
+        ('Circuit', ('provider', 'cid', 'type', 'status', 'description', 'tags')),
+        ('Service Parameters', ('install_date', 'termination_date', 'commit_rate')),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
 
     class Meta:
         model = Circuit
         fields = [
-            'cid', 'type', 'provider', 'status', 'install_date', 'commit_rate', 'description', 'tenant_group', 'tenant',
-            'comments', 'tags',
+            'cid', 'type', 'provider', 'status', 'install_date', 'termination_date', 'commit_rate', 'description',
+            'tenant_group', 'tenant', 'comments', 'tags',
         ]
         help_texts = {
             'cid': "Unique circuit ID",
@@ -110,11 +111,12 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
         widgets = {
             'status': StaticSelect(),
             'install_date': DatePicker(),
+            'termination_date': DatePicker(),
             'commit_rate': SelectSpeedWidget(),
         }
 
 
-class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
+class CircuitTerminationForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
         queryset=Provider.objects.all(),
         required=False,
@@ -159,7 +161,7 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         model = CircuitTermination
         fields = [
             'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'provider_network', 'mark_connected',
-            'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description',
+            'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         help_texts = {
             'port_speed': "Physical circuit speed",

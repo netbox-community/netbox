@@ -14,6 +14,7 @@ from extras.choices import JobResultStatusChoices
 from extras.context_managers import change_logging
 from extras.models import JobResult
 from extras.scripts import get_script
+from extras.signals import clear_webhooks
 from utilities.exceptions import AbortTransaction
 from utilities.utils import NetBoxFakeRequest
 
@@ -49,7 +50,7 @@ class Command(BaseCommand):
 
             except AbortTransaction:
                 script.log_info("Database changes have been reverted automatically.")
-
+                clear_webhooks.send(request)
             except Exception as e:
                 stacktrace = traceback.format_exc()
                 script.log_failure(
@@ -58,7 +59,7 @@ class Command(BaseCommand):
                 script.log_info("Database changes have been reverted due to error.")
                 logger.error(f"Exception raised during script execution: {e}")
                 job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-
+                clear_webhooks.send(request)
             finally:
                 job_result.data = ScriptOutputSerializer(script).data
                 job_result.save()

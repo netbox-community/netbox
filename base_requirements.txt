@@ -1,6 +1,10 @@
+# HTML sanitizer
+# https://github.com/mozilla/bleach
+bleach
+
 # The Python web framework on which NetBox is built
 # https://github.com/django/django
-Django
+Django<4.1
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/OttoYiu/django-cors-headers
@@ -30,9 +34,13 @@ django-pglocks
 # https://github.com/korfuri/django-prometheus
 django-prometheus
 
-# Django chaching backend using Redis
+# Django caching backend using Redis
 # https://github.com/jazzband/django-redis
 django-redis
+
+# Django extensions for Rich (terminal text rendering)
+# https://github.com/adamchainz/django-rich
+django-rich
 
 # Django integration for RQ (Reqis queuing)
 # https://github.com/rq/django-rq

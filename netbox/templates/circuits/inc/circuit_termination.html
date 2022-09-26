@@ -2,7 +2,6 @@
 
 <div class="card">
     <div class="card-header">
-        <strong class="d-block d-md-inline mb-3 mb-md-0">Termination - {{ side }} Side</strong>
         <div class="float-md-end">
             {% if not termination and perms.circuits.add_circuittermination %}
                 <a href="{% url 'circuits:circuittermination_add' %}?circuit={{ object.pk }}&term_side={{ side }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-success lh-1">
@@ -10,10 +9,10 @@
                 </a>
             {% endif %}
             {% if termination and perms.circuits.change_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}" class="btn btn-sm btn-warning lh-1">
+                <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-warning lh-1">
                     <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                 </a>
-                <a href="{% url 'circuits:circuit_terminations_swap' pk=object.pk %}" class="btn btn-sm btn-primary lh-1">
+                <a href="{% url 'circuits:circuit_terminations_swap' pk=object.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary lh-1">
                     <span class="mdi mdi-swap-vertical" aria-hidden="true"></span> Swap
                 </a>
             {% endif %}
@@ -23,6 +22,7 @@
                 </a>
             {% endif %}
         </div>
+        <h5>Termination {{ side }}</h5>
     </div>
     <div class="card-body">
       {% if termination %}
@@ -44,16 +44,15 @@
                   <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
                   <span class="text-muted">Marked as connected</span>
                 {% elif termination.cable %}
-                  <a class="d-block d-md-inline" href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a>
-                  {% with peer=termination.get_link_peer %}
-                    to
+                  <a class="d-block d-md-inline" href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a> to
+                  {% for peer in termination.link_peers %}
                     {% if peer.device %}
                       {{ peer.device|linkify }}<br/>
                     {% elif peer.circuit %}
                       {{ peer.circuit|linkify }}<br/>
                     {% endif %}
-                    {{ peer|linkify }}
-                  {% endwith %}
+                    {{ peer|linkify }}{% if not forloop.last %},{% endif %}
+                  {% endfor %}
                   <div class="mt-1">
                     <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
                       <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i> Trace
@@ -70,10 +69,10 @@
                       <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
                     </button>
                     <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='interface' %}?termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Interface</a></li>
-                      <li><a class="dropdown-item" href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='front-port' %}?termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Front Port</a></li>
-                      <li><a class="dropdown-item" href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='rear-port' %}?termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Rear Port</a></li>
-                      <li><a class="dropdown-item" href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='circuit-termination' %}?termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Circuit Termination</a></li>
+                      <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=dcim.interface&termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Interface</a></li>
+                      <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=dcim.frontport&termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Front Port</a></li>
+                      <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=dcim.rearport&termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Rear Port</a></li>
+                      <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=circuits.circuittermination&termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Circuit Termination</a></li>
                     </ul>
                   </div>
                 {% endif %}
@@ -94,7 +93,7 @@
                 {% elif termination.port_speed %}
                     {{ termination.port_speed|humanize_speed }}
                 {% else %}
-                    <span class="text-muted">&mdash;</span>
+                    {{ ''|placeholder }}
                 {% endif %}
                 </td>
             </tr>
@@ -110,6 +109,33 @@
                 <td>Description</td>
                 <td>{{ termination.description|placeholder }}</td>
             </tr>
+            <tr>
+              <td>Tags</td>
+              <td>
+                {% for tag in termination.tags.all %}
+                  {% tag tag %}
+                {% empty %}
+                  {{ ''|placeholder }}
+                {% endfor %}
+              </td>
+            </tr>
+          {% for group_name, fields in termination.get_custom_fields_by_group.items %}
+            <tr>
+              <td colspan="2">
+                <strong>{{ group_name|default:"Custom Fields" }}</strong>
+              </td>
+            </tr>
+            {% for field, value in fields.items %}
+              <tr>
+                <td>
+                  <span title="{{ field.description|escape }}">{{ field }}</span>
+                </td>
+                <td>
+                  {% customfield_value field value %}
+                </td>
+              </tr>
+            {% endfor %}
+          {% endfor %}
         </table>
     {% else %}
         <span class="text-muted">None</span>

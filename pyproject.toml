@@ -1,0 +1,22 @@
+# See PEP 518 for the spec of this file
+# https://www.python.org/dev/peps/pep-0518/
+
+[tool.black]
+line-length = 120
+target_version = ['py38', 'py39', 'py310']
+skip-string-normalization = true
+
+[tool.isort]
+profile = "black"
+
+[tool.pylint]
+max-line-length = 120
+
+[tool.pyright]
+include = ["netbox"]
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+]
+reportMissingImports = true
+reportMissingTypeStubs = false

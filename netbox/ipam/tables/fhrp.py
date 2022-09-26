@@ -10,7 +10,7 @@ __all__ = (
 
 
 IPADDRESSES = """
-{% for ip in record.ip_addresses.all %}
+{% for ip in value.all %}
   <a href="{{ ip.get_absolute_url }}">{{ ip }}</a><br />
 {% endfor %}
 """

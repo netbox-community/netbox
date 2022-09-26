@@ -10,49 +10,51 @@
         <div class="col col-md-5">
           {% if path %}
             <div class="text-center my-3">
-                <object data="{{ svg_url }}" class="rack_elevation"></object>
+              <object data="{{ svg_url }}" class="rack_elevation"></object>
+              <div>
                 <a class="btn btn-outline-primary btn-sm my-3" href="{{ svg_url }}">
                     <i class="mdi mdi-file-download"></i> Download SVG
                 </a>
+              </div>
             </div>
             <div class="trace-end">
-                {% with traced_path=path.origin.trace %}
-                    {% if path.is_split %}
-                        <h3 class="text-danger">Path split!</h3>
-                        <p>Select a node below to continue:</p>
-                        <ul class="text-start">
-                            {% for next_node in path.get_split_nodes %}
-                                {% if next_node.cable %}
-                                    <li>
-                                        <a href="{% url 'dcim:frontport_trace' pk=next_node.pk %}">{{ next_node }}</a>
-                                        (Cable {{ next_node.cable|linkify }})
-                                    </li>
-                                {% else %}
-                                    <li class="text-muted">{{ next_node }}</li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <h3 class="text-center text-success">Trace Completed</h3>
-                        <table class="table">
-                          <tr>
-                            <th scope="row">Total segments</th>
-                            <td>{{ traced_path|length }}</td>
-                          </tr>
-                          <tr>
-                            <th scope="row">Total length</th>
-                            <td>
-                              {% if total_length %}
-                                {{ total_length|floatformat:"-2" }}{% if not is_definitive %}+{% endif %} Meters /
-                                {{ total_length|meters_to_feet|floatformat:"-2" }} Feet
-                              {% else %}
-                                <span class="text-muted">N/A</span>
-                              {% endif %}
-                            </td>
-                          </tr>
-                        </table>
-                    {% endif %}
-                {% endwith %}
+                {% if path.is_split %}
+                    <h3 class="text-danger">Path split!</h3>
+                    <p>Select a node below to continue:</p>
+                    <ul class="text-start">
+                      {% for next_node in path.get_split_nodes %}
+                        {% if next_node.cable %}
+                          {% with viewname=next_node|viewname:"trace" %}
+                            <li>
+                              <a href="{% url viewname pk=next_node.pk %}">{{ next_node|meta:"verbose_name"|bettertitle }} {{ next_node }}</a>
+                              (Cable {{ next_node.cable|linkify }})
+                            </li>
+                          {% endwith %}
+                        {% else %}
+                          <li class="text-muted">{{ next_node }}</li>
+                        {% endif %}
+                      {% endfor %}
+                    </ul>
+                {% else %}
+                    <h3 class="text-center text-success">Trace Completed</h3>
+                    <table class="table">
+                        <tr>
+                        <th scope="row">Total segments</th>
+                        <td>{{ path.segment_count }}</td>
+                        </tr>
+                        <tr>
+                        <th scope="row">Total length</th>
+                        <td>
+                            {% if total_length %}
+                            {{ total_length|floatformat:"-2" }}{% if not is_definitive %}+{% endif %} Meters /
+                            {{ total_length|meters_to_feet|floatformat:"-2" }} Feet
+                            {% else %}
+                            <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        </tr>
+                    </table>
+                {% endif %}
             </div>
           {% else %}
             <h3 class="text-center text-muted my-3">
@@ -80,18 +82,16 @@
                             {% for cablepath in related_paths %}
                                 <tr{% if cablepath.pk == path.pk %} class="info"{% endif %}>
                                     <td>
-                                        <a href="?cablepath_id={{ cablepath.pk }}">
-                                            {{ cablepath.origin.parent_object }} / {{ cablepath.origin }}
-                                        </a>
+                                        <a href="?cablepath_id={{ cablepath.pk }}">{{ cablepath.origins|join:", " }}</a>
                                     </td>
                                     <td>
-                                        {% if cablepath.destination %}
-                                            {{ cablepath.destination }} ({{ cablepath.destination.parent_object }})
+                                        {% if cablepath.destinations %}
+                                            {{ cablepath.destinations|join:", " }}
                                         {% else %}
                                             <span class="text-muted">Incomplete</span>
                                         {% endif %}
                                     </td>
-                                    <td class="text-end">
+                                    <td>
                                         {{ cablepath.segment_count }}
                                     </td>
                                 </tr>

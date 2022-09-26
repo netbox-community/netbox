@@ -23,8 +23,8 @@
       {{ field }}
     {% endfor %}
     <div class="text-center">
-      <a href="{{ return_url }}" class="btn btn-outline-dark">Cancel</a>
       <button type="submit" name="_confirm" class="btn btn-danger">Delete these {{ table.rows|length }} {{ obj_type_plural }}</button>
+      <a href="{{ return_url }}" class="btn btn-outline-dark">Cancel</a>
     </div>
   </form>
 </div>

@@ -1,6 +1,5 @@
 import hashlib
 import hmac
-from collections import defaultdict
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
@@ -27,10 +26,18 @@ def serialize_for_webhook(instance):
 
 
 def get_snapshots(instance, action):
-    return {
+    snapshots = {
         'prechange': getattr(instance, '_prechange_snapshot', None),
-        'postchange': serialize_object(instance) if action != ObjectChangeActionChoices.ACTION_DELETE else None,
+        'postchange': None,
     }
+    if action != ObjectChangeActionChoices.ACTION_DELETE:
+        # Use model's serialize_object() method if defined; fall back to serialize_object() utility function
+        if hasattr(instance, 'serialize_object'):
+            snapshots['postchange'] = instance.serialize_object()
+        else:
+            snapshots['postchange'] = serialize_object(instance)
+
+    return snapshots
 
 
 def generate_signature(request_body, secret):

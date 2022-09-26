@@ -13,6 +13,16 @@
       </div>
     {% endif %}
 
+    {# Login form errors #}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Errors</h4>
+        <p>
+          {{ form.non_field_errors }}
+        </p>
+      </div>
+    {% endif %}
+
     {# Login form #}
     <div class="form-login">
       <form action="{% url 'login' %}" method="post">
@@ -41,22 +51,12 @@
 
     {% if auth_backends %}
       <h6 class="mt-4 mb-3">Or use a single sign-on (SSO) provider:</h6>
-      {% for name, display in auth_backends.items %}
+      {% for backend in auth_backends %}
         <h5>
-          {% if display.1 %}<i class="mdi mdi-{{ display.1 }}"></i>{% endif %}
-          <a href="{% url 'social:begin' backend=name %}" class="my-2">{{ display.0 }}</a>
+          {% if backend.icon_name %}<i class="mdi mdi-{{ backend.icon_name }}"></i>{% endif %}
+          <a href="{{ backend.url }}" class="my-2">{{ backend.display_name }}</a>
         </h5>
       {% endfor %}
-    {% endif %}
-
-    {# Login form errors #}
-    {% if form.non_field_errors %}
-      <div class="alert alert-danger" role="alert">
-        <h4 class="alert-heading">Errors</h4>
-        <p>
-          {{ form.non_field_errors }}
-        </p>
-      </div>
     {% endif %}
   </main>
 

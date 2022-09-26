@@ -179,8 +179,8 @@ class ExceptionHandlingMiddleware:
     def process_exception(self, request, exception):
 
         # Handle exceptions that occur from REST API requests
-        if is_api_request(request):
-            return rest_api_server_error(request)
+        # if is_api_request(request):
+        #     return rest_api_server_error(request)
 
         # Don't catch exceptions when in debug mode
         if settings.DEBUG:

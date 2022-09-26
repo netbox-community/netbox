@@ -7,12 +7,15 @@ from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
+from django.utils.encoding import escape_uri_path
+from django.utils.html import escape
 from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
 from django_tables2.columns import library
 from django_tables2.utils import Accessor
 
 from extras.choices import CustomFieldTypeChoices
+from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import content_type_identifier, content_type_name, get_viewname
 
 __all__ = (
@@ -90,6 +93,15 @@ class TemplateColumn(tables.TemplateColumn):
     """
     PLACEHOLDER = mark_safe('&mdash;')
 
+    def __init__(self, export_raw=False, **kwargs):
+        """
+        Args:
+            export_raw: If true, data export returns the raw field value rather than the rendered template. (Default:
+                        False)
+        """
+        super().__init__(**kwargs)
+        self.export_raw = export_raw
+
     def render(self, *args, **kwargs):
         ret = super().render(*args, **kwargs)
         if not ret.strip():
@@ -97,6 +109,10 @@ class TemplateColumn(tables.TemplateColumn):
         return ret
 
     def value(self, **kwargs):
+        if self.export_raw:
+            # Skip template rendering and export raw value
+            return kwargs.get('value')
+
         ret = super().value(**kwargs)
         if ret == self.PLACEHOLDER:
             return ''
@@ -153,6 +169,7 @@ class ActionsItem:
     title: str
     icon: str
     permission: Optional[str] = None
+    css_class: Optional[str] = 'secondary'
 
 
 class ActionsColumn(tables.Column):
@@ -162,19 +179,22 @@ class ActionsColumn(tables.Column):
 
     :param actions: The ordered list of dropdown menu items to include
     :param extra_buttons: A Django template string which renders additional buttons preceding the actions dropdown
+    :param split_actions: When True, converts the actions dropdown menu into a split button with first action as the
+        direct button link and icon (default: True)
     """
     attrs = {'td': {'class': 'text-end text-nowrap noprint'}}
     empty_values = ()
     actions = {
-        'edit': ActionsItem('Edit', 'pencil', 'change'),
-        'delete': ActionsItem('Delete', 'trash-can-outline', 'delete'),
+        'edit': ActionsItem('Edit', 'pencil', 'change', 'warning'),
+        'delete': ActionsItem('Delete', 'trash-can-outline', 'delete', 'danger'),
         'changelog': ActionsItem('Changelog', 'history'),
     }
 
-    def __init__(self, *args, actions=('edit', 'delete', 'changelog'), extra_buttons='', **kwargs):
+    def __init__(self, *args, actions=('edit', 'delete', 'changelog'), extra_buttons='', split_actions=True, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.extra_buttons = extra_buttons
+        self.split_actions = split_actions
 
         # Determine which actions to enable
         self.actions = {
@@ -191,26 +211,53 @@ class ActionsColumn(tables.Column):
 
         model = table.Meta.model
         request = getattr(table, 'context', {}).get('request')
-        url_appendix = f'?return_url={request.path}' if request else ''
+        url_appendix = f'?return_url={escape_uri_path(request.get_full_path())}' if request else ''
         html = ''
 
         # Compile actions menu
-        links = []
+        button = None
+        dropdown_class = 'secondary'
+        dropdown_links = []
         user = getattr(request, 'user', AnonymousUser())
-        for action, attrs in self.actions.items():
+        for idx, (action, attrs) in enumerate(self.actions.items()):
             permission = f'{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}'
             if attrs.permission is None or user.has_perm(permission):
                 url = reverse(get_viewname(model, action), kwargs={'pk': record.pk})
-                links.append(
-                    f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
-                    f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>'
-                )
-        if links:
+
+                # Render a separate button if a) only one action exists, or b) if split_actions is True
+                if len(self.actions) == 1 or (self.split_actions and idx == 0):
+                    dropdown_class = attrs.css_class
+                    button = (
+                        f'<a class="btn btn-sm btn-{attrs.css_class}" href="{url}{url_appendix}" type="button">'
+                        f'<i class="mdi mdi-{attrs.icon}"></i></a>'
+                    )
+
+                # Add dropdown menu items
+                else:
+                    dropdown_links.append(
+                        f'<li><a class="dropdown-item" href="{url}{url_appendix}">'
+                        f'<i class="mdi mdi-{attrs.icon}"></i> {attrs.title}</a></li>'
+                    )
+
+        # Create the actions dropdown menu
+        if button and dropdown_links:
             html += (
-                f'<span class="dropdown">'
-                f'<a class="btn btn-sm btn-secondary dropdown-toggle" href="#" type="button" data-bs-toggle="dropdown">'
-                f'<i class="mdi mdi-wrench"></i></a>'
-                f'<ul class="dropdown-menu">{"".join(links)}</ul></span>'
+                f'<span class="btn-group dropdown">'
+                f'  {button}'
+                f'  <a class="btn btn-sm btn-{dropdown_class} dropdown-toggle" type="button" data-bs-toggle="dropdown" style="padding-left: 2px">'
+                f'  <span class="visually-hidden">Toggle Dropdown</span></a>'
+                f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
+                f'</span>'
+            )
+        elif button:
+            html += button
+        elif dropdown_links:
+            html += (
+                f'<span class="btn-group dropdown">'
+                f'  <a class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">'
+                f'  <span class="visually-hidden">Toggle Dropdown</span></a>'
+                f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
+                f'</span>'
             )
 
         # Render any extra buttons from template code
@@ -382,10 +429,10 @@ class CustomFieldColumn(tables.Column):
         super().__init__(*args, **kwargs)
 
     @staticmethod
-    def _likify_item(item):
+    def _linkify_item(item):
         if hasattr(item, 'get_absolute_url'):
-            return f'<a href="{item.get_absolute_url()}">{item}</a>'
-        return item
+            return f'<a href="{item.get_absolute_url()}">{escape(item)}</a>'
+        return escape(item)
 
     def render(self, value):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is True:
@@ -393,16 +440,18 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is False:
             return mark_safe('<i class="mdi mdi-close-thick text-danger"></i>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
-            return mark_safe(f'<a href="{value}">{value}</a>')
+            return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
             return ', '.join(v for v in value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
-            return mark_safe(', '.join([
-                self._likify_item(obj) for obj in self.customfield.deserialize(value)
-            ]))
+            return mark_safe(', '.join(
+                self._linkify_item(obj) for obj in self.customfield.deserialize(value)
+            ))
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_LONGTEXT and value:
+            return render_markdown(value)
         if value is not None:
             obj = self.customfield.deserialize(value)
-            return mark_safe(self._likify_item(obj))
+            return mark_safe(self._linkify_item(obj))
         return self.default
 
     def value(self, value):

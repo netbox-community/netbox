@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
 
-from extras.choices import CustomFieldTypeChoices
+from extras.choices import CustomFieldVisibilityChoices, CustomFieldTypeChoices
 from extras.models import *
 from extras.utils import FeatureQuery
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelForm, CSVMultipleContentTypeField, SlugField
@@ -27,17 +27,28 @@ class CustomFieldCSVForm(CSVModelForm):
         choices=CustomFieldTypeChoices,
         help_text='Field data type (e.g. text, integer, etc.)'
     )
+    object_type = CSVContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields'),
+        required=False,
+        help_text="Object type (for object or multi-object fields)"
+    )
     choices = SimpleArrayField(
         base_field=forms.CharField(),
         required=False,
         help_text='Comma-separated list of field choices'
     )
+    ui_visibility = CSVChoiceField(
+        choices=CustomFieldVisibilityChoices,
+        help_text='How the custom field is displayed in the user interface'
+    )
 
     class Meta:
         model = CustomField
         fields = (
-            'name', 'label', 'type', 'content_types', 'required', 'description', 'weight', 'filter_logic', 'default',
-            'choices', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
+            'name', 'label', 'group_name', 'type', 'content_types', 'object_type', 'required', 'description', 'weight',
+            'filter_logic', 'default', 'choices', 'weight', 'validation_minimum', 'validation_maximum',
+            'validation_regex', 'ui_visibility',
         )
 
 

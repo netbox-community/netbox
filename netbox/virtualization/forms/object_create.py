@@ -1,17 +1,14 @@
-from django import forms
-
-from utilities.forms import BootstrapMixin, DynamicModelChoiceField, ExpandableNameField
-from .models import VirtualMachine
+from utilities.forms import ExpandableNameField
+from .models import VMInterfaceForm
 
 __all__ = (
     'VMInterfaceCreateForm',
 )
 
 
-class VMInterfaceCreateForm(BootstrapMixin, forms.Form):
-    virtual_machine = DynamicModelChoiceField(
-        queryset=VirtualMachine.objects.all()
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class VMInterfaceCreateForm(VMInterfaceForm):
+    name = ExpandableNameField()
+    replication_fields = ('name',)
+
+    class Meta(VMInterfaceForm.Meta):
+        exclude = ('name',)

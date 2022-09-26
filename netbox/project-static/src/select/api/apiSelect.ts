@@ -205,6 +205,11 @@ export class APISelect {
       onChange: () => this.handleSlimChange(),
     });
 
+    // Don't close on select if multiple select
+    if (this.base.multiple) {
+      this.slim.config.closeOnSelect = false;
+    }
+
     // Initialize API query properties.
     this.getStaticParams();
     this.getDynamicParams();

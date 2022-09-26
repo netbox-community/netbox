@@ -1,15 +1,41 @@
+import logging
+
 from django.conf import settings
+from django.utils import timezone
 from rest_framework import authentication, exceptions
 from rest_framework.permissions import BasePermission, DjangoObjectPermissions, SAFE_METHODS
 
+from netbox.config import get_config
 from users.models import Token
+from utilities.request import get_client_ip
 
 
 class TokenAuthentication(authentication.TokenAuthentication):
     """
-    A custom authentication scheme which enforces Token expiration times.
+    A custom authentication scheme which enforces Token expiration times and source IP restrictions.
     """
     model = Token
+
+    def authenticate(self, request):
+        result = super().authenticate(request)
+
+        if result:
+            token = result[1]
+
+            # Enforce source IP restrictions (if any) set on the token
+            if token.allowed_ips:
+                client_ip = get_client_ip(request)
+                if client_ip is None:
+                    raise exceptions.AuthenticationFailed(
+                        "Client IP address could not be determined for validation. Check that the HTTP server is "
+                        "correctly configured to pass the required header(s)."
+                    )
+                if not token.validate_client_ip(client_ip):
+                    raise exceptions.AuthenticationFailed(
+                        f"Source IP {client_ip} is not permitted to authenticate using this token."
+                    )
+
+        return result
 
     def authenticate_credentials(self, key):
         model = self.get_model()
@@ -17,6 +43,16 @@ class TokenAuthentication(authentication.TokenAuthentication):
             token = model.objects.prefetch_related('user').get(key=key)
         except model.DoesNotExist:
             raise exceptions.AuthenticationFailed("Invalid token")
+
+        # Update last used, but only once per minute at most. This reduces write load on the database
+        if not token.last_used or (timezone.now() - token.last_used).total_seconds() > 60:
+            # If maintenance mode is enabled, assume the database is read-only, and disable updating the token's
+            # last_used time upon authentication.
+            if get_config().MAINTENANCE_MODE:
+                logger = logging.getLogger('netbox.auth.login')
+                logger.debug("Maintenance mode enabled: Disabling update of token's last used timestamp")
+            else:
+                Token.objects.filter(pk=token.pk).update(last_used=timezone.now())
 
         # Enforce the Token's expiration time, if one has been set.
         if token.is_expired:

@@ -109,9 +109,7 @@ def annotated_date(date_value):
         long_ts = date(date_value, 'DATETIME_FORMAT')
         short_ts = date(date_value, 'SHORT_DATETIME_FORMAT')
 
-    span = f'<span title="{long_ts}">{short_ts}</span>'
-
-    return mark_safe(span)
+    return mark_safe(f'<span title="{long_ts}">{short_ts}</span>')
 
 
 @register.simple_tag

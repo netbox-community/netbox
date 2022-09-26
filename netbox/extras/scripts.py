@@ -6,7 +6,6 @@ import pkgutil
 import sys
 import traceback
 import threading
-from collections import OrderedDict
 
 import yaml
 from django import forms
@@ -17,6 +16,7 @@ from django.utils.functional import classproperty
 
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices, LogLevelChoices
+from extras.signals import clear_webhooks
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortTransaction
@@ -299,6 +299,10 @@ class BaseScript:
     def module(cls):
         return cls.__module__
 
+    @classmethod
+    def root_module(cls):
+        return cls.__module__.split(".")[0]
+
     @classproperty
     def job_timeout(self):
         return getattr(self.Meta, 'job_timeout', None)
@@ -306,9 +310,16 @@ class BaseScript:
     @classmethod
     def _get_vars(cls):
         vars = {}
-        for name, attr in cls.__dict__.items():
-            if name not in vars and issubclass(attr.__class__, ScriptVariable):
-                vars[name] = attr
+
+        # Iterate all base classes looking for ScriptVariables
+        for base_class in inspect.getmro(cls):
+            # When object is reached there's no reason to continue
+            if base_class is object:
+                break
+
+            for name, attr in base_class.__dict__.items():
+                if name not in vars and issubclass(attr.__class__, ScriptVariable):
+                    vars[name] = attr
 
         # Order variables according to field_order
         field_order = getattr(cls.Meta, 'field_order', None)
@@ -458,7 +469,7 @@ def run_script(data, request, commit=True, *args, **kwargs):
 
         except AbortTransaction:
             script.log_info("Database changes have been reverted automatically.")
-
+            clear_webhooks.send(request)
         except Exception as e:
             stacktrace = traceback.format_exc()
             script.log_failure(
@@ -467,7 +478,7 @@ def run_script(data, request, commit=True, *args, **kwargs):
             script.log_info("Database changes have been reverted due to error.")
             logger.error(f"Exception raised during script execution: {e}")
             job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-
+            clear_webhooks.send(request)
         finally:
             job_result.data = ScriptOutputSerializer(script).data
             job_result.save()
@@ -488,7 +499,7 @@ def get_scripts(use_names=False):
     Return a dict of dicts mapping all scripts to their modules. Set use_names to True to use each module's human-
     defined name in place of the actual module name.
     """
-    scripts = OrderedDict()
+    scripts = {}
     # Iterate through all modules within the scripts path. These are the user-created files in which reports are
     # defined.
     for importer, module_name, _ in pkgutil.iter_modules([settings.SCRIPTS_ROOT]):
@@ -502,12 +513,14 @@ def get_scripts(use_names=False):
 
         if use_names and hasattr(module, 'name'):
             module_name = module.name
-        module_scripts = OrderedDict()
+        module_scripts = {}
         script_order = getattr(module, "script_order", ())
         ordered_scripts = [cls for cls in script_order if is_script(cls)]
         unordered_scripts = [cls for _, cls in inspect.getmembers(module, is_script) if cls not in script_order]
         for cls in [*ordered_scripts, *unordered_scripts]:
-            module_scripts[cls.__name__] = cls
+            # For scripts in submodules use the full import path w/o the root module as the name
+            script_name = cls.full_name.split(".", maxsplit=1)[1]
+            module_scripts[script_name] = cls
         if module_scripts:
             scripts[module_name] = module_scripts
 

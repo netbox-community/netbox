@@ -21,7 +21,7 @@
                 {% if request.user.first_name or request.user.last_name %}
                   {{ request.user.first_name }} {{ request.user.last_name }}
                 {% else %}
-                  <span class="text-muted">&mdash;</span>
+                  {{ ''|placeholder }}
                 {% endif %}
               </td>
             </tr>

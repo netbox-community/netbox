@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -6,9 +7,10 @@ from django.urls import reverse
 
 from dcim.choices import *
 from dcim.constants import *
+from netbox.config import ConfigItem
 from netbox.models import NetBoxModel
 from utilities.validators import ExclusionValidator
-from .device_components import LinkTermination, PathEndpoint
+from .device_components import CabledObjectModel, PathEndpoint
 
 __all__ = (
     'PowerFeed',
@@ -53,6 +55,10 @@ class PowerPanel(NetBoxModel):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [apps.get_model('dcim.Site'), ]
+
     def get_absolute_url(self):
         return reverse('dcim:powerpanel', args=[self.pk])
 
@@ -66,7 +72,7 @@ class PowerPanel(NetBoxModel):
             )
 
 
-class PowerFeed(NetBoxModel, PathEndpoint, LinkTermination):
+class PowerFeed(NetBoxModel, PathEndpoint, CabledObjectModel):
     """
     An electrical circuit delivered from a PowerPanel.
     """
@@ -105,16 +111,16 @@ class PowerFeed(NetBoxModel, PathEndpoint, LinkTermination):
         default=PowerFeedPhaseChoices.PHASE_SINGLE
     )
     voltage = models.SmallIntegerField(
-        default=POWERFEED_VOLTAGE_DEFAULT,
+        default=ConfigItem('POWERFEED_DEFAULT_VOLTAGE'),
         validators=[ExclusionValidator([0])]
     )
     amperage = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
-        default=POWERFEED_AMPERAGE_DEFAULT
+        default=ConfigItem('POWERFEED_DEFAULT_AMPERAGE')
     )
     max_utilization = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
-        default=POWERFEED_MAX_UTILIZATION_DEFAULT,
+        default=ConfigItem('POWERFEED_DEFAULT_MAX_UTILIZATION'),
         help_text="Maximum permissible draw (percentage)"
     )
     available_power = models.PositiveIntegerField(
@@ -125,10 +131,10 @@ class PowerFeed(NetBoxModel, PathEndpoint, LinkTermination):
         blank=True
     )
 
-    clone_fields = [
+    clone_fields = (
         'power_panel', 'rack', 'status', 'type', 'mark_connected', 'supply', 'phase', 'voltage', 'amperage',
-        'max_utilization', 'available_power',
-    ]
+        'max_utilization',
+    )
 
     class Meta:
         ordering = ['power_panel', 'name']
@@ -136,6 +142,10 @@ class PowerFeed(NetBoxModel, PathEndpoint, LinkTermination):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_prerequisite_models(cls):
+        return [PowerPanel, ]
 
     def get_absolute_url(self):
         return reverse('dcim:powerfeed', args=[self.pk])

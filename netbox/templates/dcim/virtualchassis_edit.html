@@ -55,9 +55,9 @@
                               <td>{{ device.pk }}</td>
                               <td>
                                   {% if device.rack %}
-                                      {{ device.rack }} / {{ device.position }}
+                                      {{ device.rack }} / {{ device.position|floatformat }}
                                   {% else %}
-                                      <span class="text-muted">&mdash;</span>
+                                      {{ ''|placeholder }}
                                   {% endif %}
                               </td>
                               <td>{{ device.serial|placeholder }}</td>

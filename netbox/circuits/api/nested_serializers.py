@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from circuits.models import *
-from netbox.api import WritableNestedSerializer
+from netbox.api.serializers import WritableNestedSerializer
 
 __all__ = [
     'NestedCircuitSerializer',

@@ -1,5 +1,4 @@
 import socket
-from collections import OrderedDict
 
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
@@ -13,14 +12,18 @@ from rest_framework.viewsets import ViewSet
 
 from circuits.models import Circuit
 from dcim import filtersets
+from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from dcim.models import *
+from dcim.svg import CableTraceSVG
 from extras.api.views import ConfigContextQuerySetMixin
 from ipam.models import Prefix, VLAN
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import ServiceUnavailable
 from netbox.api.metadata import ContentTypeMetadata
+from netbox.api.pagination import StripCountAnnotationsPaginator
 from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.config import get_config
+from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine
@@ -50,37 +53,30 @@ class PathEndpointMixin(object):
         # Initialize the path array
         path = []
 
+        # Render SVG image if requested
         if request.GET.get('render', None) == 'svg':
-            # Render SVG
             try:
-                width = min(int(request.GET.get('width')), 1600)
+                width = int(request.GET.get('width', CABLE_TRACE_SVG_DEFAULT_WIDTH))
             except (ValueError, TypeError):
-                width = None
-            drawing = obj.get_trace_svg(
-                base_url=request.build_absolute_uri('/'),
-                width=width
-            )
-            return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
+                width = CABLE_TRACE_SVG_DEFAULT_WIDTH
+            drawing = CableTraceSVG(obj, base_url=request.build_absolute_uri('/'), width=width)
+            return HttpResponse(drawing.render().tostring(), content_type='image/svg+xml')
 
-        for near_end, cable, far_end in obj.trace():
-            if near_end is None:
-                # Split paths
+        # Serialize path objects, iterating over each three-tuple in the path
+        for near_ends, cable, far_ends in obj.trace():
+            if near_ends:
+                serializer_a = get_serializer_for_model(near_ends[0], prefix=NESTED_SERIALIZER_PREFIX)
+                near_ends = serializer_a(near_ends, many=True, context={'request': request}).data
+            else:
+                # Path is split; stop here
                 break
+            if cable:
+                cable = serializers.TracedCableSerializer(cable[0], context={'request': request}).data
+            if far_ends:
+                serializer_b = get_serializer_for_model(far_ends[0], prefix=NESTED_SERIALIZER_PREFIX)
+                far_ends = serializer_b(far_ends, many=True, context={'request': request}).data
 
-            # Serialize each object
-            serializer_a = get_serializer_for_model(near_end, prefix='Nested')
-            x = serializer_a(near_end, context={'request': request}).data
-            if cable is not None:
-                y = serializers.TracedCableSerializer(cable, context={'request': request}).data
-            else:
-                y = None
-            if far_end is not None:
-                serializer_b = get_serializer_for_model(far_end, prefix='Nested')
-                z = serializer_b(far_end, context={'request': request}).data
-            else:
-                z = None
-
-            path.append((x, y, z))
+            path.append((near_ends, cable, far_ends))
 
         return Response(path)
 
@@ -93,7 +89,7 @@ class PassThroughPortMixin(object):
         Return all CablePaths which traverse a given pass-through port.
         """
         obj = get_object_or_404(self.queryset, pk=pk)
-        cablepaths = CablePath.objects.filter(path__contains=obj).prefetch_related('origin', 'destination')
+        cablepaths = CablePath.objects.filter(_nodes__contains=obj)
         serializer = serializers.CablePathSerializer(cablepaths, context={'request': request}, many=True)
 
         return Response(serializer.data)
@@ -214,6 +210,14 @@ class RackViewSet(NetBoxModelViewSet):
         data = serializer.validated_data
 
         if data['render'] == 'svg':
+            # Determine attributes for highlighting devices (if any)
+            highlight_params = []
+            for param in request.GET.getlist('highlight'):
+                try:
+                    highlight_params.append(param.split(':', 1))
+                except ValueError:
+                    pass
+
             # Render and return the elevation as an SVG drawing with the correct content type
             drawing = rack.get_elevation_svg(
                 face=data['face'],
@@ -222,7 +226,8 @@ class RackViewSet(NetBoxModelViewSet):
                 unit_height=data['unit_height'],
                 legend_width=data['legend_width'],
                 include_images=data['include_images'],
-                base_url=request.build_absolute_uri('/')
+                base_url=request.build_absolute_uri('/'),
+                highlight_params=highlight_params
             )
             return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 
@@ -392,6 +397,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',
     )
     filterset_class = filtersets.DeviceFilterSet
+    pagination_class = StripCountAnnotationsPaginator
 
     def get_serializer_class(self):
         """
@@ -477,7 +483,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
             return HttpResponseForbidden()
 
         napalm_methods = request.GET.getlist('method')
-        response = OrderedDict([(m, None) for m in napalm_methods])
+        response = {m: None for m in napalm_methods}
 
         config = get_config()
         username = config.NAPALM_USERNAME
@@ -546,7 +552,7 @@ class ModuleViewSet(NetBoxModelViewSet):
 
 class ConsolePortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = ConsolePort.objects.prefetch_related(
-        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filtersets.ConsolePortFilterSet
@@ -555,7 +561,7 @@ class ConsolePortViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class ConsoleServerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = ConsoleServerPort.objects.prefetch_related(
-        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filtersets.ConsoleServerPortFilterSet
@@ -564,7 +570,7 @@ class ConsoleServerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class PowerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = PowerPort.objects.prefetch_related(
-        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filtersets.PowerPortFilterSet
@@ -573,7 +579,7 @@ class PowerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = PowerOutlet.objects.prefetch_related(
-        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filtersets.PowerOutletFilterSet
@@ -582,8 +588,8 @@ class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        'device', 'module__module_bay', 'parent', 'bridge', 'lag', '_path__destination', 'cable', '_link_peer',
-        'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'vrf', 'ip_addresses', 'fhrp_group_assignments', 'tags'
+        'device', 'module__module_bay', 'parent', 'bridge', 'lag', '_path', 'cable__terminations', 'wireless_lans',
+        'untagged_vlan', 'tagged_vlans', 'vrf', 'ip_addresses', 'fhrp_group_assignments', 'tags'
     )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filtersets.InterfaceFilterSet
@@ -592,7 +598,7 @@ class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class FrontPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
     queryset = FrontPort.objects.prefetch_related(
-        'device__device_type__manufacturer', 'module__module_bay', 'rear_port', 'cable', 'tags'
+        'device__device_type__manufacturer', 'module__module_bay', 'rear_port', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.FrontPortSerializer
     filterset_class = filtersets.FrontPortFilterSet
@@ -601,7 +607,7 @@ class FrontPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
 
 class RearPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
     queryset = RearPort.objects.prefetch_related(
-        'device__device_type__manufacturer', 'module__module_bay', 'cable', 'tags'
+        'device__device_type__manufacturer', 'module__module_bay', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.RearPortSerializer
     filterset_class = filtersets.RearPortFilterSet
@@ -609,7 +615,7 @@ class RearPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
 
 
 class ModuleBayViewSet(NetBoxModelViewSet):
-    queryset = ModuleBay.objects.prefetch_related('tags')
+    queryset = ModuleBay.objects.prefetch_related('tags', 'installed_module')
     serializer_class = serializers.ModuleBaySerializer
     filterset_class = filtersets.ModuleBayFilterSet
     brief_prefetch_fields = ['device']
@@ -646,12 +652,16 @@ class InventoryItemRoleViewSet(NetBoxModelViewSet):
 #
 
 class CableViewSet(NetBoxModelViewSet):
-    metadata_class = ContentTypeMetadata
-    queryset = Cable.objects.prefetch_related(
-        'termination_a', 'termination_b'
-    )
+    queryset = Cable.objects.prefetch_related('terminations__termination')
     serializer_class = serializers.CableSerializer
     filterset_class = filtersets.CableFilterSet
+
+
+class CableTerminationViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = CableTermination.objects.prefetch_related('cable', 'termination')
+    serializer_class = serializers.CableTerminationSerializer
+    filterset_class = filtersets.CableTerminationFilterSet
 
 
 #
@@ -687,7 +697,7 @@ class PowerPanelViewSet(NetBoxModelViewSet):
 
 class PowerFeedViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = PowerFeed.objects.prefetch_related(
-        'power_panel', 'rack', '_path__destination', 'cable', '_link_peer', 'tags'
+        'power_panel', 'rack', '_path', 'cable__terminations', 'tags'
     )
     serializer_class = serializers.PowerFeedSerializer
     filterset_class = filtersets.PowerFeedFilterSet
@@ -747,13 +757,13 @@ class ConnectedDeviceViewSet(ViewSet):
             device=peer_device,
             name=peer_interface_name
         )
-        endpoint = peer_interface.connected_endpoint
+        endpoints = peer_interface.connected_endpoints
 
         # If an Interface, return the parent device
-        if type(endpoint) is Interface:
+        if endpoints and type(endpoints[0]) is Interface:
             device = get_object_or_404(
                 Device.objects.restrict(request.user, 'view'),
-                pk=endpoint.device_id
+                pk=endpoints[0].device_id
             )
             return Response(serializers.DeviceSerializer(device, context={'request': request}).data)
 

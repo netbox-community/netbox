@@ -10,6 +10,7 @@
     {% render_field form.provider %}
     {% render_field form.circuit %}
     {% render_field form.term_side %}
+    {% render_field form.tags %}
     {% render_field form.mark_connected %}
     {% with providernetwork_tab_active=form.initial.provider_network %}
       <div class="row mb-2">
@@ -47,18 +48,13 @@
     {% render_field form.pp_info %}
     {% render_field form.description %}
   </div>
-{% endblock %}
 
-{# Override buttons block, 'Create & Add Another'/'_addanother' is not needed on a circuit. #}
-{% block buttons %}
-    <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
-    {% if object.pk %}
-        <button type="submit" name="_update" class="btn btn-primary">
-            Save
-        </button>
-    {% else %}
-        <button type="submit" name="_create" class="btn btn-primary">
-            Create
-        </button>
-    {% endif %}
-{% endblock buttons %}
+  {% if form.custom_fields %}
+    <div class="field-group mb-5">
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">Custom Fields</h5>
+      </div>
+      {% render_custom_fields form %}
+    </div>
+  {% endif %}
+{% endblock %}

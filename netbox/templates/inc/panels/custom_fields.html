@@ -1,49 +1,28 @@
 {% load helpers %}
 
-{% with custom_fields=object.get_custom_fields %}
-    {% if custom_fields %}
-        <div class="card">
-            <h5 class="card-header">Custom Fields</h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    {% for field, value in custom_fields.items %}
-                        <tr>
-                            <td>
-                              <span title="{{ field.description|escape }}">{{ field }}</span>
-                            </td>
-                            <td>
-                                {% if field.type == 'integer' and value is not None %}
-                                    {{ value }}
-                                {% elif field.type == 'longtext' and value %}
-                                    {{ value|markdown }}
-                                {% elif field.type == 'boolean' and value == True %}
-                                    {% checkmark value true="True" %}
-                                {% elif field.type == 'boolean' and value == False %}
-                                    {% checkmark value false="False" %}
-                                {% elif field.type == 'url' and value %}
-                                    <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
-                                {% elif field.type == 'json' and value %}
-                                    <pre>{{ value|json }}</pre>
-                                {% elif field.type == 'multiselect' and value %}
-                                    {{ value|join:", " }}
-                                {% elif field.type == 'object' and value %}
-                                    {{ value|linkify }}
-                                {% elif field.type == 'multiobject' and value %}
-                                    {% for obj in value %}
-                                      {{ obj|linkify }}{% if not forloop.last %}<br />{% endif %}
-                                    {% endfor %}
-                                {% elif value %}
-                                    {{ value }}
-                                {% elif field.required %}
-                                    <span class="text-warning">Not defined</span>
-                                {% else %}
-                                    <span class="text-muted">&mdash;</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
-        </div>
-    {% endif %}
+{% with custom_fields=object.get_custom_fields_by_group %}
+  {% if custom_fields %}
+    <div class="card">
+      <h5 class="card-header">Custom Fields</h5>
+      <div class="card-body">
+        {% for group_name, fields in custom_fields.items %}
+          {% if group_name %}
+            <h6>{{ group_name }}</h6>
+          {% endif %}
+          <table class="table table-hover attr-table">
+            {% for field, value in fields.items %}
+              <tr>
+                <th scope="row">
+                  <span title="{{ field.description|escape }}">{{ field }}</span>
+                </th>
+                <td>
+                  {% customfield_value field value %}
+                </td>
+              </tr>
+            {% endfor %}
+          </table>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
 {% endwith %}

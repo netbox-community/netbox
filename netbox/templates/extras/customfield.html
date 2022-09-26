@@ -20,6 +20,10 @@
             <td>{{ object.label|placeholder }}</td>
           </tr>
           <tr>
+            <th scope="row">Group Name</th>
+            <td>{{ object.group_name|placeholder }}</td>
+          </tr>
+          <tr>
             <th scope="row">Type</th>
             <td>
               {{ object.get_type_display }}
@@ -37,6 +41,14 @@
           <tr>
             <th scope="row">Weight</th>
             <td>{{ object.weight }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Filter Logic</th>
+            <td>{{ object.get_filter_logic_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">UI Visibility</th>
+            <td>{{ object.get_ui_visibility_display }}</td>
           </tr>
         </table>
       </div>
@@ -57,13 +69,9 @@
               {% if object.choices %}
                 {{ object.choices|join:", " }}
               {% else %}
-                <span class="text-muted">&mdash;</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
-          </tr>
-          <tr>
-            <th scope="row">Filter Logic</th>
-            <td>{{ object.get_filter_logic_display }}</td>
           </tr>
         </table>
       </div>
@@ -105,7 +113,7 @@
               {% if object.validation_regex %}
                 <code>{{ object.validation_regex }}</code>
               {% else %}
-                &mdash;
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>

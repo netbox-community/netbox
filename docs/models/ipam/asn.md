@@ -1,15 +1,19 @@
 # ASN
 
-ASN is short for Autonomous System Number.  This identifier is used in the BGP protocol to identify which "autonomous system" a particular prefix is originating and transiting through.
+An Autonomous System Number (ASN) is a numeric identifier used in the BGP protocol to identify which [autonomous system](https://en.wikipedia.org/wiki/Autonomous_system_%28Internet%29) a particular prefix is originating and transiting through. NetBox support both 32- and 64- ASNs.
 
-The AS number model within NetBox allows you to model some of this real-world relationship.
+ASNs must be globally unique within NetBox, must each may be assigned to multiple [sites](../dcim/site.md).
 
-Within NetBox:
+## Fields
 
-* AS numbers are globally unique
-* Each AS number must be associated with a RIR (ARIN, RFC 6996, etc)
-* Each AS number can be associated with many different sites
-* Each site can have many different AS numbers
-* Each AS number can be assigned to a single tenant
+### AS Number
 
+The 32- or 64-bit AS number.
 
+### RIR
+
+The [Regional Internet Registry](./rir.md) or similar authority responsible for the allocation of this particular ASN.
+
+### Sites
+
+The [site(s)](../dcim/site.md) to which this ASN is assigned.

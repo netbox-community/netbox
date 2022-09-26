@@ -34,7 +34,7 @@
                 {% endfor %}
                 {{ object.region|linkify }}
               {% else %}
-                <span class="text-muted">None</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
@@ -47,7 +47,7 @@
                 {% endfor %}
                 {{ object.group|linkify }}
               {% else %}
-                <span class="text-muted">None</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
@@ -79,22 +79,22 @@
                 {{ object.time_zone }} (UTC {{ object.time_zone|tzoffset }})<br />
                 <small class="text-muted">Site time: {% timezone object.time_zone %}{% annotated_now %}{% endtimezone %}</small>
               {% else %}
-                <span class="text-muted">&mdash;</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
           <tr>
             <th scope="row">Physical Address</th>
-            <td>
+            <td class="position-relative">
               {% if object.physical_address %}
-                <div class="float-end noprint">
+                <div class="position-absolute top-50 end-0 translate-middle-y noprint">
                   <a href="{{ config.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-sm">
-                    <i class="mdi mdi-map-marker"></i> Map It
+                    <i class="mdi mdi-map-marker"></i> Map
                   </a>
                 </div>
                 <span>{{ object.physical_address|linebreaksbr }}</span>
               {% else %}
-                <span class="text-muted">&mdash;</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
@@ -104,16 +104,16 @@
           </tr>
           <tr>
             <th scope="row">GPS Coordinates</th>
-            <td>
+            <td class="position-relative">
               {% if object.latitude and object.longitude %}
-                <div class="float-end noprint">
+                <div class="position-absolute top-50 end-0 translate-middle-y noprint">
                   <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
                     <i class="mdi mdi-map-marker"></i> Map It
                   </a>
                 </div>
                 <span>{{ object.latitude }}, {{ object.longitude }}</span>
               {% else %}
-                <span class="text-muted">&mdash;</span>
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>

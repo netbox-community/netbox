@@ -29,7 +29,7 @@ django.utils.encoding.force_text = force_str
 # Environment setup
 #
 
-VERSION = '3.2.4-dev'
+VERSION = '3.3.5-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -96,6 +96,7 @@ EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
+JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
@@ -423,6 +424,8 @@ LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+TEST_RUNNER = "django_rich.test.RichRunner"
+
 # Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
 # by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.
 EXEMPT_EXCLUDE_MODELS = (
@@ -475,11 +478,25 @@ if SENTRY_ENABLED:
 # Django social auth
 #
 
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.social_auth.associate_by_email',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'netbox.authentication.user_default_groups_handler',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
+
 # Load all SOCIAL_AUTH_* settings from the user configuration
 for param in dir(configuration):
     if param.startswith('SOCIAL_AUTH_'):
         globals()[param] = getattr(configuration, param)
 
+# Force usage of PostgreSQL's JSONB field for extra data
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
 
 
@@ -512,9 +529,14 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
     ),
     'DEFAULT_METADATA_CLASS': 'netbox.api.metadata.BulkOperationMetadata',
     'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.OptionalLimitOffsetPagination',
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+    ),
     'DEFAULT_PERMISSION_CLASSES': (
         'netbox.api.authentication.TokenPermissions',
     ),
@@ -524,7 +546,6 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
-    # 'PAGE_SIZE': PAGINATE_COUNT,
     'SCHEMA_COERCE_METHOD_NAMES': {
         # Default mappings
         'retrieve': 'read',
@@ -555,7 +576,6 @@ SWAGGER_SETTINGS = {
     'DEFAULT_AUTO_SCHEMA_CLASS': 'utilities.custom_inspectors.NetBoxSwaggerAutoSchema',
     'DEFAULT_FIELD_INSPECTORS': [
         'utilities.custom_inspectors.CustomFieldsDataFieldInspector',
-        'utilities.custom_inspectors.JSONFieldInspector',
         'utilities.custom_inspectors.NullableBooleanFieldInspector',
         'utilities.custom_inspectors.ChoiceFieldInspector',
         'utilities.custom_inspectors.SerializedPKRelatedFieldInspector',
@@ -565,6 +585,7 @@ SWAGGER_SETTINGS = {
         'drf_yasg.inspectors.ChoiceFieldInspector',
         'drf_yasg.inspectors.FileFieldInspector',
         'drf_yasg.inspectors.DictFieldInspector',
+        'drf_yasg.inspectors.JSONFieldInspector',
         'drf_yasg.inspectors.SerializerMethodFieldInspector',
         'drf_yasg.inspectors.SimpleFieldInspector',
         'drf_yasg.inspectors.StringDefaultFieldInspector',

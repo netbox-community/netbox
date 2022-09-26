@@ -1,8 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.fields import Field
+from rest_framework.serializers import ValidationError
 
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
+from netbox.constants import NESTED_SERIALIZER_PREFIX
 
 
 #
@@ -51,16 +53,22 @@ class CustomFieldsDataField(Field):
         for cf in self._get_custom_fields():
             value = cf.deserialize(obj.get(cf.name))
             if value is not None and cf.type == CustomFieldTypeChoices.TYPE_OBJECT:
-                serializer = get_serializer_for_model(cf.object_type.model_class(), prefix='Nested')
+                serializer = get_serializer_for_model(cf.object_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
                 value = serializer(value, context=self.parent.context).data
             elif value is not None and cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
-                serializer = get_serializer_for_model(cf.object_type.model_class(), prefix='Nested')
+                serializer = get_serializer_for_model(cf.object_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
                 value = serializer(value, many=True, context=self.parent.context).data
             data[cf.name] = value
 
         return data
 
     def to_internal_value(self, data):
+        if type(data) is not dict:
+            raise ValidationError(
+                "Invalid data format. Custom field data must be passed as a dictionary mapping field names to their "
+                "values."
+            )
+
         # If updating an existing instance, start with existing custom_field_data
         if self.parent.instance:
             data = {**self.parent.instance.custom_field_data, **data}

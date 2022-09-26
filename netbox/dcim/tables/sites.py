@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from dcim.models import Location, Region, Site, SiteGroup
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenantColumn
+from tenancy.tables import TenancyColumnsMixin
 from .template_code import LOCATION_BUTTONS
 
 __all__ = (
@@ -75,7 +75,7 @@ class SiteGroupTable(NetBoxTable):
 # Sites
 #
 
-class SiteTable(NetBoxTable):
+class SiteTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -96,7 +96,6 @@ class SiteTable(NetBoxTable):
         url_params={'site_id': 'pk'},
         verbose_name='ASN Count'
     )
-    tenant = TenantColumn()
     comments = columns.MarkdownColumn()
     contacts = columns.ManyToManyColumn(
         linkify_item=True
@@ -108,7 +107,7 @@ class SiteTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Site
         fields = (
-            'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asns', 'asn_count',
+            'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'tenant_group', 'asns', 'asn_count',
             'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments',
             'contacts', 'tags', 'created', 'last_updated', 'actions',
         )
@@ -119,14 +118,14 @@ class SiteTable(NetBoxTable):
 # Locations
 #
 
-class LocationTable(NetBoxTable):
+class LocationTable(TenancyColumnsMixin, NetBoxTable):
     name = columns.MPTTColumn(
         linkify=True
     )
     site = tables.Column(
         linkify=True
     )
-    tenant = TenantColumn()
+    status = columns.ChoiceFieldColumn()
     rack_count = columns.LinkedCountColumn(
         viewname='dcim:rack_list',
         url_params={'location_id': 'pk'},
@@ -150,7 +149,7 @@ class LocationTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Location
         fields = (
-            'pk', 'id', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'contacts',
-            'tags', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'site', 'status', 'tenant', 'tenant_group', 'rack_count', 'device_count', 'description',
+            'slug', 'contacts', 'tags', 'actions', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description')
+        default_columns = ('pk', 'name', 'site', 'status', 'tenant', 'rack_count', 'device_count', 'description')
