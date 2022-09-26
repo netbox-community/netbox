@@ -32,6 +32,41 @@ A `PluginMenuItem` has the following attributes:
 | `permissions` | -        | A list of permissions required to display this link  |
 | `buttons`     | -        | An iterable of PluginMenuButton instances to include |
 
+## Optional Header
+
+Plugin menus normally appear under the "Plugins" header.  An optional menu_heading can be defined to make the plugin menu to appear as a top level menu header.  An example is shown below:
+
+```python
+from extras.plugins import PluginMenuButton, PluginMenuItem
+from utilities.choices import ButtonColorChoices
+
+menu_heading = {
+    "title": "Animal Sound",
+    "icon": "mdi-puzzle"
+}
+
+menu_items = (
+    PluginMenuItem(
+        link='plugins:netbox_animal_sounds:random_animal',
+        link_text='Random sound',
+        buttons=(
+            PluginMenuButton('home', 'Button A', 'fa fa-info', ButtonColorChoices.BLUE),
+            PluginMenuButton('home', 'Button B', 'fa fa-warning', ButtonColorChoices.GREEN),
+        )
+    ),
+)
+```
+
+The `menu_heading` has the following attributes:
+
+| Attribute     | Required | Description                                          |
+|---------------|----------|------------------------------------------------------|
+| `title`       | Yes      | The text that will show in the menu header           |
+| `icon`        | Yes      | The icon to use next to the headermdi                   |
+
+!!! tip
+    The icon names can be found at [Material Design Icons](https://materialdesignicons.com/)
+
 ## Menu Buttons
 
 A `PluginMenuButton` has the following attributes:
