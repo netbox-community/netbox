@@ -297,12 +297,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
             return model.objects.filter(pk__in=value)
         return value
 
-    def to_form_field(self, set_initial=True, enforce_required=True, for_csv_import=False):
+    def to_form_field(self, set_initial=True, enforce_required=True, enforce_visibility=True, for_csv_import=False):
         """
         Return a form field suitable for setting a CustomField's value for an object.
 
         set_initial: Set initial data for the field. This should be False when generating a field for bulk editing.
         enforce_required: Honor the value of CustomField.required. Set to False for filtering/bulk editing.
+        enforce_visibility: Honor the value of CustomField.ui_visibility. Set to False for filtering.
         for_csv_import: Return a form field suitable for bulk import of objects in CSV format.
         """
         initial = self.default if set_initial else None
@@ -397,6 +398,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         field.label = str(self)
         if self.description:
             field.help_text = escape(self.description)
+
+        # Annotate read-only fields
+        if enforce_visibility and self.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY:
+            field.disabled = True
+            prepend = '<br />' if field.help_text else ''
+            field.help_text += f'{prepend}<i class="mdi mdi-alert-circle-outline"></i> Field is set to read-only.'
 
         return field
 

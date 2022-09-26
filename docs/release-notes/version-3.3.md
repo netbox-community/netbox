@@ -8,6 +8,7 @@
 * [#10435](https://github.com/netbox-community/netbox/issues/10435) - Fix exception when filtering VLANs by virtual machine with no cluster assigned
 * [#10439](https://github.com/netbox-community/netbox/issues/10439) - Fix form widget styling for DeviceType airflow field
 * [#10445](https://github.com/netbox-community/netbox/issues/10445) - Avoid rounding virtual machine memory values
+* [#10461](https://github.com/netbox-community/netbox/issues/10461) - Enable filtering by read-only custom fields in the UI
 
 ---
 

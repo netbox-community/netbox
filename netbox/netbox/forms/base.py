@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
-from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices
+from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
 from extras.forms.customfields import CustomFieldsMixin
 from extras.models import CustomField, Tag
 from utilities.forms import BootstrapMixin, CSVModelForm
@@ -125,10 +125,10 @@ class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
     )
 
     def _get_custom_fields(self, content_type):
-        return CustomField.objects.filter(content_types=content_type).exclude(
+        return super()._get_custom_fields(content_type).exclude(
             Q(filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED) |
             Q(type=CustomFieldTypeChoices.TYPE_JSON)
         )
 
     def _get_form_field(self, customfield):
-        return customfield.to_form_field(set_initial=False, enforce_required=False)
+        return customfield.to_form_field(set_initial=False, enforce_required=False, enforce_visibility=False)
