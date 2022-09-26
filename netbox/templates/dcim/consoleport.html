@@ -72,22 +72,22 @@
                                     </a>
                                 </td>
                             </tr>
-                            {% if object.connected_endpoint %}
+                            {% for endpoint in object.connected_endpoints %}
                                 <tr>
                                     <th scope="row">Device</th>
-                                    <td>{{ object.connected_endpoint.device|linkify }}</td>
+                                    <td>{{ endpoint.device|linkify }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Name</th>
-                                    <td>{{ object.connected_endpoint|linkify:"name" }}</td>
+                                    <td>{{ endpoint|linkify:"name" }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Type</th>
-                                    <td>{{ object.connected_endpoint.get_type_display|placeholder }}</td>
+                                    <td>{{ endpoint.get_type_display|placeholder }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Description</th>
-                                    <td>{{ object.connected_endpoint.description|placeholder }}</td>
+                                    <td>{{ endpoint.description|placeholder }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Path Status</th>
@@ -99,7 +99,7 @@
                                         {% endif %}
                                     </td>
                                 </tr>
-                            {% endif %}
+                            {% endfor %}
                         </table>
                     {% else %}
                         <div class="text-muted">

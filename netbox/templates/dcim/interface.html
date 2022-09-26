@@ -165,57 +165,42 @@
                     </a>
                   </td>
                 </tr>
-                {% if object.connected_endpoint.device %}
-                  {% with iface=object.connected_endpoint %}
+                {% for endpoint in object.connected_endpoints %}
+                  {% if endpoint.device %}
                     <tr>
                       <th scope="row">Device</th>
-                      <td>{{ iface.device|linkify }}</td>
+                      <td>{{ endpoint.device|linkify }}</td>
                     </tr>
                     <tr>
                       <th scope="row">Name</th>
-                      <td>{{ iface|linkify:"name" }}</td>
+                      <td>{{ endpoint|linkify:"name" }}</td>
                     </tr>
                     <tr>
                       <th scope="row">Type</th>
-                      <td>{{ iface.get_type_display }}</td>
+                      <td>{{ endpoint.get_type_display }}</td>
                     </tr>
                     <tr>
                       <th scope="row">LAG</th>
-                      <td>{{ iface.lag|linkify|placeholder }}</td>
+                      <td>{{ endpoint.lag|linkify|placeholder }}</td>
                     </tr>
                     <tr>
                       <th scope="row">Description</th>
-                      <td>{{ iface.description|placeholder }}</td>
+                      <td>{{ endpoint.description|placeholder }}</td>
                     </tr>
                     <tr>
                       <th scope="row">MTU</th>
-                      <td>{{ iface.mtu|placeholder }}</td>
+                      <td>{{ endpoint.mtu|placeholder }}</td>
                     </tr>
                     <tr>
                       <th scope="row">MAC Address</th>
-                      <td>{{ iface.mac_address|placeholder }}</td>
+                      <td>{{ endpoint.mac_address|placeholder }}</td>
                     </tr>
                     <tr>
                       <th scope="row">802.1Q Mode</th>
-                      <td>{{ iface.get_mode_display }}</td>
+                      <td>{{ endpoint.get_mode_display }}</td>
                     </tr>
-                  {% endwith %}
-                {% elif object.connected_endpoint.circuit %}
-                  {% with ct=object.connected_endpoint %}
-                    <tr>
-                      <th scope="row">Provider</th>
-                      <td>{{ ct.circuit.provider|linkify }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Circuit</th>
-                      <td>{{ ct.circuit|linkify }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Side</th>
-                      <td>{{ ct.term_side }}</td>
-                    </tr>
-                  {% endwith %}
-                {% endif %}
+                  {% endif %}
+                {% endfor %}
                 <tr>
                   <th scope="row">Path Status</th>
                   <td>
