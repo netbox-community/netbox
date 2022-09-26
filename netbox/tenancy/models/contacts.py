@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from mptt.models import TreeForeignKey
@@ -119,7 +120,7 @@ class Contact(NetBoxModel):
     class Meta:
         ordering = ['name']
         unique_together = (
-            ('group', 'name')
+            ('group', 'name'),
         )
 
     def __str__(self):
@@ -168,3 +169,11 @@ class ContactAssignment(WebhooksMixin, ChangeLoggedModel):
 
     def get_absolute_url(self):
         return reverse('tenancy:contact', args=[self.contact.pk])
+
+    def validate_unique(self, exclude=None):
+        if ContactAssignment.objects.exclude(pk=self.pk).filter(content_type=self.content_type, object_id=self.object_id, role=self.role, priority=self.priority).exists():
+            raise ValidationError({
+                'role': f'A contact assignment for this already exists.'
+            })
+
+        super().validate_unique(exclude=exclude)
