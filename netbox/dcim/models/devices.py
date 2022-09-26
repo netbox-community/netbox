@@ -268,7 +268,7 @@ class DeviceType(NetBoxModel):
 
         if (
                 self.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT
-        ) and self.devicebaytemplates.count():
+        ) and self.pk and self.devicebaytemplates.count():
             raise ValidationError({
                 'subdevice_role': "Must delete all device bay templates associated with this device before "
                                   "declassifying it as a parent device."
