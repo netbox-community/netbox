@@ -7,6 +7,7 @@
 * [#9497](https://github.com/netbox-community/netbox/issues/9497) - Adjust non-racked device filter on site and location detailed view
 * [#10435](https://github.com/netbox-community/netbox/issues/10435) - Fix exception when filtering VLANs by virtual machine with no cluster assigned
 * [#10439](https://github.com/netbox-community/netbox/issues/10439) - Fix form widget styling for DeviceType airflow field
+* [#10445](https://github.com/netbox-community/netbox/issues/10445) - Avoid rounding virtual machine memory values
 
 ---
 
