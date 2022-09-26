@@ -321,6 +321,10 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label='Authentication key'
     )
+    name = forms.CharField(
+        max_length=100,
+        required=False
+    )
     description = forms.CharField(
         max_length=200,
         required=False
