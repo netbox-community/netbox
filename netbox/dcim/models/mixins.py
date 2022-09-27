@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from dcim.choices import *
-from utilities.utils import to_kilograms
+from utilities.utils import to_grams
 
 
 class WeightMixin(models.Model):
@@ -16,10 +16,8 @@ class WeightMixin(models.Model):
         choices=WeightUnitChoices,
         blank=True,
     )
-    # Stores the normalized weight (in kilograms) for database ordering
-    _abs_weight = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
+    # Stores the normalized weight (in grams) for database ordering
+    _abs_weight = models.PositiveBigIntegerField(
         blank=True,
         null=True
     )
@@ -29,9 +27,9 @@ class WeightMixin(models.Model):
 
     def save(self, *args, **kwargs):
 
-        # Store the given weight (if any) in kilograms for use in database ordering
+        # Store the given weight (if any) in grams for use in database ordering
         if self.weight and self.weight_unit:
-            self._abs_weight = to_kilograms(self.weight, self.weight_unit)
+            self._abs_weight = to_grams(self.weight, self.weight_unit)
         else:
             self._abs_weight = None
 

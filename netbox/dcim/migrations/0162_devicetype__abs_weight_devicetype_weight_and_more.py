@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='devicetype',
             name='_abs_weight',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True),
+            field=models.PositiveBigIntegerField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='devicetype',
@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='moduletype',
             name='_abs_weight',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True),
+            field=models.PositiveBigIntegerField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='moduletype',
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rack',
             name='_abs_weight',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True),
+            field=models.PositiveBigIntegerField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='rack',

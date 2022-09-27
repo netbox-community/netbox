@@ -270,7 +270,7 @@ def to_meters(length, unit):
     raise ValueError(f"Unknown unit {unit}. Must be 'km', 'm', 'cm', 'mi', 'ft', or 'in'.")
 
 
-def to_kilograms(weight, unit):
+def to_grams(weight, unit):
     """
     Convert the given weight to kilograms.
     """
@@ -285,13 +285,13 @@ def to_kilograms(weight, unit):
         raise ValueError(f"Unknown unit {unit}. Must be one of the following: {', '.join(valid_units)}")
 
     if unit == WeightUnitChoices.UNIT_KILOGRAM:
-        return weight
-    if unit == WeightUnitChoices.UNIT_GRAM:
         return weight * 1000
+    if unit == WeightUnitChoices.UNIT_GRAM:
+        return weight
     if unit == WeightUnitChoices.UNIT_POUND:
-        return weight * Decimal(0.453592)
+        return weight * Decimal(453.592)
     if unit == WeightUnitChoices.UNIT_OUNCE:
-        return weight * Decimal(0.0283495)
+        return weight * Decimal(28.3495)
     raise ValueError(f"Unknown unit {unit}. Must be 'kg', 'g', 'lb', 'oz'.")
 
 
