@@ -23,10 +23,6 @@ The group's numeric identifier.
 
 An optional name for the FHRP group.
 
-### Description
-
-A brief description of the FHRP group.
-
 ### Authentication Type
 
 The type of authentication employed by group nodes, if any.
