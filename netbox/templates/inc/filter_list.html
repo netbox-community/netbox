@@ -1,7 +1,7 @@
 {% load form_helpers %}
 {% load helpers %}
 
-<form action="." method="get" onsubmit="return cleanGetUrl(this)">
+<form action="." method="get">
   <div class="card">
     <div class="card-body overflow-visible d-flex flex-wrap justify-content-between py-3">
       {% for field in filter_form.hidden_fields %}

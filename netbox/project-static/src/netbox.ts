@@ -13,8 +13,6 @@ import { initSideNav } from './sidenav';
 import { initRackElevation } from './racks';
 import { initLinks } from './links';
 import { initHtmx } from './htmx';
-
-// @ts-ignore
 import { cleanGetUrl } from './util';
 
 function initDocument(): void {
@@ -40,6 +38,14 @@ function initDocument(): void {
 }
 
 function initWindow(): void {
+
+  const documentForms = document.forms
+  for (var documentForm of documentForms) {
+    if (documentForm.method.toUpperCase() == 'GET') {
+      documentForm.addEventListener('submit', cleanGetUrl)
+    }
+  }
+
   const contentContainer = document.querySelector<HTMLElement>('.content-container');
   if (contentContainer !== null) {
     // Focus the content container for accessible navigation.
