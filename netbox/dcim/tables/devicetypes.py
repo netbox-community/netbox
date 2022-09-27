@@ -85,6 +85,9 @@ class DeviceTypeTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:devicetype_list'
     )
+    u_height = columns.TemplateColumn(
+        template_code='{{ value|floatformat }}'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = DeviceType
