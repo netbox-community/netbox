@@ -335,8 +335,11 @@ class FHRPGroupFilterForm(NetBoxModelFilterSetForm):
     model = FHRPGroup
     fieldsets = (
         (None, ('q', 'tag')),
-        ('Attributes', ('protocol', 'group_id')),
+        ('Attributes', ('name', 'protocol', 'group_id')),
         ('Authentication', ('auth_type', 'auth_key')),
+    )
+    name = forms.CharField(
+        required=False
     )
     protocol = MultipleChoiceField(
         choices=FHRPGroupProtocolChoices,

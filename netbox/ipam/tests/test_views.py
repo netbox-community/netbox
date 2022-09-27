@@ -524,6 +524,7 @@ class FHRPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
             'auth_key': 'abc123def456',
             'description': 'Blah blah blah',
+            'name': 'test123 name',
             'tags': [t.pk for t in tags],
         }
 

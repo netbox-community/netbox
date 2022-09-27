@@ -527,7 +527,7 @@ class FHRPGroupForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        ('FHRP Group', ('protocol', 'group_id', 'description', 'tags')),
+        ('FHRP Group', ('protocol', 'group_id', 'name', 'description', 'tags')),
         ('Authentication', ('auth_type', 'auth_key')),
         ('Virtual IP Address', ('ip_vrf', 'ip_address', 'ip_status'))
     )
@@ -535,7 +535,7 @@ class FHRPGroupForm(NetBoxModelForm):
     class Meta:
         model = FHRPGroup
         fields = (
-            'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'ip_vrf', 'ip_address', 'ip_status', 'tags',
+            'protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'description', 'ip_vrf', 'ip_address', 'ip_status', 'tags',
         )
 
     def save(self, *args, **kwargs):

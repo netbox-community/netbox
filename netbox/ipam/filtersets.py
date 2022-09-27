@@ -653,13 +653,14 @@ class FHRPGroupFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = FHRPGroup
-        fields = ['id', 'group_id', 'auth_key']
+        fields = ['id', 'group_id', 'name', 'auth_key']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(description__icontains=value)
+            Q(description__icontains=value) |
+            Q(name__icontains=value)
         )
 
     def filter_related_ip(self, queryset, name, value):

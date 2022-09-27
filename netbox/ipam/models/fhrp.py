@@ -22,6 +22,10 @@ class FHRPGroup(NetBoxModel):
     group_id = models.PositiveSmallIntegerField(
         verbose_name='Group ID'
     )
+    name = models.CharField(
+        max_length=100,
+        blank=True
+    )
     protocol = models.CharField(
         max_length=50,
         choices=FHRPGroupProtocolChoices
@@ -55,7 +59,11 @@ class FHRPGroup(NetBoxModel):
         verbose_name = 'FHRP group'
 
     def __str__(self):
-        name = f'{self.get_protocol_display()}: {self.group_id}'
+        name = ''
+        if self.name:
+            name = f'{self.name} '
+
+        name += f'{self.get_protocol_display()}: {self.group_id}'
 
         # Append the first assigned IP addresses (if any) to serve as an additional identifier
         if self.pk:
