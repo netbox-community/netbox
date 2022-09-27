@@ -5,6 +5,8 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.signals import post_save, pre_delete
+from django.urls import reverse
+from netbox.constants import SEARCH_MAX_RESULTS
 
 # The cache for the initialized backend.
 _backends_cache = {}
@@ -114,15 +116,16 @@ class PostgresIcontainsSearchBackend(SearchBackend):
     def _use_hooks(self):
         return False
 
-    def search(self, search_text):
+    def search(self, request, search_text):
         results = []
 
-        for obj_type in SEARCH_TYPES.keys():
+        search_registry = self.get_registry()
+        for obj_type in search_registry.keys():
 
-            queryset = SEARCH_TYPES[obj_type].queryset.restrict(request.user, 'view')
-            filterset = SEARCH_TYPES[obj_type].filterset
-            table = SEARCH_TYPES[obj_type].table
-            url = SEARCH_TYPES[obj_type].url
+            queryset = search_registry[obj_type].queryset.restrict(request.user, 'view')
+            filterset = search_registry[obj_type].filterset
+            table = search_registry[obj_type].table
+            url = search_registry[obj_type].url
 
             # Construct the results table for this object type
             filtered_queryset = filterset({'q': search_text}, queryset=queryset).qs

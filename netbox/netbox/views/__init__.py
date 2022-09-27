@@ -160,24 +160,7 @@ class SearchView(View):
                 url = reverse(search_registry[object_type].url)
                 return redirect(f"{url}?q={form.cleaned_data['q']}")
 
-            for obj_type in search_registry.keys():
-
-                queryset = search_registry[obj_type].queryset.restrict(request.user, 'view')
-                filterset = search_registry[obj_type].filterset
-                table = search_registry[obj_type].table
-                url = search_registry[obj_type].url
-
-                # Construct the results table for this object type
-                filtered_queryset = filterset({'q': form.cleaned_data['q']}, queryset=queryset).qs
-                table = table(filtered_queryset, orderable=False)
-                table.paginate(per_page=SEARCH_MAX_RESULTS)
-
-                if table.page:
-                    results.append({
-                        'name': queryset.model._meta.verbose_name_plural,
-                        'table': table,
-                        'url': f"{reverse(url)}?q={form.cleaned_data.get('q')}"
-                    })
+            results = default_search_engine.search(request, form.cleaned_data['q'])
 
         return render(request, 'search.html', {
             'form': form,
