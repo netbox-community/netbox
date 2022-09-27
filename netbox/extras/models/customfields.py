@@ -293,8 +293,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
             model = self.object_type.model_class()
             return model.objects.filter(pk=value).first()
         if self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+            valueids = [obj['id'] if isinstance(obj, dict) else obj for obj in value] or None
             model = self.object_type.model_class()
-            return model.objects.filter(pk__in=value)
+            return model.objects.filter(pk__in=valueids)
         return value
 
     def to_form_field(self, set_initial=True, enforce_required=True, for_csv_import=False):
