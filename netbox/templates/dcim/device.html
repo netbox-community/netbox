@@ -66,7 +66,7 @@
                                     {% with object.parent_bay.device as parent %}
                                         {{ parent|linkify }} / {{ object.parent_bay }}
                                         {% if parent.position %}
-                                            (U{{ parent.position }} / {{ parent.get_face_display }})
+                                            (U{{ parent.position|floatformat }} / {{ parent.get_face_display }})
                                         {% endif %}
                                     {% endwith %}
                                 {% elif object.rack and object.position %}
@@ -90,7 +90,7 @@
                         <tr>
                             <th scope="row">Device Type</th>
                             <td>
-                                {{ object.device_type|linkify:"get_full_name" }} ({{ object.device_type.u_height }}U)
+                                {{ object.device_type|linkify:"get_full_name" }} ({{ object.device_type.u_height|floatformat }}U)
                             </td>
                         </tr>
                         <tr>
