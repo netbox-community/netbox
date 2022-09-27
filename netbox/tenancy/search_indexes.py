@@ -27,6 +27,6 @@ class ContactIndex(SearchMixin):
 
 
 TENANCY_SEARCH_TYPES = {
-    'tenant': TenantIndex(),
-    'contact': ContactIndex(),
+    'tenant': TenantIndex,
+    'contact': ContactIndex,
 }

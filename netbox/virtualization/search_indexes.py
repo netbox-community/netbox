@@ -34,6 +34,6 @@ class VirtualMachineIndex(SearchMixin):
 
 
 VIRTUALIZATION_SEARCH_TYPES = {
-    'cluster': ClusterIndex(),
-    'virtualmachine': VirtualMachineIndex(),
+    'cluster': ClusterIndex,
+    'virtualmachine': VirtualMachineIndex,
 }

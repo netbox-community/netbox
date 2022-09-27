@@ -146,15 +146,15 @@ class PowerFeedIndex(SearchMixin):
 
 
 DCIM_SEARCH_TYPES = {
-    'site': SiteIndex(),
-    'rack': RackIndex(),
-    'rackreservation': RackReservationIndex(),
-    'location': LocationIndex(),
-    'devicetype': DeviceTypeIndex(),
-    'device': DeviceIndex(),
-    'moduletype': ModuleTypeIndex(),
-    'module': ModuleIndex(),
-    'virtualchassis': VirtualChassisIndex(),
-    'cable': CableIndex(),
-    'powerfeed': PowerFeedIndex(),
+    'site': SiteIndex,
+    'rack': RackIndex,
+    'rackreservation': RackReservationIndex,
+    'location': LocationIndex,
+    'devicetype': DeviceTypeIndex,
+    'device': DeviceIndex,
+    'moduletype': ModuleTypeIndex,
+    'module': ModuleIndex,
+    'virtualchassis': VirtualChassisIndex,
+    'cable': CableIndex,
+    'powerfeed': PowerFeedIndex,
 }

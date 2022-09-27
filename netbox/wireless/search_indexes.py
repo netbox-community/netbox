@@ -28,6 +28,6 @@ class WirelessLinkIndex(SearchMixin):
 
 
 WIRELESS_SEARCH_TYPES = {
-    'wirelesslan': WirelessLANIndex(),
-    'wirelesslink': WirelessLinkIndex(),
+    'wirelesslan': WirelessLANIndex,
+    'wirelesslink': WirelessLinkIndex,
 }

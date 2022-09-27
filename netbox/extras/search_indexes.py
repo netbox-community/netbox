@@ -16,5 +16,5 @@ class JournalEntryIndex(SearchMixin):
 
 
 JOURNAL_SEARCH_TYPES = {
-    'journalentry': JournalEntryIndex(),
+    'journalentry': JournalEntryIndex,
 }

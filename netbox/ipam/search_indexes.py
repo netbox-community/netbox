@@ -72,11 +72,11 @@ class ServiceIndex(SearchMixin):
 
 
 IPAM_SEARCH_TYPES = {
-    'vrf': VRFIndex(),
-    'aggregate': AggregateIndex(),
-    'prefix': PrefixIndex(),
-    'ipaddress': IPAddressIndex(),
-    'vlan': VLANIndex(),
-    'asn': ASNIndex(),
-    'service': ServiceIndex(),
+    'vrf': VRFIndex,
+    'aggregate': AggregateIndex,
+    'prefix': PrefixIndex,
+    'ipaddress': IPAddressIndex,
+    'vlan': VLANIndex,
+    'asn': ASNIndex,
+    'service': ServiceIndex,
 }

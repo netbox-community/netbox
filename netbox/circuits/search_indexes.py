@@ -36,7 +36,7 @@ class ProviderNetworkIndex(SearchMixin):
 
 
 CIRCUIT_SEARCH_TYPES = {
-    'provider': ProviderIndex(),
-    'circuit': CircuitIndex(),
-    'providernetwork': ProviderNetworkIndex(),
+    'provider': ProviderIndex,
+    'circuit': CircuitIndex,
+    'providernetwork': ProviderNetworkIndex,
 }
