@@ -153,19 +153,19 @@ class SearchView(View):
         results = []
 
         if form.is_valid():
-
+            search_registry = default_search_engine.get_registry()
             # If an object type has been specified, redirect to the dedicated view for it
             if form.cleaned_data['obj_type']:
                 object_type = form.cleaned_data['obj_type']
-                url = reverse(SEARCH_TYPES[object_type].url)
+                url = reverse(search_registry[object_type].url)
                 return redirect(f"{url}?q={form.cleaned_data['q']}")
 
-            for obj_type in SEARCH_TYPES.keys():
+            for obj_type in search_registry.keys():
 
-                queryset = SEARCH_TYPES[obj_type].queryset.restrict(request.user, 'view')
-                filterset = SEARCH_TYPES[obj_type].filterset
-                table = SEARCH_TYPES[obj_type].table
-                url = SEARCH_TYPES[obj_type].url
+                queryset = search_registry[obj_type].queryset.restrict(request.user, 'view')
+                filterset = search_registry[obj_type].filterset
+                table = search_registry[obj_type].table
+                url = search_registry[obj_type].url
 
                 # Construct the results table for this object type
                 filtered_queryset = filterset({'q': form.cleaned_data['q']}, queryset=queryset).qs
