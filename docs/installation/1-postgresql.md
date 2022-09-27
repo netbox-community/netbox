@@ -2,8 +2,8 @@
 
 This section entails the installation and configuration of a local PostgreSQL database. If you already have a PostgreSQL database service in place, skip to [the next section](2-redis.md).
 
-!!! warning "PostgreSQL 10 or later required"
-    NetBox requires PostgreSQL 10 or later. Please note that MySQL and other relational databases are **not** supported.
+!!! warning "PostgreSQL 11 or later required"
+    NetBox requires PostgreSQL 11 or later. Please note that MySQL and other relational databases are **not** supported.
 
 ## Installation
 
@@ -35,7 +35,7 @@ sudo systemctl start postgresql
 sudo systemctl enable postgresql
 ```
 
-Before continuing, verify that you have installed PostgreSQL 10 or later:
+Before continuing, verify that you have installed PostgreSQL 11 or later:
 
 ```no-highlight
 psql -V

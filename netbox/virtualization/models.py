@@ -367,7 +367,7 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
             })
 
         # Validate primary IP addresses
-        interfaces = self.interfaces.all()
+        interfaces = self.interfaces.all() if self.pk else None
         for family in (4, 6):
             field = f'primary_ip{family}'
             ip = getattr(self, field)

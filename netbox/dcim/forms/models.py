@@ -375,6 +375,7 @@ class DeviceTypeForm(NetBoxModelForm):
             'weight', 'weight_unit', 'front_image', 'rear_image', 'comments', 'tags',
         ]
         widgets = {
+            'airflow': StaticSelect(),
             'subdevice_role': StaticSelect(),
             'front_image': ClearableFileInput(attrs={
                 'accept': DEVICETYPE_IMAGE_FORMATS

@@ -326,7 +326,7 @@ class FHRPGroupCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = FHRPGroup
-        fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'description')
+        fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'description')
 
 
 class VLANGroupCSVForm(NetBoxModelCSVForm):
