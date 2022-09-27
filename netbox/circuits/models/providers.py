@@ -106,10 +106,9 @@ class ProviderNetwork(NetBoxModel):
         constraints = (
             models.UniqueConstraint(
                 fields=('provider', 'name'),
-                name='circuits_providernetwork_provider_name'
+                name='%(app_label)s_%(class)s_unique_provider_name'
             ),
         )
-        unique_together = ('provider', 'name')
 
     def __str__(self):
         return self.name

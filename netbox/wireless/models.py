@@ -69,8 +69,11 @@ class WirelessLANGroup(NestedGroupModel):
 
     class Meta:
         ordering = ('name', 'pk')
-        unique_together = (
-            ('parent', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('parent', 'name'),
+                name='%(app_label)s_%(class)s_unique_parent_name'
+            ),
         )
         verbose_name = 'Wireless LAN Group'
 
@@ -195,7 +198,12 @@ class WirelessLink(WirelessAuthenticationBase, NetBoxModel):
 
     class Meta:
         ordering = ['pk']
-        unique_together = ('interface_a', 'interface_b')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('interface_a', 'interface_b'),
+                name='%(app_label)s_%(class)s_unique_interfaces'
+            ),
+        )
 
     def __str__(self):
         return f'#{self.pk}'

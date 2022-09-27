@@ -69,6 +69,13 @@ class ComponentModel(NetBoxModel):
 
     class Meta:
         abstract = True
+        ordering = ('device', '_name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_name'
+            ),
+        )
 
     def __str__(self):
         if self.label:
@@ -99,7 +106,7 @@ class ModularComponentModel(ComponentModel):
         object_id_field='component_id'
     )
 
-    class Meta:
+    class Meta(ComponentModel.Meta):
         abstract = True
 
 
@@ -265,10 +272,6 @@ class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint):
 
     clone_fields = ('device', 'module', 'type', 'speed')
 
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
-
     def get_absolute_url(self):
         return reverse('dcim:consoleport', kwargs={'pk': self.pk})
 
@@ -291,10 +294,6 @@ class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
     )
 
     clone_fields = ('device', 'module', 'type', 'speed')
-
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
 
     def get_absolute_url(self):
         return reverse('dcim:consoleserverport', kwargs={'pk': self.pk})
@@ -328,10 +327,6 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
     )
 
     clone_fields = ('device', 'module', 'maximum_draw', 'allocated_draw')
-
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
 
     def get_absolute_url(self):
         return reverse('dcim:powerport', kwargs={'pk': self.pk})
@@ -442,10 +437,6 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint):
     )
 
     clone_fields = ('device', 'module', 'type', 'power_port', 'feed_leg')
-
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
 
     def get_absolute_url(self):
         return reverse('dcim:poweroutlet', kwargs={'pk': self.pk})
@@ -677,9 +668,8 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'poe_mode', 'poe_type', 'vrf',
     )
 
-    class Meta:
+    class Meta(ModularComponentModel.Meta):
         ordering = ('device', CollateAsChar('_name'))
-        unique_together = ('device', 'name')
 
     def get_absolute_url(self):
         return reverse('dcim:interface', kwargs={'pk': self.pk})
@@ -895,11 +885,16 @@ class FrontPort(ModularComponentModel, CabledObjectModel):
 
     clone_fields = ('device', 'type', 'color')
 
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = (
-            ('device', 'name'),
-            ('rear_port', 'rear_port_position'),
+    class Meta(ModularComponentModel.Meta):
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_name'
+            ),
+            models.UniqueConstraint(
+                fields=('rear_port', 'rear_port_position'),
+                name='%(app_label)s_%(class)s_unique_rear_port_position'
+            ),
         )
 
     def get_absolute_url(self):
@@ -944,10 +939,6 @@ class RearPort(ModularComponentModel, CabledObjectModel):
     )
     clone_fields = ('device', 'type', 'color', 'positions')
 
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
-
     def get_absolute_url(self):
         return reverse('dcim:rearport', kwargs={'pk': self.pk})
 
@@ -980,10 +971,6 @@ class ModuleBay(ComponentModel):
 
     clone_fields = ('device',)
 
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
-
     def get_absolute_url(self):
         return reverse('dcim:modulebay', kwargs={'pk': self.pk})
 
@@ -1001,10 +988,6 @@ class DeviceBay(ComponentModel):
     )
 
     clone_fields = ('device',)
-
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
 
     def get_absolute_url(self):
         return reverse('dcim:devicebay', kwargs={'pk': self.pk})
@@ -1141,7 +1124,12 @@ class InventoryItem(MPTTModel, ComponentModel):
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')
-        unique_together = ('device', 'parent', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'parent', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_parent_name'
+            ),
+        )
 
     def get_absolute_url(self):
         return reverse('dcim:inventoryitem', kwargs={'pk': self.pk})

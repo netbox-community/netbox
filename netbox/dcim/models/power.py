@@ -50,7 +50,12 @@ class PowerPanel(NetBoxModel):
 
     class Meta:
         ordering = ['site', 'name']
-        unique_together = ['site', 'name']
+        constraints = (
+            models.UniqueConstraint(
+                fields=('site', 'name'),
+                name='%(app_label)s_%(class)s_unique_site_name'
+            ),
+        )
 
     def __str__(self):
         return self.name
@@ -138,7 +143,12 @@ class PowerFeed(NetBoxModel, PathEndpoint, CabledObjectModel):
 
     class Meta:
         ordering = ['power_panel', 'name']
-        unique_together = ['power_panel', 'name']
+        constraints = (
+            models.UniqueConstraint(
+                fields=('power_panel', 'name'),
+                name='%(app_label)s_%(class)s_unique_power_panel_name'
+            ),
+        )
 
     def __str__(self):
         return self.name

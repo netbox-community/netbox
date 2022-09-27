@@ -70,10 +70,16 @@ class VLANGroup(OrganizationalModel):
 
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique
-        unique_together = [
-            ['scope_type', 'scope_id', 'name'],
-            ['scope_type', 'scope_id', 'slug'],
-        ]
+        constraints = (
+            models.UniqueConstraint(
+                fields=('scope_type', 'scope_id', 'name'),
+                name='%(app_label)s_%(class)s_unique_scope_name'
+            ),
+            models.UniqueConstraint(
+                fields=('scope_type', 'scope_id', 'slug'),
+                name='%(app_label)s_%(class)s_unique_scope_slug'
+            ),
+        )
         verbose_name = 'VLAN group'
         verbose_name_plural = 'VLAN groups'
 
@@ -189,10 +195,16 @@ class VLAN(NetBoxModel):
 
     class Meta:
         ordering = ('site', 'group', 'vid', 'pk')  # (site, group, vid) may be non-unique
-        unique_together = [
-            ['group', 'vid'],
-            ['group', 'name'],
-        ]
+        constraints = (
+            models.UniqueConstraint(
+                fields=('group', 'vid'),
+                name='%(app_label)s_%(class)s_unique_group_vid'
+            ),
+            models.UniqueConstraint(
+                fields=('group', 'name'),
+                name='%(app_label)s_%(class)s_unique_group_name'
+            ),
+        )
         verbose_name = 'VLAN'
         verbose_name_plural = 'VLANs'
 
