@@ -20,6 +20,7 @@ class SearchBackend(object):
     """A search engine capable of performing multi-table searches."""
 
     _created_engines: dict = dict()
+    _search_choices = tuple()
 
     @classmethod
     def get_created_engines(cls):
@@ -65,6 +66,24 @@ class SearchBackend(object):
         return self._registered_models
 
     # Signalling hooks.
+
+    def get_search_choices(self):
+        if self._search_choices:
+            return self._search_choices
+
+        result = list()
+        result.append(('', 'All Objects'))
+        for category, items in self.get_registry().items():
+            subcategories = list()
+            for slug, obj in items.items():
+                name = obj.queryset.model._meta.verbose_name_plural
+                name = name[0].upper() + name[1:]
+                subcategories.append((slug, name))
+            result.append((category, tuple(subcategories)))
+
+        self._search_choices = tuple(result)
+        print(self._search_choices)
+        return self._search_choices
 
     def _use_hooks(self):
         raise NotImplementedError
