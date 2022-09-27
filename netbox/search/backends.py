@@ -10,30 +10,6 @@ from django.db.models.signals import post_save, pre_delete
 _backends_cache = {}
 
 
-def get_backend(backend_name=None):
-    """Initializes and returns the search backend."""
-    global _backends_cache
-    if not backend_name:
-        backend_name = getattr(settings, "SEARCH_BACKEND", "search.backends.PostgresIcontainsSearchBackend")
-
-    # Try to use the cached backend.
-    if backend_name in _backends_cache:
-        return _backends_cache[backend_name]
-
-    # Load the backend class.
-    backend_module_name, backend_cls_name = backend_name.rsplit(".", 1)
-    backend_module = import_module(backend_module_name)
-    try:
-        backend_cls = getattr(backend_module, backend_cls_name)
-    except AttributeError:
-        raise ImproperlyConfigured(f"Could not find a class named {backend_module_name} in {backend_cls_name}")
-
-    # Initialize the backend.
-    backend = backend_cls()
-    _backends_cache[backend_name] = backend
-    return backend
-
-
 class SearchEngineError(Exception):
 
     """Something went wrong with a search engine."""
@@ -63,11 +39,11 @@ class SearchBackend(object):
         # Store a reference to this engine.
         self.__class__._created_engines[engine_slug] = self
 
-    def is_registered(self, model):
+    def is_registered(self, key, model):
         """Checks whether the given model is registered with this search engine."""
-        return model in self._registered_models
+        return key in self._registered_models
 
-    def register(self, model):
+    def register(self, key, model):
         """
         Registers the given model with this search engine.
 
@@ -75,13 +51,18 @@ class SearchBackend(object):
         RegistrationError will be raised.
         """
         # Check for existing registration.
-        if self.is_registered(model):
+        if self.is_registered(key, model):
             raise RegistrationError(f"{model} is already registered with this search engine")
+
+        self._registered_models[key] = model
 
         # Connect to the signalling framework.
         if self._use_hooks():
             post_save.connect(self._post_save_receiver, model)
             pre_delete.connect(self._pre_delete_receiver, model)
+
+    def get_registry(self):
+        return self._registered_models
 
     # Signalling hooks.
 
@@ -132,6 +113,30 @@ class PostgresIcontainsSearchBackend(SearchBackend):
         return results
 
 
+def get_backend(backend_name=None):
+    """Initializes and returns the search backend."""
+    global _backends_cache
+    if not backend_name:
+        backend_name = getattr(settings, "SEARCH_BACKEND", "search.backends.PostgresIcontainsSearchBackend")
+
+    # Try to use the cached backend.
+    if backend_name in _backends_cache:
+        return _backends_cache[backend_name]
+
+    # Load the backend class.
+    backend_module_name, backend_cls_name = backend_name.rsplit(".", 1)
+    backend_module = import_module(backend_module_name)
+    try:
+        backend_cls = getattr(backend_module, backend_cls_name)
+    except AttributeError:
+        raise ImproperlyConfigured(f"Could not find a class named {backend_module_name} in {backend_cls_name}")
+
+    # Initialize the backend.
+    backend = backend_cls("default")
+    _backends_cache[backend_name] = backend
+    return backend
+
+
 # The main search methods.
-default_search_engine = SearchBackend("default")
+default_search_engine = get_backend()
 search = default_search_engine.search

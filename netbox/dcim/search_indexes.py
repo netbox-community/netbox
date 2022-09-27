@@ -20,140 +20,118 @@ from utilities.utils import count_related
 
 
 class SiteIndex(SearchMixin):
-
-    def __init__(self):
-        self.model = Site
-        self.queryset = Site.objects.prefetch_related('region', 'tenant', 'tenant__group')
-        self.filterset = dcim.filtersets.SiteFilterSet
-        self.table = dcim.tables.SiteTable
-        self.url = 'dcim:site_list'
+    model = Site
+    queryset = Site.objects.prefetch_related('region', 'tenant', 'tenant__group')
+    filterset = dcim.filtersets.SiteFilterSet
+    table = dcim.tables.SiteTable
+    url = 'dcim:site_list'
 
 
 class RackIndex(SearchMixin):
-
-    def __init__(self):
-        self.model = Rack
-        self.queryset = Rack.objects.prefetch_related('site', 'location', 'tenant', 'tenant__group', 'role').annotate(
-            device_count=count_related(Device, 'rack')
-        )
-        self.filterset = dcim.filtersets.RackFilterSet
-        self.table = dcim.tables.RackTable
-        self.url = 'dcim:rack_list'
+    model = Rack
+    queryset = Rack.objects.prefetch_related('site', 'location', 'tenant', 'tenant__group', 'role').annotate(
+        device_count=count_related(Device, 'rack')
+    )
+    filterset = dcim.filtersets.RackFilterSet
+    table = dcim.tables.RackTable
+    url = 'dcim:rack_list'
 
 
 class RackReservationIndex(SearchMixin):
-
-    def __init__(self):
-        self.model = RackReservation
-        self.queryset = RackReservation.objects.prefetch_related('rack', 'user')
-        self.filterset = dcim.filtersets.RackReservationFilterSet
-        self.table = dcim.tables.RackReservationTable
-        self.url = 'dcim:rackreservation_list'
+    model = RackReservation
+    queryset = RackReservation.objects.prefetch_related('rack', 'user')
+    filterset = dcim.filtersets.RackReservationFilterSet
+    table = dcim.tables.RackReservationTable
+    url = 'dcim:rackreservation_list'
 
 
 class LocationIndex(SearchMixin):
-
-    def __init__(self):
-        self.model = Site
-        self.queryset = Location.objects.add_related_count(
-            Location.objects.add_related_count(Location.objects.all(), Device, 'location', 'device_count', cumulative=True),
-            Rack,
-            'location',
-            'rack_count',
-            cumulative=True,
-        ).prefetch_related('site')
-        self.filterset = dcim.filtersets.LocationFilterSet
-        self.table = dcim.tables.LocationTable
-        self.url = 'dcim:location_list'
+    model = Site
+    queryset = Location.objects.add_related_count(
+        Location.objects.add_related_count(Location.objects.all(), Device, 'location', 'device_count', cumulative=True),
+        Rack,
+        'location',
+        'rack_count',
+        cumulative=True,
+    ).prefetch_related('site')
+    filterset = dcim.filtersets.LocationFilterSet
+    table = dcim.tables.LocationTable
+    url = 'dcim:location_list'
 
 
 class DeviceTypeIndex(SearchMixin):
-
-    def __init__(self):
-        self.model = DeviceType
-        self.queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
-            instance_count=count_related(Device, 'device_type')
-        )
-        self.filterset = dcim.filtersets.DeviceTypeFilterSet
-        self.table = dcim.tables.DeviceTypeTable
-        self.url = 'dcim:devicetype_list'
+    model = DeviceType
+    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
+        instance_count=count_related(Device, 'device_type')
+    )
+    filterset = dcim.filtersets.DeviceTypeFilterSet
+    table = dcim.tables.DeviceTypeTable
+    url = 'dcim:devicetype_list'
 
 
 class DeviceIndex(SearchMixin):
-
-    def __init__(self):
-        self.model = DeviceIndex
-        self.queryset = Device.objects.prefetch_related(
-            'device_type__manufacturer',
-            'device_role',
-            'tenant',
-            'tenant__group',
-            'site',
-            'rack',
-            'primary_ip4',
-            'primary_ip6',
-        )
-        self.filterset = dcim.filtersets.DeviceFilterSet
-        self.table = dcim.tables.DeviceTable
-        self.url = 'dcim:device_list'
+    model = Device
+    queryset = Device.objects.prefetch_related(
+        'device_type__manufacturer',
+        'device_role',
+        'tenant',
+        'tenant__group',
+        'site',
+        'rack',
+        'primary_ip4',
+        'primary_ip6',
+    )
+    filterset = dcim.filtersets.DeviceFilterSet
+    table = dcim.tables.DeviceTable
+    url = 'dcim:device_list'
 
 
 class ModuleTypeIndex(SearchMixin):
-
-    def __init__(self):
-        self.model = ModuleType
-        self.queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
-            instance_count=count_related(Module, 'module_type')
-        )
-        self.filterset = dcim.filtersets.ModuleTypeFilterSet
-        self.table = dcim.tables.ModuleTypeTable
-        self.url = 'dcim:moduletype_list'
+    model = ModuleType
+    queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
+        instance_count=count_related(Module, 'module_type')
+    )
+    filterset = dcim.filtersets.ModuleTypeFilterSet
+    table = dcim.tables.ModuleTypeTable
+    url = 'dcim:moduletype_list'
 
 
 class ModuleIndex(SearchMixin):
-
-    def __init__(self):
-        self.model = Module
-        self.queryset = Module.objects.prefetch_related(
-            'module_type__manufacturer',
-            'device',
-            'module_bay',
-        )
-        self.filterset = dcim.filtersets.ModuleFilterSet
-        self.table = dcim.tables.ModuleTable
-        self.url = 'dcim:module_list'
+    model = Module
+    queryset = Module.objects.prefetch_related(
+        'module_type__manufacturer',
+        'device',
+        'module_bay',
+    )
+    filterset = dcim.filtersets.ModuleFilterSet
+    table = dcim.tables.ModuleTable
+    url = 'dcim:module_list'
 
 
 class VirtualChassisIndex(SearchMixin):
-
-    def __init__(self):
-        self.model = VirtualChassis
-        self.queryset = VirtualChassis.objects.prefetch_related('master').annotate(
-            member_count=count_related(Device, 'virtual_chassis')
-        )
-        self.filterset = dcim.filtersets.VirtualChassisFilterSet
-        self.table = dcim.tables.VirtualChassisTable
-        self.url = 'dcim:virtualchassis_list'
+    model = VirtualChassis
+    queryset = VirtualChassis.objects.prefetch_related('master').annotate(
+        member_count=count_related(Device, 'virtual_chassis')
+    )
+    filterset = dcim.filtersets.VirtualChassisFilterSet
+    table = dcim.tables.VirtualChassisTable
+    url = 'dcim:virtualchassis_list'
 
 
 class CableIndex(SearchMixin):
-
-    def __init__(self):
-        self.model = Cable
-        self.queryset = Cable.objects.all()
-        self.filterset = dcim.filtersets.CableFilterSet
-        self.table = dcim.tables.CableTable
-        self.url = 'dcim:cable_list'
+    model = Cable
+    queryset = Cable.objects.all()
+    filterset = dcim.filtersets.CableFilterSet
+    table = dcim.tables.CableTable
+    url = 'dcim:cable_list'
 
 
 class PowerFeedIndex(SearchMixin):
-
-    def __init__(self):
-        self.model = PowerFeed
-        self.queryset = PowerFeed.objects.all()
-        self.filterset = dcim.filtersets.PowerFeedFilterSet
-        self.table = dcim.tables.PowerFeedTable
-        self.url = 'dcim:powerfeed_list'
+    model = PowerFeed
+    queryset = PowerFeed.objects.all()
+    filterset = dcim.filtersets.PowerFeedFilterSet
+    table = dcim.tables.PowerFeedTable
+    url = 'dcim:powerfeed_list'
 
 
 DCIM_SEARCH_TYPES = {

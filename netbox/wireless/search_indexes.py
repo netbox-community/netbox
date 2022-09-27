@@ -8,23 +8,21 @@ from wireless.models import WirelessLAN, WirelessLink
 
 
 class WirelessLANIndex(SearchMixin):
-    def __init__(self):
-        self.model = WirelessLAN
-        self.queryset = WirelessLAN.objects.prefetch_related('group', 'vlan').annotate(
-            interface_count=count_related(Interface, 'wireless_lans')
-        )
-        self.filterset = wireless.filtersets.WirelessLANFilterSet
-        self.table = wireless.tables.WirelessLANTable
-        self.url = 'wireless:wirelesslan_list'
+    model = WirelessLAN
+    queryset = WirelessLAN.objects.prefetch_related('group', 'vlan').annotate(
+        interface_count=count_related(Interface, 'wireless_lans')
+    )
+    filterset = wireless.filtersets.WirelessLANFilterSet
+    table = wireless.tables.WirelessLANTable
+    url = 'wireless:wirelesslan_list'
 
 
 class WirelessLinkIndex(SearchMixin):
-    def __init__(self):
-        self.model = WirelessLink
-        self.queryset = WirelessLink.objects.prefetch_related('interface_a__device', 'interface_b__device')
-        self.filterset = wireless.filtersets.WirelessLinkFilterSet
-        self.table = wireless.tables.WirelessLinkTable
-        self.url = 'wireless:wirelesslink_list'
+    model = WirelessLink
+    queryset = WirelessLink.objects.prefetch_related('interface_a__device', 'interface_b__device')
+    filterset = wireless.filtersets.WirelessLinkFilterSet
+    table = wireless.tables.WirelessLinkTable
+    url = 'wireless:wirelesslink_list'
 
 
 WIRELESS_SEARCH_TYPES = {

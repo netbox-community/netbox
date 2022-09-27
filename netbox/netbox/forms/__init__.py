@@ -1,7 +1,7 @@
 from django import forms
 from utilities.forms import BootstrapMixin
 
-from netbox.search import SEARCH_TYPE_HIERARCHY
+from search.backends import default_search_engine
 
 from .base import *
 
@@ -9,7 +9,7 @@ from .base import *
 def build_search_choices():
     result = list()
     result.append(('', 'All Objects'))
-    for category, items in SEARCH_TYPE_HIERARCHY.items():
+    for category, items in default_search_engine.get_registry().items():
         subcategories = list()
         for slug, obj in items.items():
             name = obj.queryset.model._meta.verbose_name_plural

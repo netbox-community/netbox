@@ -7,32 +7,29 @@ from utilities.utils import count_related
 
 
 class ProviderIndex(SearchMixin):
-    def __init__(self):
-        self.model = Provider
-        self.queryset = Provider.objects.annotate(count_circuits=count_related(Circuit, 'provider'))
-        self.filterset = circuits.filtersets.ProviderFilterSet
-        self.table = circuits.tables.ProviderTable
-        self.url = 'circuits:provider_list'
+    model = Provider
+    queryset = Provider.objects.annotate(count_circuits=count_related(Circuit, 'provider'))
+    filterset = circuits.filtersets.ProviderFilterSet
+    table = circuits.tables.ProviderTable
+    url = 'circuits:provider_list'
 
 
 class CircuitIndex(SearchMixin):
-    def __init__(self):
-        self.model = Circuit
-        self.queryset = Circuit.objects.prefetch_related(
-            'type', 'provider', 'tenant', 'tenant__group', 'terminations__site'
-        )
-        self.filterset = circuits.filtersets.CircuitFilterSet
-        self.table = circuits.tables.CircuitTable
-        self.url = 'circuits:circuit_list'
+    model = Circuit
+    queryset = Circuit.objects.prefetch_related(
+        'type', 'provider', 'tenant', 'tenant__group', 'terminations__site'
+    )
+    filterset = circuits.filtersets.CircuitFilterSet
+    table = circuits.tables.CircuitTable
+    url = 'circuits:circuit_list'
 
 
 class ProviderNetworkIndex(SearchMixin):
-    def __init__(self):
-        self.model = ProviderNetwork
-        self.queryset = ProviderNetwork.objects.prefetch_related('provider')
-        self.filterset = circuits.filtersets.ProviderNetworkFilterSet
-        self.table = circuits.tables.ProviderNetworkTable
-        self.url = 'circuits:providernetwork_list'
+    model = ProviderNetwork
+    queryset = ProviderNetwork.objects.prefetch_related('provider')
+    filterset = circuits.filtersets.ProviderNetworkFilterSet
+    table = circuits.tables.ProviderNetworkTable
+    url = 'circuits:providernetwork_list'
 
 
 CIRCUIT_SEARCH_TYPES = {
