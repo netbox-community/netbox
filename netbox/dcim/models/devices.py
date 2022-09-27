@@ -662,22 +662,22 @@ class Device(NetBoxModel, ConfigContextModel):
         ordering = ('_name', 'pk')  # Name may be null
         constraints = (
             models.UniqueConstraint(
-                name='dcim_device_unique_name_site_tenant',
-                fields=('name', 'site', 'tenant')
+                fields=('name', 'site', 'tenant'),
+                name='%(app_label)s_%(class)s_unique_name_site_tenant'
             ),
             models.UniqueConstraint(
-                name='dcim_device_unique_name_site',
                 fields=('name', 'site'),
+                name='%(app_label)s_%(class)s_unique_name_site',
                 condition=Q(tenant__isnull=True),
                 violation_error_message="Device name must be unique per site."
             ),
             models.UniqueConstraint(
-                name='dcim_device_unique_rack_position_face',
-                fields=('rack', 'position', 'face')
+                fields=('rack', 'position', 'face'),
+                name='%(app_label)s_%(class)s_unique_rack_position_face'
             ),
             models.UniqueConstraint(
-                name='dcim_device_unique_virtual_chassis_vc_position',
-                fields=('virtual_chassis', 'vc_position')
+                fields=('virtual_chassis', 'vc_position'),
+                name='%(app_label)s_%(class)s_unique_virtual_chassis_vc_position'
             ),
         )
 

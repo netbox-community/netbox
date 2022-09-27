@@ -9,6 +9,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveConstraint(
+            model_name='cabletermination',
+            name='dcim_cable_termination_unique_termination',
+        ),
+        migrations.RemoveConstraint(
             model_name='location',
             name='dcim_location_name',
         ),
@@ -135,6 +139,10 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='rearporttemplate',
             unique_together=set(),
+        ),
+        migrations.AddConstraint(
+            model_name='cabletermination',
+            constraint=models.UniqueConstraint(fields=('termination_type', 'termination_id'), name='dcim_cabletermination_unique_termination'),
         ),
         migrations.AddConstraint(
             model_name='consoleport',

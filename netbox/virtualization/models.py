@@ -318,12 +318,12 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
         ordering = ('_name', 'pk')  # Name may be non-unique
         constraints = (
             models.UniqueConstraint(
-                name='virtualization_virtualmachine_unique_name_cluster_tenant',
-                fields=('name', 'cluster', 'tenant')
+                fields=('name', 'cluster', 'tenant'),
+                name='%(app_label)s_%(class)s_unique_name_cluster_tenant'
             ),
             models.UniqueConstraint(
-                name='virtualization_virtualmachine_unique_name_cluster',
                 fields=('name', 'cluster'),
+                name='%(app_label)s_%(class)s_unique_name_cluster',
                 condition=Q(tenant__isnull=True),
                 violation_error_message="Virtual machine name must be unique per site."
             ),
