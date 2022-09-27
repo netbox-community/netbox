@@ -477,3 +477,31 @@ export function replaceAll(input: string, pattern: string | RegExp, replacement:
 
   return input.replace(pattern, replacement);
 }
+
+
+/**
+ * Disable empty FormElemnts before submitting the form.
+ *
+ * @param targetform HTMLFormElement where the FormElements need to be disabled.
+ */
+
+export function cleanGetUrl(targetform: HTMLFormElement) {
+  
+  var form_elements = targetform.elements;
+
+  for (const element of form_elements) {
+    // The SELECT statement requires a different approach. It depends on the selectedIndex, rather that the value.
+    switch (element.nodeName) {
+      case "SELECT":
+        const selectElement = element as HTMLSelectElement;
+        if (selectElement.selectedIndex == null || selectElement.selectedIndex == -1 || selectElement[selectElement.selectedIndex].getAttribute('value') == '') {
+          element.setAttribute('disabled','');
+        }
+        break;
+      default:
+        if (element.getAttribute('value') == null) {
+          element.setAttribute('disabled','');
+        }
+    }
+  }
+}

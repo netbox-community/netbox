@@ -14,6 +14,9 @@ import { initRackElevation } from './racks';
 import { initLinks } from './links';
 import { initHtmx } from './htmx';
 
+// @ts-ignore
+import { cleanGetUrl } from './util';
+
 function initDocument(): void {
   for (const init of [
     initBootstrap,
