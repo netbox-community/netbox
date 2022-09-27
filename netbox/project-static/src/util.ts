@@ -480,7 +480,7 @@ export function replaceAll(input: string, pattern: string | RegExp, replacement:
 
 
 /**
- * Disable empty FormElemnts before submitting the form.
+ * Disable empty FormElements before submitting the form. Purpose is to present a clean URL without empty variables.
  *
  * @param this HTMLFormElement where the FormElements need to be disabled.
  */
@@ -490,8 +490,10 @@ export function cleanGetUrl(this: HTMLFormElement): boolean {
   var form_elements = this.elements;
 
   for (var element of form_elements) {
-    // The SELECT statement requires a different approach. It depends on the selectedIndex, rather that the value.
-    switch (element.nodeName) {
+    // All FormElements are presented as an 'Element'. In order to use the Form specific field, is has to be remapped to the correct FormElement
+    switch (element.nodeName.toUpperCase()) {
+      // The SELECT statement requires a different approach. It depends on the selectedIndex, rather that the value.
+      // selectIndex is only available in the HTMLSelectElement
       case "SELECT":
         const selectElement = element as HTMLSelectElement;
         if (
@@ -502,6 +504,7 @@ export function cleanGetUrl(this: HTMLFormElement): boolean {
           element.setAttribute('disabled','');
         }
         break;
+      // All other FormElements are mapped to the HTMLInputElement to read out the 'value'
       default:
         const inputElement = element as HTMLInputElement;
         if (
