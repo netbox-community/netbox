@@ -39,8 +39,8 @@ class SearchConfig(AppConfig):
             submodule_name = "search_indexes"
             if module_has_submodule(module, submodule_name):
                 module_name = f"{name}.{submodule_name}"
-                for cls_name, cls_obj in inspect.getmembers(sys.modules[module_name]):
-                    if inspect.isclass(cls_obj) and getattr(cls_obj, "search_index", False) and getattr(cls_obj, "model", None):
+                for cls_name, cls_obj in inspect.getmembers(sys.modules[module_name], predicate=inspect.isclass):
+                    if getattr(cls_obj, "search_index", False) and getattr(cls_obj, "model", None):
                         cls_name = cls_obj.model.__name__.lower()
                         if not default_search_engine.is_registered(cls_name, cls_obj):
                             default_search_engine.register(cls_name, cls_obj)

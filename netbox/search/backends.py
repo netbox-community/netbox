@@ -20,7 +20,8 @@ class SearchBackend(object):
     """A search engine capable of performing multi-table searches."""
 
     _created_engines: dict = dict()
-    _search_choices = tuple()
+    _search_choices = {}
+    _search_choice_options = tuple()
 
     @classmethod
     def get_created_engines(cls):
@@ -57,6 +58,13 @@ class SearchBackend(object):
 
         self._registered_models[key] = model
 
+        # add to the search choices
+        if model.choice_header not in self._search_choices:
+            self._search_choices[model.choice_header] = {}
+
+        if key not in self._search_choices[model.choice_header]:
+            self._search_choices[model.choice_header][key] = model.queryset.model._meta.verbose_name_plural
+
         # Connect to the signalling framework.
         if self._use_hooks():
             post_save.connect(self._post_save_receiver, model)
@@ -68,22 +76,21 @@ class SearchBackend(object):
     # Signalling hooks.
 
     def get_search_choices(self):
-        if self._search_choices:
-            return self._search_choices
+        if self._search_choice_options:
+            return self._search_choice_options
 
         result = list()
         result.append(('', 'All Objects'))
-        for category, items in self.get_registry().items():
+        for category, items in self._search_choices.items():
             subcategories = list()
-            for slug, obj in items.items():
-                name = obj.queryset.model._meta.verbose_name_plural
+            for slug, verbose_name in items.items():
+                name = verbose_name
                 name = name[0].upper() + name[1:]
                 subcategories.append((slug, name))
             result.append((category, tuple(subcategories)))
 
-        self._search_choices = tuple(result)
-        print(self._search_choices)
-        return self._search_choices
+        self._search_choice_options = tuple(result)
+        return self._search_choice_options
 
     def _use_hooks(self):
         raise NotImplementedError

@@ -12,6 +12,7 @@ class JournalEntryIndex(SearchMixin):
     filterset = extras.filtersets.JournalEntryFilterSet
     table = extras.tables.JournalEntryTable
     url = 'extras:journalentry_list'
+    choice_header = 'Journal'
 
 
 JOURNAL_SEARCH_TYPES = {

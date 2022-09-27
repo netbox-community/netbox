@@ -12,6 +12,7 @@ class ProviderIndex(SearchMixin):
     filterset = circuits.filtersets.ProviderFilterSet
     table = circuits.tables.ProviderTable
     url = 'circuits:provider_list'
+    choice_header = 'Circuits'
 
 
 class CircuitIndex(SearchMixin):
@@ -22,6 +23,7 @@ class CircuitIndex(SearchMixin):
     filterset = circuits.filtersets.CircuitFilterSet
     table = circuits.tables.CircuitTable
     url = 'circuits:circuit_list'
+    choice_header = 'Circuits'
 
 
 class ProviderNetworkIndex(SearchMixin):
@@ -30,6 +32,7 @@ class ProviderNetworkIndex(SearchMixin):
     filterset = circuits.filtersets.ProviderNetworkFilterSet
     table = circuits.tables.ProviderNetworkTable
     url = 'circuits:providernetwork_list'
+    choice_header = 'Circuits'
 
 
 CIRCUIT_SEARCH_TYPES = {

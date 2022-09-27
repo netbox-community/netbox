@@ -12,6 +12,7 @@ class VRFIndex(SearchMixin):
     filterset = ipam.filtersets.VRFFilterSet
     table = ipam.tables.VRFTable
     url = 'ipam:vrf_list'
+    choice_header = 'IPAM'
 
 
 class AggregateIndex(SearchMixin):
@@ -20,6 +21,7 @@ class AggregateIndex(SearchMixin):
     filterset = ipam.filtersets.AggregateFilterSet
     table = ipam.tables.AggregateTable
     url = 'ipam:aggregate_list'
+    choice_header = 'IPAM'
 
 
 class PrefixIndex(SearchMixin):
@@ -30,6 +32,7 @@ class PrefixIndex(SearchMixin):
     filterset = ipam.filtersets.PrefixFilterSet
     table = ipam.tables.PrefixTable
     url = 'ipam:prefix_list'
+    choice_header = 'IPAM'
 
 
 class IPAddressIndex(SearchMixin):
@@ -38,6 +41,7 @@ class IPAddressIndex(SearchMixin):
     filterset = ipam.filtersets.IPAddressFilterSet
     table = ipam.tables.IPAddressTable
     url = 'ipam:ipaddress_list'
+    choice_header = 'IPAM'
 
 
 class VLANIndex(SearchMixin):
@@ -46,6 +50,7 @@ class VLANIndex(SearchMixin):
     filterset = ipam.filtersets.VLANFilterSet
     table = ipam.tables.VLANTable
     url = 'ipam:vlan_list'
+    choice_header = 'IPAM'
 
 
 class ASNIndex(SearchMixin):
@@ -54,6 +59,7 @@ class ASNIndex(SearchMixin):
     filterset = ipam.filtersets.ASNFilterSet
     table = ipam.tables.ASNTable
     url = 'ipam:asn_list'
+    choice_header = 'IPAM'
 
 
 class ServiceIndex(SearchMixin):
@@ -62,6 +68,7 @@ class ServiceIndex(SearchMixin):
     filterset = ipam.filtersets.ServiceFilterSet
     table = ipam.tables.ServiceTable
     url = 'ipam:service_list'
+    choice_header = 'IPAM'
 
 
 IPAM_SEARCH_TYPES = {

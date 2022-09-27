@@ -15,6 +15,7 @@ class WirelessLANIndex(SearchMixin):
     filterset = wireless.filtersets.WirelessLANFilterSet
     table = wireless.tables.WirelessLANTable
     url = 'wireless:wirelesslan_list'
+    choice_header = 'Wireless'
 
 
 class WirelessLinkIndex(SearchMixin):
@@ -23,6 +24,7 @@ class WirelessLinkIndex(SearchMixin):
     filterset = wireless.filtersets.WirelessLinkFilterSet
     table = wireless.tables.WirelessLinkTable
     url = 'wireless:wirelesslink_list'
+    choice_header = 'Wireless'
 
 
 WIRELESS_SEARCH_TYPES = {

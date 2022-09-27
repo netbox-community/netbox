@@ -7,23 +7,23 @@ from utilities.utils import count_related
 
 
 class TenantIndex(SearchMixin):
-    def __init__(self):
-        self.model = Tenant
-        self.queryset = Tenant.objects.prefetch_related('group')
-        self.filterset = tenancy.filtersets.TenantFilterSet
-        self.table = tenancy.tables.TenantTable
-        self.url = 'tenancy:tenant_list'
+    model = Tenant
+    queryset = Tenant.objects.prefetch_related('group')
+    filterset = tenancy.filtersets.TenantFilterSet
+    table = tenancy.tables.TenantTable
+    url = 'tenancy:tenant_list'
+    choice_header = 'Tenancy'
 
 
 class ContactIndex(SearchMixin):
-    def __init__(self):
-        self.model = Contact
-        self.queryset = Contact.objects.prefetch_related('group', 'assignments').annotate(
-            assignment_count=count_related(ContactAssignment, 'contact')
-        )
-        self.filterset = tenancy.filtersets.ContactFilterSet
-        self.table = tenancy.tables.ContactTable
-        self.url = 'tenancy:contact_list'
+    model = Contact
+    queryset = Contact.objects.prefetch_related('group', 'assignments').annotate(
+        assignment_count=count_related(ContactAssignment, 'contact')
+    )
+    filterset = tenancy.filtersets.ContactFilterSet
+    table = tenancy.tables.ContactTable
+    url = 'tenancy:contact_list'
+    choice_header = 'Tenancy'
 
 
 TENANCY_SEARCH_TYPES = {

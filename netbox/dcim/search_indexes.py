@@ -25,6 +25,7 @@ class SiteIndex(SearchMixin):
     filterset = dcim.filtersets.SiteFilterSet
     table = dcim.tables.SiteTable
     url = 'dcim:site_list'
+    choice_header = 'DCIM'
 
 
 class RackIndex(SearchMixin):
@@ -35,6 +36,7 @@ class RackIndex(SearchMixin):
     filterset = dcim.filtersets.RackFilterSet
     table = dcim.tables.RackTable
     url = 'dcim:rack_list'
+    choice_header = 'DCIM'
 
 
 class RackReservationIndex(SearchMixin):
@@ -43,6 +45,7 @@ class RackReservationIndex(SearchMixin):
     filterset = dcim.filtersets.RackReservationFilterSet
     table = dcim.tables.RackReservationTable
     url = 'dcim:rackreservation_list'
+    choice_header = 'DCIM'
 
 
 class LocationIndex(SearchMixin):
@@ -57,6 +60,7 @@ class LocationIndex(SearchMixin):
     filterset = dcim.filtersets.LocationFilterSet
     table = dcim.tables.LocationTable
     url = 'dcim:location_list'
+    choice_header = 'DCIM'
 
 
 class DeviceTypeIndex(SearchMixin):
@@ -67,6 +71,7 @@ class DeviceTypeIndex(SearchMixin):
     filterset = dcim.filtersets.DeviceTypeFilterSet
     table = dcim.tables.DeviceTypeTable
     url = 'dcim:devicetype_list'
+    choice_header = 'DCIM'
 
 
 class DeviceIndex(SearchMixin):
@@ -84,6 +89,7 @@ class DeviceIndex(SearchMixin):
     filterset = dcim.filtersets.DeviceFilterSet
     table = dcim.tables.DeviceTable
     url = 'dcim:device_list'
+    choice_header = 'DCIM'
 
 
 class ModuleTypeIndex(SearchMixin):
@@ -94,6 +100,7 @@ class ModuleTypeIndex(SearchMixin):
     filterset = dcim.filtersets.ModuleTypeFilterSet
     table = dcim.tables.ModuleTypeTable
     url = 'dcim:moduletype_list'
+    choice_header = 'DCIM'
 
 
 class ModuleIndex(SearchMixin):
@@ -106,6 +113,7 @@ class ModuleIndex(SearchMixin):
     filterset = dcim.filtersets.ModuleFilterSet
     table = dcim.tables.ModuleTable
     url = 'dcim:module_list'
+    choice_header = 'DCIM'
 
 
 class VirtualChassisIndex(SearchMixin):
@@ -116,6 +124,7 @@ class VirtualChassisIndex(SearchMixin):
     filterset = dcim.filtersets.VirtualChassisFilterSet
     table = dcim.tables.VirtualChassisTable
     url = 'dcim:virtualchassis_list'
+    choice_header = 'DCIM'
 
 
 class CableIndex(SearchMixin):
@@ -124,6 +133,7 @@ class CableIndex(SearchMixin):
     filterset = dcim.filtersets.CableFilterSet
     table = dcim.tables.CableTable
     url = 'dcim:cable_list'
+    choice_header = 'DCIM'
 
 
 class PowerFeedIndex(SearchMixin):
@@ -132,6 +142,7 @@ class PowerFeedIndex(SearchMixin):
     filterset = dcim.filtersets.PowerFeedFilterSet
     table = dcim.tables.PowerFeedTable
     url = 'dcim:powerfeed_list'
+    choice_header = 'DCIM'
 
 
 DCIM_SEARCH_TYPES = {
