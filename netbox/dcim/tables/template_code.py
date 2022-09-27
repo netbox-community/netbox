@@ -46,7 +46,9 @@ INTERFACE_IPADDRESSES = """
 INTERFACE_FHRPGROUPS = """
 <div class="table-badge-group">
   {% for assignment in value.all %}
-    <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group.get_protocol_display }}: {{ assignment.group.group_id }}</a>
+    {% for ip in assignment.group.ip_addresses.all %}
+      <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group.get_protocol_display }}: {{ assignment.group.group_id }} ({{ ip }})</a>
+    {% endfor %}
   {% endfor %}
 </div>
 """
@@ -113,6 +115,9 @@ CONSOLEPORT_BUTTONS = """
     <a href="{% url 'dcim:consoleport_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
     {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_consoleports' pk=object.pk %}" title="Edit cable" class="btn btn-warning btn-sm">
+            <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i>
+        </a>
         <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_consoleports' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-sm">
             <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
         </a>
@@ -145,6 +150,9 @@ CONSOLESERVERPORT_BUTTONS = """
     <a href="{% url 'dcim:consoleserverport_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
     {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" title="Edit cable" class="btn btn-warning btn-sm">
+            <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i>
+        </a>
         <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-sm">
             <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
         </a>
@@ -177,6 +185,9 @@ POWERPORT_BUTTONS = """
     <a href="{% url 'dcim:powerport_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
     {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_powerports' pk=object.pk %}" title="Edit cable" class="btn btn-warning btn-sm">
+            <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i>
+        </a>
         <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_powerports' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-sm">
             <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
         </a>
@@ -208,6 +219,9 @@ POWEROUTLET_BUTTONS = """
     <a href="{% url 'dcim:poweroutlet_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
     {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" title="Edit cable" class="btn btn-warning btn-sm">
+            <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i>
+        </a>
         <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-sm">
             <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
         </a>
@@ -256,6 +270,9 @@ INTERFACE_BUTTONS = """
 {% if record.cable %}
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
     {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}" title="Edit cable" class="btn btn-warning btn-sm">
+            <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i>
+        </a>
         <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-sm">
             <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
         </a>
@@ -301,6 +318,9 @@ FRONTPORT_BUTTONS = """
     <a href="{% url 'dcim:frontport_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
     {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" title="Edit cable" class="btn btn-warning btn-sm">
+            <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i>
+        </a>
         <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-sm">
             <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
         </a>
@@ -338,6 +358,9 @@ REARPORT_BUTTONS = """
     <a href="{% url 'dcim:rearport_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
     {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}" title="Edit cable" class="btn btn-warning btn-sm">
+            <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i>
+        </a>
         <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-sm">
             <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
         </a>
