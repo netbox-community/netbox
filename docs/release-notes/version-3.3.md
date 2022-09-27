@@ -2,6 +2,10 @@
 
 ## v3.3.5 (FUTURE)
 
+### Enhancements
+
+* [#10465](https://github.com/netbox-community/netbox/issues/10465) - Improve formatting of device heights and rack positions
+
 ### Bug Fixes
 
 * [#9497](https://github.com/netbox-community/netbox/issues/9497) - Adjust non-racked device filter on site and location detailed view
@@ -10,12 +14,14 @@
 * [#10445](https://github.com/netbox-community/netbox/issues/10445) - Avoid rounding virtual machine memory values
 * [#10461](https://github.com/netbox-community/netbox/issues/10461) - Enable filtering by read-only custom fields in the UI
 * [#10470](https://github.com/netbox-community/netbox/issues/10470) - Omit read-only custom fields from CSV import forms
+* [#10480](https://github.com/netbox-community/netbox/issues/10480) - Cable trace SVG links should not force a new window
 
 ---
 
 ## v3.3.4 (2022-09-16)
 
 ### Bug Fixes
+
 * [#10383](https://github.com/netbox-community/netbox/issues/10383) - Fix assignment of component templates to module types via web UI
 * [#10387](https://github.com/netbox-community/netbox/issues/10387) - Fix `MultiValueDictKeyError` exception when editing a device interface
 
