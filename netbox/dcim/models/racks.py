@@ -3,12 +3,11 @@ import decimal
 from django.apps import apps
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count, Sum
+from django.db.models import Count
 from django.urls import reverse
 
 from dcim.choices import *
@@ -18,7 +17,7 @@ from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.utils import array_to_string, drange
-from .device_components import PowerOutlet, PowerPort
+from .device_components import PowerPort
 from .devices import Device
 from .power import PowerFeed
 
@@ -191,10 +190,16 @@ class Rack(NetBoxModel):
 
     class Meta:
         ordering = ('site', 'location', '_name', 'pk')  # (site, location, name) may be non-unique
-        unique_together = (
+        constraints = (
             # Name and facility_id must be unique *only* within a Location
-            ('location', 'name'),
-            ('location', 'facility_id'),
+            models.UniqueConstraint(
+                fields=('location', 'name'),
+                name='%(app_label)s_%(class)s_unique_location_name'
+            ),
+            models.UniqueConstraint(
+                fields=('location', 'facility_id'),
+                name='%(app_label)s_%(class)s_unique_location_facility_id'
+            ),
         )
 
     def __str__(self):

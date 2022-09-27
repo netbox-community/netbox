@@ -143,10 +143,16 @@ class DeviceType(NetBoxModel):
 
     class Meta:
         ordering = ['manufacturer', 'model']
-        unique_together = [
-            ['manufacturer', 'model'],
-            ['manufacturer', 'slug'],
-        ]
+        constraints = (
+            models.UniqueConstraint(
+                fields=('manufacturer', 'model'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_model'
+            ),
+            models.UniqueConstraint(
+                fields=('manufacturer', 'slug'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_slug'
+            ),
+        )
 
     def __str__(self):
         return self.model
@@ -341,8 +347,11 @@ class ModuleType(NetBoxModel):
 
     class Meta:
         ordering = ('manufacturer', 'model')
-        unique_together = (
-            ('manufacturer', 'model'),
+        constraints = (
+            models.UniqueConstraint(
+                fields=('manufacturer', 'model'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_model'
+            ),
         )
 
     def __str__(self):

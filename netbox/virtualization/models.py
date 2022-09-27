@@ -160,9 +160,15 @@ class Cluster(NetBoxModel):
 
     class Meta:
         ordering = ['name']
-        unique_together = (
-            ('group', 'name'),
-            ('site', 'name'),
+        constraints = (
+            models.UniqueConstraint(
+                fields=('group', 'name'),
+                name='%(app_label)s_%(class)s_unique_group_name'
+            ),
+            models.UniqueConstraint(
+                fields=('site', 'name'),
+                name='%(app_label)s_%(class)s_unique_site_name'
+            ),
         )
 
     def __str__(self):
@@ -461,9 +467,14 @@ class VMInterface(NetBoxModel, BaseInterface):
     )
 
     class Meta:
-        verbose_name = 'interface'
         ordering = ('virtual_machine', CollateAsChar('_name'))
-        unique_together = ('virtual_machine', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('virtual_machine', 'name'),
+                name='%(app_label)s_%(class)s_unique_virtual_machine_name'
+            ),
+        )
+        verbose_name = 'interface'
 
     def __str__(self):
         return self.name
