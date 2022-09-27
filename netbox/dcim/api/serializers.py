@@ -203,7 +203,7 @@ class RackSerializer(NetBoxModelSerializer):
     outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False)
     device_count = serializers.IntegerField(read_only=True)
     powerfeed_count = serializers.IntegerField(read_only=True)
-    weight_unit = ChoiceField(choices=DeviceWeightUnitChoices, allow_blank=True, required=False)
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False)
 
     class Meta:
         model = Rack
@@ -318,7 +318,7 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
     subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
     device_count = serializers.IntegerField(read_only=True)
-    weight_unit = ChoiceField(choices=DeviceWeightUnitChoices, allow_blank=True, required=False)
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False)
 
     class Meta:
         model = DeviceType
@@ -333,7 +333,7 @@ class ModuleTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:moduletype-detail')
     manufacturer = NestedManufacturerSerializer()
     # module_count = serializers.IntegerField(read_only=True)
-    weight_unit = ChoiceField(choices=DeviceWeightUnitChoices, allow_blank=True, required=False)
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False)
 
     class Meta:
         model = ModuleType

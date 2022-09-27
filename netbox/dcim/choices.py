@@ -1314,7 +1314,7 @@ class CableLengthUnitChoices(ChoiceSet):
     )
 
 
-class DeviceWeightUnitChoices(ChoiceSet):
+class WeightUnitChoices(ChoiceSet):
 
     # Metric
     UNIT_KILOGRAM = 'kg'

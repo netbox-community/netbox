@@ -4,7 +4,7 @@ from dcim.choices import *
 from utilities.utils import to_kilograms
 
 
-class DeviceWeightMixin(models.Model):
+class WeightMixin(models.Model):
     weight = models.DecimalField(
         max_digits=8,
         decimal_places=2,
@@ -13,7 +13,7 @@ class DeviceWeightMixin(models.Model):
     )
     weight_unit = models.CharField(
         max_length=50,
-        choices=DeviceWeightUnitChoices,
+        choices=WeightUnitChoices,
         blank=True,
     )
     # Stores the normalized weight (in kilograms) for database ordering
@@ -29,7 +29,7 @@ class DeviceWeightMixin(models.Model):
 
     def save(self, *args, **kwargs):
 
-        # Store the given weight (if any) in meters for use in database ordering
+        # Store the given weight (if any) in kilograms for use in database ordering
         if self.weight and self.weight_unit:
             self._abs_weight = to_kilograms(self.weight, self.weight_unit)
         else:

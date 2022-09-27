@@ -282,11 +282,11 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         required=False
     )
     tag = TagFilterField(model)
-    weight = forms.IntegerField(
+    weight = forms.DecimalField(
         required=False
     )
     weight_unit = forms.ChoiceField(
-        choices=add_blank_choice(DeviceWeightUnitChoices),
+        choices=add_blank_choice(WeightUnitChoices),
         required=False
     )
 
@@ -378,7 +378,7 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', 'device_bays', 'module_bays', 'inventory_items',
         )),
-        ('Attributes', ('weight', 'weight_unit')),
+        ('Weight', ('weight', 'weight_unit')),
     )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -474,11 +474,11 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
         )
     )
     tag = TagFilterField(model)
-    weight = forms.IntegerField(
+    weight = forms.DecimalField(
         required=False
     )
     weight_unit = forms.ChoiceField(
-        choices=add_blank_choice(DeviceWeightUnitChoices),
+        choices=add_blank_choice(WeightUnitChoices),
         required=False
     )
 
@@ -492,7 +492,7 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports',
         )),
-        ('Attributes', ('weight', 'weight_unit')),
+        ('Weight', ('weight', 'weight_unit')),
     )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -546,11 +546,11 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
         )
     )
     tag = TagFilterField(model)
-    weight = forms.IntegerField(
+    weight = forms.DecimalField(
         required=False
     )
     weight_unit = forms.ChoiceField(
-        choices=add_blank_choice(DeviceWeightUnitChoices),
+        choices=add_blank_choice(WeightUnitChoices),
         required=False
     )
 

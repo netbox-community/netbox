@@ -290,7 +290,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     weight_unit = forms.ChoiceField(
-        choices=add_blank_choice(DeviceWeightUnitChoices),
+        choices=add_blank_choice(WeightUnitChoices),
         required=False,
         initial='',
         widget=StaticSelect()
@@ -301,7 +301,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         ('Rack', ('status', 'role', 'tenant', 'serial', 'asset_tag')),
         ('Location', ('region', 'site_group', 'site', 'location')),
         ('Hardware', ('type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit')),
-        ('Attributes', ('weight', 'weight_unit')),
+        ('Weight', ('weight', 'weight_unit')),
     )
     nullable_fields = (
         'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments', 'weight'
@@ -382,7 +382,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     weight_unit = forms.ChoiceField(
-        choices=add_blank_choice(DeviceWeightUnitChoices),
+        choices=add_blank_choice(WeightUnitChoices),
         required=False,
         initial='',
         widget=StaticSelect()
@@ -391,7 +391,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
     model = DeviceType
     fieldsets = (
         (None, ('manufacturer', 'part_number', 'u_height', 'is_full_depth', 'airflow')),
-        ('Attributes', ('weight', 'weight_unit')),
+        ('Weight', ('weight', 'weight_unit')),
     )
     nullable_fields = ('part_number', 'airflow', 'weight')
 
@@ -420,7 +420,7 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     weight_unit = forms.ChoiceField(
-        choices=add_blank_choice(DeviceWeightUnitChoices),
+        choices=add_blank_choice(WeightUnitChoices),
         required=False,
         initial='',
         widget=StaticSelect()
