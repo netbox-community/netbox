@@ -19,6 +19,10 @@ The wire protocol employed by cooperating servers to maintain the virtual [IP ad
 
 The group's numeric identifier.
 
+### Name
+
+An optional name for the FHRP group.
+
 ### Authentication Type
 
 The type of authentication employed by group nodes, if any.

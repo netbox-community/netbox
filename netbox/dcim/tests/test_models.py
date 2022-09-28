@@ -384,7 +384,7 @@ class DeviceTestCase(TestCase):
             site=self.site,
             device_type=self.device_type,
             device_role=self.device_role,
-            name=''
+            name=None
         )
         device1.save()
 
@@ -392,12 +392,12 @@ class DeviceTestCase(TestCase):
             site=device1.site,
             device_type=device1.device_type,
             device_role=device1.device_role,
-            name=''
+            name=None
         )
         device2.full_clean()
         device2.save()
 
-        self.assertEqual(Device.objects.filter(name='').count(), 2)
+        self.assertEqual(Device.objects.filter(name__isnull=True).count(), 2)
 
     def test_device_duplicate_names(self):
 
