@@ -143,10 +143,16 @@ class DeviceType(NetBoxModel):
 
     class Meta:
         ordering = ['manufacturer', 'model']
-        unique_together = [
-            ['manufacturer', 'model'],
-            ['manufacturer', 'slug'],
-        ]
+        constraints = (
+            models.UniqueConstraint(
+                fields=('manufacturer', 'model'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_model'
+            ),
+            models.UniqueConstraint(
+                fields=('manufacturer', 'slug'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_slug'
+            ),
+        )
 
     def __str__(self):
         return self.model
@@ -341,8 +347,11 @@ class ModuleType(NetBoxModel):
 
     class Meta:
         ordering = ('manufacturer', 'model')
-        unique_together = (
-            ('manufacturer', 'model'),
+        constraints = (
+            models.UniqueConstraint(
+                fields=('manufacturer', 'model'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_model'
+            ),
         )
 
     def __str__(self):
@@ -651,10 +660,25 @@ class Device(NetBoxModel, ConfigContextModel):
 
     class Meta:
         ordering = ('_name', 'pk')  # Name may be null
-        unique_together = (
-            ('site', 'tenant', 'name'),  # See validate_unique below
-            ('rack', 'position', 'face'),
-            ('virtual_chassis', 'vc_position'),
+        constraints = (
+            models.UniqueConstraint(
+                fields=('name', 'site', 'tenant'),
+                name='%(app_label)s_%(class)s_unique_name_site_tenant'
+            ),
+            models.UniqueConstraint(
+                fields=('name', 'site'),
+                name='%(app_label)s_%(class)s_unique_name_site',
+                condition=Q(tenant__isnull=True),
+                violation_error_message="Device name must be unique per site."
+            ),
+            models.UniqueConstraint(
+                fields=('rack', 'position', 'face'),
+                name='%(app_label)s_%(class)s_unique_rack_position_face'
+            ),
+            models.UniqueConstraint(
+                fields=('virtual_chassis', 'vc_position'),
+                name='%(app_label)s_%(class)s_unique_virtual_chassis_vc_position'
+            ),
         )
 
     def __str__(self):
@@ -678,23 +702,6 @@ class Device(NetBoxModel, ConfigContextModel):
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
-
-    def validate_unique(self, exclude=None):
-
-        # Check for a duplicate name on a device assigned to the same Site and no Tenant. This is necessary
-        # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
-        # of the uniqueness constraint without manual intervention.
-        if self.name and hasattr(self, 'site') and self.tenant is None:
-            if Device.objects.exclude(pk=self.pk).filter(
-                    name=self.name,
-                    site=self.site,
-                    tenant__isnull=True
-            ):
-                raise ValidationError({
-                    'name': 'A device with this name already exists.'
-                })
-
-        super().validate_unique(exclude)
 
     def clean(self):
         super().clean()

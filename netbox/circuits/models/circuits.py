@@ -132,7 +132,12 @@ class Circuit(NetBoxModel):
 
     class Meta:
         ordering = ['provider', 'cid']
-        unique_together = ['provider', 'cid']
+        constraints = (
+            models.UniqueConstraint(
+                fields=('provider', 'cid'),
+                name='%(app_label)s_%(class)s_unique_provider_cid'
+            ),
+        )
 
     def __str__(self):
         return self.cid
@@ -208,7 +213,12 @@ class CircuitTermination(
 
     class Meta:
         ordering = ['circuit', 'term_side']
-        unique_together = ['circuit', 'term_side']
+        constraints = (
+            models.UniqueConstraint(
+                fields=('circuit', 'term_side'),
+                name='%(app_label)s_%(class)s_unique_circuit_term_side'
+            ),
+        )
 
     def __str__(self):
         return f'Termination {self.term_side}: {self.site or self.provider_network}'
