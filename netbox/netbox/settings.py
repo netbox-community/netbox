@@ -21,7 +21,7 @@ from netbox.config import PARAMS
 # Monkey patch to fix Django 4.0 support for graphene-django (see
 # https://github.com/graphql-python/graphene-django/issues/1284)
 # TODO: Remove this when graphene-django 2.16 becomes available
-django.utils.encoding.force_text = force_str # type: ignore
+django.utils.encoding.force_text = force_str  # type: ignore
 
 
 #
@@ -669,7 +669,8 @@ for plugin_name in PLUGINS:
             "and point to the PluginConfig subclass.".format(plugin_name)
         )
 
-    plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__) # type: ignore
+    plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
+
     # Gather additionnal apps to load alongside this plugin
     plugin_apps = plugin_config.django_apps
     if plugin_name in plugin_apps:
@@ -690,7 +691,6 @@ for plugin_name in PLUGINS:
                 f"The module {app}, from this list, cannot be imported. Check that the additionnal app has been "
                 "installed within the correct Python environment."
             )
-
 
     INSTALLED_APPS.extend(plugin_apps)
 
