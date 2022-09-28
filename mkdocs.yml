@@ -132,6 +132,7 @@ nav:
             - GraphQL API: 'plugins/development/graphql-api.md'
             - Background Tasks: 'plugins/development/background-tasks.md'
             - Exceptions: 'plugins/development/exceptions.md'
+            - Search: 'plugins/development/search.md'
     - Administration:
         - Authentication:
             - Overview: 'administration/authentication/overview.md'
