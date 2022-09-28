@@ -204,7 +204,7 @@ def register_template_extensions(class_list):
 #
 
 class PluginMenu:
-    icon_class = 'mdi-puzzle'
+    icon_class = 'mdi mdi-puzzle'
 
     def __init__(self, label, groups, icon_class=None):
         self.label = label

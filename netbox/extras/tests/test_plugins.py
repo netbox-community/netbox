@@ -5,6 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
+from extras.plugins import PluginMenu
 from extras.registry import registry
 from extras.tests.dummy_plugin import config as dummy_config
 from netbox.graphql.schema import Query
@@ -58,9 +59,17 @@ class PluginTest(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_menu(self):
+        """
+        Check menu registration.
+        """
+        menu = registry['plugins']['menus'][0]
+        self.assertIsInstance(menu, PluginMenu)
+        self.assertEqual(menu.label, 'Dummy')
+
     def test_menu_items(self):
         """
-        Check that plugin MenuItems and MenuButtons are registered.
+        Check menu_items registration.
         """
         self.assertIn('Dummy plugin', registry['plugins']['menu_items'])
         menu_items = registry['plugins']['menu_items']['Dummy plugin']
