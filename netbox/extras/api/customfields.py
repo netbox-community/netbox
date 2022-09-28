@@ -69,6 +69,12 @@ class CustomFieldsDataField(Field):
                 "values."
             )
 
+        for cf in self._get_custom_fields():
+            if cf.name in data.keys():
+                # Convert the mixed array of dict and id's into id's only
+                if cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+                    data[cf.name] = [obj['id'] if isinstance(obj, dict) else obj for obj in data[cf.name]] or None
+
         # If updating an existing instance, start with existing custom_field_data
         if self.parent.instance:
             data = {**self.parent.instance.custom_field_data, **data}
