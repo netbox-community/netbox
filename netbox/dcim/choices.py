@@ -1176,7 +1176,7 @@ class PortTypeChoices(ChoiceSet):
     TYPE_URM_P4 = 'urm-p4'
     TYPE_URM_P8 = 'urm-p8'
     TYPE_OTHER = 'other'
-    TYPE_BACKPLAME = 'backplane'
+    TYPE_BACKPLANE = 'backplane'
 
 
     CHOICES = (
@@ -1271,7 +1271,7 @@ class CableTypeChoices(ChoiceSet):
     TYPE_SMF_OS2 = 'smf-os2'
     TYPE_AOC = 'aoc'
     TYPE_POWER = 'power'
-    TYPE_BACKPLAME = 'backplane'
+    TYPE_BACKPLANE = 'backplane'
 
     CHOICES = (
         (
