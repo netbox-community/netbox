@@ -9,6 +9,7 @@ from svgwrite.text import Text
 from django.conf import settings
 from django.core.exceptions import FieldError
 from django.db.models import Q
+from django.template.defaultfilters import floatformat
 from django.urls import reverse
 from django.utils.http import urlencode
 
@@ -41,7 +42,7 @@ def get_device_description(device):
         device.device_role,
         device.device_type.manufacturer.name,
         device.device_type.model,
-        device.device_type.u_height,
+        floatformat(device.device_type.u_height),
         device.asset_tag or '',
         device.serial or ''
     )

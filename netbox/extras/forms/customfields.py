@@ -34,7 +34,9 @@ class CustomFieldsMixin:
         return ContentType.objects.get_for_model(self.model)
 
     def _get_custom_fields(self, content_type):
-        return CustomField.objects.filter(content_types=content_type)
+        return CustomField.objects.filter(content_types=content_type).exclude(
+            ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN
+        )
 
     def _get_form_field(self, customfield):
         return customfield.to_form_field()
@@ -49,13 +51,6 @@ class CustomFieldsMixin:
 
             field_name = f'cf_{customfield.name}'
             self.fields[field_name] = self._get_form_field(customfield)
-
-            if customfield.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY:
-                self.fields[field_name].disabled = True
-                if self.fields[field_name].help_text:
-                    self.fields[field_name].help_text += '<br />'
-                self.fields[field_name].help_text += '<i class="mdi mdi-alert-circle-outline"></i> ' \
-                                                     'Field is set to read-only.'
 
             # Annotate the field in the list of CustomField form fields
             self.custom_fields[field_name] = customfield
