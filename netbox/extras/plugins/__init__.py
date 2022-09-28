@@ -6,15 +6,16 @@ from django.apps import AppConfig
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import get_template
 
-from extras.registry import registry
-from utilities.choices import ButtonColorChoices
-
 from extras.plugins.utils import import_object
+from extras.registry import registry
+from netbox.navigation import MenuGroup
+from utilities.choices import ButtonColorChoices
 
 
 # Initialize plugin registry
 registry['plugins'] = {
     'graphql_schemas': [],
+    'menus': [],
     'menu_items': {},
     'preferences': {},
     'template_extensions': collections.defaultdict(list),
@@ -57,8 +58,8 @@ class PluginConfig(AppConfig):
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.
     graphql_schema = 'graphql.schema'
+    menu = 'navigation.menu'
     menu_items = 'navigation.menu_items'
-    menu_header = 'navigation.menu_heading'
     template_extensions = 'template_content.template_extensions'
     user_preferences = 'preferences.preferences'
 
@@ -70,15 +71,11 @@ class PluginConfig(AppConfig):
         if template_extensions is not None:
             register_template_extensions(template_extensions)
 
-        # Register navigation menu items (if defined)
-        try:
-            menu_header = import_object(f"{self.__module__}.{self.menu_header}")
-        except AttributeError:
-            menu_header = None
-
-        menu_items = import_object(f"{self.__module__}.{self.menu_items}")
-        if menu_items is not None:
-            register_menu_items(self.verbose_name, menu_header, menu_items)
+        # Register navigation menu or menu items (if defined)
+        if menu := import_object(f"{self.__module__}.{self.menu}"):
+            register_menu(menu)
+        if menu_items := import_object(f"{self.__module__}.{self.menu_items}"):
+            register_menu_items(self.verbose_name, menu_items)
 
         # Register GraphQL schema (if defined)
         graphql_schema = import_object(f"{self.__module__}.{self.graphql_schema}")
@@ -206,6 +203,22 @@ def register_template_extensions(class_list):
 # Navigation menu links
 #
 
+class PluginMenu:
+    icon = 'mdi-puzzle'
+
+    def __init__(self, label, groups, icon=None):
+        self.label = label
+        self.groups = [
+            MenuGroup(label, items) for label, items in groups
+        ]
+        if icon is not None:
+            self.icon = icon
+
+    @property
+    def icon_class(self):
+        return f'mdi {self.icon}'
+
+
 class PluginMenuItem:
     """
     This class represents a navigation menu item. This constitutes primary link and its text, but also allows for
@@ -252,7 +265,13 @@ class PluginMenuButton:
             self.color = color
 
 
-def register_menu_items(section_name, menu_header, class_list):
+def register_menu(menu):
+    if not isinstance(menu, PluginMenu):
+        raise TypeError(f"{menu} must be an instance of extras.plugins.PluginMenu")
+    registry['plugins']['menus'].append(menu)
+
+
+def register_menu_items(section_name, class_list):
     """
     Register a list of PluginMenuItem instances for a given menu section (e.g. plugin name)
     """
@@ -264,9 +283,7 @@ def register_menu_items(section_name, menu_header, class_list):
             if not isinstance(button, PluginMenuButton):
                 raise TypeError(f"{button} must be an instance of extras.plugins.PluginMenuButton")
 
-    registry['plugins']['menu_items'][section_name] = {}
-    registry['plugins']['menu_items'][section_name]['header'] = menu_header
-    registry['plugins']['menu_items'][section_name]['items'] = class_list
+    registry['plugins']['menu_items'][section_name] = class_list
 
 
 #
