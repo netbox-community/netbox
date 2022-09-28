@@ -1,4 +1,5 @@
 from django.db import migrations, models
+import django.db.models.functions.text
 
 
 class Migration(migrations.Migration):
@@ -30,11 +31,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='virtualmachine',
-            constraint=models.UniqueConstraint(fields=('name', 'cluster', 'tenant'), name='virtualization_virtualmachine_unique_name_cluster_tenant'),
+            constraint=models.UniqueConstraint(django.db.models.functions.text.Lower('name'), models.F('cluster'), models.F('tenant'), name='virtualization_virtualmachine_unique_name_cluster_tenant'),
         ),
         migrations.AddConstraint(
             model_name='virtualmachine',
-            constraint=models.UniqueConstraint(condition=models.Q(('tenant__isnull', True)), fields=('name', 'cluster'), name='virtualization_virtualmachine_unique_name_cluster', violation_error_message='Virtual machine name must be unique per site.'),
+            constraint=models.UniqueConstraint(django.db.models.functions.text.Lower('name'), models.F('cluster'), condition=models.Q(('tenant__isnull', True)), name='virtualization_virtualmachine_unique_name_cluster', violation_error_message='Virtual machine name must be unique per cluster.'),
         ),
         migrations.AddConstraint(
             model_name='vminterface',

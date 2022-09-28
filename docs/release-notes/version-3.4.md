@@ -3,8 +3,13 @@
 !!! warning "PostgreSQL 11 Required"
     NetBox v3.4 requires PostgreSQL 11 or later.
 
+### Breaking Changes
+
+* Device and virtual machine names are no longer case-sensitive. Attempting to create e.g. "device1" and "DEVICE1" will raise a validation error.
+
 ### Enhancements
 
+* [#9249](https://github.com/netbox-community/netbox/issues/9249) - Device and virtual machine names are no longer case-sensitive
 * [#9892](https://github.com/netbox-community/netbox/issues/9892) - Add optional `name` field for FHRP groups
 
 ### Plugins API

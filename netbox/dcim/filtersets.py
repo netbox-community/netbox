@@ -887,6 +887,9 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         to_field_name='slug',
         label='Device model (slug)',
     )
+    name = MultiValueCharFilter(
+        lookup_expr='iexact'
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=DeviceStatusChoices,
         null_value=None
@@ -950,7 +953,7 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
 
     class Meta:
         model = Device
-        fields = ['id', 'name', 'asset_tag', 'face', 'position', 'airflow', 'vc_position', 'vc_priority']
+        fields = ['id', 'asset_tag', 'face', 'position', 'airflow', 'vc_position', 'vc_priority']
 
     def search(self, queryset, name, value):
         if not value.strip():
