@@ -23,6 +23,14 @@ def multivalue_field_factory(field_class):
                 field.to_python(v) for v in value if v
             ]
 
+        def run_validators(self, value):
+            for v in value:
+                super().run_validators(v)
+
+        def validate(self, value):
+            for v in value:
+                super().validate(v)
+
     return type(f'MultiValue{field_class.__name__}', (NewField,), dict())
 
 

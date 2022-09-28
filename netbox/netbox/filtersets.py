@@ -46,7 +46,7 @@ class BaseFilterSet(django_filters.FilterSet):
             'filter_class': filters.MultiValueDateTimeFilter
         },
         models.DecimalField: {
-            'filter_class': filters.MultiValueNumberFilter
+            'filter_class': filters.MultiValueDecimalFilter
         },
         models.EmailField: {
             'filter_class': filters.MultiValueCharFilter
@@ -95,6 +95,7 @@ class BaseFilterSet(django_filters.FilterSet):
             filters.MultiValueDateFilter,
             filters.MultiValueDateTimeFilter,
             filters.MultiValueNumberFilter,
+            filters.MultiValueDecimalFilter,
             filters.MultiValueTimeFilter
         )):
             return FILTER_NUMERIC_BASED_LOOKUP_MAP

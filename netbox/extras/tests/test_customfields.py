@@ -1161,7 +1161,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf9': ['A', 'X'],
                 'cf10': manufacturers[0].pk,
                 'cf11': [manufacturers[0].pk, manufacturers[3].pk],
-                'cf12': 100.25,
+                'cf12': decimal.Decimal(100.25),
             }),
             Site(name='Site 2', slug='site-2', custom_field_data={
                 'cf1': 200,
@@ -1175,7 +1175,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf9': ['B', 'X'],
                 'cf10': manufacturers[1].pk,
                 'cf11': [manufacturers[1].pk, manufacturers[3].pk],
-                'cf12': 200.25,
+                'cf12': decimal.Decimal(200.25),
             }),
             Site(name='Site 3', slug='site-3', custom_field_data={
                 'cf1': 300,
@@ -1189,7 +1189,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf9': ['C', 'X'],
                 'cf10': manufacturers[2].pk,
                 'cf11': [manufacturers[2].pk, manufacturers[3].pk],
-                'cf12': 300.25,
+                'cf12': decimal.Decimal("300.25"),
             }),
         ])
 
@@ -1202,8 +1202,9 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf1__lte': [200]}, self.queryset).qs.count(), 2)
 
     def test_filter_decimal(self):
-        self.assertEqual(self.filterset({'cf_cf12': [100.25, 200.25]}, self.queryset).qs.count(), 3)
-        self.assertEqual(self.filterset({'cf_cf12__n': [200.25]}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf12__gt': [200.25]}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf12': [100.25, 200.25]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf12__n': [200.25]}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf12__gt': [200.25]}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf12__gte': [200.25]}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf12__lt': [200.25]}, self.queryset).qs.count(), 1)
