@@ -32,7 +32,7 @@ def check_legacy_data(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('circuits', '0038_cabling_cleanup'),
+        ('circuits', '0039_unique_constraints'),
     ]
 
     operations = [
