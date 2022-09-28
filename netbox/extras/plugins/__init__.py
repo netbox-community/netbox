@@ -204,19 +204,15 @@ def register_template_extensions(class_list):
 #
 
 class PluginMenu:
-    icon = 'mdi-puzzle'
+    icon_class = 'mdi-puzzle'
 
-    def __init__(self, label, groups, icon=None):
+    def __init__(self, label, groups, icon_class=None):
         self.label = label
         self.groups = [
             MenuGroup(label, items) for label, items in groups
         ]
-        if icon is not None:
-            self.icon = icon
-
-    @property
-    def icon_class(self):
-        return f'mdi {self.icon}'
+        if icon_class is not None:
+            self.icon_class = icon_class
 
 
 class PluginMenuItem:
