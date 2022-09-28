@@ -1,5 +1,5 @@
 bleach==5.0.1
-Django==4.0.7
+Django==4.1.1
 django-cors-headers==3.13.0
 django-debug-toolbar==3.6.0
 django-filter==22.1

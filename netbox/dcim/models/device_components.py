@@ -955,12 +955,13 @@ class RearPort(ModularComponentModel, CabledObjectModel):
         super().clean()
 
         # Check that positions count is greater than or equal to the number of associated FrontPorts
-        frontport_count = self.frontports.count()
-        if self.positions < frontport_count:
-            raise ValidationError({
-                "positions": f"The number of positions cannot be less than the number of mapped front ports "
-                             f"({frontport_count})"
-            })
+        if self.pk:
+            frontport_count = self.frontports.count()
+            if self.positions < frontport_count:
+                raise ValidationError({
+                    "positions": f"The number of positions cannot be less than the number of mapped front ports "
+                                 f"({frontport_count})"
+                })
 
 
 #

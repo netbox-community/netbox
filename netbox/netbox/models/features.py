@@ -92,8 +92,17 @@ class CloningMixin(models.Model):
 
     def clone(self):
         """
-        Return a dictionary of attributes suitable for creating a copy of the current instance. This is used for pre-
-        populating an object creation form in the UI.
+        Returns a dictionary of attributes suitable for creating a copy of the current instance. This is used for pre-
+        populating an object creation form in the UI. By default, this method will replicate any fields listed in the
+        model's `clone_fields` list (if defined), but it can be overridden to apply custom logic.
+
+        ```python
+        class MyModel(NetBoxModel):
+            def clone(self):
+                attrs = super().clone()
+                attrs['extra-value'] = 123
+                return attrs
+        ```
         """
         attrs = {}
 
