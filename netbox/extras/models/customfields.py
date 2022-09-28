@@ -323,8 +323,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
             field = forms.DecimalField(
                 required=required,
                 initial=initial,
-                max_digits=10,
-                decimal_places=2,
+                max_digits=12,
+                decimal_places=4,
             )
 
         # Boolean
