@@ -1,8 +1,10 @@
+import importlib
 import inspect
 import sys
 from django.apps import AppConfig
 
 from django.apps import apps
+from django.conf import settings
 from django.utils.module_loading import module_has_submodule
 from netbox import denormalized
 
@@ -30,7 +32,13 @@ class SearchConfig(AppConfig):
             submodule_name = "search_indexes"
             if module_has_submodule(module, submodule_name):
                 module_name = f"{name}.{submodule_name}"
-                for cls_name, cls_obj in inspect.getmembers(sys.modules[module_name], predicate=inspect.isclass):
+                if name in settings.PLUGINS:
+                    search_module = importlib.import_module(module_name)
+                else:
+                    search_module = sys.modules[module_name]
+
+                cls_objects = inspect.getmembers(search_module, predicate=inspect.isclass)
+                for cls_name, cls_obj in inspect.getmembers(search_module, predicate=inspect.isclass):
                     if getattr(cls_obj, "search_index", False) and getattr(cls_obj, "model", None):
                         cls_name = cls_obj.model.__name__.lower()
                         if not default_search_engine.is_registered(cls_name, cls_obj):

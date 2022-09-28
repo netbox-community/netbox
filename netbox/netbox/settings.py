@@ -649,7 +649,6 @@ RQ_QUEUES = {
 #
 
 for plugin_name in PLUGINS:
-
     # Import plugin module
     try:
         plugin = importlib.import_module(plugin_name)
