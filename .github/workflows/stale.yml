@@ -1,14 +1,16 @@
 # close-stale-issues (https://github.com/marketplace/actions/close-stale-issues)
 name: 'Close stale issues/PRs'
+
 on:
   schedule:
     - cron: '0 4 * * *'
 
+permissions:
+  issues: write
+  pull-requests: write
+
 jobs:
   stale:
-    permissions:
-      issues: write
-      pull-requests: write
 
     runs-on: ubuntu-latest
     steps:
