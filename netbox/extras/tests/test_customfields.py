@@ -400,7 +400,7 @@ class CustomFieldAPITest(APITestCase):
         custom_fields = (
             CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo'),
             CustomField(type=CustomFieldTypeChoices.TYPE_LONGTEXT, name='longtext_field', default='ABC'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='number_field', default=123),
+            CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='integer_field', default=123),
             CustomField(type=CustomFieldTypeChoices.TYPE_DECIMAL, name='decimal_field', default='123.45'),
             CustomField(type=CustomFieldTypeChoices.TYPE_BOOLEAN, name='boolean_field', default=False),
             CustomField(type=CustomFieldTypeChoices.TYPE_DATE, name='date_field', default='2020-01-01'),
@@ -503,7 +503,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response.data['custom_fields'], {
             'text_field': None,
             'longtext_field': None,
-            'number_field': None,
+            'integer_field': None,
             'decimal_field': None,
             'boolean_field': None,
             'date_field': None,
@@ -528,7 +528,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response.data['name'], site2.name)
         self.assertEqual(response.data['custom_fields']['text_field'], site2_cfvs['text_field'])
         self.assertEqual(response.data['custom_fields']['longtext_field'], site2_cfvs['longtext_field'])
-        self.assertEqual(response.data['custom_fields']['number_field'], site2_cfvs['number_field'])
+        self.assertEqual(response.data['custom_fields']['integer_field'], site2_cfvs['integer_field'])
         self.assertEqual(response.data['custom_fields']['decimal_field'], site2_cfvs['decimal_field'])
         self.assertEqual(response.data['custom_fields']['boolean_field'], site2_cfvs['boolean_field'])
         self.assertEqual(response.data['custom_fields']['date_field'], site2_cfvs['date_field'])
@@ -563,7 +563,7 @@ class CustomFieldAPITest(APITestCase):
         response_cf = response.data['custom_fields']
         self.assertEqual(response_cf['text_field'], cf_defaults['text_field'])
         self.assertEqual(response_cf['longtext_field'], cf_defaults['longtext_field'])
-        self.assertEqual(response_cf['number_field'], cf_defaults['number_field'])
+        self.assertEqual(response_cf['integer_field'], cf_defaults['integer_field'])
         self.assertEqual(response_cf['decimal_field'], cf_defaults['decimal_field'])
         self.assertEqual(response_cf['boolean_field'], cf_defaults['boolean_field'])
         self.assertEqual(response_cf['date_field'], cf_defaults['date_field'])
@@ -581,7 +581,7 @@ class CustomFieldAPITest(APITestCase):
         site = Site.objects.get(pk=response.data['id'])
         self.assertEqual(site.custom_field_data['text_field'], cf_defaults['text_field'])
         self.assertEqual(site.custom_field_data['longtext_field'], cf_defaults['longtext_field'])
-        self.assertEqual(site.custom_field_data['number_field'], cf_defaults['number_field'])
+        self.assertEqual(site.custom_field_data['integer_field'], cf_defaults['integer_field'])
         self.assertEqual(site.custom_field_data['decimal_field'], cf_defaults['decimal_field'])
         self.assertEqual(site.custom_field_data['boolean_field'], cf_defaults['boolean_field'])
         self.assertEqual(str(site.custom_field_data['date_field']), cf_defaults['date_field'])
@@ -602,7 +602,7 @@ class CustomFieldAPITest(APITestCase):
             'custom_fields': {
                 'text_field': 'bar',
                 'longtext_field': 'blah blah blah',
-                'number_field': 456,
+                'integer_field': 456,
                 'decimal_field': '456.78',
                 'boolean_field': True,
                 'date_field': '2020-01-02',
@@ -625,7 +625,7 @@ class CustomFieldAPITest(APITestCase):
         data_cf = data['custom_fields']
         self.assertEqual(response_cf['text_field'], data_cf['text_field'])
         self.assertEqual(response_cf['longtext_field'], data_cf['longtext_field'])
-        self.assertEqual(response_cf['number_field'], data_cf['number_field'])
+        self.assertEqual(response_cf['integer_field'], data_cf['integer_field'])
         self.assertEqual(response_cf['decimal_field'], data_cf['decimal_field'])
         self.assertEqual(response_cf['boolean_field'], data_cf['boolean_field'])
         self.assertEqual(response_cf['date_field'], data_cf['date_field'])
@@ -643,7 +643,7 @@ class CustomFieldAPITest(APITestCase):
         site = Site.objects.get(pk=response.data['id'])
         self.assertEqual(site.custom_field_data['text_field'], data_cf['text_field'])
         self.assertEqual(site.custom_field_data['longtext_field'], data_cf['longtext_field'])
-        self.assertEqual(site.custom_field_data['number_field'], data_cf['number_field'])
+        self.assertEqual(site.custom_field_data['integer_field'], data_cf['integer_field'])
         self.assertEqual(site.custom_field_data['decimal_field'], data_cf['decimal_field'])
         self.assertEqual(site.custom_field_data['boolean_field'], data_cf['boolean_field'])
         self.assertEqual(str(site.custom_field_data['date_field']), data_cf['date_field'])
@@ -689,7 +689,7 @@ class CustomFieldAPITest(APITestCase):
             response_cf = response.data[i]['custom_fields']
             self.assertEqual(response_cf['text_field'], cf_defaults['text_field'])
             self.assertEqual(response_cf['longtext_field'], cf_defaults['longtext_field'])
-            self.assertEqual(response_cf['number_field'], cf_defaults['number_field'])
+            self.assertEqual(response_cf['integer_field'], cf_defaults['integer_field'])
             self.assertEqual(response_cf['decimal_field'], cf_defaults['decimal_field'])
             self.assertEqual(response_cf['boolean_field'], cf_defaults['boolean_field'])
             self.assertEqual(response_cf['date_field'], cf_defaults['date_field'])
@@ -707,7 +707,7 @@ class CustomFieldAPITest(APITestCase):
             site = Site.objects.get(pk=response.data[i]['id'])
             self.assertEqual(site.custom_field_data['text_field'], cf_defaults['text_field'])
             self.assertEqual(site.custom_field_data['longtext_field'], cf_defaults['longtext_field'])
-            self.assertEqual(site.custom_field_data['number_field'], cf_defaults['number_field'])
+            self.assertEqual(site.custom_field_data['integer_field'], cf_defaults['integer_field'])
             self.assertEqual(site.custom_field_data['decimal_field'], cf_defaults['decimal_field'])
             self.assertEqual(site.custom_field_data['boolean_field'], cf_defaults['boolean_field'])
             self.assertEqual(str(site.custom_field_data['date_field']), cf_defaults['date_field'])
@@ -725,7 +725,7 @@ class CustomFieldAPITest(APITestCase):
         custom_field_data = {
             'text_field': 'bar',
             'longtext_field': 'abcdefghij',
-            'number_field': 456,
+            'integer_field': 456,
             'decimal_field': '456.78',
             'boolean_field': True,
             'date_field': '2020-01-02',
@@ -766,7 +766,7 @@ class CustomFieldAPITest(APITestCase):
             response_cf = response.data[i]['custom_fields']
             self.assertEqual(response_cf['text_field'], custom_field_data['text_field'])
             self.assertEqual(response_cf['longtext_field'], custom_field_data['longtext_field'])
-            self.assertEqual(response_cf['number_field'], custom_field_data['number_field'])
+            self.assertEqual(response_cf['integer_field'], custom_field_data['integer_field'])
             self.assertEqual(response_cf['decimal_field'], custom_field_data['decimal_field'])
             self.assertEqual(response_cf['boolean_field'], custom_field_data['boolean_field'])
             self.assertEqual(response_cf['date_field'], custom_field_data['date_field'])
@@ -784,7 +784,7 @@ class CustomFieldAPITest(APITestCase):
             site = Site.objects.get(pk=response.data[i]['id'])
             self.assertEqual(site.custom_field_data['text_field'], custom_field_data['text_field'])
             self.assertEqual(site.custom_field_data['longtext_field'], custom_field_data['longtext_field'])
-            self.assertEqual(site.custom_field_data['number_field'], custom_field_data['number_field'])
+            self.assertEqual(site.custom_field_data['integer_field'], custom_field_data['integer_field'])
             self.assertEqual(site.custom_field_data['decimal_field'], custom_field_data['decimal_field'])
             self.assertEqual(site.custom_field_data['boolean_field'], custom_field_data['boolean_field'])
             self.assertEqual(str(site.custom_field_data['date_field']), custom_field_data['date_field'])
@@ -805,7 +805,7 @@ class CustomFieldAPITest(APITestCase):
         data = {
             'custom_fields': {
                 'text_field': 'ABCD',
-                'number_field': 1234,
+                'integer_field': 1234,
             },
         }
         url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
@@ -818,7 +818,7 @@ class CustomFieldAPITest(APITestCase):
         response_cf = response.data['custom_fields']
         self.assertEqual(response_cf['text_field'], data['custom_fields']['text_field'])
         self.assertEqual(response_cf['longtext_field'], original_cfvs['longtext_field'])
-        self.assertEqual(response_cf['number_field'], data['custom_fields']['number_field'])
+        self.assertEqual(response_cf['integer_field'], data['custom_fields']['integer_field'])
         self.assertEqual(response_cf['decimal_field'], original_cfvs['decimal_field'])
         self.assertEqual(response_cf['boolean_field'], original_cfvs['boolean_field'])
         self.assertEqual(response_cf['date_field'], original_cfvs['date_field'])
@@ -836,7 +836,7 @@ class CustomFieldAPITest(APITestCase):
         site2.refresh_from_db()
         self.assertEqual(site2.custom_field_data['text_field'], data['custom_fields']['text_field'])
         self.assertEqual(site2.custom_field_data['longtext_field'], original_cfvs['longtext_field'])
-        self.assertEqual(site2.custom_field_data['number_field'], data['custom_fields']['number_field'])
+        self.assertEqual(site2.custom_field_data['integer_field'], data['custom_fields']['integer_field'])
         self.assertEqual(site2.custom_field_data['decimal_field'], original_cfvs['decimal_field'])
         self.assertEqual(site2.custom_field_data['boolean_field'], original_cfvs['boolean_field'])
         self.assertEqual(site2.custom_field_data['date_field'], original_cfvs['date_field'])
@@ -852,20 +852,20 @@ class CustomFieldAPITest(APITestCase):
         url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
         self.add_permissions('dcim.change_site')
 
-        cf_integer = CustomField.objects.get(name='number_field')
+        cf_integer = CustomField.objects.get(name='integer_field')
         cf_integer.validation_minimum = 10
         cf_integer.validation_maximum = 20
         cf_integer.save()
 
-        data = {'custom_fields': {'number_field': 9}}
+        data = {'custom_fields': {'integer_field': 9}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
-        data = {'custom_fields': {'number_field': 21}}
+        data = {'custom_fields': {'integer_field': 21}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
-        data = {'custom_fields': {'number_field': 15}}
+        data = {'custom_fields': {'integer_field': 15}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
