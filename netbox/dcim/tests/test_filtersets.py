@@ -1635,6 +1635,9 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_name(self):
         params = {'name': ['Device 1', 'Device 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        # Test case insensitivity
+        params = {'name': ['DEVICE 1', 'DEVICE 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_asset_tag(self):
         params = {'asset_tag': ['1001', '1002']}

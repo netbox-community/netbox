@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, ProtectedError
+from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
@@ -664,11 +665,11 @@ class Device(NetBoxModel, ConfigContextModel):
         ordering = ('_name', 'pk')  # Name may be null
         constraints = (
             models.UniqueConstraint(
-                fields=('name', 'site', 'tenant'),
+                Lower('name'), 'site', 'tenant',
                 name='%(app_label)s_%(class)s_unique_name_site_tenant'
             ),
             models.UniqueConstraint(
-                fields=('name', 'site'),
+                Lower('name'), 'site',
                 name='%(app_label)s_%(class)s_unique_name_site',
                 condition=Q(tenant__isnull=True),
                 violation_error_message="Device name must be unique per site."

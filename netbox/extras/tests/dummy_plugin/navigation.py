@@ -1,7 +1,7 @@
-from extras.plugins import PluginMenuButton, PluginMenuItem
+from extras.plugins import PluginMenu, PluginMenuButton, PluginMenuItem
 
 
-menu_items = (
+items = (
     PluginMenuItem(
         link='plugins:dummy_plugin:dummy_models',
         link_text='Item 1',
@@ -23,3 +23,9 @@ menu_items = (
         link_text='Item 2',
     ),
 )
+
+menu = PluginMenu(
+    label='Dummy',
+    groups=(('Group 1', items),),
+)
+menu_items = items

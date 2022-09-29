@@ -65,7 +65,7 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = Provider
-        fields = ['id', 'name', 'slug', 'asn', 'account']
+        fields = ['id', 'name', 'slug', 'account']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -73,8 +73,6 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         return queryset.filter(
             Q(name__icontains=value) |
             Q(account__icontains=value) |
-            Q(noc_contact__icontains=value) |
-            Q(admin_contact__icontains=value) |
             Q(comments__icontains=value)
         )
 

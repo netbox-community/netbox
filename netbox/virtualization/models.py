@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
+from django.db.models.functions import Lower
 from django.urls import reverse
 
 from dcim.models import BaseInterface, Device
@@ -318,14 +319,14 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
         ordering = ('_name', 'pk')  # Name may be non-unique
         constraints = (
             models.UniqueConstraint(
-                fields=('name', 'cluster', 'tenant'),
+                Lower('name'), 'cluster', 'tenant',
                 name='%(app_label)s_%(class)s_unique_name_cluster_tenant'
             ),
             models.UniqueConstraint(
-                fields=('name', 'cluster'),
+                Lower('name'), 'cluster',
                 name='%(app_label)s_%(class)s_unique_name_cluster',
                 condition=Q(tenant__isnull=True),
-                violation_error_message="Virtual machine name must be unique per site."
+                violation_error_message="Virtual machine name must be unique per cluster."
             ),
         )
 

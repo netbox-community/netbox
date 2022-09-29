@@ -23,9 +23,9 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ASN.objects.bulk_create(asns)
 
         providers = (
-            Provider(name='Provider 1', slug='provider-1', asn=65001),
-            Provider(name='Provider 2', slug='provider-2', asn=65002),
-            Provider(name='Provider 3', slug='provider-3', asn=65003),
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
         )
         Provider.objects.bulk_create(providers)
         providers[0].asns.set([asns[0], asns[1]])
@@ -37,12 +37,8 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'name': 'Provider X',
             'slug': 'provider-x',
-            'asn': 65123,
             'asns': [asns[6].pk, asns[7].pk],
             'account': '1234',
-            'portal_url': 'http://example.com/portal',
-            'noc_contact': 'noc@example.com',
-            'admin_contact': 'admin@example.com',
             'comments': 'Another provider',
             'tags': [t.pk for t in tags],
         }
@@ -55,11 +51,7 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'asn': 65009,
             'account': '5678',
-            'portal_url': 'http://example.com/portal2',
-            'noc_contact': 'noc2@example.com',
-            'admin_contact': 'admin2@example.com',
             'comments': 'New comments',
         }
 
@@ -104,8 +96,8 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def setUpTestData(cls):
 
         providers = (
-            Provider(name='Provider 1', slug='provider-1', asn=65001),
-            Provider(name='Provider 2', slug='provider-2', asn=65002),
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
         )
         Provider.objects.bulk_create(providers)
 

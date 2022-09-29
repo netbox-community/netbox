@@ -18,7 +18,7 @@ from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.utils import array_to_string, drange
-from .device_components import PowerOutlet, PowerPort
+from .device_components import PowerPort
 from .devices import Device, Module
 from .mixins import WeightMixin
 from .power import PowerFeed

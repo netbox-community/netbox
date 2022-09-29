@@ -399,6 +399,27 @@ class DeviceTestCase(TestCase):
 
         self.assertEqual(Device.objects.filter(name__isnull=True).count(), 2)
 
+    def test_device_name_case_sensitivity(self):
+
+        device1 = Device(
+            site=self.site,
+            device_type=self.device_type,
+            device_role=self.device_role,
+            name='device 1'
+        )
+        device1.save()
+
+        device2 = Device(
+            site=device1.site,
+            device_type=device1.device_type,
+            device_role=device1.device_role,
+            name='DEVICE 1'
+        )
+
+        # Uniqueness validation for name should ignore case
+        with self.assertRaises(ValidationError):
+            device2.full_clean()
+
     def test_device_duplicate_names(self):
 
         device1 = Device(
