@@ -198,7 +198,7 @@
                         <th scope="row">Rack Weight</th>
                         <td>
                             {% if object.weight %}
-                                {{ object.weight }}
+                                {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
                             {% else %}
                                 {{ ''|placeholder }}
                             {% endif %}
@@ -206,7 +206,7 @@
                     </tr>
                     <tr>
                         <th scope="row">Total Weight</th>
-                        <td>{{ object.get_total_weight }} kg</td>
+                        <td>{{ object.get_total_weight|floatformat }} Kilograms</td>
                     </tr>
                 </table>
                 </div>
