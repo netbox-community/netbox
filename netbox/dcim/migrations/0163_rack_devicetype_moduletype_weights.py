@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0161_cabling_cleanup'),
+        ('dcim', '0162_unique_constraints'),
     ]
 
     operations = [
