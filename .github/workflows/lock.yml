@@ -5,12 +5,11 @@ on:
   schedule:
     - cron: '0 3 * * *'
 
-permissions: {}
 jobs:
   lock:
     permissions:
-      issues: write # to lock issues (dessant/lock-threads)
-      pull-requests: write # to lock PRs (dessant/lock-threads)
+      issues: write
+      pull-requests: write
 
     runs-on: ubuntu-latest
     steps:
