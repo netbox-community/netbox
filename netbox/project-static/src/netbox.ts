@@ -13,7 +13,6 @@ import { initSideNav } from './sidenav';
 import { initRackElevation } from './racks';
 import { initLinks } from './links';
 import { initHtmx } from './htmx';
-import { cleanGetUrl } from './util';
 
 function initDocument(): void {
   for (const init of [
@@ -42,7 +41,16 @@ function initWindow(): void {
   const documentForms = document.forms
   for (var documentForm of documentForms) {
     if (documentForm.method.toUpperCase() == 'GET') {
-      documentForm.addEventListener('submit', cleanGetUrl)
+// @ts-ignore: // formdata is not yet supported by TS https://github.com/microsoft/TypeScript/issues/36217
+      documentForm.addEventListener('formdata', function(event) {
+// @ts-ignore: // formdata is not yet supported by TS https://github.com/microsoft/TypeScript/issues/36217
+        let formData = event.formData;
+// @ts-ignore: // formdata is not yet supported by TS https://github.com/microsoft/TypeScript/issues/36217
+        for (let [name, value] of Array.from(formData.entries())) {
+// @ts-ignore: // formdata is not yet supported by TS https://github.com/microsoft/TypeScript/issues/36217
+          if (value === '') formData.delete(name);
+        }
+      });
     }
   }
 
