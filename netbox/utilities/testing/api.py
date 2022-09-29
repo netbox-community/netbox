@@ -467,7 +467,7 @@ class APIViewTestCases:
             return query
 
         @override_settings(LOGIN_REQUIRED=True)
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user'])
         def test_graphql_get_object(self):
             url = reverse('graphql')
             field_name = self._get_graphql_base_name()
@@ -493,7 +493,7 @@ class APIViewTestCases:
             self.assertNotIn('errors', data)
 
         @override_settings(LOGIN_REQUIRED=True)
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user'])
         def test_graphql_list_objects(self):
             url = reverse('graphql')
             field_name = f'{self._get_graphql_base_name()}_list'
