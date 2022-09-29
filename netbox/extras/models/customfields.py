@@ -322,6 +322,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                 initial=initial,
                 max_digits=12,
                 decimal_places=4,
+                min_value=self.validation_minimum,
+                max_value=self.validation_maximum
             )
 
         # Boolean
@@ -496,13 +498,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
 
             # Validate decimal
             elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
-                if type(value) is not decimal.Decimal and type(value) is not str:
+                if type(value) is not decimal.Decimal:
                     raise ValidationError("Value must be a decimal.")
-
-                converted = decimal.Decimal(value)
-                if self.validation_minimum is not None and converted < self.validation_minimum:
+                if self.validation_minimum is not None and value < self.validation_minimum:
                     raise ValidationError(f"Value must be at least {self.validation_minimum}")
-                if self.validation_maximum is not None and converted > self.validation_maximum:
+                if self.validation_maximum is not None and value > self.validation_maximum:
                     raise ValidationError(f"Value must not exceed {self.validation_maximum}")
 
             # Validate boolean

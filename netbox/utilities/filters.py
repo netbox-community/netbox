@@ -3,8 +3,6 @@ from django import forms
 from django.conf import settings
 from django_filters.constants import EMPTY_VALUES
 
-from utilities.forms import MACAddressField
-
 
 def multivalue_field_factory(field_class):
     """
@@ -22,14 +20,6 @@ def multivalue_field_factory(field_class):
                 # Only append non-empty values (this avoids e.g. trying to cast '' as an integer)
                 field.to_python(v) for v in value if v
             ]
-
-        def run_validators(self, value):
-            for v in value:
-                super().run_validators(v)
-
-        def validate(self, value):
-            for v in value:
-                super().validate(v)
 
     return type(f'MultiValue{field_class.__name__}', (NewField,), dict())
 
