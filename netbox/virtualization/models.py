@@ -2,6 +2,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 
 from dcim.models import BaseInterface, Device
@@ -159,9 +160,15 @@ class Cluster(NetBoxModel):
 
     class Meta:
         ordering = ['name']
-        unique_together = (
-            ('group', 'name'),
-            ('site', 'name'),
+        constraints = (
+            models.UniqueConstraint(
+                fields=('group', 'name'),
+                name='%(app_label)s_%(class)s_unique_group_name'
+            ),
+            models.UniqueConstraint(
+                fields=('site', 'name'),
+                name='%(app_label)s_%(class)s_unique_site_name'
+            ),
         )
 
     def __str__(self):
@@ -309,9 +316,18 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
 
     class Meta:
         ordering = ('_name', 'pk')  # Name may be non-unique
-        unique_together = [
-            ['cluster', 'tenant', 'name']
-        ]
+        constraints = (
+            models.UniqueConstraint(
+                fields=('name', 'cluster', 'tenant'),
+                name='%(app_label)s_%(class)s_unique_name_cluster_tenant'
+            ),
+            models.UniqueConstraint(
+                fields=('name', 'cluster'),
+                name='%(app_label)s_%(class)s_unique_name_cluster',
+                condition=Q(tenant__isnull=True),
+                violation_error_message="Virtual machine name must be unique per site."
+            ),
+        )
 
     def __str__(self):
         return self.name
@@ -322,20 +338,6 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
 
     def get_absolute_url(self):
         return reverse('virtualization:virtualmachine', args=[self.pk])
-
-    def validate_unique(self, exclude=None):
-
-        # Check for a duplicate name on a VM assigned to the same Cluster and no Tenant. This is necessary
-        # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
-        # of the uniqueness constraint without manual intervention.
-        if self.tenant is None and VirtualMachine.objects.exclude(pk=self.pk).filter(
-                name=self.name, cluster=self.cluster, tenant__isnull=True
-        ):
-            raise ValidationError({
-                'name': 'A virtual machine with this name already exists in the assigned cluster.'
-            })
-
-        super().validate_unique(exclude)
 
     def clean(self):
         super().clean()
@@ -465,9 +467,14 @@ class VMInterface(NetBoxModel, BaseInterface):
     )
 
     class Meta:
-        verbose_name = 'interface'
         ordering = ('virtual_machine', CollateAsChar('_name'))
-        unique_together = ('virtual_machine', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('virtual_machine', 'name'),
+                name='%(app_label)s_%(class)s_unique_virtual_machine_name'
+            ),
+        )
+        verbose_name = 'interface'
 
     def __str__(self):
         return self.name

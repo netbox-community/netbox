@@ -41,8 +41,11 @@ class ContactGroup(NestedGroupModel):
 
     class Meta:
         ordering = ['name']
-        unique_together = (
-            ('parent', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('parent', 'name'),
+                name='%(app_label)s_%(class)s_unique_parent_name'
+            ),
         )
 
     def get_absolute_url(self):
@@ -118,8 +121,11 @@ class Contact(NetBoxModel):
 
     class Meta:
         ordering = ['name']
-        unique_together = (
-            ('group', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('group', 'name'),
+                name='%(app_label)s_%(class)s_unique_group_name'
+            ),
         )
 
     def __str__(self):
@@ -159,7 +165,12 @@ class ContactAssignment(WebhooksMixin, ChangeLoggedModel):
 
     class Meta:
         ordering = ('priority', 'contact')
-        unique_together = ('content_type', 'object_id', 'contact', 'role', 'priority')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('content_type', 'object_id', 'contact', 'role'),
+                name='%(app_label)s_%(class)s_unique_object_contact_role'
+            ),
+        )
 
     def __str__(self):
         if self.priority:

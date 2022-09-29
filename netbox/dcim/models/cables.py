@@ -269,7 +269,7 @@ class CableTermination(models.Model):
         constraints = (
             models.UniqueConstraint(
                 fields=('termination_type', 'termination_id'),
-                name='dcim_cable_termination_unique_termination'
+                name='%(app_label)s_%(class)s_unique_termination'
             ),
         )
 
