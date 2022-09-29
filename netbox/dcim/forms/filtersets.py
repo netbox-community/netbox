@@ -228,7 +228,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         ('Hardware', ('type', 'width', 'serial', 'asset_tag')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
-        ('Attributes', ('weight', 'weight_unit')),
+        ('Weight', ('weight', 'weight_unit')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),

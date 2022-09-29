@@ -1,6 +1,7 @@
 import decimal
-
 import yaml
+
+from functools import cached_property
 
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
@@ -945,6 +946,13 @@ class Device(NetBoxModel, ConfigContextModel):
 
     def get_status_color(self):
         return DeviceStatusChoices.colors.get(self.status)
+
+    @cached_property
+    def get_total_weight(self):
+        total_weight = sum(module.module_type._abs_weight for module in Module.objects.filter(device=self).exclude(module_type___abs_weight__isnull=True).prefetch_related('module_type'))
+        if self.device_type._abs_weight:
+            total_weight += self.device_type._abs_weight
+        return round(total_weight / 1000, 2)
 
 
 class Module(NetBoxModel, ConfigContextModel):

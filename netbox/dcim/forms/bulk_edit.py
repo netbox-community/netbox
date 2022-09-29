@@ -304,19 +304,8 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         ('Weight', ('weight', 'weight_unit')),
     )
     nullable_fields = (
-        'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments', 'weight'
+        'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments', 'weight', 'weight_unit'
     )
-
-    def clean(self):
-        super().clean()
-
-        # Validate weight/unit
-        weight = self.cleaned_data.get('weight')
-        weight_unit = self.cleaned_data.get('weight_unit')
-        if weight and not weight_unit:
-            raise forms.ValidationError({
-                'weight_unit': "Must specify a unit when setting weight"
-            })
 
 
 class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
@@ -393,18 +382,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         (None, ('manufacturer', 'part_number', 'u_height', 'is_full_depth', 'airflow')),
         ('Weight', ('weight', 'weight_unit')),
     )
-    nullable_fields = ('part_number', 'airflow', 'weight')
-
-    def clean(self):
-        super().clean()
-
-        # Validate weight/unit
-        weight = self.cleaned_data.get('weight')
-        weight_unit = self.cleaned_data.get('weight_unit')
-        if weight and not weight_unit:
-            raise forms.ValidationError({
-                'weight_unit': "Must specify a unit when setting weight"
-            })
+    nullable_fields = ('part_number', 'airflow', 'weight', 'weight_unit')
 
 
 class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
@@ -431,18 +409,7 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
         (None, ('manufacturer', 'part_number')),
         ('Attributes', ('weight', 'weight_unit')),
     )
-    nullable_fields = ('part_number', 'weight',)
-
-    def clean(self):
-        super().clean()
-
-        # Validate weight/unit
-        weight = self.cleaned_data.get('weight')
-        weight_unit = self.cleaned_data.get('weight_unit')
-        if weight and not weight_unit:
-            raise forms.ValidationError({
-                'weight_unit': "Must specify a unit when setting weight"
-            })
+    nullable_fields = ('part_number', 'weight', 'weight_unit')
 
 
 class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
@@ -618,17 +585,6 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = (
         'type', 'status', 'tenant', 'label', 'color', 'length',
     )
-
-    def clean(self):
-        super().clean()
-
-        # Validate length/unit
-        length = self.cleaned_data.get('length')
-        length_unit = self.cleaned_data.get('length_unit')
-        if length and not length_unit:
-            raise forms.ValidationError({
-                'length_unit': "Must specify a unit when setting length"
-            })
 
 
 class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):

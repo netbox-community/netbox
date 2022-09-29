@@ -1,4 +1,5 @@
 import decimal
+from functools import cached_property
 
 from django.apps import apps
 from django.contrib.auth.models import User
@@ -455,6 +456,7 @@ class Rack(NetBoxModel, WeightMixin):
 
         return int(allocated_draw / available_power_total * 100)
 
+    @cached_property
     def get_total_weight(self):
         total_weight = sum(device.device_type._abs_weight for device in self.devices.exclude(device_type___abs_weight__isnull=True).prefetch_related('device_type'))
         total_weight += sum(module.module_type._abs_weight for module in Module.objects.filter(device__rack=self).exclude(module_type___abs_weight__isnull=True).prefetch_related('module_type'))
