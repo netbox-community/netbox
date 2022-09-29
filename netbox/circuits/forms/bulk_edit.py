@@ -20,10 +20,6 @@ __all__ = (
 
 
 class ProviderBulkEditForm(NetBoxModelBulkEditForm):
-    asn = forms.IntegerField(
-        required=False,
-        label='ASN (legacy)'
-    )
     asns = DynamicModelMultipleChoiceField(
         queryset=ASN.objects.all(),
         label=_('ASNs'),
@@ -34,20 +30,6 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label='Account number'
     )
-    portal_url = forms.URLField(
-        required=False,
-        label='Portal'
-    )
-    noc_contact = forms.CharField(
-        required=False,
-        widget=SmallTextarea,
-        label='NOC contact'
-    )
-    admin_contact = forms.CharField(
-        required=False,
-        widget=SmallTextarea,
-        label='Admin contact'
-    )
     comments = CommentField(
         widget=SmallTextarea,
         label='Comments'
@@ -55,10 +37,10 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Provider
     fieldsets = (
-        (None, ('asn', 'asns', 'account', 'portal_url', 'noc_contact', 'admin_contact')),
+        (None, ('asns', 'account', )),
     )
     nullable_fields = (
-        'asn', 'asns', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
+        'asns', 'account', 'comments',
     )
 
 

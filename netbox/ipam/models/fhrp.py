@@ -102,7 +102,12 @@ class FHRPGroupAssignment(WebhooksMixin, ChangeLoggedModel):
 
     class Meta:
         ordering = ('-priority', 'pk')
-        unique_together = ('interface_type', 'interface_id', 'group')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('interface_type', 'interface_id', 'group'),
+                name='%(app_label)s_%(class)s_unique_interface_group'
+            ),
+        )
         verbose_name = 'FHRP group assignment'
 
     def __str__(self):

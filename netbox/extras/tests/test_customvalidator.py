@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
-from circuits.models import Provider
+from ipam.models import ASN, RIR
 from dcim.models import Site
 from extras.validators import CustomValidator
 
@@ -67,21 +67,25 @@ custom_validator = MyValidator()
 
 class CustomValidatorTest(TestCase):
 
-    @override_settings(CUSTOM_VALIDATORS={'circuits.provider': [min_validator]})
+    @classmethod
+    def setUpTestData(cls):
+        RIR.objects.create(name='RIR 1', slug='rir-1')
+
+    @override_settings(CUSTOM_VALIDATORS={'ipam.asn': [min_validator]})
     def test_configuration(self):
-        self.assertIn('circuits.provider', settings.CUSTOM_VALIDATORS)
-        validator = settings.CUSTOM_VALIDATORS['circuits.provider'][0]
+        self.assertIn('ipam.asn', settings.CUSTOM_VALIDATORS)
+        validator = settings.CUSTOM_VALIDATORS['ipam.asn'][0]
         self.assertIsInstance(validator, CustomValidator)
 
-    @override_settings(CUSTOM_VALIDATORS={'circuits.provider': [min_validator]})
+    @override_settings(CUSTOM_VALIDATORS={'ipam.asn': [min_validator]})
     def test_min(self):
         with self.assertRaises(ValidationError):
-            Provider(name='Provider 1', slug='provider-1', asn=1).clean()
+            ASN(asn=1, rir=RIR.objects.first()).clean()
 
-    @override_settings(CUSTOM_VALIDATORS={'circuits.provider': [max_validator]})
+    @override_settings(CUSTOM_VALIDATORS={'ipam.asn': [max_validator]})
     def test_max(self):
         with self.assertRaises(ValidationError):
-            Provider(name='Provider 1', slug='provider-1', asn=65535).clean()
+            ASN(asn=65535, rir=RIR.objects.first()).clean()
 
     @override_settings(CUSTOM_VALIDATORS={'dcim.site': [min_length_validator]})
     def test_min_length(self):

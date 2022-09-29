@@ -6,15 +6,16 @@ from django.apps import AppConfig
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import get_template
 
-from extras.registry import registry
-from utilities.choices import ButtonColorChoices
-
 from extras.plugins.utils import import_object
+from extras.registry import registry
+from netbox.navigation import MenuGroup
+from utilities.choices import ButtonColorChoices
 
 
 # Initialize plugin registry
 registry['plugins'] = {
     'graphql_schemas': [],
+    'menus': [],
     'menu_items': {},
     'preferences': {},
     'template_extensions': collections.defaultdict(list),
@@ -57,6 +58,7 @@ class PluginConfig(AppConfig):
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.
     graphql_schema = 'graphql.schema'
+    menu = 'navigation.menu'
     menu_items = 'navigation.menu_items'
     template_extensions = 'template_content.template_extensions'
     user_preferences = 'preferences.preferences'
@@ -69,9 +71,10 @@ class PluginConfig(AppConfig):
         if template_extensions is not None:
             register_template_extensions(template_extensions)
 
-        # Register navigation menu items (if defined)
-        menu_items = import_object(f"{self.__module__}.{self.menu_items}")
-        if menu_items is not None:
+        # Register navigation menu or menu items (if defined)
+        if menu := import_object(f"{self.__module__}.{self.menu}"):
+            register_menu(menu)
+        if menu_items := import_object(f"{self.__module__}.{self.menu_items}"):
             register_menu_items(self.verbose_name, menu_items)
 
         # Register GraphQL schema (if defined)
@@ -200,6 +203,18 @@ def register_template_extensions(class_list):
 # Navigation menu links
 #
 
+class PluginMenu:
+    icon_class = 'mdi mdi-puzzle'
+
+    def __init__(self, label, groups, icon_class=None):
+        self.label = label
+        self.groups = [
+            MenuGroup(label, items) for label, items in groups
+        ]
+        if icon_class is not None:
+            self.icon_class = icon_class
+
+
 class PluginMenuItem:
     """
     This class represents a navigation menu item. This constitutes primary link and its text, but also allows for
@@ -244,6 +259,12 @@ class PluginMenuButton:
             if color not in ButtonColorChoices.values():
                 raise ValueError("Button color must be a choice within ButtonColorChoices.")
             self.color = color
+
+
+def register_menu(menu):
+    if not isinstance(menu, PluginMenu):
+        raise TypeError(f"{menu} must be an instance of extras.plugins.PluginMenu")
+    registry['plugins']['menus'].append(menu)
 
 
 def register_menu_items(section_name, class_list):
