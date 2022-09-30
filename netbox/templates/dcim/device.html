@@ -7,11 +7,7 @@
 
 {% block content %}
     <div class="row">
-<<<<<<< HEAD
-        <div class="col col-md-6">
-=======
         <div class="col col-12 col-xl-6">
->>>>>>> a504b17fd (8424 highlight device)
             <div class="card">
                 <h5 class="card-header">
                     Device
@@ -157,11 +153,7 @@
             {% include 'inc/panels/comments.html' %}
             {% plugin_left_page object %}
         </div>
-<<<<<<< HEAD
-        <div class="col col-md-6">
-=======
         <div class="col col-12 col-xl-6">
->>>>>>> a504b17fd (8424 highlight device)
             <div class="card">
                 <h5 class="card-header">Management</h5>
                 <div class="card-body">
@@ -294,15 +286,6 @@
             </div>
             {% include 'inc/panels/contacts.html' %}
             {% include 'inc/panels/image_attachments.html' %}
-
-            <div class="text-end mb-4">
-              <select class="btn btn-sm btn-outline-dark rack-view">
-                <option value="images-and-labels" selected="selected">Images and Labels</option>
-                <option value="images-only">Images only</option>
-                <option value="labels-only">Labels only</option>
-              </select>
-            </div>
-
             {% if object.rack and object.position %}
             <div class="row" style="margin-bottom: 20px">
                 <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
@@ -319,7 +302,6 @@
                 </div>
             </div>
             {% endif %}
-
             {% plugin_right_page object %}
         </div>
     </div>
