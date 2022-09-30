@@ -1223,12 +1223,12 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf1__lte': [200]}, self.queryset).qs.count(), 2)
 
     def test_filter_decimal(self):
-        self.assertEqual(self.filterset({'cf_cf2': [100.25, 200.25]}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf2__n': [200.25]}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf2__gt': [200.25]}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf2__gte': [200.25]}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf2__lt': [200.25]}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf2__lte': [200.25]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf2': [100.1, 200.2]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf2__n': [200.2]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf2__gt': [200.2]}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf2__gte': [200.2]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf2__lt': [200.2]}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf2__lte': [200.2]}, self.queryset).qs.count(), 2)
 
     def test_filter_boolean(self):
         self.assertEqual(self.filterset({'cf_cf3': True}, self.queryset).qs.count(), 2)
