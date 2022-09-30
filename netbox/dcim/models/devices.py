@@ -1,6 +1,7 @@
 import decimal
-
 import yaml
+
+from functools import cached_property
 
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
@@ -21,6 +22,7 @@ from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from .device_components import *
+from .mixins import WeightMixin
 
 
 __all__ = (
@@ -71,7 +73,7 @@ class Manufacturer(OrganizationalModel):
         return reverse('dcim:manufacturer', args=[self.pk])
 
 
-class DeviceType(NetBoxModel):
+class DeviceType(NetBoxModel, WeightMixin):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
@@ -139,7 +141,7 @@ class DeviceType(NetBoxModel):
     )
 
     clone_fields = (
-        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
+        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
     )
 
     class Meta:
@@ -315,7 +317,7 @@ class DeviceType(NetBoxModel):
         return self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD
 
 
-class ModuleType(NetBoxModel):
+class ModuleType(NetBoxModel, WeightMixin):
     """
     A ModuleType represents a hardware element that can be installed within a device and which houses additional
     components; for example, a line card within a chassis-based switch such as the Cisco Catalyst 6500. Like a
@@ -344,7 +346,7 @@ class ModuleType(NetBoxModel):
         to='extras.ImageAttachment'
     )
 
-    clone_fields = ('manufacturer',)
+    clone_fields = ('manufacturer', 'weight', 'weight_unit',)
 
     class Meta:
         ordering = ('manufacturer', 'model')
@@ -945,6 +947,18 @@ class Device(NetBoxModel, ConfigContextModel):
 
     def get_status_color(self):
         return DeviceStatusChoices.colors.get(self.status)
+
+    @cached_property
+    def total_weight(self):
+        total_weight = sum(
+            module.module_type._abs_weight
+            for module in Module.objects.filter(device=self)
+            .exclude(module_type___abs_weight__isnull=True)
+            .prefetch_related('module_type')
+        )
+        if self.device_type._abs_weight:
+            total_weight += self.device_type._abs_weight
+        return round(total_weight / 1000, 2)
 
 
 class Module(NetBoxModel, ConfigContextModel):

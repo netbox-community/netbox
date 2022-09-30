@@ -5,7 +5,7 @@ from dcim.models import (
     InventoryItemTemplate, Manufacturer, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
 from netbox.tables import NetBoxTable, columns
-from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS
+from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS, DEVICE_WEIGHT
 
 __all__ = (
     'ConsolePortTemplateTable',
@@ -85,12 +85,16 @@ class DeviceTypeTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:devicetype_list'
     )
+    weight = columns.TemplateColumn(
+        template_code=DEVICE_WEIGHT,
+        order_by=('_abs_weight', 'weight_unit')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = DeviceType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
-            'airflow', 'comments', 'instance_count', 'tags', 'created', 'last_updated',
+            'airflow', 'weight', 'comments', 'instance_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count',

@@ -320,7 +320,7 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'asset_tag', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit',
+            'outer_unit', 'weight', 'weight_unit'
         ]
 
     def search(self, queryset, name, value):
@@ -482,7 +482,7 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
+            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
         ]
 
     def search(self, queryset, name, value):
@@ -576,7 +576,7 @@ class ModuleTypeFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ModuleType
-        fields = ['id', 'model', 'part_number']
+        fields = ['id', 'model', 'part_number', 'weight', 'weight_unit']
 
     def search(self, queryset, name, value):
         if not value.strip():

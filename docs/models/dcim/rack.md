@@ -65,6 +65,10 @@ The height of the rack, measured in units.
 
 The external width and depth of the rack can be tracked to aid in floorplan calculations. These measurements must be designated in either millimeters or inches.
 
+### Weight
+
+The numeric weight of the rack, including a unit designation (e.g. 10 kilograms or 20 pounds).
+
 ### Descending Units
 
 If selected, the rack's elevation will display unit 1 at the top of the rack. (Most racks use asceneding numbering, with unit 1 assigned to the bottommost position.)

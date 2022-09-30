@@ -285,15 +285,26 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         widget=SmallTextarea,
         label='Comments'
     )
+    weight = forms.DecimalField(
+        min_value=0,
+        required=False
+    )
+    weight_unit = forms.ChoiceField(
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
 
     model = Rack
     fieldsets = (
         ('Rack', ('status', 'role', 'tenant', 'serial', 'asset_tag')),
         ('Location', ('region', 'site_group', 'site', 'location')),
         ('Hardware', ('type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit')),
+        ('Weight', ('weight', 'weight_unit')),
     )
     nullable_fields = (
-        'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
+        'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments', 'weight', 'weight_unit'
     )
 
 
@@ -355,12 +366,23 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         widget=StaticSelect()
     )
+    weight = forms.DecimalField(
+        min_value=0,
+        required=False
+    )
+    weight_unit = forms.ChoiceField(
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
 
     model = DeviceType
     fieldsets = (
-        (None, ('manufacturer', 'part_number', 'u_height', 'is_full_depth', 'airflow')),
+        ('Device Type', ('manufacturer', 'part_number', 'u_height', 'is_full_depth', 'airflow')),
+        ('Weight', ('weight', 'weight_unit')),
     )
-    nullable_fields = ('part_number', 'airflow')
+    nullable_fields = ('part_number', 'airflow', 'weight', 'weight_unit')
 
 
 class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
@@ -371,12 +393,23 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
     part_number = forms.CharField(
         required=False
     )
+    weight = forms.DecimalField(
+        min_value=0,
+        required=False
+    )
+    weight_unit = forms.ChoiceField(
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
 
     model = ModuleType
     fieldsets = (
-        (None, ('manufacturer', 'part_number')),
+        ('Module Type', ('manufacturer', 'part_number')),
+        ('Weight', ('weight', 'weight_unit')),
     )
-    nullable_fields = ('part_number',)
+    nullable_fields = ('part_number', 'weight', 'weight_unit')
 
 
 class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
@@ -552,17 +585,6 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = (
         'type', 'status', 'tenant', 'label', 'color', 'length',
     )
-
-    def clean(self):
-        super().clean()
-
-        # Validate length/unit
-        length = self.cleaned_data.get('length')
-        length_unit = self.cleaned_data.get('length_unit')
-        if length and not length_unit:
-            raise forms.ValidationError({
-                'length_unit': "Must specify a unit when setting length"
-            })
 
 
 class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):

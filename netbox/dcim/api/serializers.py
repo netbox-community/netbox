@@ -201,6 +201,7 @@ class RackSerializer(NetBoxModelSerializer):
                                         default=None)
     width = ChoiceField(choices=RackWidthChoices, required=False)
     outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False)
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False)
     device_count = serializers.IntegerField(read_only=True)
     powerfeed_count = serializers.IntegerField(read_only=True)
 
@@ -208,8 +209,9 @@ class RackSerializer(NetBoxModelSerializer):
         model = Rack
         fields = [
             'id', 'url', 'display', 'name', 'facility_id', 'site', 'location', 'tenant', 'status', 'role', 'serial',
-            'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
+            'asset_tag', 'type', 'width', 'u_height', 'weight', 'weight_unit', 'desc_units', 'outer_width',
+            'outer_depth', 'outer_unit', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
+            'powerfeed_count',
         ]
 
 
@@ -315,27 +317,29 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
     )
     subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False)
     device_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = DeviceType
         fields = [
             'id', 'url', 'display', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'airflow', 'front_image', 'rear_image', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated', 'device_count',
+            'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'device_count',
         ]
 
 
 class ModuleTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:moduletype-detail')
     manufacturer = NestedManufacturerSerializer()
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False)
     # module_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ModuleType
         fields = [
-            'id', 'url', 'display', 'manufacturer', 'model', 'part_number', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'manufacturer', 'model', 'part_number', 'weight', 'weight_unit', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 

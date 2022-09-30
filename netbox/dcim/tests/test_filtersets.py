@@ -409,9 +409,9 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         racks = (
-            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], location=locations[0], tenant=tenants[0], status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
-            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], location=locations[1], tenant=tenants[1], status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_21IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
-            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], location=locations[2], tenant=tenants[2], status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH),
+            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], location=locations[0], tenant=tenants[0], status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER, weight=10, weight_unit=WeightUnitChoices.UNIT_POUND),
+            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], location=locations[1], tenant=tenants[1], status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_21IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER, weight=20, weight_unit=WeightUnitChoices.UNIT_POUND),
+            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], location=locations[2], tenant=tenants[2], status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH, weight=30, weight_unit=WeightUnitChoices.UNIT_KILOGRAM),
         )
         Rack.objects.bulk_create(racks)
 
@@ -515,6 +515,14 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight(self):
+        params = {'weight': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight_unit(self):
+        params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -688,9 +696,9 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         Manufacturer.objects.bulk_create(manufacturers)
 
         device_types = (
-            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True, front_image='front.png', rear_image='rear.png'),
-            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR),
-            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD, airflow=DeviceAirflowChoices.AIRFLOW_REAR_TO_FRONT),
+            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True, front_image='front.png', rear_image='rear.png', weight=10, weight_unit=WeightUnitChoices.UNIT_POUND),
+            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR, weight=20, weight_unit=WeightUnitChoices.UNIT_POUND),
+            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD, airflow=DeviceAirflowChoices.AIRFLOW_REAR_TO_FRONT, weight=30, weight_unit=WeightUnitChoices.UNIT_KILOGRAM),
         )
         DeviceType.objects.bulk_create(device_types)
 
@@ -839,6 +847,14 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'inventory_items': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_weight(self):
+        params = {'weight': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight_unit(self):
+        params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ModuleType.objects.all()
@@ -855,9 +871,9 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         Manufacturer.objects.bulk_create(manufacturers)
 
         module_types = (
-            ModuleType(manufacturer=manufacturers[0], model='Model 1', part_number='Part Number 1'),
-            ModuleType(manufacturer=manufacturers[1], model='Model 2', part_number='Part Number 2'),
-            ModuleType(manufacturer=manufacturers[2], model='Model 3', part_number='Part Number 3'),
+            ModuleType(manufacturer=manufacturers[0], model='Model 1', part_number='Part Number 1', weight=10, weight_unit=WeightUnitChoices.UNIT_POUND),
+            ModuleType(manufacturer=manufacturers[1], model='Model 2', part_number='Part Number 2', weight=20, weight_unit=WeightUnitChoices.UNIT_POUND),
+            ModuleType(manufacturer=manufacturers[2], model='Model 3', part_number='Part Number 3', weight=30, weight_unit=WeightUnitChoices.UNIT_KILOGRAM),
         )
         ModuleType.objects.bulk_create(module_types)
 
@@ -942,6 +958,14 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'pass_through_ports': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_weight(self):
+        params = {'weight': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight_unit(self):
+        params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ConsolePortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):

@@ -36,6 +36,16 @@
                             <td>{% checkmark object.is_full_depth %}</td>
                         </tr>
                         <tr>
+                            <td>Weight</td>
+                            <td>
+                            {% if object.weight %}
+                              {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
+                            {% else %}
+                              {{ ''|placeholder }}
+                            {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
                             <td>Parent/Child</td>
                             <td>
                                 {{ object.get_subdevice_role_display|placeholder }}

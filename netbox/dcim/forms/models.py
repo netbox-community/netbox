@@ -260,7 +260,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
         fields = [
             'region', 'site_group', 'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status',
             'role', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'comments', 'tags',
+            'outer_unit', 'weight', 'weight_unit', 'comments', 'tags',
         ]
         help_texts = {
             'site': "The site at which the rack exists",
@@ -273,6 +273,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
             'type': StaticSelect(),
             'width': StaticSelect(),
             'outer_unit': StaticSelect(),
+            'weight_unit': StaticSelect(),
         }
 
 
@@ -363,6 +364,7 @@ class DeviceTypeForm(NetBoxModelForm):
         ('Chassis', (
             'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
         )),
+        ('Attributes', ('weight', 'weight_unit')),
         ('Images', ('front_image', 'rear_image')),
     )
 
@@ -370,7 +372,7 @@ class DeviceTypeForm(NetBoxModelForm):
         model = DeviceType
         fields = [
             'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
-            'front_image', 'rear_image', 'comments', 'tags',
+            'weight', 'weight_unit', 'front_image', 'rear_image', 'comments', 'tags',
         ]
         widgets = {
             'airflow': StaticSelect(),
@@ -380,7 +382,8 @@ class DeviceTypeForm(NetBoxModelForm):
             }),
             'rear_image': ClearableFileInput(attrs={
                 'accept': DEVICETYPE_IMAGE_FORMATS
-            })
+            }),
+            'weight_unit': StaticSelect(),
         }
 
 
@@ -392,15 +395,19 @@ class ModuleTypeForm(NetBoxModelForm):
 
     fieldsets = (
         ('Module Type', (
-            'manufacturer', 'model', 'part_number', 'tags',
+            'manufacturer', 'model', 'part_number', 'tags', 'weight', 'weight_unit'
         )),
     )
 
     class Meta:
         model = ModuleType
         fields = [
-            'manufacturer', 'model', 'part_number', 'comments', 'tags',
+            'manufacturer', 'model', 'part_number', 'weight', 'weight_unit', 'comments', 'tags',
         ]
+
+        widgets = {
+            'weight_unit': StaticSelect(),
+        }
 
 
 class DeviceRoleForm(NetBoxModelForm):

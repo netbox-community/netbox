@@ -2,6 +2,7 @@ import django_tables2 as tables
 
 from dcim.models import Module, ModuleType
 from netbox.tables import NetBoxTable, columns
+from .template_code import DEVICE_WEIGHT
 
 __all__ = (
     'ModuleTable',
@@ -26,11 +27,15 @@ class ModuleTypeTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:moduletype_list'
     )
+    weight = columns.TemplateColumn(
+        template_code=DEVICE_WEIGHT,
+        order_by=('_abs_weight', 'weight_unit')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ModuleType
         fields = (
-            'pk', 'id', 'model', 'manufacturer', 'part_number', 'comments', 'tags',
+            'pk', 'id', 'model', 'manufacturer', 'part_number', 'weight', 'comments', 'tags',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number',
