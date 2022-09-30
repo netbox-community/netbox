@@ -92,6 +92,9 @@ class DeviceTypeTable(NetBoxTable):
         template_code=DEVICE_WEIGHT,
         order_by=('_abs_weight', 'weight_unit')
     )
+    u_height = columns.TemplateColumn(
+        template_code='{{ value|floatformat }}'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = DeviceType

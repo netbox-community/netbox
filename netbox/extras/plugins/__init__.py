@@ -55,6 +55,9 @@ class PluginConfig(AppConfig):
     # Django-rq queues dedicated to the plugin
     queues = []
 
+    # Django apps to append to INSTALLED_APPS when plugin requires them.
+    django_apps = []
+
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.
     graphql_schema = 'graphql.schema'
