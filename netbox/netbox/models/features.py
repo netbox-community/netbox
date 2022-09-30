@@ -4,7 +4,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models.signals import class_prepared
 from django.dispatch import receiver
 
-from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import ValidationError
 from django.db import models
 from taggit.managers import TaggableManager
@@ -12,6 +11,7 @@ from taggit.managers import TaggableManager
 from extras.choices import CustomFieldVisibilityChoices, ObjectChangeActionChoices
 from extras.utils import is_taggable, register_features
 from netbox.signals import post_clean
+from utilities.json import CustomFieldJSONEncoder
 from utilities.utils import serialize_object
 
 __all__ = (
@@ -124,7 +124,7 @@ class CustomFieldsMixin(models.Model):
     Enables support for custom fields.
     """
     custom_field_data = models.JSONField(
-        encoder=DjangoJSONEncoder,
+        encoder=CustomFieldJSONEncoder,
         blank=True,
         default=dict
     )

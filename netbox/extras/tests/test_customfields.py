@@ -1,4 +1,5 @@
-import decimal
+from decimal import Decimal
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.urls import reverse
@@ -401,7 +402,7 @@ class CustomFieldAPITest(APITestCase):
             CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo'),
             CustomField(type=CustomFieldTypeChoices.TYPE_LONGTEXT, name='longtext_field', default='ABC'),
             CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='integer_field', default=123),
-            CustomField(type=CustomFieldTypeChoices.TYPE_DECIMAL, name='decimal_field', default='123.45'),
+            CustomField(type=CustomFieldTypeChoices.TYPE_DECIMAL, name='decimal_field', default=123.45),
             CustomField(type=CustomFieldTypeChoices.TYPE_BOOLEAN, name='boolean_field', default=False),
             CustomField(type=CustomFieldTypeChoices.TYPE_DATE, name='date_field', default='2020-01-01'),
             CustomField(type=CustomFieldTypeChoices.TYPE_URL, name='url_field', default='http://example.com/1'),
@@ -452,7 +453,7 @@ class CustomFieldAPITest(APITestCase):
             custom_fields[0].name: 'bar',
             custom_fields[1].name: 'DEF',
             custom_fields[2].name: 456,
-            custom_fields[3].name: '456.78',
+            custom_fields[3].name: Decimal('456.78'),
             custom_fields[4].name: True,
             custom_fields[5].name: '2020-01-02',
             custom_fields[6].name: 'http://example.com/2',
@@ -603,7 +604,7 @@ class CustomFieldAPITest(APITestCase):
                 'text_field': 'bar',
                 'longtext_field': 'blah blah blah',
                 'integer_field': 456,
-                'decimal_field': '456.78',
+                'decimal_field': 456.78,
                 'boolean_field': True,
                 'date_field': '2020-01-02',
                 'url_field': 'http://example.com/2',
@@ -726,7 +727,7 @@ class CustomFieldAPITest(APITestCase):
             'text_field': 'bar',
             'longtext_field': 'abcdefghij',
             'integer_field': 456,
-            'decimal_field': '456.78',
+            'decimal_field': 456.78,
             'boolean_field': True,
             'date_field': '2020-01-02',
             'url_field': 'http://example.com/2',
@@ -942,7 +943,7 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site1.custom_field_data['text'], 'ABC')
         self.assertEqual(site1.custom_field_data['longtext'], 'Foo')
         self.assertEqual(site1.custom_field_data['integer'], 123)
-        self.assertEqual(site1.custom_field_data['decimal'], '123.45')
+        self.assertEqual(site1.custom_field_data['decimal'], 123.45)
         self.assertEqual(site1.custom_field_data['boolean'], True)
         self.assertEqual(site1.custom_field_data['date'], '2020-01-01')
         self.assertEqual(site1.custom_field_data['url'], 'http://example.com/1')
@@ -956,7 +957,7 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site2.custom_field_data['text'], 'DEF')
         self.assertEqual(site2.custom_field_data['longtext'], 'Bar')
         self.assertEqual(site2.custom_field_data['integer'], 456)
-        self.assertEqual(site2.custom_field_data['decimal'], '456.78')
+        self.assertEqual(site2.custom_field_data['decimal'], 456.78)
         self.assertEqual(site2.custom_field_data['boolean'], False)
         self.assertEqual(site2.custom_field_data['date'], '2020-01-02')
         self.assertEqual(site2.custom_field_data['url'], 'http://example.com/2')
@@ -1092,14 +1093,20 @@ class CustomFieldModelFilterTest(TestCase):
         cf.content_types.set([obj_type])
 
         # Exact text filtering
-        cf = CustomField(name='cf4', type=CustomFieldTypeChoices.TYPE_TEXT,
-                         filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT)
+        cf = CustomField(
+            name='cf4',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT
+        )
         cf.save()
         cf.content_types.set([obj_type])
 
         # Loose text filtering
-        cf = CustomField(name='cf5', type=CustomFieldTypeChoices.TYPE_TEXT,
-                         filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE)
+        cf = CustomField(
+            name='cf5',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE
+        )
         cf.save()
         cf.content_types.set([obj_type])
 
@@ -1109,24 +1116,38 @@ class CustomFieldModelFilterTest(TestCase):
         cf.content_types.set([obj_type])
 
         # Exact URL filtering
-        cf = CustomField(name='cf7', type=CustomFieldTypeChoices.TYPE_URL,
-                         filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT)
+        cf = CustomField(
+            name='cf7',
+            type=CustomFieldTypeChoices.TYPE_URL,
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT
+        )
         cf.save()
         cf.content_types.set([obj_type])
 
         # Loose URL filtering
-        cf = CustomField(name='cf8', type=CustomFieldTypeChoices.TYPE_URL,
-                         filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE)
+        cf = CustomField(
+            name='cf8',
+            type=CustomFieldTypeChoices.TYPE_URL,
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE
+        )
         cf.save()
         cf.content_types.set([obj_type])
 
         # Selection filtering
-        cf = CustomField(name='cf9', type=CustomFieldTypeChoices.TYPE_SELECT, choices=['Foo', 'Bar', 'Baz'])
+        cf = CustomField(
+            name='cf9',
+            type=CustomFieldTypeChoices.TYPE_SELECT,
+            choices=['Foo', 'Bar', 'Baz']
+        )
         cf.save()
         cf.content_types.set([obj_type])
 
         # Multiselect filtering
-        cf = CustomField(name='cf10', type=CustomFieldTypeChoices.TYPE_MULTISELECT, choices=['A', 'B', 'C', 'X'])
+        cf = CustomField(
+            name='cf10',
+            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+            choices=['A', 'B', 'C', 'X']
+        )
         cf.save()
         cf.content_types.set([obj_type])
 
@@ -1151,7 +1172,7 @@ class CustomFieldModelFilterTest(TestCase):
         Site.objects.bulk_create([
             Site(name='Site 1', slug='site-1', custom_field_data={
                 'cf1': 100,
-                'cf2': decimal.Decimal(100.25),
+                'cf2': 100.1,
                 'cf3': True,
                 'cf4': 'foo',
                 'cf5': 'foo',
@@ -1165,7 +1186,7 @@ class CustomFieldModelFilterTest(TestCase):
             }),
             Site(name='Site 2', slug='site-2', custom_field_data={
                 'cf1': 200,
-                'cf2': decimal.Decimal(200.25),
+                'cf2': 200.2,
                 'cf3': True,
                 'cf4': 'foobar',
                 'cf5': 'foobar',
@@ -1179,7 +1200,7 @@ class CustomFieldModelFilterTest(TestCase):
             }),
             Site(name='Site 3', slug='site-3', custom_field_data={
                 'cf1': 300,
-                'cf2': decimal.Decimal("300.25"),
+                'cf2': 300.3,
                 'cf3': False,
                 'cf4': 'bar',
                 'cf5': 'bar',

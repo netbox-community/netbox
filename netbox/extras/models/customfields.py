@@ -498,7 +498,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
 
             # Validate decimal
             elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
-                if type(value) is not decimal.Decimal:
+                try:
+                    decimal.Decimal(value)
+                except decimal.InvalidOperation:
                     raise ValidationError("Value must be a decimal.")
                 if self.validation_minimum is not None and value < self.validation_minimum:
                     raise ValidationError(f"Value must be at least {self.validation_minimum}")
