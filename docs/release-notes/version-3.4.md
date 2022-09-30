@@ -25,6 +25,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 ### Plugins API
 
 * [#9071](https://github.com/netbox-community/netbox/issues/9071) - Introduce `PluginMenu` for top-level plugin navigation menus
+* [#9880](https://github.com/netbox-community/netbox/issues/9880) - Introduce `django_apps` plugin configuration parameter
 * [#10314](https://github.com/netbox-community/netbox/issues/10314) - Move `clone()` method from NetBoxModel to CloningMixin
 
 ### Other Changes
