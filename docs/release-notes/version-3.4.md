@@ -18,7 +18,9 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 ### Enhancements
 
 * [#9249](https://github.com/netbox-community/netbox/issues/9249) - Device and virtual machine names are no longer case-sensitive
+* [#9654](https://github.com/netbox-community/netbox/issues/9654) - Add `weight` field to racks, device types, and module types
 * [#9892](https://github.com/netbox-community/netbox/issues/9892) - Add optional `name` field for FHRP groups
+* [#10348](https://github.com/netbox-community/netbox/issues/10348) - Add decimal custom field type
 
 ### Plugins API
 
@@ -35,5 +37,11 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 
 * circuits.provider
     * Removed the `asn`, `noc_contact`, `admin_contact`, and `portal_url` fields
+* dcim.DeviceType
+    * Added optional `weight` and `weight_unit` fields
+* dcim.ModuleType
+    * Added optional `weight` and `weight_unit` fields
+* dcim.Rack
+    * Added optional `weight` and `weight_unit` fields
 * ipam.FHRPGroup
     * Added optional `name` field
