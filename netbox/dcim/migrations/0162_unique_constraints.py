@@ -1,4 +1,5 @@
 from django.db import migrations, models
+import django.db.models.functions.text
 
 
 class Migration(migrations.Migration):
@@ -170,11 +171,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='device',
-            constraint=models.UniqueConstraint(fields=('name', 'site', 'tenant'), name='dcim_device_unique_name_site_tenant'),
+            constraint=models.UniqueConstraint(django.db.models.functions.text.Lower('name'), models.F('site'), models.F('tenant'), name='dcim_device_unique_name_site_tenant'),
         ),
         migrations.AddConstraint(
             model_name='device',
-            constraint=models.UniqueConstraint(condition=models.Q(('tenant__isnull', True)), fields=('name', 'site'), name='dcim_device_unique_name_site', violation_error_message='Device name must be unique per site.'),
+            constraint=models.UniqueConstraint(django.db.models.functions.text.Lower('name'), models.F('site'), condition=models.Q(('tenant__isnull', True)), name='dcim_device_unique_name_site', violation_error_message='Device name must be unique per site.'),
         ),
         migrations.AddConstraint(
             model_name='device',

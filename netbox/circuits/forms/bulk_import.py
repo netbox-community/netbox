@@ -18,7 +18,7 @@ class ProviderCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = Provider
         fields = (
-            'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
+            'name', 'slug', 'account', 'comments',
         )
 
 

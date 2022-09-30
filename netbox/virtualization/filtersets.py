@@ -6,7 +6,7 @@ from extras.filtersets import LocalConfigContextFilterSet
 from ipam.models import VRF
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
-from utilities.filters import MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -196,6 +196,9 @@ class VirtualMachineFilterSet(
         to_field_name='slug',
         label='Site (slug)',
     )
+    name = MultiValueCharFilter(
+        lookup_expr='iexact'
+    )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceRole.objects.all(),
         label='Role (ID)',
@@ -227,7 +230,7 @@ class VirtualMachineFilterSet(
 
     class Meta:
         model = VirtualMachine
-        fields = ['id', 'name', 'cluster', 'vcpus', 'memory', 'disk']
+        fields = ['id', 'cluster', 'vcpus', 'memory', 'disk']
 
     def search(self, queryset, name, value):
         if not value.strip():

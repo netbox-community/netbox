@@ -299,6 +299,9 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_name(self):
         params = {'name': ['Virtual Machine 1', 'Virtual Machine 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        # Test case insensitivity
+        params = {'name': ['VIRTUAL MACHINE 1', 'VIRTUAL MACHINE 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_vcpus(self):
         params = {'vcpus': [1, 2]}

@@ -24,12 +24,6 @@ class Provider(NetBoxModel):
         max_length=100,
         unique=True
     )
-    asn = ASNField(
-        blank=True,
-        null=True,
-        verbose_name='ASN',
-        help_text='32-bit autonomous system number'
-    )
     asns = models.ManyToManyField(
         to='ipam.ASN',
         related_name='providers',
@@ -39,18 +33,6 @@ class Provider(NetBoxModel):
         max_length=30,
         blank=True,
         verbose_name='Account number'
-    )
-    portal_url = models.URLField(
-        blank=True,
-        verbose_name='Portal URL'
-    )
-    noc_contact = models.TextField(
-        blank=True,
-        verbose_name='NOC contact'
-    )
-    admin_contact = models.TextField(
-        blank=True,
-        verbose_name='Admin contact'
     )
     comments = models.TextField(
         blank=True
@@ -62,7 +44,7 @@ class Provider(NetBoxModel):
     )
 
     clone_fields = (
-        'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact',
+        'account',
     )
 
     class Meta:
