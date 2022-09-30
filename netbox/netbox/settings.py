@@ -671,15 +671,15 @@ for plugin_name in PLUGINS:
 
     plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
 
-    # Gather additionnal apps to load alongside this plugin
-    plugin_apps = plugin_config.django_apps
-    if plugin_name in plugin_apps:
-        plugin_apps.pop(plugin_name)
-    if plugin_module not in plugin_apps:
-        plugin_apps.append(plugin_module)
+    # Gather additional apps to load alongside this plugin
+    django_apps = plugin_config.django_apps
+    if plugin_name in django_apps:
+        django_apps.pop(plugin_name)
+    if plugin_module not in django_apps:
+        django_apps.append(plugin_module)
 
     # Test if we can import all modules (or its parent, for PluginConfigs and AppConfigs)
-    for app in plugin_apps:
+    for app in django_apps:
         if "." in app:
             parts = app.split(".")
             spec = importlib.util.find_spec(".".join(parts[:-1]))
@@ -687,12 +687,12 @@ for plugin_name in PLUGINS:
             spec = importlib.util.find_spec(app)
         if spec is None:
             raise ImproperlyConfigured(
-                f"Plugin {plugin_name} provides a 'config' variable which contains invalid 'plugin_apps'. "
-                f"The module {app}, from this list, cannot be imported. Check that the additionnal app has been "
+                f"Failed to load django_apps specified by plugin {plugin_name}: {django_apps} "
+                f"The module {app} cannot be imported. Check that the necessary package has been "
                 "installed within the correct Python environment."
             )
 
-    INSTALLED_APPS.extend(plugin_apps)
+    INSTALLED_APPS.extend(django_apps)
 
     # Preserve uniqueness of the INSTALLED_APPS list, we keep the last occurence
     sorted_apps = reversed(list(dict.fromkeys(reversed(INSTALLED_APPS))))
