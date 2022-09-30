@@ -94,7 +94,7 @@ class DeviceTypeTable(NetBoxTable):
         model = DeviceType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
-            'airflow', 'comments', 'instance_count', 'tags', 'created', 'last_updated', 'weight'
+            'airflow', 'weight', 'comments', 'instance_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count',

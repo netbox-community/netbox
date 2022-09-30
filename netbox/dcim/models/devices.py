@@ -141,7 +141,7 @@ class DeviceType(NetBoxModel, WeightMixin):
     )
 
     clone_fields = (
-        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
+        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
     )
 
     class Meta:
@@ -346,7 +346,7 @@ class ModuleType(NetBoxModel, WeightMixin):
         to='extras.ImageAttachment'
     )
 
-    clone_fields = ('manufacturer',)
+    clone_fields = ('manufacturer', 'weight', 'weight_unit',)
 
     class Meta:
         ordering = ('manufacturer', 'model')
@@ -949,8 +949,13 @@ class Device(NetBoxModel, ConfigContextModel):
         return DeviceStatusChoices.colors.get(self.status)
 
     @cached_property
-    def get_total_weight(self):
-        total_weight = sum(module.module_type._abs_weight for module in Module.objects.filter(device=self).exclude(module_type___abs_weight__isnull=True).prefetch_related('module_type'))
+    def total_weight(self):
+        total_weight = sum(
+            module.module_type._abs_weight
+            for module in Module.objects.filter(device=self)
+            .exclude(module_type___abs_weight__isnull=True)
+            .prefetch_related('module_type')
+        )
         if self.device_type._abs_weight:
             total_weight += self.device_type._abs_weight
         return round(total_weight / 1000, 2)

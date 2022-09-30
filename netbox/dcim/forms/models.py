@@ -260,7 +260,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
         fields = [
             'region', 'site_group', 'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status',
             'role', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'comments', 'tags', 'weight', 'weight_unit'
+            'outer_unit', 'weight', 'weight_unit', 'comments', 'tags',
         ]
         help_texts = {
             'site': "The site at which the rack exists",
@@ -402,7 +402,7 @@ class ModuleTypeForm(NetBoxModelForm):
     class Meta:
         model = ModuleType
         fields = [
-            'manufacturer', 'model', 'part_number', 'comments', 'tags', 'weight', 'weight_unit'
+            'manufacturer', 'model', 'part_number', 'weight', 'weight_unit', 'comments', 'tags',
         ]
 
         widgets = {

@@ -379,7 +379,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = DeviceType
     fieldsets = (
-        (None, ('manufacturer', 'part_number', 'u_height', 'is_full_depth', 'airflow')),
+        ('Device Type', ('manufacturer', 'part_number', 'u_height', 'is_full_depth', 'airflow')),
         ('Weight', ('weight', 'weight_unit')),
     )
     nullable_fields = ('part_number', 'airflow', 'weight', 'weight_unit')
@@ -406,8 +406,8 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ModuleType
     fieldsets = (
-        (None, ('manufacturer', 'part_number')),
-        ('Attributes', ('weight', 'weight_unit')),
+        ('Module Type', ('manufacturer', 'part_number')),
+        ('Weight', ('weight', 'weight_unit')),
     )
     nullable_fields = ('part_number', 'weight', 'weight_unit')
 
