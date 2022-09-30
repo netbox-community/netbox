@@ -3,8 +3,6 @@ from django import forms
 from django.conf import settings
 from django_filters.constants import EMPTY_VALUES
 
-from utilities.forms import MACAddressField
-
 
 def multivalue_field_factory(field_class):
     """
@@ -31,7 +29,7 @@ def multivalue_field_factory(field_class):
             for v in value:
                 super().validate(v)
 
-    return type('MultiValue{}'.format(field_class.__name__), (NewField,), dict())
+    return type(f'MultiValue{field_class.__name__}', (NewField,), dict())
 
 
 #
@@ -52,6 +50,10 @@ class MultiValueDateTimeFilter(django_filters.MultipleChoiceFilter):
 
 class MultiValueNumberFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(forms.IntegerField)
+
+
+class MultiValueDecimalFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.DecimalField)
 
 
 class MultiValueTimeFilter(django_filters.MultipleChoiceFilter):
