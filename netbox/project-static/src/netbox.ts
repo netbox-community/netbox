@@ -42,8 +42,8 @@ function initWindow(): void {
   for (var documentForm of documentForms) {
     if (documentForm.method.toUpperCase() == 'GET') {
       // @ts-ignore: Our version of typescript seems to be too old for FormDataEvent
-      documentForm.addEventListener('formdata', function(event) {
-      let formData = event.formData;
+      documentForm.addEventListener('formdata', function(event: FormDataEvent) {
+      let formData: FormData = event.formData;
       for (let [name, value] of Array.from(formData.entries())) {
           if (value === '') formData.delete(name);
         }
