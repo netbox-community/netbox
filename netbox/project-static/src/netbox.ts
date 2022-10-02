@@ -43,9 +43,7 @@ function initWindow(): void {
     if (documentForm.method.toUpperCase() == 'GET') {
       // @ts-ignore: Our version of typescript seems to be too old for FormDataEvent
       documentForm.addEventListener('formdata', function(event) {
-      // @ts-ignore: Our version of typescript seems to be too old for FormDataEvent
       let formData = event.formData;
-      // @ts-ignore: Our version of typescript seems to be too old for FormDataEvent
       for (let [name, value] of Array.from(formData.entries())) {
           if (value === '') formData.delete(name);
         }
