@@ -1616,6 +1616,7 @@ class DeviceView(generic.ObjectView):
         return {
             'services': services,
             'vc_members': vc_members,
+            'svg_extra': f'highlight=id:{instance.pk}'
         }
 
 
