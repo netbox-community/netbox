@@ -16,6 +16,7 @@
 * [#10461](https://github.com/netbox-community/netbox/issues/10461) - Enable filtering by read-only custom fields in the UI
 * [#10470](https://github.com/netbox-community/netbox/issues/10470) - Omit read-only custom fields from CSV import forms
 * [#10480](https://github.com/netbox-community/netbox/issues/10480) - Cable trace SVG links should not force a new window
+* [#10513](https://github.com/netbox-community/netbox/issues/10513) - Disable the reassignment of a module to a new device
 
 ---
 
