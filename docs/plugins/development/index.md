@@ -14,6 +14,7 @@ Plugins can do a lot, including:
 * Provide their own "pages" (views) in the web user interface
 * Inject template content and navigation links
 * Extend NetBox's REST and GraphQL APIs
+* Load additional Django apps
 * Add custom request/response middleware
 
 However, keep in mind that each piece of functionality is entirely optional. For example, if your plugin merely adds a piece of middleware or an API endpoint for existing data, there's no need to define any new models.
@@ -82,6 +83,7 @@ class FooBarConfig(PluginConfig):
     default_settings = {
         'baz': True
     }
+    django_apps = ["foo", "bar", "baz"]
 
 config = FooBarConfig
 ```
@@ -101,6 +103,7 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `base_url`            | Base path to use for plugin URLs (optional). If not specified, the project's `name` will be used.                        |
 | `required_settings`   | A list of any configuration parameters that **must** be defined by the user                                              |
 | `default_settings`    | A dictionary of configuration parameters and their default values                                                        |
+| `django_apps`         | A list of additional Django apps to load alongside the plugin                                                            |
 | `min_version`         | Minimum version of NetBox with which the plugin is compatible                                                            |
 | `max_version`         | Maximum version of NetBox with which the plugin is compatible                                                            |
 | `middleware`          | A list of middleware classes to append after NetBox's build-in middleware                                                |
@@ -111,6 +114,14 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `user_preferences`    | The dotted path to the dictionary mapping of user preferences defined by the plugin (default: `preferences.preferences`) |
 
 All required settings must be configured by the user. If a configuration parameter is listed in both `required_settings` and `default_settings`, the default setting will be ignored.
+
+#### Important Notes About `django_apps`
+
+Loading additional apps may cause more harm than good and could make identifying problems within NetBox itself more difficult. The `django_apps` attribute is intended only for advanced use cases that require a deeper Django integration.
+
+Apps from this list are inserted *before* the plugin's `PluginConfig` in the order defined. Adding the plugin's `PluginConfig` module to this list changes this behavior and allows for apps to be loaded *after* the plugin.
+
+Any additional apps must be installed within the same Python environment as NetBox or `ImproperlyConfigured` exceptions will be raised when loading the plugin.
 
 ## Create setup.py
 

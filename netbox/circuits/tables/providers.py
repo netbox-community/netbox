@@ -41,10 +41,10 @@ class ProviderTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Provider
         fields = (
-            'pk', 'id', 'name', 'asn', 'asns', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'asn_count',
+            'pk', 'id', 'name', 'asns', 'account', 'asn_count',
             'circuit_count', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'asn', 'account', 'circuit_count')
+        default_columns = ('pk', 'name', 'account', 'circuit_count')
 
 
 class ProviderNetworkTable(NetBoxTable):

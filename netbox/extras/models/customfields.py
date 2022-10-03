@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, date
+import decimal
 
 import django_filters
 from django import forms
@@ -219,14 +220,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                 })
 
         # Minimum/maximum values can be set only for numeric fields
-        if self.validation_minimum is not None and self.type != CustomFieldTypeChoices.TYPE_INTEGER:
-            raise ValidationError({
-                'validation_minimum': "A minimum value may be set only for numeric fields"
-            })
-        if self.validation_maximum is not None and self.type != CustomFieldTypeChoices.TYPE_INTEGER:
-            raise ValidationError({
-                'validation_maximum': "A maximum value may be set only for numeric fields"
-            })
+        if self.type not in (CustomFieldTypeChoices.TYPE_INTEGER, CustomFieldTypeChoices.TYPE_DECIMAL):
+            if self.validation_minimum:
+                raise ValidationError({'validation_minimum': "A minimum value may be set only for numeric fields"})
+            if self.validation_maximum:
+                raise ValidationError({'validation_maximum': "A maximum value may be set only for numeric fields"})
 
         # Regex validation can be set only for text fields
         regex_types = (
@@ -297,12 +295,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
             return model.objects.filter(pk__in=value)
         return value
 
-    def to_form_field(self, set_initial=True, enforce_required=True, for_csv_import=False):
+    def to_form_field(self, set_initial=True, enforce_required=True, enforce_visibility=True, for_csv_import=False):
         """
         Return a form field suitable for setting a CustomField's value for an object.
 
         set_initial: Set initial data for the field. This should be False when generating a field for bulk editing.
         enforce_required: Honor the value of CustomField.required. Set to False for filtering/bulk editing.
+        enforce_visibility: Honor the value of CustomField.ui_visibility. Set to False for filtering.
         for_csv_import: Return a form field suitable for bulk import of objects in CSV format.
         """
         initial = self.default if set_initial else None
@@ -313,6 +312,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
             field = forms.IntegerField(
                 required=required,
                 initial=initial,
+                min_value=self.validation_minimum,
+                max_value=self.validation_maximum
+            )
+
+        # Decimal
+        elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
+            field = forms.DecimalField(
+                required=required,
+                initial=initial,
+                max_digits=12,
+                decimal_places=4,
                 min_value=self.validation_minimum,
                 max_value=self.validation_maximum
             )
@@ -398,6 +408,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         if self.description:
             field.help_text = escape(self.description)
 
+        # Annotate read-only fields
+        if enforce_visibility and self.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY:
+            field.disabled = True
+            prepend = '<br />' if field.help_text else ''
+            field.help_text += f'{prepend}<i class="mdi mdi-alert-circle-outline"></i> Field is set to read-only.'
+
         return field
 
     def to_filter(self, lookup_expr=None):
@@ -425,6 +441,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         # Integer
         elif self.type == CustomFieldTypeChoices.TYPE_INTEGER:
             filter_class = filters.MultiValueNumberFilter
+
+        # Decimal
+        elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
+            filter_class = filters.MultiValueDecimalFilter
 
         # Boolean
         elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
@@ -475,7 +495,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                     raise ValidationError(f"Value must match regex '{self.validation_regex}'")
 
             # Validate integer
-            if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
+            elif self.type == CustomFieldTypeChoices.TYPE_INTEGER:
                 if type(value) is not int:
                     raise ValidationError("Value must be an integer.")
                 if self.validation_minimum is not None and value < self.validation_minimum:
@@ -483,12 +503,23 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                 if self.validation_maximum is not None and value > self.validation_maximum:
                     raise ValidationError(f"Value must not exceed {self.validation_maximum}")
 
+            # Validate decimal
+            elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
+                try:
+                    decimal.Decimal(value)
+                except decimal.InvalidOperation:
+                    raise ValidationError("Value must be a decimal.")
+                if self.validation_minimum is not None and value < self.validation_minimum:
+                    raise ValidationError(f"Value must be at least {self.validation_minimum}")
+                if self.validation_maximum is not None and value > self.validation_maximum:
+                    raise ValidationError(f"Value must not exceed {self.validation_maximum}")
+
             # Validate boolean
-            if self.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value not in [True, False, 1, 0]:
+            elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value not in [True, False, 1, 0]:
                 raise ValidationError("Value must be true or false.")
 
             # Validate date
-            if self.type == CustomFieldTypeChoices.TYPE_DATE:
+            elif self.type == CustomFieldTypeChoices.TYPE_DATE:
                 if type(value) is not date:
                     try:
                         datetime.strptime(value, '%Y-%m-%d')
@@ -496,14 +527,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                         raise ValidationError("Date values must be in the format YYYY-MM-DD.")
 
             # Validate selected choice
-            if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+            elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
                 if value not in self.choices:
                     raise ValidationError(
                         f"Invalid choice ({value}). Available choices are: {', '.join(self.choices)}"
                     )
 
             # Validate all selected choices
-            if self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
                 if not set(value).issubset(self.choices):
                     raise ValidationError(
                         f"Invalid choice(s) ({', '.join(value)}). Available choices are: {', '.join(self.choices)}"

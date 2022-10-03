@@ -99,6 +99,8 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         types = CustomFieldTypeChoices
         if obj.type == types.TYPE_INTEGER:
             return 'integer'
+        if obj.type == types.TYPE_DECIMAL:
+            return 'decimal'
         if obj.type == types.TYPE_BOOLEAN:
             return 'boolean'
         if obj.type in (types.TYPE_JSON, types.TYPE_OBJECT):

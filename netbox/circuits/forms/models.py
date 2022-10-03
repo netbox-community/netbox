@@ -30,29 +30,17 @@ class ProviderForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Provider', ('name', 'slug', 'asn', 'asns', 'tags')),
-        ('Support Info', ('account', 'portal_url', 'noc_contact', 'admin_contact')),
+        ('Provider', ('name', 'slug', 'asns', 'tags')),
+        ('Support Info', ('account',)),
     )
 
     class Meta:
         model = Provider
         fields = [
-            'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'asns', 'comments', 'tags',
+            'name', 'slug', 'account', 'asns', 'comments', 'tags',
         ]
-        widgets = {
-            'noc_contact': SmallTextarea(
-                attrs={'rows': 5}
-            ),
-            'admin_contact': SmallTextarea(
-                attrs={'rows': 5}
-            ),
-        }
         help_texts = {
             'name': "Full name of the provider",
-            'asn': "BGP autonomous system number (if applicable)",
-            'portal_url': "URL of the provider's customer support portal",
-            'noc_contact': "NOC email address and phone number",
-            'admin_contact': "Administrative contact email address and phone number",
         }
 
 

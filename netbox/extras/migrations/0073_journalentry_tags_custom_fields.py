@@ -1,4 +1,4 @@
-import django.core.serializers.json
+from utilities.json import CustomFieldJSONEncoder
 from django.db import migrations, models
 import taggit.managers
 
@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='journalentry',
             name='custom_field_data',
-            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+            field=models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder),
         ),
         migrations.AddField(
             model_name='journalentry',

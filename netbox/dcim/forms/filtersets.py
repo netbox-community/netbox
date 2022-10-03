@@ -228,6 +228,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         ('Hardware', ('type', 'width', 'serial', 'asset_tag')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
+        ('Weight', ('weight', 'weight_unit')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -281,6 +282,13 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         required=False
     )
     tag = TagFilterField(model)
+    weight = forms.DecimalField(
+        required=False
+    )
+    weight_unit = forms.ChoiceField(
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False
+    )
 
 
 class RackElevationFilterForm(RackFilterForm):
@@ -370,6 +378,7 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', 'device_bays', 'module_bays', 'inventory_items',
         )),
+        ('Weight', ('weight', 'weight_unit')),
     )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -465,6 +474,13 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
         )
     )
     tag = TagFilterField(model)
+    weight = forms.DecimalField(
+        required=False
+    )
+    weight_unit = forms.ChoiceField(
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False
+    )
 
 
 class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
@@ -476,6 +492,7 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports',
         )),
+        ('Weight', ('weight', 'weight_unit')),
     )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -529,6 +546,13 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
         )
     )
     tag = TagFilterField(model)
+    weight = forms.DecimalField(
+        required=False
+    )
+    weight_unit = forms.ChoiceField(
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False
+    )
 
 
 class DeviceRoleFilterForm(NetBoxModelFilterSetForm):
