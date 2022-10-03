@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#8424](https://github.com/netbox-community/netbox/issues/8424) - Include rack elevation under device view
+* [#10352](https://github.com/netbox-community/netbox/issues/10352) - Omit extraneous URL query attributes during search
 * [#10465](https://github.com/netbox-community/netbox/issues/10465) - Improve formatting of device heights and rack positions
 
 ### Bug Fixes
