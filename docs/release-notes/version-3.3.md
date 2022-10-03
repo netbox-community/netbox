@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#8424](https://github.com/netbox-community/netbox/issues/8424) - Include rack elevation under device view
 * [#10465](https://github.com/netbox-community/netbox/issues/10465) - Improve formatting of device heights and rack positions
 
 ### Bug Fixes
@@ -16,6 +17,7 @@
 * [#10461](https://github.com/netbox-community/netbox/issues/10461) - Enable filtering by read-only custom fields in the UI
 * [#10470](https://github.com/netbox-community/netbox/issues/10470) - Omit read-only custom fields from CSV import forms
 * [#10480](https://github.com/netbox-community/netbox/issues/10480) - Cable trace SVG links should not force a new window
+* [#10491](https://github.com/netbox-community/netbox/issues/10491) - Clarify representation of blocking contact assignments during contact deletion
 * [#10513](https://github.com/netbox-community/netbox/issues/10513) - Disable the reassignment of a module to a new device
 
 ---
