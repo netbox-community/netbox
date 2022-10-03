@@ -347,10 +347,12 @@ class VirtualMachine(NetBoxModel, ConfigContextModel):
             })
 
         # Validate site for cluster & device
-        if self.cluster and self.cluster.site != self.site:
+        if self.cluster and self.site and self.cluster.site != self.site:
             raise ValidationError({
                 'cluster': f'The selected cluster ({self.cluster} is not assigned to this site ({self.site}).'
             })
+        elif self.cluster:
+            self.site = self.cluster.site
         if self.device and self.device.site != self.site:
             raise ValidationError({
                 'device': f'The selected device ({self.device} is not assigned to this site ({self.site}).'
