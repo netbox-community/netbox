@@ -1178,7 +1178,6 @@ class PortTypeChoices(ChoiceSet):
     TYPE_OTHER = 'other'
     TYPE_BACKPLANE = 'backplane'
 
-
     CHOICES = (
         (
             'Copper',
