@@ -1,3 +1,4 @@
+import inspect
 import json
 
 from django.conf import settings
@@ -449,7 +450,7 @@ class APIViewTestCases:
                 if type(field) is GQLDynamic:
                     # Dynamic fields must specify a subselection
                     fields_string += f'{field_name} {{ id }}\n'
-                elif type(field.type) is GQLList and issubclass(field.type.of_type, GQLUnion):
+                elif type(field.type) is GQLList and inspect.isclass(field.type.of_type) and issubclass(field.type.of_type, GQLUnion):
                     continue
                 elif type(field.type) is GQLList and field_name != 'choices':
                     # TODO: Come up with something more elegant
