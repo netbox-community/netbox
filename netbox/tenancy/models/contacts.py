@@ -163,8 +163,8 @@ class ContactAssignment(WebhooksMixin, ChangeLoggedModel):
 
     def __str__(self):
         if self.priority:
-            return f"{self.contact} ({self.get_priority_display()})"
-        return str(self.contact)
+            return f"{self.contact} ({self.get_priority_display()}) -> {self.object}"
+        return str(f"{self.contact} -> {self.object}")
 
     def get_absolute_url(self):
         return reverse('tenancy:contact', args=[self.contact.pk])

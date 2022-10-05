@@ -1778,10 +1778,12 @@ class ModuleTestCase(
             ModuleBay(device=devices[0], name='Module Bay 2'),
             ModuleBay(device=devices[0], name='Module Bay 3'),
             ModuleBay(device=devices[0], name='Module Bay 4'),
+            ModuleBay(device=devices[0], name='Module Bay 5'),
             ModuleBay(device=devices[1], name='Module Bay 1'),
             ModuleBay(device=devices[1], name='Module Bay 2'),
             ModuleBay(device=devices[1], name='Module Bay 3'),
             ModuleBay(device=devices[1], name='Module Bay 4'),
+            ModuleBay(device=devices[1], name='Module Bay 5'),
         )
         ModuleBay.objects.bulk_create(module_bays)
 
@@ -1795,7 +1797,7 @@ class ModuleTestCase(
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'device': devices[1].pk,
+            'device': devices[0].pk,
             'module_bay': module_bays[3].pk,
             'module_type': module_types[0].pk,
             'serial': 'A',
@@ -1867,7 +1869,6 @@ class ModuleTestCase(
         self.assertIsNone(interface.module)
 
         # Create a module with adopted components
-        form_data['module_bay'] = ModuleBay.objects.filter(device=device).first()
         form_data['module_type'] = module_type
         form_data['replicate_components'] = False
         form_data['adopt_components'] = True

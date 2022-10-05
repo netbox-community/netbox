@@ -355,7 +355,7 @@ class SiteView(generic.ObjectView):
 
         nonracked_devices = Device.objects.filter(
             site=instance,
-            position__isnull=True,
+            rack__isnull=True,
             parent_bay__isnull=True
         ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
 
@@ -450,7 +450,7 @@ class LocationView(generic.ObjectView):
 
         nonracked_devices = Device.objects.filter(
             location=instance,
-            position__isnull=True,
+            rack__isnull=True,
             parent_bay__isnull=True
         ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
 
@@ -1616,6 +1616,7 @@ class DeviceView(generic.ObjectView):
         return {
             'services': services,
             'vc_members': vc_members,
+            'svg_extra': f'highlight=id:{instance.pk}'
         }
 
 

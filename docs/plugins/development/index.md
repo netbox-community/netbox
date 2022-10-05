@@ -112,6 +112,14 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 
 All required settings must be configured by the user. If a configuration parameter is listed in both `required_settings` and `default_settings`, the default setting will be ignored.
 
+!!! tip "Accessing Config Parameters"
+    Plugin configuration parameters can be accessed in `settings.PLUGINS_CONFIG`, mapped by plugin name. For example:
+    
+    ```python
+    from django.conf import settings
+    settings.PLUGINS_CONFIG['myplugin']['verbose_name']
+    ```
+
 ## Create setup.py
 
 `setup.py` is the [setup script](https://docs.python.org/3.8/distutils/setupscript.html) used to package and install our plugin once it's finished. The primary function of this script is to call the setuptools library's `setup()` function to create a Python distribution package. We can pass a number of keyword arguments to control the package creation as well as to provide metadata about the plugin. An example `setup.py` is below:

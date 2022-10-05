@@ -119,8 +119,10 @@ class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ContactAssignment
         fields = (
-            'group', 'contact', 'role', 'priority',
+            'content_type', 'object_id', 'group', 'contact', 'role', 'priority',
         )
         widgets = {
+            'content_type': forms.HiddenInput(),
+            'object_id': forms.HiddenInput(),
             'priority': StaticSelect(),
         }

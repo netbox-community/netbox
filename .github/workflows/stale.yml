@@ -1,14 +1,21 @@
 # close-stale-issues (https://github.com/marketplace/actions/close-stale-issues)
 name: 'Close stale issues/PRs'
+
 on:
   schedule:
     - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
 
 jobs:
   stale:
+
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v5
+      - uses: actions/stale@v6
         with:
           close-issue-message: >
             This issue has been automatically closed due to lack of activity. In an

@@ -1,0 +1,36 @@
+<table class="table table-hover">
+  <tr>
+    <th scope="row">Cable</th>
+    <td>
+      {{ object.cable|linkify }}
+      <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
+        <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <th scope="row">Path Status</th>
+    <td>
+      {% if object.path.is_complete and object.path.is_active %}
+        <span class="badge bg-success">Reachable</span>
+      {% else %}
+        <span class="badge bg-danger">Not Reachable</span>
+      {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <th scope="row">Path Endpoints</th>
+    <td>
+      {% for endpoint in object.connected_endpoints %}
+        {% if endpoint.parent_object %}
+          {{ endpoint.parent_object|linkify }}
+          <i class="mdi mdi-chevron-right"></i>
+        {% endif %}
+        {{ endpoint|linkify }}
+        {% if not forloop.last %}<br />{% endif %}
+      {% empty %}
+        {{ ''|placeholder }}
+      {% endfor %}
+    </td>
+  </tr>
+</table>
