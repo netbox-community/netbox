@@ -37,6 +37,20 @@ function initDocument(): void {
 }
 
 function initWindow(): void {
+
+  const documentForms = document.forms
+  for (var documentForm of documentForms) {
+    if (documentForm.method.toUpperCase() == 'GET') {
+      // @ts-ignore: Our version of typescript seems to be too old for FormDataEvent
+      documentForm.addEventListener('formdata', function(event: FormDataEvent) {
+      let formData: FormData = event.formData;
+      for (let [name, value] of Array.from(formData.entries())) {
+          if (value === '') formData.delete(name);
+        }
+      });
+    }
+  }
+
   const contentContainer = document.querySelector<HTMLElement>('.content-container');
   if (contentContainer !== null) {
     // Focus the content container for accessible navigation.

@@ -1009,6 +1009,14 @@ class Module(NetBoxModel, ConfigContextModel):
     def get_absolute_url(self):
         return reverse('dcim:module', args=[self.pk])
 
+    def clean(self):
+        super().clean()
+
+        if self.module_bay.device != self.device:
+            raise ValidationError(
+                f"Module must be installed within a module bay belonging to the assigned device ({self.device})."
+            )
+
     def save(self, *args, **kwargs):
         is_new = self.pk is None
 
