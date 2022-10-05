@@ -2,6 +2,15 @@
 
 ## v3.3.6 (FUTURE)
 
+### Enhancements
+
+* [#9722](https://github.com/netbox-community/netbox/issues/9722) - Add LDAP configuration parameters to specify certificates
+
+### Bug Fixes
+
+* [#9669](https://github.com/netbox-community/netbox/issues/9669) - Strip colons from usernames when using remote authentication
+
+
 ---
 
 ## v3.3.5 (2022-10-05)
