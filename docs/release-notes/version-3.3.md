@@ -24,6 +24,7 @@
 * [#10513](https://github.com/netbox-community/netbox/issues/10513) - Disable the reassignment of a module to a new device
 * [#10517](https://github.com/netbox-community/netbox/issues/10517) - Automatically inherit site assignment from cluster when creating a virtual machine
 * [#10559](https://github.com/netbox-community/netbox/issues/10559) - Permit the pinning of a VM to a particular device within a cluster which has no site assignment
+* [#10562](https://github.com/netbox-community/netbox/issues/10562) - Correct URL for contacts table tags column
 
 ---
 
