@@ -15,7 +15,7 @@ django-taggit==3.0.0
 django-timezone-field==5.0
 djangorestframework==3.14.0
 drf-yasg[validation]==1.21.4
-graphene-django==2.15.0
+graphene-django==3.0.0
 gunicorn==20.1.0
 Jinja2==3.1.2
 Markdown==3.3.7

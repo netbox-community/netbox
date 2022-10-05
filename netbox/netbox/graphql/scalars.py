@@ -1,6 +1,6 @@
 from graphene import Scalar
 from graphql.language import ast
-from graphql.type.scalars import MAX_INT, MIN_INT
+from graphene.types.scalars import MAX_INT, MIN_INT
 
 
 class BigInt(Scalar):
