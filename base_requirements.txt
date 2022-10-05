@@ -68,7 +68,7 @@ drf-yasg[validation]
 
 # Django wrapper for Graphene (GraphQL support)
 # https://github.com/graphql-python/graphene-django
-graphene_django
+graphene_django<3.0
 
 # WSGI HTTP server
 # https://gunicorn.org/
@@ -80,7 +80,8 @@ Jinja2
 
 # Simple markup language for rendering HTML
 # https://github.com/Python-Markdown/markdown
-Markdown
+# mkdocs currently requires Markdown v3.3
+Markdown<3.4
 
 # File inclusion plugin for Python-Markdown
 # https://github.com/cmacmackin/markdown-include

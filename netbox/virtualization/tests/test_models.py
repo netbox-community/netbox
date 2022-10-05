@@ -70,9 +70,10 @@ class VirtualMachineTestCase(TestCase):
         with self.assertRaises(ValidationError):
             VirtualMachine(name='vm1', site=sites[0], cluster=clusters[1]).full_clean()
 
-        # VM with cluster site but no direct site should fail
-        with self.assertRaises(ValidationError):
-            VirtualMachine(name='vm1', site=None, cluster=clusters[0]).full_clean()
+        # VM with cluster site but no direct site should have its site set automatically
+        vm = VirtualMachine(name='vm1', site=None, cluster=clusters[0])
+        vm.full_clean()
+        self.assertEqual(vm.site, sites[0])
 
     def test_vm_name_case_sensitivity(self):
         vm1 = VirtualMachine(

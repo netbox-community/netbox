@@ -115,6 +115,14 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 
 All required settings must be configured by the user. If a configuration parameter is listed in both `required_settings` and `default_settings`, the default setting will be ignored.
 
+!!! tip "Accessing Config Parameters"
+    Plugin configuration parameters can be accessed in `settings.PLUGINS_CONFIG`, mapped by plugin name. For example:
+    
+    ```python
+    from django.conf import settings
+    settings.PLUGINS_CONFIG['myplugin']['verbose_name']
+    ```
+
 #### Important Notes About `django_apps`
 
 Loading additional apps may cause more harm than good and could make identifying problems within NetBox itself more difficult. The `django_apps` attribute is intended only for advanced use cases that require a deeper Django integration.

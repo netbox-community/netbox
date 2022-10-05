@@ -1,21 +1,34 @@
 # NetBox v3.3
 
-## v3.3.5 (FUTURE)
+## v3.3.6 (FUTURE)
+
+---
+
+## v3.3.5 (2022-10-05)
 
 ### Enhancements
 
+* [#8424](https://github.com/netbox-community/netbox/issues/8424) - Include rack elevation under device view
+* [#10352](https://github.com/netbox-community/netbox/issues/10352) - Omit extraneous URL query attributes during search
 * [#10465](https://github.com/netbox-community/netbox/issues/10465) - Improve formatting of device heights and rack positions
 
 ### Bug Fixes
 
 * [#9497](https://github.com/netbox-community/netbox/issues/9497) - Adjust non-racked device filter on site and location detailed view
 * [#10408](https://github.com/netbox-community/netbox/issues/10408) - Fix validation when attempting to add redundant contact assignments
+* [#10423](https://github.com/netbox-community/netbox/issues/10423) - Enforce object type validation when creating journal entries
 * [#10435](https://github.com/netbox-community/netbox/issues/10435) - Fix exception when filtering VLANs by virtual machine with no cluster assigned
 * [#10439](https://github.com/netbox-community/netbox/issues/10439) - Fix form widget styling for DeviceType airflow field
 * [#10445](https://github.com/netbox-community/netbox/issues/10445) - Avoid rounding virtual machine memory values
+* [#10460](https://github.com/netbox-community/netbox/issues/10460) - Restore missing connection details for device components
 * [#10461](https://github.com/netbox-community/netbox/issues/10461) - Enable filtering by read-only custom fields in the UI
 * [#10470](https://github.com/netbox-community/netbox/issues/10470) - Omit read-only custom fields from CSV import forms
 * [#10480](https://github.com/netbox-community/netbox/issues/10480) - Cable trace SVG links should not force a new window
+* [#10491](https://github.com/netbox-community/netbox/issues/10491) - Clarify representation of blocking contact assignments during contact deletion
+* [#10513](https://github.com/netbox-community/netbox/issues/10513) - Disable the reassignment of a module to a new device
+* [#10517](https://github.com/netbox-community/netbox/issues/10517) - Automatically inherit site assignment from cluster when creating a virtual machine
+* [#10559](https://github.com/netbox-community/netbox/issues/10559) - Permit the pinning of a VM to a particular device within a cluster which has no site assignment
+* [#10562](https://github.com/netbox-community/netbox/issues/10562) - Correct URL for contacts table tags column
 
 ---
 

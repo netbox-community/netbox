@@ -471,6 +471,14 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin
     def get_absolute_url(self):
         return reverse('extras:journalentry', args=[self.pk])
 
+    def clean(self):
+        super().clean()
+
+        # Prevent the creation of journal entries on unsupported models
+        permitted_types = ContentType.objects.filter(FeatureQuery('journaling').get_query())
+        if self.assigned_object_type not in permitted_types:
+            raise ValidationError(f"Journaling is not supported for this object type ({self.assigned_object_type}).")
+
     def get_kind_color(self):
         return JournalEntryKindChoices.colors.get(self.kind)
 
