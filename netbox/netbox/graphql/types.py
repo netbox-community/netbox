@@ -1,3 +1,5 @@
+import graphene
+
 from django.contrib.contenttypes.models import ContentType
 from graphene_django import DjangoObjectType
 
@@ -19,6 +21,11 @@ class BaseObjectType(DjangoObjectType):
     """
     Base GraphQL object type for all NetBox objects. Restricts the model queryset to enforce object permissions.
     """
+    display = graphene.String()
+
+    def resolve_display(parent, info, **kwargs):
+        return str(parent)
+
     class Meta:
         abstract = True
 
