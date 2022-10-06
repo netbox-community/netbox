@@ -1,6 +1,8 @@
+import graphene
+
 from circuits import filtersets, models
 from dcim.graphql.mixins import CabledObjectMixin
-from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
+from extras.graphql.mixins import CustomFieldsMixin, TagsMixin, ContactsMixin
 from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType
 
 __all__ = (
@@ -20,8 +22,7 @@ class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, Ob
         filterset_class = filtersets.CircuitTerminationFilterSet
 
 
-class CircuitType(NetBoxObjectType):
-
+class CircuitType(NetBoxObjectType, ContactsMixin):
     class Meta:
         model = models.Circuit
         fields = '__all__'
@@ -44,7 +45,7 @@ class ProviderType(NetBoxObjectType):
         filterset_class = filtersets.ProviderFilterSet
 
 
-class ProviderNetworkType(NetBoxObjectType):
+class ProviderNetworkType(NetBoxObjectType, ContactsMixin):
 
     class Meta:
         model = models.ProviderNetwork

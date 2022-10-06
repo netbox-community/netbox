@@ -1,6 +1,7 @@
 import graphene
 
 from graphene_django import DjangoObjectType
+from extras.graphql.mixins import ContactsMixin
 from ipam import filtersets, models
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
@@ -159,7 +160,7 @@ class VRFType(NetBoxObjectType):
         filterset_class = filtersets.VRFFilterSet
 
 
-class L2VPNType(NetBoxObjectType):
+class L2VPNType(ContactsMixin, NetBoxObjectType):
     class Meta:
         model = models.L2VPN
         fields = '__all__'
