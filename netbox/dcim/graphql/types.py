@@ -86,7 +86,17 @@ class ComponentTemplateObjectType(
 # Model types
 #
 
+class CableTerminationType(NetBoxObjectType):
+
+    class Meta:
+        model = models.CableTermination
+        fields = '__all__'
+        filterset_class = filtersets.CableTerminationFilterSet
+
+
 class CableType(NetBoxObjectType):
+    a_terminations = graphene.List(CableTerminationType)
+    b_terminations = graphene.List(CableTerminationType)
 
     class Meta:
         model = models.Cable
@@ -99,13 +109,11 @@ class CableType(NetBoxObjectType):
     def resolve_length_unit(self, info):
         return self.length_unit or None
 
+    def resolve_a_terminations(self, info):
+        return self.a_terminations
 
-class CableTerminationType(NetBoxObjectType):
-
-    class Meta:
-        model = models.CableTermination
-        fields = '__all__'
-        filterset_class = filtersets.CableTerminationFilterSet
+    def resolve_b_terminations(self, info):
+        return self.b_terminations
 
 
 class ConsolePortType(ComponentObjectType, CabledObjectMixin):
