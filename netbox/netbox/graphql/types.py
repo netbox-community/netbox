@@ -1,9 +1,13 @@
 import graphene
 
 from django.contrib.contenttypes.models import ContentType
+from extras.graphql.mixins import (
+    ChangelogMixin,
+    CustomFieldsMixin,
+    JournalEntriesMixin,
+    TagsMixin,
+)
 from graphene_django import DjangoObjectType
-
-from extras.graphql.mixins import ChangelogMixin, CustomFieldsMixin, JournalEntriesMixin, TagsMixin
 
 __all__ = (
     'BaseObjectType',
@@ -22,9 +26,7 @@ class BaseObjectType(DjangoObjectType):
     Base GraphQL object type for all NetBox objects. Restricts the model queryset to enforce object permissions.
     """
     display = graphene.String()
-
-    def resolve_display(parent, info, **kwargs):
-        return str(parent)
+    class_type = graphene.String()
 
     class Meta:
         abstract = True
@@ -33,6 +35,12 @@ class BaseObjectType(DjangoObjectType):
     def get_queryset(cls, queryset, info):
         # Enforce object permissions on the queryset
         return queryset.restrict(info.context.user, 'view')
+
+    def resolve_display(parent, info, **kwargs):
+        return str(parent)
+
+    def resolve_class_type(parent, info, **kwargs):
+        return parent.__class__.__name__
 
 
 class ObjectType(
