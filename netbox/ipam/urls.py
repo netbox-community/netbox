@@ -1,8 +1,7 @@
-from django.urls import path
+from django.urls import include, path
 
-from netbox.views.generic import ObjectChangeLogView, ObjectJournalView
+from utilities.urls import get_model_urls
 from . import views
-from .models import *
 
 app_name = 'ipam'
 urlpatterns = [
@@ -16,8 +15,7 @@ urlpatterns = [
     path('asns/<int:pk>/', views.ASNView.as_view(), name='asn'),
     path('asns/<int:pk>/edit/', views.ASNEditView.as_view(), name='asn_edit'),
     path('asns/<int:pk>/delete/', views.ASNDeleteView.as_view(), name='asn_delete'),
-    path('asns/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='asn_changelog', kwargs={'model': ASN}),
-    path('asns/<int:pk>/journal/', ObjectJournalView.as_view(), name='asn_journal', kwargs={'model': ASN}),
+    path('asns/<int:pk>/', include(get_model_urls('ipam', 'asn'))),
 
     # VRFs
     path('vrfs/', views.VRFListView.as_view(), name='vrf_list'),
@@ -28,8 +26,7 @@ urlpatterns = [
     path('vrfs/<int:pk>/', views.VRFView.as_view(), name='vrf'),
     path('vrfs/<int:pk>/edit/', views.VRFEditView.as_view(), name='vrf_edit'),
     path('vrfs/<int:pk>/delete/', views.VRFDeleteView.as_view(), name='vrf_delete'),
-    path('vrfs/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='vrf_changelog', kwargs={'model': VRF}),
-    path('vrfs/<int:pk>/journal/', ObjectJournalView.as_view(), name='vrf_journal', kwargs={'model': VRF}),
+    path('vrfs/<int:pk>/', include(get_model_urls('ipam', 'vrf'))),
 
     # Route targets
     path('route-targets/', views.RouteTargetListView.as_view(), name='routetarget_list'),
@@ -40,8 +37,7 @@ urlpatterns = [
     path('route-targets/<int:pk>/', views.RouteTargetView.as_view(), name='routetarget'),
     path('route-targets/<int:pk>/edit/', views.RouteTargetEditView.as_view(), name='routetarget_edit'),
     path('route-targets/<int:pk>/delete/', views.RouteTargetDeleteView.as_view(), name='routetarget_delete'),
-    path('route-targets/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='routetarget_changelog', kwargs={'model': RouteTarget}),
-    path('route-targets/<int:pk>/journal/', ObjectJournalView.as_view(), name='routetarget_journal', kwargs={'model': RouteTarget}),
+    path('route-targets/<int:pk>/', include(get_model_urls('ipam', 'routetarget'))),
 
     # RIRs
     path('rirs/', views.RIRListView.as_view(), name='rir_list'),
@@ -52,7 +48,7 @@ urlpatterns = [
     path('rirs/<int:pk>/', views.RIRView.as_view(), name='rir'),
     path('rirs/<int:pk>/edit/', views.RIREditView.as_view(), name='rir_edit'),
     path('rirs/<int:pk>/delete/', views.RIRDeleteView.as_view(), name='rir_delete'),
-    path('rirs/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rir_changelog', kwargs={'model': RIR}),
+    path('rirs/<int:pk>/', include(get_model_urls('ipam', 'rir'))),
 
     # Aggregates
     path('aggregates/', views.AggregateListView.as_view(), name='aggregate_list'),
@@ -64,8 +60,7 @@ urlpatterns = [
     path('aggregates/<int:pk>/prefixes/', views.AggregatePrefixesView.as_view(), name='aggregate_prefixes'),
     path('aggregates/<int:pk>/edit/', views.AggregateEditView.as_view(), name='aggregate_edit'),
     path('aggregates/<int:pk>/delete/', views.AggregateDeleteView.as_view(), name='aggregate_delete'),
-    path('aggregates/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='aggregate_changelog', kwargs={'model': Aggregate}),
-    path('aggregates/<int:pk>/journal/', ObjectJournalView.as_view(), name='aggregate_journal', kwargs={'model': Aggregate}),
+    path('aggregates/<int:pk>/', include(get_model_urls('ipam', 'aggregate'))),
 
     # Roles
     path('roles/', views.RoleListView.as_view(), name='role_list'),
@@ -76,7 +71,7 @@ urlpatterns = [
     path('roles/<int:pk>/', views.RoleView.as_view(), name='role'),
     path('roles/<int:pk>/edit/', views.RoleEditView.as_view(), name='role_edit'),
     path('roles/<int:pk>/delete/', views.RoleDeleteView.as_view(), name='role_delete'),
-    path('roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='role_changelog', kwargs={'model': Role}),
+    path('roles/<int:pk>/', include(get_model_urls('ipam', 'role'))),
 
     # Prefixes
     path('prefixes/', views.PrefixListView.as_view(), name='prefix_list'),
@@ -87,11 +82,10 @@ urlpatterns = [
     path('prefixes/<int:pk>/', views.PrefixView.as_view(), name='prefix'),
     path('prefixes/<int:pk>/edit/', views.PrefixEditView.as_view(), name='prefix_edit'),
     path('prefixes/<int:pk>/delete/', views.PrefixDeleteView.as_view(), name='prefix_delete'),
-    path('prefixes/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='prefix_changelog', kwargs={'model': Prefix}),
-    path('prefixes/<int:pk>/journal/', ObjectJournalView.as_view(), name='prefix_journal', kwargs={'model': Prefix}),
     path('prefixes/<int:pk>/prefixes/', views.PrefixPrefixesView.as_view(), name='prefix_prefixes'),
     path('prefixes/<int:pk>/ip-ranges/', views.PrefixIPRangesView.as_view(), name='prefix_ipranges'),
     path('prefixes/<int:pk>/ip-addresses/', views.PrefixIPAddressesView.as_view(), name='prefix_ipaddresses'),
+    path('prefixes/<int:pk>/', include(get_model_urls('ipam', 'prefix'))),
 
     # IP ranges
     path('ip-ranges/', views.IPRangeListView.as_view(), name='iprange_list'),
@@ -102,9 +96,8 @@ urlpatterns = [
     path('ip-ranges/<int:pk>/', views.IPRangeView.as_view(), name='iprange'),
     path('ip-ranges/<int:pk>/edit/', views.IPRangeEditView.as_view(), name='iprange_edit'),
     path('ip-ranges/<int:pk>/delete/', views.IPRangeDeleteView.as_view(), name='iprange_delete'),
-    path('ip-ranges/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='iprange_changelog', kwargs={'model': IPRange}),
-    path('ip-ranges/<int:pk>/journal/', ObjectJournalView.as_view(), name='iprange_journal', kwargs={'model': IPRange}),
     path('ip-ranges/<int:pk>/ip-addresses/', views.IPRangeIPAddressesView.as_view(), name='iprange_ipaddresses'),
+    path('ip-ranges/<int:pk>/', include(get_model_urls('ipam', 'iprange'))),
 
     # IP addresses
     path('ip-addresses/', views.IPAddressListView.as_view(), name='ipaddress_list'),
@@ -113,12 +106,11 @@ urlpatterns = [
     path('ip-addresses/import/', views.IPAddressBulkImportView.as_view(), name='ipaddress_import'),
     path('ip-addresses/edit/', views.IPAddressBulkEditView.as_view(), name='ipaddress_bulk_edit'),
     path('ip-addresses/delete/', views.IPAddressBulkDeleteView.as_view(), name='ipaddress_bulk_delete'),
-    path('ip-addresses/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='ipaddress_changelog', kwargs={'model': IPAddress}),
-    path('ip-addresses/<int:pk>/journal/', ObjectJournalView.as_view(), name='ipaddress_journal', kwargs={'model': IPAddress}),
     path('ip-addresses/assign/', views.IPAddressAssignView.as_view(), name='ipaddress_assign'),
     path('ip-addresses/<int:pk>/', views.IPAddressView.as_view(), name='ipaddress'),
     path('ip-addresses/<int:pk>/edit/', views.IPAddressEditView.as_view(), name='ipaddress_edit'),
     path('ip-addresses/<int:pk>/delete/', views.IPAddressDeleteView.as_view(), name='ipaddress_delete'),
+    path('ip-addresses/<int:pk>/', include(get_model_urls('ipam', 'ipaddress'))),
 
     # FHRP groups
     path('fhrp-groups/', views.FHRPGroupListView.as_view(), name='fhrpgroup_list'),
@@ -129,8 +121,7 @@ urlpatterns = [
     path('fhrp-groups/<int:pk>/', views.FHRPGroupView.as_view(), name='fhrpgroup'),
     path('fhrp-groups/<int:pk>/edit/', views.FHRPGroupEditView.as_view(), name='fhrpgroup_edit'),
     path('fhrp-groups/<int:pk>/delete/', views.FHRPGroupDeleteView.as_view(), name='fhrpgroup_delete'),
-    path('fhrp-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='fhrpgroup_changelog', kwargs={'model': FHRPGroup}),
-    path('fhrp-groups/<int:pk>/journal/', ObjectJournalView.as_view(), name='fhrpgroup_journal', kwargs={'model': FHRPGroup}),
+    path('fhrp-groups/<int:pk>/', include(get_model_urls('ipam', 'fhrpgroup'))),
 
     # FHRP group assignments
     path('fhrp-group-assignments/add/', views.FHRPGroupAssignmentEditView.as_view(), name='fhrpgroupassignment_add'),
@@ -146,7 +137,7 @@ urlpatterns = [
     path('vlan-groups/<int:pk>/', views.VLANGroupView.as_view(), name='vlangroup'),
     path('vlan-groups/<int:pk>/edit/', views.VLANGroupEditView.as_view(), name='vlangroup_edit'),
     path('vlan-groups/<int:pk>/delete/', views.VLANGroupDeleteView.as_view(), name='vlangroup_delete'),
-    path('vlan-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='vlangroup_changelog', kwargs={'model': VLANGroup}),
+    path('vlan-groups/<int:pk>/', include(get_model_urls('ipam', 'vlangroup'))),
 
     # VLANs
     path('vlans/', views.VLANListView.as_view(), name='vlan_list'),
@@ -159,8 +150,7 @@ urlpatterns = [
     path('vlans/<int:pk>/vm-interfaces/', views.VLANVMInterfacesView.as_view(), name='vlan_vminterfaces'),
     path('vlans/<int:pk>/edit/', views.VLANEditView.as_view(), name='vlan_edit'),
     path('vlans/<int:pk>/delete/', views.VLANDeleteView.as_view(), name='vlan_delete'),
-    path('vlans/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='vlan_changelog', kwargs={'model': VLAN}),
-    path('vlans/<int:pk>/journal/', ObjectJournalView.as_view(), name='vlan_journal', kwargs={'model': VLAN}),
+    path('vlans/<int:pk>/', include(get_model_urls('ipam', 'vlan'))),
 
     # Service templates
     path('service-templates/', views.ServiceTemplateListView.as_view(), name='servicetemplate_list'),
@@ -171,8 +161,7 @@ urlpatterns = [
     path('service-templates/<int:pk>/', views.ServiceTemplateView.as_view(), name='servicetemplate'),
     path('service-templates/<int:pk>/edit/', views.ServiceTemplateEditView.as_view(), name='servicetemplate_edit'),
     path('service-templates/<int:pk>/delete/', views.ServiceTemplateDeleteView.as_view(), name='servicetemplate_delete'),
-    path('service-templates/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='servicetemplate_changelog', kwargs={'model': ServiceTemplate}),
-    path('service-templates/<int:pk>/journal/', ObjectJournalView.as_view(), name='servicetemplate_journal', kwargs={'model': ServiceTemplate}),
+    path('service-templates/<int:pk>/', include(get_model_urls('ipam', 'servicetemplate'))),
 
     # Services
     path('services/', views.ServiceListView.as_view(), name='service_list'),
@@ -183,8 +172,7 @@ urlpatterns = [
     path('services/<int:pk>/', views.ServiceView.as_view(), name='service'),
     path('services/<int:pk>/edit/', views.ServiceEditView.as_view(), name='service_edit'),
     path('services/<int:pk>/delete/', views.ServiceDeleteView.as_view(), name='service_delete'),
-    path('services/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='service_changelog', kwargs={'model': Service}),
-    path('services/<int:pk>/journal/', ObjectJournalView.as_view(), name='service_journal', kwargs={'model': Service}),
+    path('services/<int:pk>/', include(get_model_urls('ipam', 'service'))),
 
     # L2VPN
     path('l2vpns/', views.L2VPNListView.as_view(), name='l2vpn_list'),
@@ -195,9 +183,9 @@ urlpatterns = [
     path('l2vpns/<int:pk>/', views.L2VPNView.as_view(), name='l2vpn'),
     path('l2vpns/<int:pk>/edit/', views.L2VPNEditView.as_view(), name='l2vpn_edit'),
     path('l2vpns/<int:pk>/delete/', views.L2VPNDeleteView.as_view(), name='l2vpn_delete'),
-    path('l2vpns/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='l2vpn_changelog', kwargs={'model': L2VPN}),
-    path('l2vpns/<int:pk>/journal/', ObjectJournalView.as_view(), name='l2vpn_journal', kwargs={'model': L2VPN}),
+    path('l2vpns/<int:pk>/', include(get_model_urls('ipam', 'l2vpn'))),
 
+    # L2VPN terminations
     path('l2vpn-terminations/', views.L2VPNTerminationListView.as_view(), name='l2vpntermination_list'),
     path('l2vpn-terminations/add/', views.L2VPNTerminationEditView.as_view(), name='l2vpntermination_add'),
     path('l2vpn-terminations/import/', views.L2VPNTerminationBulkImportView.as_view(), name='l2vpntermination_import'),
@@ -206,6 +194,5 @@ urlpatterns = [
     path('l2vpn-terminations/<int:pk>/', views.L2VPNTerminationView.as_view(), name='l2vpntermination'),
     path('l2vpn-terminations/<int:pk>/edit/', views.L2VPNTerminationEditView.as_view(), name='l2vpntermination_edit'),
     path('l2vpn-terminations/<int:pk>/delete/', views.L2VPNTerminationDeleteView.as_view(), name='l2vpntermination_delete'),
-    path('l2vpn-terminations/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='l2vpntermination_changelog', kwargs={'model': L2VPNTermination}),
-    path('l2vpn-terminations/<int:pk>/journal/', ObjectJournalView.as_view(), name='l2vpntermination_journal', kwargs={'model': L2VPNTermination}),
+    path('l2vpn-terminations/<int:pk>/', include(get_model_urls('ipam', 'l2vpntermination'))),
 ]

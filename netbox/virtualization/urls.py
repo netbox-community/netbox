@@ -1,8 +1,7 @@
-from django.urls import path
+from django.urls import include, path
 
-from netbox.views.generic import ObjectChangeLogView, ObjectJournalView
+from utilities.urls import get_model_urls
 from . import views
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 app_name = 'virtualization'
 urlpatterns = [
@@ -16,7 +15,7 @@ urlpatterns = [
     path('cluster-types/<int:pk>/', views.ClusterTypeView.as_view(), name='clustertype'),
     path('cluster-types/<int:pk>/edit/', views.ClusterTypeEditView.as_view(), name='clustertype_edit'),
     path('cluster-types/<int:pk>/delete/', views.ClusterTypeDeleteView.as_view(), name='clustertype_delete'),
-    path('cluster-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='clustertype_changelog', kwargs={'model': ClusterType}),
+    path('cluster-types/<int:pk>/', include(get_model_urls('virtualization', 'clustertype'))),
 
     # Cluster groups
     path('cluster-groups/', views.ClusterGroupListView.as_view(), name='clustergroup_list'),
@@ -27,7 +26,7 @@ urlpatterns = [
     path('cluster-groups/<int:pk>/', views.ClusterGroupView.as_view(), name='clustergroup'),
     path('cluster-groups/<int:pk>/edit/', views.ClusterGroupEditView.as_view(), name='clustergroup_edit'),
     path('cluster-groups/<int:pk>/delete/', views.ClusterGroupDeleteView.as_view(), name='clustergroup_delete'),
-    path('cluster-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='clustergroup_changelog', kwargs={'model': ClusterGroup}),
+    path('cluster-groups/<int:pk>/', include(get_model_urls('virtualization', 'clustergroup'))),
 
     # Clusters
     path('clusters/', views.ClusterListView.as_view(), name='cluster_list'),
@@ -40,10 +39,9 @@ urlpatterns = [
     path('clusters/<int:pk>/virtual-machines/', views.ClusterVirtualMachinesView.as_view(), name='cluster_virtualmachines'),
     path('clusters/<int:pk>/edit/', views.ClusterEditView.as_view(), name='cluster_edit'),
     path('clusters/<int:pk>/delete/', views.ClusterDeleteView.as_view(), name='cluster_delete'),
-    path('clusters/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='cluster_changelog', kwargs={'model': Cluster}),
-    path('clusters/<int:pk>/journal/', ObjectJournalView.as_view(), name='cluster_journal', kwargs={'model': Cluster}),
     path('clusters/<int:pk>/devices/add/', views.ClusterAddDevicesView.as_view(), name='cluster_add_devices'),
     path('clusters/<int:pk>/devices/remove/', views.ClusterRemoveDevicesView.as_view(), name='cluster_remove_devices'),
+    path('clusters/<int:pk>/', include(get_model_urls('virtualization', 'cluster'))),
 
     # Virtual machines
     path('virtual-machines/', views.VirtualMachineListView.as_view(), name='virtualmachine_list'),
@@ -56,8 +54,7 @@ urlpatterns = [
     path('virtual-machines/<int:pk>/edit/', views.VirtualMachineEditView.as_view(), name='virtualmachine_edit'),
     path('virtual-machines/<int:pk>/delete/', views.VirtualMachineDeleteView.as_view(), name='virtualmachine_delete'),
     path('virtual-machines/<int:pk>/config-context/', views.VirtualMachineConfigContextView.as_view(), name='virtualmachine_configcontext'),
-    path('virtual-machines/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='virtualmachine_changelog', kwargs={'model': VirtualMachine}),
-    path('virtual-machines/<int:pk>/journal/', ObjectJournalView.as_view(), name='virtualmachine_journal', kwargs={'model': VirtualMachine}),
+    path('virtual-machines/<int:pk>/', include(get_model_urls('virtualization', 'virtualmachine'))),
 
     # VM interfaces
     path('interfaces/', views.VMInterfaceListView.as_view(), name='vminterface_list'),
@@ -69,7 +66,7 @@ urlpatterns = [
     path('interfaces/<int:pk>/', views.VMInterfaceView.as_view(), name='vminterface'),
     path('interfaces/<int:pk>/edit/', views.VMInterfaceEditView.as_view(), name='vminterface_edit'),
     path('interfaces/<int:pk>/delete/', views.VMInterfaceDeleteView.as_view(), name='vminterface_delete'),
-    path('interfaces/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='vminterface_changelog', kwargs={'model': VMInterface}),
+    path('interfaces/<int:pk>/', include(get_model_urls('virtualization', 'vminterface'))),
     path('virtual-machines/interfaces/add/', views.VirtualMachineBulkAddInterfaceView.as_view(), name='virtualmachine_bulk_add_vminterface'),
 
 ]
