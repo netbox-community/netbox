@@ -1,5 +1,6 @@
 import graphene
 
+from graphene_django import DjangoObjectType
 from ipam import filtersets, models
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
@@ -54,18 +55,20 @@ class FHRPGroupType(NetBoxObjectType):
 
 
 class FHRPGroupAssignmentType(BaseObjectType):
+    interface = graphene.Field('ipam.graphql.gfk_mixins.FHRPGroupInterfaceType')
 
     class Meta:
         model = models.FHRPGroupAssignment
-        fields = '__all__'
+        exclude = ('interface_type', 'interface_id')
         filterset_class = filtersets.FHRPGroupAssignmentFilterSet
 
 
 class IPAddressType(NetBoxObjectType):
+    assigned_object = graphene.Field('ipam.graphql.gfk_mixins.IPAddressAssignmentType')
 
     class Meta:
         model = models.IPAddress
-        fields = '__all__'
+        exclude = ('assigned_object_type', 'assigned_object_id')
         filterset_class = filtersets.IPAddressFilterSet
 
     def resolve_role(self, info):
@@ -140,10 +143,11 @@ class VLANType(NetBoxObjectType):
 
 
 class VLANGroupType(OrganizationalObjectType):
+    scope = graphene.Field('ipam.graphql.gfk_mixins.VLANGroupScopeType')
 
     class Meta:
         model = models.VLANGroup
-        fields = '__all__'
+        exclude = ('scope_type', 'scope_id')
         filterset_class = filtersets.VLANGroupFilterSet
 
 
@@ -163,7 +167,9 @@ class L2VPNType(NetBoxObjectType):
 
 
 class L2VPNTerminationType(NetBoxObjectType):
+    assigned_object = graphene.Field('ipam.graphql.gfk_mixins.L2VPNAssignmentType')
+
     class Meta:
         model = models.L2VPNTermination
-        fields = '__all__'
+        exclude = ('assigned_object_type', 'assigned_object_id')
         filtersets_class = filtersets.L2VPNTerminationFilterSet

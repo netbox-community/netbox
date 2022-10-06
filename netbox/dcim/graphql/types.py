@@ -86,17 +86,9 @@ class ComponentTemplateObjectType(
 # Model types
 #
 
-class CableTerminationType(NetBoxObjectType):
-
-    class Meta:
-        model = models.CableTermination
-        fields = '__all__'
-        filterset_class = filtersets.CableTerminationFilterSet
-
-
 class CableType(NetBoxObjectType):
-    a_terminations = graphene.List(CableTerminationType)
-    b_terminations = graphene.List(CableTerminationType)
+    a_terminations = graphene.List('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
+    b_terminations = graphene.List('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
 
     class Meta:
         model = models.Cable
@@ -114,6 +106,15 @@ class CableType(NetBoxObjectType):
 
     def resolve_b_terminations(self, info):
         return self.b_terminations
+
+
+class CableTerminationType(NetBoxObjectType):
+    termination = graphene.Field('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
+
+    class Meta:
+        model = models.CableTermination
+        exclude = ('termination_type', 'termination_id')
+        filterset_class = filtersets.CableTerminationFilterSet
 
 
 class ConsolePortType(ComponentObjectType, CabledObjectMixin):
@@ -191,10 +192,11 @@ class DeviceBayTemplateType(ComponentTemplateObjectType):
 
 
 class InventoryItemTemplateType(ComponentTemplateObjectType):
+    component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemTemplateComponentType')
 
     class Meta:
         model = models.InventoryItemTemplate
-        fields = '__all__'
+        exclude = ('component_type', 'component_id')
         filterset_class = filtersets.InventoryItemTemplateFilterSet
 
 
@@ -277,10 +279,11 @@ class InterfaceTemplateType(ComponentTemplateObjectType):
 
 
 class InventoryItemType(ComponentObjectType):
+    component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemComponentType')
 
     class Meta:
         model = models.InventoryItem
-        fields = '__all__'
+        exclude = ('component_type', 'component_id')
         filterset_class = filtersets.InventoryItemFilterSet
 
 

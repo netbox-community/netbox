@@ -1,3 +1,4 @@
+import inspect
 import json
 
 from django.conf import settings
@@ -5,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.test import override_settings
-from graphene.types import Dynamic as GQLDynamic, List as GQLList
+from graphene.types import Dynamic as GQLDynamic, List as GQLList, Union as GQLUnion
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -449,6 +450,9 @@ class APIViewTestCases:
                 if type(field) is GQLDynamic:
                     # Dynamic fields must specify a subselection
                     fields_string += f'{field_name} {{ id }}\n'
+                elif inspect.isclass(field.type) and issubclass(field.type, GQLUnion):
+                    # Union types dont' have an id or consistent values
+                    continue
                 elif type(field.type) is GQLList and field_name != 'choices':
                     # TODO: Come up with something more elegant
                     # Temporary hack to support automated testing of reverse generic relations
