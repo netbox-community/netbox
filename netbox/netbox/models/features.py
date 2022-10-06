@@ -13,6 +13,7 @@ from extras.utils import is_taggable, register_features
 from netbox.signals import post_clean
 from utilities.json import CustomFieldJSONEncoder
 from utilities.utils import serialize_object
+from utilities.views import register_model_view
 
 __all__ = (
     'ChangeLoggingMixin',
@@ -292,3 +293,24 @@ def _register_features(sender, **kwargs):
         feature for feature, cls in FEATURES_MAP if issubclass(sender, cls)
     }
     register_features(sender, features)
+
+    # Feature view registration
+    if issubclass(sender, JournalingMixin):
+        register_model_view(
+            sender,
+            'journal',
+            'netbox.views.generic.ObjectJournalView',
+            tab_label='Journal',
+            tab_badge=lambda x: x.journal_entries.count(),
+            tab_permission='extras.view_journalentry',
+            kwargs={'model': sender}
+        )
+    if issubclass(sender, ChangeLoggingMixin):
+        register_model_view(
+            sender,
+            'changelog',
+            'netbox.views.generic.ObjectChangeLogView',
+            tab_label='Changelog',
+            tab_permission='extras.view_objectchange',
+            kwargs={'model': sender}
+        )
