@@ -18,6 +18,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 ### Enhancements
 
 * [#9249](https://github.com/netbox-community/netbox/issues/9249) - Device and virtual machine names are no longer case-sensitive
+* [#9478](https://github.com/netbox-community/netbox/issues/9478) - Add `link_peers` field to GraphQL types for cabled objects
 * [#9654](https://github.com/netbox-community/netbox/issues/9654) - Add `weight` field to racks, device types, and module types
 * [#9892](https://github.com/netbox-community/netbox/issues/9892) - Add optional `name` field for FHRP groups
 * [#10348](https://github.com/netbox-community/netbox/issues/10348) - Add decimal custom field type
@@ -51,3 +52,4 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 ### GraphQL API Changes
 
 * All object types now include a `display` field
+* All cabled object types now include a `link_peers` field
