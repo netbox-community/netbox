@@ -6,13 +6,3 @@
   {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'ipam:aggregate_list' %}?rir_id={{ object.rir.pk }}">{{ object.rir }}</a></li>
 {% endblock %}
-
-{% block extra_tabs %}
-  {% if perms.ipam.view_prefix %}
-    <li role="presentation" class="nav-item">
-      <a class="nav-link{% if active_tab == 'prefixes' %} active{% endif %}" href="{% url 'ipam:aggregate_prefixes' pk=object.pk %}">
-        Prefixes {% badge object.get_child_prefixes.count %}
-      </a>
-    </li>
-  {% endif %}
-{% endblock %}

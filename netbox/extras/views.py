@@ -352,7 +352,7 @@ class ObjectConfigContextView(generic.ObjectView):
             'source_contexts': source_contexts,
             'format': format,
             'base_template': self.base_template,
-            'active_tab': 'config-context',
+            'active_tab': 'configcontext',
         }
 
 

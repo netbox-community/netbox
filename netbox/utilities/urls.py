@@ -30,9 +30,10 @@ def get_model_urls(app_label, model_name):
             view_ = config['view']
         if issubclass(view_, View):
             view_ = view_.as_view()
+
         # Create a path to the view
         paths.append(
-            path(f"{config['name']}/", view_, name=f"{model_name}_{config['name']}", kwargs=config['kwargs'])
+            path(f"{config['path']}/", view_, name=f"{model_name}_{config['name']}", kwargs=config['kwargs'])
         )
 
     return paths

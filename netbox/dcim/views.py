@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
@@ -19,7 +20,7 @@ from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.utils import count_related
-from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
+from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
 from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices
@@ -47,7 +48,7 @@ class DeviceComponentsView(generic.ObjectChildrenView):
 
     def get_extra_context(self, request, instance):
         return {
-            'active_tab': f"{self.child_model._meta.verbose_name_plural.replace(' ', '-')}",
+            'active_tab': f"{self.child_model._meta.verbose_name_plural.replace(' ', '')}",
         }
 
 
@@ -60,10 +61,11 @@ class DeviceTypeComponentsView(DeviceComponentsView):
         return self.child_model.objects.restrict(request.user, 'view').filter(device_type=parent)
 
     def get_extra_context(self, request, instance):
-        context = super().get_extra_context(request, instance)
-        context['return_url'] = reverse(self.viewname, kwargs={'pk': instance.pk})
-
-        return context
+        model_name = self.child_model._meta.verbose_name_plural
+        return {
+            'active_tab': f"{model_name.replace(' ', '').replace('template', '')}",
+            'return_url': reverse(self.viewname, kwargs={'pk': instance.pk}),
+        }
 
 
 class ModuleTypeComponentsView(DeviceComponentsView):
@@ -75,10 +77,11 @@ class ModuleTypeComponentsView(DeviceComponentsView):
         return self.child_model.objects.restrict(request.user, 'view').filter(module_type=parent)
 
     def get_extra_context(self, request, instance):
-        context = super().get_extra_context(request, instance)
-        context['return_url'] = reverse(self.viewname, kwargs={'pk': instance.pk})
-
-        return context
+        model_name = self.child_model._meta.verbose_name_plural
+        return {
+            'active_tab': f"{model_name.replace(' ', '').replace('template', '')}",
+            'return_url': reverse(self.viewname, kwargs={'pk': instance.pk}),
+        }
 
 
 class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
@@ -857,74 +860,144 @@ class DeviceTypeView(generic.ObjectView):
         }
 
 
+@register_model_view(DeviceType, 'consoleports', path='console-ports')
 class DeviceTypeConsolePortsView(DeviceTypeComponentsView):
     child_model = ConsolePortTemplate
     table = tables.ConsolePortTemplateTable
     filterset = filtersets.ConsolePortTemplateFilterSet
     viewname = 'dcim:devicetype_consoleports'
+    tab = ViewTab(
+        label=_('Console Ports'),
+        badge=lambda obj: obj.consoleporttemplates.count(),
+        permission='dcim.view_consoleporttemplate',
+        always_display=False
+    )
 
 
+@register_model_view(DeviceType, 'consoleserverports', path='console-server-ports')
 class DeviceTypeConsoleServerPortsView(DeviceTypeComponentsView):
     child_model = ConsoleServerPortTemplate
     table = tables.ConsoleServerPortTemplateTable
     filterset = filtersets.ConsoleServerPortTemplateFilterSet
     viewname = 'dcim:devicetype_consoleserverports'
+    tab = ViewTab(
+        label=_('Console Server Ports'),
+        badge=lambda obj: obj.consoleserverporttemplates.count(),
+        permission='dcim.view_consoleserverporttemplate',
+        always_display=False
+    )
 
 
+@register_model_view(DeviceType, 'powerports', path='power-ports')
 class DeviceTypePowerPortsView(DeviceTypeComponentsView):
     child_model = PowerPortTemplate
     table = tables.PowerPortTemplateTable
     filterset = filtersets.PowerPortTemplateFilterSet
     viewname = 'dcim:devicetype_powerports'
+    tab = ViewTab(
+        label=_('Power Ports'),
+        badge=lambda obj: obj.powerporttemplates.count(),
+        permission='dcim.view_powerporttemplate',
+        always_display=False
+    )
 
 
+@register_model_view(DeviceType, 'poweroutlets', path='power-outlets')
 class DeviceTypePowerOutletsView(DeviceTypeComponentsView):
     child_model = PowerOutletTemplate
     table = tables.PowerOutletTemplateTable
     filterset = filtersets.PowerOutletTemplateFilterSet
     viewname = 'dcim:devicetype_poweroutlets'
+    tab = ViewTab(
+        label=_('Power Outlets'),
+        badge=lambda obj: obj.poweroutlettemplates.count(),
+        permission='dcim.view_poweroutlettemplate',
+        always_display=False
+    )
 
 
+@register_model_view(DeviceType, 'interfaces')
 class DeviceTypeInterfacesView(DeviceTypeComponentsView):
     child_model = InterfaceTemplate
     table = tables.InterfaceTemplateTable
     filterset = filtersets.InterfaceTemplateFilterSet
     viewname = 'dcim:devicetype_interfaces'
+    tab = ViewTab(
+        label=_('Interfaces'),
+        badge=lambda obj: obj.interfacetemplates.count(),
+        permission='dcim.view_interfacetemplate',
+        always_display=False
+    )
 
 
+@register_model_view(DeviceType, 'frontports', path='front-ports')
 class DeviceTypeFrontPortsView(DeviceTypeComponentsView):
     child_model = FrontPortTemplate
     table = tables.FrontPortTemplateTable
     filterset = filtersets.FrontPortTemplateFilterSet
     viewname = 'dcim:devicetype_frontports'
+    tab = ViewTab(
+        label=_('Front Ports'),
+        badge=lambda obj: obj.frontporttemplates.count(),
+        permission='dcim.view_frontporttemplate',
+        always_display=False
+    )
 
 
+@register_model_view(DeviceType, 'rearports', path='rear-ports')
 class DeviceTypeRearPortsView(DeviceTypeComponentsView):
     child_model = RearPortTemplate
     table = tables.RearPortTemplateTable
     filterset = filtersets.RearPortTemplateFilterSet
     viewname = 'dcim:devicetype_rearports'
+    tab = ViewTab(
+        label=_('Rear Ports'),
+        badge=lambda obj: obj.rearporttemplates.count(),
+        permission='dcim.view_rearporttemplate',
+        always_display=False
+    )
 
 
+@register_model_view(DeviceType, 'modulebays', path='module-bays')
 class DeviceTypeModuleBaysView(DeviceTypeComponentsView):
     child_model = ModuleBayTemplate
     table = tables.ModuleBayTemplateTable
     filterset = filtersets.ModuleBayTemplateFilterSet
     viewname = 'dcim:devicetype_modulebays'
+    tab = ViewTab(
+        label=_('Module Bays'),
+        badge=lambda obj: obj.modulebaytemplates.count(),
+        permission='dcim.view_modulebaytemplate',
+        always_display=False
+    )
 
 
+@register_model_view(DeviceType, 'devicebays', path='device-bays')
 class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
     child_model = DeviceBayTemplate
     table = tables.DeviceBayTemplateTable
     filterset = filtersets.DeviceBayTemplateFilterSet
     viewname = 'dcim:devicetype_devicebays'
+    tab = ViewTab(
+        label=_('Device Bays'),
+        badge=lambda obj: obj.devicebaytemplates.count(),
+        permission='dcim.view_devicebaytemplate',
+        always_display=False
+    )
 
 
+@register_model_view(DeviceType, 'inventoryitems', path='inventory-items')
 class DeviceTypeInventoryItemsView(DeviceTypeComponentsView):
     child_model = InventoryItemTemplate
     table = tables.InventoryItemTemplateTable
     filterset = filtersets.InventoryItemTemplateFilterSet
     viewname = 'dcim:devicetype_inventoryitems'
+    tab = ViewTab(
+        label=_('Inventory Items'),
+        badge=lambda obj: obj.inventoryitemtemplates.count(),
+        permission='dcim.view_invenotryitemtemplate',
+        always_display=False
+    )
 
 
 class DeviceTypeEditView(generic.ObjectEditView):
@@ -1011,53 +1084,102 @@ class ModuleTypeView(generic.ObjectView):
         }
 
 
+@register_model_view(ModuleType, 'consoleports', path='console-ports')
 class ModuleTypeConsolePortsView(ModuleTypeComponentsView):
     child_model = ConsolePortTemplate
     table = tables.ConsolePortTemplateTable
     filterset = filtersets.ConsolePortTemplateFilterSet
     viewname = 'dcim:moduletype_consoleports'
+    tab = ViewTab(
+        label=_('Console Ports'),
+        badge=lambda obj: obj.consoleporttemplates.count(),
+        permission='dcim.view_consoleporttemplate',
+        always_display=False
+    )
 
 
+@register_model_view(ModuleType, 'consoleserverports', path='console-server-ports')
 class ModuleTypeConsoleServerPortsView(ModuleTypeComponentsView):
     child_model = ConsoleServerPortTemplate
     table = tables.ConsoleServerPortTemplateTable
     filterset = filtersets.ConsoleServerPortTemplateFilterSet
     viewname = 'dcim:moduletype_consoleserverports'
+    tab = ViewTab(
+        label=_('Console Server Ports'),
+        badge=lambda obj: obj.consoleserverporttemplates.count(),
+        permission='dcim.view_consoleserverporttemplate',
+        always_display=False
+    )
 
 
+@register_model_view(ModuleType, 'powerports', path='power-ports')
 class ModuleTypePowerPortsView(ModuleTypeComponentsView):
     child_model = PowerPortTemplate
     table = tables.PowerPortTemplateTable
     filterset = filtersets.PowerPortTemplateFilterSet
     viewname = 'dcim:moduletype_powerports'
+    tab = ViewTab(
+        label=_('Power Ports'),
+        badge=lambda obj: obj.powerporttemplates.count(),
+        permission='dcim.view_powerporttemplate',
+        always_display=False
+    )
 
 
+@register_model_view(ModuleType, 'poweroutlets', path='power-outlets')
 class ModuleTypePowerOutletsView(ModuleTypeComponentsView):
     child_model = PowerOutletTemplate
     table = tables.PowerOutletTemplateTable
     filterset = filtersets.PowerOutletTemplateFilterSet
     viewname = 'dcim:moduletype_poweroutlets'
+    tab = ViewTab(
+        label=_('Power Outlets'),
+        badge=lambda obj: obj.poweroutlettemplates.count(),
+        permission='dcim.view_poweroutlettemplate',
+        always_display=False
+    )
 
 
+@register_model_view(ModuleType, 'interfaces')
 class ModuleTypeInterfacesView(ModuleTypeComponentsView):
     child_model = InterfaceTemplate
     table = tables.InterfaceTemplateTable
     filterset = filtersets.InterfaceTemplateFilterSet
     viewname = 'dcim:moduletype_interfaces'
+    tab = ViewTab(
+        label=_('Interfaces'),
+        badge=lambda obj: obj.interfacetemplates.count(),
+        permission='dcim.view_interfacetemplate',
+        always_display=False
+    )
 
 
+@register_model_view(ModuleType, 'frontports', path='front-ports')
 class ModuleTypeFrontPortsView(ModuleTypeComponentsView):
     child_model = FrontPortTemplate
     table = tables.FrontPortTemplateTable
     filterset = filtersets.FrontPortTemplateFilterSet
     viewname = 'dcim:moduletype_frontports'
+    tab = ViewTab(
+        label=_('Front Ports'),
+        badge=lambda obj: obj.frontporttemplates.count(),
+        permission='dcim.view_frontporttemplate',
+        always_display=False
+    )
 
 
+@register_model_view(ModuleType, 'rearports', path='rear-ports')
 class ModuleTypeRearPortsView(ModuleTypeComponentsView):
     child_model = RearPortTemplate
     table = tables.RearPortTemplateTable
     filterset = filtersets.RearPortTemplateFilterSet
     viewname = 'dcim:moduletype_rearports'
+    tab = ViewTab(
+        label=_('Rear Ports'),
+        badge=lambda obj: obj.rearporttemplates.count(),
+        permission='dcim.view_rearporttemplate',
+        always_display=False
+    )
 
 
 class ModuleTypeEditView(generic.ObjectEditView):
@@ -1620,39 +1742,74 @@ class DeviceView(generic.ObjectView):
         }
 
 
+@register_model_view(Device, 'consoleports', path='console-ports')
 class DeviceConsolePortsView(DeviceComponentsView):
     child_model = ConsolePort
     table = tables.DeviceConsolePortTable
     filterset = filtersets.ConsolePortFilterSet
     template_name = 'dcim/device/consoleports.html'
+    tab = ViewTab(
+        label=_('Console Ports'),
+        badge=lambda obj: obj.consoleports.count(),
+        permission='dcim.view_consoleport',
+        always_display=False
+    )
 
 
+@register_model_view(Device, 'consoleserverports', path='console-server-ports')
 class DeviceConsoleServerPortsView(DeviceComponentsView):
     child_model = ConsoleServerPort
     table = tables.DeviceConsoleServerPortTable
     filterset = filtersets.ConsoleServerPortFilterSet
     template_name = 'dcim/device/consoleserverports.html'
+    tab = ViewTab(
+        label=_('Console Server Ports'),
+        badge=lambda obj: obj.consoleserverports.count(),
+        permission='dcim.view_consoleserverport',
+        always_display=False
+    )
 
 
+@register_model_view(Device, 'powerports', path='power-ports')
 class DevicePowerPortsView(DeviceComponentsView):
     child_model = PowerPort
     table = tables.DevicePowerPortTable
     filterset = filtersets.PowerPortFilterSet
     template_name = 'dcim/device/powerports.html'
+    tab = ViewTab(
+        label=_('Power Ports'),
+        badge=lambda obj: obj.powerports.count(),
+        permission='dcim.view_powerport',
+        always_display=False
+    )
 
 
+@register_model_view(Device, 'poweroutlets', path='power-outlets')
 class DevicePowerOutletsView(DeviceComponentsView):
     child_model = PowerOutlet
     table = tables.DevicePowerOutletTable
     filterset = filtersets.PowerOutletFilterSet
     template_name = 'dcim/device/poweroutlets.html'
+    tab = ViewTab(
+        label=_('Power Outlets'),
+        badge=lambda obj: obj.poweroutlets.count(),
+        permission='dcim.view_poweroutlet',
+        always_display=False
+    )
 
 
+@register_model_view(Device, 'interfaces')
 class DeviceInterfacesView(DeviceComponentsView):
     child_model = Interface
     table = tables.DeviceInterfaceTable
     filterset = filtersets.InterfaceFilterSet
     template_name = 'dcim/device/interfaces.html'
+    tab = ViewTab(
+        label=_('Interfaces'),
+        badge=lambda obj: obj.interfaces.count(),
+        permission='dcim.view_interface',
+        always_display=False
+    )
 
     def get_children(self, request, parent):
         return parent.vc_interfaces().restrict(request.user, 'view').prefetch_related(
@@ -1661,39 +1818,74 @@ class DeviceInterfacesView(DeviceComponentsView):
         )
 
 
+@register_model_view(Device, 'frontports', path='front-ports')
 class DeviceFrontPortsView(DeviceComponentsView):
     child_model = FrontPort
     table = tables.DeviceFrontPortTable
     filterset = filtersets.FrontPortFilterSet
     template_name = 'dcim/device/frontports.html'
+    tab = ViewTab(
+        label=_('Front Ports'),
+        badge=lambda obj: obj.frontports.count(),
+        permission='dcim.view_frontport',
+        always_display=False
+    )
 
 
+@register_model_view(Device, 'rearports', path='rear-ports')
 class DeviceRearPortsView(DeviceComponentsView):
     child_model = RearPort
     table = tables.DeviceRearPortTable
     filterset = filtersets.RearPortFilterSet
     template_name = 'dcim/device/rearports.html'
+    tab = ViewTab(
+        label=_('Rear Ports'),
+        badge=lambda obj: obj.rearports.count(),
+        permission='dcim.view_rearport',
+        always_display=False
+    )
 
 
+@register_model_view(Device, 'modulebays', path='module-bays')
 class DeviceModuleBaysView(DeviceComponentsView):
     child_model = ModuleBay
     table = tables.DeviceModuleBayTable
     filterset = filtersets.ModuleBayFilterSet
     template_name = 'dcim/device/modulebays.html'
+    tab = ViewTab(
+        label=_('Module Bays'),
+        badge=lambda obj: obj.modulebays.count(),
+        permission='dcim.view_modulebay',
+        always_display=False
+    )
 
 
+@register_model_view(Device, 'devicebays', path='device-bays')
 class DeviceDeviceBaysView(DeviceComponentsView):
     child_model = DeviceBay
     table = tables.DeviceDeviceBayTable
     filterset = filtersets.DeviceBayFilterSet
     template_name = 'dcim/device/devicebays.html'
+    tab = ViewTab(
+        label=_('Device Bays'),
+        badge=lambda obj: obj.devicebays.count(),
+        permission='dcim.view_devicebay',
+        always_display=False
+    )
 
 
+@register_model_view(Device, 'inventory')
 class DeviceInventoryView(DeviceComponentsView):
     child_model = InventoryItem
     table = tables.DeviceInventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
     template_name = 'dcim/device/inventory.html'
+    tab = ViewTab(
+        label=_('Inventory Items'),
+        badge=lambda obj: obj.inventoryitems.count(),
+        permission='dcim.view_inventoryitem',
+        always_display=False
+    )
 
 
 class DeviceStatusView(generic.ObjectView):
@@ -1736,9 +1928,14 @@ class DeviceConfigView(generic.ObjectView):
         }
 
 
+@register_model_view(Device, 'configcontext', path='config-context')
 class DeviceConfigContextView(ObjectConfigContextView):
     queryset = Device.objects.annotate_config_context_data()
     base_template = 'dcim/device/base.html'
+    tab = ViewTab(
+        label=_('Config Context'),
+        permission='extras.view_configcontext'
+    )
 
 
 class DeviceEditView(generic.ObjectEditView):

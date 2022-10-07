@@ -1,6 +1,6 @@
 from django import template
-from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
+from django.utils.module_loading import import_string
 
 from extras.registry import registry
 
@@ -26,23 +26,27 @@ def model_view_tabs(context, instance):
         views = []
 
     # Compile a list of tabs to be displayed in the UI
-    for view in views:
-        if view['tab_label'] and (not view['tab_permission'] or user.has_perm(view['tab_permission'])):
+    for config in views:
+        view = import_string(config['view']) if type(config['view']) is str else config['view']
+        if tab := getattr(view, 'tab', None):
+            if tab.permission and not user.has_perm(tab.permission):
+                continue
 
             # Determine the value of the tab's badge (if any)
-            if view['tab_badge'] and callable(view['tab_badge']):
-                badge_value = view['tab_badge'](instance)
-            elif view['tab_badge']:
-                badge_value = view['tab_badge']
+            if tab.badge and callable(tab.badge):
+                badge_value = tab.badge(instance)
             else:
-                badge_value = None
+                badge_value = tab.badge
+
+            if not tab.always_display and not badge_value:
+                continue
 
             tabs.append({
-                'name': view['name'],
-                'url': reverse(f"{app_label}:{model_name}_{view['name']}", args=[instance.pk]),
-                'label': view['tab_label'],
+                'name': config['name'],
+                'url': reverse(f"{app_label}:{model_name}_{config['name']}", args=[instance.pk]),
+                'label': tab.label,
                 'badge_value': badge_value,
-                'is_active': context.get('active_tab') == view['name'],
+                'is_active': context.get('active_tab') == config['name'],
             })
 
     return {

@@ -142,24 +142,39 @@ class ViewTab:
         self.always_display = always_display
 
 
-def register_model_view(model, name, view, kwargs=None):
+def register_model_view(model, name, path=None, kwargs=None):
     """
-    Register a subview for a core model.
+    This decorator can be used to "attach" a view to any model in NetBox. This is typically used to inject
+    additional tabs within a model's detail view. For example, to add a custom tab to NetBox's dcim.Site model:
+
+        @netbox_model_view(Site, 'myview', path='my-custom-view')
+        class MyView(ObjectView):
+            ...
+
+    This will automatically create a URL path for MyView at `/dcim/sites/<id>/my-custom-view/` which can be
+    resolved using the view name `dcim:site_myview'.
 
     Args:
-        model: The Django model class with which this view will be associated
-        name: The name to register when creating a URL path
-        view: A class-based or function view, or the dotted path to it (e.g. 'myplugin.views.FooView')
-        kwargs: A dictionary of keyword arguments to send to the view (optional)
+        model: The Django model class with which this view will be associated.
+        name: The string used to form the view's name for URL resolution (e.g. via `reverse()`). This will be appended
+            to the name of the base view for the model using an underscore.
+        path: The URL path by which the view can be reached (optional). If not provided, `name` will be used.
+        kwargs: A dictionary of keyword arguments for the view to include when registering its URL path (optional)
     """
-    app_label = model._meta.app_label
-    model_name = model._meta.model_name
+    def _wrapper(cls):
+        app_label = model._meta.app_label
+        model_name = model._meta.model_name
 
-    if model_name not in registry['views'][app_label]:
-        registry['views'][app_label][model_name] = []
+        if model_name not in registry['views'][app_label]:
+            registry['views'][app_label][model_name] = []
 
-    registry['views'][app_label][model_name].append({
-        'name': name,
-        'view': view,
-        'kwargs': kwargs or {},
-    })
+        registry['views'][app_label][model_name].append({
+            'name': name,
+            'view': cls,
+            'path': path or name,
+            'kwargs': kwargs or {},
+        })
+
+        return cls
+
+    return _wrapper

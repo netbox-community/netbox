@@ -35,8 +35,6 @@ urlpatterns = [
     path('clusters/edit/', views.ClusterBulkEditView.as_view(), name='cluster_bulk_edit'),
     path('clusters/delete/', views.ClusterBulkDeleteView.as_view(), name='cluster_bulk_delete'),
     path('clusters/<int:pk>/', views.ClusterView.as_view(), name='cluster'),
-    path('clusters/<int:pk>/devices/', views.ClusterDevicesView.as_view(), name='cluster_devices'),
-    path('clusters/<int:pk>/virtual-machines/', views.ClusterVirtualMachinesView.as_view(), name='cluster_virtualmachines'),
     path('clusters/<int:pk>/edit/', views.ClusterEditView.as_view(), name='cluster_edit'),
     path('clusters/<int:pk>/delete/', views.ClusterDeleteView.as_view(), name='cluster_delete'),
     path('clusters/<int:pk>/devices/add/', views.ClusterAddDevicesView.as_view(), name='cluster_add_devices'),
@@ -50,10 +48,8 @@ urlpatterns = [
     path('virtual-machines/edit/', views.VirtualMachineBulkEditView.as_view(), name='virtualmachine_bulk_edit'),
     path('virtual-machines/delete/', views.VirtualMachineBulkDeleteView.as_view(), name='virtualmachine_bulk_delete'),
     path('virtual-machines/<int:pk>/', views.VirtualMachineView.as_view(), name='virtualmachine'),
-    path('virtual-machines/<int:pk>/interfaces/', views.VirtualMachineInterfacesView.as_view(), name='virtualmachine_interfaces'),
     path('virtual-machines/<int:pk>/edit/', views.VirtualMachineEditView.as_view(), name='virtualmachine_edit'),
     path('virtual-machines/<int:pk>/delete/', views.VirtualMachineDeleteView.as_view(), name='virtualmachine_delete'),
-    path('virtual-machines/<int:pk>/config-context/', views.VirtualMachineConfigContextView.as_view(), name='virtualmachine_configcontext'),
     path('virtual-machines/<int:pk>/', include(get_model_urls('virtualization', 'virtualmachine'))),
 
     # VM interfaces

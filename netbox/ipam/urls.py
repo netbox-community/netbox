@@ -57,7 +57,6 @@ urlpatterns = [
     path('aggregates/edit/', views.AggregateBulkEditView.as_view(), name='aggregate_bulk_edit'),
     path('aggregates/delete/', views.AggregateBulkDeleteView.as_view(), name='aggregate_bulk_delete'),
     path('aggregates/<int:pk>/', views.AggregateView.as_view(), name='aggregate'),
-    path('aggregates/<int:pk>/prefixes/', views.AggregatePrefixesView.as_view(), name='aggregate_prefixes'),
     path('aggregates/<int:pk>/edit/', views.AggregateEditView.as_view(), name='aggregate_edit'),
     path('aggregates/<int:pk>/delete/', views.AggregateDeleteView.as_view(), name='aggregate_delete'),
     path('aggregates/<int:pk>/', include(get_model_urls('ipam', 'aggregate'))),
@@ -82,9 +81,6 @@ urlpatterns = [
     path('prefixes/<int:pk>/', views.PrefixView.as_view(), name='prefix'),
     path('prefixes/<int:pk>/edit/', views.PrefixEditView.as_view(), name='prefix_edit'),
     path('prefixes/<int:pk>/delete/', views.PrefixDeleteView.as_view(), name='prefix_delete'),
-    path('prefixes/<int:pk>/prefixes/', views.PrefixPrefixesView.as_view(), name='prefix_prefixes'),
-    path('prefixes/<int:pk>/ip-ranges/', views.PrefixIPRangesView.as_view(), name='prefix_ipranges'),
-    path('prefixes/<int:pk>/ip-addresses/', views.PrefixIPAddressesView.as_view(), name='prefix_ipaddresses'),
     path('prefixes/<int:pk>/', include(get_model_urls('ipam', 'prefix'))),
 
     # IP ranges
@@ -96,7 +92,6 @@ urlpatterns = [
     path('ip-ranges/<int:pk>/', views.IPRangeView.as_view(), name='iprange'),
     path('ip-ranges/<int:pk>/edit/', views.IPRangeEditView.as_view(), name='iprange_edit'),
     path('ip-ranges/<int:pk>/delete/', views.IPRangeDeleteView.as_view(), name='iprange_delete'),
-    path('ip-ranges/<int:pk>/ip-addresses/', views.IPRangeIPAddressesView.as_view(), name='iprange_ipaddresses'),
     path('ip-ranges/<int:pk>/', include(get_model_urls('ipam', 'iprange'))),
 
     # IP addresses
