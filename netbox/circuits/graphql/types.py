@@ -37,7 +37,7 @@ class CircuitTypeType(OrganizationalObjectType):
         filterset_class = filtersets.CircuitTypeFilterSet
 
 
-class ProviderType(NetBoxObjectType):
+class ProviderType(NetBoxObjectType, ContactsMixin):
 
     class Meta:
         model = models.Provider
@@ -45,7 +45,7 @@ class ProviderType(NetBoxObjectType):
         filterset_class = filtersets.ProviderFilterSet
 
 
-class ProviderNetworkType(NetBoxObjectType, ContactsMixin):
+class ProviderNetworkType(NetBoxObjectType):
 
     class Meta:
         model = models.ProviderNetwork
