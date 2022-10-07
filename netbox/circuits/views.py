@@ -3,9 +3,11 @@ from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
+from dcim.views import PathTraceView
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.utils import count_related
+from utilities.views import register_model_view
 from . import filtersets, forms, tables
 from .models import *
 
@@ -23,6 +25,7 @@ class ProviderListView(generic.ObjectListView):
     table = tables.ProviderTable
 
 
+@register_model_view(Provider)
 class ProviderView(generic.ObjectView):
     queryset = Provider.objects.all()
 
@@ -41,11 +44,13 @@ class ProviderView(generic.ObjectView):
         }
 
 
+@register_model_view(Provider, 'edit')
 class ProviderEditView(generic.ObjectEditView):
     queryset = Provider.objects.all()
     form = forms.ProviderForm
 
 
+@register_model_view(Provider, 'delete')
 class ProviderDeleteView(generic.ObjectDeleteView):
     queryset = Provider.objects.all()
 
@@ -84,6 +89,7 @@ class ProviderNetworkListView(generic.ObjectListView):
     table = tables.ProviderNetworkTable
 
 
+@register_model_view(ProviderNetwork)
 class ProviderNetworkView(generic.ObjectView):
     queryset = ProviderNetwork.objects.all()
 
@@ -103,11 +109,13 @@ class ProviderNetworkView(generic.ObjectView):
         }
 
 
+@register_model_view(ProviderNetwork, 'edit')
 class ProviderNetworkEditView(generic.ObjectEditView):
     queryset = ProviderNetwork.objects.all()
     form = forms.ProviderNetworkForm
 
 
+@register_model_view(ProviderNetwork, 'delete')
 class ProviderNetworkDeleteView(generic.ObjectDeleteView):
     queryset = ProviderNetwork.objects.all()
 
@@ -144,6 +152,7 @@ class CircuitTypeListView(generic.ObjectListView):
     table = tables.CircuitTypeTable
 
 
+@register_model_view(CircuitType)
 class CircuitTypeView(generic.ObjectView):
     queryset = CircuitType.objects.all()
 
@@ -157,11 +166,13 @@ class CircuitTypeView(generic.ObjectView):
         }
 
 
+@register_model_view(CircuitType, 'edit')
 class CircuitTypeEditView(generic.ObjectEditView):
     queryset = CircuitType.objects.all()
     form = forms.CircuitTypeForm
 
 
+@register_model_view(CircuitType, 'delete')
 class CircuitTypeDeleteView(generic.ObjectDeleteView):
     queryset = CircuitType.objects.all()
 
@@ -202,15 +213,18 @@ class CircuitListView(generic.ObjectListView):
     table = tables.CircuitTable
 
 
+@register_model_view(Circuit)
 class CircuitView(generic.ObjectView):
     queryset = Circuit.objects.all()
 
 
+@register_model_view(Circuit, 'edit')
 class CircuitEditView(generic.ObjectEditView):
     queryset = Circuit.objects.all()
     form = forms.CircuitForm
 
 
+@register_model_view(Circuit, 'delete')
 class CircuitDeleteView(generic.ObjectDeleteView):
     queryset = Circuit.objects.all()
 
@@ -318,11 +332,17 @@ class CircuitSwapTerminations(generic.ObjectEditView):
 # Circuit terminations
 #
 
+@register_model_view(CircuitTermination, 'edit')
 class CircuitTerminationEditView(generic.ObjectEditView):
     queryset = CircuitTermination.objects.all()
     form = forms.CircuitTerminationForm
     template_name = 'circuits/circuittermination_edit.html'
 
 
+@register_model_view(CircuitTermination, 'delete')
 class CircuitTerminationDeleteView(generic.ObjectDeleteView):
     queryset = CircuitTermination.objects.all()
+
+
+# Trace view
+register_model_view(CircuitTermination, 'trace', kwargs={'model': CircuitTermination})(PathTraceView)
