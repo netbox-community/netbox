@@ -37,7 +37,12 @@ class ObjectView(BaseObjectView):
     Retrieve a single object for display.
 
     Note: If `template_name` is not specified, it will be determined automatically based on the queryset model.
+
+    Attributes:
+        tab: A ViewTab instance for the view
     """
+    tab = None
+
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
 

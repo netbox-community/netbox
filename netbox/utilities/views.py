@@ -137,6 +137,12 @@ class ViewTab:
     """
     ViewTabs are used for navigation among multiple object-specific views, such as the changelog or journal for
     a particular object.
+
+    Args:
+        label: Human-friendly text
+        badge: A static value or callable to display alongside the label (optional). If a callable is used, it must accept a single
+            argument representing the object being viewed.
+        permission: The permission required to display the tab (optional).
     """
     def __init__(self, label, badge=None, permission=None):
         self.label = label
@@ -178,7 +184,7 @@ def register_model_view(model, name, path=None, kwargs=None):
         name: The string used to form the view's name for URL resolution (e.g. via `reverse()`). This will be appended
             to the name of the base view for the model using an underscore.
         path: The URL path by which the view can be reached (optional). If not provided, `name` will be used.
-        kwargs: A dictionary of keyword arguments for the view to include when registering its URL path (optional)
+        kwargs: A dictionary of keyword arguments for the view to include when registering its URL path (optional).
     """
     def _wrapper(cls):
         app_label = model._meta.app_label
