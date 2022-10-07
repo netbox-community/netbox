@@ -32,8 +32,10 @@ def get_model_urls(app_label, model_name):
             view_ = view_.as_view()
 
         # Create a path to the view
+        name = f"{model_name}_{config['name']}" if config['name'] else model_name
+        url_path = f"{config['path']}/" if config['path'] else ''
         paths.append(
-            path(f"{config['path']}/", view_, name=f"{model_name}_{config['name']}", kwargs=config['kwargs'])
+            path(url_path, view_, name=name, kwargs=config['kwargs'])
         )
 
     return paths

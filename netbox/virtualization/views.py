@@ -31,6 +31,7 @@ class ClusterTypeListView(generic.ObjectListView):
     table = tables.ClusterTypeTable
 
 
+@register_model_view(ClusterType)
 class ClusterTypeView(generic.ObjectView):
     queryset = ClusterType.objects.all()
 
@@ -49,11 +50,13 @@ class ClusterTypeView(generic.ObjectView):
         }
 
 
+@register_model_view(ClusterType, 'edit')
 class ClusterTypeEditView(generic.ObjectEditView):
     queryset = ClusterType.objects.all()
     form = forms.ClusterTypeForm
 
 
+@register_model_view(ClusterType, 'delete')
 class ClusterTypeDeleteView(generic.ObjectDeleteView):
     queryset = ClusterType.objects.all()
 
@@ -93,6 +96,7 @@ class ClusterGroupListView(generic.ObjectListView):
     table = tables.ClusterGroupTable
 
 
+@register_model_view(ClusterGroup)
 class ClusterGroupView(generic.ObjectView):
     queryset = ClusterGroup.objects.all()
 
@@ -111,11 +115,13 @@ class ClusterGroupView(generic.ObjectView):
         }
 
 
+@register_model_view(ClusterGroup, 'edit')
 class ClusterGroupEditView(generic.ObjectEditView):
     queryset = ClusterGroup.objects.all()
     form = forms.ClusterGroupForm
 
 
+@register_model_view(ClusterGroup, 'delete')
 class ClusterGroupDeleteView(generic.ObjectDeleteView):
     queryset = ClusterGroup.objects.all()
 
@@ -159,6 +165,7 @@ class ClusterListView(generic.ObjectListView):
     filterset_form = forms.ClusterFilterForm
 
 
+@register_model_view(Cluster)
 class ClusterView(generic.ObjectView):
     queryset = Cluster.objects.all()
 
@@ -197,11 +204,13 @@ class ClusterDevicesView(generic.ObjectChildrenView):
         return Device.objects.restrict(request.user, 'view').filter(cluster=parent)
 
 
+@register_model_view(Cluster, 'edit')
 class ClusterEditView(generic.ObjectEditView):
     queryset = Cluster.objects.all()
     form = forms.ClusterForm
 
 
+@register_model_view(Cluster, 'delete')
 class ClusterDeleteView(generic.ObjectDeleteView):
     queryset = Cluster.objects.all()
 
@@ -225,6 +234,7 @@ class ClusterBulkDeleteView(generic.BulkDeleteView):
     table = tables.ClusterTable
 
 
+@register_model_view(Cluster, 'add_devices', path='devices/add')
 class ClusterAddDevicesView(generic.ObjectEditView):
     queryset = Cluster.objects.all()
     form = forms.ClusterAddDevicesForm
@@ -266,6 +276,7 @@ class ClusterAddDevicesView(generic.ObjectEditView):
         })
 
 
+@register_model_view(Cluster, 'remove_devices', path='devices/remove')
 class ClusterRemoveDevicesView(generic.ObjectEditView):
     queryset = Cluster.objects.all()
     form = forms.ClusterRemoveDevicesForm
@@ -319,6 +330,7 @@ class VirtualMachineListView(generic.ObjectListView):
     template_name = 'virtualization/virtualmachine_list.html'
 
 
+@register_model_view(VirtualMachine)
 class VirtualMachineView(generic.ObjectView):
     queryset = VirtualMachine.objects.prefetch_related('tenant__group')
 
@@ -378,11 +390,13 @@ class VirtualMachineConfigContextView(ObjectConfigContextView):
     )
 
 
+@register_model_view(VirtualMachine, 'edit')
 class VirtualMachineEditView(generic.ObjectEditView):
     queryset = VirtualMachine.objects.all()
     form = forms.VirtualMachineForm
 
 
+@register_model_view(VirtualMachine, 'delete')
 class VirtualMachineDeleteView(generic.ObjectDeleteView):
     queryset = VirtualMachine.objects.all()
 
@@ -418,6 +432,7 @@ class VMInterfaceListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(VMInterface)
 class VMInterfaceView(generic.ObjectView):
     queryset = VMInterface.objects.all()
 
@@ -463,11 +478,13 @@ class VMInterfaceCreateView(generic.ComponentCreateView):
     model_form = forms.VMInterfaceForm
 
 
+@register_model_view(VMInterface, 'edit')
 class VMInterfaceEditView(generic.ObjectEditView):
     queryset = VMInterface.objects.all()
     form = forms.VMInterfaceForm
 
 
+@register_model_view(VMInterface, 'delete')
 class VMInterfaceDeleteView(generic.ObjectDeleteView):
     queryset = VMInterface.objects.all()
 
