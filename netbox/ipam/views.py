@@ -3,6 +3,7 @@ from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from circuits.models import Provider, Circuit
 from circuits.tables import ProviderTable
@@ -11,6 +12,7 @@ from dcim.models import Interface, Site, Device
 from dcim.tables import SiteTable
 from netbox.views import generic
 from utilities.utils import count_related
+from utilities.views import ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.models import VMInterface, VirtualMachine
 from . import filtersets, forms, tables
@@ -289,12 +291,18 @@ class AggregateView(generic.ObjectView):
     queryset = Aggregate.objects.all()
 
 
+@register_model_view(Aggregate, 'prefixes')
 class AggregatePrefixesView(generic.ObjectChildrenView):
     queryset = Aggregate.objects.all()
     child_model = Prefix
     table = tables.PrefixTable
     filterset = filtersets.PrefixFilterSet
     template_name = 'ipam/aggregate/prefixes.html'
+    tab = ViewTab(
+        label=_('Prefixes'),
+        badge=lambda x: x.get_child_prefixes().count(),
+        permission='ipam.view_prefix'
+    )
 
     def get_children(self, request, parent):
         return Prefix.objects.restrict(request.user, 'view').filter(
@@ -311,7 +319,6 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
     def get_extra_context(self, request, instance):
         return {
             'bulk_querystring': f'within={instance.prefix}',
-            'active_tab': 'prefixes',
             'first_available_prefix': instance.get_first_available_prefix(),
             'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
             'show_assigned': bool(request.GET.get('show_assigned', 'true') == 'true'),
@@ -466,12 +473,18 @@ class PrefixView(generic.ObjectView):
         }
 
 
+@register_model_view(Prefix, 'prefixes')
 class PrefixPrefixesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = Prefix
     table = tables.PrefixTable
     filterset = filtersets.PrefixFilterSet
     template_name = 'ipam/prefix/prefixes.html'
+    tab = ViewTab(
+        label=_('Child Prefixes'),
+        badge=lambda x: x.get_child_prefixes().count(),
+        permission='ipam.view_prefix'
+    )
 
     def get_children(self, request, parent):
         return parent.get_child_prefixes().restrict(request.user, 'view').prefetch_related(
@@ -488,19 +501,24 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
     def get_extra_context(self, request, instance):
         return {
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&within={instance.prefix}",
-            'active_tab': 'prefixes',
             'first_available_prefix': instance.get_first_available_prefix(),
             'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
             'show_assigned': bool(request.GET.get('show_assigned', 'true') == 'true'),
         }
 
 
+@register_model_view(Prefix, 'ipranges', path='ip-ranges')
 class PrefixIPRangesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = IPRange
     table = tables.IPRangeTable
     filterset = filtersets.IPRangeFilterSet
     template_name = 'ipam/prefix/ip_ranges.html'
+    tab = ViewTab(
+        label=_('Child Ranges'),
+        badge=lambda x: x.get_child_ranges().count(),
+        permission='ipam.view_iprange'
+    )
 
     def get_children(self, request, parent):
         return parent.get_child_ranges().restrict(request.user, 'view').prefetch_related(
@@ -510,17 +528,22 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
     def get_extra_context(self, request, instance):
         return {
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&parent={instance.prefix}",
-            'active_tab': 'ip-ranges',
             'first_available_ip': instance.get_first_available_ip(),
         }
 
 
+@register_model_view(Prefix, 'ipaddresses', path='ip-addresses')
 class PrefixIPAddressesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = IPAddress
     table = tables.IPAddressTable
     filterset = filtersets.IPAddressFilterSet
     template_name = 'ipam/prefix/ip_addresses.html'
+    tab = ViewTab(
+        label=_('IP Addresses'),
+        badge=lambda x: x.get_child_ips().count(),
+        permission='ipam.view_ipaddress'
+    )
 
     def get_children(self, request, parent):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf', 'tenant', 'tenant__group')
@@ -533,7 +556,6 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
     def get_extra_context(self, request, instance):
         return {
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&parent={instance.prefix}",
-            'active_tab': 'ip-addresses',
             'first_available_ip': instance.get_first_available_ip(),
         }
 
@@ -581,20 +603,21 @@ class IPRangeView(generic.ObjectView):
     queryset = IPRange.objects.all()
 
 
+@register_model_view(IPRange, 'ipaddresses', path='ip-addresses')
 class IPRangeIPAddressesView(generic.ObjectChildrenView):
     queryset = IPRange.objects.all()
     child_model = IPAddress
     table = tables.IPAddressTable
     filterset = filtersets.IPAddressFilterSet
     template_name = 'ipam/iprange/ip_addresses.html'
+    tab = ViewTab(
+        label=_('IP Addresses'),
+        badge=lambda x: x.get_child_ips().count(),
+        permission='ipam.view_ipaddress'
+    )
 
     def get_children(self, request, parent):
         return parent.get_child_ips().restrict(request.user, 'view')
-
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'ip-addresses',
-        }
 
 
 class IPRangeEditView(generic.ObjectEditView):
@@ -1000,36 +1023,38 @@ class VLANView(generic.ObjectView):
         }
 
 
+@register_model_view(VLAN, 'interfaces')
 class VLANInterfacesView(generic.ObjectChildrenView):
     queryset = VLAN.objects.all()
     child_model = Interface
     table = tables.VLANDevicesTable
     filterset = InterfaceFilterSet
     template_name = 'ipam/vlan/interfaces.html'
+    tab = ViewTab(
+        label=_('Device Interfaces'),
+        badge=lambda x: x.get_interfaces().count(),
+        permission='dcim.view_interface'
+    )
 
     def get_children(self, request, parent):
         return parent.get_interfaces().restrict(request.user, 'view')
 
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'interfaces',
-        }
 
-
+@register_model_view(VLAN, 'vminterfaces', path='vm-interfaces')
 class VLANVMInterfacesView(generic.ObjectChildrenView):
     queryset = VLAN.objects.all()
     child_model = VMInterface
     table = tables.VLANVirtualMachinesTable
     filterset = VMInterfaceFilterSet
     template_name = 'ipam/vlan/vminterfaces.html'
+    tab = ViewTab(
+        label=_('VM Interfaces'),
+        badge=lambda x: x.get_vminterfaces().count(),
+        permission='virtualization.view_vminterface'
+    )
 
     def get_children(self, request, parent):
         return parent.get_vminterfaces().restrict(request.user, 'view')
-
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'vminterfaces',
-        }
 
 
 class VLANEditView(generic.ObjectEditView):

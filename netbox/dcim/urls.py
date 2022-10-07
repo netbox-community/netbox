@@ -1,8 +1,10 @@
-from django.urls import path
+from django.urls import include, path
 
-from netbox.views.generic import ObjectChangeLogView, ObjectJournalView
+from utilities.urls import get_model_urls
 from . import views
-from .models import *
+from .models import (
+    ConsolePort, ConsoleServerPort, FrontPort, Interface, PowerFeed, PowerPort, PowerOutlet, RearPort,
+)
 
 app_name = 'dcim'
 urlpatterns = [
@@ -16,7 +18,7 @@ urlpatterns = [
     path('regions/<int:pk>/', views.RegionView.as_view(), name='region'),
     path('regions/<int:pk>/edit/', views.RegionEditView.as_view(), name='region_edit'),
     path('regions/<int:pk>/delete/', views.RegionDeleteView.as_view(), name='region_delete'),
-    path('regions/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='region_changelog', kwargs={'model': Region}),
+    path('regions/<int:pk>/', include(get_model_urls('dcim', 'region'))),
 
     # Site groups
     path('site-groups/', views.SiteGroupListView.as_view(), name='sitegroup_list'),
@@ -27,7 +29,7 @@ urlpatterns = [
     path('site-groups/<int:pk>/', views.SiteGroupView.as_view(), name='sitegroup'),
     path('site-groups/<int:pk>/edit/', views.SiteGroupEditView.as_view(), name='sitegroup_edit'),
     path('site-groups/<int:pk>/delete/', views.SiteGroupDeleteView.as_view(), name='sitegroup_delete'),
-    path('site-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='sitegroup_changelog', kwargs={'model': SiteGroup}),
+    path('site-groups/<int:pk>/', include(get_model_urls('dcim', 'sitegroup'))),
 
     # Sites
     path('sites/', views.SiteListView.as_view(), name='site_list'),
@@ -38,8 +40,7 @@ urlpatterns = [
     path('sites/<int:pk>/', views.SiteView.as_view(), name='site'),
     path('sites/<int:pk>/edit/', views.SiteEditView.as_view(), name='site_edit'),
     path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name='site_delete'),
-    path('sites/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),
-    path('sites/<int:pk>/journal/', ObjectJournalView.as_view(), name='site_journal', kwargs={'model': Site}),
+    path('sites/<int:pk>/', include(get_model_urls('dcim', 'site'))),
 
     # Locations
     path('locations/', views.LocationListView.as_view(), name='location_list'),
@@ -50,7 +51,7 @@ urlpatterns = [
     path('locations/<int:pk>/', views.LocationView.as_view(), name='location'),
     path('locations/<int:pk>/edit/', views.LocationEditView.as_view(), name='location_edit'),
     path('locations/<int:pk>/delete/', views.LocationDeleteView.as_view(), name='location_delete'),
-    path('locations/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='location_changelog', kwargs={'model': Location}),
+    path('locations/<int:pk>/', include(get_model_urls('dcim', 'location'))),
 
     # Rack roles
     path('rack-roles/', views.RackRoleListView.as_view(), name='rackrole_list'),
@@ -61,7 +62,7 @@ urlpatterns = [
     path('rack-roles/<int:pk>/', views.RackRoleView.as_view(), name='rackrole'),
     path('rack-roles/<int:pk>/edit/', views.RackRoleEditView.as_view(), name='rackrole_edit'),
     path('rack-roles/<int:pk>/delete/', views.RackRoleDeleteView.as_view(), name='rackrole_delete'),
-    path('rack-roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rackrole_changelog', kwargs={'model': RackRole}),
+    path('rack-roles/<int:pk>/', include(get_model_urls('dcim', 'rackrole'))),
 
     # Rack reservations
     path('rack-reservations/', views.RackReservationListView.as_view(), name='rackreservation_list'),
@@ -72,8 +73,7 @@ urlpatterns = [
     path('rack-reservations/<int:pk>/', views.RackReservationView.as_view(), name='rackreservation'),
     path('rack-reservations/<int:pk>/edit/', views.RackReservationEditView.as_view(), name='rackreservation_edit'),
     path('rack-reservations/<int:pk>/delete/', views.RackReservationDeleteView.as_view(), name='rackreservation_delete'),
-    path('rack-reservations/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rackreservation_changelog', kwargs={'model': RackReservation}),
-    path('rack-reservations/<int:pk>/journal/', ObjectJournalView.as_view(), name='rackreservation_journal', kwargs={'model': RackReservation}),
+    path('rack-reservations/<int:pk>/', include(get_model_urls('dcim', 'rackreservation'))),
 
     # Racks
     path('racks/', views.RackListView.as_view(), name='rack_list'),
@@ -85,8 +85,7 @@ urlpatterns = [
     path('racks/<int:pk>/', views.RackView.as_view(), name='rack'),
     path('racks/<int:pk>/edit/', views.RackEditView.as_view(), name='rack_edit'),
     path('racks/<int:pk>/delete/', views.RackDeleteView.as_view(), name='rack_delete'),
-    path('racks/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rack_changelog', kwargs={'model': Rack}),
-    path('racks/<int:pk>/journal/', ObjectJournalView.as_view(), name='rack_journal', kwargs={'model': Rack}),
+    path('racks/<int:pk>/', include(get_model_urls('dcim', 'rack'))),
 
     # Manufacturers
     path('manufacturers/', views.ManufacturerListView.as_view(), name='manufacturer_list'),
@@ -97,7 +96,7 @@ urlpatterns = [
     path('manufacturers/<int:pk>/', views.ManufacturerView.as_view(), name='manufacturer'),
     path('manufacturers/<int:pk>/edit/', views.ManufacturerEditView.as_view(), name='manufacturer_edit'),
     path('manufacturers/<int:pk>/delete/', views.ManufacturerDeleteView.as_view(), name='manufacturer_delete'),
-    path('manufacturers/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='manufacturer_changelog', kwargs={'model': Manufacturer}),
+    path('manufacturers/<int:pk>/', include(get_model_urls('dcim', 'manufacturer'))),
 
     # Device types
     path('device-types/', views.DeviceTypeListView.as_view(), name='devicetype_list'),
@@ -106,20 +105,9 @@ urlpatterns = [
     path('device-types/edit/', views.DeviceTypeBulkEditView.as_view(), name='devicetype_bulk_edit'),
     path('device-types/delete/', views.DeviceTypeBulkDeleteView.as_view(), name='devicetype_bulk_delete'),
     path('device-types/<int:pk>/', views.DeviceTypeView.as_view(), name='devicetype'),
-    path('device-types/<int:pk>/console-ports/', views.DeviceTypeConsolePortsView.as_view(), name='devicetype_consoleports'),
-    path('device-types/<int:pk>/console-server-ports/', views.DeviceTypeConsoleServerPortsView.as_view(), name='devicetype_consoleserverports'),
-    path('device-types/<int:pk>/power-ports/', views.DeviceTypePowerPortsView.as_view(), name='devicetype_powerports'),
-    path('device-types/<int:pk>/power-outlets/', views.DeviceTypePowerOutletsView.as_view(), name='devicetype_poweroutlets'),
-    path('device-types/<int:pk>/interfaces/', views.DeviceTypeInterfacesView.as_view(), name='devicetype_interfaces'),
-    path('device-types/<int:pk>/front-ports/', views.DeviceTypeFrontPortsView.as_view(), name='devicetype_frontports'),
-    path('device-types/<int:pk>/rear-ports/', views.DeviceTypeRearPortsView.as_view(), name='devicetype_rearports'),
-    path('device-types/<int:pk>/module-bays/', views.DeviceTypeModuleBaysView.as_view(), name='devicetype_modulebays'),
-    path('device-types/<int:pk>/device-bays/', views.DeviceTypeDeviceBaysView.as_view(), name='devicetype_devicebays'),
-    path('device-types/<int:pk>/inventory-items/', views.DeviceTypeInventoryItemsView.as_view(), name='devicetype_inventoryitems'),
     path('device-types/<int:pk>/edit/', views.DeviceTypeEditView.as_view(), name='devicetype_edit'),
     path('device-types/<int:pk>/delete/', views.DeviceTypeDeleteView.as_view(), name='devicetype_delete'),
-    path('device-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='devicetype_changelog', kwargs={'model': DeviceType}),
-    path('device-types/<int:pk>/journal/', ObjectJournalView.as_view(), name='devicetype_journal', kwargs={'model': DeviceType}),
+    path('device-types/<int:pk>/', include(get_model_urls('dcim', 'devicetype'))),
 
     # Module types
     path('module-types/', views.ModuleTypeListView.as_view(), name='moduletype_list'),
@@ -128,17 +116,9 @@ urlpatterns = [
     path('module-types/edit/', views.ModuleTypeBulkEditView.as_view(), name='moduletype_bulk_edit'),
     path('module-types/delete/', views.ModuleTypeBulkDeleteView.as_view(), name='moduletype_bulk_delete'),
     path('module-types/<int:pk>/', views.ModuleTypeView.as_view(), name='moduletype'),
-    path('module-types/<int:pk>/console-ports/', views.ModuleTypeConsolePortsView.as_view(), name='moduletype_consoleports'),
-    path('module-types/<int:pk>/console-server-ports/', views.ModuleTypeConsoleServerPortsView.as_view(), name='moduletype_consoleserverports'),
-    path('module-types/<int:pk>/power-ports/', views.ModuleTypePowerPortsView.as_view(), name='moduletype_powerports'),
-    path('module-types/<int:pk>/power-outlets/', views.ModuleTypePowerOutletsView.as_view(), name='moduletype_poweroutlets'),
-    path('module-types/<int:pk>/interfaces/', views.ModuleTypeInterfacesView.as_view(), name='moduletype_interfaces'),
-    path('module-types/<int:pk>/front-ports/', views.ModuleTypeFrontPortsView.as_view(), name='moduletype_frontports'),
-    path('module-types/<int:pk>/rear-ports/', views.ModuleTypeRearPortsView.as_view(), name='moduletype_rearports'),
     path('module-types/<int:pk>/edit/', views.ModuleTypeEditView.as_view(), name='moduletype_edit'),
     path('module-types/<int:pk>/delete/', views.ModuleTypeDeleteView.as_view(), name='moduletype_delete'),
-    path('module-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='moduletype_changelog', kwargs={'model': ModuleType}),
-    path('module-types/<int:pk>/journal/', ObjectJournalView.as_view(), name='moduletype_journal', kwargs={'model': ModuleType}),
+    path('module-types/<int:pk>/', include(get_model_urls('dcim', 'moduletype'))),
 
     # Console port templates
     path('console-port-templates/add/', views.ConsolePortTemplateCreateView.as_view(), name='consoleporttemplate_add'),
@@ -229,7 +209,7 @@ urlpatterns = [
     path('device-roles/<int:pk>/', views.DeviceRoleView.as_view(), name='devicerole'),
     path('device-roles/<int:pk>/edit/', views.DeviceRoleEditView.as_view(), name='devicerole_edit'),
     path('device-roles/<int:pk>/delete/', views.DeviceRoleDeleteView.as_view(), name='devicerole_delete'),
-    path('device-roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='devicerole_changelog', kwargs={'model': DeviceRole}),
+    path('device-roles/<int:pk>/', include(get_model_urls('dcim', 'devicerole'))),
 
     # Platforms
     path('platforms/', views.PlatformListView.as_view(), name='platform_list'),
@@ -240,7 +220,7 @@ urlpatterns = [
     path('platforms/<int:pk>/', views.PlatformView.as_view(), name='platform'),
     path('platforms/<int:pk>/edit/', views.PlatformEditView.as_view(), name='platform_edit'),
     path('platforms/<int:pk>/delete/', views.PlatformDeleteView.as_view(), name='platform_delete'),
-    path('platforms/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='platform_changelog', kwargs={'model': Platform}),
+    path('platforms/<int:pk>/', include(get_model_urls('dcim', 'platform'))),
 
     # Devices
     path('devices/', views.DeviceListView.as_view(), name='device_list'),
@@ -253,22 +233,7 @@ urlpatterns = [
     path('devices/<int:pk>/', views.DeviceView.as_view(), name='device'),
     path('devices/<int:pk>/edit/', views.DeviceEditView.as_view(), name='device_edit'),
     path('devices/<int:pk>/delete/', views.DeviceDeleteView.as_view(), name='device_delete'),
-    path('devices/<int:pk>/console-ports/', views.DeviceConsolePortsView.as_view(), name='device_consoleports'),
-    path('devices/<int:pk>/console-server-ports/', views.DeviceConsoleServerPortsView.as_view(), name='device_consoleserverports'),
-    path('devices/<int:pk>/power-ports/', views.DevicePowerPortsView.as_view(), name='device_powerports'),
-    path('devices/<int:pk>/power-outlets/', views.DevicePowerOutletsView.as_view(), name='device_poweroutlets'),
-    path('devices/<int:pk>/interfaces/', views.DeviceInterfacesView.as_view(), name='device_interfaces'),
-    path('devices/<int:pk>/front-ports/', views.DeviceFrontPortsView.as_view(), name='device_frontports'),
-    path('devices/<int:pk>/rear-ports/', views.DeviceRearPortsView.as_view(), name='device_rearports'),
-    path('devices/<int:pk>/module-bays/', views.DeviceModuleBaysView.as_view(), name='device_modulebays'),
-    path('devices/<int:pk>/device-bays/', views.DeviceDeviceBaysView.as_view(), name='device_devicebays'),
-    path('devices/<int:pk>/inventory/', views.DeviceInventoryView.as_view(), name='device_inventory'),
-    path('devices/<int:pk>/config-context/', views.DeviceConfigContextView.as_view(), name='device_configcontext'),
-    path('devices/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='device_changelog', kwargs={'model': Device}),
-    path('devices/<int:pk>/journal/', ObjectJournalView.as_view(), name='device_journal', kwargs={'model': Device}),
-    path('devices/<int:pk>/status/', views.DeviceStatusView.as_view(), name='device_status'),
-    path('devices/<int:pk>/lldp-neighbors/', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
-    path('devices/<int:pk>/config/', views.DeviceConfigView.as_view(), name='device_config'),
+    path('devices/<int:pk>/', include(get_model_urls('dcim', 'device'))),
 
     # Modules
     path('modules/', views.ModuleListView.as_view(), name='module_list'),
@@ -279,8 +244,7 @@ urlpatterns = [
     path('modules/<int:pk>/', views.ModuleView.as_view(), name='module'),
     path('modules/<int:pk>/edit/', views.ModuleEditView.as_view(), name='module_edit'),
     path('modules/<int:pk>/delete/', views.ModuleDeleteView.as_view(), name='module_delete'),
-    path('modules/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='module_changelog', kwargs={'model': Module}),
-    path('modules/<int:pk>/journal/', ObjectJournalView.as_view(), name='module_journal', kwargs={'model': Module}),
+    path('modules/<int:pk>/', include(get_model_urls('dcim', 'module'))),
 
     # Console ports
     path('console-ports/', views.ConsolePortListView.as_view(), name='consoleport_list'),
@@ -293,8 +257,8 @@ urlpatterns = [
     path('console-ports/<int:pk>/', views.ConsolePortView.as_view(), name='consoleport'),
     path('console-ports/<int:pk>/edit/', views.ConsolePortEditView.as_view(), name='consoleport_edit'),
     path('console-ports/<int:pk>/delete/', views.ConsolePortDeleteView.as_view(), name='consoleport_delete'),
-    path('console-ports/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='consoleport_changelog', kwargs={'model': ConsolePort}),
     path('console-ports/<int:pk>/trace/', views.PathTraceView.as_view(), name='consoleport_trace', kwargs={'model': ConsolePort}),
+    path('console-ports/<int:pk>/', include(get_model_urls('dcim', 'consoleport'))),
     path('devices/console-ports/add/', views.DeviceBulkAddConsolePortView.as_view(), name='device_bulk_add_consoleport'),
 
     # Console server ports
@@ -308,8 +272,8 @@ urlpatterns = [
     path('console-server-ports/<int:pk>/', views.ConsoleServerPortView.as_view(), name='consoleserverport'),
     path('console-server-ports/<int:pk>/edit/', views.ConsoleServerPortEditView.as_view(), name='consoleserverport_edit'),
     path('console-server-ports/<int:pk>/delete/', views.ConsoleServerPortDeleteView.as_view(), name='consoleserverport_delete'),
-    path('console-server-ports/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='consoleserverport_changelog', kwargs={'model': ConsoleServerPort}),
     path('console-server-ports/<int:pk>/trace/', views.PathTraceView.as_view(), name='consoleserverport_trace', kwargs={'model': ConsoleServerPort}),
+    path('console-server-ports/<int:pk>/', include(get_model_urls('dcim', 'consoleserverport'))),
     path('devices/console-server-ports/add/', views.DeviceBulkAddConsoleServerPortView.as_view(), name='device_bulk_add_consoleserverport'),
 
     # Power ports
@@ -323,8 +287,8 @@ urlpatterns = [
     path('power-ports/<int:pk>/', views.PowerPortView.as_view(), name='powerport'),
     path('power-ports/<int:pk>/edit/', views.PowerPortEditView.as_view(), name='powerport_edit'),
     path('power-ports/<int:pk>/delete/', views.PowerPortDeleteView.as_view(), name='powerport_delete'),
-    path('power-ports/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='powerport_changelog', kwargs={'model': PowerPort}),
     path('power-ports/<int:pk>/trace/', views.PathTraceView.as_view(), name='powerport_trace', kwargs={'model': PowerPort}),
+    path('power-ports/<int:pk>/', include(get_model_urls('dcim', 'powerport'))),
     path('devices/power-ports/add/', views.DeviceBulkAddPowerPortView.as_view(), name='device_bulk_add_powerport'),
 
     # Power outlets
@@ -338,8 +302,8 @@ urlpatterns = [
     path('power-outlets/<int:pk>/', views.PowerOutletView.as_view(), name='poweroutlet'),
     path('power-outlets/<int:pk>/edit/', views.PowerOutletEditView.as_view(), name='poweroutlet_edit'),
     path('power-outlets/<int:pk>/delete/', views.PowerOutletDeleteView.as_view(), name='poweroutlet_delete'),
-    path('power-outlets/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='poweroutlet_changelog', kwargs={'model': PowerOutlet}),
     path('power-outlets/<int:pk>/trace/', views.PathTraceView.as_view(), name='poweroutlet_trace', kwargs={'model': PowerOutlet}),
+    path('power-outlets/<int:pk>/', include(get_model_urls('dcim', 'poweroutlet'))),
     path('devices/power-outlets/add/', views.DeviceBulkAddPowerOutletView.as_view(), name='device_bulk_add_poweroutlet'),
 
     # Interfaces
@@ -353,8 +317,8 @@ urlpatterns = [
     path('interfaces/<int:pk>/', views.InterfaceView.as_view(), name='interface'),
     path('interfaces/<int:pk>/edit/', views.InterfaceEditView.as_view(), name='interface_edit'),
     path('interfaces/<int:pk>/delete/', views.InterfaceDeleteView.as_view(), name='interface_delete'),
-    path('interfaces/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='interface_changelog', kwargs={'model': Interface}),
     path('interfaces/<int:pk>/trace/', views.PathTraceView.as_view(), name='interface_trace', kwargs={'model': Interface}),
+    path('interfaces/<int:pk>/', include(get_model_urls('dcim', 'interface'))),
     path('devices/interfaces/add/', views.DeviceBulkAddInterfaceView.as_view(), name='device_bulk_add_interface'),
 
     # Front ports
@@ -368,8 +332,8 @@ urlpatterns = [
     path('front-ports/<int:pk>/', views.FrontPortView.as_view(), name='frontport'),
     path('front-ports/<int:pk>/edit/', views.FrontPortEditView.as_view(), name='frontport_edit'),
     path('front-ports/<int:pk>/delete/', views.FrontPortDeleteView.as_view(), name='frontport_delete'),
-    path('front-ports/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='frontport_changelog', kwargs={'model': FrontPort}),
     path('front-ports/<int:pk>/trace/', views.PathTraceView.as_view(), name='frontport_trace', kwargs={'model': FrontPort}),
+    path('front-ports/<int:pk>/', include(get_model_urls('dcim', 'frontport'))),
     # path('devices/front-ports/add/', views.DeviceBulkAddFrontPortView.as_view(), name='device_bulk_add_frontport'),
 
     # Rear ports
@@ -383,8 +347,8 @@ urlpatterns = [
     path('rear-ports/<int:pk>/', views.RearPortView.as_view(), name='rearport'),
     path('rear-ports/<int:pk>/edit/', views.RearPortEditView.as_view(), name='rearport_edit'),
     path('rear-ports/<int:pk>/delete/', views.RearPortDeleteView.as_view(), name='rearport_delete'),
-    path('rear-ports/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rearport_changelog', kwargs={'model': RearPort}),
     path('rear-ports/<int:pk>/trace/', views.PathTraceView.as_view(), name='rearport_trace', kwargs={'model': RearPort}),
+    path('rear-ports/<int:pk>/', include(get_model_urls('dcim', 'rearport'))),
     path('devices/rear-ports/add/', views.DeviceBulkAddRearPortView.as_view(), name='device_bulk_add_rearport'),
 
     # Module bays
@@ -397,7 +361,7 @@ urlpatterns = [
     path('module-bays/<int:pk>/', views.ModuleBayView.as_view(), name='modulebay'),
     path('module-bays/<int:pk>/edit/', views.ModuleBayEditView.as_view(), name='modulebay_edit'),
     path('module-bays/<int:pk>/delete/', views.ModuleBayDeleteView.as_view(), name='modulebay_delete'),
-    path('module-bays/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='modulebay_changelog', kwargs={'model': ModuleBay}),
+    path('module-bays/<int:pk>/', include(get_model_urls('dcim', 'modulebay'))),
     path('devices/module-bays/add/', views.DeviceBulkAddModuleBayView.as_view(), name='device_bulk_add_modulebay'),
 
     # Device bays
@@ -410,9 +374,9 @@ urlpatterns = [
     path('device-bays/<int:pk>/', views.DeviceBayView.as_view(), name='devicebay'),
     path('device-bays/<int:pk>/edit/', views.DeviceBayEditView.as_view(), name='devicebay_edit'),
     path('device-bays/<int:pk>/delete/', views.DeviceBayDeleteView.as_view(), name='devicebay_delete'),
-    path('device-bays/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='devicebay_changelog', kwargs={'model': DeviceBay}),
     path('device-bays/<int:pk>/populate/', views.DeviceBayPopulateView.as_view(), name='devicebay_populate'),
     path('device-bays/<int:pk>/depopulate/', views.DeviceBayDepopulateView.as_view(), name='devicebay_depopulate'),
+    path('device-bays/<int:pk>/', include(get_model_urls('dcim', 'devicebay'))),
     path('devices/device-bays/add/', views.DeviceBulkAddDeviceBayView.as_view(), name='device_bulk_add_devicebay'),
 
     # Inventory items
@@ -425,10 +389,10 @@ urlpatterns = [
     path('inventory-items/<int:pk>/', views.InventoryItemView.as_view(), name='inventoryitem'),
     path('inventory-items/<int:pk>/edit/', views.InventoryItemEditView.as_view(), name='inventoryitem_edit'),
     path('inventory-items/<int:pk>/delete/', views.InventoryItemDeleteView.as_view(), name='inventoryitem_delete'),
-    path('inventory-items/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='inventoryitem_changelog', kwargs={'model': InventoryItem}),
+    path('inventory-items/<int:pk>/', include(get_model_urls('dcim', 'inventoryitem'))),
     path('devices/inventory-items/add/', views.DeviceBulkAddInventoryItemView.as_view(), name='device_bulk_add_inventoryitem'),
 
-    # Device roles
+    # Inventory item roles
     path('inventory-item-roles/', views.InventoryItemRoleListView.as_view(), name='inventoryitemrole_list'),
     path('inventory-item-roles/add/', views.InventoryItemRoleEditView.as_view(), name='inventoryitemrole_add'),
     path('inventory-item-roles/import/', views.InventoryItemRoleBulkImportView.as_view(), name='inventoryitemrole_import'),
@@ -437,7 +401,7 @@ urlpatterns = [
     path('inventory-item-roles/<int:pk>/', views.InventoryItemRoleView.as_view(), name='inventoryitemrole'),
     path('inventory-item-roles/<int:pk>/edit/', views.InventoryItemRoleEditView.as_view(), name='inventoryitemrole_edit'),
     path('inventory-item-roles/<int:pk>/delete/', views.InventoryItemRoleDeleteView.as_view(), name='inventoryitemrole_delete'),
-    path('inventory-item-roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='inventoryitemrole_changelog', kwargs={'model': InventoryItemRole}),
+    path('inventory-item-roles/<int:pk>/', include(get_model_urls('dcim', 'inventoryitemrole'))),
 
     # Cables
     path('cables/', views.CableListView.as_view(), name='cable_list'),
@@ -448,8 +412,7 @@ urlpatterns = [
     path('cables/<int:pk>/', views.CableView.as_view(), name='cable'),
     path('cables/<int:pk>/edit/', views.CableEditView.as_view(), name='cable_edit'),
     path('cables/<int:pk>/delete/', views.CableDeleteView.as_view(), name='cable_delete'),
-    path('cables/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='cable_changelog', kwargs={'model': Cable}),
-    path('cables/<int:pk>/journal/', ObjectJournalView.as_view(), name='cable_journal', kwargs={'model': Cable}),
+    path('cables/<int:pk>/', include(get_model_urls('dcim', 'cable'))),
 
     # Console/power/interface connections (read-only)
     path('console-connections/', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),
@@ -465,9 +428,8 @@ urlpatterns = [
     path('virtual-chassis/<int:pk>/', views.VirtualChassisView.as_view(), name='virtualchassis'),
     path('virtual-chassis/<int:pk>/edit/', views.VirtualChassisEditView.as_view(), name='virtualchassis_edit'),
     path('virtual-chassis/<int:pk>/delete/', views.VirtualChassisDeleteView.as_view(), name='virtualchassis_delete'),
-    path('virtual-chassis/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='virtualchassis_changelog', kwargs={'model': VirtualChassis}),
-    path('virtual-chassis/<int:pk>/journal/', ObjectJournalView.as_view(), name='virtualchassis_journal', kwargs={'model': VirtualChassis}),
     path('virtual-chassis/<int:pk>/add-member/', views.VirtualChassisAddMemberView.as_view(), name='virtualchassis_add_member'),
+    path('virtual-chassis/<int:pk>/', include(get_model_urls('dcim', 'virtualchassis'))),
     path('virtual-chassis-members/<int:pk>/delete/', views.VirtualChassisRemoveMemberView.as_view(), name='virtualchassis_remove_member'),
 
     # Power panels
@@ -479,8 +441,7 @@ urlpatterns = [
     path('power-panels/<int:pk>/', views.PowerPanelView.as_view(), name='powerpanel'),
     path('power-panels/<int:pk>/edit/', views.PowerPanelEditView.as_view(), name='powerpanel_edit'),
     path('power-panels/<int:pk>/delete/', views.PowerPanelDeleteView.as_view(), name='powerpanel_delete'),
-    path('power-panels/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='powerpanel_changelog', kwargs={'model': PowerPanel}),
-    path('power-panels/<int:pk>/journal/', ObjectJournalView.as_view(), name='powerpanel_journal', kwargs={'model': PowerPanel}),
+    path('power-panels/<int:pk>/', include(get_model_urls('dcim', 'powerpanel'))),
 
     # Power feeds
     path('power-feeds/', views.PowerFeedListView.as_view(), name='powerfeed_list'),
@@ -493,7 +454,6 @@ urlpatterns = [
     path('power-feeds/<int:pk>/edit/', views.PowerFeedEditView.as_view(), name='powerfeed_edit'),
     path('power-feeds/<int:pk>/delete/', views.PowerFeedDeleteView.as_view(), name='powerfeed_delete'),
     path('power-feeds/<int:pk>/trace/', views.PathTraceView.as_view(), name='powerfeed_trace', kwargs={'model': PowerFeed}),
-    path('power-feeds/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='powerfeed_changelog', kwargs={'model': PowerFeed}),
-    path('power-feeds/<int:pk>/journal/', ObjectJournalView.as_view(), name='powerfeed_journal', kwargs={'model': PowerFeed}),
+    path('power-feeds/<int:pk>/', include(get_model_urls('dcim', 'powerfeed'))),
 
 ]

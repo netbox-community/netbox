@@ -148,6 +148,32 @@ These views are provided to enable or enhance certain NetBox model features, suc
 
 ## Extending Core Views
 
+### Additional Tabs
+
+Plugins can "attach" a custom view to a core NetBox model by registering it with `register_model_view()`. To include a tab for this view within the NetBox UI, declare a TabView instance named `tab`:
+
+```python
+from dcim.models import Site
+from myplugin.models import Stuff
+from netbox.views import generic
+from utilities.views import ViewTab, register_model_view
+
+@register_model_view(Site, 'mview', path='some-other-stuff')
+class MyView(generic.ObjectView):
+    ...
+    tab = ViewTab(
+        label='Other Stuff',
+        badge=lambda obj: Stuff.objects.filter(site=obj).count(),
+        permission='myplugin.view_stuff'
+    )
+```
+
+::: utilities.views.register_model_view
+
+::: utilities.views.ViewTab
+
+### Extra Template Content
+
 Plugins can inject custom content into certain areas of the detail views of applicable models. This is accomplished by subclassing `PluginTemplateExtension`, designating a particular NetBox model, and defining the desired methods to render custom content. Four methods are available:
 
 * `left_page()` - Inject content on the left side of the page

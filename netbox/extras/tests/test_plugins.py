@@ -59,6 +59,17 @@ class PluginTest(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_registered_views(self):
+
+        # Test URL resolution
+        url = reverse('dcim:site_extra', kwargs={'pk': 1})
+        self.assertEqual(url, '/dcim/sites/1/other-stuff/')
+
+        # Test GET request
+        client = Client()
+        response = client.get(url)
+        self.assertEqual(response.status_code, 200)
+
     def test_menu(self):
         """
         Check menu registration.

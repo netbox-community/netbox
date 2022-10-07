@@ -21,18 +21,3 @@
     </a>
   {% endif %}
 {% endblock %}
-
-{% block extra_tabs %}
-  {% with interface_count=object.interfaces.count %}
-      {% if interface_count %}
-          <li class="nav-item" role="presentation">
-              <a class="nav-link{% if active_tab == 'interfaces' %} active{% endif %}" href="{% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">Interfaces {% badge interface_count %}</a>
-          </li>
-      {% endif %}
-  {% endwith %}
-  {% if perms.extras.view_configcontext %}
-    <li class="nav-item" role="presentation">
-      <a class="nav-link{% if active_tab == 'config-context' %} active{% endif %}" href="{% url 'virtualization:virtualmachine_configcontext' pk=object.pk %}">Config Context</a>
-    </li>
-  {% endif %}
-{% endblock %}
