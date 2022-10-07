@@ -1,10 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
+from django.utils.translation import gettext as _
 from django.views.generic import View
 
 from extras import forms, tables
 from extras.models import *
+from utilities.views import ViewTab
 
 __all__ = (
     'ObjectChangeLogView',
@@ -23,6 +25,10 @@ class ObjectChangeLogView(View):
         base_template: The name of the template to extend. If not provided, "{app}/{model}.html" will be used.
     """
     base_template = None
+    tab = ViewTab(
+        label=_('Changelog'),
+        permission='extras.view_objectchange'
+    )
 
     def get(self, request, model, **kwargs):
 
@@ -71,6 +77,11 @@ class ObjectJournalView(View):
         base_template: The name of the template to extend. If not provided, "{app}/{model}.html" will be used.
     """
     base_template = None
+    tab = ViewTab(
+        label=_('Journal'),
+        badge=lambda obj: obj.journal_entries.count(),
+        permission='extras.view_journalentry'
+    )
 
     def get(self, request, model, **kwargs):
 

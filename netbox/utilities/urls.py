@@ -22,14 +22,17 @@ def get_model_urls(app_label, model_name):
         # No views have been registered for this model
         views = []
 
-    for view in views:
+    for config in views:
         # Import the view class or function
-        callable = import_string(view['path'])
-        if issubclass(callable, View):
-            callable = callable.as_view()
+        if type(config['view']) is str:
+            view_ = import_string(config['view'])
+        else:
+            view_ = config['view']
+        if issubclass(view_, View):
+            view_ = view_.as_view()
         # Create a path to the view
         paths.append(
-            path(f"{view['name']}/", callable, name=f"{model_name}_{view['name']}", kwargs=view['kwargs'])
+            path(f"{config['name']}/", view_, name=f"{model_name}_{config['name']}", kwargs=config['kwargs'])
         )
 
     return paths

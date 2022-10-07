@@ -10,6 +10,7 @@ __all__ = (
     'ContentTypePermissionRequiredMixin',
     'GetReturnURLMixin',
     'ObjectPermissionRequiredMixin',
+    'ViewTab',
     'register_model_view',
 )
 
@@ -132,18 +133,23 @@ class GetReturnURLMixin:
         return reverse('home')
 
 
-def register_model_view(model, name, view_path, tab_label=None, tab_badge=None, tab_permission=None, kwargs=None):
+class ViewTab:
+
+    def __init__(self, label, badge=None, permission=None, always_display=True):
+        self.label = label
+        self.badge = badge
+        self.permission = permission
+        self.always_display = always_display
+
+
+def register_model_view(model, name, view, kwargs=None):
     """
     Register a subview for a core model.
 
     Args:
         model: The Django model class with which this view will be associated
         name: The name to register when creating a URL path
-        view_path: A dotted path to the view class or function (e.g. 'myplugin.views.FooView')
-        tab_label: The label to display for the view's tab under the model view (optional)
-        tab_badge: A static value or callable to display a badge within the view's tab (optional). If a callable is
-            specified, it must accept the current object as its single positional argument.
-        tab_permission: The name of the permission required to display the tab (optional)
+        view: A class-based or function view, or the dotted path to it (e.g. 'myplugin.views.FooView')
         kwargs: A dictionary of keyword arguments to send to the view (optional)
     """
     app_label = model._meta.app_label
@@ -154,9 +160,6 @@ def register_model_view(model, name, view_path, tab_label=None, tab_badge=None, 
 
     registry['views'][app_label][model_name].append({
         'name': name,
-        'path': view_path,
-        'tab_label': tab_label,
-        'tab_badge': tab_badge,
-        'tab_permission': tab_permission,
+        'view': view,
         'kwargs': kwargs or {},
     })
