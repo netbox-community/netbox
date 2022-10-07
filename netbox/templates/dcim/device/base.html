@@ -54,24 +54,3 @@
         </div>
     {% endif %}
 {% endblock %}
-
-{% block extra_tabs %}
-    {% if perms.dcim.napalm_read_device and object.status == 'active' and object.primary_ip and object.platform.napalm_driver %}
-        {# NAPALM-enabled tabs #}
-        <li role="presentation" class="nav-item">
-            <a class="nav-link{% if active_tab == 'status' %} active{% endif %}" href="{% url 'dcim:device_status' pk=object.pk %}">
-                Status
-            </a>
-        </li>
-        <li role="presentation" class="nav-item">
-            <a class="nav-link{% if active_tab == 'lldp-neighbors' %} active{% endif %}" href="{% url 'dcim:device_lldp_neighbors' pk=object.pk %}">
-                LLDP Neighbors
-            </a>
-        </li>
-        <li role="presentation" class="nav-item">
-            <a class="nav-link{% if active_tab == 'config' %} active{% endif %}" href="{% url 'dcim:device_config' pk=object.pk %}">
-                Configuration
-            </a>
-        </li>
-    {% endif %}
-{% endblock %}

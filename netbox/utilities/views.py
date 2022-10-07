@@ -134,12 +134,31 @@ class GetReturnURLMixin:
 
 
 class ViewTab:
-
-    def __init__(self, label, badge=None, permission=None, always_display=True):
+    """
+    ViewTabs are used for navigation among multiple object-specific views, such as the changelog or journal for
+    a particular object.
+    """
+    def __init__(self, label, badge=None, permission=None):
         self.label = label
         self.badge = badge
         self.permission = permission
-        self.always_display = always_display
+
+    def render(self, instance):
+        """Return the attributes needed to render a tab in HTML."""
+        badge_value = self._get_badge_value(instance)
+        if self.badge and not badge_value:
+            return None
+        return {
+            'label': self.label,
+            'badge': badge_value,
+        }
+
+    def _get_badge_value(self, instance):
+        if not self.badge:
+            return None
+        if callable(self.badge):
+            return self.badge(instance)
+        return self.badge
 
 
 def register_model_view(model, name, path=None, kwargs=None):

@@ -32,24 +32,16 @@ def model_view_tabs(context, instance):
             if tab.permission and not user.has_perm(tab.permission):
                 continue
 
-            # Determine the value of the tab's badge (if any)
-            if tab.badge and callable(tab.badge):
-                badge_value = tab.badge(instance)
-            else:
-                badge_value = tab.badge
-
-            if not tab.always_display and not badge_value:
-                continue
-
-            viewname = f"{app_label}:{model_name}_{config['name']}"
-            active_tab = context.get('tab')
-            tabs.append({
-                'name': config['name'],
-                'url': reverse(viewname, args=[instance.pk]),
-                'label': tab.label,
-                'badge_value': badge_value,
-                'is_active': active_tab and active_tab == tab,
-            })
+            if attrs := tab.render(instance):
+                viewname = f"{app_label}:{model_name}_{config['name']}"
+                active_tab = context.get('tab')
+                tabs.append({
+                    'name': config['name'],
+                    'url': reverse(viewname, args=[instance.pk]),
+                    'label': attrs['label'],
+                    'badge': attrs['badge'],
+                    'is_active': active_tab and active_tab == tab,
+                })
 
     return {
         'tabs': tabs,

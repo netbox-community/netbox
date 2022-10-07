@@ -1,8 +1,7 @@
 {% for tab in tabs %}
   <li role="presentation" class="nav-item">
     <a href="{{ tab.url }}" class="nav-link{% if tab.is_active %} active{% endif %}">
-      {{ tab.label }}
-      {% if tab.badge_value %}{% badge tab.badge_value %}{% endif %}
+      {{ tab.label }} {% badge tab.badge %}
     </a>
   </li>
 {% endfor %}
