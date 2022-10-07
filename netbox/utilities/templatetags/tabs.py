@@ -41,12 +41,14 @@ def model_view_tabs(context, instance):
             if not tab.always_display and not badge_value:
                 continue
 
+            viewname = f"{app_label}:{model_name}_{config['name']}"
+            active_tab = context.get('tab')
             tabs.append({
                 'name': config['name'],
-                'url': reverse(f"{app_label}:{model_name}_{config['name']}", args=[instance.pk]),
+                'url': reverse(viewname, args=[instance.pk]),
                 'label': tab.label,
                 'badge_value': badge_value,
-                'is_active': context.get('active_tab') == config['name'],
+                'is_active': active_tab and active_tab == tab,
             })
 
     return {

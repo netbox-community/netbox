@@ -141,8 +141,6 @@ urlpatterns = [
     path('vlans/edit/', views.VLANBulkEditView.as_view(), name='vlan_bulk_edit'),
     path('vlans/delete/', views.VLANBulkDeleteView.as_view(), name='vlan_bulk_delete'),
     path('vlans/<int:pk>/', views.VLANView.as_view(), name='vlan'),
-    path('vlans/<int:pk>/interfaces/', views.VLANInterfacesView.as_view(), name='vlan_interfaces'),
-    path('vlans/<int:pk>/vm-interfaces/', views.VLANVMInterfacesView.as_view(), name='vlan_vminterfaces'),
     path('vlans/<int:pk>/edit/', views.VLANEditView.as_view(), name='vlan_edit'),
     path('vlans/<int:pk>/delete/', views.VLANDeleteView.as_view(), name='vlan_delete'),
     path('vlans/<int:pk>/', include(get_model_urls('ipam', 'vlan'))),

@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
-from django.forms.widgets import HiddenInput
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -67,6 +66,7 @@ class ObjectView(BaseObjectView):
 
         return render(request, self.get_template_name(), {
             'object': instance,
+            'tab': self.tab,
             **self.get_extra_context(request, instance),
         })
 
@@ -141,6 +141,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
             'child_model': self.child_model,
             'table': table,
             'actions': actions,
+            'tab': self.tab,
             **self.get_extra_context(request, instance),
         })
 

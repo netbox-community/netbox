@@ -179,11 +179,6 @@ class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     def get_children(self, request, parent):
         return VirtualMachine.objects.restrict(request.user, 'view').filter(cluster=parent)
 
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'virtualmachines',
-        }
-
 
 @register_model_view(Cluster, 'devices')
 class ClusterDevicesView(generic.ObjectChildrenView):
@@ -200,11 +195,6 @@ class ClusterDevicesView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return Device.objects.restrict(request.user, 'view').filter(cluster=parent)
-
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'devices',
-        }
 
 
 class ClusterEditView(generic.ObjectEditView):
@@ -376,11 +366,6 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
             'tags',
         )
-
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'interfaces',
-        }
 
 
 @register_model_view(VirtualMachine, 'configcontext', path='config-context')

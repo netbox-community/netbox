@@ -46,11 +46,6 @@ class DeviceComponentsView(generic.ObjectChildrenView):
     def get_children(self, request, parent):
         return self.child_model.objects.restrict(request.user, 'view').filter(device=parent)
 
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': f"{self.child_model._meta.verbose_name_plural.replace(' ', '')}",
-        }
-
 
 class DeviceTypeComponentsView(DeviceComponentsView):
     queryset = DeviceType.objects.all()
@@ -61,9 +56,7 @@ class DeviceTypeComponentsView(DeviceComponentsView):
         return self.child_model.objects.restrict(request.user, 'view').filter(device_type=parent)
 
     def get_extra_context(self, request, instance):
-        model_name = self.child_model._meta.verbose_name_plural
         return {
-            'active_tab': f"{model_name.replace(' ', '').replace('template', '')}",
             'return_url': reverse(self.viewname, kwargs={'pk': instance.pk}),
         }
 
@@ -77,9 +70,7 @@ class ModuleTypeComponentsView(DeviceComponentsView):
         return self.child_model.objects.restrict(request.user, 'view').filter(module_type=parent)
 
     def get_extra_context(self, request, instance):
-        model_name = self.child_model._meta.verbose_name_plural
         return {
-            'active_tab': f"{model_name.replace(' ', '').replace('template', '')}",
             'return_url': reverse(self.viewname, kwargs={'pk': instance.pk}),
         }
 

@@ -319,7 +319,6 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
     def get_extra_context(self, request, instance):
         return {
             'bulk_querystring': f'within={instance.prefix}',
-            'active_tab': 'prefixes',
             'first_available_prefix': instance.get_first_available_prefix(),
             'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
             'show_assigned': bool(request.GET.get('show_assigned', 'true') == 'true'),
@@ -502,7 +501,6 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
     def get_extra_context(self, request, instance):
         return {
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&within={instance.prefix}",
-            'active_tab': 'prefixes',
             'first_available_prefix': instance.get_first_available_prefix(),
             'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
             'show_assigned': bool(request.GET.get('show_assigned', 'true') == 'true'),
@@ -530,7 +528,6 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
     def get_extra_context(self, request, instance):
         return {
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&parent={instance.prefix}",
-            'active_tab': 'ipranges',
             'first_available_ip': instance.get_first_available_ip(),
         }
 
@@ -559,7 +556,6 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
     def get_extra_context(self, request, instance):
         return {
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&parent={instance.prefix}",
-            'active_tab': 'ipaddresses',
             'first_available_ip': instance.get_first_available_ip(),
         }
 
@@ -622,11 +618,6 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_child_ips().restrict(request.user, 'view')
-
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'ipaddresses',
-        }
 
 
 class IPRangeEditView(generic.ObjectEditView):
@@ -1032,36 +1023,38 @@ class VLANView(generic.ObjectView):
         }
 
 
+@register_model_view(VLAN, 'interfaces')
 class VLANInterfacesView(generic.ObjectChildrenView):
     queryset = VLAN.objects.all()
     child_model = Interface
     table = tables.VLANDevicesTable
     filterset = InterfaceFilterSet
     template_name = 'ipam/vlan/interfaces.html'
+    tab = ViewTab(
+        label=_('Device Interfaces'),
+        badge=lambda x: x.get_interfaces().count(),
+        permission='dcim.view_interface'
+    )
 
     def get_children(self, request, parent):
         return parent.get_interfaces().restrict(request.user, 'view')
 
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'interfaces',
-        }
 
-
+@register_model_view(VLAN, 'vminterfaces', path='vm-interfaces')
 class VLANVMInterfacesView(generic.ObjectChildrenView):
     queryset = VLAN.objects.all()
     child_model = VMInterface
     table = tables.VLANVirtualMachinesTable
     filterset = VMInterfaceFilterSet
     template_name = 'ipam/vlan/vminterfaces.html'
+    tab = ViewTab(
+        label=_('VM Interfaces'),
+        badge=lambda x: x.get_vminterfaces().count(),
+        permission='virtualization.view_vminterface'
+    )
 
     def get_children(self, request, parent):
         return parent.get_vminterfaces().restrict(request.user, 'view')
-
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'vminterfaces',
-        }
 
 
 class VLANEditView(generic.ObjectEditView):

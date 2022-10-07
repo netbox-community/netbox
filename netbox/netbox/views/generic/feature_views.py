@@ -62,7 +62,7 @@ class ObjectChangeLogView(View):
             'object': obj,
             'table': objectchanges_table,
             'base_template': self.base_template,
-            'active_tab': 'changelog',
+            'tab': self.tab,
         })
 
 
@@ -122,5 +122,5 @@ class ObjectJournalView(View):
             'form': form,
             'table': journalentry_table,
             'base_template': self.base_template,
-            'active_tab': 'journal',
+            'tab': self.tab,
         })

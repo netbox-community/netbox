@@ -14,6 +14,7 @@ class BaseObjectView(ObjectPermissionRequiredMixin, View):
     """
     queryset = None
     template_name = None
+    tab = None
 
     def get_object(self, **kwargs):
         """

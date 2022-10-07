@@ -81,7 +81,7 @@ Context:
   <ul class="nav nav-tabs px-3">
     {# Primary tab #}
     <li class="nav-item" role="presentation">
-      <a class="nav-link{% if not active_tab %} active{% endif %}" href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
+      <a class="nav-link{% if not tab %} active{% endif %}" href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
     </li>
 
     {# Include any extra tabs passed by the view #}
