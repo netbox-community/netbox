@@ -534,13 +534,13 @@ class JobResult(models.Model):
         return str(self.job_id)
 
     def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+
         queue = django_rq.get_queue("default")
         job = queue.fetch_job(str(self.job_id))
 
         if job:
             job.cancel()
-
-        return super().delete(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse(f'extras:{self.obj_type.name}_result', args=[self.pk])
