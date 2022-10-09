@@ -552,6 +552,7 @@ class FHRPGroupTest(APIViewTestCases.APIViewTestCase):
         'group_id': 200,
         'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
         'auth_key': 'foobarbaz999',
+        'name': 'foobar-999',
         'description': 'New description',
     }
 

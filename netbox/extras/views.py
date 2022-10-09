@@ -12,7 +12,7 @@ from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.htmx import is_htmx
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
-from utilities.views import ContentTypePermissionRequiredMixin
+from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
 from .forms.reports import ReportForm
@@ -32,15 +32,18 @@ class CustomFieldListView(generic.ObjectListView):
     table = tables.CustomFieldTable
 
 
+@register_model_view(CustomField)
 class CustomFieldView(generic.ObjectView):
     queryset = CustomField.objects.all()
 
 
+@register_model_view(CustomField, 'edit')
 class CustomFieldEditView(generic.ObjectEditView):
     queryset = CustomField.objects.all()
     form = forms.CustomFieldForm
 
 
+@register_model_view(CustomField, 'delete')
 class CustomFieldDeleteView(generic.ObjectDeleteView):
     queryset = CustomField.objects.all()
 
@@ -75,15 +78,18 @@ class CustomLinkListView(generic.ObjectListView):
     table = tables.CustomLinkTable
 
 
+@register_model_view(CustomLink)
 class CustomLinkView(generic.ObjectView):
     queryset = CustomLink.objects.all()
 
 
+@register_model_view(CustomLink, 'edit')
 class CustomLinkEditView(generic.ObjectEditView):
     queryset = CustomLink.objects.all()
     form = forms.CustomLinkForm
 
 
+@register_model_view(CustomLink, 'delete')
 class CustomLinkDeleteView(generic.ObjectDeleteView):
     queryset = CustomLink.objects.all()
 
@@ -118,15 +124,18 @@ class ExportTemplateListView(generic.ObjectListView):
     table = tables.ExportTemplateTable
 
 
+@register_model_view(ExportTemplate)
 class ExportTemplateView(generic.ObjectView):
     queryset = ExportTemplate.objects.all()
 
 
+@register_model_view(ExportTemplate, 'edit')
 class ExportTemplateEditView(generic.ObjectEditView):
     queryset = ExportTemplate.objects.all()
     form = forms.ExportTemplateForm
 
 
+@register_model_view(ExportTemplate, 'delete')
 class ExportTemplateDeleteView(generic.ObjectDeleteView):
     queryset = ExportTemplate.objects.all()
 
@@ -161,15 +170,18 @@ class WebhookListView(generic.ObjectListView):
     table = tables.WebhookTable
 
 
+@register_model_view(Webhook)
 class WebhookView(generic.ObjectView):
     queryset = Webhook.objects.all()
 
 
+@register_model_view(Webhook, 'edit')
 class WebhookEditView(generic.ObjectEditView):
     queryset = Webhook.objects.all()
     form = forms.WebhookForm
 
 
+@register_model_view(Webhook, 'delete')
 class WebhookDeleteView(generic.ObjectDeleteView):
     queryset = Webhook.objects.all()
 
@@ -206,6 +218,7 @@ class TagListView(generic.ObjectListView):
     table = tables.TagTable
 
 
+@register_model_view(Tag)
 class TagView(generic.ObjectView):
     queryset = Tag.objects.all()
 
@@ -231,11 +244,13 @@ class TagView(generic.ObjectView):
         }
 
 
+@register_model_view(Tag, 'edit')
 class TagEditView(generic.ObjectEditView):
     queryset = Tag.objects.all()
     form = forms.TagForm
 
 
+@register_model_view(Tag, 'delete')
 class TagDeleteView(generic.ObjectDeleteView):
     queryset = Tag.objects.all()
 
@@ -273,6 +288,7 @@ class ConfigContextListView(generic.ObjectListView):
     actions = ('add', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(ConfigContext)
 class ConfigContextView(generic.ObjectView):
     queryset = ConfigContext.objects.all()
 
@@ -310,6 +326,7 @@ class ConfigContextView(generic.ObjectView):
         }
 
 
+@register_model_view(ConfigContext, 'edit')
 class ConfigContextEditView(generic.ObjectEditView):
     queryset = ConfigContext.objects.all()
     form = forms.ConfigContextForm
@@ -322,6 +339,7 @@ class ConfigContextBulkEditView(generic.BulkEditView):
     form = forms.ConfigContextBulkEditForm
 
 
+@register_model_view(ConfigContext, 'delete')
 class ConfigContextDeleteView(generic.ObjectDeleteView):
     queryset = ConfigContext.objects.all()
 
@@ -353,7 +371,6 @@ class ObjectConfigContextView(generic.ObjectView):
             'source_contexts': source_contexts,
             'format': format,
             'base_template': self.base_template,
-            'active_tab': 'config-context',
         }
 
 
@@ -370,6 +387,7 @@ class ObjectChangeListView(generic.ObjectListView):
     actions = ('export',)
 
 
+@register_model_view(ObjectChange)
 class ObjectChangeView(generic.ObjectView):
     queryset = ObjectChange.objects.all()
 
@@ -427,6 +445,7 @@ class ObjectChangeView(generic.ObjectView):
 # Image attachments
 #
 
+@register_model_view(ImageAttachment, 'edit')
 class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()
     form = forms.ImageAttachmentForm
@@ -449,6 +468,7 @@ class ImageAttachmentEditView(generic.ObjectEditView):
         }
 
 
+@register_model_view(ImageAttachment, 'delete')
 class ImageAttachmentDeleteView(generic.ObjectDeleteView):
     queryset = ImageAttachment.objects.all()
 
@@ -468,10 +488,12 @@ class JournalEntryListView(generic.ObjectListView):
     actions = ('export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(JournalEntry)
 class JournalEntryView(generic.ObjectView):
     queryset = JournalEntry.objects.all()
 
 
+@register_model_view(JournalEntry, 'edit')
 class JournalEntryEditView(generic.ObjectEditView):
     queryset = JournalEntry.objects.all()
     form = forms.JournalEntryForm
@@ -489,6 +511,7 @@ class JournalEntryEditView(generic.ObjectEditView):
         return reverse(viewname, kwargs={'pk': obj.pk})
 
 
+@register_model_view(JournalEntry, 'delete')
 class JournalEntryDeleteView(generic.ObjectDeleteView):
     queryset = JournalEntry.objects.all()
 

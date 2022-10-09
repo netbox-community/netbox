@@ -41,6 +41,10 @@ Indicates whether this is a parent type (capable of housing child devices), a ch
 
 The default direction in which airflow circulates within the device chassis. This may be configured differently for instantiated devices (e.g. because of different fan modules).
 
+### Weight
+
+The numeric weight of the device, including a unit designation (e.g. 10 kilograms or 20 pounds).
+
 ### Front & Rear Images
 
 Users can upload illustrations of the device's front and rear panels. If present, these will be used to render the device in [rack](./rack.md) elevation diagrams.

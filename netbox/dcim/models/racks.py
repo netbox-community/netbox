@@ -1,14 +1,14 @@
 import decimal
+from functools import cached_property
 
 from django.apps import apps
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count, Sum
+from django.db.models import Count
 from django.urls import reverse
 
 from dcim.choices import *
@@ -18,8 +18,9 @@ from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.utils import array_to_string, drange
-from .device_components import PowerOutlet, PowerPort
-from .devices import Device
+from .device_components import PowerPort
+from .devices import Device, Module
+from .mixins import WeightMixin
 from .power import PowerFeed
 
 __all__ = (
@@ -63,7 +64,7 @@ class RackRole(OrganizationalModel):
         return reverse('dcim:rackrole', args=[self.pk])
 
 
-class Rack(NetBoxModel):
+class Rack(NetBoxModel, WeightMixin):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
@@ -186,15 +187,21 @@ class Rack(NetBoxModel):
 
     clone_fields = (
         'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
-        'outer_depth', 'outer_unit',
+        'outer_depth', 'outer_unit', 'weight', 'weight_unit',
     )
 
     class Meta:
         ordering = ('site', 'location', '_name', 'pk')  # (site, location, name) may be non-unique
-        unique_together = (
+        constraints = (
             # Name and facility_id must be unique *only* within a Location
-            ('location', 'name'),
-            ('location', 'facility_id'),
+            models.UniqueConstraint(
+                fields=('location', 'name'),
+                name='%(app_label)s_%(class)s_unique_location_name'
+            ),
+            models.UniqueConstraint(
+                fields=('location', 'facility_id'),
+                name='%(app_label)s_%(class)s_unique_location_facility_id'
+            ),
         )
 
     def __str__(self):
@@ -448,6 +455,22 @@ class Rack(NetBoxModel):
         ])
 
         return int(allocated_draw / available_power_total * 100)
+
+    @cached_property
+    def total_weight(self):
+        total_weight = sum(
+            device.device_type._abs_weight
+            for device in self.devices.exclude(device_type___abs_weight__isnull=True).prefetch_related('device_type')
+        )
+        total_weight += sum(
+            module.module_type._abs_weight
+            for module in Module.objects.filter(device__rack=self)
+            .exclude(module_type___abs_weight__isnull=True)
+            .prefetch_related('module_type')
+        )
+        if self._abs_weight:
+            total_weight += self._abs_weight
+        return round(total_weight / 1000, 2)
 
 
 class RackReservation(NetBoxModel):

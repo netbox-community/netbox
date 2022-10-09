@@ -73,9 +73,9 @@ def humanize_megabytes(mb):
     """
     if not mb:
         return ''
-    if mb >= 1048576:
+    if not mb % 1048576:  # 1024^2
         return f'{int(mb / 1048576)} TB'
-    if mb >= 1024:
+    if not mb % 1024:
         return f'{int(mb / 1024)} GB'
     return f'{mb} MB'
 

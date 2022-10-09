@@ -49,24 +49,6 @@ class MyModel(NetBoxModel):
     ...
 ```
 
-### The `clone()` Method
-
-!!! info
-    This method was introduced in NetBox v3.3.
-
-The `NetBoxModel` class includes a `clone()` method to be used for gathering attributes which can be used to create a "cloned" instance. This is used primarily for form initialization, e.g. when using the "clone" button in the NetBox UI. By default, this method will replicate any fields listed in the model's `clone_fields` list, if defined.
-
-Plugin models can leverage this method by defining `clone_fields` as a list of field names to be replicated, or override this method to replace or extend its content:
-
-```python
-class MyModel(NetBoxModel):
-
-    def clone(self):
-        attrs = super().clone()
-        attrs['extra-value'] = 123
-        return attrs
-```
-
 ### Enabling Features Individually
 
 If you prefer instead to enable only a subset of these features for a plugin model, NetBox provides a discrete "mix-in" class for each feature. You can subclass each of these individually when defining your model. (Your model will also need to inherit from Django's built-in `Model` class.)
@@ -115,6 +97,8 @@ For more information about database migrations, see the [Django documentation](h
     Please note that only the classes which appear in this documentation are currently supported. Although other classes may be present within the `features` module, they are not yet supported for use by plugins.
 
 ::: netbox.models.features.ChangeLoggingMixin
+
+::: netbox.models.features.CloningMixin
 
 ::: netbox.models.features.CustomLinksMixin
 

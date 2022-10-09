@@ -8,12 +8,14 @@ from tenancy.models import Tenant
 
 class VirtualMachineTestCase(TestCase):
 
-    def test_vm_duplicate_name_per_cluster(self):
+    @classmethod
+    def setUpTestData(cls):
         cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
-        cluster = Cluster.objects.create(name='Cluster 1', type=cluster_type)
+        Cluster.objects.create(name='Cluster 1', type=cluster_type)
 
+    def test_vm_duplicate_name_per_cluster(self):
         vm1 = VirtualMachine(
-            cluster=cluster,
+            cluster=Cluster.objects.first(),
             name='Test VM 1'
         )
         vm1.save()
@@ -43,7 +45,7 @@ class VirtualMachineTestCase(TestCase):
         vm2.save()
 
     def test_vm_mismatched_site_cluster(self):
-        cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        cluster_type = ClusterType.objects.first()
 
         sites = (
             Site(name='Site 1', slug='site-1'),
@@ -68,6 +70,23 @@ class VirtualMachineTestCase(TestCase):
         with self.assertRaises(ValidationError):
             VirtualMachine(name='vm1', site=sites[0], cluster=clusters[1]).full_clean()
 
-        # VM with cluster site but no direct site should fail
+        # VM with cluster site but no direct site should have its site set automatically
+        vm = VirtualMachine(name='vm1', site=None, cluster=clusters[0])
+        vm.full_clean()
+        self.assertEqual(vm.site, sites[0])
+
+    def test_vm_name_case_sensitivity(self):
+        vm1 = VirtualMachine(
+            cluster=Cluster.objects.first(),
+            name='virtual machine 1'
+        )
+        vm1.save()
+
+        vm2 = VirtualMachine(
+            cluster=vm1.cluster,
+            name='VIRTUAL MACHINE 1'
+        )
+
+        # Uniqueness validation for name should ignore case
         with self.assertRaises(ValidationError):
-            VirtualMachine(name='vm1', site=None, cluster=clusters[0]).full_clean()
+            vm2.full_clean()

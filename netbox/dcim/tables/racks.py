@@ -4,6 +4,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Rack, RackReservation, RackRole
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenancyColumnsMixin
+from .template_code import DEVICE_WEIGHT
 
 __all__ = (
     'RackTable',
@@ -82,13 +83,17 @@ class RackTable(TenancyColumnsMixin, NetBoxTable):
         template_code="{{ record.outer_depth }} {{ record.outer_unit }}",
         verbose_name='Outer Depth'
     )
+    weight = columns.TemplateColumn(
+        template_code=DEVICE_WEIGHT,
+        order_by=('_abs_weight', 'weight_unit')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = Rack
         fields = (
-            'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'tenant_group', 'role', 'serial', 'asset_tag',
-            'type', 'width', 'outer_width', 'outer_depth', 'u_height', 'comments', 'device_count', 'get_utilization',
-            'get_power_utilization', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'tenant_group', 'role', 'serial',
+            'asset_tag', 'type', 'width', 'outer_width', 'outer_depth', 'u_height', 'weight', 'comments',
+            'device_count', 'get_utilization', 'get_power_utilization', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',

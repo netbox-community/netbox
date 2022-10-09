@@ -13,6 +13,7 @@ Custom fields may be created by navigating to Customization > Custom Fields. Net
 * Text: Free-form text (intended for single-line use)
 * Long text: Free-form of any length; supports Markdown rendering
 * Integer: A whole number (positive or negative)
+* Decimal: A fixed-precision decimal number (4 decimal places)
 * Boolean: True or false
 * Date: A date in ISO 8601 format (YYYY-MM-DD)
 * URL: This will be presented as a link in the web UI

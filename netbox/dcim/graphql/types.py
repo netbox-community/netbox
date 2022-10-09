@@ -211,6 +211,9 @@ class DeviceTypeType(NetBoxObjectType):
     def resolve_airflow(self, info):
         return self.airflow or None
 
+    def resolve_weight_unit(self, info):
+        return self.weight_unit or None
+
 
 class FrontPortType(ComponentObjectType, CabledObjectMixin):
 
@@ -328,6 +331,9 @@ class ModuleTypeType(NetBoxObjectType):
         fields = '__all__'
         filterset_class = filtersets.ModuleTypeFilterSet
 
+    def resolve_weight_unit(self, info):
+        return self.weight_unit or None
+
 
 class PlatformType(OrganizationalObjectType):
 
@@ -415,6 +421,9 @@ class RackType(VLANGroupsMixin, ImageAttachmentsMixin, NetBoxObjectType):
 
     def resolve_outer_unit(self, info):
         return self.outer_unit or None
+
+    def resolve_weight_unit(self, info):
+        return self.weight_unit or None
 
 
 class RackReservationType(NetBoxObjectType):

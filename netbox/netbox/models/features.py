@@ -4,7 +4,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models.signals import class_prepared
 from django.dispatch import receiver
 
-from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import ValidationError
 from django.db import models
 from taggit.managers import TaggableManager
@@ -12,7 +11,9 @@ from taggit.managers import TaggableManager
 from extras.choices import CustomFieldVisibilityChoices, ObjectChangeActionChoices
 from extras.utils import is_taggable, register_features
 from netbox.signals import post_clean
+from utilities.json import CustomFieldJSONEncoder
 from utilities.utils import serialize_object
+from utilities.views import register_model_view
 
 __all__ = (
     'ChangeLoggingMixin',
@@ -92,8 +93,17 @@ class CloningMixin(models.Model):
 
     def clone(self):
         """
-        Return a dictionary of attributes suitable for creating a copy of the current instance. This is used for pre-
-        populating an object creation form in the UI.
+        Returns a dictionary of attributes suitable for creating a copy of the current instance. This is used for pre-
+        populating an object creation form in the UI. By default, this method will replicate any fields listed in the
+        model's `clone_fields` list (if defined), but it can be overridden to apply custom logic.
+
+        ```python
+        class MyModel(NetBoxModel):
+            def clone(self):
+                attrs = super().clone()
+                attrs['extra-value'] = 123
+                return attrs
+        ```
         """
         attrs = {}
 
@@ -115,7 +125,7 @@ class CustomFieldsMixin(models.Model):
     Enables support for custom fields.
     """
     custom_field_data = models.JSONField(
-        encoder=DjangoJSONEncoder,
+        encoder=CustomFieldJSONEncoder,
         blank=True,
         default=dict
     )
@@ -283,3 +293,17 @@ def _register_features(sender, **kwargs):
         feature for feature, cls in FEATURES_MAP if issubclass(sender, cls)
     }
     register_features(sender, features)
+
+    # Feature view registration
+    if issubclass(sender, JournalingMixin):
+        register_model_view(
+            sender,
+            'journal',
+            kwargs={'model': sender}
+        )('netbox.views.generic.ObjectJournalView')
+    if issubclass(sender, ChangeLoggingMixin):
+        register_model_view(
+            sender,
+            'changelog',
+            kwargs={'model': sender}
+        )('netbox.views.generic.ObjectChangeLogView')

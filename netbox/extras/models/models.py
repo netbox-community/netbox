@@ -131,7 +131,12 @@ class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
 
     class Meta:
         ordering = ('name',)
-        unique_together = ('payload_url', 'type_create', 'type_update', 'type_delete',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('payload_url', 'type_create', 'type_update', 'type_delete'),
+                name='%(app_label)s_%(class)s_unique_payload_url_types'
+            ),
+        )
 
     def __str__(self):
         return self.name
@@ -297,9 +302,12 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
 
     class Meta:
         ordering = ['content_type', 'name']
-        unique_together = [
-            ['content_type', 'name']
-        ]
+        constraints = (
+            models.UniqueConstraint(
+                fields=('content_type', 'name'),
+                name='%(app_label)s_%(class)s_unique_content_type_name'
+            ),
+        )
 
     def __str__(self):
         return f"{self.content_type}: {self.name}"
@@ -462,6 +470,14 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin
 
     def get_absolute_url(self):
         return reverse('extras:journalentry', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        # Prevent the creation of journal entries on unsupported models
+        permitted_types = ContentType.objects.filter(FeatureQuery('journaling').get_query())
+        if self.assigned_object_type not in permitted_types:
+            raise ValidationError(f"Journaling is not supported for this object type ({self.assigned_object_type}).")
 
     def get_kind_color(self):
         return JournalEntryKindChoices.colors.get(self.kind)

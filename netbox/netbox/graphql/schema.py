@@ -12,12 +12,12 @@ from wireless.graphql.schema import WirelessQuery
 
 
 class Query(
+    UsersQuery,
     CircuitsQuery,
     DCIMQuery,
     ExtrasQuery,
     IPAMQuery,
     TenancyQuery,
-    UsersQuery,
     VirtualizationQuery,
     WirelessQuery,
     *registry['plugins']['graphql_schemas'],  # Append plugin schemas

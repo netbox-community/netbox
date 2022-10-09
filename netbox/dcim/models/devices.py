@@ -1,6 +1,7 @@
 import decimal
-
 import yaml
+
+from functools import cached_property
 
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
@@ -8,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, ProtectedError
+from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
@@ -20,6 +22,7 @@ from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from .device_components import *
+from .mixins import WeightMixin
 
 
 __all__ = (
@@ -70,7 +73,7 @@ class Manufacturer(OrganizationalModel):
         return reverse('dcim:manufacturer', args=[self.pk])
 
 
-class DeviceType(NetBoxModel):
+class DeviceType(NetBoxModel, WeightMixin):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
@@ -138,15 +141,21 @@ class DeviceType(NetBoxModel):
     )
 
     clone_fields = (
-        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
+        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
     )
 
     class Meta:
         ordering = ['manufacturer', 'model']
-        unique_together = [
-            ['manufacturer', 'model'],
-            ['manufacturer', 'slug'],
-        ]
+        constraints = (
+            models.UniqueConstraint(
+                fields=('manufacturer', 'model'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_model'
+            ),
+            models.UniqueConstraint(
+                fields=('manufacturer', 'slug'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_slug'
+            ),
+        )
 
     def __str__(self):
         return self.model
@@ -268,7 +277,7 @@ class DeviceType(NetBoxModel):
 
         if (
                 self.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT
-        ) and self.devicebaytemplates.count():
+        ) and self.pk and self.devicebaytemplates.count():
             raise ValidationError({
                 'subdevice_role': "Must delete all device bay templates associated with this device before "
                                   "declassifying it as a parent device."
@@ -308,7 +317,7 @@ class DeviceType(NetBoxModel):
         return self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD
 
 
-class ModuleType(NetBoxModel):
+class ModuleType(NetBoxModel, WeightMixin):
     """
     A ModuleType represents a hardware element that can be installed within a device and which houses additional
     components; for example, a line card within a chassis-based switch such as the Cisco Catalyst 6500. Like a
@@ -337,12 +346,15 @@ class ModuleType(NetBoxModel):
         to='extras.ImageAttachment'
     )
 
-    clone_fields = ('manufacturer',)
+    clone_fields = ('manufacturer', 'weight', 'weight_unit',)
 
     class Meta:
         ordering = ('manufacturer', 'model')
-        unique_together = (
-            ('manufacturer', 'model'),
+        constraints = (
+            models.UniqueConstraint(
+                fields=('manufacturer', 'model'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_model'
+            ),
         )
 
     def __str__(self):
@@ -651,10 +663,25 @@ class Device(NetBoxModel, ConfigContextModel):
 
     class Meta:
         ordering = ('_name', 'pk')  # Name may be null
-        unique_together = (
-            ('site', 'tenant', 'name'),  # See validate_unique below
-            ('rack', 'position', 'face'),
-            ('virtual_chassis', 'vc_position'),
+        constraints = (
+            models.UniqueConstraint(
+                Lower('name'), 'site', 'tenant',
+                name='%(app_label)s_%(class)s_unique_name_site_tenant'
+            ),
+            models.UniqueConstraint(
+                Lower('name'), 'site',
+                name='%(app_label)s_%(class)s_unique_name_site',
+                condition=Q(tenant__isnull=True),
+                violation_error_message="Device name must be unique per site."
+            ),
+            models.UniqueConstraint(
+                fields=('rack', 'position', 'face'),
+                name='%(app_label)s_%(class)s_unique_rack_position_face'
+            ),
+            models.UniqueConstraint(
+                fields=('virtual_chassis', 'vc_position'),
+                name='%(app_label)s_%(class)s_unique_virtual_chassis_vc_position'
+            ),
         )
 
     def __str__(self):
@@ -678,23 +705,6 @@ class Device(NetBoxModel, ConfigContextModel):
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
-
-    def validate_unique(self, exclude=None):
-
-        # Check for a duplicate name on a device assigned to the same Site and no Tenant. This is necessary
-        # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
-        # of the uniqueness constraint without manual intervention.
-        if self.name and hasattr(self, 'site') and self.tenant is None:
-            if Device.objects.exclude(pk=self.pk).filter(
-                    name=self.name,
-                    site=self.site,
-                    tenant__isnull=True
-            ):
-                raise ValidationError({
-                    'name': 'A device with this name already exists.'
-                })
-
-        super().validate_unique(exclude)
 
     def clean(self):
         super().clean()
@@ -938,6 +948,18 @@ class Device(NetBoxModel, ConfigContextModel):
     def get_status_color(self):
         return DeviceStatusChoices.colors.get(self.status)
 
+    @cached_property
+    def total_weight(self):
+        total_weight = sum(
+            module.module_type._abs_weight
+            for module in Module.objects.filter(device=self)
+            .exclude(module_type___abs_weight__isnull=True)
+            .prefetch_related('module_type')
+        )
+        if self.device_type._abs_weight:
+            total_weight += self.device_type._abs_weight
+        return round(total_weight / 1000, 2)
+
 
 class Module(NetBoxModel, ConfigContextModel):
     """
@@ -986,6 +1008,14 @@ class Module(NetBoxModel, ConfigContextModel):
 
     def get_absolute_url(self):
         return reverse('dcim:module', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        if self.module_bay.device != self.device:
+            raise ValidationError(
+                f"Module must be installed within a module bay belonging to the assigned device ({self.device})."
+            )
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None

@@ -20,7 +20,7 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
     model = Provider
     brief_fields = ['circuit_count', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
-        'asn': 1234,
+        'account': '1234',
     }
 
     @classmethod

@@ -3,6 +3,7 @@ from django.db import transaction
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from dcim.filtersets import DeviceFilterSet
 from dcim.models import Device
@@ -12,6 +13,7 @@ from ipam.models import IPAddress, Service
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
 from utilities.utils import count_related
+from utilities.views import ViewTab, register_model_view
 from . import filtersets, forms, tables
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -29,6 +31,7 @@ class ClusterTypeListView(generic.ObjectListView):
     table = tables.ClusterTypeTable
 
 
+@register_model_view(ClusterType)
 class ClusterTypeView(generic.ObjectView):
     queryset = ClusterType.objects.all()
 
@@ -47,11 +50,13 @@ class ClusterTypeView(generic.ObjectView):
         }
 
 
+@register_model_view(ClusterType, 'edit')
 class ClusterTypeEditView(generic.ObjectEditView):
     queryset = ClusterType.objects.all()
     form = forms.ClusterTypeForm
 
 
+@register_model_view(ClusterType, 'delete')
 class ClusterTypeDeleteView(generic.ObjectDeleteView):
     queryset = ClusterType.objects.all()
 
@@ -91,6 +96,7 @@ class ClusterGroupListView(generic.ObjectListView):
     table = tables.ClusterGroupTable
 
 
+@register_model_view(ClusterGroup)
 class ClusterGroupView(generic.ObjectView):
     queryset = ClusterGroup.objects.all()
 
@@ -109,11 +115,13 @@ class ClusterGroupView(generic.ObjectView):
         }
 
 
+@register_model_view(ClusterGroup, 'edit')
 class ClusterGroupEditView(generic.ObjectEditView):
     queryset = ClusterGroup.objects.all()
     form = forms.ClusterGroupForm
 
 
+@register_model_view(ClusterGroup, 'delete')
 class ClusterGroupDeleteView(generic.ObjectDeleteView):
     queryset = ClusterGroup.objects.all()
 
@@ -157,47 +165,52 @@ class ClusterListView(generic.ObjectListView):
     filterset_form = forms.ClusterFilterForm
 
 
+@register_model_view(Cluster)
 class ClusterView(generic.ObjectView):
     queryset = Cluster.objects.all()
 
 
+@register_model_view(Cluster, 'virtualmachines', path='virtual-machines')
 class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     queryset = Cluster.objects.all()
     child_model = VirtualMachine
     table = tables.VirtualMachineTable
     filterset = filtersets.VirtualMachineFilterSet
     template_name = 'virtualization/cluster/virtual_machines.html'
+    tab = ViewTab(
+        label=_('Virtual Machines'),
+        badge=lambda obj: obj.virtual_machines.count(),
+        permission='virtualization.view_virtualmachine'
+    )
 
     def get_children(self, request, parent):
         return VirtualMachine.objects.restrict(request.user, 'view').filter(cluster=parent)
 
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'virtual-machines',
-        }
 
-
+@register_model_view(Cluster, 'devices')
 class ClusterDevicesView(generic.ObjectChildrenView):
     queryset = Cluster.objects.all()
     child_model = Device
     table = DeviceTable
     filterset = DeviceFilterSet
     template_name = 'virtualization/cluster/devices.html'
+    tab = ViewTab(
+        label=_('Devices'),
+        badge=lambda obj: obj.devices.count(),
+        permission='virtualization.view_virtualmachine'
+    )
 
     def get_children(self, request, parent):
         return Device.objects.restrict(request.user, 'view').filter(cluster=parent)
 
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'devices',
-        }
 
-
+@register_model_view(Cluster, 'edit')
 class ClusterEditView(generic.ObjectEditView):
     queryset = Cluster.objects.all()
     form = forms.ClusterForm
 
 
+@register_model_view(Cluster, 'delete')
 class ClusterDeleteView(generic.ObjectDeleteView):
     queryset = Cluster.objects.all()
 
@@ -221,6 +234,7 @@ class ClusterBulkDeleteView(generic.BulkDeleteView):
     table = tables.ClusterTable
 
 
+@register_model_view(Cluster, 'add_devices', path='devices/add')
 class ClusterAddDevicesView(generic.ObjectEditView):
     queryset = Cluster.objects.all()
     form = forms.ClusterAddDevicesForm
@@ -262,6 +276,7 @@ class ClusterAddDevicesView(generic.ObjectEditView):
         })
 
 
+@register_model_view(Cluster, 'remove_devices', path='devices/remove')
 class ClusterRemoveDevicesView(generic.ObjectEditView):
     queryset = Cluster.objects.all()
     form = forms.ClusterRemoveDevicesForm
@@ -315,6 +330,7 @@ class VirtualMachineListView(generic.ObjectListView):
     template_name = 'virtualization/virtualmachine_list.html'
 
 
+@register_model_view(VirtualMachine)
 class VirtualMachineView(generic.ObjectView):
     queryset = VirtualMachine.objects.prefetch_related('tenant__group')
 
@@ -344,12 +360,18 @@ class VirtualMachineView(generic.ObjectView):
         }
 
 
+@register_model_view(VirtualMachine, 'interfaces')
 class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     queryset = VirtualMachine.objects.all()
     child_model = VMInterface
     table = tables.VirtualMachineVMInterfaceTable
     filterset = filtersets.VMInterfaceFilterSet
     template_name = 'virtualization/virtualmachine/interfaces.html'
+    tab = ViewTab(
+        label=_('Interfaces'),
+        badge=lambda obj: obj.interfaces.count(),
+        permission='virtualization.view_vminterface'
+    )
 
     def get_children(self, request, parent):
         return parent.interfaces.restrict(request.user, 'view').prefetch_related(
@@ -357,22 +379,24 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
             'tags',
         )
 
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'interfaces',
-        }
 
-
+@register_model_view(VirtualMachine, 'configcontext', path='config-context')
 class VirtualMachineConfigContextView(ObjectConfigContextView):
     queryset = VirtualMachine.objects.annotate_config_context_data()
     base_template = 'virtualization/virtualmachine.html'
+    tab = ViewTab(
+        label=_('Config Context'),
+        permission='extras.view_configcontext'
+    )
 
 
+@register_model_view(VirtualMachine, 'edit')
 class VirtualMachineEditView(generic.ObjectEditView):
     queryset = VirtualMachine.objects.all()
     form = forms.VirtualMachineForm
 
 
+@register_model_view(VirtualMachine, 'delete')
 class VirtualMachineDeleteView(generic.ObjectDeleteView):
     queryset = VirtualMachine.objects.all()
 
@@ -408,6 +432,7 @@ class VMInterfaceListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(VMInterface)
 class VMInterfaceView(generic.ObjectView):
     queryset = VMInterface.objects.all()
 
@@ -453,11 +478,13 @@ class VMInterfaceCreateView(generic.ComponentCreateView):
     model_form = forms.VMInterfaceForm
 
 
+@register_model_view(VMInterface, 'edit')
 class VMInterfaceEditView(generic.ObjectEditView):
     queryset = VMInterface.objects.all()
     form = forms.VMInterfaceForm
 
 
+@register_model_view(VMInterface, 'delete')
 class VMInterfaceDeleteView(generic.ObjectDeleteView):
     queryset = VMInterface.objects.all()
 

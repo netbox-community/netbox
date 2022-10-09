@@ -144,89 +144,7 @@
                 <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as Connected
               </div>
             {% elif object.cable %}
-              <table class="table table-hover">
-                {% if object.connected_endpoint.device %}
-                  <tr>
-                    <td colspan="2">
-                      {% if object.connected_endpoint.enabled %}
-                        <span class="badge bg-success">Enabled</span>
-                      {% else %}
-                        <span class="badge bg-danger">Disabled</span>
-                      {% endif %}
-                    </td>
-                  </tr>
-                {% endif %}
-                <tr>
-                  <th scope="row">Cable</th>
-                  <td>
-                    {{ object.cable|linkify }}
-                    <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
-                      <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
-                    </a>
-                  </td>
-                </tr>
-                {% if object.connected_endpoint.device %}
-                  {% with iface=object.connected_endpoint %}
-                    <tr>
-                      <th scope="row">Device</th>
-                      <td>{{ iface.device|linkify }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Name</th>
-                      <td>{{ iface|linkify:"name" }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Type</th>
-                      <td>{{ iface.get_type_display }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">LAG</th>
-                      <td>{{ iface.lag|linkify|placeholder }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Description</th>
-                      <td>{{ iface.description|placeholder }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">MTU</th>
-                      <td>{{ iface.mtu|placeholder }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">MAC Address</th>
-                      <td>{{ iface.mac_address|placeholder }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">802.1Q Mode</th>
-                      <td>{{ iface.get_mode_display }}</td>
-                    </tr>
-                  {% endwith %}
-                {% elif object.connected_endpoint.circuit %}
-                  {% with ct=object.connected_endpoint %}
-                    <tr>
-                      <th scope="row">Provider</th>
-                      <td>{{ ct.circuit.provider|linkify }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Circuit</th>
-                      <td>{{ ct.circuit|linkify }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Side</th>
-                      <td>{{ ct.term_side }}</td>
-                    </tr>
-                  {% endwith %}
-                {% endif %}
-                <tr>
-                  <th scope="row">Path Status</th>
-                  <td>
-                    {% if object.path.is_complete and object.path.is_active %}
-                      <span class="badge bg-success">Reachable</span>
-                    {% else %}
-                      <span class="badge bg-danger">Not Reachable</span>
-                    {% endif %}
-                  </td>
-                </tr>
-              </table>
+              {% include 'dcim/inc/connection_endpoints.html' %}
             {% elif object.wireless_link %}
               <table class="table table-hover">
                 <tr>
@@ -238,7 +156,7 @@
                     </a>
                   </td>
                 </tr>
-                {% with peer_interface=object.connected_endpoint %}
+                {% with peer_interface=object.link_peers.0 %}
                   <tr>
                     <th scope="row">Device</th>
                     <td>{{ peer_interface.device|linkify }}</td>

@@ -12,7 +12,7 @@ from django.http import QueryDict
 from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
-from dcim.choices import CableLengthUnitChoices
+from dcim.choices import CableLengthUnitChoices, WeightUnitChoices
 from extras.plugins import PluginConfig
 from extras.utils import is_taggable
 from netbox.config import get_config
@@ -268,6 +268,31 @@ def to_meters(length, unit):
     if unit == CableLengthUnitChoices.UNIT_INCH:
         return length * Decimal(0.3048) * 12
     raise ValueError(f"Unknown unit {unit}. Must be 'km', 'm', 'cm', 'mi', 'ft', or 'in'.")
+
+
+def to_grams(weight, unit):
+    """
+    Convert the given weight to kilograms.
+    """
+    try:
+        if weight < 0:
+            raise ValueError("Weight must be a positive number")
+    except TypeError:
+        raise TypeError(f"Invalid value '{weight}' for weight (must be a number)")
+
+    valid_units = WeightUnitChoices.values()
+    if unit not in valid_units:
+        raise ValueError(f"Unknown unit {unit}. Must be one of the following: {', '.join(valid_units)}")
+
+    if unit == WeightUnitChoices.UNIT_KILOGRAM:
+        return weight * 1000
+    if unit == WeightUnitChoices.UNIT_GRAM:
+        return weight
+    if unit == WeightUnitChoices.UNIT_POUND:
+        return weight * Decimal(453.592)
+    if unit == WeightUnitChoices.UNIT_OUNCE:
+        return weight * Decimal(28.3495)
+    raise ValueError(f"Unknown unit {unit}. Must be 'kg', 'g', 'lb', 'oz'.")
 
 
 def render_jinja2(template_code, context):

@@ -62,37 +62,25 @@ class Region(NestedGroupModel):
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
-                name='dcim_region_parent_name'
+                name='%(app_label)s_%(class)s_parent_name'
             ),
             models.UniqueConstraint(
                 fields=('name',),
-                name='dcim_region_name',
-                condition=Q(parent=None)
+                name='%(app_label)s_%(class)s_name',
+                condition=Q(parent__isnull=True),
+                violation_error_message="A top-level region with this name already exists."
             ),
             models.UniqueConstraint(
                 fields=('parent', 'slug'),
-                name='dcim_region_parent_slug'
+                name='%(app_label)s_%(class)s_parent_slug'
             ),
             models.UniqueConstraint(
                 fields=('slug',),
-                name='dcim_region_slug',
-                condition=Q(parent=None)
+                name='%(app_label)s_%(class)s_slug',
+                condition=Q(parent__isnull=True),
+                violation_error_message="A top-level region with this slug already exists."
             ),
         )
-
-    def validate_unique(self, exclude=None):
-        if self.parent is None:
-            regions = Region.objects.exclude(pk=self.pk)
-            if regions.filter(name=self.name, parent__isnull=True).exists():
-                raise ValidationError({
-                    'name': 'A region with this name already exists.'
-                })
-            if regions.filter(slug=self.slug, parent__isnull=True).exists():
-                raise ValidationError({
-                    'name': 'A region with this slug already exists.'
-                })
-
-        super().validate_unique(exclude=exclude)
 
     def get_absolute_url(self):
         return reverse('dcim:region', args=[self.pk])
@@ -148,37 +136,25 @@ class SiteGroup(NestedGroupModel):
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
-                name='dcim_sitegroup_parent_name'
+                name='%(app_label)s_%(class)s_parent_name'
             ),
             models.UniqueConstraint(
                 fields=('name',),
-                name='dcim_sitegroup_name',
-                condition=Q(parent=None)
+                name='%(app_label)s_%(class)s_name',
+                condition=Q(parent__isnull=True),
+                violation_error_message="A top-level site group with this name already exists."
             ),
             models.UniqueConstraint(
                 fields=('parent', 'slug'),
-                name='dcim_sitegroup_parent_slug'
+                name='%(app_label)s_%(class)s_parent_slug'
             ),
             models.UniqueConstraint(
                 fields=('slug',),
-                name='dcim_sitegroup_slug',
-                condition=Q(parent=None)
+                name='%(app_label)s_%(class)s_slug',
+                condition=Q(parent__isnull=True),
+                violation_error_message="A top-level site group with this slug already exists."
             ),
         )
-
-    def validate_unique(self, exclude=None):
-        if self.parent is None:
-            site_groups = SiteGroup.objects.exclude(pk=self.pk)
-            if site_groups.filter(name=self.name, parent__isnull=True).exists():
-                raise ValidationError({
-                    'name': 'A site group with this name already exists.'
-                })
-            if site_groups.filter(slug=self.slug, parent__isnull=True).exists():
-                raise ValidationError({
-                    'name': 'A site group with this slug already exists.'
-                })
-
-        super().validate_unique(exclude=exclude)
 
     def get_absolute_url(self):
         return reverse('dcim:sitegroup', args=[self.pk])
@@ -379,37 +355,25 @@ class Location(NestedGroupModel):
         constraints = (
             models.UniqueConstraint(
                 fields=('site', 'parent', 'name'),
-                name='dcim_location_parent_name'
+                name='%(app_label)s_%(class)s_parent_name'
             ),
             models.UniqueConstraint(
                 fields=('site', 'name'),
-                name='dcim_location_name',
-                condition=Q(parent=None)
+                name='%(app_label)s_%(class)s_name',
+                condition=Q(parent__isnull=True),
+                violation_error_message="A location with this name already exists within the specified site."
             ),
             models.UniqueConstraint(
                 fields=('site', 'parent', 'slug'),
-                name='dcim_location_parent_slug'
+                name='%(app_label)s_%(class)s_parent_slug'
             ),
             models.UniqueConstraint(
                 fields=('site', 'slug'),
-                name='dcim_location_slug',
-                condition=Q(parent=None)
+                name='%(app_label)s_%(class)s_slug',
+                condition=Q(parent__isnull=True),
+                violation_error_message="A location with this slug already exists within the specified site."
             ),
         )
-
-    def validate_unique(self, exclude=None):
-        if self.parent is None:
-            locations = Location.objects.exclude(pk=self.pk)
-            if locations.filter(name=self.name, site=self.site, parent__isnull=True).exists():
-                raise ValidationError({
-                    "name": f"A location with this name in site {self.site} already exists."
-                })
-            if locations.filter(slug=self.slug, site=self.site, parent__isnull=True).exists():
-                raise ValidationError({
-                    "name": f"A location with this slug in site {self.site} already exists."
-                })
-
-        super().validate_unique(exclude=exclude)
 
     @classmethod
     def get_prerequisite_models(cls):
