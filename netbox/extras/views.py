@@ -815,6 +815,7 @@ class JobResultListView(generic.ObjectListView):
     table = tables.JobResultTable
     actions = ('delete', 'bulk_delete', )
 
+
 class JobResultDeleteView(generic.ObjectDeleteView):
     queryset = JobResult.objects.all()
 

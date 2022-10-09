@@ -528,13 +528,22 @@ class JobResult(models.Model):
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
-        ordering = ['obj_type', 'name', '-created']
+        ordering = ['-created']
 
     def __str__(self):
         return str(self.job_id)
 
+    def delete(self, *args, **kwargs):
+        queue = django_rq.get_queue("default")
+        job = queue.fetch_job(str(self.job_id))
+
+        if job:
+            job.cancel()
+
+        return super().delete(*args, **kwargs)
+
     def get_absolute_url(self):
-        return reverse('extras:jobresult', args=[self.pk])
+        return reverse(f'extras:{self.obj_type.name}_result', args=[self.pk])
 
     @property
     def duration(self):
@@ -579,7 +588,7 @@ class JobResult(models.Model):
         if schedule_at := kwargs.pop("schedule_at", None):
             job_result.status = JobResultStatusChoices.STATUS_SCHEDULED
             job_result.save()
-            
+
             queue.enqueue_at(schedule_at, func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
         else:
             queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)

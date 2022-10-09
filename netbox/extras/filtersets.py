@@ -87,6 +87,7 @@ class CustomFieldFilterSet(BaseFilterSet):
             Q(description__icontains=value)
         )
 
+
 class CustomLinkFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -434,8 +435,8 @@ class JobResultFilterSet(BaseFilterSet):
         method='search',
         label='Search',
     )
-    created = django_filters.DateTimeFilter()
-    completed = django_filters.DateTimeFilter()
+    created = django_filters.DateTimeFromToRangeFilter()
+    completed = django_filters.DateTimeFromToRangeFilter()
     status = django_filters.MultipleChoiceFilter(
         choices=JobResultStatusChoices,
         null_value=None

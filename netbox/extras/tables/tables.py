@@ -56,9 +56,9 @@ class JobResultTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = JobResult
         fields = (
-            'pk', 'id', 'name', 'obj_type', 'created', 'completed', 'user', 'status', 'job_id',
+            'pk', 'id', 'name', 'obj_type', 'job_id', 'created', 'completed', 'user', 'status',
         )
-        default_columns = ('pk', 'id', 'name', 'obj_type', 'created', 'completed', 'user', 'status', 'job_id')
+        default_columns = ('pk', 'id', 'name', 'obj_type', 'status', 'created', 'completed', 'user',)
 
 
 #

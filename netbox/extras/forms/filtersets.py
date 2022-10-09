@@ -69,7 +69,43 @@ class CustomFieldFilterForm(FilterForm):
 class JobResultFilterForm(FilterForm):
     fieldsets = (
         (None, ('q',)),
-        #('Attributes', ('type', 'content_type_id', 'group_name', 'weight', 'required', 'ui_visibility')),
+        ('Attributes', ('obj_type', 'status')),
+        ('Creation', ('created_before', 'created_after', 'completed_before', 'completed_after', 'user')),
+    )
+
+    obj_type = ContentTypeChoiceField(
+        label=_('Object Type'),
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('job_results'),  # TODO: This doesn't actually work
+        required=False,
+    )
+    status = MultipleChoiceField(
+        choices=JobResultStatusChoices,
+        required=False
+    )
+    created_after = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    created_before = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    completed_after = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    completed_before = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    user = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        label=_('User'),
+        widget=APISelectMultiple(
+            api_url='/api/users/users/',
+        )
     )
 
 
