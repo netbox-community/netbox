@@ -951,7 +951,8 @@ class DeviceTypeConsolePortsView(DeviceTypeComponentsView):
     tab = ViewTab(
         label=_('Console Ports'),
         badge=lambda obj: obj.consoleporttemplates.count(),
-        permission='dcim.view_consoleporttemplate'
+        permission='dcim.view_consoleporttemplate',
+        hide_if_empty=True
     )
 
 
@@ -964,7 +965,8 @@ class DeviceTypeConsoleServerPortsView(DeviceTypeComponentsView):
     tab = ViewTab(
         label=_('Console Server Ports'),
         badge=lambda obj: obj.consoleserverporttemplates.count(),
-        permission='dcim.view_consoleserverporttemplate'
+        permission='dcim.view_consoleserverporttemplate',
+        hide_if_empty=True
     )
 
 
@@ -977,7 +979,8 @@ class DeviceTypePowerPortsView(DeviceTypeComponentsView):
     tab = ViewTab(
         label=_('Power Ports'),
         badge=lambda obj: obj.powerporttemplates.count(),
-        permission='dcim.view_powerporttemplate'
+        permission='dcim.view_powerporttemplate',
+        hide_if_empty=True
     )
 
 
@@ -990,7 +993,8 @@ class DeviceTypePowerOutletsView(DeviceTypeComponentsView):
     tab = ViewTab(
         label=_('Power Outlets'),
         badge=lambda obj: obj.poweroutlettemplates.count(),
-        permission='dcim.view_poweroutlettemplate'
+        permission='dcim.view_poweroutlettemplate',
+        hide_if_empty=True
     )
 
 
@@ -1003,7 +1007,8 @@ class DeviceTypeInterfacesView(DeviceTypeComponentsView):
     tab = ViewTab(
         label=_('Interfaces'),
         badge=lambda obj: obj.interfacetemplates.count(),
-        permission='dcim.view_interfacetemplate'
+        permission='dcim.view_interfacetemplate',
+        hide_if_empty=True
     )
 
 
@@ -1016,7 +1021,8 @@ class DeviceTypeFrontPortsView(DeviceTypeComponentsView):
     tab = ViewTab(
         label=_('Front Ports'),
         badge=lambda obj: obj.frontporttemplates.count(),
-        permission='dcim.view_frontporttemplate'
+        permission='dcim.view_frontporttemplate',
+        hide_if_empty=True
     )
 
 
@@ -1029,7 +1035,8 @@ class DeviceTypeRearPortsView(DeviceTypeComponentsView):
     tab = ViewTab(
         label=_('Rear Ports'),
         badge=lambda obj: obj.rearporttemplates.count(),
-        permission='dcim.view_rearporttemplate'
+        permission='dcim.view_rearporttemplate',
+        hide_if_empty=True
     )
 
 
@@ -1042,7 +1049,8 @@ class DeviceTypeModuleBaysView(DeviceTypeComponentsView):
     tab = ViewTab(
         label=_('Module Bays'),
         badge=lambda obj: obj.modulebaytemplates.count(),
-        permission='dcim.view_modulebaytemplate'
+        permission='dcim.view_modulebaytemplate',
+        hide_if_empty=True
     )
 
 
@@ -1055,7 +1063,8 @@ class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
     tab = ViewTab(
         label=_('Device Bays'),
         badge=lambda obj: obj.devicebaytemplates.count(),
-        permission='dcim.view_devicebaytemplate'
+        permission='dcim.view_devicebaytemplate',
+        hide_if_empty=True
     )
 
 
@@ -1068,7 +1077,8 @@ class DeviceTypeInventoryItemsView(DeviceTypeComponentsView):
     tab = ViewTab(
         label=_('Inventory Items'),
         badge=lambda obj: obj.inventoryitemtemplates.count(),
-        permission='dcim.view_invenotryitemtemplate'
+        permission='dcim.view_invenotryitemtemplate',
+        hide_if_empty=True
     )
 
 
@@ -1168,7 +1178,8 @@ class ModuleTypeConsolePortsView(ModuleTypeComponentsView):
     tab = ViewTab(
         label=_('Console Ports'),
         badge=lambda obj: obj.consoleporttemplates.count(),
-        permission='dcim.view_consoleporttemplate'
+        permission='dcim.view_consoleporttemplate',
+        hide_if_empty=True
     )
 
 
@@ -1181,7 +1192,8 @@ class ModuleTypeConsoleServerPortsView(ModuleTypeComponentsView):
     tab = ViewTab(
         label=_('Console Server Ports'),
         badge=lambda obj: obj.consoleserverporttemplates.count(),
-        permission='dcim.view_consoleserverporttemplate'
+        permission='dcim.view_consoleserverporttemplate',
+        hide_if_empty=True
     )
 
 
@@ -1194,7 +1206,8 @@ class ModuleTypePowerPortsView(ModuleTypeComponentsView):
     tab = ViewTab(
         label=_('Power Ports'),
         badge=lambda obj: obj.powerporttemplates.count(),
-        permission='dcim.view_powerporttemplate'
+        permission='dcim.view_powerporttemplate',
+        hide_if_empty=True
     )
 
 
@@ -1207,7 +1220,8 @@ class ModuleTypePowerOutletsView(ModuleTypeComponentsView):
     tab = ViewTab(
         label=_('Power Outlets'),
         badge=lambda obj: obj.poweroutlettemplates.count(),
-        permission='dcim.view_poweroutlettemplate'
+        permission='dcim.view_poweroutlettemplate',
+        hide_if_empty=True
     )
 
 
@@ -1220,7 +1234,8 @@ class ModuleTypeInterfacesView(ModuleTypeComponentsView):
     tab = ViewTab(
         label=_('Interfaces'),
         badge=lambda obj: obj.interfacetemplates.count(),
-        permission='dcim.view_interfacetemplate'
+        permission='dcim.view_interfacetemplate',
+        hide_if_empty=True
     )
 
 
@@ -1233,7 +1248,8 @@ class ModuleTypeFrontPortsView(ModuleTypeComponentsView):
     tab = ViewTab(
         label=_('Front Ports'),
         badge=lambda obj: obj.frontporttemplates.count(),
-        permission='dcim.view_frontporttemplate'
+        permission='dcim.view_frontporttemplate',
+        hide_if_empty=True
     )
 
 
@@ -1246,7 +1262,8 @@ class ModuleTypeRearPortsView(ModuleTypeComponentsView):
     tab = ViewTab(
         label=_('Rear Ports'),
         badge=lambda obj: obj.rearporttemplates.count(),
-        permission='dcim.view_rearporttemplate'
+        permission='dcim.view_rearporttemplate',
+        hide_if_empty=True
     )
 
 
@@ -1845,11 +1862,12 @@ class DeviceConsolePortsView(DeviceComponentsView):
     child_model = ConsolePort
     table = tables.DeviceConsolePortTable
     filterset = filtersets.ConsolePortFilterSet
-    template_name = 'dcim/device/consoleports.html'
+    template_name = 'dcim/device/consoleports.html',
     tab = ViewTab(
         label=_('Console Ports'),
         badge=lambda obj: obj.consoleports.count(),
-        permission='dcim.view_consoleport'
+        permission='dcim.view_consoleport',
+        hide_if_empty=True
     )
 
 
@@ -1862,7 +1880,8 @@ class DeviceConsoleServerPortsView(DeviceComponentsView):
     tab = ViewTab(
         label=_('Console Server Ports'),
         badge=lambda obj: obj.consoleserverports.count(),
-        permission='dcim.view_consoleserverport'
+        permission='dcim.view_consoleserverport',
+        hide_if_empty=True
     )
 
 
@@ -1875,7 +1894,8 @@ class DevicePowerPortsView(DeviceComponentsView):
     tab = ViewTab(
         label=_('Power Ports'),
         badge=lambda obj: obj.powerports.count(),
-        permission='dcim.view_powerport'
+        permission='dcim.view_powerport',
+        hide_if_empty=True
     )
 
 
@@ -1888,7 +1908,8 @@ class DevicePowerOutletsView(DeviceComponentsView):
     tab = ViewTab(
         label=_('Power Outlets'),
         badge=lambda obj: obj.poweroutlets.count(),
-        permission='dcim.view_poweroutlet'
+        permission='dcim.view_poweroutlet',
+        hide_if_empty=True
     )
 
 
@@ -1901,7 +1922,8 @@ class DeviceInterfacesView(DeviceComponentsView):
     tab = ViewTab(
         label=_('Interfaces'),
         badge=lambda obj: obj.interfaces.count(),
-        permission='dcim.view_interface'
+        permission='dcim.view_interface',
+        hide_if_empty=True
     )
 
     def get_children(self, request, parent):
@@ -1920,7 +1942,8 @@ class DeviceFrontPortsView(DeviceComponentsView):
     tab = ViewTab(
         label=_('Front Ports'),
         badge=lambda obj: obj.frontports.count(),
-        permission='dcim.view_frontport'
+        permission='dcim.view_frontport',
+        hide_if_empty=True
     )
 
 
@@ -1933,7 +1956,8 @@ class DeviceRearPortsView(DeviceComponentsView):
     tab = ViewTab(
         label=_('Rear Ports'),
         badge=lambda obj: obj.rearports.count(),
-        permission='dcim.view_rearport'
+        permission='dcim.view_rearport',
+        hide_if_empty=True
     )
 
 
@@ -1946,7 +1970,8 @@ class DeviceModuleBaysView(DeviceComponentsView):
     tab = ViewTab(
         label=_('Module Bays'),
         badge=lambda obj: obj.modulebays.count(),
-        permission='dcim.view_modulebay'
+        permission='dcim.view_modulebay',
+        hide_if_empty=True
     )
 
 
@@ -1959,7 +1984,8 @@ class DeviceDeviceBaysView(DeviceComponentsView):
     tab = ViewTab(
         label=_('Device Bays'),
         badge=lambda obj: obj.devicebays.count(),
-        permission='dcim.view_devicebay'
+        permission='dcim.view_devicebay',
+        hide_if_empty=True
     )
 
 
@@ -1972,7 +1998,8 @@ class DeviceInventoryView(DeviceComponentsView):
     tab = ViewTab(
         label=_('Inventory Items'),
         badge=lambda obj: obj.inventoryitems.count(),
-        permission='dcim.view_inventoryitem'
+        permission='dcim.view_inventoryitem',
+        hide_if_empty=True
     )
 
 
