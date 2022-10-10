@@ -23,7 +23,7 @@ from extras.tables import ObjectChangeTable
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF
 from netbox.constants import SEARCH_MAX_RESULTS
 from netbox.forms import SearchForm
-from netbox.search import SEARCH_TYPES
+from netbox.search.backends import default_search_engine
 from tenancy.models import Tenant
 from virtualization.models import Cluster, VirtualMachine
 from wireless.models import WirelessLAN, WirelessLink
@@ -153,31 +153,14 @@ class SearchView(View):
         results = []
 
         if form.is_valid():
-
+            search_registry = default_search_engine.get_registry()
             # If an object type has been specified, redirect to the dedicated view for it
             if form.cleaned_data['obj_type']:
                 object_type = form.cleaned_data['obj_type']
-                url = reverse(SEARCH_TYPES[object_type]['url'])
+                url = reverse(search_registry[object_type].url)
                 return redirect(f"{url}?q={form.cleaned_data['q']}")
 
-            for obj_type in SEARCH_TYPES.keys():
-
-                queryset = SEARCH_TYPES[obj_type]['queryset'].restrict(request.user, 'view')
-                filterset = SEARCH_TYPES[obj_type]['filterset']
-                table = SEARCH_TYPES[obj_type]['table']
-                url = SEARCH_TYPES[obj_type]['url']
-
-                # Construct the results table for this object type
-                filtered_queryset = filterset({'q': form.cleaned_data['q']}, queryset=queryset).qs
-                table = table(filtered_queryset, orderable=False)
-                table.paginate(per_page=SEARCH_MAX_RESULTS)
-
-                if table.page:
-                    results.append({
-                        'name': queryset.model._meta.verbose_name_plural,
-                        'table': table,
-                        'url': f"{reverse(url)}?q={form.cleaned_data.get('q')}"
-                    })
+            results = default_search_engine.search(request, form.cleaned_data['q'])
 
         return render(request, 'search.html', {
             'form': form,
