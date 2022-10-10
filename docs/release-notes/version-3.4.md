@@ -26,6 +26,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 
 ### Plugins API
 
+* [#8927](https://github.com/netbox-community/netbox/issues/8927) - Enable inclusion of plugin models in global search via `SearchIndex`
 * [#9071](https://github.com/netbox-community/netbox/issues/9071) - Introduce `PluginMenu` for top-level plugin navigation menus
 * [#9072](https://github.com/netbox-community/netbox/issues/9072) - Enable registration of tabbed plugin views for core NetBox models
 * [#9880](https://github.com/netbox-community/netbox/issues/9880) - Introduce `django_apps` plugin configuration parameter
