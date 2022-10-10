@@ -3,7 +3,6 @@ from importlib import import_module
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models.signals import post_save, pre_delete
 from django.urls import reverse
 
 from extras.registry import registry
@@ -14,16 +13,13 @@ _backends_cache = {}
 
 
 class SearchEngineError(Exception):
-
     """Something went wrong with a search engine."""
+    pass
 
 
 class SearchBackend(object):
-
     """A search engine capable of performing multi-table searches."""
-
     _created_engines: dict = dict()
-    _search_choices = {}
     _search_choice_options = tuple()
 
     @classmethod
@@ -38,94 +34,44 @@ class SearchBackend(object):
             raise SearchEngineError(f"A search engine has already been created with the slug {engine_slug}")
 
         # Initialize this engine.
-        self._registered_models = {}
         self._engine_slug = engine_slug
 
         # Store a reference to this engine.
         self.__class__._created_engines[engine_slug] = self
 
-    def is_registered(self, key, model):
-        """Checks whether the given model is registered with this search engine."""
-        return key in self._registered_models
-
-    def register(self, key, model):
-        """
-        Registers the given model with this search engine.
-
-        If the given model is already registered with this search engine, a
-        RegistrationError will be raised.
-        """
-        # Check for existing registration.
-        if self.is_registered(key, model):
-            raise RegistrationError(f"{model} is already registered with this search engine")
-
-        self._registered_models[key] = model
-
-        # add to the search choices
-        if model.choice_header not in self._search_choices:
-            self._search_choices[model.choice_header] = {}
-
-        if key not in self._search_choices[model.choice_header]:
-            self._search_choices[model.choice_header][key] = model.queryset.model._meta.verbose_name_plural
-
-        # Connect to the signalling framework.
-        if self._use_hooks():
-            post_save.connect(self._post_save_receiver, model)
-            pre_delete.connect(self._pre_delete_receiver, model)
-
     def get_registry(self):
-        # return self._registered_models
-
         r = {}
         for app_label, models in registry['search'].items():
             r.update(**models)
+
         return r
 
-    # Signalling hooks.
-
     def get_search_choices(self):
-        if self._search_choice_options:
-            return self._search_choice_options
+        if not self._search_choice_options:
 
-        # Organize choices by category
-        categories = defaultdict(dict)
-        for app_label, models in registry['search'].items():
-            for name, cls in models.items():
-                model = cls.queryset.model
-                title = model._meta.verbose_name.title()
-                categories[cls.get_category()][name] = title
+            # Organize choices by category
+            categories = defaultdict(dict)
+            for app_label, models in registry['search'].items():
+                for name, cls in models.items():
+                    title = cls.model._meta.verbose_name.title()
+                    categories[cls.get_category()][name] = title
 
-        # Compile a nested tuple of choices for form rendering
-        results = (
-            ('', 'All Objects'),
-            *[(category, choices.items()) for category, choices in categories.items()]
-        )
+            # Compile a nested tuple of choices for form rendering
+            results = (
+                ('', 'All Objects'),
+                *[(category, choices.items()) for category, choices in categories.items()]
+            )
 
-        self._search_choice_options = results
+            self._search_choice_options = results
 
         return self._search_choice_options
 
-    def _use_hooks(self):
-        raise NotImplementedError
-
-    def _post_save_receiver(self, instance, **kwargs):
-        """Signal handler for when a registered model has been saved."""
-        raise NotImplementedError
-
-    def _pre_delete_receiver(self, instance, **kwargs):
-        """Signal handler for when a registered model has been deleted."""
-        raise NotImplementedError
-
-    # Searching.
-
-    def search(self, search_text, models=(), exclude=(), ranking=True, backend_name=None):
+    def search(self, request, search_text, models=(), exclude=(), ranking=True, backend_name=None):
         """Performs a search using the given text, returning a queryset of SearchEntry."""
         raise NotImplementedError
 
 
 class PostgresIcontainsSearchBackend(SearchBackend):
-    def _use_hooks(self):
-        return False
 
     def search(self, request, search_text):
         results = []

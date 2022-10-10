@@ -9,6 +9,7 @@ from django.template.loader import get_template
 from extras.plugins.utils import import_object
 from extras.registry import registry
 from netbox.navigation import MenuGroup
+from netbox.search import register_search
 from utilities.choices import ButtonColorChoices
 
 
@@ -60,6 +61,7 @@ class PluginConfig(AppConfig):
 
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.
+    search = 'search.indexes'
     graphql_schema = 'graphql.schema'
     menu = 'navigation.menu'
     menu_items = 'navigation.menu_items'
@@ -68,6 +70,11 @@ class PluginConfig(AppConfig):
 
     def ready(self):
         plugin_name = self.name.rsplit('.', 1)[-1]
+
+        # Search extensions
+        search_indexes = import_object(f"{self.__module__}.{self.search}") or []
+        for idx in search_indexes:
+            register_search()(idx)
 
         # Register template content (if defined)
         template_extensions = import_object(f"{self.__module__}.{self.template_extensions}")
