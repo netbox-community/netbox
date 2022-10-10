@@ -1,3 +1,4 @@
+from collections import defaultdict
 from importlib import import_module
 
 from django.conf import settings
@@ -86,17 +87,22 @@ class SearchBackend(object):
         if self._search_choice_options:
             return self._search_choice_options
 
-        result = list()
-        result.append(('', 'All Objects'))
-        for category, items in self._search_choices.items():
-            subcategories = list()
-            for slug, verbose_name in items.items():
-                name = verbose_name
-                name = name[0].upper() + name[1:]
-                subcategories.append((slug, name))
-            result.append((category, tuple(subcategories)))
+        # Organize choices by category
+        categories = defaultdict(dict)
+        for app_label, models in registry['search'].items():
+            for name, cls in models.items():
+                model = cls.queryset.model
+                title = model._meta.verbose_name.title()
+                categories[cls.choice_header][name] = title
 
-        self._search_choice_options = tuple(result)
+        # Compile a nested tuple of choices for form rendering
+        results = (
+            ('', 'All Objects'),
+            *[(category, choices.items()) for category, choices in categories.items()]
+        )
+
+        self._search_choice_options = results
+
         return self._search_choice_options
 
     def _use_hooks(self):

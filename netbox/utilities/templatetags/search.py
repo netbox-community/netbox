@@ -5,15 +5,11 @@ from django import template
 from netbox.forms import SearchForm
 
 register = template.Library()
-search_form = None
+search_form = SearchForm()
 
 
 @register.inclusion_tag("search/searchbar.html")
 def search_options(request) -> Dict:
-    global search_form
-
-    if not search_form:
-        search_form = SearchForm()
 
     # Provide search options to template.
     return {
