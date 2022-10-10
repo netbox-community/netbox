@@ -71,7 +71,7 @@ class SearchBackend(object):
         raise NotImplementedError
 
 
-class PostgresIcontainsSearchBackend(SearchBackend):
+class FilterSetSearchBackend(SearchBackend):
 
     def search(self, request, search_text):
         results = []
@@ -79,10 +79,22 @@ class PostgresIcontainsSearchBackend(SearchBackend):
         search_registry = self.get_registry()
         for obj_type in search_registry.keys():
 
-            queryset = search_registry[obj_type].queryset.restrict(request.user, 'view')
-            filterset = search_registry[obj_type].filterset
-            table = search_registry[obj_type].table
+            queryset = search_registry[obj_type].queryset
             url = search_registry[obj_type].url
+
+            # Restrict the queryset for the current user
+            if hasattr(queryset, 'restrict'):
+                queryset = queryset.restrict(request.user, 'view')
+
+            filterset = getattr(search_registry[obj_type], 'filterset', None)
+            if not filterset:
+                # This backend requires a FilterSet class for the model
+                continue
+
+            table = getattr(search_registry[obj_type], 'table', None)
+            if not table:
+                # This backend requires a Table class for the model
+                continue
 
             # Construct the results table for this object type
             filtered_queryset = filterset({'q': search_text}, queryset=queryset).qs
@@ -103,7 +115,7 @@ def get_backend(backend_name=None):
     """Initializes and returns the search backend."""
     global _backends_cache
     if not backend_name:
-        backend_name = getattr(settings, "SEARCH_BACKEND", "netbox.search.backends.PostgresIcontainsSearchBackend")
+        backend_name = getattr(settings, "SEARCH_BACKEND", "netbox.search.backends.FilterSetSearchBackend")
 
     # Try to use the cached backend.
     if backend_name in _backends_cache:

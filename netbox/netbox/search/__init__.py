@@ -4,11 +4,17 @@ from extras.registry import registry
 class SearchIndex:
     """
     Base class for building search indexes.
+
+    Attrs:
+        model: The model class for which this index is used.
     """
-    search_index = True
+    model = None
 
     @classmethod
     def get_category(cls):
+        """
+        Return the title of the search category under which this model is registered.
+        """
         if hasattr(cls, 'category'):
             return cls.category
         return cls.model._meta.app_config.verbose_name

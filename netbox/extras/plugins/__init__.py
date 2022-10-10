@@ -61,7 +61,7 @@ class PluginConfig(AppConfig):
 
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.
-    search = 'search.indexes'
+    search_indexes = 'search.indexes'
     graphql_schema = 'graphql.schema'
     menu = 'navigation.menu'
     menu_items = 'navigation.menu_items'
@@ -72,7 +72,7 @@ class PluginConfig(AppConfig):
         plugin_name = self.name.rsplit('.', 1)[-1]
 
         # Search extensions
-        search_indexes = import_object(f"{self.__module__}.{self.search}") or []
+        search_indexes = import_object(f"{self.__module__}.{self.search_indexes}") or []
         for idx in search_indexes:
             register_search()(idx)
 
