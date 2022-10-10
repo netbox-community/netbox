@@ -2,7 +2,7 @@ import wireless.filtersets
 import wireless.tables
 from dcim.models import Interface
 from django.db import models
-from search.models import SearchMixin
+from netbox.search.models import SearchMixin
 from utilities.utils import count_related
 from wireless.models import WirelessLAN, WirelessLink
 

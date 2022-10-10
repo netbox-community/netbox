@@ -1,7 +1,7 @@
 import tenancy.filtersets
 import tenancy.tables
 from django.db import models
-from search.models import SearchMixin
+from netbox.search.models import SearchMixin
 from tenancy.models import Contact, ContactAssignment, Tenant
 from utilities.utils import count_related
 

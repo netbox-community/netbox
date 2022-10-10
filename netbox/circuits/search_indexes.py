@@ -2,7 +2,7 @@ import circuits.filtersets
 import circuits.tables
 from circuits.models import Circuit, Provider, ProviderNetwork
 from django.db import models
-from search.models import SearchMixin
+from netbox.search.models import SearchMixin
 from utilities.utils import count_related
 
 

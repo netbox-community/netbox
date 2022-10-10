@@ -319,7 +319,6 @@ INSTALLED_APPS = [
     'social_django',
     'taggit',
     'timezone_field',
-    'search',
     'circuits',
     'dcim',
     'ipam',

@@ -2,7 +2,7 @@ import ipam.filtersets
 import ipam.tables
 from django.db import models
 from ipam.models import ASN, VLAN, VRF, Aggregate, IPAddress, Prefix, Service
-from search.models import SearchMixin
+from netbox.search.models import SearchMixin
 from utilities.utils import count_related
 
 

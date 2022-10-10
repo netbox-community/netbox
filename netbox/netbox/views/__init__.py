@@ -23,7 +23,7 @@ from extras.tables import ObjectChangeTable
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF
 from netbox.constants import SEARCH_MAX_RESULTS
 from netbox.forms import SearchForm
-from search.backends import default_search_engine
+from netbox.search.backends import default_search_engine
 from tenancy.models import Tenant
 from virtualization.models import Cluster, VirtualMachine
 from wireless.models import WirelessLAN, WirelessLink

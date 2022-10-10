@@ -1,9 +1,7 @@
-from abc import ABC
 from importlib import import_module
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.db import models
 from django.db.models.signals import post_save, pre_delete
 from django.urls import reverse
 from netbox.constants import SEARCH_MAX_RESULTS
@@ -146,7 +144,7 @@ def get_backend(backend_name=None):
     """Initializes and returns the search backend."""
     global _backends_cache
     if not backend_name:
-        backend_name = getattr(settings, "SEARCH_BACKEND", "search.backends.PostgresIcontainsSearchBackend")
+        backend_name = getattr(settings, "SEARCH_BACKEND", "netbox.search.backends.PostgresIcontainsSearchBackend")
 
     # Try to use the cached backend.
     if backend_name in _backends_cache:

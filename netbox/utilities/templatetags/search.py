@@ -1,9 +1,10 @@
 from typing import Dict
-from netbox.forms import SearchForm
+
 from django import template
 
-register = template.Library()
+from netbox.forms import SearchForm
 
+register = template.Library()
 search_form = None
 
 
@@ -14,7 +15,7 @@ def search_options(request) -> Dict:
     if not search_form:
         search_form = SearchForm()
 
-    """Provide search options to template."""
+    # Provide search options to template.
     return {
         'options': search_form.get_options(),
         'request': request,

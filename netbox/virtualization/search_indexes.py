@@ -1,7 +1,7 @@
 import virtualization.filtersets
 import virtualization.tables
 from django.db import models
-from search.models import SearchMixin
+from netbox.search.models import SearchMixin
 from utilities.utils import count_related
 from virtualization.models import Cluster, Device, VirtualMachine
 

@@ -2,7 +2,7 @@ import extras.filtersets
 import extras.tables
 from django.db import models
 from extras.models import JournalEntry
-from search.models import SearchMixin
+from netbox.search.models import SearchMixin
 from utilities.utils import count_related
 
 

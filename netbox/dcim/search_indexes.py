@@ -4,7 +4,6 @@ from dcim.models import (
     Cable,
     Device,
     DeviceType,
-    Interface,
     Location,
     Module,
     ModuleType,
@@ -14,8 +13,7 @@ from dcim.models import (
     Site,
     VirtualChassis,
 )
-from django.db import models
-from search.models import SearchMixin
+from netbox.search.models import SearchMixin
 from utilities.utils import count_related
 
 
