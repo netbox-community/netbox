@@ -14,11 +14,12 @@ from dcim.models import (
     VirtualChassis,
 )
 from netbox.search.models import SearchMixin
+from netbox.search import register_search
 from utilities.utils import count_related
 
 
+@register_search(Site)
 class SiteIndex(SearchMixin):
-    model = Site
     queryset = Site.objects.prefetch_related('region', 'tenant', 'tenant__group')
     filterset = dcim.filtersets.SiteFilterSet
     table = dcim.tables.SiteTable
@@ -26,8 +27,8 @@ class SiteIndex(SearchMixin):
     choice_header = 'DCIM'
 
 
+@register_search(Rack)
 class RackIndex(SearchMixin):
-    model = Rack
     queryset = Rack.objects.prefetch_related('site', 'location', 'tenant', 'tenant__group', 'role').annotate(
         device_count=count_related(Device, 'rack')
     )
@@ -37,8 +38,8 @@ class RackIndex(SearchMixin):
     choice_header = 'DCIM'
 
 
+@register_search(RackReservation)
 class RackReservationIndex(SearchMixin):
-    model = RackReservation
     queryset = RackReservation.objects.prefetch_related('rack', 'user')
     filterset = dcim.filtersets.RackReservationFilterSet
     table = dcim.tables.RackReservationTable
@@ -46,8 +47,8 @@ class RackReservationIndex(SearchMixin):
     choice_header = 'DCIM'
 
 
+@register_search(Location)
 class LocationIndex(SearchMixin):
-    model = Site
     queryset = Location.objects.add_related_count(
         Location.objects.add_related_count(Location.objects.all(), Device, 'location', 'device_count', cumulative=True),
         Rack,
@@ -61,8 +62,8 @@ class LocationIndex(SearchMixin):
     choice_header = 'DCIM'
 
 
+@register_search(DeviceType)
 class DeviceTypeIndex(SearchMixin):
-    model = DeviceType
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
         instance_count=count_related(Device, 'device_type')
     )
@@ -72,8 +73,8 @@ class DeviceTypeIndex(SearchMixin):
     choice_header = 'DCIM'
 
 
+@register_search(Device)
 class DeviceIndex(SearchMixin):
-    model = Device
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer',
         'device_role',
@@ -90,8 +91,8 @@ class DeviceIndex(SearchMixin):
     choice_header = 'DCIM'
 
 
+@register_search(ModuleType)
 class ModuleTypeIndex(SearchMixin):
-    model = ModuleType
     queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
         instance_count=count_related(Module, 'module_type')
     )
@@ -101,8 +102,8 @@ class ModuleTypeIndex(SearchMixin):
     choice_header = 'DCIM'
 
 
+@register_search(Module)
 class ModuleIndex(SearchMixin):
-    model = Module
     queryset = Module.objects.prefetch_related(
         'module_type__manufacturer',
         'device',
@@ -114,8 +115,8 @@ class ModuleIndex(SearchMixin):
     choice_header = 'DCIM'
 
 
+@register_search(VirtualChassis)
 class VirtualChassisIndex(SearchMixin):
-    model = VirtualChassis
     queryset = VirtualChassis.objects.prefetch_related('master').annotate(
         member_count=count_related(Device, 'virtual_chassis')
     )
@@ -125,8 +126,8 @@ class VirtualChassisIndex(SearchMixin):
     choice_header = 'DCIM'
 
 
+@register_search(Cable)
 class CableIndex(SearchMixin):
-    model = Cable
     queryset = Cable.objects.all()
     filterset = dcim.filtersets.CableFilterSet
     table = dcim.tables.CableTable
@@ -134,25 +135,10 @@ class CableIndex(SearchMixin):
     choice_header = 'DCIM'
 
 
+@register_search(PowerFeed)
 class PowerFeedIndex(SearchMixin):
-    model = PowerFeed
     queryset = PowerFeed.objects.all()
     filterset = dcim.filtersets.PowerFeedFilterSet
     table = dcim.tables.PowerFeedTable
     url = 'dcim:powerfeed_list'
     choice_header = 'DCIM'
-
-
-DCIM_SEARCH_TYPES = {
-    'site': SiteIndex,
-    'rack': RackIndex,
-    'rackreservation': RackReservationIndex,
-    'location': LocationIndex,
-    'devicetype': DeviceTypeIndex,
-    'device': DeviceIndex,
-    'moduletype': ModuleTypeIndex,
-    'module': ModuleIndex,
-    'virtualchassis': VirtualChassisIndex,
-    'cable': CableIndex,
-    'powerfeed': PowerFeedIndex,
-}

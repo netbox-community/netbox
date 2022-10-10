@@ -1,13 +1,14 @@
 import virtualization.filtersets
 import virtualization.tables
-from django.db import models
+from dcim.models import Device
 from netbox.search.models import SearchMixin
+from netbox.search import register_search
 from utilities.utils import count_related
-from virtualization.models import Cluster, Device, VirtualMachine
+from virtualization.models import Cluster, VirtualMachine
 
 
+@register_search(Cluster)
 class ClusterIndex(SearchMixin):
-    model = Cluster
     queryset = Cluster.objects.prefetch_related('type', 'group').annotate(
         device_count=count_related(Device, 'cluster'), vm_count=count_related(VirtualMachine, 'cluster')
     )
@@ -17,8 +18,8 @@ class ClusterIndex(SearchMixin):
     choice_header = 'Virtualization'
 
 
+@register_search(VirtualMachine)
 class VirtualMachineIndex(SearchMixin):
-    model = VirtualMachine
     queryset = VirtualMachine.objects.prefetch_related(
         'cluster',
         'tenant',
@@ -31,9 +32,3 @@ class VirtualMachineIndex(SearchMixin):
     table = virtualization.tables.VirtualMachineTable
     url = 'virtualization:virtualmachine_list'
     choice_header = 'Virtualization'
-
-
-VIRTUALIZATION_SEARCH_TYPES = {
-    'cluster': ClusterIndex,
-    'virtualmachine': VirtualMachineIndex,
-}

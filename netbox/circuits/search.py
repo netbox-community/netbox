@@ -1,13 +1,13 @@
 import circuits.filtersets
 import circuits.tables
 from circuits.models import Circuit, Provider, ProviderNetwork
-from django.db import models
 from netbox.search.models import SearchMixin
+from netbox.search import register_search
 from utilities.utils import count_related
 
 
+@register_search(Provider)
 class ProviderIndex(SearchMixin):
-    model = Provider
     queryset = Provider.objects.annotate(count_circuits=count_related(Circuit, 'provider'))
     filterset = circuits.filtersets.ProviderFilterSet
     table = circuits.tables.ProviderTable
@@ -15,8 +15,8 @@ class ProviderIndex(SearchMixin):
     choice_header = 'Circuits'
 
 
+@register_search(Circuit)
 class CircuitIndex(SearchMixin):
-    model = Circuit
     queryset = Circuit.objects.prefetch_related(
         'type', 'provider', 'tenant', 'tenant__group', 'terminations__site'
     )
@@ -26,17 +26,10 @@ class CircuitIndex(SearchMixin):
     choice_header = 'Circuits'
 
 
+@register_search(ProviderNetwork)
 class ProviderNetworkIndex(SearchMixin):
-    model = ProviderNetwork
     queryset = ProviderNetwork.objects.prefetch_related('provider')
     filterset = circuits.filtersets.ProviderNetworkFilterSet
     table = circuits.tables.ProviderNetworkTable
     url = 'circuits:providernetwork_list'
     choice_header = 'Circuits'
-
-
-CIRCUIT_SEARCH_TYPES = {
-    'provider': ProviderIndex,
-    'circuit': CircuitIndex,
-    'providernetwork': ProviderNetworkIndex,
-}

@@ -1,13 +1,13 @@
 import tenancy.filtersets
 import tenancy.tables
-from django.db import models
 from netbox.search.models import SearchMixin
+from netbox.search import register_search
 from tenancy.models import Contact, ContactAssignment, Tenant
 from utilities.utils import count_related
 
 
+@register_search(Tenant)
 class TenantIndex(SearchMixin):
-    model = Tenant
     queryset = Tenant.objects.prefetch_related('group')
     filterset = tenancy.filtersets.TenantFilterSet
     table = tenancy.tables.TenantTable
@@ -15,8 +15,8 @@ class TenantIndex(SearchMixin):
     choice_header = 'Tenancy'
 
 
+@register_search(Contact)
 class ContactIndex(SearchMixin):
-    model = Contact
     queryset = Contact.objects.prefetch_related('group', 'assignments').annotate(
         assignment_count=count_related(ContactAssignment, 'contact')
     )
@@ -24,9 +24,3 @@ class ContactIndex(SearchMixin):
     table = tenancy.tables.ContactTable
     url = 'tenancy:contact_list'
     choice_header = 'Tenancy'
-
-
-TENANCY_SEARCH_TYPES = {
-    'tenant': TenantIndex,
-    'contact': ContactIndex,
-}

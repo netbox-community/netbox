@@ -4,6 +4,8 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models.signals import post_save, pre_delete
 from django.urls import reverse
+
+from extras.registry import registry
 from netbox.constants import SEARCH_MAX_RESULTS
 
 # The cache for the initialized backend.
@@ -71,7 +73,12 @@ class SearchBackend(object):
             pre_delete.connect(self._pre_delete_receiver, model)
 
     def get_registry(self):
-        return self._registered_models
+        # return self._registered_models
+
+        r = {}
+        for app_label, models in registry['search'].items():
+            r.update(**models)
+        return r
 
     # Signalling hooks.
 
