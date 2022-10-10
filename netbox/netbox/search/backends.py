@@ -17,27 +17,9 @@ class SearchEngineError(Exception):
     pass
 
 
-class SearchBackend(object):
+class SearchBackend:
     """A search engine capable of performing multi-table searches."""
-    _created_engines: dict = dict()
     _search_choice_options = tuple()
-
-    @classmethod
-    def get_created_engines(cls):
-        """Returns all created search engines."""
-        return list(cls._created_engines.items())
-
-    def __init__(self, engine_slug: str):
-        """Initializes the search engine."""
-        # Check the slug is unique for this project.
-        if engine_slug in SearchBackend._created_engines:
-            raise SearchEngineError(f"A search engine has already been created with the slug {engine_slug}")
-
-        # Initialize this engine.
-        self._engine_slug = engine_slug
-
-        # Store a reference to this engine.
-        self.__class__._created_engines[engine_slug] = self
 
     def get_registry(self):
         r = {}
@@ -47,6 +29,7 @@ class SearchBackend(object):
         return r
 
     def get_search_choices(self):
+        """Return the set of choices for individual object types, organized by category."""
         if not self._search_choice_options:
 
             # Organize choices by category
@@ -66,14 +49,21 @@ class SearchBackend(object):
 
         return self._search_choice_options
 
-    def search(self, request, search_text, models=(), exclude=(), ranking=True, backend_name=None):
-        """Performs a search using the given text, returning a queryset of SearchEntry."""
+    def search(self, request, value, **kwargs):
+        """Execute a search query for the given value."""
+        raise NotImplementedError
+
+    def cache(self, instance):
+        """Create or update the cached copy of an instance."""
         raise NotImplementedError
 
 
 class FilterSetSearchBackend(SearchBackend):
-
-    def search(self, request, search_text):
+    """
+    Legacy search backend. Performs a discrete database query for each registered object type, using the FilterSet
+    class specified by the index for each.
+    """
+    def search(self, request, value, **kwargs):
         results = []
 
         search_registry = self.get_registry()
@@ -97,7 +87,7 @@ class FilterSetSearchBackend(SearchBackend):
                 continue
 
             # Construct the results table for this object type
-            filtered_queryset = filterset({'q': search_text}, queryset=queryset).qs
+            filtered_queryset = filterset({'q': value}, queryset=queryset).qs
             table = table(filtered_queryset, orderable=False)
             table.paginate(per_page=SEARCH_MAX_RESULTS)
 
@@ -105,36 +95,31 @@ class FilterSetSearchBackend(SearchBackend):
                 results.append({
                     'name': queryset.model._meta.verbose_name_plural,
                     'table': table,
-                    'url': f"{reverse(url)}?q={search_text}"
+                    'url': f"{reverse(url)}?q={value}"
                 })
 
         return results
 
+    def cache(self, instance):
+        # This backend does not utilize a cache
+        pass
 
-def get_backend(backend_name=None):
-    """Initializes and returns the search backend."""
-    global _backends_cache
-    if not backend_name:
-        backend_name = getattr(settings, "SEARCH_BACKEND", "netbox.search.backends.FilterSetSearchBackend")
 
-    # Try to use the cached backend.
-    if backend_name in _backends_cache:
-        return _backends_cache[backend_name]
+def get_backend():
+    """Initializes and returns the configured search backend."""
+    backend_name = settings.SEARCH_BACKEND
 
-    # Load the backend class.
-    backend_module_name, backend_cls_name = backend_name.rsplit(".", 1)
+    # Load the backend class
+    backend_module_name, backend_cls_name = backend_name.rsplit('.', 1)
     backend_module = import_module(backend_module_name)
     try:
         backend_cls = getattr(backend_module, backend_cls_name)
     except AttributeError:
         raise ImproperlyConfigured(f"Could not find a class named {backend_module_name} in {backend_cls_name}")
 
-    # Initialize the backend.
-    backend = backend_cls("default")
-    _backends_cache[backend_name] = backend
-    return backend
+    # Initialize and return the backend instance
+    return backend_cls()
 
 
-# The main search methods.
 default_search_engine = get_backend()
 search = default_search_engine.search
