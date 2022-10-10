@@ -2,14 +2,23 @@ from collections import defaultdict
 from importlib import import_module
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
-from django.urls import reverse
+from django.db.models.signals import post_save
 
+from extras.models import CachedValue
 from extras.registry import registry
 from netbox.constants import SEARCH_MAX_RESULTS
 
 # The cache for the initialized backend.
 _backends_cache = {}
+
+
+def get_indexer(model):
+    app_label = model._meta.app_label
+    model_name = model._meta.model_name
+
+    return registry['search'][app_label][model_name]
 
 
 class SearchEngineError(Exception):
@@ -20,6 +29,11 @@ class SearchEngineError(Exception):
 class SearchBackend:
     """A search engine capable of performing multi-table searches."""
     _search_choice_options = tuple()
+
+    def __init__(self):
+
+        # Connect cache handler to the model post-save signal
+        post_save.connect(self.cache)
 
     def get_registry(self):
         r = {}
@@ -53,7 +67,8 @@ class SearchBackend:
         """Execute a search query for the given value."""
         raise NotImplementedError
 
-    def cache(self, instance):
+    @staticmethod
+    def cache(sender, instance, **kwargs):
         """Create or update the cached copy of an instance."""
         raise NotImplementedError
 
@@ -70,7 +85,6 @@ class FilterSetSearchBackend(SearchBackend):
         for obj_type in search_registry.keys():
 
             queryset = search_registry[obj_type].queryset
-            url = search_registry[obj_type].url
 
             # Restrict the queryset for the current user
             if hasattr(queryset, 'restrict'):
@@ -81,28 +95,49 @@ class FilterSetSearchBackend(SearchBackend):
                 # This backend requires a FilterSet class for the model
                 continue
 
-            table = getattr(search_registry[obj_type], 'table', None)
-            if not table:
-                # This backend requires a Table class for the model
-                continue
+            queryset = filterset({'q': value}, queryset=queryset).qs[:SEARCH_MAX_RESULTS]
 
-            # Construct the results table for this object type
-            filtered_queryset = filterset({'q': value}, queryset=queryset).qs
-            table = table(filtered_queryset, orderable=False)
-            table.paginate(per_page=SEARCH_MAX_RESULTS)
-
-            if table.page:
-                results.append({
-                    'name': queryset.model._meta.verbose_name_plural,
-                    'table': table,
-                    'url': f"{reverse(url)}?q={value}"
-                })
+            results.extend([
+                {'object': obj}
+                for obj in queryset
+            ])
 
         return results
 
-    def cache(self, instance):
+    @staticmethod
+    def cache(sender, instance, **kwargs):
         # This backend does not utilize a cache
         pass
+
+
+class CachedValueSearchBackend(SearchBackend):
+
+    def search(self, request, value, **kwargs):
+        return CachedValue.objects.filter(value__icontains=value)
+
+    @staticmethod
+    def cache(sender, instance, **kwargs):
+        try:
+            indexer = get_indexer(instance)
+        except KeyError:
+            return
+
+        data = indexer.to_cache(instance)
+
+        for field, value, weight in data:
+            if not value:
+                continue
+            ct = ContentType.objects.get_for_model(instance)
+            CachedValue.objects.update_or_create(
+                defaults={
+                    'value': value,
+                    'weight': weight,
+                },
+                object_type=ct,
+                object_id=instance.pk,
+                field=field,
+                type='text'  # TODO
+            )
 
 
 def get_backend():
@@ -121,5 +156,4 @@ def get_backend():
     return backend_cls()
 
 
-default_search_engine = get_backend()
-search = default_search_engine.search
+search_backend = get_backend()

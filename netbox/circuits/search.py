@@ -1,34 +1,66 @@
-import circuits.filtersets
-import circuits.tables
-from circuits.models import Circuit, Provider, ProviderNetwork
+from circuits import filtersets, models
 from netbox.search import SearchIndex, register_search
 from utilities.utils import count_related
 
 
 @register_search()
-class ProviderIndex(SearchIndex):
-    model = Provider
-    queryset = Provider.objects.annotate(count_circuits=count_related(Circuit, 'provider'))
-    filterset = circuits.filtersets.ProviderFilterSet
-    table = circuits.tables.ProviderTable
-    url = 'circuits:provider_list'
+class CircuitIndex(SearchIndex):
+    model = models.Circuit
+    fields = (
+        ('cid', 100),
+        ('description', 500),
+        ('comments', 1000),
+    )
+    queryset = models.Circuit.objects.prefetch_related(
+        'type', 'provider', 'tenant', 'tenant__group', 'terminations__site'
+    )
+    filterset = filtersets.CircuitFilterSet
 
 
 @register_search()
-class CircuitIndex(SearchIndex):
-    model = Circuit
-    queryset = Circuit.objects.prefetch_related(
-        'type', 'provider', 'tenant', 'tenant__group', 'terminations__site'
+class CircuitTerminationIndex(SearchIndex):
+    model = models.CircuitTermination
+    fields = (
+        ('xconnect_id', 300),
+        ('pp_info', 300),
+        ('description', 500),
+        ('port_speed', 2000),
+        ('upstream_speed', 2000),
     )
-    filterset = circuits.filtersets.CircuitFilterSet
-    table = circuits.tables.CircuitTable
-    url = 'circuits:circuit_list'
+
+
+@register_search()
+class CircuitTypeIndex(SearchIndex):
+    model = models.CircuitType
+    fields = (
+        ('name', 100),
+        ('slug', 100),
+        ('description', 500),
+    )
+
+
+@register_search()
+class ProviderIndex(SearchIndex):
+    model = models.Provider
+    fields = (
+        ('name', 100),
+        ('account', 200),
+        ('comments', 1000),
+    )
+    queryset = models.Provider.objects.annotate(
+        count_circuits=count_related(models.Circuit, 'provider')
+    )
+    filterset = filtersets.ProviderFilterSet
 
 
 @register_search()
 class ProviderNetworkIndex(SearchIndex):
-    model = ProviderNetwork
-    queryset = ProviderNetwork.objects.prefetch_related('provider')
-    filterset = circuits.filtersets.ProviderNetworkFilterSet
-    table = circuits.tables.ProviderNetworkTable
-    url = 'circuits:providernetwork_list'
+    model = models.ProviderNetwork
+    fields = (
+        ('name', 100),
+        ('service_id', 200),
+        ('description', 500),
+        ('comments', 1000),
+    )
+    queryset = models.ProviderNetwork.objects.prefetch_related('provider')
+    filterset = filtersets.ProviderNetworkFilterSet

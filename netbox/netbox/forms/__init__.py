@@ -1,6 +1,6 @@
 from django import forms
 
-from netbox.search.backends import default_search_engine
+from netbox.search.backends import search_backend
 from utilities.forms import BootstrapMixin
 
 from .base import *
@@ -26,13 +26,13 @@ class SearchForm(BootstrapMixin, forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["obj_type"] = forms.ChoiceField(
-            choices=default_search_engine.get_search_choices(),
+            choices=search_backend.get_search_choices(),
             required=False,
             label='Type'
         )
 
     def get_options(self):
         if not self.options:
-            self.options = build_options(default_search_engine.get_search_choices())
+            self.options = build_options(search_backend.get_search_choices())
 
         return self.options

@@ -9,6 +9,7 @@ class SearchIndex:
         model: The model class for which this index is used.
     """
     model = None
+    fields = ()
 
     @classmethod
     def get_category(cls):
@@ -18,6 +19,13 @@ class SearchIndex:
         if hasattr(cls, 'category'):
             return cls.category
         return cls.model._meta.app_config.verbose_name
+
+    @classmethod
+    def to_cache(cls, instance):
+        return [
+            (field, str(getattr(instance, field)), weight)
+            for field, weight in cls.fields
+        ]
 
 
 def register_search():

@@ -9,6 +9,7 @@ from django.db import models
 from taggit.managers import TaggableManager
 
 from extras.choices import CustomFieldVisibilityChoices, ObjectChangeActionChoices
+from extras.registry import registry
 from extras.utils import is_taggable, register_features
 from netbox.signals import post_clean
 from utilities.json import CustomFieldJSONEncoder
