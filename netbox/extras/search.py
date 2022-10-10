@@ -1,20 +1,14 @@
 import extras.filtersets
 import extras.tables
-from django.db import models
 from extras.models import JournalEntry
-from netbox.search.models import SearchMixin
-from utilities.utils import count_related
+from netbox.search import SearchIndex, register_search
 
 
-class JournalEntryIndex(SearchMixin):
+@register_search()
+class JournalEntryIndex(SearchIndex):
     model = JournalEntry
     queryset = JournalEntry.objects.prefetch_related('assigned_object', 'created_by')
     filterset = extras.filtersets.JournalEntryFilterSet
     table = extras.tables.JournalEntryTable
     url = 'extras:journalentry_list'
-    choice_header = 'Journal'
-
-
-JOURNAL_SEARCH_TYPES = {
-    'journalentry': JournalEntryIndex,
-}
+    category = 'Journal'

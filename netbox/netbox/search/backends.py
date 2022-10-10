@@ -93,7 +93,7 @@ class SearchBackend(object):
             for name, cls in models.items():
                 model = cls.queryset.model
                 title = model._meta.verbose_name.title()
-                categories[cls.choice_header][name] = title
+                categories[cls.get_category()][name] = title
 
         # Compile a nested tuple of choices for form rendering
         results = (

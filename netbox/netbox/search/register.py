@@ -44,8 +44,9 @@ def register():
                         default_search_engine.register(cls_name, cls_obj)
 
 
-def register_search(model):
+def register_search():
     def _wrapper(cls):
+        model = cls.model
         app_label = model._meta.app_label
         model_name = model._meta.model_name
 
