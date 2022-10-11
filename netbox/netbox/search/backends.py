@@ -4,6 +4,8 @@ from importlib import import_module
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import F, Window
+from django.db.models.functions import window
 from django.db.models.signals import post_delete, post_save
 
 from extras.models import CachedValue
@@ -152,7 +154,29 @@ class FilterSetSearchBackend(SearchBackend):
 class CachedValueSearchBackend(SearchBackend):
 
     def search(self, request, value, **kwargs):
-        return CachedValue.objects.filter(value__icontains=value).prefetch_related('object')
+
+        # Define the search parameters
+        params = {
+            'value__icontains': value
+        }
+
+        # Construct the base queryset to retrieve matching results
+        queryset = CachedValue.objects.filter(**params).annotate(
+            # Annotate the rank of each result for its object according to its weight
+            row_number=Window(
+                expression=window.RowNumber(),
+                partition_by=[F('object_type'), F('object_id')],
+                order_by=[F('weight').asc()],
+            )
+        )
+
+        # Wrap the base query to return only the lowest-weight result for each object
+        # Hat-tip to https://blog.oyam.dev/django-filter-by-window-function/ for the solution
+        sql, params = queryset.query.sql_with_params()
+        return CachedValue.objects.prefetch_related('object').raw(
+            f"SELECT * FROM ({sql}) t WHERE row_number = 1",
+            params
+        )
 
     @classmethod
     def cache(cls, instance, data):
