@@ -4,11 +4,12 @@ from importlib import import_module
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models.signals import post_save
+from django.db.models.signals import post_delete, post_save
 
 from extras.models import CachedValue
 from extras.registry import registry
 from netbox.constants import SEARCH_MAX_RESULTS
+from . import SearchResult
 
 # The cache for the initialized backend.
 _backends_cache = {}
@@ -32,8 +33,9 @@ class SearchBackend:
 
     def __init__(self):
 
-        # Connect cache handler to the model post-save signal
-        post_save.connect(self.cache)
+        # Connect handlers to the appropriate model signals
+        post_save.connect(self.caching_handler)
+        post_delete.connect(self.removal_handler)
 
     def get_registry(self):
         r = {}
@@ -64,12 +66,43 @@ class SearchBackend:
         return self._search_choice_options
 
     def search(self, request, value, **kwargs):
-        """Execute a search query for the given value."""
+        """
+        Search cached object representations for the given value.
+        """
         raise NotImplementedError
 
-    @staticmethod
-    def cache(sender, instance, **kwargs):
-        """Create or update the cached copy of an instance."""
+    @classmethod
+    def caching_handler(cls, sender, instance, **kwargs):
+        """
+        Receiver for the post_save signal, responsible for caching object creation/changes.
+        """
+        try:
+            indexer = get_indexer(instance)
+        except KeyError:
+            # No indexer has been registered for this model
+            return
+        data = indexer.to_cache(instance)
+        cls.cache(instance, data)
+
+    @classmethod
+    def removal_handler(cls, sender, instance, **kwargs):
+        """
+        Receiver for the post_delete signal, responsible for caching object deletion.
+        """
+        cls.remove(instance)
+
+    @classmethod
+    def cache(cls, instance, data):
+        """
+        Create or update the cached representation of an instance.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def remove(cls, instance):
+        """
+        Delete any cached representation of an instance.
+        """
         raise NotImplementedError
 
 
@@ -84,7 +117,9 @@ class FilterSetSearchBackend(SearchBackend):
         search_registry = self.get_registry()
         for obj_type in search_registry.keys():
 
-            queryset = search_registry[obj_type].queryset
+            queryset = getattr(search_registry[obj_type], 'queryset', None)
+            if not queryset:
+                continue
 
             # Restrict the queryset for the current user
             if hasattr(queryset, 'restrict'):
@@ -98,14 +133,18 @@ class FilterSetSearchBackend(SearchBackend):
             queryset = filterset({'q': value}, queryset=queryset).qs[:SEARCH_MAX_RESULTS]
 
             results.extend([
-                {'object': obj}
-                for obj in queryset
+                SearchResult(obj) for obj in queryset
             ])
 
         return results
 
-    @staticmethod
-    def cache(sender, instance, **kwargs):
+    @classmethod
+    def cache(cls, instance, data):
+        # This backend does not utilize a cache
+        pass
+
+    @classmethod
+    def remove(cls, instance):
         # This backend does not utilize a cache
         pass
 
@@ -113,31 +152,29 @@ class FilterSetSearchBackend(SearchBackend):
 class CachedValueSearchBackend(SearchBackend):
 
     def search(self, request, value, **kwargs):
-        return CachedValue.objects.filter(value__icontains=value)
+        return CachedValue.objects.filter(value__icontains=value).prefetch_related('object')
 
-    @staticmethod
-    def cache(sender, instance, **kwargs):
-        try:
-            indexer = get_indexer(instance)
-        except KeyError:
-            return
-
-        data = indexer.to_cache(instance)
-
-        for field, value, weight in data:
-            if not value:
+    @classmethod
+    def cache(cls, instance, data):
+        for field in data:
+            if not field.value:
                 continue
             ct = ContentType.objects.get_for_model(instance)
             CachedValue.objects.update_or_create(
                 defaults={
-                    'value': value,
-                    'weight': weight,
+                    'value': field.value,
+                    'weight': field.weight,
                 },
                 object_type=ct,
                 object_id=instance.pk,
-                field=field,
-                type='text'  # TODO
+                field=field.name,
+                type=field.type
             )
+
+    @classmethod
+    def remove(cls, instance):
+        ct = ContentType.objects.get_for_model(instance)
+        CachedValue.objects.filter(object_type=ct, object_id=instance.pk).delete()
 
 
 def get_backend():

@@ -19,7 +19,7 @@ class Command(BaseCommand):
                 self.stdout.write(f'Reindexing {app_label}.{name}...', ending="\n")
                 model = idx.model
                 for instance in model.objects.all():
-                    search_backend.cache(model, instance)
+                    search_backend.caching_handler(model, instance)
 
         cache_size = CachedValue.objects.count()
         self.stdout.write(f'Done. Generated {cache_size} cached values', ending="\n")

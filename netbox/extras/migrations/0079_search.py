@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('object_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='contenttypes.contenttype')),
             ],
             options={
-                'ordering': ('weight', 'pk'),
+                'ordering': ('weight', 'object_type', 'object_id'),
             },
         ),
     ]

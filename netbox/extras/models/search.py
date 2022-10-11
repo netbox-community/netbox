@@ -34,7 +34,7 @@ class CachedValue(models.Model):
     )
 
     class Meta:
-        ordering = ('weight', 'pk')
+        ordering = ('weight', 'object_type', 'object_id')
 
     def __str__(self):
         return f'{self.object_type} {self.object_id}: {self.field}={self.value}'
