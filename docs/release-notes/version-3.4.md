@@ -20,9 +20,11 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 * [#9249](https://github.com/netbox-community/netbox/issues/9249) - Device and virtual machine names are no longer case-sensitive
 * [#9478](https://github.com/netbox-community/netbox/issues/9478) - Add `link_peers` field to GraphQL types for cabled objects
 * [#9654](https://github.com/netbox-community/netbox/issues/9654) - Add `weight` field to racks, device types, and module types
+* [#9817](https://github.com/netbox-community/netbox/issues/9817) - Add `assigned_object` field to GraphQL type for IP addresses and L2VPN terminations
 * [#9892](https://github.com/netbox-community/netbox/issues/9892) - Add optional `name` field for FHRP groups
 * [#10348](https://github.com/netbox-community/netbox/issues/10348) - Add decimal custom field type
 * [#10556](https://github.com/netbox-community/netbox/issues/10556) - Include a `display` field in all GraphQL object types
+* [#10595](https://github.com/netbox-community/netbox/issues/10595) - Add GraphQL relationships for additional generic foreign key fields
 
 ### Plugins API
 
@@ -55,3 +57,20 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 
 * All object types now include a `display` field
 * All cabled object types now include a `link_peers` field
+* Add a `contacts` relationship for all relevant models
+* dcim.Cable
+    * Add A/B terminations fields
+* dcim.CableTermination
+    * Add `termination` field
+* dcim.InventoryItem
+    * Add `component` field
+* dcim.InventoryItemTemplate
+    * Add `component` field
+* ipam.FHRPGroupAssignment
+    * Add `interface` field
+* ipam.IPAddress
+    * Add `assigned_object` field
+* ipam.L2VPNTermination
+    * Add `assigned_object` field
+* ipam.VLANGroupType
+    * Add `scope` field
