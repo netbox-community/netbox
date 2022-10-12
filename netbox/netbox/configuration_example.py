@@ -224,3 +224,7 @@ TIME_FORMAT = 'g:i a'
 SHORT_TIME_FORMAT = 'H:i:s'
 DATETIME_FORMAT = 'N j, Y g:i a'
 SHORT_DATETIME_FORMAT = 'Y-m-d H:i'
+
+# Allow API Tokens to be viewed after creation.  Before NetBox 3.4 the default was to allow viewing of the tokens
+# so this flag was created for backwards compatability.
+ALLOW_TOKEN_RETRIEVAL = False

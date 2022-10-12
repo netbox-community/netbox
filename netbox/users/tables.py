@@ -1,3 +1,4 @@
+from django.conf import settings
 from .models import Token
 from netbox.tables import NetBoxTable, columns
 
@@ -38,5 +39,11 @@ class TokenTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Token
         fields = (
-            'pk', 'key', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips', 'description',
+            'pk', 'description', 'key', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
         )
+
+    def render_key(self, value):
+        if settings.ALLOW_TOKEN_RETRIEVAL:
+            return value
+        else:
+            return "****************************************"
