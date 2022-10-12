@@ -51,12 +51,26 @@ class SearchIndex:
     @classmethod
     def to_cache(cls, instance):
         values = []
+
+        # Capture built-in fields
         for name, weight in cls.fields:
             type_ = cls.get_field_type(instance, name)
             value = cls.get_field_value(instance, name)
             values.append(
                 ObjectFieldValue(name, type_, weight, value)
             )
+
+        # Capture custom fields
+        if hasattr(instance, 'custom_field_data'):
+            for cf, value in instance.get_custom_fields().items():
+                type_ = cf.search_type
+                value = instance.custom_field_data.get(cf.name)
+                weight = cf.search_weight
+                if not type_ or not value or not weight:
+                    continue
+                values.append(
+                    ObjectFieldValue(f'cf_{cf.name}', type_, weight, value)
+                )
 
         return values
 

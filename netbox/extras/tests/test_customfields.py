@@ -292,6 +292,7 @@ class CustomFieldTest(TestCase):
         cf = CustomField.objects.create(
             name='object_field',
             type=CustomFieldTypeChoices.TYPE_OBJECT,
+            object_type=ContentType.objects.get_for_model(VLAN),
             required=False
         )
         cf.content_types.set([self.object_type])
@@ -323,6 +324,7 @@ class CustomFieldTest(TestCase):
         cf = CustomField.objects.create(
             name='object_field',
             type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
+            object_type=ContentType.objects.get_for_model(VLAN),
             required=False
         )
         cf.content_types.set([self.object_type])

@@ -33,8 +33,8 @@ class CustomFieldTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = CustomField
         fields = (
-            'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'weight', 'default',
-            'description', 'filter_logic', 'ui_visibility', 'choices', 'created', 'last_updated',
+            'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'default', 'description',
+            'search_weight', 'filter_logic', 'ui_visibility', 'weight', 'choices', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
 
