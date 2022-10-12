@@ -180,20 +180,27 @@ class CachedValueSearchBackend(SearchBackend):
 
     @classmethod
     def cache(cls, instance, data):
+        ct = ContentType.objects.get_for_model(instance)
+
+        # Wipe out any previously cached values for the object
+        CachedValue.objects.filter(object_type=ct, object_id=instance.pk).delete()
+
+        # Record any new non-empty values
+        cached_values = []
         for field in data:
             if not field.value:
                 continue
-            ct = ContentType.objects.get_for_model(instance)
-            CachedValue.objects.update_or_create(
-                defaults={
-                    'value': field.value,
-                    'weight': field.weight,
-                },
-                object_type=ct,
-                object_id=instance.pk,
-                field=field.name,
-                type=field.type
+            cached_values.append(
+                CachedValue(
+                    object_type=ct,
+                    object_id=instance.pk,
+                    field=field.name,
+                    type=field.type,
+                    weight=field.weight,
+                    value=field.value
+                )
             )
+        CachedValue.objects.bulk_create(cached_values)
 
     @classmethod
     def remove(cls, instance):
