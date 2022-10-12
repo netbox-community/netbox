@@ -11,10 +11,12 @@ from django.db.models.signals import post_delete, post_save
 from extras.models import CachedValue
 from extras.registry import registry
 from netbox.constants import SEARCH_MAX_RESULTS
-from . import SearchResult
+from . import FieldTypes, LookupTypes, SearchResult
 
 # The cache for the initialized backend.
 _backends_cache = {}
+
+DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL
 
 
 def get_indexer(model):
@@ -67,7 +69,7 @@ class SearchBackend:
 
         return self._search_choice_options
 
-    def search(self, request, value, **kwargs):
+    def search(self, request, value, lookup=DEFAULT_LOOKUP_TYPE):
         """
         Search cached object representations for the given value.
         """
@@ -113,7 +115,7 @@ class FilterSetSearchBackend(SearchBackend):
     Legacy search backend. Performs a discrete database query for each registered object type, using the FilterSet
     class specified by the index for each.
     """
-    def search(self, request, value, **kwargs):
+    def search(self, request, value, lookup=DEFAULT_LOOKUP_TYPE):
         results = []
 
         search_registry = self.get_registry()
@@ -153,12 +155,15 @@ class FilterSetSearchBackend(SearchBackend):
 
 class CachedValueSearchBackend(SearchBackend):
 
-    def search(self, request, value, **kwargs):
+    def search(self, request, value, lookup=DEFAULT_LOOKUP_TYPE):
 
         # Define the search parameters
         params = {
-            'value__icontains': value
+            f'value__{lookup}': value
         }
+        if lookup != LookupTypes.EXACT:
+            # Partial matches are valid only on string values
+            params['type'] = FieldTypes.STRING
 
         # Construct the base queryset to retrieve matching results
         queryset = CachedValue.objects.filter(**params).annotate(

@@ -8,10 +8,16 @@ ObjectFieldValue = namedtuple('ObjectFieldValue', ('name', 'type', 'weight', 'va
 
 
 class FieldTypes:
-    BOOLEAN = 'bool'
     FLOAT = 'float'
     INTEGER = 'int'
     STRING = 'str'
+
+
+class LookupTypes:
+    EXACT = 'iexact'
+    PARTIAL = 'icontains'
+    STARTSWITH = 'istartswith'
+    ENDSWITH = 'iendswith'
 
 
 class SearchIndex:
@@ -36,8 +42,6 @@ class SearchIndex:
     @staticmethod
     def get_field_type(instance, field_name):
         field_cls = instance._meta.get_field(field_name).__class__
-        if issubclass(field_cls, models.BooleanField):
-            return FieldTypes.BOOLEAN
         if issubclass(field_cls, (models.FloatField, models.DecimalField)):
             return FieldTypes.FLOAT
         if issubclass(field_cls, models.IntegerField):
