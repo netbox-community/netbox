@@ -11,7 +11,7 @@ class ClusterIndex(SearchIndex):
     model = Cluster
     fields = (
         ('name', 100),
-        ('comments', 1000),
+        ('comments', 5000),
     )
     queryset = Cluster.objects.prefetch_related('type', 'group').annotate(
         device_count=count_related(Device, 'cluster'), vm_count=count_related(VirtualMachine, 'cluster')
@@ -24,7 +24,7 @@ class VirtualMachineIndex(SearchIndex):
     model = VirtualMachine
     fields = (
         ('name', 100),
-        ('comments', 1000),
+        ('comments', 5000),
     )
     queryset = VirtualMachine.objects.prefetch_related(
         'cluster',

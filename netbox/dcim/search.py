@@ -20,7 +20,7 @@ class DeviceIndex(SearchIndex):
         ('asset_tag', 50),
         ('serial', 60),
         ('name', 100),
-        ('comments', 1000),
+        ('comments', 5000),
     )
     queryset = models.Device.objects.prefetch_related(
         'device_type__manufacturer',
@@ -40,7 +40,7 @@ class DeviceRoleIndex(SearchIndex):
     model = models.DeviceRole
     fields = (
         ('name', 100),
-        ('slug', 100),
+        ('slug', 110),
         ('description', 500),
     )
 
@@ -51,7 +51,7 @@ class DeviceTypeIndex(SearchIndex):
     fields = (
         ('model', 100),
         ('part_number', 200),
-        ('comments', 1000),
+        ('comments', 5000),
     )
     queryset = models.DeviceType.objects.prefetch_related('manufacturer').annotate(
         instance_count=count_related(models.Device, 'device_type')
@@ -64,7 +64,7 @@ class LocationIndex(SearchIndex):
     model = models.Location
     fields = (
         ('name', 100),
-        ('slug', 100),
+        ('slug', 110),
         ('description', 500),
     )
     queryset = models.Location.objects.add_related_count(
@@ -85,7 +85,7 @@ class ModuleIndex(SearchIndex):
     fields = (
         ('asset_tag', 50),
         ('serial', 60),
-        ('comments', 1000),
+        ('comments', 5000),
     )
     queryset = models.Module.objects.prefetch_related(
         'module_type__manufacturer',
@@ -101,7 +101,7 @@ class ModuleTypeIndex(SearchIndex):
     fields = (
         ('model', 100),
         ('part_number', 200),
-        ('comments', 1000),
+        ('comments', 5000),
     )
     queryset = models.ModuleType.objects.prefetch_related('manufacturer').annotate(
         instance_count=count_related(models.Module, 'module_type')
@@ -114,7 +114,7 @@ class PowerFeedIndex(SearchIndex):
     model = models.PowerFeed
     fields = (
         ('name', 100),
-        ('comments', 1000),
+        ('comments', 5000),
     )
     queryset = models.PowerFeed.objects.all()
     filterset = filtersets.PowerFeedFilterSet
@@ -127,8 +127,8 @@ class RackIndex(SearchIndex):
         ('asset_tag', 50),
         ('serial', 60),
         ('name', 100),
-        ('facility_id', 100),
-        ('comments', 1000),
+        ('facility_id', 200),
+        ('comments', 5000),
     )
     queryset = models.Rack.objects.prefetch_related('site', 'location', 'tenant', 'tenant__group', 'role').annotate(
         device_count=count_related(models.Device, 'rack')
@@ -151,7 +151,7 @@ class RegionIndex(SearchIndex):
     model = models.Region
     fields = (
         ('name', 100),
-        ('slug', 100),
+        ('slug', 110),
         ('description', 500)
     )
 
@@ -163,8 +163,8 @@ class SiteIndex(SearchIndex):
         ('name', 100),
         ('facility', 100),
         ('description', 500),
-        ('physical_address', 1000),
-        ('shipping_address', 1000),
+        ('physical_address', 2000),
+        ('shipping_address', 2000),
     )
     queryset = models.Site.objects.prefetch_related('region', 'tenant', 'tenant__group')
     filterset = filtersets.SiteFilterSet
@@ -175,7 +175,7 @@ class SiteGroupIndex(SearchIndex):
     model = models.SiteGroup
     fields = (
         ('name', 100),
-        ('slug', 100),
+        ('slug', 110),
         ('description', 500)
     )
 

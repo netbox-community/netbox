@@ -12,7 +12,7 @@ class WirelessLANIndex(SearchIndex):
     fields = (
         ('ssid', 100),
         ('description', 500),
-        ('auth_psk', 1000),
+        ('auth_psk', 2000),
     )
     queryset = WirelessLAN.objects.prefetch_related('group', 'vlan').annotate(
         interface_count=count_related(Interface, 'wireless_lans')
@@ -26,7 +26,7 @@ class WirelessLinkIndex(SearchIndex):
     fields = (
         ('ssid', 100),
         ('description', 500),
-        ('auth_psk', 1000),
+        ('auth_psk', 2000),
     )
     queryset = WirelessLink.objects.prefetch_related('interface_a__device', 'interface_b__device')
     filterset = wireless.filtersets.WirelessLinkFilterSet

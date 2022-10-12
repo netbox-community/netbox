@@ -9,7 +9,7 @@ class CircuitIndex(SearchIndex):
     fields = (
         ('cid', 100),
         ('description', 500),
-        ('comments', 1000),
+        ('comments', 5000),
     )
     queryset = models.Circuit.objects.prefetch_related(
         'type', 'provider', 'tenant', 'tenant__group', 'terminations__site'
@@ -34,7 +34,7 @@ class CircuitTypeIndex(SearchIndex):
     model = models.CircuitType
     fields = (
         ('name', 100),
-        ('slug', 100),
+        ('slug', 110),
         ('description', 500),
     )
 
@@ -45,7 +45,7 @@ class ProviderIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('account', 200),
-        ('comments', 1000),
+        ('comments', 5000),
     )
     queryset = models.Provider.objects.annotate(
         count_circuits=count_related(models.Circuit, 'provider')
@@ -60,7 +60,7 @@ class ProviderNetworkIndex(SearchIndex):
         ('name', 100),
         ('service_id', 200),
         ('description', 500),
-        ('comments', 1000),
+        ('comments', 5000),
     )
     queryset = models.ProviderNetwork.objects.prefetch_related('provider')
     filterset = filtersets.ProviderNetworkFilterSet

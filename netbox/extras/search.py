@@ -8,7 +8,7 @@ from netbox.search import SearchIndex, register_search
 class JournalEntryIndex(SearchIndex):
     model = JournalEntry
     fields = (
-        ('comments', 1000),
+        ('comments', 5000),
     )
     queryset = JournalEntry.objects.prefetch_related('assigned_object', 'created_by')
     filterset = extras.filtersets.JournalEntryFilterSet
