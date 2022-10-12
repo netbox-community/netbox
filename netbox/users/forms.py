@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.html import mark_safe
@@ -117,3 +118,12 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'expires': DateTimePicker(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        if instance and instance.id and not settings.ALLOW_TOKEN_RETRIEVAL:
+            keyfield = self.fields['key']
+            keyfield.disabled = True
+            keyfield.required = False
+            keyfield.widget = forms.HiddenInput()
