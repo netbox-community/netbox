@@ -9,7 +9,8 @@
 ### Bug Fixes
 
 * [#9669](https://github.com/netbox-community/netbox/issues/9669) - Strip colons from usernames when using remote authentication
-
+* [#10575](https://github.com/netbox-community/netbox/issues/10575) - Include OIDC dependencies for python-social-auth
+* [#10596](https://github.com/netbox-community/netbox/issues/10596) - Panels should scroll horizontally to accomodate overflow data
 
 ---
 
