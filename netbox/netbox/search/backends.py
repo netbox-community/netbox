@@ -11,7 +11,7 @@ from django.db.models.signals import post_delete, post_save
 from extras.models import CachedValue
 from extras.registry import registry
 from netbox.constants import SEARCH_MAX_RESULTS
-from . import FieldTypes, LookupTypes, SearchResult
+from . import FieldTypes, LookupTypes, SearchResult, get_registry
 
 # The cache for the initialized backend.
 _backends_cache = {}
@@ -40,13 +40,6 @@ class SearchBackend:
         # Connect handlers to the appropriate model signals
         post_save.connect(self.caching_handler)
         post_delete.connect(self.removal_handler)
-
-    def get_registry(self):
-        r = {}
-        for app_label, models in registry['search'].items():
-            r.update(**models)
-
-        return r
 
     def get_search_choices(self):
         """Return the set of choices for individual object types, organized by category."""
@@ -118,7 +111,7 @@ class FilterSetSearchBackend(SearchBackend):
     def search(self, request, value, lookup=DEFAULT_LOOKUP_TYPE):
         results = []
 
-        search_registry = self.get_registry()
+        search_registry = get_registry()
         for obj_type in search_registry.keys():
 
             queryset = getattr(search_registry[obj_type], 'queryset', None)

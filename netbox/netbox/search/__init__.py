@@ -20,6 +20,14 @@ class LookupTypes:
     ENDSWITH = 'iendswith'
 
 
+def get_registry():
+    r = {}
+    for app_label, models in registry['search'].items():
+        r.update(**models)
+
+    return r
+
+
 class SearchIndex:
     """
     Base class for building search indexes.

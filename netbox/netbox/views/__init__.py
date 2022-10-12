@@ -21,8 +21,8 @@ from dcim.models import (
 from extras.models import ObjectChange
 from extras.tables import ObjectChangeTable
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF
-from netbox.constants import SEARCH_MAX_RESULTS
 from netbox.forms import SearchForm
+from netbox.search import get_registry
 from netbox.search.backends import search_backend
 from tenancy.models import Tenant
 from virtualization.models import Cluster, VirtualMachine
@@ -153,9 +153,9 @@ class SearchView(View):
         results = []
 
         if form.is_valid():
-            search_registry = search_backend.get_registry()
             # If an object type has been specified, redirect to the dedicated view for it
             if form.cleaned_data['obj_type']:
+                search_registry = get_registry()
                 object_type = form.cleaned_data['obj_type']
                 url = reverse(search_registry[object_type].url)
                 return redirect(f"{url}?q={form.cleaned_data['q']}")
