@@ -59,7 +59,6 @@ markdown_extensions:
     - pymdownx.tabbed:
         alternate_style: true
 nav:
-    - NetBox: 'index.md'
     - Introduction: 'introduction.md'
     - Features:
         - Facilities: 'features/facilities.md'
