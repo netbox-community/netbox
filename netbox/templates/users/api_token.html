@@ -1,0 +1,35 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Token Created</h5>
+        <div class="card-body">
+          <p>The token has been created, you will need to copy the key as it will no longer be displayed for security purposes.</p>
+          <table class="table table-hover attr-table">
+            <tr>
+              <td>Key</td>
+              <td>{{ object.key }}</td>
+            </tr>
+          </table>
+    <form method="post">
+      {% csrf_token %}
+      <div class="row my-3">
+        <div class="col col-md-12 text-center">
+          <button type="submit" name="_addanother" class="btn btn-outline-primary">
+            Add Another
+          </button>
+          <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+        </div>
+      </div>
+    </form>
+
+        </div>
+      </div>
+      {% plugin_left_page object %}
+    </div>
+  </div>
+{% endblock %}

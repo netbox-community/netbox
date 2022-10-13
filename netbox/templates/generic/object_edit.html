@@ -109,9 +109,11 @@ Context:
               <button type="submit" name="_create" class="btn btn-primary">
                 Create
               </button>
+              {% if not disable_addanother %}
               <button type="submit" name="_addanother" class="btn btn-outline-primary">
                 Create & Add Another
               </button>
+              {% endif %}
             {% endif %}
             <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
           {% endblock buttons %}

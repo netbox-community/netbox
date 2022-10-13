@@ -261,6 +261,7 @@ class TokenEditView(LoginRequiredMixin, View):
             'object': token,
             'form': form,
             'return_url': reverse('users:token_list'),
+            'disable_addanother': not settings.ALLOW_TOKEN_RETRIEVAL
         })
 
     def post(self, request, pk=None):
@@ -280,7 +281,9 @@ class TokenEditView(LoginRequiredMixin, View):
             msg = f"Modified token {token}" if pk else f"Created token {token}"
             messages.success(request, msg)
 
-            if '_addanother' in request.POST:
+            if not pk and not settings.ALLOW_TOKEN_RETRIEVAL:
+                return redirect('users:token_key', pk=token.pk)
+            elif '_addanother' in request.POST:
                 return redirect(request.path)
             else:
                 return redirect('users:token_list')
@@ -289,6 +292,7 @@ class TokenEditView(LoginRequiredMixin, View):
             'object': token,
             'form': form,
             'return_url': reverse('users:token_list'),
+            'disable_addanother': not settings.ALLOW_TOKEN_RETRIEVAL
         })
 
 
@@ -322,3 +326,23 @@ class TokenDeleteView(LoginRequiredMixin, View):
             'form': form,
             'return_url': reverse('users:token_list'),
         })
+
+
+class TokenKeyView(LoginRequiredMixin, View):
+
+    def get(self, request, pk):
+        token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+
+        return render(request, 'users/api_token.html', {
+            'object': token,
+            'key': token.key,
+            'return_url': reverse('users:token_list'),
+        })
+
+    def post(self, request, pk):
+        token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+
+        if '_addanother' in request.POST:
+            return redirect('users:token_add')
+        else:
+            return redirect('users:token_list')
