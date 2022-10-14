@@ -321,12 +321,34 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         return ImportForm(*args, **kwargs)
 
-    def _create_objects(self, form, request):
-        new_objs = []
+    def _get_records(self, form, request):
         if request.FILES:
             headers, records = form.cleaned_data['csv_file']
         else:
             headers, records = form.cleaned_data['csv']
+
+        return headers, records
+
+    def _update_objects(self, form, request, headers, records):
+        new_objs = []
+
+        for row, data in enumerate(records, start=1):
+            data = self.queryset.model.get(pk=data["pk"]) | data
+            obj_form = self.model_form(data, headers=headers)
+            restrict_form_fields(obj_form, request.user)
+
+            if obj_form.is_valid():
+                obj = self._save_obj(obj_form, request)
+                new_objs.append(obj)
+            else:
+                for field, err in obj_form.errors.items():
+                    form.add_error('csv', f'Row {row} {field}: {err[0]}')
+                raise ValidationError("")
+
+        return new_objs
+
+    def _create_objects(self, form, request, headers, records):
+        new_objs = []
 
         for row, data in enumerate(records, start=1):
             obj_form = self.model_form(data, headers=headers)
@@ -375,7 +397,11 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             try:
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
-                    new_objs = self._create_objects(form, request)
+                    headers, records = self._get_records(form, request)
+                    if "pk" in headers:
+                        new_objs = self._update_objects(form, request, headers, records)
+                    else:
+                        new_objs = self._create_objects(form, request, headers, records)
 
                     # Enforce object-level permissions
                     if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
