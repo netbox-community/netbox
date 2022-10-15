@@ -2,6 +2,8 @@ import collections
 import inspect
 from packaging import version
 
+from importlib import import_module
+
 from django.apps import AppConfig
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import get_template
@@ -60,9 +62,13 @@ class PluginConfig(AppConfig):
     menu_items = 'navigation.menu_items'
     template_extensions = 'template_content.template_extensions'
     user_preferences = 'preferences.preferences'
+    signals = 'signals'
 
     def ready(self):
         plugin_name = self.name.rsplit('.', 1)[-1]
+        
+        # import signals module (if existing)
+        import_module(f"{self.__module__}.{self.signals}")
 
         # Register template content (if defined)
         template_extensions = import_object(f"{self.__module__}.{self.template_extensions}")
