@@ -14,6 +14,8 @@ class Command(_Command):
     of only the 'default' queue).
     """
     def handle(self, *args, **options):
+        # Run the worker with scheduler functionality
+        options['with_scheduler'] = True
 
         # If no queues have been specified on the command line, listen on all configured queues.
         if len(args) < 1:
