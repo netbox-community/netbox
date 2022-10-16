@@ -136,7 +136,7 @@ Once you have created a report, it will appear in the reports list. Initially, r
 
 ### Via the Web UI
 
-Reports can be run via the web UI by navigating to the report and clicking the "run report" button at top right. Once a report has been run, its associated results will be included in the report view.
+Reports can be run via the web UI by navigating to the report and clicking the "run report" button at top right. Once a report has been run, its associated results will be included in the report view. It is possible to schedule a report to be executed at specified time in the future. A scheduled report can be canceled by deleting the associated job result object.
 
 ### Via the API
 
