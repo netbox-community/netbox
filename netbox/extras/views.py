@@ -813,7 +813,7 @@ class JobResultListView(generic.ObjectListView):
     filterset = filtersets.JobResultFilterSet
     filterset_form = forms.JobResultFilterForm
     table = tables.JobResultTable
-    actions = ('delete', 'bulk_delete', )
+    actions = ('export', 'delete', 'bulk_delete', )
 
 
 class JobResultDeleteView(generic.ObjectDeleteView):
