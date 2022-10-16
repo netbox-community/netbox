@@ -3,6 +3,9 @@
 
 <p>
   Initiated: <strong>{{ result.created|annotated_date }}</strong>
+  {% if result.scheduled_time %}
+    Scheduled for: <strong>{{ result.scheduled_time|annotated_date }}</strong>
+  {% endif %}
   {% if result.completed %}
     Duration: <strong>{{ result.duration }}</strong>
   {% endif %}

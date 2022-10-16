@@ -70,7 +70,7 @@ class JobResultFilterForm(FilterForm):
     fieldsets = (
         (None, ('q',)),
         ('Attributes', ('obj_type', 'status')),
-        ('Creation', ('created_before', 'created_after', 'completed_before', 'completed_after', 'user')),
+        ('Creation', ('created_before', 'created_after', 'completed_before', 'completed_after', 'scheduled_time_before', 'scheduled_time_after', 'user')),
     )
 
     obj_type = ContentTypeChoiceField(
@@ -96,6 +96,14 @@ class JobResultFilterForm(FilterForm):
         widget=DateTimePicker()
     )
     completed_before = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    scheduled_time_after = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    scheduled_time_before = forms.DateTimeField(
         required=False,
         widget=DateTimePicker()
     )

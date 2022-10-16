@@ -437,6 +437,7 @@ class JobResultFilterSet(BaseFilterSet):
     )
     created = django_filters.DateTimeFromToRangeFilter()
     completed = django_filters.DateTimeFromToRangeFilter()
+    scheduled_time = django_filters.DateTimeFromToRangeFilter()
     status = django_filters.MultipleChoiceFilter(
         choices=JobResultStatusChoices,
         null_value=None
@@ -445,7 +446,7 @@ class JobResultFilterSet(BaseFilterSet):
     class Meta:
         model = JobResult
         fields = [
-            'id', 'created', 'completed', 'status', 'user', 'obj_type', 'name'
+            'id', 'created', 'completed', 'scheduled_time', 'status', 'user', 'obj_type', 'name'
         ]
 
     def search(self, queryset, name, value):
