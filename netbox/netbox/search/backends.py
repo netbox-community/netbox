@@ -161,7 +161,9 @@ class FilterSetSearchBackend(SearchBackend):
 
 class CachedValueSearchBackend(SearchBackend):
 
-    def search(self, request, value, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
+    def search(self, request, value, object_types=None, lookup=None):
+        if not lookup:
+            lookup = DEFAULT_LOOKUP_TYPE
 
         # Define the search parameters
         params = {

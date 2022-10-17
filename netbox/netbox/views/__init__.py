@@ -163,7 +163,12 @@ class SearchView(View):
                 app_label, model_name = obj_type.split('.')
                 object_types.append(ContentType.objects.get_by_natural_key(app_label, model_name))
 
-            results = search_backend.search(request, form.cleaned_data['q'], object_types=object_types)
+            results = search_backend.search(
+                request,
+                form.cleaned_data['q'],
+                object_types=object_types,
+                lookup=form.cleaned_data['lookup']
+            )
 
         return render(request, 'search.html', {
             'form': form,

@@ -14,8 +14,8 @@ class FieldTypes:
 
 
 class LookupTypes:
-    EXACT = 'iexact'
     PARTIAL = 'icontains'
+    EXACT = 'iexact'
     STARTSWITH = 'istartswith'
     ENDSWITH = 'iendswith'
 
