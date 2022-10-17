@@ -11,6 +11,7 @@ from django.db.models.signals import post_delete, post_save
 from extras.models import CachedValue
 from extras.registry import registry
 from netbox.constants import SEARCH_MAX_RESULTS
+from utilities.querysets import RestrictedPrefetch
 from . import FieldTypes, LookupTypes, SearchResult, get_registry
 
 # The cache for the initialized backend.
@@ -151,6 +152,7 @@ class CachedValueSearchBackend(SearchBackend):
     def search(self, request, value, lookup=DEFAULT_LOOKUP_TYPE):
 
         # Define the search parameters
+        # TODO: Filter object types to only those which the use has permission to view
         params = {
             f'value__{lookup}': value
         }
@@ -168,13 +170,23 @@ class CachedValueSearchBackend(SearchBackend):
             )
         )
 
+        # Construct a Prefetch to pre-fetch only those related objects for which the
+        # user has permission to view.
+        prefetch = RestrictedPrefetch('object', request.user, 'view')
+
         # Wrap the base query to return only the lowest-weight result for each object
         # Hat-tip to https://blog.oyam.dev/django-filter-by-window-function/ for the solution
         sql, params = queryset.query.sql_with_params()
-        return CachedValue.objects.prefetch_related('object').raw(
+        results = CachedValue.objects.prefetch_related(prefetch).raw(
             f"SELECT * FROM ({sql}) t WHERE row_number = 1",
             params
         )
+
+        # Omit any results pertaining to an object the user does not have permission to view
+        # TODO: We'll have to figure out how to handle pagination
+        return [
+            r for r in results if r.object is not None
+        ]
 
     @classmethod
     def cache(cls, instance, data):

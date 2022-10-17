@@ -2,6 +2,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from utilities.fields import RestrictedGenericForeignKey
+
 __all__ = (
     'CachedValue',
 )
@@ -18,7 +20,7 @@ class CachedValue(models.Model):
         related_name='+'
     )
     object_id = models.PositiveBigIntegerField()
-    object = GenericForeignKey(
+    object = RestrictedGenericForeignKey(
         ct_field='object_type',
         fk_field='object_id'
     )

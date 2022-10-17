@@ -1,7 +1,34 @@
-from django.db.models import QuerySet
+from django.db.models import Prefetch, QuerySet
 
 from users.constants import CONSTRAINT_TOKEN_USER
 from utilities.permissions import permission_is_exempt, qs_filter_from_constraints
+
+
+class RestrictedPrefetch(Prefetch):
+    """
+    Extend Django's Prefetch to accept a user and action to be passed to the
+    `restrict()` method of the related object's queryset.
+    """
+    def __init__(self, lookup, user, action='view', queryset=None, to_attr=None):
+        self.restrict_user = user
+        self.restrict_action = action
+
+        super().__init__(lookup, queryset=queryset, to_attr=to_attr)
+
+    def get_current_queryset(self, level):
+        params = {
+            'user': self.restrict_user,
+            'action': self.restrict_action,
+        }
+
+        qs = super().get_current_queryset(level)
+        if qs:
+            return qs.filter(**params)
+
+        # Bit of a hack. If no queryset is defined, pass through the dict of restrict()
+        # kwargs to be called later. This is necessary e.g. for GenericForeignKey fields,
+        # which do not permit setting a queryset on a Prefetch object.
+        return params
 
 
 class RestrictedQuerySet(QuerySet):
