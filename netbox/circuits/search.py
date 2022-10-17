@@ -1,6 +1,6 @@
-from circuits import filtersets, models
 from netbox.search import SearchIndex, register_search
 from utilities.utils import count_related
+from . import filtersets, models
 
 
 @register_search()

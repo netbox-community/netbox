@@ -1,13 +1,11 @@
-import tenancy.filtersets
-import tenancy.tables
 from netbox.search import SearchIndex, register_search
-from tenancy.models import Contact, ContactAssignment, Tenant
 from utilities.utils import count_related
+from . import filtersets, models
 
 
 @register_search()
 class ContactIndex(SearchIndex):
-    model = Contact
+    model = models.Contact
     fields = (
         ('name', 100),
         ('title', 300),
@@ -17,20 +15,50 @@ class ContactIndex(SearchIndex):
         ('link', 300),
         ('comments', 5000),
     )
-    queryset = Contact.objects.prefetch_related('group', 'assignments').annotate(
-        assignment_count=count_related(ContactAssignment, 'contact')
+    queryset = models.Contact.objects.prefetch_related('group', 'assignments').annotate(
+        assignment_count=count_related(models.ContactAssignment, 'contact')
     )
-    filterset = tenancy.filtersets.ContactFilterSet
+    filterset = filtersets.ContactFilterSet
+
+
+@register_search()
+class ContactGroupIndex(SearchIndex):
+    model = models.ContactGroup
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )
+
+
+@register_search()
+class ContactRoleIndex(SearchIndex):
+    model = models.ContactRole
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )
 
 
 @register_search()
 class TenantIndex(SearchIndex):
-    model = Tenant
+    model = models.Tenant
     fields = (
         ('name', 100),
         ('slug', 110),
         ('description', 500),
         ('comments', 5000),
     )
-    queryset = Tenant.objects.prefetch_related('group')
-    filterset = tenancy.filtersets.TenantFilterSet
+    queryset = models.Tenant.objects.prefetch_related('group')
+    filterset = filtersets.TenantFilterSet
+
+
+@register_search()
+class TenantGroupIndex(SearchIndex):
+    model = models.TenantGroup
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )

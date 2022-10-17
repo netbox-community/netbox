@@ -1,6 +1,6 @@
-from dcim import filtersets, models
 from netbox.search import SearchIndex, register_search
 from utilities.utils import count_related
+from . import filtersets, models
 
 
 @register_search()
@@ -11,6 +11,28 @@ class CableIndex(SearchIndex):
     )
     queryset = models.Cable.objects.all()
     filterset = filtersets.CableFilterSet
+
+
+@register_search()
+class ConsolePortIndex(SearchIndex):
+    model = models.ConsolePort
+    fields = (
+        ('name', 100),
+        ('label', 200),
+        ('description', 500),
+        ('speed', 2000),
+    )
+
+
+@register_search()
+class ConsoleServerPortIndex(SearchIndex):
+    model = models.ConsoleServerPort
+    fields = (
+        ('name', 100),
+        ('label', 200),
+        ('description', 500),
+        ('speed', 2000),
+    )
 
 
 @register_search()
@@ -33,6 +55,16 @@ class DeviceIndex(SearchIndex):
         'primary_ip6',
     )
     filterset = filtersets.DeviceFilterSet
+
+
+@register_search()
+class DeviceBayIndex(SearchIndex):
+    model = models.DeviceBay
+    fields = (
+        ('name', 100),
+        ('label', 200),
+        ('description', 500),
+    )
 
 
 @register_search()
@@ -60,6 +92,43 @@ class DeviceTypeIndex(SearchIndex):
 
 
 @register_search()
+class FrontPortIndex(SearchIndex):
+    model = models.FrontPort
+    fields = (
+        ('name', 100),
+        ('label', 200),
+        ('description', 500),
+    )
+
+
+@register_search()
+class InterfaceIndex(SearchIndex):
+    model = models.Interface
+    fields = (
+        ('name', 100),
+        ('label', 200),
+        ('mac_address', 300),
+        ('wwn', 300),
+        ('description', 500),
+        ('mtu', 2000),
+        ('speed', 2000),
+    )
+
+
+@register_search()
+class InventoryItemIndex(SearchIndex):
+    model = models.InventoryItem
+    fields = (
+        ('asset_tag', 50),
+        ('serial', 60),
+        ('name', 100),
+        ('label', 200),
+        ('description', 500),
+        ('part_id', 2000),
+    )
+
+
+@register_search()
 class LocationIndex(SearchIndex):
     model = models.Location
     fields = (
@@ -80,6 +149,16 @@ class LocationIndex(SearchIndex):
 
 
 @register_search()
+class ManufacturerIndex(SearchIndex):
+    model = models.Manufacturer
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )
+
+
+@register_search()
 class ModuleIndex(SearchIndex):
     model = models.Module
     fields = (
@@ -93,6 +172,16 @@ class ModuleIndex(SearchIndex):
         'module_bay',
     )
     filterset = filtersets.ModuleFilterSet
+
+
+@register_search()
+class ModuleBayIndex(SearchIndex):
+    model = models.ModuleBay
+    fields = (
+        ('name', 100),
+        ('label', 200),
+        ('description', 500),
+    )
 
 
 @register_search()
@@ -110,6 +199,17 @@ class ModuleTypeIndex(SearchIndex):
 
 
 @register_search()
+class PlatformIndex(SearchIndex):
+    model = models.Platform
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('napalm_driver', 300),
+        ('description', 500),
+    )
+
+
+@register_search()
 class PowerFeedIndex(SearchIndex):
     model = models.PowerFeed
     fields = (
@@ -118,6 +218,36 @@ class PowerFeedIndex(SearchIndex):
     )
     queryset = models.PowerFeed.objects.all()
     filterset = filtersets.PowerFeedFilterSet
+
+
+@register_search()
+class PowerOutletIndex(SearchIndex):
+    model = models.PowerOutlet
+    fields = (
+        ('name', 100),
+        ('label', 200),
+        ('description', 500),
+    )
+
+
+@register_search()
+class PowerPanelIndex(SearchIndex):
+    model = models.PowerPanel
+    fields = (
+        ('name', 100),
+    )
+
+
+@register_search()
+class PowerPortIndex(SearchIndex):
+    model = models.PowerPort
+    fields = (
+        ('name', 100),
+        ('label', 200),
+        ('description', 500),
+        ('maximum_draw', 2000),
+        ('allocated_draw', 2000),
+    )
 
 
 @register_search()
@@ -144,6 +274,26 @@ class RackReservationIndex(SearchIndex):
     )
     queryset = models.RackReservation.objects.prefetch_related('rack', 'user')
     filterset = filtersets.RackReservationFilterSet
+
+
+@register_search()
+class RackRoleIndex(SearchIndex):
+    model = models.RackRole
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )
+
+
+@register_search()
+class RearPortIndex(SearchIndex):
+    model = models.RearPort
+    fields = (
+        ('name', 100),
+        ('label', 200),
+        ('description', 500),
+    )
 
 
 @register_search()

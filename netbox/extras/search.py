@@ -1,15 +1,13 @@
-import extras.filtersets
-import extras.tables
-from extras.models import JournalEntry
 from netbox.search import SearchIndex, register_search
+from . import filtersets, models
 
 
 @register_search()
 class JournalEntryIndex(SearchIndex):
-    model = JournalEntry
+    model = models.JournalEntry
     fields = (
         ('comments', 5000),
     )
-    queryset = JournalEntry.objects.prefetch_related('assigned_object', 'created_by')
-    filterset = extras.filtersets.JournalEntryFilterSet
+    queryset = models.JournalEntry.objects.prefetch_related('assigned_object', 'created_by')
+    filterset = filtersets.JournalEntryFilterSet
     category = 'Journal'
