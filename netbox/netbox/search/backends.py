@@ -51,19 +51,20 @@ class SearchBackend:
             for app_label, models in registry['search'].items():
                 for name, cls in models.items():
                     title = cls.model._meta.verbose_name.title()
-                    categories[cls.get_category()][name] = title
+                    value = f'{app_label}.{name}'
+                    categories[cls.get_category()][value] = title
 
             # Compile a nested tuple of choices for form rendering
             results = (
                 ('', 'All Objects'),
-                *[(category, choices.items()) for category, choices in categories.items()]
+                *[(category, list(choices.items())) for category, choices in categories.items()]
             )
 
             self._search_choice_options = results
 
         return self._search_choice_options
 
-    def search(self, request, value, lookup=DEFAULT_LOOKUP_TYPE):
+    def search(self, request, value, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
         """
         Search cached object representations for the given value.
         """
@@ -114,11 +115,16 @@ class FilterSetSearchBackend(SearchBackend):
     Legacy search backend. Performs a discrete database query for each registered object type, using the FilterSet
     class specified by the index for each.
     """
-    def search(self, request, value, lookup=DEFAULT_LOOKUP_TYPE):
+    def search(self, request, value, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
         results = []
 
         search_registry = get_registry()
-        for obj_type in search_registry.keys():
+        if object_types is not None:
+            keys = [f'{ct.app_label}.{ct.name}' for ct in object_types]
+        else:
+            keys = search_registry.keys()
+
+        for obj_type in keys:
 
             queryset = getattr(search_registry[obj_type], 'queryset', None)
             if not queryset:
@@ -154,16 +160,17 @@ class FilterSetSearchBackend(SearchBackend):
 
 class CachedValueSearchBackend(SearchBackend):
 
-    def search(self, request, value, lookup=DEFAULT_LOOKUP_TYPE):
+    def search(self, request, value, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
 
         # Define the search parameters
-        # TODO: Filter object types to only those which the use has permission to view
         params = {
             f'value__{lookup}': value
         }
         if lookup != LookupTypes.EXACT:
             # Partial matches are valid only on string values
             params['type'] = FieldTypes.STRING
+        if object_types:
+            params['object_type__in'] = object_types
 
         # Construct the base queryset to retrieve matching results
         queryset = CachedValue.objects.filter(**params).annotate(

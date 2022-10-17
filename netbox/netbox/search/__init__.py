@@ -23,7 +23,8 @@ class LookupTypes:
 def get_registry():
     r = {}
     for app_label, models in registry['search'].items():
-        r.update(**models)
+        for model_name, idx in models.items():
+            r[f'{app_label}.{model_name}'] = idx
 
     return r
 

@@ -2,6 +2,7 @@ import platform
 import sys
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.http import HttpResponseServerError
 from django.shortcuts import redirect, render
@@ -150,17 +151,19 @@ class SearchView(View):
 
     def get(self, request):
         form = SearchForm(request.GET)
+        object_types = None
         results = []
 
         if form.is_valid():
-            # If an object type has been specified, redirect to the dedicated view for it
-            if form.cleaned_data['obj_type']:
-                search_registry = get_registry()
-                object_type = form.cleaned_data['obj_type']
-                url = reverse(search_registry[object_type].url)
-                return redirect(f"{url}?q={form.cleaned_data['q']}")
 
-            results = search_backend.search(request, form.cleaned_data['q'])
+            # Restrict results by object type
+            if form.cleaned_data['obj_type']:
+                app_label, model_name = form.cleaned_data['obj_type'].split('.')
+                object_types = [
+                    ContentType.objects.get_by_natural_key(app_label, model_name)
+                ]
+
+            results = search_backend.search(request, form.cleaned_data['q'], object_types=object_types)
 
         return render(request, 'search.html', {
             'form': form,
