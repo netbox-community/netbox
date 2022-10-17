@@ -1,5 +1,7 @@
 {% extends 'base/layout.html' %}
 {% load helpers %}
+{% load buttons %}
+{% load perms %}
 
 {% block title %}{{ script }}{% endblock %}
 
@@ -22,6 +24,16 @@
   </div>
   {{ block.super }}
 {% endblock header %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% if request.user|can_delete:result %}
+        {% delete_button result %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock controls %}
 
 {% block content-wrapper %}
   <ul class="nav nav-tabs px-3" role="tablist">
@@ -46,3 +58,7 @@
     </div>
   </div>
 {% endblock content-wrapper %}
+
+{% block modals %}
+  {% include 'inc/htmx_modal.html' %}
+{% endblock modals %}
