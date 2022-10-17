@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
@@ -30,7 +29,9 @@ class CachedValue(models.Model):
     type = models.CharField(
         max_length=30
     )
-    value = models.TextField()
+    value = models.TextField(
+        db_index=True
+    )
     weight = models.PositiveSmallIntegerField(
         default=1000
     )
