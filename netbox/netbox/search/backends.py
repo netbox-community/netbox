@@ -87,6 +87,11 @@ class SearchBackend:
         """
         Receiver for the post_delete signal, responsible for caching object deletion.
         """
+        try:
+            get_indexer(instance)
+        except KeyError:
+            # Avoid attempting to query for non-cacheable objects
+            return
         cls.remove(instance)
 
     @classmethod
@@ -193,7 +198,7 @@ class CachedValueSearchBackend(SearchBackend):
         ct = ContentType.objects.get_for_model(instance)
 
         # Wipe out any previously cached values for the object
-        CachedValue.objects.filter(object_type=ct, object_id=instance.pk).delete()
+        cls.remove(instance)
 
         # Record any new non-empty values
         cached_values = []
