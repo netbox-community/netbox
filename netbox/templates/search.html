@@ -16,10 +16,21 @@
 {% endblock tabs %}
 
 {% block content-wrapper %}
-  <div class="tab-content">
+    <div class="row px-3">
+      <div class="col col-6 offset-3 py-3">
+        <form action="{% url 'search' %}" method="get" class="form form-horizontal">
+          {% render_form form %}
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary">
+              <span class="mdi mdi-magnify" aria-hidden="true"></span> Search
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
     {% if request.GET.q %}
         {% if results %}
-            <div class="row">
+            <div class="row px-3">
                 <div class="col">
                   <div class="card">
                     <div class="card-body table-responsive">
@@ -32,7 +43,7 @@
                         </tr>
                         {% for result in results %}
                           <tr>
-                            <td>{{ result.object|content_type }}</td>
+                            <td>{{ result.object|meta:"verbose_name"|bettertitle }}</td>
                             <td>
                               <a href="{{ result.object.get_absolute_url }}">{{ result.object }}</a>
                             </td>
@@ -48,26 +59,5 @@
         {% else %}
             <h3 class="text-muted text-center">No results found</h3>
         {% endif %}
-    {% else %}
-        <div class="row">
-            <div class="col col-12 col-lg-6 offset-lg-3">
-                <form action="{% url 'search' %}" method="get" class="form form-horizontal">
-                    <div class="card">
-                        <h5 class="card-header">
-                            Search
-                        </h5>
-                        <div class="card-body">
-                            {% render_form form %}
-                        </div>
-                        <div class="card-footer text-end">
-                            <button type="submit" class="btn btn-primary">
-                                <span class="mdi mdi-magnify" aria-hidden="true"></span> Search
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
     {% endif %}
-  </div>
 {% endblock content-wrapper %}

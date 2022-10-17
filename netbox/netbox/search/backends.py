@@ -12,6 +12,7 @@ from extras.models import CachedValue
 from extras.registry import registry
 from netbox.constants import SEARCH_MAX_RESULTS
 from utilities.querysets import RestrictedPrefetch
+from utilities.templatetags.builtins.filters import bettertitle
 from . import FieldTypes, LookupTypes, SearchResult, get_registry
 
 # The cache for the initialized backend.
@@ -42,7 +43,7 @@ class SearchBackend:
         post_save.connect(self.caching_handler)
         post_delete.connect(self.removal_handler)
 
-    def get_search_choices(self):
+    def get_object_types(self):
         """Return the set of choices for individual object types, organized by category."""
         if not self._search_choice_options:
 
@@ -50,7 +51,7 @@ class SearchBackend:
             categories = defaultdict(dict)
             for app_label, models in registry['search'].items():
                 for name, cls in models.items():
-                    title = cls.model._meta.verbose_name.title()
+                    title = bettertitle(cls.model._meta.verbose_name)
                     value = f'{app_label}.{name}'
                     categories[cls.get_category()][value] = title
 

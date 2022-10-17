@@ -1,7 +1,7 @@
 from django import forms
 
 from netbox.search.backends import search_backend
-from utilities.forms import BootstrapMixin
+from utilities.forms import BootstrapMixin, StaticSelectMultiple
 
 from .base import *
 
@@ -21,18 +21,21 @@ def build_options(choices):
 
 class SearchForm(BootstrapMixin, forms.Form):
     q = forms.CharField(label='Search')
+    obj_types = forms.MultipleChoiceField(
+        choices=[],
+        required=False,
+        label='Object type(s)',
+        widget=StaticSelectMultiple()
+    )
     options = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["obj_type"] = forms.ChoiceField(
-            choices=search_backend.get_search_choices(),
-            required=False,
-            label='Type'
-        )
+
+        self.fields['obj_types'].choices = search_backend.get_object_types()
 
     def get_options(self):
         if not self.options:
-            self.options = build_options(search_backend.get_search_choices())
+            self.options = build_options(search_backend.get_object_types())
 
         return self.options

@@ -150,18 +150,18 @@ class HomeView(View):
 class SearchView(View):
 
     def get(self, request):
-        form = SearchForm(request.GET)
-        object_types = None
         results = []
+
+        # Initialize search form
+        form = SearchForm(request.GET) if 'q' in request.GET else SearchForm()
 
         if form.is_valid():
 
             # Restrict results by object type
-            if form.cleaned_data['obj_type']:
-                app_label, model_name = form.cleaned_data['obj_type'].split('.')
-                object_types = [
-                    ContentType.objects.get_by_natural_key(app_label, model_name)
-                ]
+            object_types = []
+            for obj_type in form.cleaned_data['obj_types']:
+                app_label, model_name = obj_type.split('.')
+                object_types.append(ContentType.objects.get_by_natural_key(app_label, model_name))
 
             results = search_backend.search(request, form.cleaned_data['q'], object_types=object_types)
 
