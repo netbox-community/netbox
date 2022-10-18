@@ -1,9 +1,12 @@
 import django_tables2 as tables
 
+from netbox.tables import columns
+
 __all__ = (
     'TenantColumn',
     'TenantGroupColumn',
     'TenancyColumnsMixin',
+    'ContactsColumnMixin',
 )
 
 
@@ -55,3 +58,10 @@ class TenantGroupColumn(tables.TemplateColumn):
 class TenancyColumnsMixin(tables.Table):
     tenant_group = TenantGroupColumn()
     tenant = TenantColumn()
+
+
+class ContactsColumnMixin(tables.Table):
+    contacts = columns.ManyToManyColumn(
+        linkify_item=True,
+        transform=lambda obj: obj.contact.name
+    )

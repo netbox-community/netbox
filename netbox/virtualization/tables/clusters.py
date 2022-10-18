@@ -1,8 +1,8 @@
 import django_tables2 as tables
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
-from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
     'ClusterTable',
@@ -32,7 +32,7 @@ class ClusterTypeTable(NetBoxTable):
         default_columns = ('pk', 'name', 'cluster_count', 'description')
 
 
-class ClusterGroupTable(NetBoxTable):
+class ClusterGroupTable(NetBoxTable, ContactsColumnMixin):
     name = tables.Column(
         linkify=True
     )
@@ -40,9 +40,6 @@ class ClusterGroupTable(NetBoxTable):
         viewname='virtualization:cluster_list',
         url_params={'group_id': 'pk'},
         verbose_name='Clusters'
-    )
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
     )
     tags = columns.TagColumn(
         url_name='virtualization:clustergroup_list'
@@ -57,7 +54,7 @@ class ClusterGroupTable(NetBoxTable):
         default_columns = ('pk', 'name', 'cluster_count', 'description')
 
 
-class ClusterTable(TenancyColumnsMixin, NetBoxTable):
+class ClusterTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -81,9 +78,6 @@ class ClusterTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name='VMs'
     )
     comments = columns.MarkdownColumn()
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
-    )
     tags = columns.TagColumn(
         url_name='virtualization:cluster_list'
     )
