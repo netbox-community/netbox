@@ -11,6 +11,7 @@ from django.template.exceptions import TemplateDoesNotExist
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME, page_not_found
 from django.views.generic import View
+from django_tables2 import RequestConfig
 from packaging import version
 from sentry_sdk import capture_message
 
@@ -26,6 +27,7 @@ from netbox.search.backends import search_backend
 from netbox.tables import SearchTable
 from tenancy.models import Tenant
 from utilities.htmx import is_htmx
+from utilities.paginator import EnhancedPaginator, get_paginate_count
 from virtualization.models import Cluster, VirtualMachine
 from wireless.models import WirelessLAN, WirelessLink
 
@@ -171,6 +173,12 @@ class SearchView(View):
             )
 
         table = SearchTable(results)
+
+        # Paginate the table results
+        RequestConfig(request, {
+            'paginator_class': EnhancedPaginator,
+            'per_page': get_paginate_count(request)
+        }).configure(table)
 
         # If this is an HTMX request, return only the rendered table HTML
         if is_htmx(request):

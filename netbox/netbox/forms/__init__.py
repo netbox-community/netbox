@@ -21,7 +21,7 @@ class SearchForm(BootstrapMixin, forms.Form):
         widget=forms.TextInput(
             attrs={
                 'hx-get': '',
-                'hx-target': '#search_results',
+                'hx-target': '#object_list',
                 'hx-trigger': 'keyup[target.value.length >= 3] changed delay:500ms',
             }
         )
