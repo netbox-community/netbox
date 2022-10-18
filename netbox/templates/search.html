@@ -15,49 +15,24 @@
   </ul>
 {% endblock tabs %}
 
-{% block content-wrapper %}
-    <div class="row px-3">
-      <div class="col col-6 offset-3 py-3">
-        <form action="{% url 'search' %}" method="get" class="form form-horizontal">
-          {% render_form form %}
-          <div class="text-end">
-            <button type="submit" class="btn btn-primary">
-              <span class="mdi mdi-magnify" aria-hidden="true"></span> Search
-            </button>
-          </div>
-        </form>
+{% block content %}
+  <div class="row px-3">
+    <div class="col col-6 offset-3 py-3">
+      <form action="{% url 'search' %}" method="get" class="form form-horizontal">
+        {% render_form form %}
+        <div class="text-end">
+          <button type="submit" class="btn btn-primary">
+            <span class="mdi mdi-magnify" aria-hidden="true"></span> Search
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="row px-3">
+    <div class="card">
+      <div class="card-body" id="search_results">
+        {% include 'htmx/table.html' %}
       </div>
     </div>
-    {% if request.GET.q %}
-        {% if results %}
-            <div class="row px-3">
-                <div class="col">
-                  <div class="card">
-                    <div class="card-body table-responsive">
-                      <table class="table table-hover">
-                        <tr>
-                          <th>Type</th>
-                          <th>Object</th>
-                          <th>Field</th>
-                          <th>Value</th>
-                        </tr>
-                        {% for result in results %}
-                          <tr>
-                            <td>{{ result.object|meta:"verbose_name"|bettertitle }}</td>
-                            <td>
-                              <a href="{{ result.object.get_absolute_url }}">{{ result.object }}</a>
-                            </td>
-                            <td>{{ result.field|placeholder }}</td>
-                            <td>{{ result.value|placeholder }}</td>
-                          </tr>
-                        {% endfor %}
-                      </table>
-                    </div>
-                  </div>
-                </div>
-            </div>
-        {% else %}
-            <h3 class="text-muted text-center">No results found</h3>
-        {% endif %}
-    {% endif %}
-{% endblock content-wrapper %}
+  </div>
+{% endblock content %}

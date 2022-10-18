@@ -4,6 +4,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
+from django.utils.translation import gettext as _
 from django_tables2.data import TableQuerysetData
 
 from extras.models import CustomField, CustomLink
@@ -14,6 +15,7 @@ from utilities.paginator import EnhancedPaginator, get_paginate_count
 __all__ = (
     'BaseTable',
     'NetBoxTable',
+    'SearchTable',
 )
 
 
@@ -192,3 +194,18 @@ class NetBoxTable(BaseTable):
         ])
 
         super().__init__(*args, extra_columns=extra_columns, **kwargs)
+
+
+class SearchTable(tables.Table):
+    object_type = columns.ContentTypeColumn()
+    object = tables.Column(
+        linkify=True
+    )
+    field = tables.Column()
+    value = tables.Column()
+
+    class Meta:
+        attrs = {
+            'class': 'table table-hover object-list',
+        }
+        empty_text = _('No results found')

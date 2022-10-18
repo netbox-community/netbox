@@ -192,7 +192,7 @@ class CachedValueSearchBackend(SearchBackend):
         # Wrap the base query to return only the lowest-weight result for each object
         # Hat-tip to https://blog.oyam.dev/django-filter-by-window-function/ for the solution
         sql, params = queryset.query.sql_with_params()
-        results = CachedValue.objects.prefetch_related(prefetch).raw(
+        results = CachedValue.objects.prefetch_related(prefetch, 'object_type').raw(
             f"SELECT * FROM ({sql}) t WHERE row_number = 1",
             params
         )

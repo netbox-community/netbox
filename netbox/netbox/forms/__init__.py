@@ -17,7 +17,14 @@ LOOKUP_CHOICES = (
 
 class SearchForm(BootstrapMixin, forms.Form):
     q = forms.CharField(
-        label='Search'
+        label='Search',
+        widget=forms.TextInput(
+            attrs={
+                'hx-get': '',
+                'hx-target': '#search_results',
+                'hx-trigger': 'keyup[target.value.length >= 3] changed delay:500ms',
+            }
+        )
     )
     obj_types = forms.MultipleChoiceField(
         choices=[],

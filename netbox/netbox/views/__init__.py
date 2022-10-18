@@ -8,7 +8,6 @@ from django.http import HttpResponseServerError
 from django.shortcuts import redirect, render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
-from django.urls import reverse
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME, page_not_found
 from django.views.generic import View
@@ -23,9 +22,10 @@ from extras.models import ObjectChange
 from extras.tables import ObjectChangeTable
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF
 from netbox.forms import SearchForm
-from netbox.search import get_registry
 from netbox.search.backends import search_backend
+from netbox.tables import SearchTable
 from tenancy.models import Tenant
+from utilities.htmx import is_htmx
 from virtualization.models import Cluster, VirtualMachine
 from wireless.models import WirelessLAN, WirelessLink
 
@@ -170,9 +170,17 @@ class SearchView(View):
                 lookup=form.cleaned_data['lookup']
             )
 
+        table = SearchTable(results)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if is_htmx(request):
+            return render(request, 'htmx/table.html', {
+                'table': table,
+            })
+
         return render(request, 'search.html', {
             'form': form,
-            'results': results,
+            'table': table,
         })
 
 
