@@ -60,28 +60,17 @@ class SearchBackend:
         """
         Receiver for the post_save signal, responsible for caching object creation/changes.
         """
-        try:
-            indexer = get_indexer(instance)
-        except KeyError:
-            # No indexer has been registered for this model
-            return
-        data = indexer.to_cache(instance)
-        cls.cache(instance, data)
+        cls.cache(instance)
 
     @classmethod
     def removal_handler(cls, sender, instance, **kwargs):
         """
         Receiver for the post_delete signal, responsible for caching object deletion.
         """
-        try:
-            get_indexer(instance)
-        except KeyError:
-            # Avoid attempting to query for non-cacheable objects
-            return
         cls.remove(instance)
 
     @classmethod
-    def cache(cls, instance, data):
+    def cache(cls, instance):
         """
         Create or update the cached representation of an instance.
         """
@@ -140,8 +129,15 @@ class CachedValueSearchBackend(SearchBackend):
         ]
 
     @classmethod
-    def cache(cls, instance, data):
+    def cache(cls, instance):
+        try:
+            indexer = get_indexer(instance)
+        except KeyError:
+            # No indexer has been registered for this model
+            return
+
         ct = ContentType.objects.get_for_model(instance)
+        data = indexer.to_cache(instance)
 
         # Wipe out any previously cached values for the object
         cls.remove(instance)
@@ -149,8 +145,6 @@ class CachedValueSearchBackend(SearchBackend):
         # Record any new non-empty values
         cached_values = []
         for field in data:
-            if not field.value:
-                continue
             cached_values.append(
                 CachedValue(
                     object_type=ct,
@@ -165,6 +159,12 @@ class CachedValueSearchBackend(SearchBackend):
 
     @classmethod
     def remove(cls, instance):
+        # Avoid attempting to query for non-cacheable objects
+        try:
+            get_indexer(instance)
+        except KeyError:
+            return
+
         ct = ContentType.objects.get_for_model(instance)
         CachedValue.objects.filter(object_type=ct, object_id=instance.pk).delete()
 
