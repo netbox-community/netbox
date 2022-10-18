@@ -20,15 +20,6 @@ class LookupTypes:
     ENDSWITH = 'iendswith'
 
 
-def get_registry():
-    r = {}
-    for app_label, models in registry['search'].items():
-        for model_name, idx in models.items():
-            r[f'{app_label}.{model_name}'] = idx
-
-    return r
-
-
 class SearchIndex:
     """
     Base class for building search indexes.
@@ -88,14 +79,14 @@ class SearchIndex:
         return values
 
 
-class SearchResult:
+def get_indexer(model):
     """
-    Represents a single result returned by a search backend's search() method.
+    Get the search indexer class for the given model.
     """
-    def __init__(self, obj, field=None, value=None):
-        self.object = obj
-        self.field = field
-        self.value = value
+    app_label = model._meta.app_label
+    model_name = model._meta.model_name
+
+    return registry['search'][app_label][model_name]
 
 
 def register_search():

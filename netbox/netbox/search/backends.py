@@ -10,27 +10,11 @@ from django.db.models.signals import post_delete, post_save
 
 from extras.models import CachedValue
 from extras.registry import registry
-from netbox.constants import SEARCH_MAX_RESULTS
 from utilities.querysets import RestrictedPrefetch
 from utilities.templatetags.builtins.filters import bettertitle
-from . import FieldTypes, LookupTypes, SearchResult, get_registry
-
-# The cache for the initialized backend.
-_backends_cache = {}
+from . import FieldTypes, LookupTypes, get_indexer
 
 DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL
-
-
-def get_indexer(model):
-    app_label = model._meta.app_label
-    model_name = model._meta.model_name
-
-    return registry['search'][app_label][model_name]
-
-
-class SearchEngineError(Exception):
-    """Something went wrong with a search engine."""
-    pass
 
 
 class SearchBackend:
@@ -109,54 +93,6 @@ class SearchBackend:
         Delete any cached representation of an instance.
         """
         raise NotImplementedError
-
-
-class FilterSetSearchBackend(SearchBackend):
-    """
-    Legacy search backend. Performs a discrete database query for each registered object type, using the FilterSet
-    class specified by the index for each.
-    """
-    def search(self, request, value, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
-        results = []
-
-        search_registry = get_registry()
-        if object_types is not None:
-            keys = [f'{ct.app_label}.{ct.name}' for ct in object_types]
-        else:
-            keys = search_registry.keys()
-
-        for obj_type in keys:
-
-            queryset = getattr(search_registry[obj_type], 'queryset', None)
-            if not queryset:
-                continue
-
-            # Restrict the queryset for the current user
-            if hasattr(queryset, 'restrict'):
-                queryset = queryset.restrict(request.user, 'view')
-
-            filterset = getattr(search_registry[obj_type], 'filterset', None)
-            if not filterset:
-                # This backend requires a FilterSet class for the model
-                continue
-
-            queryset = filterset({'q': value}, queryset=queryset).qs[:SEARCH_MAX_RESULTS]
-
-            results.extend([
-                SearchResult(obj) for obj in queryset
-            ])
-
-        return results
-
-    @classmethod
-    def cache(cls, instance, data):
-        # This backend does not utilize a cache
-        pass
-
-    @classmethod
-    def remove(cls, instance):
-        # This backend does not utilize a cache
-        pass
 
 
 class CachedValueSearchBackend(SearchBackend):
