@@ -406,6 +406,12 @@ class ModuleTypeForm(NetBoxModelForm):
 class DeviceRoleForm(NetBoxModelForm):
     slug = SlugField()
 
+    fieldsets = (
+        ('Device Role', (
+            'name', 'slug', 'color', 'vm_role', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = DeviceRole
         fields = [
@@ -420,6 +426,13 @@ class PlatformForm(NetBoxModelForm):
     )
     slug = SlugField(
         max_length=64
+    )
+
+    fieldsets = (
+        ('Platform', (
+            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'tags',
+
+        )),
     )
 
     class Meta:
