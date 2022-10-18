@@ -15,6 +15,7 @@ from utilities.templatetags.builtins.filters import bettertitle
 from . import FieldTypes, LookupTypes, get_indexer
 
 DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL
+MAX_RESULTS = 1000
 
 
 class SearchBackend:
@@ -108,7 +109,7 @@ class CachedValueSearchBackend(SearchBackend):
                 partition_by=[F('object_type'), F('object_id')],
                 order_by=[F('weight').asc()],
             )
-        )
+        )[:MAX_RESULTS]
 
         # Construct a Prefetch to pre-fetch only those related objects for which the
         # user has permission to view.
@@ -123,7 +124,6 @@ class CachedValueSearchBackend(SearchBackend):
         )
 
         # Omit any results pertaining to an object the user does not have permission to view
-        # TODO: We'll have to figure out how to handle pagination
         return [
             r for r in results if r.object is not None
         ]
