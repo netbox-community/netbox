@@ -78,6 +78,12 @@ class RegionForm(NetBoxModelForm):
     )
     slug = SlugField()
 
+    fieldsets = (
+        ('Region', (
+            'parent', 'name', 'slug', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = Region
         fields = (
@@ -91,6 +97,12 @@ class SiteGroupForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
+
+    fieldsets = (
+        ('Site Group', (
+            'parent', 'name', 'slug', 'description', 'tags',
+        )),
+    )
 
     class Meta:
         model = SiteGroup
@@ -212,6 +224,12 @@ class LocationForm(TenancyForm, NetBoxModelForm):
 
 class RackRoleForm(NetBoxModelForm):
     slug = SlugField()
+
+    fieldsets = (
+        ('Region', (
+            'name', 'slug', 'color', 'description', 'tags',
+        )),
+    )
 
     class Meta:
         model = RackRole
@@ -339,6 +357,12 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
 
 class ManufacturerForm(NetBoxModelForm):
     slug = SlugField()
+
+    fieldsets = (
+        ('Manufacturer', (
+            'name', 'slug', 'description', 'tags',
+        )),
+    )
 
     class Meta:
         model = Manufacturer
@@ -1589,6 +1613,12 @@ class InventoryItemForm(DeviceComponentForm):
 
 class InventoryItemRoleForm(NetBoxModelForm):
     slug = SlugField()
+
+    fieldsets = (
+        ('Inventory Item Role', (
+            'name', 'slug', 'color', 'description', 'tags',
+        )),
+    )
 
     class Meta:
         model = InventoryItemRole

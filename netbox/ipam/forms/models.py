@@ -88,6 +88,12 @@ class RouteTargetForm(TenancyForm, NetBoxModelForm):
 class RIRForm(NetBoxModelForm):
     slug = SlugField()
 
+    fieldsets = (
+        ('RIR', (
+            'name', 'slug', 'is_private', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = RIR
         fields = [
