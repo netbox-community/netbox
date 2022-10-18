@@ -1,5 +1,6 @@
 from django.db import migrations, models
 import django.db.models.deletion
+import uuid
 
 
 class Migration(migrations.Migration):
@@ -10,10 +11,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AddField(
+            model_name='customfield',
+            name='search_weight',
+            field=models.PositiveSmallIntegerField(default=1000),
+        ),
         migrations.CreateModel(
             name='CachedValue',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
                 ('object_id', models.PositiveBigIntegerField()),
                 ('field', models.CharField(max_length=200)),
@@ -25,10 +31,5 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('weight', 'object_type', 'object_id'),
             },
-        ),
-        migrations.AddField(
-            model_name='customfield',
-            name='search_weight',
-            field=models.PositiveSmallIntegerField(default=1000),
         ),
     ]

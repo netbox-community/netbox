@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
@@ -9,6 +11,11 @@ __all__ = (
 
 
 class CachedValue(models.Model):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
     timestamp = models.DateTimeField(
         auto_now_add=True,
         editable=False
