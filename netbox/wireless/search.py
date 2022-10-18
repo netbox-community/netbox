@@ -1,7 +1,5 @@
-from dcim.models import Interface
 from netbox.search import SearchIndex, register_search
-from utilities.utils import count_related
-from . import filtersets, models
+from . import models
 
 
 @register_search()
@@ -12,10 +10,6 @@ class WirelessLANIndex(SearchIndex):
         ('description', 500),
         ('auth_psk', 2000),
     )
-    queryset = models.WirelessLAN.objects.prefetch_related('group', 'vlan').annotate(
-        interface_count=count_related(Interface, 'wireless_lans')
-    )
-    filterset = filtersets.WirelessLANFilterSet
 
 
 @register_search()
@@ -36,5 +30,3 @@ class WirelessLinkIndex(SearchIndex):
         ('description', 500),
         ('auth_psk', 2000),
     )
-    queryset = models.WirelessLink.objects.prefetch_related('interface_a__device', 'interface_b__device')
-    filterset = filtersets.WirelessLinkFilterSet

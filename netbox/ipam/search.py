@@ -1,4 +1,4 @@
-from . import filtersets, models
+from . import models
 from netbox.search import SearchIndex, register_search
 
 
@@ -10,8 +10,6 @@ class AggregateIndex(SearchIndex):
         ('description', 500),
         ('date_added', 2000),
     )
-    queryset = models.Aggregate.objects.prefetch_related('rir')
-    filterset = filtersets.AggregateFilterSet
 
 
 @register_search()
@@ -21,8 +19,6 @@ class ASNIndex(SearchIndex):
         ('asn', 100),
         ('description', 500),
     )
-    queryset = models.ASN.objects.prefetch_related('rir', 'tenant', 'tenant__group')
-    filterset = filtersets.ASNFilterSet
 
 
 @register_search()
@@ -43,8 +39,6 @@ class IPAddressIndex(SearchIndex):
         ('dns_name', 300),
         ('description', 500),
     )
-    queryset = models.IPAddress.objects.prefetch_related('vrf__tenant', 'tenant', 'tenant__group')
-    filterset = filtersets.IPAddressFilterSet
 
 
 @register_search()
@@ -74,10 +68,6 @@ class PrefixIndex(SearchIndex):
         ('prefix', 100),
         ('description', 500),
     )
-    queryset = models.Prefix.objects.prefetch_related(
-        'site', 'vrf__tenant', 'tenant', 'tenant__group', 'vlan', 'role'
-    )
-    filterset = filtersets.PrefixFilterSet
 
 
 @register_search()
@@ -116,8 +106,6 @@ class ServiceIndex(SearchIndex):
         ('name', 100),
         ('description', 500),
     )
-    queryset = models.Service.objects.prefetch_related('device', 'virtual_machine')
-    filterset = filtersets.ServiceFilterSet
 
 
 @register_search()
@@ -128,8 +116,6 @@ class VLANIndex(SearchIndex):
         ('vid', 100),
         ('description', 500),
     )
-    queryset = models.VLAN.objects.prefetch_related('site', 'group', 'tenant', 'tenant__group', 'role')
-    filterset = filtersets.VLANFilterSet
 
 
 @register_search()
@@ -151,5 +137,3 @@ class VRFIndex(SearchIndex):
         ('rd', 200),
         ('description', 500),
     )
-    queryset = models.VRF.objects.prefetch_related('tenant', 'tenant__group')
-    filterset = filtersets.VRFFilterSet

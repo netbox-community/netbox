@@ -1,6 +1,5 @@
 from netbox.search import SearchIndex, register_search
-from utilities.utils import count_related
-from . import filtersets, models
+from . import models
 
 
 @register_search()
@@ -15,10 +14,6 @@ class ContactIndex(SearchIndex):
         ('link', 300),
         ('comments', 5000),
     )
-    queryset = models.Contact.objects.prefetch_related('group', 'assignments').annotate(
-        assignment_count=count_related(models.ContactAssignment, 'contact')
-    )
-    filterset = filtersets.ContactFilterSet
 
 
 @register_search()
@@ -50,8 +45,6 @@ class TenantIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    queryset = models.Tenant.objects.prefetch_related('group')
-    filterset = filtersets.TenantFilterSet
 
 
 @register_search()

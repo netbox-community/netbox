@@ -4,7 +4,9 @@ from .models import DummyModel
 
 class DummyModelIndex(SearchIndex):
     model = DummyModel
-    queryset = DummyModel.objects.all()
+    fields = (
+        ('name', 100),
+    )
 
 
 indexes = (

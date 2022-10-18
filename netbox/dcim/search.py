@@ -1,6 +1,5 @@
 from netbox.search import SearchIndex, register_search
-from utilities.utils import count_related
-from . import filtersets, models
+from . import models
 
 
 @register_search()
@@ -9,8 +8,6 @@ class CableIndex(SearchIndex):
     fields = (
         ('label', 100),
     )
-    queryset = models.Cable.objects.all()
-    filterset = filtersets.CableFilterSet
 
 
 @register_search()
@@ -44,17 +41,6 @@ class DeviceIndex(SearchIndex):
         ('name', 100),
         ('comments', 5000),
     )
-    queryset = models.Device.objects.prefetch_related(
-        'device_type__manufacturer',
-        'device_role',
-        'tenant',
-        'tenant__group',
-        'site',
-        'rack',
-        'primary_ip4',
-        'primary_ip6',
-    )
-    filterset = filtersets.DeviceFilterSet
 
 
 @register_search()
@@ -85,10 +71,6 @@ class DeviceTypeIndex(SearchIndex):
         ('part_number', 200),
         ('comments', 5000),
     )
-    queryset = models.DeviceType.objects.prefetch_related('manufacturer').annotate(
-        instance_count=count_related(models.Device, 'device_type')
-    )
-    filterset = filtersets.DeviceTypeFilterSet
 
 
 @register_search()
@@ -136,16 +118,6 @@ class LocationIndex(SearchIndex):
         ('slug', 110),
         ('description', 500),
     )
-    queryset = models.Location.objects.add_related_count(
-        models.Location.objects.add_related_count(
-            models.Location.objects.all(), models.Device, 'location', 'device_count', cumulative=True
-        ),
-        models.Rack,
-        'location',
-        'rack_count',
-        cumulative=True,
-    ).prefetch_related('site')
-    filterset = filtersets.LocationFilterSet
 
 
 @register_search()
@@ -166,12 +138,6 @@ class ModuleIndex(SearchIndex):
         ('serial', 60),
         ('comments', 5000),
     )
-    queryset = models.Module.objects.prefetch_related(
-        'module_type__manufacturer',
-        'device',
-        'module_bay',
-    )
-    filterset = filtersets.ModuleFilterSet
 
 
 @register_search()
@@ -192,10 +158,6 @@ class ModuleTypeIndex(SearchIndex):
         ('part_number', 200),
         ('comments', 5000),
     )
-    queryset = models.ModuleType.objects.prefetch_related('manufacturer').annotate(
-        instance_count=count_related(models.Module, 'module_type')
-    )
-    filterset = filtersets.ModuleTypeFilterSet
 
 
 @register_search()
@@ -216,8 +178,6 @@ class PowerFeedIndex(SearchIndex):
         ('name', 100),
         ('comments', 5000),
     )
-    queryset = models.PowerFeed.objects.all()
-    filterset = filtersets.PowerFeedFilterSet
 
 
 @register_search()
@@ -260,10 +220,6 @@ class RackIndex(SearchIndex):
         ('facility_id', 200),
         ('comments', 5000),
     )
-    queryset = models.Rack.objects.prefetch_related('site', 'location', 'tenant', 'tenant__group', 'role').annotate(
-        device_count=count_related(models.Device, 'rack')
-    )
-    filterset = filtersets.RackFilterSet
 
 
 @register_search()
@@ -272,8 +228,6 @@ class RackReservationIndex(SearchIndex):
     fields = (
         ('description', 500),
     )
-    queryset = models.RackReservation.objects.prefetch_related('rack', 'user')
-    filterset = filtersets.RackReservationFilterSet
 
 
 @register_search()
@@ -316,8 +270,6 @@ class SiteIndex(SearchIndex):
         ('physical_address', 2000),
         ('shipping_address', 2000),
     )
-    queryset = models.Site.objects.prefetch_related('region', 'tenant', 'tenant__group')
-    filterset = filtersets.SiteFilterSet
 
 
 @register_search()
@@ -337,7 +289,3 @@ class VirtualChassisIndex(SearchIndex):
         ('name', 100),
         ('domain', 300)
     )
-    queryset = models.VirtualChassis.objects.prefetch_related('master').annotate(
-        member_count=count_related(models.Device, 'virtual_chassis')
-    )
-    filterset = filtersets.VirtualChassisFilterSet

@@ -1,6 +1,5 @@
 from netbox.search import SearchIndex, register_search
-from utilities.utils import count_related
-from . import filtersets, models
+from . import models
 
 
 @register_search()
@@ -11,10 +10,6 @@ class CircuitIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    queryset = models.Circuit.objects.prefetch_related(
-        'type', 'provider', 'tenant', 'tenant__group', 'terminations__site'
-    )
-    filterset = filtersets.CircuitFilterSet
 
 
 @register_search()
@@ -47,10 +42,6 @@ class ProviderIndex(SearchIndex):
         ('account', 200),
         ('comments', 5000),
     )
-    queryset = models.Provider.objects.annotate(
-        count_circuits=count_related(models.Circuit, 'provider')
-    )
-    filterset = filtersets.ProviderFilterSet
 
 
 @register_search()
@@ -62,5 +53,3 @@ class ProviderNetworkIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    queryset = models.ProviderNetwork.objects.prefetch_related('provider')
-    filterset = filtersets.ProviderNetworkFilterSet
