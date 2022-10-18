@@ -1,7 +1,9 @@
 import django_tables2 as tables
-
 from dcim.models import PowerFeed, PowerPanel
+from tenancy.tables import ContactsColumnMixin
+
 from netbox.tables import NetBoxTable, columns
+
 from .devices import CableTerminationTable
 
 __all__ = (
@@ -14,7 +16,7 @@ __all__ = (
 # Power panels
 #
 
-class PowerPanelTable(NetBoxTable):
+class PowerPanelTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -28,9 +30,6 @@ class PowerPanelTable(NetBoxTable):
         viewname='dcim:powerfeed_list',
         url_params={'power_panel_id': 'pk'},
         verbose_name='Feeds'
-    )
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
     )
     tags = columns.TagColumn(
         url_name='dcim:powerpanel_list'

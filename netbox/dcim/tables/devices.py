@@ -1,12 +1,26 @@
 import django_tables2 as tables
-from django_tables2.utils import Accessor
-
 from dcim.models import (
-    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, FrontPort, Interface, InventoryItem,
-    InventoryItemRole, ModuleBay, Platform, PowerOutlet, PowerPort, RearPort, VirtualChassis,
+    ConsolePort,
+    ConsoleServerPort,
+    Device,
+    DeviceBay,
+    DeviceRole,
+    FrontPort,
+    Interface,
+    InventoryItem,
+    InventoryItemRole,
+    ModuleBay,
+    Platform,
+    PowerOutlet,
+    PowerPort,
+    RearPort,
+    VirtualChassis,
 )
+from django_tables2.utils import Accessor
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
+
 from .template_code import *
 
 __all__ = (
@@ -137,7 +151,7 @@ class PlatformTable(NetBoxTable):
 # Devices
 #
 
-class DeviceTable(TenancyColumnsMixin, NetBoxTable):
+class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.TemplateColumn(
         order_by=('_name',),
         template_code=DEVICE_LINK
@@ -201,9 +215,6 @@ class DeviceTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name='VC Priority'
     )
     comments = columns.MarkdownColumn()
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
-    )
     tags = columns.TagColumn(
         url_name='dcim:device_list'
     )
