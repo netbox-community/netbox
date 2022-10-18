@@ -71,7 +71,7 @@ class ContactGroupForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        ('Tenant Group', (
+        ('Contact Group', (
             'parent', 'name', 'slug', 'description', 'tags',
         )),
     )

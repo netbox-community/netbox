@@ -226,7 +226,7 @@ class RackRoleForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        ('Region', (
+        ('Rack Role', (
             'name', 'slug', 'color', 'description', 'tags',
         )),
     )
