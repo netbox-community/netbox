@@ -5,12 +5,15 @@
 ### Enhancements
 
 * [#9722](https://github.com/netbox-community/netbox/issues/9722) - Add LDAP configuration parameters to specify certificates
+* [#10685](https://github.com/netbox-community/netbox/issues/10685) - Position A/Z termination cards above the fold under circuit view
 
 ### Bug Fixes
 
 * [#9669](https://github.com/netbox-community/netbox/issues/9669) - Strip colons from usernames when using remote authentication
 * [#10575](https://github.com/netbox-community/netbox/issues/10575) - Include OIDC dependencies for python-social-auth
-* [#10596](https://github.com/netbox-community/netbox/issues/10596) - Panels should scroll horizontally to accomodate overflow data
+* [#10584](https://github.com/netbox-community/netbox/issues/10584) - Fix service clone link
+* [#10655](https://github.com/netbox-community/netbox/issues/10655) - Correct display of assigned contacts in object tables
+* [#10596](https://github.com/netbox-community/netbox/issues/10596) - Panels should scroll horizontally to accommodate overflow data
 
 ---
 
