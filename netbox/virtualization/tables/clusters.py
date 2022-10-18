@@ -32,7 +32,7 @@ class ClusterTypeTable(NetBoxTable):
         default_columns = ('pk', 'name', 'cluster_count', 'description')
 
 
-class ClusterGroupTable(NetBoxTable, ContactsColumnMixin):
+class ClusterGroupTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )

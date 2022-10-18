@@ -18,7 +18,7 @@ __all__ = (
 # Regions
 #
 
-class RegionTable(NetBoxTable, ContactsColumnMixin):
+class RegionTable(ContactsColumnMixin, NetBoxTable):
     name = columns.MPTTColumn(
         linkify=True
     )
@@ -44,7 +44,7 @@ class RegionTable(NetBoxTable, ContactsColumnMixin):
 # Site groups
 #
 
-class SiteGroupTable(NetBoxTable, ContactsColumnMixin):
+class SiteGroupTable(ContactsColumnMixin, NetBoxTable):
     name = columns.MPTTColumn(
         linkify=True
     )

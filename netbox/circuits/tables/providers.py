@@ -11,7 +11,7 @@ __all__ = (
 )
 
 
-class ProviderTable(NetBoxTable, ContactsColumnMixin):
+class ProviderTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )

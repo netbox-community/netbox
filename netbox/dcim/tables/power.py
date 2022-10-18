@@ -16,7 +16,7 @@ __all__ = (
 # Power panels
 #
 
-class PowerPanelTable(NetBoxTable, ContactsColumnMixin):
+class PowerPanelTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )

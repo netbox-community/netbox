@@ -39,7 +39,7 @@ __all__ = (
 # Manufacturers
 #
 
-class ManufacturerTable(NetBoxTable, ContactsColumnMixin):
+class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )

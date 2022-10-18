@@ -31,7 +31,7 @@ class TenantGroupTable(NetBoxTable):
         default_columns = ('pk', 'name', 'tenant_count', 'description')
 
 
-class TenantTable(NetBoxTable, ContactsColumnMixin):
+class TenantTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
