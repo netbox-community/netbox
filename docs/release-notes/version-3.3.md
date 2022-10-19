@@ -13,7 +13,6 @@
 * [#10575](https://github.com/netbox-community/netbox/issues/10575) - Include OIDC dependencies for python-social-auth
 * [#10584](https://github.com/netbox-community/netbox/issues/10584) - Fix service clone link
 * [#10655](https://github.com/netbox-community/netbox/issues/10655) - Correct display of assigned contacts in object tables
-* [#10596](https://github.com/netbox-community/netbox/issues/10596) - Panels should scroll horizontally to accommodate overflow data
 
 ---
 
