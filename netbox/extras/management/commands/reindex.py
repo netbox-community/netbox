@@ -63,11 +63,11 @@ class Command(BaseCommand):
             app_label = model._meta.app_label
             model_name = model._meta.model_name
             self.stdout.write(f'Reindexing {app_label}.{model_name}... ', ending='')
-            i = 0
-            for instance in model.objects.all():
-                i += search_backend.cache(instance)
+            i = search_backend.cache(model.objects.iterator())
             if i:
                 self.stdout.write(f'{i} entries cached.')
+            else:
+                self.stdout.write(f'None found.')
 
         msg = f'Completed.'
         if total_count := search_backend.size:

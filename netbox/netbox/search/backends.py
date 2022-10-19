@@ -8,7 +8,7 @@ from django.db.models import F, Window
 from django.db.models.functions import window
 from django.db.models.signals import post_delete, post_save
 
-from extras.models import CachedValue
+from extras.models import CachedValue, CustomField
 from extras.registry import registry
 from utilities.querysets import RestrictedPrefetch
 from utilities.templatetags.builtins.filters import bettertitle
@@ -71,7 +71,7 @@ class SearchBackend:
         cls.remove(instance)
 
     @classmethod
-    def cache(cls, instance):
+    def cache(cls, instance, indexer=None):
         """
         Create or update the cached representation of an instance.
         """
@@ -144,35 +144,55 @@ class CachedValueSearchBackend(SearchBackend):
         ]
 
     @classmethod
-    def cache(cls, instance):
-        try:
-            indexer = get_indexer(instance)
-        except KeyError:
-            # No indexer has been registered for this model
-            return
+    def cache(cls, instances, indexer=None, remove_existing=True):
+        content_type = None
+        custom_fields = None
 
-        ct = ContentType.objects.get_for_model(instance)
-        data = indexer.to_cache(instance)
+        # Convert a single instance to an iterable
+        if not hasattr(instances, '__iter__'):
+            instances = [instances]
 
-        # Wipe out any previously cached values for the object
-        cls.remove(instance)
+        buffer = []
+        counter = 0
+        for instance in instances:
 
-        # Record any new non-empty values
-        cached_values = []
-        for field in data:
-            cached_values.append(
-                CachedValue(
-                    object_type=ct,
-                    object_id=instance.pk,
-                    field=field.name,
-                    type=field.type,
-                    weight=field.weight,
-                    value=field.value
+            # Wipe out any previously cached values for the object
+            if remove_existing:
+                cls.remove(instance)
+
+            # Determine the indexer
+            if indexer is None:
+                try:
+                    indexer = get_indexer(instance)
+                    content_type = ContentType.objects.get_for_model(indexer.model)
+                    custom_fields = CustomField.objects.filter(content_types=content_type).exclude(search_weight=0)
+                except KeyError:
+                    # No indexer has been registered for this model
+                    continue
+
+            # Generate cache data
+            for field in indexer.to_cache(instance, custom_fields=custom_fields):
+                buffer.append(
+                    CachedValue(
+                        object_type=content_type,
+                        object_id=instance.pk,
+                        field=field.name,
+                        type=field.type,
+                        weight=field.weight,
+                        value=field.value
+                    )
                 )
-            )
-        ret = CachedValue.objects.bulk_create(cached_values)
 
-        return len(ret)
+            # Check whether the buffer needs to be flushed
+            if len(buffer) >= 2000:
+                counter += len(CachedValue.objects.bulk_create(buffer))
+                buffer = []
+
+        # Final buffer flush
+        if buffer:
+            counter += len(CachedValue.objects.bulk_create(buffer))
+
+        return counter
 
     @classmethod
     def remove(cls, instance):
