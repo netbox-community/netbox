@@ -222,7 +222,7 @@ def validate_csv(headers, fields, required_fields):
     # Validate provided column headers
     is_update = False
     for field, to_field in headers.items():
-        if field == "pk":
+        if field == "id":
             is_update = True
             continue
         if field not in fields:

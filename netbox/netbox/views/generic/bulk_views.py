@@ -334,7 +334,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         new_objs = []
 
         for row, data in enumerate(records, start=1):
-            obj = self.queryset.model.objects.get(pk=data["pk"])
+            obj = self.queryset.model.objects.get(pk=data["id"])
             obj_form = self.model_form(data, headers=headers, instance=obj)
 
             # The form should only contain fields that are in the CSV
@@ -405,7 +405,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
                     headers, records = self._get_records(form, request)
-                    if "pk" in headers:
+                    if "id" in headers:
                         new_objs = self._update_objects(form, request, headers, records)
                     else:
                         new_objs = self._create_objects(form, request, headers, records)
