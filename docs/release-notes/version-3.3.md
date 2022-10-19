@@ -12,6 +12,8 @@
 * [#9669](https://github.com/netbox-community/netbox/issues/9669) - Strip colons from usernames when using remote authentication
 * [#10575](https://github.com/netbox-community/netbox/issues/10575) - Include OIDC dependencies for python-social-auth
 * [#10584](https://github.com/netbox-community/netbox/issues/10584) - Fix service clone link
+* [#10643](https://github.com/netbox-community/netbox/issues/10643) - Ensure consistent display of custom fields for all model forms
+* [#10646](https://github.com/netbox-community/netbox/issues/10646) - Fix filtering of power feed by power panel when connecting a cable
 * [#10655](https://github.com/netbox-community/netbox/issues/10655) - Correct display of assigned contacts in object tables
 
 ---
