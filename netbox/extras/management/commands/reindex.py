@@ -1,7 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand, CommandError
 
-from extras.models import CachedValue
 from extras.registry import registry
 from netbox.search.backends import search_backend
 
@@ -53,14 +52,11 @@ class Command(BaseCommand):
 
         # Clear all cached values for the specified models
         self.stdout.write('Clearing cached values... ', ending='')
-        if model_labels:
-            content_types = [
-                ContentType.objects.get_for_model(model) for model in indexers.keys()
-            ]
-            del_count, _ = CachedValue.objects.filter(object_type__in=content_types).delete()
-        else:
-            del_count, _ = CachedValue.objects.all().delete()
-        self.stdout.write(f'{del_count} deleted.')
+        content_types = [
+            ContentType.objects.get_for_model(model) for model in indexers.keys()
+        ]
+        deleted_count = search_backend.clear(content_types)
+        self.stdout.write(f'{deleted_count} entries deleted.')
 
         # Index models
         for model, idx in indexers.items():
@@ -68,10 +64,12 @@ class Command(BaseCommand):
             model_name = model._meta.model_name
             self.stdout.write(f'Reindexing {app_label}.{model_name}... ', ending='')
             i = 0
-            for i, instance in enumerate(model.objects.all()):
-                search_backend.caching_handler(model, instance)
+            for instance in model.objects.all():
+                i += search_backend.cache(instance)
             if i:
-                self.stdout.write(f'{i} created.')
+                self.stdout.write(f'{i} entries cached.')
 
-        cache_size = CachedValue.objects.count()
-        self.stdout.write(f'Done. Finished with {cache_size} cached values')
+        msg = f'Completed.'
+        if total_count := search_backend.size:
+            msg += f' Total entries: {total_count}'
+        self.stdout.write(msg)

@@ -84,6 +84,21 @@ class SearchBackend:
         """
         raise NotImplementedError
 
+    @classmethod
+    def clear(cls, instance):
+        """
+        Delete *all* cached data.
+        """
+        raise NotImplementedError
+
+    @property
+    def size(self):
+        """
+        Return a total number of cached entries. The meaning of this value will be
+        backend-dependent.
+        """
+        return None
+
 
 class CachedValueSearchBackend(SearchBackend):
 
@@ -155,7 +170,9 @@ class CachedValueSearchBackend(SearchBackend):
                     value=field.value
                 )
             )
-        CachedValue.objects.bulk_create(cached_values)
+        ret = CachedValue.objects.bulk_create(cached_values)
+
+        return len(ret)
 
     @classmethod
     def remove(cls, instance):
@@ -167,6 +184,18 @@ class CachedValueSearchBackend(SearchBackend):
 
         ct = ContentType.objects.get_for_model(instance)
         CachedValue.objects.filter(object_type=ct, object_id=instance.pk).delete()
+
+    @classmethod
+    def clear(cls, object_types=None):
+        if object_types:
+            del_count, _ = CachedValue.objects.filter(object_type__in=object_types).delete()
+        else:
+            del_count, _ = CachedValue.objects.all().delete()
+        return del_count
+
+    @property
+    def size(self):
+        return CachedValue.objects.count()
 
 
 def get_backend():
