@@ -84,6 +84,12 @@ class ContactGroupForm(NetBoxModelForm):
 class ContactRoleForm(NetBoxModelForm):
     slug = SlugField()
 
+    fieldsets = (
+        ('Contact Role', (
+            'name', 'slug', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = ContactRole
         fields = ('name', 'slug', 'description', 'tags')
