@@ -335,29 +335,15 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         for row, data in enumerate(records, start=1):
             obj = self.queryset.model.objects.get(pk=data["pk"])
-            obj_form = self.model_form(instance=obj)
+            obj_form = self.model_form(data, headers=headers, instance=obj)
 
-            save_data = model_to_dict(obj)
-            new_data = data
-            for name, field in obj_form.fields.items():
-                if name == "manufacturer":
-                    breakpoint()
-                if field.required and name not in obj_form.data:
-                    if type(field) == CSVModelChoiceField and name in save_data:
-                        # rel_field = field.queryset.get(pk=save_data[name])
-                        # to_name = getattr(field, 'to_field_name') or 'pk'
-                        # obj_form.data[name] = getattr(rel_field, to_name)
-                        new_data[name] = getattr(field.queryset.get(pk=save_data[name]), getattr(field, 'to_field_name') or 'pk')
-                    else:
-                        if name in save_data:
-                            new_data[name] = save_data[name]
-
-            obj_form = self.model_form(new_data, headers=headers, instance=obj)
-            # obj_form = self.model_form(save_data, instance=obj)
+            # The form should only contain fields that are in the CSV
+            for name, field in list(obj_form.fields.items()):
+                if name not in headers:
+                    del obj_form.fields[name]
 
             restrict_form_fields(obj_form, request.user)
 
-            breakpoint()
             if obj_form.is_valid():
                 obj = self._save_obj(obj_form, request)
                 new_objs.append(obj)
