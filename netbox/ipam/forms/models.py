@@ -88,6 +88,12 @@ class RouteTargetForm(TenancyForm, NetBoxModelForm):
 class RIRForm(NetBoxModelForm):
     slug = SlugField()
 
+    fieldsets = (
+        ('RIR', (
+            'name', 'slug', 'is_private', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = RIR
         fields = [
@@ -163,6 +169,12 @@ class ASNForm(TenancyForm, NetBoxModelForm):
 
 class RoleForm(NetBoxModelForm):
     slug = SlugField()
+
+    fieldsets = (
+        ('Role', (
+            'name', 'slug', 'weight', 'description', 'tags',
+        )),
+    )
 
     class Meta:
         model = Role
@@ -782,6 +794,12 @@ class ServiceTemplateForm(NetBoxModelForm):
             max_value=SERVICE_PORT_MAX
         ),
         help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen."
+    )
+
+    fieldsets = (
+        ('Service Template', (
+            'name', 'protocol', 'ports', 'description', 'tags',
+        )),
     )
 
     class Meta:
