@@ -374,7 +374,7 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name='NAT (Outside)'
     )
     assigned = columns.BooleanColumn(
-        accessor='assigned_object__parent_object',
+        accessor='assigned_object',
         linkify=True,
         verbose_name='Assigned'
     )
