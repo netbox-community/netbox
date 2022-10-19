@@ -265,6 +265,7 @@ class PrefixSerializer(NetBoxModelSerializer):
     vlan = NestedVLANSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=PrefixStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
+    parent_prefix = NestedPrefixSerializer(required=False, allow_null=True)
     children = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(read_only=True)
 
@@ -273,8 +274,9 @@ class PrefixSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool',
             'mark_utilized', 'description', 'tags', 'custom_fields', 'created', 'last_updated', 'children', '_depth',
+            'parent_prefix'
         ]
-        read_only_fields = ['family']
+        read_only_fields = ['family', 'parent_prefix']
 
 
 class PrefixLengthSerializer(serializers.Serializer):
@@ -365,14 +367,17 @@ class IPAddressSerializer(NetBoxModelSerializer):
     assigned_object = serializers.SerializerMethodField(read_only=True)
     nat_inside = NestedIPAddressSerializer(required=False, allow_null=True)
     nat_outside = NestedIPAddressSerializer(many=True, read_only=True)
+    parent_prefix = NestedPrefixSerializer(required=False, allow_null=True)
+    parent_range = NestedIPRangeSerializer(required=False, allow_null=True)
 
     class Meta:
         model = IPAddress
         fields = [
             'id', 'url', 'display', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'assigned_object_type',
             'assigned_object_id', 'assigned_object', 'nat_inside', 'nat_outside', 'dns_name', 'description', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'custom_fields', 'created', 'last_updated', 'parent_prefix', 'parent_range'
         ]
+        read_only_fields = ['parent_prefix', 'parent_range']
 
     @swagger_serializer_method(serializer_or_field=serializers.JSONField)
     def get_assigned_object(self, obj):
