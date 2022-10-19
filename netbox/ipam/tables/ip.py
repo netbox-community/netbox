@@ -374,8 +374,8 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name='NAT (Outside)'
     )
     assigned = columns.BooleanColumn(
-        accessor='assigned_object',
-        linkify=True,
+        accessor='assigned_object_id',
+        linkify=lambda record: record.assigned_object.get_absolute_url(),
         verbose_name='Assigned'
     )
     tags = columns.TagColumn(
