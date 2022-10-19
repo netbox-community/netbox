@@ -40,6 +40,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 * [#9045](https://github.com/netbox-community/netbox/issues/9045) - Remove legacy ASN field from provider model
 * [#9046](https://github.com/netbox-community/netbox/issues/9046) - Remove legacy contact fields from provider model
 * [#10358](https://github.com/netbox-community/netbox/issues/10358) - Raise minimum required PostgreSQL version from 10 to 11
+* [#10699](https://github.com/netbox-community/netbox/issues/10699) - Remove custom `import_object()` function
 
 ### REST API Changes
 
