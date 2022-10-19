@@ -461,6 +461,16 @@ class Prefix(GetAvailablePrefixesMixin, NetBoxModel):
             f'prefix__{lookup}': self.prefix
         })
 
+    @property
+    def parent_prefix(self):
+        """
+        Return smallest containing Prefix in the hierarchy.
+        """
+        return Prefix.objects.filter(
+            vrf= self.vrf,
+            prefix__net_contains= self.prefix
+        ).order_by("-prefix__net_mask_length").first()
+
     def get_children(self, include_self=False):
         """
         Return all covered Prefixes in the hierarchy.
@@ -956,6 +966,25 @@ class IPAddress(NetBoxModel):
         if self.address:
             return self.address.version
         return None
+
+    @property
+    def parent_prefix(self):
+        """
+        Return smallest containing Prefix in the hierarchy.
+        """
+        return Prefix.objects.filter(
+            vrf= self.vrf,
+            prefix__net_contains= self.address.ip
+        ).order_by("-prefix__net_mask_length").first()
+
+    @property
+    def parent_range(self):
+        """
+        Return the range containing this address, if any.
+        """
+        return IPRange.objects.filter(
+            start_address__lte=self.address,
+            end_address__gte=self.address).order_by("size").first()
 
     def _set_mask_length(self, value):
         """
