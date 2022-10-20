@@ -4,7 +4,10 @@
 
 ### Enhancements
 
+* [#9584](https://github.com/netbox-community/netbox/issues/9584) - Enable filtering devices by device type slug
 * [#9722](https://github.com/netbox-community/netbox/issues/9722) - Add LDAP configuration parameters to specify certificates
+* [#10580](https://github.com/netbox-community/netbox/issues/10580) - Link "assigned" checkbox in IP address table to assigned interface
+* [#10639](https://github.com/netbox-community/netbox/issues/10639) - Set cookie paths according to configured `BASE_PATH`
 * [#10685](https://github.com/netbox-community/netbox/issues/10685) - Position A/Z termination cards above the fold under circuit view
 
 ### Bug Fixes
