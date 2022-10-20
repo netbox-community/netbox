@@ -375,7 +375,7 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
     )
     assigned = columns.BooleanColumn(
         accessor='assigned_object_id',
-        linkify=True,
+        linkify=lambda record: record.assigned_object.get_absolute_url(),
         verbose_name='Assigned'
     )
     tags = columns.TagColumn(
