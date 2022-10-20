@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
 from django.db.models.fields.reverse_related import ManyToManyRel
@@ -334,7 +334,12 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         new_objs = []
 
         for row, data in enumerate(records, start=1):
-            obj = self.queryset.model.objects.get(pk=data["id"])
+            try:
+                obj = self.queryset.model.objects.get(pk=data["id"])
+            except ObjectDoesNotExist:
+                form.add_error('csv', f'Row {row} id: {data["id"]} Does not exist')
+                raise ValidationError("")
+
             obj_form = self.model_form(data, headers=headers, instance=obj)
 
             # The form should only contain fields that are in the CSV
