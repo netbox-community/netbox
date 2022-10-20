@@ -52,38 +52,38 @@ This will automatically apply any user-specific preferences for the table. (If u
 The table column classes listed below are supported for use in plugins. These classes can be imported from `netbox.tables.columns`.
 
 ::: netbox.tables.BooleanColumn
-    selection:
+    options:
       members: false
 
 ::: netbox.tables.ChoiceFieldColumn
-    selection:
+    options:
       members: false
 
 ::: netbox.tables.ColorColumn
-    selection:
+    options:
       members: false
 
 ::: netbox.tables.ColoredLabelColumn
-    selection:
+    options:
       members: false
 
 ::: netbox.tables.ContentTypeColumn
-    selection:
+    options:
       members: false
 
 ::: netbox.tables.ContentTypesColumn
-    selection:
+    options:
       members: false
 
 ::: netbox.tables.MarkdownColumn
-    selection:
+    options:
       members: false
 
 ::: netbox.tables.TagColumn
-    selection:
+    options:
       members: false
 
 ::: netbox.tables.TemplateColumn
-    selection:
+    options:
       members:
         - __init__
