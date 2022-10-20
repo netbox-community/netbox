@@ -38,6 +38,7 @@ __all__ = (
     'ObjectChangeSerializer',
     'ReportDetailSerializer',
     'ReportSerializer',
+    'ReportInputSerializer',
     'ScriptDetailSerializer',
     'ScriptInputSerializer',
     'ScriptLogMessageSerializer',
@@ -388,6 +389,10 @@ class ReportDetailSerializer(ReportSerializer):
     result = JobResultSerializer()
 
 
+class ReportInputSerializer(serializers.Serializer):
+    schedule_at = serializers.DateTimeField(required=False, allow_null=True)
+
+
 #
 # Scripts
 #
@@ -419,6 +424,7 @@ class ScriptDetailSerializer(ScriptSerializer):
 class ScriptInputSerializer(serializers.Serializer):
     data = serializers.JSONField()
     commit = serializers.BooleanField()
+    schedule_at = serializers.DateTimeField(required=False, allow_null=True)
 
 
 class ScriptLogMessageSerializer(serializers.Serializer):

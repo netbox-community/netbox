@@ -152,6 +152,8 @@ Our example report above would be called as:
     POST /api/extras/reports/devices.DeviceConnectionsReport/run/
 ```
 
+Optionally `schedule_at` can be passed in the form data with a datetime string to schedule a script at the specified date and time.
+
 ### Via the CLI
 
 Reports can be run on the CLI by invoking the management command:
