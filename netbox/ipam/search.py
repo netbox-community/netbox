@@ -2,7 +2,7 @@ from . import models
 from netbox.search import SearchIndex, register_search
 
 
-@register_search()
+@register_search
 class AggregateIndex(SearchIndex):
     model = models.Aggregate
     fields = (
@@ -12,7 +12,7 @@ class AggregateIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ASNIndex(SearchIndex):
     model = models.ASN
     fields = (
@@ -21,7 +21,7 @@ class ASNIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class FHRPGroupIndex(SearchIndex):
     model = models.FHRPGroup
     fields = (
@@ -31,7 +31,7 @@ class FHRPGroupIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class IPAddressIndex(SearchIndex):
     model = models.IPAddress
     fields = (
@@ -41,7 +41,7 @@ class IPAddressIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class IPRangeIndex(SearchIndex):
     model = models.IPRange
     fields = (
@@ -51,7 +51,7 @@ class IPRangeIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class L2VPNIndex(SearchIndex):
     model = models.L2VPN
     fields = (
@@ -61,7 +61,7 @@ class L2VPNIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class PrefixIndex(SearchIndex):
     model = models.Prefix
     fields = (
@@ -70,7 +70,7 @@ class PrefixIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class RIRIndex(SearchIndex):
     model = models.RIR
     fields = (
@@ -80,7 +80,7 @@ class RIRIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class RoleIndex(SearchIndex):
     model = models.Role
     fields = (
@@ -90,7 +90,7 @@ class RoleIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class RouteTargetIndex(SearchIndex):
     model = models.RouteTarget
     fields = (
@@ -99,7 +99,7 @@ class RouteTargetIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ServiceIndex(SearchIndex):
     model = models.Service
     fields = (
@@ -108,7 +108,7 @@ class ServiceIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class VLANIndex(SearchIndex):
     model = models.VLAN
     fields = (
@@ -118,7 +118,7 @@ class VLANIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class VLANGroupIndex(SearchIndex):
     model = models.VLANGroup
     fields = (
@@ -129,7 +129,7 @@ class VLANGroupIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class VRFIndex(SearchIndex):
     model = models.VRF
     fields = (

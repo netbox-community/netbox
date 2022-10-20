@@ -1,6 +1,27 @@
 # Search
 
-## Field Weight Guidance
+NetBox v3.4 introduced a new global search mechanism, which employs the `extras.CachedValue` model to store discrete field values from many models in a single table.
+
+## SearchIndex
+
+To enable search support for a model, declare and register a subclass of `netbox.search.SearchIndex` for it. Typically, this will be done within an app's `search.py` module.
+
+```python
+from netbox.search import SearchIndex, register_search
+
+@register_search
+class MyModelIndex(SearchIndex):
+    model = MyModel
+    fields = (
+        ('name', 100),
+        ('description', 500),
+        ('comments', 5000),
+    )
+```
+
+A SearchIndex subclass defines both its model and a list of two-tuples specifying which model fields to be indexed and the weight (precedence) associated with each. Guidance on weight assignment for fields is provided below.
+
+### Field Weight Guidance
 
 | Weight | Field Role                                       | Examples                                           |
 |--------|--------------------------------------------------|----------------------------------------------------|

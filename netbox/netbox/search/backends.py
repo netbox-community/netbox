@@ -7,6 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db.models import F, Window
 from django.db.models.functions import window
 from django.db.models.signals import post_delete, post_save
+from django.utils.module_loading import import_string
 
 from extras.models import CachedValue, CustomField
 from extras.registry import registry
@@ -50,7 +51,7 @@ class SearchBackend:
 
         return self._search_choice_options
 
-    def search(self, request, value, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
+    def search(self, value, user=None, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
         """
         Search cached object representations for the given value.
         """
@@ -102,9 +103,7 @@ class SearchBackend:
 
 class CachedValueSearchBackend(SearchBackend):
 
-    def search(self, value, user=None, object_types=None, lookup=None):
-        if not lookup:
-            lookup = DEFAULT_LOOKUP_TYPE
+    def search(self, value, user=None, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
 
         # Define the search parameters
         params = {
@@ -230,16 +229,13 @@ class CachedValueSearchBackend(SearchBackend):
 
 
 def get_backend():
-    """Initializes and returns the configured search backend."""
-    backend_name = settings.SEARCH_BACKEND
-
-    # Load the backend class
-    backend_module_name, backend_cls_name = backend_name.rsplit('.', 1)
-    backend_module = import_module(backend_module_name)
+    """
+    Initializes and returns the configured search backend.
+    """
     try:
-        backend_cls = getattr(backend_module, backend_cls_name)
+        backend_cls = import_string(settings.SEARCH_BACKEND)
     except AttributeError:
-        raise ImproperlyConfigured(f"Could not find a class named {backend_module_name} in {backend_cls_name}")
+        raise ImproperlyConfigured(f"Failed to import configured SEARCH_BACKEND: {settings.SEARCH_BACKEND}")
 
     # Initialize and return the backend instance
     return backend_cls()

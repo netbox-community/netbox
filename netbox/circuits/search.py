@@ -2,7 +2,7 @@ from netbox.search import SearchIndex, register_search
 from . import models
 
 
-@register_search()
+@register_search
 class CircuitIndex(SearchIndex):
     model = models.Circuit
     fields = (
@@ -12,7 +12,7 @@ class CircuitIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class CircuitTerminationIndex(SearchIndex):
     model = models.CircuitTermination
     fields = (
@@ -24,7 +24,7 @@ class CircuitTerminationIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class CircuitTypeIndex(SearchIndex):
     model = models.CircuitType
     fields = (
@@ -34,7 +34,7 @@ class CircuitTypeIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ProviderIndex(SearchIndex):
     model = models.Provider
     fields = (
@@ -44,7 +44,7 @@ class ProviderIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ProviderNetworkIndex(SearchIndex):
     model = models.ProviderNetwork
     fields = (

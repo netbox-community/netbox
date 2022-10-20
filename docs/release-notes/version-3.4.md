@@ -11,6 +11,10 @@
 
 ### New Features
 
+#### New Global Search ([#10560](https://github.com/netbox-community/netbox/issues/10560))
+
+NetBox's global search functionality has been completely overhauled and replaced by a new cache-based lookup.
+
 #### Top-Level Plugin Navigation Menus ([#9071](https://github.com/netbox-community/netbox/issues/9071))
 
 A new `PluginMenu` class has been introduced, which enables a plugin to inject a top-level menu in NetBox's navigation menu. This menu can have one or more groups of menu items, just like core items. Backward compatibility with the existing `menu_items` has been maintained.

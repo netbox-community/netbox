@@ -75,7 +75,7 @@ class PluginConfig(AppConfig):
         try:
             search_indexes = import_string(f"{self.__module__}.{self.search_indexes}")
             for idx in search_indexes:
-                register_search()(idx)
+                register_search(idx)
         except ImportError:
             pass
 

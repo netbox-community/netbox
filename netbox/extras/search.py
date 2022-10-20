@@ -2,7 +2,7 @@ from netbox.search import SearchIndex, register_search
 from . import models
 
 
-@register_search()
+@register_search
 class JournalEntryIndex(SearchIndex):
     model = models.JournalEntry
     fields = (

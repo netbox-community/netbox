@@ -167,11 +167,12 @@ class SearchView(View):
                 app_label, model_name = obj_type.split('.')
                 object_types.append(ContentType.objects.get_by_natural_key(app_label, model_name))
 
+            lookup = form.cleaned_data['lookup'] or LookupTypes.PARTIAL
             results = search_backend.search(
                 form.cleaned_data['q'],
                 user=request.user,
                 object_types=object_types,
-                lookup=form.cleaned_data['lookup']
+                lookup=lookup
             )
 
             if form.cleaned_data['lookup'] != LookupTypes.EXACT:

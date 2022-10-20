@@ -91,17 +91,14 @@ def get_indexer(model):
     return registry['search'][app_label][model_name]
 
 
-def register_search():
+def register_search(cls):
     """
     Decorator for registering a SearchIndex with a particular model.
     """
-    def _wrapper(cls):
-        model = cls.model
-        app_label = model._meta.app_label
-        model_name = model._meta.model_name
+    model = cls.model
+    app_label = model._meta.app_label
+    model_name = model._meta.model_name
 
-        registry['search'][app_label][model_name] = cls
+    registry['search'][app_label][model_name] = cls
 
-        return cls
-
-    return _wrapper
+    return cls

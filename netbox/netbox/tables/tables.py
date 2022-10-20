@@ -222,7 +222,9 @@ class SearchTable(tables.Table):
         super().__init__(data, **kwargs)
 
     def render_field(self, value, record):
-        return bettertitle(record.object._meta.get_field(value).verbose_name)
+        if hasattr(record.object, value):
+            return bettertitle(record.object._meta.get_field(value).verbose_name)
+        return value
 
     def render_value(self, value):
         if not self.highlight:

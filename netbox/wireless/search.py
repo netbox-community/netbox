@@ -2,7 +2,7 @@ from netbox.search import SearchIndex, register_search
 from . import models
 
 
-@register_search()
+@register_search
 class WirelessLANIndex(SearchIndex):
     model = models.WirelessLAN
     fields = (
@@ -12,7 +12,7 @@ class WirelessLANIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class WirelessLANGroupIndex(SearchIndex):
     model = models.WirelessLANGroup
     fields = (
@@ -22,7 +22,7 @@ class WirelessLANGroupIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class WirelessLinkIndex(SearchIndex):
     model = models.WirelessLink
     fields = (

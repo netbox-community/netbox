@@ -2,7 +2,7 @@ from netbox.search import SearchIndex, register_search
 from . import models
 
 
-@register_search()
+@register_search
 class ClusterIndex(SearchIndex):
     model = models.Cluster
     fields = (
@@ -11,7 +11,7 @@ class ClusterIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ClusterGroupIndex(SearchIndex):
     model = models.ClusterGroup
     fields = (
@@ -21,7 +21,7 @@ class ClusterGroupIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ClusterTypeIndex(SearchIndex):
     model = models.ClusterType
     fields = (
@@ -31,7 +31,7 @@ class ClusterTypeIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class VirtualMachineIndex(SearchIndex):
     model = models.VirtualMachine
     fields = (
@@ -40,7 +40,7 @@ class VirtualMachineIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class VMInterfaceIndex(SearchIndex):
     model = models.VMInterface
     fields = (

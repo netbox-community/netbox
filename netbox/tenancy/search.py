@@ -2,7 +2,7 @@ from netbox.search import SearchIndex, register_search
 from . import models
 
 
-@register_search()
+@register_search
 class ContactIndex(SearchIndex):
     model = models.Contact
     fields = (
@@ -16,7 +16,7 @@ class ContactIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ContactGroupIndex(SearchIndex):
     model = models.ContactGroup
     fields = (
@@ -26,7 +26,7 @@ class ContactGroupIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ContactRoleIndex(SearchIndex):
     model = models.ContactRole
     fields = (
@@ -36,7 +36,7 @@ class ContactRoleIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class TenantIndex(SearchIndex):
     model = models.Tenant
     fields = (
@@ -47,7 +47,7 @@ class TenantIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class TenantGroupIndex(SearchIndex):
     model = models.TenantGroup
     fields = (

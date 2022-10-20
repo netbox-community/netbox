@@ -2,7 +2,7 @@ from netbox.search import SearchIndex, register_search
 from . import models
 
 
-@register_search()
+@register_search
 class CableIndex(SearchIndex):
     model = models.Cable
     fields = (
@@ -10,7 +10,7 @@ class CableIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ConsolePortIndex(SearchIndex):
     model = models.ConsolePort
     fields = (
@@ -21,7 +21,7 @@ class ConsolePortIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ConsoleServerPortIndex(SearchIndex):
     model = models.ConsoleServerPort
     fields = (
@@ -32,7 +32,7 @@ class ConsoleServerPortIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class DeviceIndex(SearchIndex):
     model = models.Device
     fields = (
@@ -43,7 +43,7 @@ class DeviceIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class DeviceBayIndex(SearchIndex):
     model = models.DeviceBay
     fields = (
@@ -53,7 +53,7 @@ class DeviceBayIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class DeviceRoleIndex(SearchIndex):
     model = models.DeviceRole
     fields = (
@@ -63,7 +63,7 @@ class DeviceRoleIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class DeviceTypeIndex(SearchIndex):
     model = models.DeviceType
     fields = (
@@ -73,7 +73,7 @@ class DeviceTypeIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class FrontPortIndex(SearchIndex):
     model = models.FrontPort
     fields = (
@@ -83,7 +83,7 @@ class FrontPortIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class InterfaceIndex(SearchIndex):
     model = models.Interface
     fields = (
@@ -97,7 +97,7 @@ class InterfaceIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class InventoryItemIndex(SearchIndex):
     model = models.InventoryItem
     fields = (
@@ -110,7 +110,7 @@ class InventoryItemIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class LocationIndex(SearchIndex):
     model = models.Location
     fields = (
@@ -120,7 +120,7 @@ class LocationIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ManufacturerIndex(SearchIndex):
     model = models.Manufacturer
     fields = (
@@ -130,7 +130,7 @@ class ManufacturerIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ModuleIndex(SearchIndex):
     model = models.Module
     fields = (
@@ -140,7 +140,7 @@ class ModuleIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ModuleBayIndex(SearchIndex):
     model = models.ModuleBay
     fields = (
@@ -150,7 +150,7 @@ class ModuleBayIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class ModuleTypeIndex(SearchIndex):
     model = models.ModuleType
     fields = (
@@ -160,7 +160,7 @@ class ModuleTypeIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class PlatformIndex(SearchIndex):
     model = models.Platform
     fields = (
@@ -171,7 +171,7 @@ class PlatformIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class PowerFeedIndex(SearchIndex):
     model = models.PowerFeed
     fields = (
@@ -180,7 +180,7 @@ class PowerFeedIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class PowerOutletIndex(SearchIndex):
     model = models.PowerOutlet
     fields = (
@@ -190,7 +190,7 @@ class PowerOutletIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class PowerPanelIndex(SearchIndex):
     model = models.PowerPanel
     fields = (
@@ -198,7 +198,7 @@ class PowerPanelIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class PowerPortIndex(SearchIndex):
     model = models.PowerPort
     fields = (
@@ -210,7 +210,7 @@ class PowerPortIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class RackIndex(SearchIndex):
     model = models.Rack
     fields = (
@@ -222,7 +222,7 @@ class RackIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class RackReservationIndex(SearchIndex):
     model = models.RackReservation
     fields = (
@@ -230,7 +230,7 @@ class RackReservationIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class RackRoleIndex(SearchIndex):
     model = models.RackRole
     fields = (
@@ -240,7 +240,7 @@ class RackRoleIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class RearPortIndex(SearchIndex):
     model = models.RearPort
     fields = (
@@ -250,7 +250,7 @@ class RearPortIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class RegionIndex(SearchIndex):
     model = models.Region
     fields = (
@@ -260,7 +260,7 @@ class RegionIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class SiteIndex(SearchIndex):
     model = models.Site
     fields = (
@@ -274,7 +274,7 @@ class SiteIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class SiteGroupIndex(SearchIndex):
     model = models.SiteGroup
     fields = (
@@ -284,7 +284,7 @@ class SiteGroupIndex(SearchIndex):
     )
 
 
-@register_search()
+@register_search
 class VirtualChassisIndex(SearchIndex):
     model = models.VirtualChassis
     fields = (
