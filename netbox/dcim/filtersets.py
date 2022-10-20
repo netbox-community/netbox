@@ -800,6 +800,12 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
+    device_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='device_type__slug',
+        queryset=DeviceType.objects.all(),
+        to_field_name='slug',
+        label='Device type (slug)',
+    )
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
         label='Device type (ID)',
