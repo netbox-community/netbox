@@ -555,7 +555,7 @@ class ViewTestCases:
 
             # pre-pend id into data
             csv_data = []
-            for idx, line in enumerate(self.csv_update_data, start=start):
+            for idx, line in enumerate(self.csv_data, start=start):
                 if idx == start:
                     csv_data.append("id," + header)
                 else:
