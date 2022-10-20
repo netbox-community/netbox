@@ -266,6 +266,7 @@ class SiteIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('facility', 100),
+        ('slug', 110),
         ('description', 500),
         ('physical_address', 2000),
         ('shipping_address', 2000),

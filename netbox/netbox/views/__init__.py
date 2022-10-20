@@ -168,8 +168,8 @@ class SearchView(View):
                 object_types.append(ContentType.objects.get_by_natural_key(app_label, model_name))
 
             results = search_backend.search(
-                request,
                 form.cleaned_data['q'],
+                user=request.user,
                 object_types=object_types,
                 lookup=form.cleaned_data['lookup']
             )

@@ -102,7 +102,7 @@ class SearchBackend:
 
 class CachedValueSearchBackend(SearchBackend):
 
-    def search(self, request, value, object_types=None, lookup=None):
+    def search(self, value, user=None, object_types=None, lookup=None):
         if not lookup:
             lookup = DEFAULT_LOOKUP_TYPE
 
@@ -128,12 +128,15 @@ class CachedValueSearchBackend(SearchBackend):
 
         # Construct a Prefetch to pre-fetch only those related objects for which the
         # user has permission to view.
-        prefetch = RestrictedPrefetch('object', request.user, 'view')
+        if user:
+            prefetch = (RestrictedPrefetch('object', user, 'view'), 'object_type')
+        else:
+            prefetch = ('object', 'object_type')
 
         # Wrap the base query to return only the lowest-weight result for each object
         # Hat-tip to https://blog.oyam.dev/django-filter-by-window-function/ for the solution
         sql, params = queryset.query.sql_with_params()
-        results = CachedValue.objects.prefetch_related(prefetch, 'object_type').raw(
+        results = CachedValue.objects.prefetch_related(*prefetch).raw(
             f"SELECT * FROM ({sql}) t WHERE row_number = 1",
             params
         )
