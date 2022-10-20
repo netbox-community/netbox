@@ -269,6 +269,7 @@ class SiteIndex(SearchIndex):
         ('description', 500),
         ('physical_address', 2000),
         ('shipping_address', 2000),
+        ('comments', 5000),
     )
 
 

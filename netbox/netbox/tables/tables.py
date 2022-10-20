@@ -4,6 +4,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_tables2.data import TableQuerysetData
 
@@ -11,6 +12,8 @@ from extras.models import CustomField, CustomLink
 from extras.choices import CustomFieldVisibilityChoices
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.templatetags.builtins.filters import bettertitle
+from utilities.utils import highlight_string
 
 __all__ = (
     'BaseTable',
@@ -206,8 +209,25 @@ class SearchTable(tables.Table):
     field = tables.Column()
     value = tables.Column()
 
+    trim_length = 30
+
     class Meta:
         attrs = {
             'class': 'table table-hover object-list',
         }
         empty_text = _('No results found')
+
+    def __init__(self, data, highlight=None, **kwargs):
+        self.highlight = highlight
+        super().__init__(data, **kwargs)
+
+    def render_field(self, value, record):
+        return bettertitle(record.object._meta.get_field(value).verbose_name)
+
+    def render_value(self, value):
+        if not self.highlight:
+            return value
+
+        value = highlight_string(value, self.highlight, trim_pre=self.trim_length, trim_post=self.trim_length)
+
+        return mark_safe(value)

@@ -23,6 +23,7 @@ from extras.models import ObjectChange
 from extras.tables import ObjectChangeTable
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF
 from netbox.forms import SearchForm
+from netbox.search import LookupTypes
 from netbox.search.backends import search_backend
 from netbox.tables import SearchTable
 from tenancy.models import Tenant
@@ -153,6 +154,7 @@ class SearchView(View):
 
     def get(self, request):
         results = []
+        highlight = None
 
         # Initialize search form
         form = SearchForm(request.GET) if 'q' in request.GET else SearchForm()
@@ -172,7 +174,10 @@ class SearchView(View):
                 lookup=form.cleaned_data['lookup']
             )
 
-        table = SearchTable(results)
+            if form.cleaned_data['lookup'] != LookupTypes.EXACT:
+                highlight = form.cleaned_data['q']
+
+        table = SearchTable(results, highlight=highlight)
 
         # Paginate the table results
         RequestConfig(request, {
