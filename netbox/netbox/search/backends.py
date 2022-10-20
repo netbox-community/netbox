@@ -156,19 +156,23 @@ class CachedValueSearchBackend(SearchBackend):
         counter = 0
         for instance in instances:
 
+            # First item
+            if not counter:
+
+                # Determine the indexer
+                if indexer is None:
+                    try:
+                        indexer = get_indexer(instance)
+                    except KeyError:
+                        break
+
+                # Prefetch any associated custom fields
+                content_type = ContentType.objects.get_for_model(indexer.model)
+                custom_fields = CustomField.objects.filter(content_types=content_type).exclude(search_weight=0)
+
             # Wipe out any previously cached values for the object
             if remove_existing:
                 cls.remove(instance)
-
-            # Determine the indexer
-            if indexer is None:
-                try:
-                    indexer = get_indexer(instance)
-                    content_type = ContentType.objects.get_for_model(indexer.model)
-                    custom_fields = CustomField.objects.filter(content_types=content_type).exclude(search_weight=0)
-                except KeyError:
-                    # No indexer has been registered for this model
-                    continue
 
             # Generate cache data
             for field in indexer.to_cache(instance, custom_fields=custom_fields):
@@ -203,15 +207,19 @@ class CachedValueSearchBackend(SearchBackend):
             return
 
         ct = ContentType.objects.get_for_model(instance)
-        CachedValue.objects.filter(object_type=ct, object_id=instance.pk).delete()
+        qs = CachedValue.objects.filter(object_type=ct, object_id=instance.pk)
+
+        # Call _raw_delete() on the queryset to avoid first loading instances into memory
+        return qs._raw_delete(using=qs.db)
 
     @classmethod
     def clear(cls, object_types=None):
+        qs = CachedValue.objects.all()
         if object_types:
-            del_count, _ = CachedValue.objects.filter(object_type__in=object_types).delete()
-        else:
-            del_count, _ = CachedValue.objects.all().delete()
-        return del_count
+            qs = qs.filter(object_type__in=object_types)
+
+        # Call _raw_delete() on the queryset to avoid first loading instances into memory
+        return qs._raw_delete(using=qs.db)
 
     @property
     def size(self):
