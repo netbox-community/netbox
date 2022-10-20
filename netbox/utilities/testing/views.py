@@ -1,3 +1,5 @@
+import csv
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import override_settings
@@ -546,6 +548,21 @@ class ViewTestCases:
         def _get_csv_data(self):
             return '\n'.join(self.csv_data)
 
+        def _get_update_csv_data(self, start):
+            # bulk_edit_data is dict, convert to comma-separated string
+            header = ",".join(self.bulk_edit_data.keys())
+            update_line = ",".join(self.bulk_edit_data.values())
+
+            # pre-pend id into data
+            csv_data = []
+            for idx, line in enumerate(self.csv_update_data, start=start):
+                if idx == start:
+                    csv_data.append("id," + header)
+                else:
+                    csv_data.append(f"{idx-1}," + update_line)
+
+            return csv_data, '\n'.join(csv_data)
+
         def test_bulk_import_objects_without_permission(self):
             data = {
                 'csv': self._get_csv_data(),
@@ -582,6 +599,41 @@ class ViewTestCases:
             # Test POST with permission
             self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.csv_data) - 1)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_bulk_update_objects_with_permission(self):
+            data = {
+                'csv': self._get_csv_data(),
+            }
+
+            # Assign model-level permission
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['add']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+
+            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+            start_id = self._get_queryset().first().id
+
+            # Now try update the data
+            array, csv_data = self._get_update_csv_data(start_id)
+            data = {
+                'csv': csv_data,
+            }
+
+            # Test POST with permission
+            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+
+            reader = csv.DictReader(array, delimiter=',')
+            check_data = list(reader)
+            for line in check_data:
+                obj = self.model.objects.get(id=line["id"])
+                for attr, value in line.items():
+                    if attr != "id":
+                        self.assertEqual(value, getattr(obj, attr))
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_import_objects_with_constrained_permission(self):
