@@ -92,6 +92,8 @@ class Service(ServiceBase, NetBoxModel):
         verbose_name='IP addresses'
     )
 
+    clone_fields = ['protocol', 'ports', 'description', 'device', 'virtual_machine', 'ipaddresses', ]
+
     class Meta:
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
 

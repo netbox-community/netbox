@@ -19,11 +19,15 @@ body:
       label: Area
       description: To what section of the documentation does this change primarily pertain?
       options:
-        - Installation instructions
-        - Configuration parameters
-        - Functionality/features
-        - REST API
-        - Administration/development
+        - Features
+        - Installation/upgrade
+        - Getting started
+        - Configuration
+        - Customization
+        - Integrations/API
+        - Plugins
+        - Administration
+        - Development
         - Other
     validations:
       required: true

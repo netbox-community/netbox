@@ -5,10 +5,11 @@ from packaging import version
 from django.apps import AppConfig
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import get_template
+from django.utils.module_loading import import_string
 
-from extras.plugins.utils import import_object
 from extras.registry import registry
 from netbox.navigation import MenuGroup
+from netbox.search import register_search
 from utilities.choices import ButtonColorChoices
 
 
@@ -60,6 +61,7 @@ class PluginConfig(AppConfig):
 
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.
+    search_indexes = 'search.indexes'
     graphql_schema = 'graphql.schema'
     menu = 'navigation.menu'
     menu_items = 'navigation.menu_items'
@@ -69,26 +71,46 @@ class PluginConfig(AppConfig):
     def ready(self):
         plugin_name = self.name.rsplit('.', 1)[-1]
 
-        # Register template content (if defined)
-        template_extensions = import_object(f"{self.__module__}.{self.template_extensions}")
-        if template_extensions is not None:
-            register_template_extensions(template_extensions)
+        # Register search extensions (if defined)
+        try:
+            search_indexes = import_string(f"{self.__module__}.{self.search_indexes}")
+            for idx in search_indexes:
+                register_search()(idx)
+        except ImportError:
+            pass
 
-        # Register navigation menu or menu items (if defined)
-        if menu := import_object(f"{self.__module__}.{self.menu}"):
+        # Register template content (if defined)
+        try:
+            template_extensions = import_string(f"{self.__module__}.{self.template_extensions}")
+            register_template_extensions(template_extensions)
+        except ImportError:
+            pass
+
+        # Register navigation menu and/or menu items (if defined)
+        try:
+            menu = import_string(f"{self.__module__}.{self.menu}")
             register_menu(menu)
-        if menu_items := import_object(f"{self.__module__}.{self.menu_items}"):
+        except ImportError:
+            pass
+        try:
+            menu_items = import_string(f"{self.__module__}.{self.menu_items}")
             register_menu_items(self.verbose_name, menu_items)
+        except ImportError:
+            pass
 
         # Register GraphQL schema (if defined)
-        graphql_schema = import_object(f"{self.__module__}.{self.graphql_schema}")
-        if graphql_schema is not None:
+        try:
+            graphql_schema = import_string(f"{self.__module__}.{self.graphql_schema}")
             register_graphql_schema(graphql_schema)
+        except ImportError:
+            pass
 
         # Register user preferences (if defined)
-        user_preferences = import_object(f"{self.__module__}.{self.user_preferences}")
-        if user_preferences is not None:
+        try:
+            user_preferences = import_string(f"{self.__module__}.{self.user_preferences}")
             register_user_preferences(plugin_name, user_preferences)
+        except ImportError:
+            pass
 
     @classmethod
     def validate(cls, user_config, netbox_version):

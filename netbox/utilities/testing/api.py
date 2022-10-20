@@ -450,6 +450,9 @@ class APIViewTestCases:
                 if type(field) is GQLDynamic:
                     # Dynamic fields must specify a subselection
                     fields_string += f'{field_name} {{ id }}\n'
+                elif inspect.isclass(field.type) and issubclass(field.type, GQLUnion):
+                    # Union types dont' have an id or consistent values
+                    continue
                 elif type(field.type) is GQLList and inspect.isclass(field.type.of_type) and issubclass(field.type.of_type, GQLUnion):
                     # Union types dont' have an id or consistent values
                     continue

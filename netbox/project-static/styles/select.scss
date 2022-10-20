@@ -32,7 +32,7 @@ $spacing-s: $input-padding-x;
   }
 }
 
-@import './node_modules/slim-select/src/slim-select/slimselect';
+@import '../node_modules/slim-select/src/slim-select/slimselect';
 
 .ss-main {
   color: $form-select-color;

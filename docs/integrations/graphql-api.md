@@ -47,7 +47,7 @@ NetBox provides both a singular and plural query field for each object type:
 
 For example, query `device(id:123)` to fetch a specific device (identified by its unique ID), and query `device_list` (with an optional set of filters) to fetch all devices.
 
-For more detail on constructing GraphQL queries, see the [Graphene documentation](https://docs.graphene-python.org/en/latest/).
+For more detail on constructing GraphQL queries, see the [Graphene documentation](https://docs.graphene-python.org/en/latest/) as well as the [GraphQL queries documentation](https://graphql.org/learn/queries/).
 
 ## Filtering
 
@@ -56,6 +56,47 @@ The GraphQL API employs the same filtering logic as the UI and REST API. Filters
 ```
 {"query": "query {site_list(region:\"north-carolina\", status:\"active\") {name}}"}
 ```
+In addition, filtering can be done on list of related objects as shown in the following query:
+
+```
+{
+  device_list {
+    id
+    name
+    interfaces(enabled: true) {
+      name
+    }
+  }
+}
+```
+
+## Multiple Return Types
+
+Certain queries can return multiple types of objects, for example cable terminations can return circuit terminations, console ports and many others.  These can be queried using [inline fragments](https://graphql.org/learn/schema/#union-types) as shown below:
+
+```
+{
+    cable_list {
+      id
+      a_terminations {
+        ... on CircuitTerminationType {
+          id
+          class_type
+        }
+        ... on ConsolePortType {
+          id
+          class_type
+        }
+        ... on ConsoleServerPortType {
+          id
+          class_type
+        }
+      }
+    }
+}
+
+```
+The field "class_type" is an easy way to distinguish what type of object it is when viewing the returned data, or when filtering.  It contains the class name, for example "CircuitTermination" or "ConsoleServerPort".
 
 ## Authentication
 

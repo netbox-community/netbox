@@ -18,11 +18,6 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 from netbox.config import PARAMS
 
-# Monkey patch to fix Django 4.0 support for graphene-django (see
-# https://github.com/graphql-python/graphene-django/issues/1284)
-# TODO: Remove this when graphene-django 2.16 becomes available
-django.utils.encoding.force_text = force_str  # type: ignore
-
 
 #
 # Environment setup
@@ -121,6 +116,7 @@ REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, 'REMOTE_AUTH_GROUP_SEPARATO
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
+SEARCH_BACKEND = getattr(configuration, 'SEARCH_BACKEND', 'netbox.search.backends.FilterSetSearchBackend')
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', DEFAULT_SENTRY_DSN)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
@@ -497,7 +493,7 @@ for param in dir(configuration):
 
 # Force usage of PostgreSQL's JSONB field for extra data
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
-
+SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = 'netbox.users.utils.clean_username'
 
 #
 # Django Prometheus
@@ -648,7 +644,6 @@ RQ_QUEUES = {
 #
 
 for plugin_name in PLUGINS:
-
     # Import plugin module
     try:
         plugin = importlib.import_module(plugin_name)

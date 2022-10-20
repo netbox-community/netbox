@@ -3,7 +3,7 @@ from django_tables2.utils import Accessor
 
 from dcim.models import Rack, RackReservation, RackRole
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from .template_code import DEVICE_WEIGHT
 
 __all__ = (
@@ -38,7 +38,7 @@ class RackRoleTable(NetBoxTable):
 # Racks
 #
 
-class RackTable(TenancyColumnsMixin, NetBoxTable):
+class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         order_by=('_name',),
         linkify=True
@@ -68,9 +68,6 @@ class RackTable(TenancyColumnsMixin, NetBoxTable):
     get_power_utilization = columns.UtilizationColumn(
         orderable=False,
         verbose_name='Power'
-    )
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
     )
     tags = columns.TagColumn(
         url_name='dcim:rack_list'

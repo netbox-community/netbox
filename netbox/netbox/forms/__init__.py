@@ -1,31 +1,15 @@
 from django import forms
 
-from netbox.search import SEARCH_TYPE_HIERARCHY
+from netbox.search.backends import default_search_engine
 from utilities.forms import BootstrapMixin
+
 from .base import *
 
 
-def build_search_choices():
-    result = list()
-    result.append(('', 'All Objects'))
-    for category, items in SEARCH_TYPE_HIERARCHY.items():
-        subcategories = list()
-        for slug, obj in items.items():
-            name = obj['queryset'].model._meta.verbose_name_plural
-            name = name[0].upper() + name[1:]
-            subcategories.append((slug, name))
-        result.append((category, tuple(subcategories)))
+def build_options(choices):
+    options = [{"label": choices[0][1], "items": []}]
 
-    return tuple(result)
-
-
-OBJ_TYPE_CHOICES = build_search_choices()
-
-
-def build_options():
-    options = [{"label": OBJ_TYPE_CHOICES[0][1], "items": []}]
-
-    for label, choices in OBJ_TYPE_CHOICES[1:]:
+    for label, choices in choices[1:]:
         items = []
 
         for value, choice_label in choices:
@@ -36,10 +20,19 @@ def build_options():
 
 
 class SearchForm(BootstrapMixin, forms.Form):
-    q = forms.CharField(
-        label='Search'
-    )
-    obj_type = forms.ChoiceField(
-        choices=OBJ_TYPE_CHOICES, required=False, label='Type'
-    )
-    options = build_options()
+    q = forms.CharField(label='Search')
+    options = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["obj_type"] = forms.ChoiceField(
+            choices=default_search_engine.get_search_choices(),
+            required=False,
+            label='Type'
+        )
+
+    def get_options(self):
+        if not self.options:
+            self.options = build_options(default_search_engine.get_search_choices())
+
+        return self.options

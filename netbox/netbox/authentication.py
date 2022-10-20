@@ -351,6 +351,14 @@ class LDAPBackend:
         if getattr(ldap_config, 'LDAP_IGNORE_CERT_ERRORS', False):
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 
+        # Optionally set CA cert directory
+        if ca_cert_dir := getattr(ldap_config, 'LDAP_CA_CERT_DIR', None):
+            ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, ca_cert_dir)
+
+        # Optionally set CA cert file
+        if ca_cert_file := getattr(ldap_config, 'LDAP_CA_CERT_FILE', None):
+            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, ca_cert_file)
+
         return obj
 
 

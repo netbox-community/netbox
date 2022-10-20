@@ -27,7 +27,7 @@ class CustomFieldType(ObjectType):
 
     class Meta:
         model = models.CustomField
-        fields = '__all__'
+        exclude = ('content_types', )
         filterset_class = filtersets.CustomFieldFilterSet
 
 
@@ -83,5 +83,5 @@ class WebhookType(ObjectType):
 
     class Meta:
         model = models.Webhook
-        fields = '__all__'
+        exclude = ('content_types', )
         filterset_class = filtersets.WebhookFilterSet

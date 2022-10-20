@@ -19,6 +19,12 @@ class WirelessLANGroupForm(NetBoxModelForm):
     )
     slug = SlugField()
 
+    fieldsets = (
+        ('Wireless LAN Group', (
+            'parent', 'name', 'slug', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = WirelessLANGroup
         fields = [

@@ -30,7 +30,7 @@ plugins:
             - os.chdir('netbox/')
             - os.environ.setdefault("DJANGO_SETTINGS_MODULE", "netbox.settings")
             - django.setup()
-          rendering:
+          options:
             heading_level: 3
             members_order: source
             show_root_heading: true
@@ -132,6 +132,7 @@ nav:
             - GraphQL API: 'plugins/development/graphql-api.md'
             - Background Tasks: 'plugins/development/background-tasks.md'
             - Exceptions: 'plugins/development/exceptions.md'
+            - Search: 'plugins/development/search.md'
     - Administration:
         - Authentication:
             - Overview: 'administration/authentication/overview.md'

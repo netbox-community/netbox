@@ -140,19 +140,22 @@ class ViewTab:
 
     Args:
         label: Human-friendly text
-        badge: A static value or callable to display alongside the label (optional). If a callable is used, it must accept a single
-            argument representing the object being viewed.
+        badge: A static value or callable to display alongside the label (optional). If a callable is used, it must
+            accept a single argument representing the object being viewed.
         permission: The permission required to display the tab (optional).
+        hide_if_empty: If true, the tab will be displayed only if its badge has a meaningful value. (Tabs without a
+            badge are always displayed.)
     """
-    def __init__(self, label, badge=None, permission=None):
+    def __init__(self, label, badge=None, permission=None, hide_if_empty=False):
         self.label = label
         self.badge = badge
         self.permission = permission
+        self.hide_if_empty = hide_if_empty
 
     def render(self, instance):
         """Return the attributes needed to render a tab in HTML."""
         badge_value = self._get_badge_value(instance)
-        if self.badge and not badge_value:
+        if self.badge and self.hide_if_empty and not badge_value:
             return None
         return {
             'label': self.label,
