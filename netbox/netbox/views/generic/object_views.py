@@ -173,7 +173,7 @@ class ObjectImportView(GetReturnURLMixin, BaseObjectView):
         obj = model_form.save()
 
         # Enforce object-level permissions
-        if not self.queryset.filter(pk=obj.pk).first():
+        if not self.queryset.filter(pk=obj.pk).exists():
             raise PermissionsViolation()
 
         # Iterate through the related object forms (if any), validating and saving each instance.
@@ -390,7 +390,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
                     obj = form.save()
 
                     # Check that the new object conforms with any assigned object-level permissions
-                    if not self.queryset.filter(pk=obj.pk).first():
+                    if not self.queryset.filter(pk=obj.pk).exists():
                         raise PermissionsViolation()
 
                 msg = '{} {}'.format(
