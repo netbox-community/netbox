@@ -614,8 +614,13 @@ class ViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
 
+            # need to track ids so we know what new ids were added by csv_data so we can
+            # do the updates on the appropriate ids
+            prev_ids = list(self._get_queryset().values_list('id', flat=True).order_by('id'))
             self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
-            start_id = self._get_queryset().order_by('id').first().id
+            new_ids = list(self._get_queryset().values_list('id', flat=True).order_by('id'))
+            diff_ids = [x for x in new_ids if x not in prev_ids]
+            start_id = diff_ids[0]
 
             # Now try update the data
             array, csv_data = self._get_update_csv_data(start_id)

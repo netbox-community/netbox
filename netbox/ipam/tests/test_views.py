@@ -941,7 +941,12 @@ class L2VPNTerminationTestCase(
             "L2VPN 1,Vlan 6",
         )
 
-        cls.csv_update_data = ()
+        cls.csv_update_data = (
+            "vlan",
+            "Vlan 1",
+            "Vlan 2",
+            "Vlan 3",
+        )
 
         cls.bulk_edit_data = {}
 
