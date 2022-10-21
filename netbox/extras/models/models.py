@@ -569,7 +569,7 @@ class JobResult(models.Model):
             self.completed = timezone.now()
 
     @classmethod
-    def enqueue_job(cls, func, name, obj_type, user, *args, **kwargs):
+    def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, *args, **kwargs):
         """
         Create a JobResult instance and enqueue a job using the given callable
 
@@ -577,6 +577,7 @@ class JobResult(models.Model):
         name: Name for the JobResult instance
         obj_type: ContentType to link to the JobResult instance obj_type
         user: User object to link to the JobResult instance
+        schedule_at: Schedule the job to be executed at the passed date and time
         args: additional args passed to the callable
         kwargs: additional kargs passed to the callable
         """
@@ -589,7 +590,7 @@ class JobResult(models.Model):
 
         queue = django_rq.get_queue("default")
 
-        if schedule_at := kwargs.pop("schedule_at", None):
+        if schedule_at:
             job_result.status = JobResultStatusChoices.STATUS_SCHEDULED
             job_result.scheduled_time = schedule_at
             job_result.save()

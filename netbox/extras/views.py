@@ -612,26 +612,30 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         if form.is_valid():
             schedule_at = form.cleaned_data.get("schedule_at")
 
-        # Allow execution only if RQ worker process is running
-        if not Worker.count(get_connection('default')):
-            messages.error(request, "Unable to run report: RQ worker process not running.")
-            return render(request, 'extras/report.html', {
-                'report': report,
-            })
+            # Allow execution only if RQ worker process is running
+            if not Worker.count(get_connection('default')):
+                messages.error(request, "Unable to run report: RQ worker process not running.")
+                return render(request, 'extras/report.html', {
+                    'report': report,
+                })
 
-        # Run the Report. A new JobResult is created.
-        report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        job_result = JobResult.enqueue_job(
-            run_report,
-            report.full_name,
-            report_content_type,
-            request.user,
-            job_timeout=report.job_timeout,
-            schedule_at=schedule_at,
-        )
+            # Run the Report. A new JobResult is created.
+            report_content_type = ContentType.objects.get(app_label='extras', model='report')
+            job_result = JobResult.enqueue_job(
+                run_report,
+                report.full_name,
+                report_content_type,
+                request.user,
+                job_timeout=report.job_timeout,
+                schedule_at=schedule_at,
+            )
 
-        return redirect('extras:report_result', job_result_pk=job_result.pk)
-
+            return redirect('extras:report_result', job_result_pk=job_result.pk)
+        
+        return render(request, 'extras/report.html', {
+            'report': report,
+            'form': form,
+        })
 
 class ReportResultView(ContentTypePermissionRequiredMixin, View):
     """
@@ -803,10 +807,6 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, GetScriptMixin, View)
 #
 # Job results
 #
-
-class JobResultView(generic.ObjectView):
-    queryset = JobResult.objects.all()
-
 
 class JobResultListView(generic.ObjectListView):
     queryset = JobResult.objects.all()
