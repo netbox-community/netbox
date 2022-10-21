@@ -39,12 +39,22 @@
             <td>{% checkmark object.required %}</td>
           </tr>
           <tr>
-            <th scope="row">Weight</th>
-            <td>{{ object.weight }}</td>
+            <th scope="row">Search Weight</th>
+            <td>
+              {% if object.search_weight %}
+                {{ object.search_weight }}
+              {% else %}
+                <span class="text-muted">Disabled</span>
+              {% endif %}
+            </td>
           </tr>
           <tr>
             <th scope="row">Filter Logic</th>
             <td>{{ object.get_filter_logic_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Display Weight</th>
+            <td>{{ object.weight }}</td>
           </tr>
           <tr>
             <th scope="row">UI Visibility</th>

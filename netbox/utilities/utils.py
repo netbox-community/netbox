@@ -1,6 +1,7 @@
 import datetime
 import decimal
 import json
+import re
 from decimal import Decimal
 from itertools import count, groupby
 
@@ -9,6 +10,7 @@ from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.http import QueryDict
+from django.utils.html import escape
 from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
@@ -472,3 +474,23 @@ def clean_html(html, schemes):
         attributes=ALLOWED_ATTRIBUTES,
         protocols=schemes
     )
+
+
+def highlight_string(value, highlight, trim_pre=None, trim_post=None, trim_placeholder='...'):
+    """
+    Highlight a string within a string and optionally trim the pre/post portions of the original string.
+    """
+    # Split value on highlight string
+    try:
+        pre, match, post = re.split(fr'({highlight})', value, maxsplit=1, flags=re.IGNORECASE)
+    except ValueError:
+        # Match not found
+        return escape(value)
+
+    # Trim pre/post sections to length
+    if trim_pre and len(pre) > trim_pre:
+        pre = trim_placeholder + pre[-trim_pre:]
+    if trim_post and len(post) > trim_post:
+        post = post[:trim_post] + trim_placeholder
+
+    return f'{escape(pre)}<mark>{escape(match)}</mark>{escape(post)}'

@@ -30,7 +30,7 @@ plugins:
             - os.chdir('netbox/')
             - os.environ.setdefault("DJANGO_SETTINGS_MODULE", "netbox.settings")
             - django.setup()
-          rendering:
+          options:
             heading_level: 3
             members_order: source
             show_root_heading: true
@@ -245,6 +245,7 @@ nav:
         - Adding Models: 'development/adding-models.md'
         - Extending Models: 'development/extending-models.md'
         - Signals: 'development/signals.md'
+        - Search: 'development/search.md'
         - Application Registry: 'development/application-registry.md'
         - User Preferences: 'development/user-preferences.md'
         - Web UI: 'development/web-ui.md'

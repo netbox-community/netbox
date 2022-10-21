@@ -19,6 +19,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 __all__ = (
     'ConfigContextFilterForm',
     'CustomFieldFilterForm',
+    'JobResultFilterForm',
     'CustomLinkFilterForm',
     'ExportTemplateFilterForm',
     'JournalEntryFilterForm',
@@ -62,6 +63,58 @@ class CustomFieldFilterForm(FilterForm):
         required=False,
         label=_('UI visibility'),
         widget=StaticSelect()
+    )
+
+
+class JobResultFilterForm(FilterForm):
+    fieldsets = (
+        (None, ('q',)),
+        ('Attributes', ('obj_type', 'status')),
+        ('Creation', ('created__before', 'created__after', 'completed__before', 'completed__after',
+                      'scheduled_time__before', 'scheduled_time__after', 'user')),
+    )
+
+    obj_type = ContentTypeChoiceField(
+        label=_('Object Type'),
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('job_results'),  # TODO: This doesn't actually work
+        required=False,
+    )
+    status = MultipleChoiceField(
+        choices=JobResultStatusChoices,
+        required=False
+    )
+    created__after = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    created__before = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    completed__after = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    completed__before = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    scheduled_time__after = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    scheduled_time__before = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    user = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        label=_('User'),
+        widget=APISelectMultiple(
+            api_url='/api/users/users/',
+        )
     )
 
 

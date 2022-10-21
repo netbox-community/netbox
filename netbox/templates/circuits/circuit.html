@@ -60,21 +60,15 @@
       </div>
       {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
       {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
-      {% include 'inc/panels/comments.html' %}
+      {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_a side='A' %}
+      {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_z side='Z' %}
       {% include 'inc/panels/contacts.html' %}
       {% include 'inc/panels/image_attachments.html' %}
       {% plugin_right_page object %}
-    </div>
-  </div>
-  <div class="row">
-    <div class="col col-md-6">
-      {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_a side='A' %}
-    </div>
-    <div class="col col-md-6">
-      {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_z side='Z' %}
     </div>
   </div>
   <div class="row">

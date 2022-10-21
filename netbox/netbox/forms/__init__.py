@@ -1,38 +1,45 @@
 from django import forms
+from django.utils.translation import gettext as _
 
-from netbox.search.backends import default_search_engine
-from utilities.forms import BootstrapMixin
+from netbox.search import LookupTypes
+from netbox.search.backends import search_backend
+from utilities.forms import BootstrapMixin, StaticSelect, StaticSelectMultiple
 
 from .base import *
 
-
-def build_options(choices):
-    options = [{"label": choices[0][1], "items": []}]
-
-    for label, choices in choices[1:]:
-        items = []
-
-        for value, choice_label in choices:
-            items.append({"label": choice_label, "value": value})
-
-        options.append({"label": label, "items": items})
-    return options
+LOOKUP_CHOICES = (
+    ('', _('Partial match')),
+    (LookupTypes.EXACT, _('Exact match')),
+    (LookupTypes.STARTSWITH, _('Starts with')),
+    (LookupTypes.ENDSWITH, _('Ends with')),
+)
 
 
 class SearchForm(BootstrapMixin, forms.Form):
-    q = forms.CharField(label='Search')
-    options = None
+    q = forms.CharField(
+        label='Search',
+        widget=forms.TextInput(
+            attrs={
+                'hx-get': '',
+                'hx-target': '#object_list',
+                'hx-trigger': 'keyup[target.value.length >= 3] changed delay:500ms',
+            }
+        )
+    )
+    obj_types = forms.MultipleChoiceField(
+        choices=[],
+        required=False,
+        label='Object type(s)',
+        widget=StaticSelectMultiple()
+    )
+    lookup = forms.ChoiceField(
+        choices=LOOKUP_CHOICES,
+        initial=LookupTypes.PARTIAL,
+        required=False,
+        widget=StaticSelect()
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["obj_type"] = forms.ChoiceField(
-            choices=default_search_engine.get_search_choices(),
-            required=False,
-            label='Type'
-        )
 
-    def get_options(self):
-        if not self.options:
-            self.options = build_options(default_search_engine.get_search_choices())
-
-        return self.options
+        self.fields['obj_types'].choices = search_backend.get_object_types()

@@ -38,6 +38,7 @@ __all__ = (
     'ObjectChangeSerializer',
     'ReportDetailSerializer',
     'ReportSerializer',
+    'ReportInputSerializer',
     'ScriptDetailSerializer',
     'ScriptInputSerializer',
     'ScriptLogMessageSerializer',
@@ -91,8 +92,8 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         model = CustomField
         fields = [
             'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
-            'description', 'required', 'filter_logic', 'ui_visibility', 'default', 'weight', 'validation_minimum',
-            'validation_maximum', 'validation_regex', 'choices', 'created', 'last_updated',
+            'description', 'required', 'search_weight', 'filter_logic', 'ui_visibility', 'default', 'weight',
+            'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'created', 'last_updated',
         ]
 
     def get_data_type(self, obj):
@@ -362,7 +363,7 @@ class JobResultSerializer(BaseModelSerializer):
     class Meta:
         model = JobResult
         fields = [
-            'id', 'url', 'display', 'created', 'completed', 'name', 'obj_type', 'status', 'user', 'data', 'job_id',
+            'id', 'url', 'display', 'created', 'completed', 'scheduled_time', 'name', 'obj_type', 'status', 'user', 'data', 'job_id',
         ]
 
 
@@ -386,6 +387,10 @@ class ReportSerializer(serializers.Serializer):
 
 class ReportDetailSerializer(ReportSerializer):
     result = JobResultSerializer()
+
+
+class ReportInputSerializer(serializers.Serializer):
+    schedule_at = serializers.DateTimeField(required=False, allow_null=True)
 
 
 #
@@ -419,6 +424,7 @@ class ScriptDetailSerializer(ScriptSerializer):
 class ScriptInputSerializer(serializers.Serializer):
     data = serializers.JSONField()
     commit = serializers.BooleanField()
+    schedule_at = serializers.DateTimeField(required=False, allow_null=True)
 
 
 class ScriptLogMessageSerializer(serializers.Serializer):

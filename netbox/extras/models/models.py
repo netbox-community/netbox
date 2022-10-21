@@ -505,6 +505,10 @@ class JobResult(models.Model):
         null=True,
         blank=True
     )
+    scheduled_time = models.DateTimeField(
+        null=True,
+        blank=True
+    )
     user = models.ForeignKey(
         to=User,
         on_delete=models.SET_NULL,
@@ -525,11 +529,25 @@ class JobResult(models.Model):
         unique=True
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
-        ordering = ['obj_type', 'name', '-created']
+        ordering = ['-created']
 
     def __str__(self):
         return str(self.job_id)
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+
+        queue = django_rq.get_queue("default")
+        job = queue.fetch_job(str(self.job_id))
+
+        if job:
+            job.cancel()
+
+    def get_absolute_url(self):
+        return reverse(f'extras:{self.obj_type.name}_result', args=[self.pk])
 
     @property
     def duration(self):
@@ -551,7 +569,7 @@ class JobResult(models.Model):
             self.completed = timezone.now()
 
     @classmethod
-    def enqueue_job(cls, func, name, obj_type, user, *args, **kwargs):
+    def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, *args, **kwargs):
         """
         Create a JobResult instance and enqueue a job using the given callable
 
@@ -559,10 +577,11 @@ class JobResult(models.Model):
         name: Name for the JobResult instance
         obj_type: ContentType to link to the JobResult instance obj_type
         user: User object to link to the JobResult instance
+        schedule_at: Schedule the job to be executed at the passed date and time
         args: additional args passed to the callable
         kwargs: additional kargs passed to the callable
         """
-        job_result = cls.objects.create(
+        job_result: JobResult = cls.objects.create(
             name=name,
             obj_type=obj_type,
             user=user,
@@ -570,7 +589,15 @@ class JobResult(models.Model):
         )
 
         queue = django_rq.get_queue("default")
-        queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
+
+        if schedule_at:
+            job_result.status = JobResultStatusChoices.STATUS_SCHEDULED
+            job_result.scheduled_time = schedule_at
+            job_result.save()
+
+            queue.enqueue_at(schedule_at, func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
+        else:
+            queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
 
         return job_result
 

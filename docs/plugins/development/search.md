@@ -4,17 +4,16 @@ Plugins can define and register their own models to extend NetBox's core search 
 
 ```python
 # search.py
-from netbox.search import SearchMixin
-from .filters import MyModelFilterSet
-from .tables import MyModelTable
+from netbox.search import SearchIndex
 from .models import MyModel
 
-class MyModelIndex(SearchMixin):
+class MyModelIndex(SearchIndex):
     model = MyModel
-    queryset = MyModel.objects.all()
-    filterset = MyModelFilterSet
-    table = MyModelTable
-    url = 'plugins:myplugin:mymodel_list'
+    fields = (
+        ('name', 100),
+        ('description', 500),
+        ('comments', 5000),
+    )
 ```
 
 To register one or more indexes with NetBox, define a list named `indexes` at the end of this file:

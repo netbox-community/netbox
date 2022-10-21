@@ -1,8 +1,9 @@
 import django_tables2 as tables
-
 from circuits.models import *
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
+
 from .columns import CommitRateColumn
 
 __all__ = (
@@ -39,7 +40,7 @@ class CircuitTypeTable(NetBoxTable):
         default_columns = ('pk', 'name', 'circuit_count', 'description', 'slug')
 
 
-class CircuitTable(TenancyColumnsMixin, NetBoxTable):
+class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     cid = tables.Column(
         linkify=True,
         verbose_name='Circuit ID'
@@ -58,9 +59,6 @@ class CircuitTable(TenancyColumnsMixin, NetBoxTable):
     )
     commit_rate = CommitRateColumn()
     comments = columns.MarkdownColumn()
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
-    )
     tags = columns.TagColumn(
         url_name='circuits:circuit_list'
     )
