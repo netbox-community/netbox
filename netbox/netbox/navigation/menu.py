@@ -294,6 +294,11 @@ OTHER_MENU = Menu(
                     link_text='Scripts',
                     permissions=['extras.view_script']
                 ),
+                MenuItem(
+                    link='extras:jobresult_list',
+                    link_text='Job Results',
+                    permissions=['extras.view_jobresult'],
+                ),
             ),
         ),
         MenuGroup(

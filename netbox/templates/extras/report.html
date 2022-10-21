@@ -1,5 +1,6 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
+{% load form_helpers %}
 
 {% block title %}{{ report.name }}{% endblock %}
 
@@ -33,18 +34,24 @@
 {% block content %}
   <div role="tabpanel" class="tab-pane active" id="report">
     {% if perms.extras.run_report %}
-      <div class="float-end noprint">
-          <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
+    <div class="row">
+      <div class="col">
+          <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post" class="form-object-edit">
               {% csrf_token %}
-              <button type="submit" name="_run" class="btn btn-primary">
-                  {% if report.result %}
-                      <i class="mdi mdi-replay"></i> Run Again
-                  {% else %}
-                      <i class="mdi mdi-play"></i> Run Report
-                  {% endif %}
-              </button>
+              {% render_form form %}
+              <div class="float-end">
+                <button type="submit" name="_run" class="btn btn-primary">
+                    {% if report.result %}
+                        <i class="mdi mdi-replay"></i> Run Again
+                    {% else %}
+                        <i class="mdi mdi-play"></i> Run Report
+                    {% endif %}
+                </button>
+              </div>
           </form>
+        </div>
       </div>
+
     {% endif %}
     <div class="row">
         <div class="col col-md-12">

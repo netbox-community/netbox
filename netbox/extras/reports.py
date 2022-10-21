@@ -85,7 +85,6 @@ def run_report(job_result, *args, **kwargs):
     try:
         report.run(job_result)
     except Exception as e:
-        print(e)
         job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
         job_result.save()
         logging.error(f"Error during execution of report {job_result.name}")

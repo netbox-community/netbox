@@ -1,4 +1,6 @@
 {% extends 'extras/report.html' %}
+{% load buttons %}
+{% load perms %}
 
 {% block content-wrapper %}
   <div class="row p-3">
@@ -7,3 +9,13 @@
     </div>
   </div>
 {% endblock %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% if request.user|can_delete:result %}
+        {% delete_button result %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock controls %}
