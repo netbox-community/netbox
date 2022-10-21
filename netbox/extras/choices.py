@@ -141,6 +141,7 @@ class LogLevelChoices(ChoiceSet):
 class JobResultStatusChoices(ChoiceSet):
 
     STATUS_PENDING = 'pending'
+    STATUS_SCHEDULED = 'scheduled'
     STATUS_RUNNING = 'running'
     STATUS_COMPLETED = 'completed'
     STATUS_ERRORED = 'errored'
@@ -148,6 +149,7 @@ class JobResultStatusChoices(ChoiceSet):
 
     CHOICES = (
         (STATUS_PENDING, 'Pending'),
+        (STATUS_SCHEDULED, 'Scheduled'),
         (STATUS_RUNNING, 'Running'),
         (STATUS_COMPLETED, 'Completed'),
         (STATUS_ERRORED, 'Errored'),
