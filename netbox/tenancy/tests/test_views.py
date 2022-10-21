@@ -32,6 +32,13 @@ class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Tenant Group 6,tenant-group-6,Sixth tenant group",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Tenant Group 7,Fourth tenant group7",
+            "Tenant Group 8,Fifth tenant group8",
+            "Tenant Group 9,Sixth tenant group9",
+        )
+
         cls.bulk_edit_data = {
             'description': 'New description',
         }
@@ -74,6 +81,13 @@ class TenantTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Tenant 6,tenant-6",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Tenant 7,New description 7",
+            "Tenant 8,New description 8",
+            "Tenant 9,New description 9",
+        )
+
         cls.bulk_edit_data = {
             'group': tenant_groups[1].pk,
         }
@@ -109,6 +123,13 @@ class ContactGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Contact Group 6,contact-group-6,Sixth contact group",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Contact Group 7,Fourth contact group7",
+            "Contact Group 8,Fifth contact group8",
+            "Contact Group 9,Sixth contact group9",
+        )
+
         cls.bulk_edit_data = {
             'description': 'New description',
         }
@@ -140,6 +161,13 @@ class ContactRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Contact Role 4,contact-role-4",
             "Contact Role 5,contact-role-5",
             "Contact Role 6,contact-role-6",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Contact Role 7,New description 7",
+            "Contact Role 8,New description 8",
+            "Contact Role 9,New description 9",
         )
 
         cls.bulk_edit_data = {
@@ -180,6 +208,13 @@ class ContactTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Contact Group 1,Contact 4",
             "Contact Group 1,Contact 5",
             "Contact Group 1,Contact 6",
+        )
+
+        cls.csv_update_data = (
+            "name,comments",
+            "Contact Group 7,New comments 7",
+            "Contact Group 8,New comments 8",
+            "Contact Group 9,New comments 9",
         )
 
         cls.bulk_edit_data = {

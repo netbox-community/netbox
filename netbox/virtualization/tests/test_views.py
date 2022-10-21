@@ -38,6 +38,13 @@ class ClusterGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Cluster Group 6,cluster-group-6,Sixth cluster group",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Cluster Group 7,Fourth cluster group7",
+            "Cluster Group 8,Fifth cluster group8",
+            "Cluster Group 9,Sixth cluster group9",
+        )
+
         cls.bulk_edit_data = {
             'description': 'New description',
         }
@@ -69,6 +76,13 @@ class ClusterTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Cluster Type 4,cluster-type-4,Fourth cluster type",
             "Cluster Type 5,cluster-type-5,Fifth cluster type",
             "Cluster Type 6,cluster-type-6,Sixth cluster type",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Cluster Type 7,Fourth cluster type7",
+            "Cluster Type 8,Fifth cluster type8",
+            "Cluster Type 9,Sixth cluster type9",
         )
 
         cls.bulk_edit_data = {
@@ -124,6 +138,13 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Cluster 4,Cluster Type 1,active",
             "Cluster 5,Cluster Type 1,active",
             "Cluster 6,Cluster Type 1,active",
+        )
+
+        cls.csv_update_data = (
+            "name,comments",
+            "Cluster 7,New comments 7",
+            "Cluster 8,New comments 8",
+            "Cluster 9,New comments 9",
         )
 
         cls.bulk_edit_data = {
@@ -219,6 +240,13 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Virtual Machine 4,active,Site 1,Cluster 1,device1",
             "Virtual Machine 5,active,Site 1,Cluster 1,device1",
             "Virtual Machine 6,active,Site 1,Cluster 1,",
+        )
+
+        cls.csv_update_data = (
+            "name,comments",
+            "Virtual Machine 7,New comments 7",
+            "Virtual Machine 8,New comments 8",
+            "Virtual Machine 9,New comments 9",
         )
 
         cls.bulk_edit_data = {
@@ -325,6 +353,13 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             f"Virtual Machine 2,Interface 4,{vrfs[0].pk}",
             f"Virtual Machine 2,Interface 5,{vrfs[0].pk}",
             f"Virtual Machine 2,Interface 6,{vrfs[0].pk}",
+        )
+
+        cls.csv_update_data = (
+            f"name,description",
+            f"Interface 7,New description 7",
+            f"Interface 8,New description 8",
+            f"Interface 9,New description 9",
         )
 
         cls.bulk_edit_data = {

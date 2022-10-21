@@ -37,6 +37,13 @@ class WirelessLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Wireless LAN Group 6,wireless-lan-group-6,Sixth wireless LAN group",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Wireles sLAN Group 7,Fourth wireless LAN group7",
+            "Wireless LAN Group 8,Fifth wireless LAN group8",
+            "Wireless LAN Group 9,Sixth wireless LAN group9",
+        )
+
         cls.bulk_edit_data = {
             'description': 'New description',
         }
@@ -82,6 +89,13 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"Wireless LAN Group 2,WLAN4,{tenants[0].name}",
             f"Wireless LAN Group 2,WLAN5,{tenants[1].name}",
             f"Wireless LAN Group 2,WLAN6,{tenants[2].name}",
+        )
+
+        cls.csv_update_data = (
+            f"ssid",
+            f"WLAN7",
+            f"WLAN8",
+            f"WLAN9",
         )
 
         cls.bulk_edit_data = {
