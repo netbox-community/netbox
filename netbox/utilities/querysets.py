@@ -21,13 +21,12 @@ class RestrictedPrefetch(Prefetch):
             'action': self.restrict_action,
         }
 
-        qs = super().get_current_queryset(level)
-        if qs:
-            return qs.filter(**params)
+        if qs := super().get_current_queryset(level):
+            return qs.restrict(**params)
 
         # Bit of a hack. If no queryset is defined, pass through the dict of restrict()
-        # kwargs to be called later. This is necessary e.g. for GenericForeignKey fields,
-        # which do not permit setting a queryset on a Prefetch object.
+        # kwargs to be handled by the field. This is necessary e.g. for GenericForeignKey
+        # fields, which do not permit setting a queryset on a Prefetch object.
         return params
 
 

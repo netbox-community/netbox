@@ -78,10 +78,18 @@ class NaturalOrderingField(models.CharField):
 
 class RestrictedGenericForeignKey(GenericForeignKey):
 
-    # Replicated from GenericForeignKey
+    # Replicated largely from GenericForeignKey. Changes include:
+    #  1. Capture restrict_params from RestrictedPrefetch (hack)
+    #  2. If restrict_params is set, call restrict() on the queryset for
+    #     the related model
     def get_prefetch_queryset(self, instances, queryset=None):
+        restrict_params = {}
+
         # Compensate for the hack in RestrictedPrefetch
-        restrict_params = queryset if type(queryset) is dict else {}
+        if type(queryset) is dict:
+            restrict_params = queryset
+        elif queryset is not None:
+            raise ValueError("Custom queryset can't be used for this lookup.")
 
         # For efficiency, group the instances by content type and then do one
         # query per model
