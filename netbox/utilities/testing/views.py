@@ -620,6 +620,7 @@ class ViewTestCases:
             # do the updates on the appropriate ids
             prev_ids = list(self._get_queryset().values_list('id', flat=True).order_by('id'))
             self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+            count = self._get_queryset().count()
             new_ids = list(self._get_queryset().values_list('id', flat=True).order_by('id'))
             diff_ids = [x for x in new_ids if x not in prev_ids]
             start_id = diff_ids[0]
@@ -632,6 +633,7 @@ class ViewTestCases:
 
             # Test POST with permission
             self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+            self.assertEqual(count, self._get_queryset().count())
 
             reader = csv.DictReader(array, delimiter=',')
             check_data = list(reader)
