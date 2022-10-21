@@ -370,9 +370,9 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_update_data = (
             "description,status",
-            f",New description 7,{PrefixStatusChoices.STATUS_RESERVED}",
-            f",New description 8,{PrefixStatusChoices.STATUS_RESERVED}",
-            f",New description 9,{PrefixStatusChoices.STATUS_RESERVED}",
+            f"New description 7,{PrefixStatusChoices.STATUS_RESERVED}",
+            f"New description 8,{PrefixStatusChoices.STATUS_RESERVED}",
+            f"New description 9,{PrefixStatusChoices.STATUS_RESERVED}",
         )
 
         cls.bulk_edit_data = {

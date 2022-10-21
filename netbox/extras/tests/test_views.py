@@ -48,11 +48,11 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.csv_update_data = (
-            'name,label',
-            'field8,Field 8',
-            'field9,Field 9',
-            'field10,Field 10',
-            'field11,Field 11',
+            'label',
+            'New label 1',
+            'New label 2',
+            'New label 3',
+            'New label 4',
         )
 
         cls.bulk_edit_data = {
