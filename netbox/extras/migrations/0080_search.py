@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('extras', '0078_unique_constraints'),
+        ('extras', '0079_jobresult_scheduled_time'),
     ]
 
     operations = [
