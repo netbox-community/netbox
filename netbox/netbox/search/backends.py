@@ -1,5 +1,4 @@
 from collections import defaultdict
-from importlib import import_module
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -20,18 +19,17 @@ MAX_RESULTS = 1000
 
 
 class SearchBackend:
-    """A search engine capable of performing multi-table searches."""
-    _search_choice_options = tuple()
-
-    def __init__(self):
-
-        # Connect handlers to the appropriate model signals
-        post_save.connect(self.caching_handler)
-        post_delete.connect(self.removal_handler)
+    """
+    Base class for search backends. Subclasses must extend the `cache()`, `remove()`, and `clear()` methods below.
+    """
+    _object_types = None
 
     def get_object_types(self):
-        """Return the set of choices for individual object types, organized by category."""
-        if not self._search_choice_options:
+        """
+        Return a list of all registered object types, organized by category, suitable for populating a form's
+        ChoiceField.
+        """
+        if not self._object_types:
 
             # Organize choices by category
             categories = defaultdict(dict)
@@ -45,9 +43,9 @@ class SearchBackend:
                 *[(category, list(choices.items())) for category, choices in categories.items()]
             )
 
-            self._search_choice_options = results
+            self._object_types = results
 
-        return self._search_choice_options
+        return self._object_types
 
     def search(self, value, user=None, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
         """
@@ -55,36 +53,31 @@ class SearchBackend:
         """
         raise NotImplementedError
 
-    @classmethod
-    def caching_handler(cls, sender, instance, **kwargs):
+    def caching_handler(self, sender, instance, **kwargs):
         """
         Receiver for the post_save signal, responsible for caching object creation/changes.
         """
-        cls.cache(instance)
+        self.cache(instance)
 
-    @classmethod
-    def removal_handler(cls, sender, instance, **kwargs):
+    def removal_handler(self, sender, instance, **kwargs):
         """
         Receiver for the post_delete signal, responsible for caching object deletion.
         """
-        cls.remove(instance)
+        self.remove(instance)
 
-    @classmethod
-    def cache(cls, instance, indexer=None):
+    def cache(self, instances, indexer=None, remove_existing=True):
         """
         Create or update the cached representation of an instance.
         """
         raise NotImplementedError
 
-    @classmethod
-    def remove(cls, instance):
+    def remove(self, instance):
         """
         Delete any cached representation of an instance.
         """
         raise NotImplementedError
 
-    @classmethod
-    def clear(cls, instance):
+    def clear(self, object_types=None):
         """
         Delete *all* cached data.
         """
@@ -143,8 +136,7 @@ class CachedValueSearchBackend(SearchBackend):
             r for r in results if r.object is not None
         ]
 
-    @classmethod
-    def cache(cls, instances, indexer=None, remove_existing=True):
+    def cache(self, instances, indexer=None, remove_existing=True):
         content_type = None
         custom_fields = None
 
@@ -172,7 +164,7 @@ class CachedValueSearchBackend(SearchBackend):
 
             # Wipe out any previously cached values for the object
             if remove_existing:
-                cls.remove(instance)
+                self.remove(instance)
 
             # Generate cache data
             for field in indexer.to_cache(instance, custom_fields=custom_fields):
@@ -198,8 +190,7 @@ class CachedValueSearchBackend(SearchBackend):
 
         return counter
 
-    @classmethod
-    def remove(cls, instance):
+    def remove(self, instance):
         # Avoid attempting to query for non-cacheable objects
         try:
             get_indexer(instance)
@@ -212,8 +203,7 @@ class CachedValueSearchBackend(SearchBackend):
         # Call _raw_delete() on the queryset to avoid first loading instances into memory
         return qs._raw_delete(using=qs.db)
 
-    @classmethod
-    def clear(cls, object_types=None):
+    def clear(self, object_types=None):
         qs = CachedValue.objects.all()
         if object_types:
             qs = qs.filter(object_type__in=object_types)
@@ -240,3 +230,7 @@ def get_backend():
 
 
 search_backend = get_backend()
+
+# Connect handlers to the appropriate model signals
+post_save.connect(search_backend.caching_handler)
+post_delete.connect(search_backend.removal_handler)
