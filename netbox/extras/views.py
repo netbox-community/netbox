@@ -631,11 +631,12 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
             )
 
             return redirect('extras:report_result', job_result_pk=job_result.pk)
-        
+
         return render(request, 'extras/report.html', {
             'report': report,
             'form': form,
         })
+
 
 class ReportResultView(ContentTypePermissionRequiredMixin, View):
     """
