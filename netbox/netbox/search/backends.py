@@ -1,125 +1,236 @@
 from collections import defaultdict
-from importlib import import_module
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
-from django.urls import reverse
+from django.db.models import F, Window
+from django.db.models.functions import window
+from django.db.models.signals import post_delete, post_save
+from django.utils.module_loading import import_string
 
+from extras.models import CachedValue, CustomField
 from extras.registry import registry
-from netbox.constants import SEARCH_MAX_RESULTS
+from utilities.querysets import RestrictedPrefetch
+from utilities.templatetags.builtins.filters import bettertitle
+from . import FieldTypes, LookupTypes, get_indexer
 
-# The cache for the initialized backend.
-_backends_cache = {}
-
-
-class SearchEngineError(Exception):
-    """Something went wrong with a search engine."""
-    pass
+DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL
+MAX_RESULTS = 1000
 
 
 class SearchBackend:
-    """A search engine capable of performing multi-table searches."""
-    _search_choice_options = tuple()
+    """
+    Base class for search backends. Subclasses must extend the `cache()`, `remove()`, and `clear()` methods below.
+    """
+    _object_types = None
 
-    def get_registry(self):
-        r = {}
-        for app_label, models in registry['search'].items():
-            r.update(**models)
-
-        return r
-
-    def get_search_choices(self):
-        """Return the set of choices for individual object types, organized by category."""
-        if not self._search_choice_options:
+    def get_object_types(self):
+        """
+        Return a list of all registered object types, organized by category, suitable for populating a form's
+        ChoiceField.
+        """
+        if not self._object_types:
 
             # Organize choices by category
             categories = defaultdict(dict)
-            for app_label, models in registry['search'].items():
-                for name, cls in models.items():
-                    title = cls.model._meta.verbose_name.title()
-                    categories[cls.get_category()][name] = title
+            for label, idx in registry['search'].items():
+                title = bettertitle(idx.model._meta.verbose_name)
+                categories[idx.get_category()][label] = title
 
             # Compile a nested tuple of choices for form rendering
             results = (
                 ('', 'All Objects'),
-                *[(category, choices.items()) for category, choices in categories.items()]
+                *[(category, list(choices.items())) for category, choices in categories.items()]
             )
 
-            self._search_choice_options = results
+            self._object_types = results
 
-        return self._search_choice_options
+        return self._object_types
 
-    def search(self, request, value, **kwargs):
-        """Execute a search query for the given value."""
+    def search(self, value, user=None, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
+        """
+        Search cached object representations for the given value.
+        """
         raise NotImplementedError
 
-    def cache(self, instance):
-        """Create or update the cached copy of an instance."""
+    def caching_handler(self, sender, instance, **kwargs):
+        """
+        Receiver for the post_save signal, responsible for caching object creation/changes.
+        """
+        self.cache(instance)
+
+    def removal_handler(self, sender, instance, **kwargs):
+        """
+        Receiver for the post_delete signal, responsible for caching object deletion.
+        """
+        self.remove(instance)
+
+    def cache(self, instances, indexer=None, remove_existing=True):
+        """
+        Create or update the cached representation of an instance.
+        """
         raise NotImplementedError
 
+    def remove(self, instance):
+        """
+        Delete any cached representation of an instance.
+        """
+        raise NotImplementedError
 
-class FilterSetSearchBackend(SearchBackend):
-    """
-    Legacy search backend. Performs a discrete database query for each registered object type, using the FilterSet
-    class specified by the index for each.
-    """
-    def search(self, request, value, **kwargs):
-        results = []
+    def clear(self, object_types=None):
+        """
+        Delete *all* cached data.
+        """
+        raise NotImplementedError
 
-        search_registry = self.get_registry()
-        for obj_type in search_registry.keys():
+    @property
+    def size(self):
+        """
+        Return a total number of cached entries. The meaning of this value will be
+        backend-dependent.
+        """
+        return None
 
-            queryset = search_registry[obj_type].queryset
-            url = search_registry[obj_type].url
 
-            # Restrict the queryset for the current user
-            if hasattr(queryset, 'restrict'):
-                queryset = queryset.restrict(request.user, 'view')
+class CachedValueSearchBackend(SearchBackend):
 
-            filterset = getattr(search_registry[obj_type], 'filterset', None)
-            if not filterset:
-                # This backend requires a FilterSet class for the model
-                continue
+    def search(self, value, user=None, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
 
-            table = getattr(search_registry[obj_type], 'table', None)
-            if not table:
-                # This backend requires a Table class for the model
-                continue
+        # Define the search parameters
+        params = {
+            f'value__{lookup}': value
+        }
+        if lookup != LookupTypes.EXACT:
+            # Partial matches are valid only on string values
+            params['type'] = FieldTypes.STRING
+        if object_types:
+            params['object_type__in'] = object_types
 
-            # Construct the results table for this object type
-            filtered_queryset = filterset({'q': value}, queryset=queryset).qs
-            table = table(filtered_queryset, orderable=False)
-            table.paginate(per_page=SEARCH_MAX_RESULTS)
+        # Construct the base queryset to retrieve matching results
+        queryset = CachedValue.objects.filter(**params).annotate(
+            # Annotate the rank of each result for its object according to its weight
+            row_number=Window(
+                expression=window.RowNumber(),
+                partition_by=[F('object_type'), F('object_id')],
+                order_by=[F('weight').asc()],
+            )
+        )[:MAX_RESULTS]
 
-            if table.page:
-                results.append({
-                    'name': queryset.model._meta.verbose_name_plural,
-                    'table': table,
-                    'url': f"{reverse(url)}?q={value}"
-                })
+        # Construct a Prefetch to pre-fetch only those related objects for which the
+        # user has permission to view.
+        if user:
+            prefetch = (RestrictedPrefetch('object', user, 'view'), 'object_type')
+        else:
+            prefetch = ('object', 'object_type')
 
-        return results
+        # Wrap the base query to return only the lowest-weight result for each object
+        # Hat-tip to https://blog.oyam.dev/django-filter-by-window-function/ for the solution
+        sql, params = queryset.query.sql_with_params()
+        results = CachedValue.objects.prefetch_related(*prefetch).raw(
+            f"SELECT * FROM ({sql}) t WHERE row_number = 1",
+            params
+        )
 
-    def cache(self, instance):
-        # This backend does not utilize a cache
-        pass
+        # Omit any results pertaining to an object the user does not have permission to view
+        return [
+            r for r in results if r.object is not None
+        ]
+
+    def cache(self, instances, indexer=None, remove_existing=True):
+        content_type = None
+        custom_fields = None
+
+        # Convert a single instance to an iterable
+        if not hasattr(instances, '__iter__'):
+            instances = [instances]
+
+        buffer = []
+        counter = 0
+        for instance in instances:
+
+            # First item
+            if not counter:
+
+                # Determine the indexer
+                if indexer is None:
+                    try:
+                        indexer = get_indexer(instance)
+                    except KeyError:
+                        break
+
+                # Prefetch any associated custom fields
+                content_type = ContentType.objects.get_for_model(indexer.model)
+                custom_fields = CustomField.objects.filter(content_types=content_type).exclude(search_weight=0)
+
+            # Wipe out any previously cached values for the object
+            if remove_existing:
+                self.remove(instance)
+
+            # Generate cache data
+            for field in indexer.to_cache(instance, custom_fields=custom_fields):
+                buffer.append(
+                    CachedValue(
+                        object_type=content_type,
+                        object_id=instance.pk,
+                        field=field.name,
+                        type=field.type,
+                        weight=field.weight,
+                        value=field.value
+                    )
+                )
+
+            # Check whether the buffer needs to be flushed
+            if len(buffer) >= 2000:
+                counter += len(CachedValue.objects.bulk_create(buffer))
+                buffer = []
+
+        # Final buffer flush
+        if buffer:
+            counter += len(CachedValue.objects.bulk_create(buffer))
+
+        return counter
+
+    def remove(self, instance):
+        # Avoid attempting to query for non-cacheable objects
+        try:
+            get_indexer(instance)
+        except KeyError:
+            return
+
+        ct = ContentType.objects.get_for_model(instance)
+        qs = CachedValue.objects.filter(object_type=ct, object_id=instance.pk)
+
+        # Call _raw_delete() on the queryset to avoid first loading instances into memory
+        return qs._raw_delete(using=qs.db)
+
+    def clear(self, object_types=None):
+        qs = CachedValue.objects.all()
+        if object_types:
+            qs = qs.filter(object_type__in=object_types)
+
+        # Call _raw_delete() on the queryset to avoid first loading instances into memory
+        return qs._raw_delete(using=qs.db)
+
+    @property
+    def size(self):
+        return CachedValue.objects.count()
 
 
 def get_backend():
-    """Initializes and returns the configured search backend."""
-    backend_name = settings.SEARCH_BACKEND
-
-    # Load the backend class
-    backend_module_name, backend_cls_name = backend_name.rsplit('.', 1)
-    backend_module = import_module(backend_module_name)
+    """
+    Initializes and returns the configured search backend.
+    """
     try:
-        backend_cls = getattr(backend_module, backend_cls_name)
+        backend_cls = import_string(settings.SEARCH_BACKEND)
     except AttributeError:
-        raise ImproperlyConfigured(f"Could not find a class named {backend_module_name} in {backend_cls_name}")
+        raise ImproperlyConfigured(f"Failed to import configured SEARCH_BACKEND: {settings.SEARCH_BACKEND}")
 
     # Initialize and return the backend instance
     return backend_cls()
 
 
-default_search_engine = get_backend()
-search = default_search_engine.search
+search_backend = get_backend()
+
+# Connect handlers to the appropriate model signals
+post_save.connect(search_backend.caching_handler)
+post_delete.connect(search_backend.removal_handler)

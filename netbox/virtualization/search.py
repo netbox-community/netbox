@@ -1,33 +1,49 @@
-import virtualization.filtersets
-import virtualization.tables
-from dcim.models import Device
 from netbox.search import SearchIndex, register_search
-from utilities.utils import count_related
-from virtualization.models import Cluster, VirtualMachine
+from . import models
 
 
-@register_search()
+@register_search
 class ClusterIndex(SearchIndex):
-    model = Cluster
-    queryset = Cluster.objects.prefetch_related('type', 'group').annotate(
-        device_count=count_related(Device, 'cluster'), vm_count=count_related(VirtualMachine, 'cluster')
+    model = models.Cluster
+    fields = (
+        ('name', 100),
+        ('comments', 5000),
     )
-    filterset = virtualization.filtersets.ClusterFilterSet
-    table = virtualization.tables.ClusterTable
-    url = 'virtualization:cluster_list'
 
 
-@register_search()
+@register_search
+class ClusterGroupIndex(SearchIndex):
+    model = models.ClusterGroup
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )
+
+
+@register_search
+class ClusterTypeIndex(SearchIndex):
+    model = models.ClusterType
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )
+
+
+@register_search
 class VirtualMachineIndex(SearchIndex):
-    model = VirtualMachine
-    queryset = VirtualMachine.objects.prefetch_related(
-        'cluster',
-        'tenant',
-        'tenant__group',
-        'platform',
-        'primary_ip4',
-        'primary_ip6',
+    model = models.VirtualMachine
+    fields = (
+        ('name', 100),
+        ('comments', 5000),
     )
-    filterset = virtualization.filtersets.VirtualMachineFilterSet
-    table = virtualization.tables.VirtualMachineTable
-    url = 'virtualization:virtualmachine_list'
+
+
+@register_search
+class VMInterfaceIndex(SearchIndex):
+    model = models.VMInterface
+    fields = (
+        ('name', 100),
+        ('description', 500),
+    )

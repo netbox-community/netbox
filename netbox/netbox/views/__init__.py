@@ -2,15 +2,16 @@ import platform
 import sys
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.http import HttpResponseServerError
 from django.shortcuts import redirect, render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
-from django.urls import reverse
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME, page_not_found
 from django.views.generic import View
+from django_tables2 import RequestConfig
 from packaging import version
 from sentry_sdk import capture_message
 
@@ -21,10 +22,13 @@ from dcim.models import (
 from extras.models import ObjectChange
 from extras.tables import ObjectChangeTable
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF
-from netbox.constants import SEARCH_MAX_RESULTS
 from netbox.forms import SearchForm
-from netbox.search.backends import default_search_engine
+from netbox.search import LookupTypes
+from netbox.search.backends import search_backend
+from netbox.tables import SearchTable
 from tenancy.models import Tenant
+from utilities.htmx import is_htmx
+from utilities.paginator import EnhancedPaginator, get_paginate_count
 from virtualization.models import Cluster, VirtualMachine
 from wireless.models import WirelessLAN, WirelessLink
 
@@ -149,22 +153,48 @@ class HomeView(View):
 class SearchView(View):
 
     def get(self, request):
-        form = SearchForm(request.GET)
         results = []
+        highlight = None
+
+        # Initialize search form
+        form = SearchForm(request.GET) if 'q' in request.GET else SearchForm()
 
         if form.is_valid():
-            search_registry = default_search_engine.get_registry()
-            # If an object type has been specified, redirect to the dedicated view for it
-            if form.cleaned_data['obj_type']:
-                object_type = form.cleaned_data['obj_type']
-                url = reverse(search_registry[object_type].url)
-                return redirect(f"{url}?q={form.cleaned_data['q']}")
 
-            results = default_search_engine.search(request, form.cleaned_data['q'])
+            # Restrict results by object type
+            object_types = []
+            for obj_type in form.cleaned_data['obj_types']:
+                app_label, model_name = obj_type.split('.')
+                object_types.append(ContentType.objects.get_by_natural_key(app_label, model_name))
+
+            lookup = form.cleaned_data['lookup'] or LookupTypes.PARTIAL
+            results = search_backend.search(
+                form.cleaned_data['q'],
+                user=request.user,
+                object_types=object_types,
+                lookup=lookup
+            )
+
+            if form.cleaned_data['lookup'] != LookupTypes.EXACT:
+                highlight = form.cleaned_data['q']
+
+        table = SearchTable(results, highlight=highlight)
+
+        # Paginate the table results
+        RequestConfig(request, {
+            'paginator_class': EnhancedPaginator,
+            'per_page': get_paginate_count(request)
+        }).configure(table)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if is_htmx(request):
+            return render(request, 'htmx/table.html', {
+                'table': table,
+            })
 
         return render(request, 'search.html', {
             'form': form,
-            'results': results,
+            'table': table,
         })
 
 
