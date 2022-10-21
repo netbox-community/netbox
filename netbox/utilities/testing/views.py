@@ -549,17 +549,13 @@ class ViewTestCases:
             return '\n'.join(self.csv_data)
 
         def _get_update_csv_data(self, start):
-            # bulk_edit_data is dict, convert to comma-separated string
-            header = ",".join(self.bulk_edit_data.keys())
-            update_line = ",".join(self.bulk_edit_data.values())
-
             # pre-pend id into data
             csv_data = []
-            for idx, line in enumerate(self.csv_data, start=start):
+            for idx, line in enumerate(self.csv_update_data, start=start):
                 if idx == start:
-                    csv_data.append("id," + header)
+                    csv_data.append("id," + line)
                 else:
-                    csv_data.append(f"{idx-1}," + update_line)
+                    csv_data.append(f"{idx-1}," + line)
 
             return csv_data, '\n'.join(csv_data)
 

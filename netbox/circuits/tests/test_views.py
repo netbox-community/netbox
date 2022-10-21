@@ -50,6 +50,13 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Provider 6,provider-6",
         )
 
+        cls.csv_update_data = (
+            "name,comments",
+            "Provider 7,New comment7",
+            "Provider 8,New comment8",
+            "Provider 9,New comment9",
+        )
+
         cls.bulk_edit_data = {
             'account': '5678',
             'comments': 'New comments',
@@ -82,6 +89,13 @@ class CircuitTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Circuit Type 4,circuit-type-4",
             "Circuit Type 5,circuit-type-5",
             "Circuit Type 6,circuit-type-6",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Circuit Type 7,New description7",
+            "Circuit Type 8,New description8",
+            "Circuit Type 9,New description9",
         )
 
         cls.bulk_edit_data = {
@@ -136,6 +150,13 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Circuit 6,Provider 1,Circuit Type 1,active",
         )
 
+        cls.csv_update_data = (
+            f"cid,description,status",
+            f"Circuit 7,New description7,{CircuitStatusChoices.STATUS_DECOMMISSIONED}",
+            f"Circuit 8,New description8,{CircuitStatusChoices.STATUS_DECOMMISSIONED}",
+            f"Circuit 9,New description9,{CircuitStatusChoices.STATUS_DECOMMISSIONED}",
+        )
+
         cls.bulk_edit_data = {
             'provider': providers[1].pk,
             'type': circuittypes[1].pk,
@@ -180,6 +201,13 @@ class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Provider Network 4,Provider 1,Foo",
             "Provider Network 5,Provider 1,Bar",
             "Provider Network 6,Provider 1,Baz",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Provider Network 7,New description7",
+            "Provider Network 8,New description8",
+            "Provider Network 9,New description9",
         )
 
         cls.bulk_edit_data = {
