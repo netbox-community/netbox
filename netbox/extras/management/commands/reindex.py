@@ -21,9 +21,8 @@ class Command(BaseCommand):
 
         # No models specified; pull in all registered indexers
         if not model_names:
-            for app_label, models in registry['search'].items():
-                for _, idx in models.items():
-                    indexers[idx.model] = idx
+            for idx in registry['search'].values():
+                indexers[idx.model] = idx
 
         # Return only indexers for the specified models
         else:
@@ -35,10 +34,10 @@ class Command(BaseCommand):
                         f"Invalid model: {label}. Model names must be in the format <app_label>.<model_name>."
                     )
                 try:
-                    idx = registry['search'][app_label][model_name]
+                    idx = registry['search'][f'{app_label}.{model_name}']
                     indexers[idx.model] = idx
                 except KeyError:
-                    raise CommandError(f"No indexer found for {label}")
+                    raise CommandError(f"No indexer registered for {label}")
 
         return indexers
 

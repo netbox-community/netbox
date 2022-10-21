@@ -35,11 +35,9 @@ class SearchBackend:
 
             # Organize choices by category
             categories = defaultdict(dict)
-            for app_label, models in registry['search'].items():
-                for name, cls in models.items():
-                    title = bettertitle(cls.model._meta.verbose_name)
-                    value = f'{app_label}.{name}'
-                    categories[cls.get_category()][value] = title
+            for label, idx in registry['search'].items():
+                title = bettertitle(idx.model._meta.verbose_name)
+                categories[idx.get_category()][label] = title
 
             # Compile a nested tuple of choices for form rendering
             results = (

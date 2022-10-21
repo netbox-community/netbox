@@ -97,22 +97,19 @@ class SearchIndex:
 
 def get_indexer(model):
     """
-    Get the search indexer class for the given model.
+    Get the SearchIndex class for the given model.
     """
-    app_label = model._meta.app_label
-    model_name = model._meta.model_name
+    label = f'{model._meta.app_label}.{model._meta.model_name}'
 
-    return registry['search'][app_label][model_name]
+    return registry['search'][label]
 
 
 def register_search(cls):
     """
-    Decorator for registering a SearchIndex with a particular model.
+    Decorator for registering a SearchIndex class.
     """
     model = cls.model
-    app_label = model._meta.app_label
-    model_name = model._meta.model_name
-
-    registry['search'][app_label][model_name] = cls
+    label = f'{model._meta.app_label}.{model._meta.model_name}'
+    registry['search'][label] = cls
 
     return cls
