@@ -435,9 +435,33 @@ class JobResultFilterSet(BaseFilterSet):
         method='search',
         label='Search',
     )
-    created = django_filters.DateTimeFromToRangeFilter()
-    completed = django_filters.DateTimeFromToRangeFilter()
-    scheduled_time = django_filters.DateTimeFromToRangeFilter()
+    created = django_filters.DateTimeFilter()
+    created__before = django_filters.DateTimeFilter(
+        field_name='created',
+        lookup_expr='lte'
+    )
+    created__after = django_filters.DateTimeFilter(
+        field_name='created',
+        lookup_expr='gte'
+    )
+    completed = django_filters.DateTimeFilter()
+    completed__before = django_filters.DateTimeFilter(
+        field_name='completed',
+        lookup_expr='lte'
+    )
+    completed__after = django_filters.DateTimeFilter(
+        field_name='completed',
+        lookup_expr='gte'
+    )
+    scheduled_time = django_filters.DateTimeFilter()
+    scheduled_time__before = django_filters.DateTimeFilter(
+        field_name='scheduled_time',
+        lookup_expr='lte'
+    )
+    scheduled_time__after = django_filters.DateTimeFilter(
+        field_name='scheduled_time',
+        lookup_expr='gte'
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=JobResultStatusChoices,
         null_value=None
