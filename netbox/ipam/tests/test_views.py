@@ -909,7 +909,8 @@ class L2VPNTerminationTestCase(
     def setUpTestData(cls):
         device = create_test_device('Device 1')
         interface = Interface.objects.create(name='Interface 1', device=device, type='1000baset')
-        l2vpn = L2VPN.objects.create(name='L2VPN 1', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=650001)
+        l2vpn = L2VPN.objects.create(name='L2VPN 1', slug='l2vpn-1', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=650001)
+        l2vpn2 = L2VPN.objects.create(name='L2VPN 2', slug='l2vpn-2', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=650002)
 
         vlans = (
             VLAN(name='Vlan 1', vid=1001),
@@ -942,10 +943,10 @@ class L2VPNTerminationTestCase(
         )
 
         cls.csv_update_data = (
-            "vlan",
-            "Vlan 1",
-            "Vlan 2",
-            "Vlan 3",
+            "l2vpn",
+            "L2VPN 2",
+            "L2VPN 2",
+            "L2VPN 2",
         )
 
         cls.bulk_edit_data = {}

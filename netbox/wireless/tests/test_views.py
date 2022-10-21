@@ -151,10 +151,10 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.csv_update_data = (
-            f"status",
-            f"{LinkStatusChoices.STATUS_PLANNED}",
-            f"{LinkStatusChoices.STATUS_PLANNED}",
-            f"{LinkStatusChoices.STATUS_PLANNED}",
+            "ssid,description",
+            "LINK7,New decription 7",
+            "LINK8,New decription 8",
+            "LINK9,New decription 9",
         )
 
         cls.bulk_edit_data = {
