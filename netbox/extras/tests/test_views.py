@@ -47,6 +47,14 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'field7,Field 7,object,dcim.site,dcim.region,100,exact,,,,,read-write',
         )
 
+        cls.csv_data = (
+            'name,label',
+            'field8,Field 8',
+            'field9,Field 9',
+            'field10,Field 10',
+            'field11,Field 11',
+        )
+
         cls.bulk_edit_data = {
             'required': True,
             'weight': 200,
@@ -83,6 +91,13 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Custom Link 6,dcim.site,False,100,blue,Link 6,http://exmaple.com/?6",
         )
 
+        cls.csv_update_data = (
+            "name",
+            "Custom Link 7",
+            "Custom Link 8",
+            "Custom Link 9",
+        )
+
         cls.bulk_edit_data = {
             'button_class': CustomLinkButtonClassChoices.CYAN,
             'enabled': False,
@@ -115,6 +130,13 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"Export Template 4,dcim.site,{TEMPLATE_CODE}",
             f"Export Template 5,dcim.site,{TEMPLATE_CODE}",
             f"Export Template 6,dcim.site,{TEMPLATE_CODE}",
+        )
+
+        cls.csv_update_data = (
+            "name",
+            f"Export Template 7",
+            f"Export Template 8",
+            f"Export Template 9",
         )
 
         cls.bulk_edit_data = {
@@ -159,6 +181,13 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Webhook 6,dcim.site,True,http://example.com/?6,GET,application/json",
         )
 
+        cls.csv_update_data = (
+            "name",
+            "Webhook 7",
+            "Webhook 8",
+            "Webhook 9",
+        )
+
         cls.bulk_edit_data = {
             'enabled': False,
             'type_create': False,
@@ -192,6 +221,13 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Tag 4,tag-4,ff0000,Fourth tag",
             "Tag 5,tag-5,00ff00,Fifth tag",
             "Tag 6,tag-6,0000ff,Sixth tag",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Tag 7,Fourth tag7",
+            "Tag 8,Fifth tag8",
+            "Tag 9,Sixth tag9",
         )
 
         cls.bulk_edit_data = {

@@ -60,6 +60,13 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "4200000002,RFC 6996",
         )
 
+        cls.csv_update_data = (
+            "description",
+            "New description1",
+            "New description2",
+            "New description3",
+        )
+
         cls.bulk_edit_data = {
             'rir': rirs[1].pk,
             'description': 'Next description',
@@ -100,6 +107,13 @@ class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "VRF 4",
             "VRF 5",
             "VRF 6",
+        )
+
+        cls.csv_update_data = (
+            "name",
+            "VRF 7",
+            "VRF 8",
+            "VRF 9",
         )
 
         cls.bulk_edit_data = {
@@ -143,6 +157,13 @@ class RouteTargetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "65000:1006,,No tenant",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "65000:1007,New description1",
+            "65000:1008,New description2",
+            "65000:1009,New description3",
+        )
+
         cls.bulk_edit_data = {
             'tenant': tenants[1].pk,
             'description': 'New description',
@@ -176,6 +197,13 @@ class RIRTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "RIR 4,rir-4,Fourth RIR",
             "RIR 5,rir-5,Fifth RIR",
             "RIR 6,rir-6,Sixth RIR",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "RIR 7,Fourth RIR7",
+            "RIR 8,Fifth RIR8",
+            "RIR 9,Sixth RIR9",
         )
 
         cls.bulk_edit_data = {
@@ -216,6 +244,13 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "10.4.0.0/16,RIR 1",
             "10.5.0.0/16,RIR 1",
             "10.6.0.0/16,RIR 1",
+        )
+
+        cls.csv_update_data = (
+            "description",
+            "New description1",
+            "New description2",
+            "New description3",
         )
 
         cls.bulk_edit_data = {
@@ -267,6 +302,13 @@ class RoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Role 4,role-4,1000",
             "Role 5,role-5,1000",
             "Role 6,role-6,1000",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Role 7,New description7",
+            "Role 8,New description8",
+            "Role 9,New description9",
         )
 
         cls.bulk_edit_data = {
@@ -324,6 +366,13 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "VRF 1,10.4.0.0/16,active",
             "VRF 1,10.5.0.0/16,active",
             "VRF 1,10.6.0.0/16,active",
+        )
+
+        cls.csv_update_data = (
+            "description,status",
+            f",New description 7,{PrefixStatusChoices.STATUS_RESERVED}",
+            f",New description 8,{PrefixStatusChoices.STATUS_RESERVED}",
+            f",New description 9,{PrefixStatusChoices.STATUS_RESERVED}",
         )
 
         cls.bulk_edit_data = {
@@ -428,6 +477,13 @@ class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "VRF 1,10.3.0.1/16,10.3.9.254/16,active",
         )
 
+        cls.csv_update_data = (
+            "description,status",
+            f"New description 7,{IPRangeStatusChoices.STATUS_RESERVED}",
+            f"New description 8,{IPRangeStatusChoices.STATUS_RESERVED}",
+            f"New description 9,{IPRangeStatusChoices.STATUS_RESERVED}",
+        )
+
         cls.bulk_edit_data = {
             'vrf': vrfs[1].pk,
             'tenant': None,
@@ -494,6 +550,13 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "VRF 1,192.0.2.6/24,active",
         )
 
+        cls.csv_update_data = (
+            "description,status",
+            f"New description 7,{IPAddressStatusChoices.STATUS_RESERVED}",
+            f"New description 8,{IPAddressStatusChoices.STATUS_RESERVED}",
+            f"New description 9,{IPAddressStatusChoices.STATUS_RESERVED}",
+        )
+
         cls.bulk_edit_data = {
             'vrf': vrfs[1].pk,
             'tenant': None,
@@ -535,6 +598,13 @@ class FHRPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "hsrp,60,,,",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "FHRP Group 1,New description 1",
+            "FHRP Group 2,New description 2",
+            "FHRP Group 3,New description 3",
+        )
+
         cls.bulk_edit_data = {
             'protocol': FHRPGroupProtocolChoices.PROTOCOL_CARP,
         }
@@ -574,6 +644,13 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             f"VLAN Group 4,vlan-group-4,,,Fourth VLAN group",
             f"VLAN Group 5,vlan-group-5,dcim.site,{sites[0].pk},Fifth VLAN group",
             f"VLAN Group 6,vlan-group-6,dcim.site,{sites[1].pk},Sixth VLAN group",
+        )
+
+        cls.csv_data = (
+            f"name,description",
+            f"VLAN Group 7,Fourth VLAN group7",
+            f"VLAN Group 8,Fifth VLAN group8",
+            f"VLAN Group 9,Sixth VLAN group9",
         )
 
         cls.bulk_edit_data = {
@@ -632,6 +709,13 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "106,VLAN106,active",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "VLAN107,New description 7",
+            "VLAN108,New description 8",
+            "VLAN109,New description 9",
+        )
+
         cls.bulk_edit_data = {
             'site': sites[1].pk,
             'group': vlangroups[1].pk,
@@ -668,6 +752,13 @@ class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Service Template 4,tcp,1,First service template",
             "Service Template 5,tcp,2,Second service template",
             "Service Template 6,tcp,3,Third service template",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Service Template 7,First service template7",
+            "Service Template 8,Second service template8",
+            "Service Template 9,Third service template9",
         )
 
         cls.bulk_edit_data = {
@@ -715,6 +806,13 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Device 1,Service 3,udp,3,Third service",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Service 7,First service7",
+            "Service 8,Second service8",
+            "Service 9,Third service9",
+        )
+
         cls.bulk_edit_data = {
             'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
             'ports': '106,107',
@@ -756,6 +854,13 @@ class L2VPNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         'L2VPN 5,l2vpn-5,vxlan,456',
         'L2VPN 6,l2vpn-6,vxlan,444',
     )
+
+    csv_update_data = (
+        'name,description',
+        'L2VPN 7,New description 7',
+        'L2VPN 8,New description 8',
+    )
+
     bulk_edit_data = {
         'description': 'New Description',
     }
@@ -835,6 +940,8 @@ class L2VPNTerminationTestCase(
             "L2VPN 1,Vlan 5",
             "L2VPN 1,Vlan 6",
         )
+
+        cls.csv_update_data = ()
 
         cls.bulk_edit_data = {}
 

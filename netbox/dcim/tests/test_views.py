@@ -50,6 +50,13 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Region 6,region-6,Sixth region",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Region 7,Fourth region7",
+            "Region 8,Fifth region8",
+            "Region 9,Sixth region9",
+        )
+
         cls.bulk_edit_data = {
             'description': 'New description',
         }
@@ -85,6 +92,13 @@ class SiteGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Site Group 4,site-group-4,Fourth site group",
             "Site Group 5,site-group-5,Fifth site group",
             "Site Group 6,site-group-6,Sixth site group",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Site Group 7,Fourth site group7",
+            "Site Group 8,Fifth site group8",
+            "Site Group 9,Sixth site group9",
         )
 
         cls.bulk_edit_data = {
@@ -156,6 +170,13 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Site 6,site-6,staging",
         )
 
+        cls.csv_update_data = (
+            "name,status",
+            "Site 7,staging",
+            "Site 8,planned",
+            "Site 9,active",
+        )
+
         cls.bulk_edit_data = {
             'status': SiteStatusChoices.STATUS_PLANNED,
             'region': regions[1].pk,
@@ -202,6 +223,13 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Site 1,Tenant 1,Location 6,location-6,planned,Sixth location",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Location 7,Fourth location7",
+            "Location 8,Fifth location8",
+            "Location 9,Sixth location9",
+        )
+
         cls.bulk_edit_data = {
             'description': 'New description',
         }
@@ -234,6 +262,13 @@ class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Rack Role 4,rack-role-4,ff0000",
             "Rack Role 5,rack-role-5,00ff00",
             "Rack Role 6,rack-role-6,0000ff",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Rack Role 7,New description7",
+            "Rack Role 8,New description8",
+            "Rack Role 9,New description9",
         )
 
         cls.bulk_edit_data = {
@@ -281,6 +316,13 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'Site 1,Location 1,Rack 1,"10,11,12",Reservation 1',
             'Site 1,Location 1,Rack 1,"13,14,15",Reservation 2',
             'Site 1,Location 1,Rack 1,"16,17,18",Reservation 3',
+        )
+
+        cls.csv_update_data = (
+            'description',
+            'New description1',
+            'New description2',
+            'New description3',
         )
 
         cls.bulk_edit_data = {
@@ -351,6 +393,13 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Site 2,Location 2,Rack 6,active,19,42",
         )
 
+        cls.csv_update_data = (
+            "name, status",
+            f"Rack 7,{RackStatusChoices.STATUS_DEPRECATED}",
+            f"Rack 8,{RackStatusChoices.STATUS_DEPRECATED}",
+            f"Rack 9,{RackStatusChoices.STATUS_DEPRECATED}",
+        )
+
         cls.bulk_edit_data = {
             'site': sites[1].pk,
             'location': locations[1].pk,
@@ -403,6 +452,13 @@ class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Manufacturer 4,manufacturer-4,Fourth manufacturer",
             "Manufacturer 5,manufacturer-5,Fifth manufacturer",
             "Manufacturer 6,manufacturer-6,Sixth manufacturer",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Manufacturer 7,Fourth manufacturer7",
+            "Manufacturer 8,Fifth manufacturer8",
+            "Manufacturer 9,Sixth manufacturer9",
         )
 
         cls.bulk_edit_data = {
@@ -1468,6 +1524,13 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Device Role 6,device-role-6,0000ff",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Device Role 7,New description7",
+            "Device Role 8,New description8",
+            "Device Role 9,New description9",
+        )
+
         cls.bulk_edit_data = {
             'color': '00ff00',
             'description': 'New description',
@@ -1505,6 +1568,13 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Platform 4,platform-4,Fourth platform",
             "Platform 5,platform-5,Fifth platform",
             "Platform 6,platform-6,Sixth platform",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Platform 7,Fourth platform7",
+            "Platform 8,Fifth platform8",
+            "Platform 9,Sixth platform9",
         )
 
         cls.bulk_edit_data = {
@@ -1593,6 +1663,13 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Device Role 1,Manufacturer 1,Device Type 1,active,Device 4,Site 1,Location 1,Rack 1,10,front,Virtual Chassis 1,1,10",
             "Device Role 1,Manufacturer 1,Device Type 1,active,Device 5,Site 1,Location 1,Rack 1,20,front,Virtual Chassis 1,2,20",
             "Device Role 1,Manufacturer 1,Device Type 1,active,Device 6,Site 1,Location 1,Rack 1,30,front,Virtual Chassis 1,3,30",
+        )
+
+        cls.csv_update_data = (
+            "status",
+            f"{DeviceStatusChoices.STATUS_DECOMMISSIONING}",
+            f"{DeviceStatusChoices.STATUS_DECOMMISSIONING}",
+            f"{DeviceStatusChoices.STATUS_DECOMMISSIONING}",
         )
 
         cls.bulk_edit_data = {
@@ -1815,6 +1892,13 @@ class ModuleTestCase(
             "Device 2,Module Bay 3,Module Type 3,C,C",
         )
 
+        cls.csv_update_data = (
+            "module_type",
+            "Module Type 2",
+            "Module Type 3",
+            "Module Type 1",
+        )
+
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_module_component_replication(self):
         self.add_permissions('dcim.add_module')
@@ -1932,6 +2016,13 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Console Port 6",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Console Port 7,New description7",
+            "Console Port 8,New description8",
+            "Console Port 9,New description9",
+        )
+
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         consoleport = ConsolePort.objects.first()
@@ -1987,6 +2078,13 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Console Server Port 4",
             "Device 1,Console Server Port 5",
             "Device 1,Console Server Port 6",
+        )
+
+        cls.csv_data = (
+            "name,description",
+            "Console Server Port 7,New description 7",
+            "Console Server Port 8,New description 8",
+            "Console Server Port 9,New description 9",
         )
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -2050,6 +2148,13 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Power Port 4",
             "Device 1,Power Port 5",
             "Device 1,Power Port 6",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Power Port 7,New description7",
+            "Power Port 8,New description8",
+            "Power Port 9,New description9",
         )
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -2119,6 +2224,13 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Power Outlet 4",
             "Device 1,Power Outlet 5",
             "Device 1,Power Outlet 6",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Power Outlet 7,New description7",
+            "Power Outlet 8,New description8",
+            "Power Outlet 9,New description9",
         )
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -2247,6 +2359,13 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             f"Device 1,Interface 6,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
         )
 
+        cls.csv_update_data = (
+            f"name,description",
+            f"Interface 7,New description7",
+            f"Interface 8,New description8",
+            f"Interface 9,New description9",
+        )
+
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         interface1, interface2 = Interface.objects.all()[:2]
@@ -2313,6 +2432,13 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Front Port 6,8p8c,Rear Port 6,1",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Front Port 7,New description7",
+            "Front Port 8,New description8",
+            "Front Port 9,New description9",
+        )
+
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         frontport = FrontPort.objects.first()
@@ -2372,6 +2498,13 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Rear Port 6,8p8c,1",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Rear Port 7,New description7",
+            "Rear Port 8,New description8",
+            "Rear Port 9,New description9",
+        )
+
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         rearport = RearPort.objects.first()
@@ -2426,6 +2559,13 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Module Bay 6",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Module Bay 7,New description7",
+            "Module Bay 8,New description8",
+            "Module Bay 9,New description9",
+        )
+
 
 class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = DeviceBay
@@ -2469,6 +2609,13 @@ class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Device Bay 4",
             "Device 1,Device Bay 5",
             "Device 1,Device Bay 6",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Device Bay 7,New description7",
+            "Device Bay 8,New description8",
+            "Device Bay 9,New description9",
         )
 
 
@@ -2533,6 +2680,13 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Inventory Item 6,Inventory Item 3",
         )
 
+        cls.csv_update_data = (
+            "name,description",
+            "Inventory Item 7,New description7",
+            "Inventory Item 8,New description8",
+            "Inventory Item 9,New description9",
+        )
+
 
 class InventoryItemRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = InventoryItemRole
@@ -2561,6 +2715,13 @@ class InventoryItemRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Inventory Item Role 4,inventory-item-role-4,ff0000",
             "Inventory Item Role 5,inventory-item-role-5,00ff00",
             "Inventory Item Role 6,inventory-item-role-6,0000ff",
+        )
+
+        cls.csv_update_data = (
+            "name,description",
+            "Inventory Item Role 7,New description7",
+            "Inventory Item Role 8,New description8",
+            "Inventory Item Role 9,New description9",
         )
 
         cls.bulk_edit_data = {
@@ -2641,6 +2802,13 @@ class CableTestCase(
             "Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,Interface 1",
             "Device 3,dcim.interface,Interface 2,Device 4,dcim.interface,Interface 2",
             "Device 3,dcim.interface,Interface 3,Device 4,dcim.interface,Interface 3",
+        )
+
+        cls.csv_update_data = (
+            "label,color",
+            "New label7,00ff00",
+            "New label8,00ff00",
+            "New label9,00ff00",
         )
 
         cls.bulk_edit_data = {
@@ -2726,6 +2894,13 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "VC6,Domain 6,Device 12",
         )
 
+        cls.csv_update_data = (
+            "name,domain",
+            "VC7,Domain 7",
+            "VC8,Domain 8",
+            "VC9,Domain 9",
+        )
+
         cls.bulk_edit_data = {
             'domain': 'domain-x',
         }
@@ -2770,6 +2945,13 @@ class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Site 1,Location 1,Power Panel 4",
             "Site 1,Location 1,Power Panel 5",
             "Site 1,Location 1,Power Panel 6",
+        )
+
+        cls.csv_update_data = (
+            "name",
+            "Power Panel 7",
+            "Power Panel 8",
+            "Power Panel 9",
         )
 
         cls.bulk_edit_data = {
@@ -2826,6 +3008,13 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Site 1,Power Panel 1,Power Feed 4,active,primary,ac,single-phase,120,20,80",
             "Site 1,Power Panel 1,Power Feed 5,active,primary,ac,single-phase,120,20,80",
             "Site 1,Power Panel 1,Power Feed 6,active,primary,ac,single-phase,120,20,80",
+        )
+
+        cls.csv_update_data = (
+            "name,status",
+            f"Power Feed 7,{PowerFeedStatusChoices.STATUS_PLANNED}",
+            f"Power Feed 8,{PowerFeedStatusChoices.STATUS_PLANNED}",
+            f"Power Feed 9,{PowerFeedStatusChoices.STATUS_PLANNED}",
         )
 
         cls.bulk_edit_data = {

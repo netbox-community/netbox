@@ -598,6 +598,9 @@ class ViewTestCases:
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_update_objects_with_permission(self):
+            if not self.csv_update_data:
+                return
+
             data = {
                 'csv': self._get_csv_data(),
             }
