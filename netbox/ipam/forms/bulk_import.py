@@ -298,13 +298,13 @@ class IPAddressCSVForm(NetBoxModelCSVForm):
     def save(self, *args, **kwargs):
 
         # Set interface assignment
-        if self.cleaned_data['interface']:
+        if self.cleaned_data.get('interface'):
             self.instance.assigned_object = self.cleaned_data['interface']
 
         ipaddress = super().save(*args, **kwargs)
 
         # Set as primary for device/VM
-        if self.cleaned_data['is_primary']:
+        if self.cleaned_data.get('is_primary'):
             parent = self.cleaned_data['device'] or self.cleaned_data['virtual_machine']
             if self.instance.address.version == 4:
                 parent.primary_ip4 = ipaddress

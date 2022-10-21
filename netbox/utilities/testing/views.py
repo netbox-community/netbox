@@ -615,7 +615,7 @@ class ViewTestCases:
             obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
 
             self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
-            start_id = self._get_queryset().first().id
+            start_id = self._get_queryset().order_by('id').first().id
 
             # Now try update the data
             array, csv_data = self._get_update_csv_data(start_id)

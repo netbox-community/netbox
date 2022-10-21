@@ -394,7 +394,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.csv_update_data = (
-            "name, status",
+            "name,status",
             f"Rack 7,{RackStatusChoices.STATUS_DEPRECATED}",
             f"Rack 8,{RackStatusChoices.STATUS_DEPRECATED}",
             f"Rack 9,{RackStatusChoices.STATUS_DEPRECATED}",
