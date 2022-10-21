@@ -1893,10 +1893,10 @@ class ModuleTestCase(
         )
 
         cls.csv_update_data = (
-            "module_type",
-            "Module Type 2",
-            "Module Type 3",
-            "Module Type 1",
+            "serial",
+            "Serial 2",
+            "Serial 3",
+            "Serial 1",
         )
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -2080,7 +2080,7 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Console Server Port 6",
         )
 
-        cls.csv_data = (
+        cls.csv_update_data = (
             "name,description",
             "Console Server Port 7,New description 7",
             "Console Server Port 8,New description 8",

@@ -150,6 +150,13 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"{interfaces[10].pk},{interfaces[11].pk},connected,{tenants[2].name}",
         )
 
+        cls.csv_update_data = (
+            f"status",
+            f"{LinkStatusChoices.STATUS_PLANNED}",
+            f"{LinkStatusChoices.STATUS_PLANNED}",
+            f"{LinkStatusChoices.STATUS_PLANNED}",
+        )
+
         cls.bulk_edit_data = {
             'status': LinkStatusChoices.STATUS_PLANNED,
         }

@@ -47,7 +47,7 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'field7,Field 7,object,dcim.site,dcim.region,100,exact,,,,,read-write',
         )
 
-        cls.csv_data = (
+        cls.csv_update_data = (
             'name,label',
             'field8,Field 8',
             'field9,Field 9',

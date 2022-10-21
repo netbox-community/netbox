@@ -646,7 +646,7 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             f"VLAN Group 6,vlan-group-6,dcim.site,{sites[1].pk},Sixth VLAN group",
         )
 
-        cls.csv_data = (
+        cls.csv_update_data = (
             f"name,description",
             f"VLAN Group 7,Fourth VLAN group7",
             f"VLAN Group 8,Fifth VLAN group8",
