@@ -39,6 +39,7 @@
           </table>
         </div>
       </div>
+      {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
       <div class="card">
@@ -64,6 +65,7 @@
           </table>
         </div>
       </div>
+      {% plugin_right_page object %}
     </div>
   </div>
   <div class="row">
@@ -75,7 +77,6 @@
           {% include 'inc/paginator.html' with paginator=taggeditem_table.paginator page=taggeditem_table.page %}
         </div>
       </div>
-      {% plugin_full_width_page object %}
     </div>
   </div>
 {% endblock %}
