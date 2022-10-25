@@ -19,6 +19,7 @@
 * [#10646](https://github.com/netbox-community/netbox/issues/10646) - Fix filtering of power feed by power panel when connecting a cable
 * [#10655](https://github.com/netbox-community/netbox/issues/10655) - Correct display of assigned contacts in object tables
 * [#10712](https://github.com/netbox-community/netbox/issues/10712) - Fix ModuleNotFoundError exception when generating API schema under Python 3.9+
+* [#10746](https://github.com/netbox-community/netbox/issues/10746) - Add missing status attribute to cluster view
 
 ---
 
