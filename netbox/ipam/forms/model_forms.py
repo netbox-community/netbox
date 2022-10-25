@@ -3,14 +3,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 
 from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
-from extras.models import Tag
 from ipam.choices import *
 from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
 from ipam.models import *
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from tenancy.models import Tenant
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField,

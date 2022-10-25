@@ -3,7 +3,7 @@ from django import forms
 from circuits.models import Circuit, CircuitTermination, Provider
 from dcim.models import *
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from .models import CableForm
+from .model_forms import CableForm
 
 
 def get_cable_form(a_type, b_type):
