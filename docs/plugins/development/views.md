@@ -82,23 +82,25 @@ class ThingEditView(ObjectEditView):
 Below are the class definitions for NetBox's object views. These views handle CRUD actions for individual objects. The view, add/edit, and delete views each inherit from `BaseObjectView`, which is not intended to be used directly.
 
 ::: netbox.views.generic.base.BaseObjectView
+    options:
+      members:
+        - get_queryset
+        - get_object
+        - get_extra_context
 
 ::: netbox.views.generic.ObjectView
     options:
       members:
-        - get_object
         - get_template_name
 
 ::: netbox.views.generic.ObjectEditView
     options:
       members:
-        - get_object
         - alter_object
 
 ::: netbox.views.generic.ObjectDeleteView
     options:
-      members:
-        - get_object
+      members: false
 
 ::: netbox.views.generic.ObjectChildrenView
     options:
@@ -111,6 +113,10 @@ Below are the class definitions for NetBox's object views. These views handle CR
 Below are the class definitions for NetBox's multi-object views. These views handle simultaneous actions for sets objects. The list, import, edit, and delete views each inherit from `BaseMultiObjectView`, which is not intended to be used directly.
 
 ::: netbox.views.generic.base.BaseMultiObjectView
+    options:
+      members:
+        - get_queryset
+        - get_extra_context
 
 ::: netbox.views.generic.ObjectListView
     options:

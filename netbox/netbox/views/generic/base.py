@@ -1,18 +1,40 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import get_object_or_404
 from django.views.generic import View
 
 from utilities.views import ObjectPermissionRequiredMixin
 
 
-class BaseObjectView(ObjectPermissionRequiredMixin, View):
+class BaseView(ObjectPermissionRequiredMixin, View):
+    queryset = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.queryset = self.get_queryset(request)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self, request):
+        """
+        Return the base queryset for the view. By default, this returns self.queryset.all().
+
+        Args:
+            request: The current request
+        """
+        if self.queryset is None:
+            raise ImproperlyConfigured(
+                f"{self.__class__.__name__} does not define a queryset. Set queryset on the class or "
+                f"override its get_queryset() method."
+            )
+        return self.queryset.all()
+
+
+class BaseObjectView(BaseView):
     """
-    Base view class for reusable generic views.
+    Base class for generic views which display or manipulate a single object.
 
     Attributes:
         queryset: Django QuerySet from which the object(s) will be fetched
         template_name: The name of the HTML template file to render
     """
-    queryset = None
     template_name = None
 
     def get_object(self, **kwargs):
@@ -35,16 +57,15 @@ class BaseObjectView(ObjectPermissionRequiredMixin, View):
         return {}
 
 
-class BaseMultiObjectView(ObjectPermissionRequiredMixin, View):
+class BaseMultiObjectView(BaseView):
     """
-    Base view class for reusable generic views.
+    Base class for generic views which display or manipulate multiple objects.
 
     Attributes:
         queryset: Django QuerySet from which the object(s) will be fetched
         table: The django-tables2 Table class used to render the objects list
         template_name: The name of the HTML template file to render
     """
-    queryset = None
     table = None
     template_name = None
 
