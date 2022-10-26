@@ -120,10 +120,14 @@ class ExportTemplateFilterSet(BaseFilterSet):
         method='search',
         label='Search',
     )
+    content_type_id = MultiValueNumberFilter(
+        field_name='content_types__id'
+    )
+    content_types = ContentTypeFilter()
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'content_type', 'name', 'description']
+        fields = ['id', 'content_types', 'name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():

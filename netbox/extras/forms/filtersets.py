@@ -148,9 +148,9 @@ class CustomLinkFilterForm(FilterForm):
 class ExportTemplateFilterForm(FilterForm):
     fieldsets = (
         (None, ('q',)),
-        ('Attributes', ('content_type', 'mime_type', 'file_extension', 'as_attachment')),
+        ('Attributes', ('content_types', 'mime_type', 'file_extension', 'as_attachment')),
     )
-    content_type = ContentTypeChoiceField(
+    content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('export_templates'),
         required=False

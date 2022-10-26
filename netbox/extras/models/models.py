@@ -268,10 +268,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
 
 
 class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
-    content_type = models.ForeignKey(
+    content_types = models.ManyToManyField(
         to=ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=FeatureQuery('export_templates')
+        related_name='export_templates',
+        help_text='The object type(s) to which this template applies.'
     )
     name = models.CharField(
         max_length=100
@@ -301,16 +301,10 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     )
 
     class Meta:
-        ordering = ['content_type', 'name']
-        constraints = (
-            models.UniqueConstraint(
-                fields=('content_type', 'name'),
-                name='%(app_label)s_%(class)s_unique_content_type_name'
-            ),
-        )
+        ordering = ('name',)
 
     def __str__(self):
-        return f"{self.content_type}: {self.name}"
+        return self.name
 
     def get_absolute_url(self):
         return reverse('extras:exporttemplate', args=[self.pk])

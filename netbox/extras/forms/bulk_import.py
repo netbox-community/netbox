@@ -68,16 +68,16 @@ class CustomLinkCSVForm(CSVModelForm):
 
 
 class ExportTemplateCSVForm(CSVModelForm):
-    content_type = CSVContentTypeField(
+    content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('export_templates'),
-        help_text="Assigned object type"
+        help_text="One or more assigned object types"
     )
 
     class Meta:
         model = ExportTemplate
         fields = (
-            'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment', 'template_code',
+            'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'template_code',
         )
 
 
