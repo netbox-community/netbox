@@ -550,6 +550,7 @@ class FHRPGroupForm(NetBoxModelForm):
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
+        user = getattr(instance, '_user', None)  # Set under FHRPGroupEditView.alter_object()
 
         # Check if we need to create a new IPAddress for the group
         if self.cleaned_data.get('ip_address'):
@@ -563,7 +564,7 @@ class FHRPGroupForm(NetBoxModelForm):
             ipaddress.save()
 
             # Check that the new IPAddress conforms with any assigned object-level permissions
-            if not IPAddress.objects.filter(pk=ipaddress.pk).first():
+            if not IPAddress.objects.restrict(user, 'add').filter(pk=ipaddress.pk).first():
                 raise PermissionsViolation()
 
         return instance
