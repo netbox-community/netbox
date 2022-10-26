@@ -136,14 +136,15 @@ class CustomLinkSerializer(ValidatedModelSerializer):
 
 class ExportTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:exporttemplate-detail')
-    content_type = ContentTypeField(
+    content_types = ContentTypeField(
         queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
+        many=True
     )
 
     class Meta:
         model = ExportTemplate
         fields = [
-            'id', 'url', 'display', 'content_type', 'name', 'description', 'template_code', 'mime_type',
+            'id', 'url', 'display', 'content_types', 'name', 'description', 'template_code', 'mime_type',
             'file_extension', 'as_attachment', 'created', 'last_updated',
         ]
 

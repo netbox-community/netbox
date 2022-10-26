@@ -8,7 +8,7 @@
 * Device and virtual machine names are no longer case-sensitive. Attempting to create e.g. "device1" and "DEVICE1" will raise a validation error.
 * The `asn` field has been removed from the provider model. Please replicate any provider ASN assignments to the ASN model introduced in NetBox v3.1 prior to upgrading.
 * The `noc_contact`, `admin_contact`, and `portal_url` fields have been removed from the provider model. Please replicate any data remaining in these fields to the contact model introduced in NetBox v3.1 prior to upgrading.
-* The `content_type` field on the CustomLink model has been renamed to `content_types` and now supports the assignment of multiple content types.
+* The `content_type` field on the CustomLink and ExportTemplate models have been renamed to `content_types` and now supports the assignment of multiple content types.
 
 ### New Features
 
@@ -32,6 +32,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 * [#10348](https://github.com/netbox-community/netbox/issues/10348) - Add decimal custom field type
 * [#10556](https://github.com/netbox-community/netbox/issues/10556) - Include a `display` field in all GraphQL object types
 * [#10595](https://github.com/netbox-community/netbox/issues/10595) - Add GraphQL relationships for additional generic foreign key fields
+* [#10761](https://github.com/netbox-community/netbox/issues/10761) - Enable associating an export template with multiple object types
 
 ### Plugins API
 
@@ -60,6 +61,8 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 * dcim.Rack
     * Added optional `weight` and `weight_unit` fields
 * extras.CustomLink
+    * Renamed `content_type` field to `content_types`
+* extras.ExportTemplate
     * Renamed `content_type` field to `content_types`
 * ipam.FHRPGroup
     * Added optional `name` field

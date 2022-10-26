@@ -197,17 +197,17 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_type': 'dcim.device',
+            'content_types': ['dcim.device'],
             'name': 'Test Export Template 4',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
         {
-            'content_type': 'dcim.device',
+            'content_types': ['dcim.device'],
             'name': 'Test Export Template 5',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
         {
-            'content_type': 'dcim.device',
+            'content_types': ['dcim.device'],
             'name': 'Test Export Template 6',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
@@ -218,26 +218,23 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        ct = ContentType.objects.get_for_model(Device)
-
         export_templates = (
             ExportTemplate(
-                content_type=ct,
                 name='Export Template 1',
                 template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
             ),
             ExportTemplate(
-                content_type=ct,
                 name='Export Template 2',
                 template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
             ),
             ExportTemplate(
-                content_type=ct,
                 name='Export Template 3',
                 template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
             ),
         )
         ExportTemplate.objects.bulk_create(export_templates)
+        for et in export_templates:
+            et.content_types.set([ContentType.objects.get_for_model(Device)])
 
 
 class TagTest(APIViewTestCases.APIViewTestCase):
