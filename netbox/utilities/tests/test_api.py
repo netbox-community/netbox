@@ -1,3 +1,4 @@
+from typing import Final
 import urllib.parse
 
 from django.contrib.contenttypes.models import ContentType
@@ -123,7 +124,7 @@ class WritableNestedSerializerTest(APITestCase):
         self.assertEqual(VLAN.objects.count(), 0)
 
 
-class APIPaginationTestCase(APITestCase):
+class APILimitOffsetPaginationTestCase(APITestCase):
     user_permissions = ('dcim.view_site',)
 
     @classmethod
@@ -232,6 +233,107 @@ class APIOrderingTestCase(APITestCase):
             [s['name'] for s in response.data['results']],
             ['Site 5', 'Site 6', 'Site 3', 'Site 4', 'Site 1', 'Site 2']
         )
+
+
+class APICursorPaginationTestCase(APITestCase):
+    user_permissions = ('dcim.view_site',)
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.url = reverse('dcim-api:site-list') + "?pagination_mode=cursor"
+        cls.initial_record_count = 100
+
+        # Create a large number of Sites for testing
+        Site.objects.bulk_create([
+            Site(name=f'Site {i}', slug=f'site-{i}') for i in range(1, 1 + cls.initial_record_count)
+        ])
+
+    def test_default_page_size(self):
+        response = self.client.get(self.url, format='json', **self.header)
+        page_size = get_config().PAGINATE_COUNT
+        self.assertLess(page_size, self.initial_record_count, "Default page size not sufficient for data set")
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn('cursor=', response.data['next'])
+        self.assertIn('pagination_mode=cursor', response.data['next'])
+        self.assertIsNone(response.data['previous'])
+        self.assertEqual(len(response.data['results']), page_size)
+
+    def test_custom_page_size(self):
+        page_size: Final[int] = 10
+        response = self.client.get(f'{self.url}&limit={page_size}', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn('cursor=', response.data['next'])
+        self.assertIn('pagination_mode=cursor', response.data['next'])
+        self.assertIsNone(response.data['previous'])
+        self.assertEqual(len(response.data['results']), page_size)
+
+    @override_settings(MAX_PAGE_SIZE=20)
+    def test_max_page_size(self):
+        response = self.client.get(f'{self.url}&limit=0', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn('cursor=', response.data['next'])
+        self.assertIn('pagination_mode=cursor', response.data['next'])
+        self.assertIsNone(response.data['previous'])
+        self.assertEqual(len(response.data['results']), 20)
+
+    @override_settings(MAX_PAGE_SIZE=0)
+    def test_max_page_size_disabled(self):
+        response = self.client.get(f'{self.url}&limit=0', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['next'])
+        self.assertIsNone(response.data['previous'])
+        self.assertEqual(len(response.data['results']), self.initial_record_count)
+
+    def test_next_and_previous(self):
+        page_size: Final[int] = 10
+        page_1_response = self.client.get(f'{self.url}&limit={page_size}', format='json', **self.header)
+        page_2_response = self.client.get(page_1_response.data['next'], format='json', **self.header)
+        prev_response = self.client.get(page_2_response.data['previous'], format='json', **self.header)
+
+        self.assertHttpStatus(page_2_response, status.HTTP_200_OK)
+        self.assertEqual(len(page_2_response.data['results']), page_size)
+        self.assertIsNotNone(page_2_response.data['next'])
+        self.assertListEqual(page_1_response.data['results'], prev_response.data['results'])
+
+    def test_invalid_cursor(self):
+        response = self.client.get(f'{self.url}&cursor=invalid', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Invalid cursor')
+
+    def test_ignore_invalid_page_size(self):
+        response = self.client.get(f'{self.url}&limit=-1', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), get_config().PAGINATE_COUNT)
+
+    @override_settings(MAX_PAGE_SIZE=55)
+    def test_delete_in_between(self):
+        """
+        CursorPagination should get all 101 objects even if one of the objects is deleted from page 1 during
+        the process.
+        """
+        # create an extra record
+        site_to_delete = Site.objects.create(name=f'Site - to delete', slug=f'site-to-delete')
+        try:
+            page_1_response = self.client.get(f'{self.url}&limit=55', format='json', **self.header)
+            site_to_delete.delete()
+        except Exception as e:
+            site_to_delete.delete()
+            raise e
+
+        page_2_response = self.client.get(page_1_response.data['next'], format='json', **self.header)
+
+        self.assertHttpStatus(page_2_response, status.HTTP_200_OK)
+        self.assertEqual(
+            len(page_1_response.data['results']) + len(page_2_response.data['results']),
+            self.initial_record_count + 1,
+        )
+        self.assertIsNone(page_2_response.data['next'])
 
 
 class APIDocsTestCase(TestCase):
