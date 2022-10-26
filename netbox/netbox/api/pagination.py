@@ -76,19 +76,6 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
         return super().get_previous_link()
 
 
-class StripCountAnnotationsPaginator(OptionalLimitOffsetPagination):
-    """
-    Strips the annotations on the queryset before getting the count
-    to optimize pagination of complex queries.
-    """
-    def get_queryset_count(self, queryset):
-        # Clone the queryset to avoid messing up the actual query
-        cloned_queryset = queryset.all()
-        cloned_queryset.query.annotations.clear()
-
-        return cloned_queryset.count()
-
-
 class CursorPaginationWithNoLimit(CursorPagination):
     """
     Allow setting limit=0 to disable pagination for a request. The limit can only be disabled if
