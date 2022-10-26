@@ -38,10 +38,10 @@ class WirelessLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         )
 
         cls.csv_update_data = (
-            "name,description",
-            "Wireles sLAN Group 7,Fourth wireless LAN group7",
-            "Wireless LAN Group 8,Fifth wireless LAN group8",
-            "Wireless LAN Group 9,Sixth wireless LAN group9",
+            "id,name,description",
+            f"{groups[0].pk},Wireles sLAN Group 7,Fourth wireless LAN group7",
+            f"{groups[1].pk},Wireless LAN Group 8,Fifth wireless LAN group8",
+            f"{groups[2].pk},Wireless LAN Group 9,Sixth wireless LAN group9",
         )
 
         cls.bulk_edit_data = {
@@ -69,11 +69,12 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for group in groups:
             group.save()
 
-        WirelessLAN.objects.bulk_create([
+        wireless_lans = (
             WirelessLAN(group=groups[0], ssid='WLAN1', tenant=tenants[0]),
             WirelessLAN(group=groups[0], ssid='WLAN2', tenant=tenants[0]),
             WirelessLAN(group=groups[0], ssid='WLAN3', tenant=tenants[0]),
-        ])
+        )
+        WirelessLAN.objects.bulk_create(wireless_lans)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -92,10 +93,10 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.csv_update_data = (
-            f"ssid",
-            f"WLAN7",
-            f"WLAN8",
-            f"WLAN9",
+            f"id,ssid",
+            f"{wireless_lans[0].pk},WLAN7",
+            f"{wireless_lans[1].pk},WLAN8",
+            f"{wireless_lans[2].pk},WLAN9",
         )
 
         cls.bulk_edit_data = {
@@ -129,9 +130,12 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ]
         Interface.objects.bulk_create(interfaces)
 
-        WirelessLink(interface_a=interfaces[0], interface_b=interfaces[1], ssid='LINK1', tenant=tenants[0]).save()
-        WirelessLink(interface_a=interfaces[2], interface_b=interfaces[3], ssid='LINK2', tenant=tenants[0]).save()
-        WirelessLink(interface_a=interfaces[4], interface_b=interfaces[5], ssid='LINK3', tenant=tenants[0]).save()
+        wirelesslink1 = WirelessLink(interface_a=interfaces[0], interface_b=interfaces[1], ssid='LINK1', tenant=tenants[0])
+        wirelesslink1.save()
+        wirelesslink2 = WirelessLink(interface_a=interfaces[2], interface_b=interfaces[3], ssid='LINK2', tenant=tenants[0])
+        wirelesslink2.save()
+        wirelesslink3 = WirelessLink(interface_a=interfaces[4], interface_b=interfaces[5], ssid='LINK3', tenant=tenants[0])
+        wirelesslink3.save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -151,10 +155,10 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.csv_update_data = (
-            "ssid,description",
-            "LINK7,New decription 7",
-            "LINK8,New decription 8",
-            "LINK9,New decription 9",
+            "id,ssid,description",
+            f"{wirelesslink1.pk},LINK7,New decription 7",
+            f"{wirelesslink2.pk},LINK8,New decription 8",
+            f"{wirelesslink3.pk},LINK9,New decription 9",
         )
 
         cls.bulk_edit_data = {
