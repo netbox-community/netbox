@@ -30,7 +30,7 @@ plugins:
             - os.chdir('netbox/')
             - os.environ.setdefault("DJANGO_SETTINGS_MODULE", "netbox.settings")
             - django.setup()
-          rendering:
+          options:
             heading_level: 3
             members_order: source
             show_root_heading: true

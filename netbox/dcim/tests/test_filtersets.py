@@ -1643,6 +1643,8 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_types = DeviceType.objects.all()[:2]
         params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'device_type': [device_types[0].slug, device_types[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicerole(self):
         device_roles = DeviceRole.objects.all()[:2]

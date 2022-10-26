@@ -1,9 +1,9 @@
 import django_tables2 as tables
-from django_tables2.utils import Accessor
-
 from dcim.models import Rack, RackReservation, RackRole
+from django_tables2.utils import Accessor
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
 
 __all__ = (
     'RackTable',
@@ -37,7 +37,7 @@ class RackRoleTable(NetBoxTable):
 # Racks
 #
 
-class RackTable(TenancyColumnsMixin, NetBoxTable):
+class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         order_by=('_name',),
         linkify=True
@@ -67,9 +67,6 @@ class RackTable(TenancyColumnsMixin, NetBoxTable):
     get_power_utilization = columns.UtilizationColumn(
         orderable=False,
         verbose_name='Power'
-    )
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
     )
     tags = columns.TagColumn(
         url_name='dcim:rack_list'

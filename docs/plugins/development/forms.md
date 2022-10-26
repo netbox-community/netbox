@@ -144,73 +144,73 @@ class MyModelFilterForm(NetBoxModelFilterSetForm):
 In addition to the [form fields provided by Django](https://docs.djangoproject.com/en/stable/ref/forms/fields/), NetBox provides several field classes for use within forms to handle specific types of data. These can be imported from `utilities.forms.fields` and are documented below.
 
 ::: utilities.forms.ColorField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.CommentField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.JSONField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.MACAddressField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.SlugField
-    selection:
+    options:
       members: false
 
 ## Choice Fields
 
 ::: utilities.forms.ChoiceField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.MultipleChoiceField
-    selection:
+    options:
       members: false
 
 ## Dynamic Object Fields
 
 ::: utilities.forms.DynamicModelChoiceField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.DynamicModelMultipleChoiceField
-    selection:
+    options:
       members: false
 
 ## Content Type Fields
 
 ::: utilities.forms.ContentTypeChoiceField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.ContentTypeMultipleChoiceField
-    selection:
+    options:
       members: false
 
 ## CSV Import Fields
 
 ::: utilities.forms.CSVChoiceField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.CSVMultipleChoiceField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.CSVModelChoiceField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.CSVContentTypeField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.CSVMultipleContentTypeField
-    selection:
+    options:
       members: false

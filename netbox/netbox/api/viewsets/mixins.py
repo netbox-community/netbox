@@ -108,6 +108,5 @@ class ObjectValidationMixin:
             conforming_count = self.queryset.filter(pk__in=[obj.pk for obj in instance]).count()
             if conforming_count != len(instance):
                 raise ObjectDoesNotExist
-        else:
-            # Check that the instance is matched by the view's queryset
-            self.queryset.get(pk=instance.pk)
+        elif not self.queryset.filter(pk=instance.pk).exists():
+            raise ObjectDoesNotExist

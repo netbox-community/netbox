@@ -84,24 +84,24 @@ Below are the class definitions for NetBox's object views. These views handle CR
 ::: netbox.views.generic.base.BaseObjectView
 
 ::: netbox.views.generic.ObjectView
-    selection:
+    options:
       members:
         - get_object
         - get_template_name
 
 ::: netbox.views.generic.ObjectEditView
-    selection:
+    options:
       members:
         - get_object
         - alter_object
 
 ::: netbox.views.generic.ObjectDeleteView
-    selection:
+    options:
       members:
         - get_object
 
 ::: netbox.views.generic.ObjectChildrenView
-    selection:
+    options:
       members:
         - get_children
         - prep_table_data
@@ -113,22 +113,22 @@ Below are the class definitions for NetBox's multi-object views. These views han
 ::: netbox.views.generic.base.BaseMultiObjectView
 
 ::: netbox.views.generic.ObjectListView
-    selection:
+    options:
       members:
         - get_table
         - export_table
         - export_template
 
 ::: netbox.views.generic.BulkImportView
-    selection:
+    options:
       members: false
 
 ::: netbox.views.generic.BulkEditView
-    selection:
+    options:
       members: false
 
 ::: netbox.views.generic.BulkDeleteView
-    selection:
+    options:
       members:
         - get_form
 
@@ -137,12 +137,12 @@ Below are the class definitions for NetBox's multi-object views. These views han
 These views are provided to enable or enhance certain NetBox model features, such as change logging or journaling. These typically do not need to be subclassed: They can be used directly e.g. in a URL path.
 
 ::: netbox.views.generic.ObjectChangeLogView
-    selection:
+    options:
       members:
         - get_form
 
 ::: netbox.views.generic.ObjectJournalView
-    selection:
+    options:
       members:
         - get_form
 
