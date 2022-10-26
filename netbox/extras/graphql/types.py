@@ -35,7 +35,7 @@ class CustomLinkType(ObjectType):
 
     class Meta:
         model = models.CustomLink
-        fields = '__all__'
+        exclude = ('content_types', )
         filterset_class = filtersets.CustomLinkFilterSet
 
 

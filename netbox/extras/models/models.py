@@ -197,10 +197,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
     """
-    content_type = models.ForeignKey(
+    content_types = models.ManyToManyField(
         to=ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=FeatureQuery('custom_links')
+        related_name='custom_links',
+        help_text='The object type(s) to which this link applies.'
     )
     name = models.CharField(
         max_length=100,
@@ -236,7 +236,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
     )
 
     clone_fields = (
-        'content_type', 'enabled', 'weight', 'group_name', 'button_class', 'new_window',
+        'enabled', 'weight', 'group_name', 'button_class', 'new_window',
     )
 
     class Meta:

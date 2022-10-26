@@ -8,6 +8,7 @@
 * Device and virtual machine names are no longer case-sensitive. Attempting to create e.g. "device1" and "DEVICE1" will raise a validation error.
 * The `asn` field has been removed from the provider model. Please replicate any provider ASN assignments to the ASN model introduced in NetBox v3.1 prior to upgrading.
 * The `noc_contact`, `admin_contact`, and `portal_url` fields have been removed from the provider model. Please replicate any data remaining in these fields to the contact model introduced in NetBox v3.1 prior to upgrading.
+* The `content_type` field on the CustomLink model has been renamed to `content_types` and now supports the assignment of multiple content types.
 
 ### New Features
 
@@ -22,6 +23,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 ### Enhancements
 
 * [#8245](https://github.com/netbox-community/netbox/issues/8245) - Enable GraphQL filtering of related objects
+* [#8274](https://github.com/netbox-community/netbox/issues/8274) - Enable associating a custom link with multiple object types
 * [#9249](https://github.com/netbox-community/netbox/issues/9249) - Device and virtual machine names are no longer case-sensitive
 * [#9478](https://github.com/netbox-community/netbox/issues/9478) - Add `link_peers` field to GraphQL types for cabled objects
 * [#9654](https://github.com/netbox-community/netbox/issues/9654) - Add `weight` field to racks, device types, and module types
@@ -57,6 +59,8 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
     * Added optional `weight` and `weight_unit` fields
 * dcim.Rack
     * Added optional `weight` and `weight_unit` fields
+* extras.CustomLink
+    * Renamed `content_type` field to `content_types`
 * ipam.FHRPGroup
     * Added optional `name` field
 

@@ -53,16 +53,16 @@ class CustomFieldCSVForm(CSVModelForm):
 
 
 class CustomLinkCSVForm(CSVModelForm):
-    content_type = CSVContentTypeField(
+    content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_links'),
-        help_text="Assigned object type"
+        help_text="One or more assigned object types"
     )
 
     class Meta:
         model = CustomLink
         fields = (
-            'name', 'content_type', 'enabled', 'weight', 'group_name', 'button_class', 'new_window', 'link_text',
+            'name', 'content_types', 'enabled', 'weight', 'group_name', 'button_class', 'new_window', 'link_text',
             'link_url',
         )
 
