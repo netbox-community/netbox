@@ -21,6 +21,7 @@
 * [#10655](https://github.com/netbox-community/netbox/issues/10655) - Correct display of assigned contacts in object tables
 * [#10712](https://github.com/netbox-community/netbox/issues/10712) - Fix ModuleNotFoundError exception when generating API schema under Python 3.9+
 * [#10716](https://github.com/netbox-community/netbox/issues/10716) - Add left/right page plugin content embeds for tag view
+* [#10719](https://github.com/netbox-community/netbox/issues/10719) - Prevent user without sufficient permission from creating an IP address via FHRP group creation
 * [#10723](https://github.com/netbox-community/netbox/issues/10723) - Distinguish between inside/outside NAT assignments for device/VM primary IPs
 * [#10745](https://github.com/netbox-community/netbox/issues/10745) - Correct display of status field in clusters list
 * [#10746](https://github.com/netbox-community/netbox/issues/10746) - Add missing status attribute to cluster view
