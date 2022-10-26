@@ -69,17 +69,17 @@ class CustomLinkTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    content_type = columns.ContentTypeColumn()
+    content_types = columns.ContentTypesColumn()
     enabled = columns.BooleanColumn()
     new_window = columns.BooleanColumn()
 
     class Meta(NetBoxTable.Meta):
         model = CustomLink
         fields = (
-            'pk', 'id', 'name', 'content_type', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
+            'pk', 'id', 'name', 'content_types', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
             'button_class', 'new_window', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'content_type', 'enabled', 'group_name', 'button_class', 'new_window')
+        default_columns = ('pk', 'name', 'content_types', 'enabled', 'group_name', 'button_class', 'new_window')
 
 
 #
@@ -90,17 +90,17 @@ class ExportTemplateTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    content_type = columns.ContentTypeColumn()
+    content_types = columns.ContentTypesColumn()
     as_attachment = columns.BooleanColumn()
 
     class Meta(NetBoxTable.Meta):
         model = ExportTemplate
         fields = (
-            'pk', 'id', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
+            'pk', 'id', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
             'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
+            'pk', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
         )
 
 
