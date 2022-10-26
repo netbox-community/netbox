@@ -1,11 +1,13 @@
 from django.db.models import QuerySet
-from django.utils.encoding import force_str
-from django.utils.translation import gettext_lazy as _
-from rest_framework.pagination import LimitOffsetPagination, CursorPagination, BasePagination, _reverse_ordering
-from rest_framework.response import Response
+from rest_framework.pagination import LimitOffsetPagination, CursorPagination, _reverse_ordering
 
 from netbox.config import get_config
-from rest_framework.compat import coreapi, coreschema
+
+__all__ = (
+    'CursorPaginationWithNoLimit',
+    'OptionalLimitOffsetPagination',
+    'PAGINATORS',
+)
 
 
 class OptionalLimitOffsetPagination(LimitOffsetPagination):
@@ -183,58 +185,7 @@ class CursorPaginationWithNoLimit(CursorPagination):
         return self.default_page_size
 
 
-class TwoModePagination(BasePagination):
-    """
-    Pagination that allows user to toggle between LimitOffsetPagination and CursorPagination. The default
-    is LimitOffsetPagination.
-    """
-    pagination_mode_param = 'pagination_mode'
-    pagination_mode_description = _(
-        'Mode selector for LimitOffsetPagination (default) and CursorPagination.\n'
-        '`offset` and `limit` are used for LimitOffsetPagination.\n'
-        '`cursor` and `limit` are used for CursorPagination.')
-    limit_offset_key = 'limit_offset'
-    cursor_pagination_key = 'cursor'
-
-    def __init__(
-        self,
-        limit_offset_paginator=OptionalLimitOffsetPagination,
-        cursor_paginator=CursorPaginationWithNoLimit,
-    ) -> None:
-        self._limit_offset_pagination = limit_offset_paginator()
-        self._cursor_pagination = cursor_paginator()
-
-        self._chosen_pagination = self._limit_offset_pagination
-
-    def paginate_queryset(self, queryset, request: Response, view=None):
-        mode = request.query_params.get(self.pagination_mode_param)
-        if mode == self.cursor_pagination_key:
-            self._chosen_pagination = self._cursor_pagination
-        return self._chosen_pagination.paginate_queryset(queryset, request, view)
-
-    def get_paginated_response(self, data):
-        return self._chosen_pagination.get_paginated_response(data)
-
-    def get_paginated_response_schema(self, schema):
-        return self._chosen_pagination.get_paginated_response_schema(schema)
-
-    def to_html(self):  # pragma: no cover
-        return self._chosen_pagination.to_html()
-
-    def get_schema_fields(self, view):
-        mode_field = coreapi.Field(
-            name=self.pagination_mode_param,
-            required=False,
-            location='query',
-            schema=coreschema.Enum(
-                title='Pagination Mode',
-                description=force_str(self.pagination_mode_description),
-                enum=[self.limit_offset_key, self.cursor_pagination_key],
-            )
-        )
-        return [mode_field] \
-            + self._limit_offset_pagination.get_schema_fields(view) \
-            + self._cursor_pagination.get_schema_fields(view)[:1]  # "limit" is shared between the two modes
-
-    def get_schema_operation_parameters(self, view):
-        return self._chosen_pagination.get_schema_operation_parameters(view)
+PAGINATORS = {
+    'limit_offset': OptionalLimitOffsetPagination,  # Default per settings.DEFAULT_PAGINATION_CLASS
+    'cursor': CursorPaginationWithNoLimit,
+}

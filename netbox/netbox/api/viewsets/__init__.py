@@ -10,6 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from extras.models import ExportTemplate
 from netbox.api.exceptions import SerializerNotFound
+from netbox.api.pagination import PAGINATORS
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from utilities.exceptions import AbortRequest
@@ -92,6 +93,20 @@ class NetBoxModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ObjectVali
             return super().get_queryset().prefetch_related(None).prefetch_related(*self.brief_prefetch_fields)
 
         return super().get_queryset()
+
+    @property
+    def paginator(self):
+        """
+        Allow the request to designate the paginator class per the pagination_mode parameter.
+        """
+        if not hasattr(self, '_paginator'):
+            if self.pagination_class is None:
+                self._paginator = None
+            elif mode := self.request.query_params.get('pagination_mode'):
+                self._paginator = PAGINATORS.get(mode, self.pagination_class)()
+            else:
+                self._paginator = self.pagination_class()
+        return self._paginator
 
     def initialize_request(self, request, *args, **kwargs):
         # Check if brief=True has been passed
