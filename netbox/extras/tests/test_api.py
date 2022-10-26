@@ -137,21 +137,21 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_type': 'dcim.site',
+            'content_types': ['dcim.site'],
             'name': 'Custom Link 4',
             'enabled': True,
             'link_text': 'Link 4',
             'link_url': 'http://example.com/?4',
         },
         {
-            'content_type': 'dcim.site',
+            'content_types': ['dcim.site'],
             'name': 'Custom Link 5',
             'enabled': True,
             'link_text': 'Link 5',
             'link_url': 'http://example.com/?5',
         },
         {
-            'content_type': 'dcim.site',
+            'content_types': ['dcim.site'],
             'name': 'Custom Link 6',
             'enabled': False,
             'link_text': 'Link 6',
@@ -169,21 +169,18 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
 
         custom_links = (
             CustomLink(
-                content_type=site_ct,
                 name='Custom Link 1',
                 enabled=True,
                 link_text='Link 1',
                 link_url='http://example.com/?1',
             ),
             CustomLink(
-                content_type=site_ct,
                 name='Custom Link 2',
                 enabled=True,
                 link_text='Link 2',
                 link_url='http://example.com/?2',
             ),
             CustomLink(
-                content_type=site_ct,
                 name='Custom Link 3',
                 enabled=False,
                 link_text='Link 3',
@@ -191,6 +188,8 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
             ),
         )
         CustomLink.objects.bulk_create(custom_links)
+        for i, custom_link in enumerate(custom_links):
+            custom_link.content_types.set([site_ct])
 
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):

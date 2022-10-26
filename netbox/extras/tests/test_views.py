@@ -59,17 +59,19 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         site_ct = ContentType.objects.get_for_model(Site)
-        CustomLink.objects.bulk_create((
-            CustomLink(name='Custom Link 1', content_type=site_ct, enabled=True, link_text='Link 1', link_url='http://example.com/?1'),
-            CustomLink(name='Custom Link 2', content_type=site_ct, enabled=True, link_text='Link 2', link_url='http://example.com/?2'),
-            CustomLink(name='Custom Link 3', content_type=site_ct, enabled=False, link_text='Link 3', link_url='http://example.com/?3'),
-        ))
+        custom_links = (
+            CustomLink(name='Custom Link 1', enabled=True, link_text='Link 1', link_url='http://example.com/?1'),
+            CustomLink(name='Custom Link 2', enabled=True, link_text='Link 2', link_url='http://example.com/?2'),
+            CustomLink(name='Custom Link 3', enabled=False, link_text='Link 3', link_url='http://example.com/?3'),
+        )
+        CustomLink.objects.bulk_create(custom_links)
+        for i, custom_link in enumerate(custom_links):
+            custom_link.content_types.set([site_ct])
 
         cls.form_data = {
             'name': 'Custom Link X',
-            'content_type': site_ct.pk,
+            'content_types': [site_ct.pk],
             'enabled': False,
             'weight': 100,
             'button_class': CustomLinkButtonClassChoices.DEFAULT,
@@ -78,7 +80,7 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,content_type,enabled,weight,button_class,link_text,link_url",
+            "name,content_types,enabled,weight,button_class,link_text,link_url",
             "Custom Link 4,dcim.site,True,100,blue,Link 4,http://exmaple.com/?4",
             "Custom Link 5,dcim.site,True,100,blue,Link 5,http://exmaple.com/?5",
             "Custom Link 6,dcim.site,False,100,blue,Link 6,http://exmaple.com/?6",
@@ -327,13 +329,13 @@ class CustomLinkTest(TestCase):
 
     def test_view_object_with_custom_link(self):
         customlink = CustomLink(
-            content_type=ContentType.objects.get_for_model(Site),
             name='Test',
             link_text='FOO {{ obj.name }} BAR',
             link_url='http://example.com/?site={{ obj.slug }}',
             new_window=False
         )
         customlink.save()
+        customlink.content_types.set([ContentType.objects.get_for_model(Site)])
 
         site = Site(name='Test Site', slug='test-site')
         site.save()

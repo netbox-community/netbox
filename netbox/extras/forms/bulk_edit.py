@@ -53,11 +53,6 @@ class CustomLinkBulkEditForm(BulkEditForm):
         queryset=CustomLink.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    content_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_links'),
-        required=False
-    )
     enabled = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect()

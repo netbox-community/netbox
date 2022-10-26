@@ -63,13 +63,13 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
 
 
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):
-    content_type = ContentTypeChoiceField(
+    content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_links')
     )
 
     fieldsets = (
-        ('Custom Link', ('name', 'content_type', 'weight', 'group_name', 'button_class', 'enabled', 'new_window')),
+        ('Custom Link', ('name', 'content_types', 'weight', 'group_name', 'button_class', 'enabled', 'new_window')),
         ('Templates', ('link_text', 'link_url')),
     )
 
