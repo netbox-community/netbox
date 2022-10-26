@@ -49,11 +49,10 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.csv_update_data = (
-            'label',
-            'New label 1',
-            'New label 2',
-            'New label 3',
-            'New label 4',
+            'id,label',
+            f'{custom_fields[0].pk},New label 1',
+            f'{custom_fields[1].pk},New label 2',
+            f'{custom_fields[2].pk},New label 3',
         )
 
         cls.bulk_edit_data = {
@@ -69,11 +68,12 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def setUpTestData(cls):
 
         site_ct = ContentType.objects.get_for_model(Site)
-        CustomLink.objects.bulk_create((
+        custom_links = (
             CustomLink(name='Custom Link 1', content_type=site_ct, enabled=True, link_text='Link 1', link_url='http://example.com/?1'),
             CustomLink(name='Custom Link 2', content_type=site_ct, enabled=True, link_text='Link 2', link_url='http://example.com/?2'),
             CustomLink(name='Custom Link 3', content_type=site_ct, enabled=False, link_text='Link 3', link_url='http://example.com/?3'),
-        ))
+        )
+        CustomLink.objects.bulk_create(custom_links)
 
         cls.form_data = {
             'name': 'Custom Link X',
@@ -93,10 +93,10 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.csv_update_data = (
-            "name",
-            "Custom Link 7",
-            "Custom Link 8",
-            "Custom Link 9",
+            "id,name",
+            f"{custom_links[0].pk},Custom Link 7",
+            f"{custom_links[1].pk},Custom Link 8",
+            f"{custom_links[2].pk},Custom Link 9",
         )
 
         cls.bulk_edit_data = {
@@ -114,11 +114,13 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         site_ct = ContentType.objects.get_for_model(Site)
         TEMPLATE_CODE = """{% for object in queryset %}{{ object }}{% endfor %}"""
-        ExportTemplate.objects.bulk_create((
+
+        export_templates = (
             ExportTemplate(name='Export Template 1', content_type=site_ct, template_code=TEMPLATE_CODE),
             ExportTemplate(name='Export Template 2', content_type=site_ct, template_code=TEMPLATE_CODE),
             ExportTemplate(name='Export Template 3', content_type=site_ct, template_code=TEMPLATE_CODE),
-        ))
+        )
+        ExportTemplate.objects.bulk_create(export_templates)
 
         cls.form_data = {
             'name': 'Export Template X',
@@ -134,10 +136,10 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.csv_update_data = (
-            "name",
-            f"Export Template 7",
-            f"Export Template 8",
-            f"Export Template 9",
+            "id,name",
+            f"{export_templates[0].pk},Export Template 7",
+            f"{export_templates[1].pk},Export Template 8",
+            f"{export_templates[2].pk},Export Template 9",
         )
 
         cls.bulk_edit_data = {
@@ -183,10 +185,10 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.csv_update_data = (
-            "name",
-            "Webhook 7",
-            "Webhook 8",
-            "Webhook 9",
+            "id,name",
+            f"{webhooks[0].pk},Webhook 7",
+            f"{webhooks[1].pk},Webhook 8",
+            f"{webhooks[2].pk},Webhook 9",
         )
 
         cls.bulk_edit_data = {
@@ -204,11 +206,12 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        Tag.objects.bulk_create((
+        tags = (
             Tag(name='Tag 1', slug='tag-1'),
             Tag(name='Tag 2', slug='tag-2'),
             Tag(name='Tag 3', slug='tag-3'),
-        ))
+        )
+        Tag.objects.bulk_create(tags)
 
         cls.form_data = {
             'name': 'Tag X',
@@ -225,10 +228,10 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         )
 
         cls.csv_update_data = (
-            "name,description",
-            "Tag 7,Fourth tag7",
-            "Tag 8,Fifth tag8",
-            "Tag 9,Sixth tag9",
+            "id,name,description",
+            f"{tags[0].pk},Tag 7,Fourth tag7",
+            f"{tags[1].pk},Tag 8,Fifth tag8",
+            f"{tags[2].pk},Tag 9,Sixth tag9",
         )
 
         cls.bulk_edit_data = {
