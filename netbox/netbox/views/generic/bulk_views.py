@@ -333,13 +333,19 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         from utilities.forms import CSVModelChoiceField
         new_objs = []
 
+        ids = [int(record["id"]) for record in records]
+        qs = self.queryset.model.objects.filter(id__in=ids)
+        print(qs)
+        objs = {}
+        for obj in qs:
+            objs[obj.id] = obj
+
         for row, data in enumerate(records, start=1):
-            try:
-                obj = self.queryset.model.objects.get(pk=data["id"])
-            except ObjectDoesNotExist:
+            if int(data["id"]) not in objs:
                 form.add_error('csv', f'Row {row} id: {data["id"]} Does not exist')
                 raise ValidationError("")
 
+            obj = objs[int(data["id"])]
             obj_form = self.model_form(data, headers=headers, instance=obj)
 
             # The form should only contain fields that are in the CSV
