@@ -550,16 +550,8 @@ class ViewTestCases:
         def _get_csv_data(self):
             return '\n'.join(self.csv_data)
 
-        def _get_update_csv_data(self, start):
-            # pre-pend id into data
-            csv_data = []
-            for idx, line in enumerate(self.csv_update_data, start=start):
-                if idx == start:
-                    csv_data.append("id," + line)
-                else:
-                    csv_data.append(f"{idx-1}," + line)
-
-            return csv_data, '\n'.join(csv_data)
+        def _get_update_csv_data(self):
+            return self.csv_update_data, '\n'.join(self.csv_update_data)
 
         def test_bulk_import_objects_without_permission(self):
             data = {
@@ -601,7 +593,7 @@ class ViewTestCases:
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_update_objects_with_permission(self):
             if not self.csv_update_data:
-                return
+                raise NotImplementedError("The test must define csv_update_data.")
 
             data = {
                 'csv': self._get_csv_data(),
@@ -616,17 +608,11 @@ class ViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
 
-            # need to track ids so we know what new ids were added by csv_data so we can
-            # do the updates on the appropriate ids
-            prev_ids = list(self._get_queryset().values_list('id', flat=True).order_by('id'))
             self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
             count = self._get_queryset().count()
-            new_ids = list(self._get_queryset().values_list('id', flat=True).order_by('id'))
-            diff_ids = [x for x in new_ids if x not in prev_ids]
-            start_id = diff_ids[0]
 
             # Now try update the data
-            array, csv_data = self._get_update_csv_data(start_id)
+            array, csv_data = self._get_update_csv_data()
             data = {
                 'csv': csv_data,
             }
