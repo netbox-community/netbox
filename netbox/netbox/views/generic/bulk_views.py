@@ -142,7 +142,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Render an ExportTemplate
             elif request.GET['export']:
-                template = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
+                template = get_object_or_404(ExportTemplate, content_types=content_type, name=request.GET['export'])
                 return self.export_template(template, request)
 
             # Check for YAML export support on the model
@@ -335,7 +335,6 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         ids = [int(record["id"]) for record in records]
         qs = self.queryset.model.objects.filter(id__in=ids)
-        print(qs)
         objs = {}
         for obj in qs:
             objs[obj.id] = obj

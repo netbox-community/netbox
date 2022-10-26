@@ -168,7 +168,6 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
         custom_links = (
             CustomLink(
                 name='Custom Link 1',
-                content_type=content_types[0],
                 enabled=True,
                 weight=100,
                 new_window=False,
@@ -177,7 +176,6 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
             ),
             CustomLink(
                 name='Custom Link 2',
-                content_type=content_types[1],
                 enabled=True,
                 weight=200,
                 new_window=False,
@@ -186,7 +184,6 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
             ),
             CustomLink(
                 name='Custom Link 3',
-                content_type=content_types[2],
                 enabled=False,
                 weight=300,
                 new_window=True,
@@ -195,13 +192,17 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
             ),
         )
         CustomLink.objects.bulk_create(custom_links)
+        for i, custom_link in enumerate(custom_links):
+            custom_link.content_types.set([content_types[i]])
 
     def test_name(self):
         params = {'name': ['Custom Link 1', 'Custom Link 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_content_type(self):
-        params = {'content_type': ContentType.objects.get(model='site').pk}
+    def test_content_types(self):
+        params = {'content_types': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'content_type_id': [ContentType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_weight(self):
@@ -227,22 +228,25 @@ class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-
         content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
 
         export_templates = (
-            ExportTemplate(name='Export Template 1', content_type=content_types[0], template_code='TESTING', description='foobar1'),
-            ExportTemplate(name='Export Template 2', content_type=content_types[1], template_code='TESTING', description='foobar2'),
-            ExportTemplate(name='Export Template 3', content_type=content_types[2], template_code='TESTING'),
+            ExportTemplate(name='Export Template 1', template_code='TESTING', description='foobar1'),
+            ExportTemplate(name='Export Template 2', template_code='TESTING', description='foobar2'),
+            ExportTemplate(name='Export Template 3', template_code='TESTING'),
         )
         ExportTemplate.objects.bulk_create(export_templates)
+        for i, et in enumerate(export_templates):
+            et.content_types.set([content_types[i]])
 
     def test_name(self):
         params = {'name': ['Export Template 1', 'Export Template 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_content_type(self):
-        params = {'content_type': ContentType.objects.get(model='site').pk}
+    def test_content_types(self):
+        params = {'content_types': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'content_type_id': [ContentType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):

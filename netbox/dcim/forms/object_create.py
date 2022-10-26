@@ -3,7 +3,7 @@ from django import forms
 from dcim.models import *
 from netbox.forms import NetBoxModelForm
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField
-from . import models as model_forms
+from . import model_forms
 
 __all__ = (
     'ComponentCreateForm',

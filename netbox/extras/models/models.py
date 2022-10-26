@@ -197,10 +197,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
     """
-    content_type = models.ForeignKey(
+    content_types = models.ManyToManyField(
         to=ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=FeatureQuery('custom_links')
+        related_name='custom_links',
+        help_text='The object type(s) to which this link applies.'
     )
     name = models.CharField(
         max_length=100,
@@ -236,7 +236,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
     )
 
     clone_fields = (
-        'content_type', 'enabled', 'weight', 'group_name', 'button_class', 'new_window',
+        'enabled', 'weight', 'group_name', 'button_class', 'new_window',
     )
 
     class Meta:
@@ -268,10 +268,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
 
 
 class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
-    content_type = models.ForeignKey(
+    content_types = models.ManyToManyField(
         to=ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=FeatureQuery('export_templates')
+        related_name='export_templates',
+        help_text='The object type(s) to which this template applies.'
     )
     name = models.CharField(
         max_length=100
@@ -301,16 +301,10 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     )
 
     class Meta:
-        ordering = ['content_type', 'name']
-        constraints = (
-            models.UniqueConstraint(
-                fields=('content_type', 'name'),
-                name='%(app_label)s_%(class)s_unique_content_type_name'
-            ),
-        )
+        ordering = ('name',)
 
     def __str__(self):
-        return f"{self.content_type}: {self.name}"
+        return self.name
 
     def get_absolute_url(self):
         return reverse('extras:exporttemplate', args=[self.pk])

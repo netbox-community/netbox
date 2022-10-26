@@ -64,6 +64,7 @@ class ClusterTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     group = tables.Column(
         linkify=True
     )
+    status = columns.ChoiceFieldColumn()
     site = tables.Column(
         linkify=True
     )

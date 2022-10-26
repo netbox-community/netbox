@@ -985,6 +985,12 @@ class FHRPGroupEditView(generic.ObjectEditView):
 
         return return_url
 
+    def alter_object(self, obj, request, url_args, url_kwargs):
+        # Workaround to solve #10719. Capture the current user on the FHRPGroup instance so that
+        # we can evaluate permissions during the creation of a new IPAddress within the form.
+        obj._user = request.user
+        return obj
+
 
 @register_model_view(FHRPGroup, 'delete')
 class FHRPGroupDeleteView(generic.ObjectDeleteView):

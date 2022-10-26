@@ -121,9 +121,9 @@ class JobResultFilterForm(FilterForm):
 class CustomLinkFilterForm(FilterForm):
     fieldsets = (
         (None, ('q',)),
-        ('Attributes', ('content_type', 'enabled', 'new_window', 'weight')),
+        ('Attributes', ('content_types', 'enabled', 'new_window', 'weight')),
     )
-    content_type = ContentTypeChoiceField(
+    content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_links'),
         required=False
@@ -148,9 +148,9 @@ class CustomLinkFilterForm(FilterForm):
 class ExportTemplateFilterForm(FilterForm):
     fieldsets = (
         (None, ('q',)),
-        ('Attributes', ('content_type', 'mime_type', 'file_extension', 'as_attachment')),
+        ('Attributes', ('content_types', 'mime_type', 'file_extension', 'as_attachment')),
     )
-    content_type = ContentTypeChoiceField(
+    content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('export_templates'),
         required=False

@@ -117,14 +117,15 @@ class CustomFieldSerializer(ValidatedModelSerializer):
 
 class CustomLinkSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customlink-detail')
-    content_type = ContentTypeField(
-        queryset=ContentType.objects.filter(FeatureQuery('custom_links').get_query())
+    content_types = ContentTypeField(
+        queryset=ContentType.objects.filter(FeatureQuery('custom_links').get_query()),
+        many=True
     )
 
     class Meta:
         model = CustomLink
         fields = [
-            'id', 'url', 'display', 'content_type', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
+            'id', 'url', 'display', 'content_types', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
             'button_class', 'new_window', 'created', 'last_updated',
         ]
 
@@ -135,14 +136,15 @@ class CustomLinkSerializer(ValidatedModelSerializer):
 
 class ExportTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:exporttemplate-detail')
-    content_type = ContentTypeField(
+    content_types = ContentTypeField(
         queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
+        many=True
     )
 
     class Meta:
         model = ExportTemplate
         fields = [
-            'id', 'url', 'display', 'content_type', 'name', 'description', 'template_code', 'mime_type',
+            'id', 'url', 'display', 'content_types', 'name', 'description', 'template_code', 'mime_type',
             'file_extension', 'as_attachment', 'created', 'last_updated',
         ]
 
