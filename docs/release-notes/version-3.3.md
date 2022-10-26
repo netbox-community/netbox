@@ -15,10 +15,13 @@
 * [#9669](https://github.com/netbox-community/netbox/issues/9669) - Strip colons from usernames when using remote authentication
 * [#10575](https://github.com/netbox-community/netbox/issues/10575) - Include OIDC dependencies for python-social-auth
 * [#10584](https://github.com/netbox-community/netbox/issues/10584) - Fix service clone link
+* [#10610](https://github.com/netbox-community/netbox/issues/10610) - Allow assignment of VC member to LAG on non-master peer
 * [#10643](https://github.com/netbox-community/netbox/issues/10643) - Ensure consistent display of custom fields for all model forms
 * [#10646](https://github.com/netbox-community/netbox/issues/10646) - Fix filtering of power feed by power panel when connecting a cable
 * [#10655](https://github.com/netbox-community/netbox/issues/10655) - Correct display of assigned contacts in object tables
 * [#10712](https://github.com/netbox-community/netbox/issues/10712) - Fix ModuleNotFoundError exception when generating API schema under Python 3.9+
+* [#10716](https://github.com/netbox-community/netbox/issues/10716) - Add left/right page plugin content embeds for tag view
+* [#10723](https://github.com/netbox-community/netbox/issues/10723) - Distinguish between inside/outside NAT assignments for device/VM primary IPs
 * [#10745](https://github.com/netbox-community/netbox/issues/10745) - Correct display of status field in clusters list
 * [#10746](https://github.com/netbox-community/netbox/issues/10746) - Add missing status attribute to cluster view
 
