@@ -15,13 +15,14 @@ Begin by installing all system packages required by NetBox and its dependencies.
     sudo apt install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
     ```
 
-=== "CentOS"
+=== "RHEL"
 
     ```no-highlight
-    sudo yum install -y gcc libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
+    sudo yum install -y python39 gcc libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
+    sudo alternatives --set python3 /usr/bin/python3.9
     ```
 
-Before continuing, check that your installed Python version is at least 3.8:
+Before continuing, check that your installed Python 3 version is at least 3.8:
 
 ```no-highlight
 python3 -V
@@ -61,7 +62,7 @@ If `git` is not already installed, install it:
     sudo apt install -y git
     ```
 
-=== "CentOS"
+=== "RHEL"
 
     ```no-highlight
     sudo yum install -y git
@@ -102,7 +103,7 @@ Create a system user account named `netbox`. We'll configure the WSGI and HTTP s
     sudo chown --recursive netbox /opt/netbox/netbox/media/
     ```
 
-=== "CentOS"
+=== "RHEL"
 
     ```
     sudo groupadd --system netbox
