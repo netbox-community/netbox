@@ -196,7 +196,7 @@ class RackCSVForm(NetBoxModelCSVForm):
         model = Rack
         fields = (
             'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag',
-            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
+            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'comments',
         )
 
     def __init__(self, data=None, *args, **kwargs):
