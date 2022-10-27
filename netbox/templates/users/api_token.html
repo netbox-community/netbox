@@ -15,18 +15,17 @@
               <td>{{ object.key }}</td>
             </tr>
           </table>
-    <form method="post">
-      {% csrf_token %}
-      <div class="row my-3">
-        <div class="col col-md-12 text-center">
-          <button type="submit" name="_addanother" class="btn btn-outline-primary">
-            Add Another
-          </button>
-          <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-        </div>
-      </div>
-    </form>
-
+          <form method="post">
+            {% csrf_token %}
+            <div class="row my-3">
+              <div class="col col-md-12 text-center">
+                <button type="submit" name="_addanother" class="btn btn-outline-primary">
+                  Add Another
+                </button>
+                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
       {% plugin_left_page object %}
