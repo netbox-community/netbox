@@ -1,10 +1,21 @@
 import django_tables2 as tables
 
 from dcim.models import (
-    ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceType, FrontPortTemplate, InterfaceTemplate,
-    InventoryItemTemplate, Manufacturer, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
+    ConsolePortTemplate,
+    ConsoleServerPortTemplate,
+    DeviceBayTemplate,
+    DeviceType,
+    FrontPortTemplate,
+    InterfaceTemplate,
+    InventoryItemTemplate,
+    Manufacturer,
+    ModuleBayTemplate,
+    PowerOutletTemplate,
+    PowerPortTemplate,
+    RearPortTemplate,
 )
 from netbox.tables import NetBoxTable, columns
+from tenancy.tables import ContactsColumnMixin
 from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS, DEVICE_WEIGHT
 
 __all__ = (
@@ -27,7 +38,7 @@ __all__ = (
 # Manufacturers
 #
 
-class ManufacturerTable(NetBoxTable):
+class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -43,9 +54,6 @@ class ManufacturerTable(NetBoxTable):
         verbose_name='Platforms'
     )
     slug = tables.Column()
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
-    )
     tags = columns.TagColumn(
         url_name='dcim:manufacturer_list'
     )

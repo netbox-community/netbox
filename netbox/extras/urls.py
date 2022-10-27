@@ -74,6 +74,11 @@ urlpatterns = [
     path('reports/results/<int:job_result_pk>/', views.ReportResultView.as_view(), name='report_result'),
     re_path(r'^reports/(?P<module>.([^.]+)).(?P<name>.(.+))/', views.ReportView.as_view(), name='report'),
 
+    # Job results
+    path('job-results/', views.JobResultListView.as_view(), name='jobresult_list'),
+    path('job-results/delete/', views.JobResultBulkDeleteView.as_view(), name='jobresult_bulk_delete'),
+    path('job-results/<int:pk>/delete/', views.JobResultDeleteView.as_view(), name='jobresult_delete'),
+
     # Scripts
     path('scripts/', views.ScriptListView.as_view(), name='script_list'),
     path('scripts/results/<int:job_result_pk>/', views.ScriptResultView.as_view(), name='script_result'),

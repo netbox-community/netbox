@@ -129,7 +129,7 @@
                         <th scope="row">Outer Width</th>
                         <td>
                             {% if object.outer_width %}
-                                <span>{{ object.outer_width }} {{ object.get_outer_unit_display }}</span>
+                                {{ object.outer_width }} {{ object.get_outer_unit_display }}
                             {% else %}
                                 {{ ''|placeholder }}
                             {% endif %}
@@ -139,7 +139,17 @@
                         <th scope="row">Outer Depth</th>
                         <td>
                             {% if object.outer_depth %}
-                                <span>{{ object.outer_depth }} {{ object.get_outer_unit_display }}</span>
+                                {{ object.outer_depth }} {{ object.get_outer_unit_display }}
+                            {% else %}
+                                {{ ''|placeholder }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Mounting Depth</th>
+                        <td>
+                            {% if object.mounting_depth %}
+                                {{ object.mounting_depth }} Millimeters
                             {% else %}
                                 {{ ''|placeholder }}
                             {% endif %}

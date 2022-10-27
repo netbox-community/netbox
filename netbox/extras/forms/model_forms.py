@@ -41,9 +41,9 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
 
     fieldsets = (
         ('Custom Field', (
-            'content_types', 'name', 'label', 'group_name', 'type', 'object_type', 'weight', 'required', 'description',
+            'content_types', 'name', 'label', 'group_name', 'type', 'object_type', 'required', 'description',
         )),
-        ('Behavior', ('filter_logic', 'ui_visibility')),
+        ('Behavior', ('search_weight', 'filter_logic', 'ui_visibility', 'weight')),
         ('Values', ('default', 'choices')),
         ('Validation', ('validation_minimum', 'validation_maximum', 'validation_regex')),
     )
@@ -63,13 +63,13 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
 
 
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):
-    content_type = ContentTypeChoiceField(
+    content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_links')
     )
 
     fieldsets = (
-        ('Custom Link', ('name', 'content_type', 'weight', 'group_name', 'button_class', 'enabled', 'new_window')),
+        ('Custom Link', ('name', 'content_types', 'weight', 'group_name', 'button_class', 'enabled', 'new_window')),
         ('Templates', ('link_text', 'link_url')),
     )
 
@@ -89,13 +89,13 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
 
 
 class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
-    content_type = ContentTypeChoiceField(
+    content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('export_templates')
     )
 
     fieldsets = (
-        ('Export Template', ('name', 'content_type', 'description')),
+        ('Export Template', ('name', 'content_types', 'description')),
         ('Template', ('template_code',)),
         ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
     )

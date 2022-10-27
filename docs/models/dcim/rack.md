@@ -65,6 +65,10 @@ The height of the rack, measured in units.
 
 The external width and depth of the rack can be tracked to aid in floorplan calculations. These measurements must be designated in either millimeters or inches.
 
+### Mounting Depth
+
+The maximum depth of a mounted device that the rack can accommodate, in millimeters. For four-post frames or cabinets, this is the horizontal distance between the front and rear vertical rails. (Note that this measurement does _not_ include space between the rails and the cabinet doors.)
+
 ### Weight
 
 The numeric weight of the rack, including a unit designation (e.g. 10 kilograms or 20 pounds).

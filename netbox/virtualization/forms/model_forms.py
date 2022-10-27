@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 
 from dcim.forms.common import InterfaceCommonForm
-from dcim.forms.models import INTERFACE_MODE_HELP_TEXT
+from dcim.forms.model_forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from ipam.models import IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
@@ -28,6 +28,12 @@ __all__ = (
 class ClusterTypeForm(NetBoxModelForm):
     slug = SlugField()
 
+    fieldsets = (
+        ('Cluster Type', (
+            'name', 'slug', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = ClusterType
         fields = (
@@ -37,6 +43,12 @@ class ClusterTypeForm(NetBoxModelForm):
 
 class ClusterGroupForm(NetBoxModelForm):
     slug = SlugField()
+
+    fieldsets = (
+        ('Cluster Group', (
+            'name', 'slug', 'description', 'tags',
+        )),
+    )
 
     class Meta:
         model = ClusterGroup

@@ -142,14 +142,6 @@ def percentage(x, y):
 
 
 @register.filter()
-def get_docs_url(model):
-    """
-    Return the documentation URL for the specified model.
-    """
-    return f'{settings.STATIC_URL}docs/models/{model._meta.app_label}/{model._meta.model_name}/'
-
-
-@register.filter()
 def has_perms(user, permissions_list):
     """
     Return True if the user has *all* permissions in the list.

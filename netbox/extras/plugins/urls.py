@@ -3,8 +3,7 @@ from django.conf import settings
 from django.conf.urls import include
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import path
-
-from extras.plugins.utils import import_object
+from django.utils.module_loading import import_string
 
 from . import views
 
@@ -25,15 +24,19 @@ for plugin_path in settings.PLUGINS:
     base_url = getattr(app, 'base_url') or app.label
 
     # Check if the plugin specifies any base URLs
-    urlpatterns = import_object(f"{plugin_path}.urls.urlpatterns")
-    if urlpatterns is not None:
+    try:
+        urlpatterns = import_string(f"{plugin_path}.urls.urlpatterns")
         plugin_patterns.append(
             path(f"{base_url}/", include((urlpatterns, app.label)))
         )
+    except ImportError:
+        pass
 
     # Check if the plugin specifies any API URLs
-    urlpatterns = import_object(f"{plugin_path}.api.urls.urlpatterns")
-    if urlpatterns is not None:
+    try:
+        urlpatterns = import_string(f"{plugin_path}.api.urls.urlpatterns")
         plugin_api_patterns.append(
             path(f"{base_url}/", include((urlpatterns, f"{app.label}-api")))
         )
+    except ImportError:
+        pass

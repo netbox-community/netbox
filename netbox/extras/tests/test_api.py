@@ -137,21 +137,21 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_type': 'dcim.site',
+            'content_types': ['dcim.site'],
             'name': 'Custom Link 4',
             'enabled': True,
             'link_text': 'Link 4',
             'link_url': 'http://example.com/?4',
         },
         {
-            'content_type': 'dcim.site',
+            'content_types': ['dcim.site'],
             'name': 'Custom Link 5',
             'enabled': True,
             'link_text': 'Link 5',
             'link_url': 'http://example.com/?5',
         },
         {
-            'content_type': 'dcim.site',
+            'content_types': ['dcim.site'],
             'name': 'Custom Link 6',
             'enabled': False,
             'link_text': 'Link 6',
@@ -169,21 +169,18 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
 
         custom_links = (
             CustomLink(
-                content_type=site_ct,
                 name='Custom Link 1',
                 enabled=True,
                 link_text='Link 1',
                 link_url='http://example.com/?1',
             ),
             CustomLink(
-                content_type=site_ct,
                 name='Custom Link 2',
                 enabled=True,
                 link_text='Link 2',
                 link_url='http://example.com/?2',
             ),
             CustomLink(
-                content_type=site_ct,
                 name='Custom Link 3',
                 enabled=False,
                 link_text='Link 3',
@@ -191,6 +188,8 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
             ),
         )
         CustomLink.objects.bulk_create(custom_links)
+        for i, custom_link in enumerate(custom_links):
+            custom_link.content_types.set([site_ct])
 
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
@@ -198,17 +197,17 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_type': 'dcim.device',
+            'content_types': ['dcim.device'],
             'name': 'Test Export Template 4',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
         {
-            'content_type': 'dcim.device',
+            'content_types': ['dcim.device'],
             'name': 'Test Export Template 5',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
         {
-            'content_type': 'dcim.device',
+            'content_types': ['dcim.device'],
             'name': 'Test Export Template 6',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
@@ -219,26 +218,23 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        ct = ContentType.objects.get_for_model(Device)
-
         export_templates = (
             ExportTemplate(
-                content_type=ct,
                 name='Export Template 1',
                 template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
             ),
             ExportTemplate(
-                content_type=ct,
                 name='Export Template 2',
                 template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
             ),
             ExportTemplate(
-                content_type=ct,
                 name='Export Template 3',
                 template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
             ),
         )
         ExportTemplate.objects.bulk_create(export_templates)
+        for et in export_templates:
+            et.content_types.set([ContentType.objects.get_for_model(Device)])
 
 
 class TagTest(APIViewTestCases.APIViewTestCase):

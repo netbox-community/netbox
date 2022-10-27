@@ -16,6 +16,7 @@ from extras.choices import *
 from extras.utils import FeatureQuery
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin, WebhooksMixin
+from netbox.search import FieldTypes
 from utilities import filters
 from utilities.forms import (
     CSVChoiceField, CSVMultipleChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
@@ -29,6 +30,15 @@ __all__ = (
     'CustomField',
     'CustomFieldManager',
 )
+
+SEARCH_TYPES = {
+    CustomFieldTypeChoices.TYPE_TEXT: FieldTypes.STRING,
+    CustomFieldTypeChoices.TYPE_LONGTEXT: FieldTypes.STRING,
+    CustomFieldTypeChoices.TYPE_INTEGER: FieldTypes.INTEGER,
+    CustomFieldTypeChoices.TYPE_DECIMAL: FieldTypes.FLOAT,
+    CustomFieldTypeChoices.TYPE_DATE: FieldTypes.STRING,
+    CustomFieldTypeChoices.TYPE_URL: FieldTypes.STRING,
+}
 
 
 class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
@@ -94,6 +104,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         help_text='If true, this field is required when creating new objects '
                   'or editing an existing object.'
     )
+    search_weight = models.PositiveSmallIntegerField(
+        default=1000,
+        help_text='Weighting for search. Lower values are considered more important. '
+                  'Fields with a search weight of zero will be ignored.'
+    )
     filter_logic = models.CharField(
         max_length=50,
         choices=CustomFieldFilterLogicChoices,
@@ -109,6 +124,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
     )
     weight = models.PositiveSmallIntegerField(
         default=100,
+        verbose_name='Display weight',
         help_text='Fields with higher weights appear lower in a form.'
     )
     validation_minimum = models.IntegerField(
@@ -148,8 +164,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
     objects = CustomFieldManager()
 
     clone_fields = (
-        'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'filter_logic', 'default',
-        'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'ui_visibility',
+        'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
+        'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices',
+        'ui_visibility',
     )
 
     class Meta:
@@ -166,6 +183,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
 
         # Cache instance's original name so we can check later whether it has changed
         self._name = self.name
+
+    @property
+    def search_type(self):
+        return SEARCH_TYPES.get(self.type)
 
     def populate_initial_data(self, content_types):
         """

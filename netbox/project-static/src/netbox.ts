@@ -1,6 +1,6 @@
 import { initForms } from './forms';
 import { initBootstrap } from './bs';
-import { initSearch } from './search';
+import { initQuickSearch } from './search';
 import { initSelect } from './select';
 import { initButtons } from './buttons';
 import { initColorMode } from './colorMode';
@@ -20,7 +20,7 @@ function initDocument(): void {
     initColorMode,
     initMessages,
     initForms,
-    initSearch,
+    initQuickSearch,
     initSelect,
     initDateSelector,
     initButtons,
@@ -37,14 +37,12 @@ function initDocument(): void {
 }
 
 function initWindow(): void {
-
-  const documentForms = document.forms
-  for (var documentForm of documentForms) {
+  const documentForms = document.forms;
+  for (const documentForm of documentForms) {
     if (documentForm.method.toUpperCase() == 'GET') {
-      // @ts-ignore: Our version of typescript seems to be too old for FormDataEvent
-      documentForm.addEventListener('formdata', function(event: FormDataEvent) {
-      let formData: FormData = event.formData;
-      for (let [name, value] of Array.from(formData.entries())) {
+      documentForm.addEventListener('formdata', function (event: FormDataEvent) {
+        const formData: FormData = event.formData;
+        for (const [name, value] of Array.from(formData.entries())) {
           if (value === '') formData.delete(name);
         }
       });

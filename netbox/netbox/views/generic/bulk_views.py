@@ -4,11 +4,11 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
 from django.db.models.fields.reverse_related import ManyToManyRel
-from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
+from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2.export import TableExport
@@ -142,7 +142,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Render an ExportTemplate
             elif request.GET['export']:
-                template = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
+                template = get_object_or_404(ExportTemplate, content_types=content_type, name=request.GET['export'])
                 return self.export_template(template, request)
 
             # Check for YAML export support on the model
@@ -321,12 +321,51 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         return ImportForm(*args, **kwargs)
 
-    def _create_objects(self, form, request):
-        new_objs = []
+    def _get_records(self, form, request):
         if request.FILES:
             headers, records = form.cleaned_data['csv_file']
         else:
             headers, records = form.cleaned_data['csv']
+
+        return headers, records
+
+    def _update_objects(self, form, request, headers, records):
+        from utilities.forms import CSVModelChoiceField
+        updated_objs = []
+
+        ids = [int(record["id"]) for record in records]
+        qs = self.queryset.model.objects.filter(id__in=ids)
+        objs = {}
+        for obj in qs:
+            objs[obj.id] = obj
+
+        for row, data in enumerate(records, start=1):
+            if int(data["id"]) not in objs:
+                form.add_error('csv', f'Row {row} id: {data["id"]} Does not exist')
+                raise ValidationError("")
+
+            obj = objs[int(data["id"])]
+            obj_form = self.model_form(data, headers=headers, instance=obj)
+
+            # The form should only contain fields that are in the CSV
+            for name, field in list(obj_form.fields.items()):
+                if name not in headers:
+                    del obj_form.fields[name]
+
+            restrict_form_fields(obj_form, request.user)
+
+            if obj_form.is_valid():
+                obj = self._save_obj(obj_form, request)
+                updated_objs.append(obj)
+            else:
+                for field, err in obj_form.errors.items():
+                    form.add_error('csv', f'Row {row} {field}: {err[0]}')
+                raise ValidationError("")
+
+        return updated_objs
+
+    def _create_objects(self, form, request, headers, records):
+        new_objs = []
 
         for row, data in enumerate(records, start=1):
             obj_form = self.model_form(data, headers=headers)
@@ -375,7 +414,11 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             try:
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
-                    new_objs = self._create_objects(form, request)
+                    headers, records = self._get_records(form, request)
+                    if "id" in headers:
+                        new_objs = self._update_objects(form, request, headers, records)
+                    else:
+                        new_objs = self._create_objects(form, request, headers, records)
 
                     # Enforce object-level permissions
                     if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):

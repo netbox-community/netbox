@@ -3,14 +3,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 
 from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
-from extras.models import Tag
 from ipam.choices import *
 from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
 from ipam.models import *
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from tenancy.models import Tenant
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField,
@@ -88,6 +86,12 @@ class RouteTargetForm(TenancyForm, NetBoxModelForm):
 class RIRForm(NetBoxModelForm):
     slug = SlugField()
 
+    fieldsets = (
+        ('RIR', (
+            'name', 'slug', 'is_private', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = RIR
         fields = [
@@ -163,6 +167,12 @@ class ASNForm(TenancyForm, NetBoxModelForm):
 
 class RoleForm(NetBoxModelForm):
     slug = SlugField()
+
+    fieldsets = (
+        ('Role', (
+            'name', 'slug', 'weight', 'description', 'tags',
+        )),
+    )
 
     class Meta:
         model = Role
@@ -540,6 +550,7 @@ class FHRPGroupForm(NetBoxModelForm):
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
+        user = getattr(instance, '_user', None)  # Set under FHRPGroupEditView.alter_object()
 
         # Check if we need to create a new IPAddress for the group
         if self.cleaned_data.get('ip_address'):
@@ -553,7 +564,7 @@ class FHRPGroupForm(NetBoxModelForm):
             ipaddress.save()
 
             # Check that the new IPAddress conforms with any assigned object-level permissions
-            if not IPAddress.objects.filter(pk=ipaddress.pk).first():
+            if not IPAddress.objects.restrict(user, 'add').filter(pk=ipaddress.pk).first():
                 raise PermissionsViolation()
 
         return instance
@@ -782,6 +793,12 @@ class ServiceTemplateForm(NetBoxModelForm):
             max_value=SERVICE_PORT_MAX
         ),
         help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen."
+    )
+
+    fieldsets = (
+        ('Service Template', (
+            'name', 'protocol', 'ports', 'description', 'tags',
+        )),
     )
 
     class Meta:

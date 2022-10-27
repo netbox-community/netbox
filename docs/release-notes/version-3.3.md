@@ -1,6 +1,35 @@
 # NetBox v3.3
 
-## v3.3.6 (FUTURE)
+## v3.3.7 (FUTURE)
+
+---
+
+## v3.3.6 (2022-10-26)
+
+### Enhancements
+
+* [#9584](https://github.com/netbox-community/netbox/issues/9584) - Enable filtering devices by device type slug
+* [#9722](https://github.com/netbox-community/netbox/issues/9722) - Add LDAP configuration parameters to specify certificates
+* [#10580](https://github.com/netbox-community/netbox/issues/10580) - Link "assigned" checkbox in IP address table to assigned interface
+* [#10639](https://github.com/netbox-community/netbox/issues/10639) - Set cookie paths according to configured `BASE_PATH`
+* [#10685](https://github.com/netbox-community/netbox/issues/10685) - Position A/Z termination cards above the fold under circuit view
+
+### Bug Fixes
+
+* [#9669](https://github.com/netbox-community/netbox/issues/9669) - Strip colons from usernames when using remote authentication
+* [#10575](https://github.com/netbox-community/netbox/issues/10575) - Include OIDC dependencies for python-social-auth
+* [#10584](https://github.com/netbox-community/netbox/issues/10584) - Fix service clone link
+* [#10610](https://github.com/netbox-community/netbox/issues/10610) - Allow assignment of VC member to LAG on non-master peer
+* [#10643](https://github.com/netbox-community/netbox/issues/10643) - Ensure consistent display of custom fields for all model forms
+* [#10646](https://github.com/netbox-community/netbox/issues/10646) - Fix filtering of power feed by power panel when connecting a cable
+* [#10655](https://github.com/netbox-community/netbox/issues/10655) - Correct display of assigned contacts in object tables
+* [#10682](https://github.com/netbox-community/netbox/issues/10682) - Correct home view links to connection lists
+* [#10712](https://github.com/netbox-community/netbox/issues/10712) - Fix ModuleNotFoundError exception when generating API schema under Python 3.9+
+* [#10716](https://github.com/netbox-community/netbox/issues/10716) - Add left/right page plugin content embeds for tag view
+* [#10719](https://github.com/netbox-community/netbox/issues/10719) - Prevent user without sufficient permission from creating an IP address via FHRP group creation
+* [#10723](https://github.com/netbox-community/netbox/issues/10723) - Distinguish between inside/outside NAT assignments for device/VM primary IPs
+* [#10745](https://github.com/netbox-community/netbox/issues/10745) - Correct display of status field in clusters list
+* [#10746](https://github.com/netbox-community/netbox/issues/10746) - Add missing status attribute to cluster view
 
 ---
 

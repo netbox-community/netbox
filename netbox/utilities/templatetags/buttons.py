@@ -83,7 +83,7 @@ def export_button(context, model):
     data_format = 'YAML' if hasattr(content_type.model_class(), 'to_yaml') else 'CSV'
 
     # Retrieve all export templates for this model
-    export_templates = ExportTemplate.objects.restrict(user, 'view').filter(content_type=content_type)
+    export_templates = ExportTemplate.objects.restrict(user, 'view').filter(content_types=content_type)
 
     return {
         'perms': context['perms'],

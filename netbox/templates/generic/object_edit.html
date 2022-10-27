@@ -37,9 +37,9 @@ Context:
       {% endif %}
 
       {# Link to model documentation #}
-      {% if object and settings.DOCS_ROOT %}
+      {% if settings.DOCS_ROOT and object.docs_url %}
         <div class="float-end">
-          <a href="{{ object|get_docs_url }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="View model documentation">
+          <a href="{{ object.docs_url }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="View model documentation">
             <i class="mdi mdi-help-circle"></i> Help
           </a>
         </div>

@@ -3,7 +3,7 @@ from django_tables2.utils import Accessor
 
 from dcim.models import Rack, RackReservation, RackRole
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from .template_code import DEVICE_WEIGHT
 
 __all__ = (
@@ -38,7 +38,7 @@ class RackRoleTable(NetBoxTable):
 # Racks
 #
 
-class RackTable(TenancyColumnsMixin, NetBoxTable):
+class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         order_by=('_name',),
         linkify=True
@@ -69,9 +69,6 @@ class RackTable(TenancyColumnsMixin, NetBoxTable):
         orderable=False,
         verbose_name='Power'
     )
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
-    )
     tags = columns.TagColumn(
         url_name='dcim:rack_list'
     )
@@ -92,8 +89,9 @@ class RackTable(TenancyColumnsMixin, NetBoxTable):
         model = Rack
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'tenant_group', 'role', 'serial',
-            'asset_tag', 'type', 'width', 'outer_width', 'outer_depth', 'u_height', 'weight', 'comments',
-            'device_count', 'get_utilization', 'get_power_utilization', 'contacts', 'tags', 'created', 'last_updated',
+            'asset_tag', 'type', 'u_height', 'width', 'outer_width', 'outer_depth', 'mounting_depth', 'weight',
+            'comments', 'device_count', 'get_utilization', 'get_power_utilization', 'contacts', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
             'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',

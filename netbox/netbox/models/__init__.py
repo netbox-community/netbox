@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
@@ -25,6 +26,10 @@ class NetBoxFeatureSet(
 ):
     class Meta:
         abstract = True
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/'
 
     @classmethod
     def get_prerequisite_models(cls):

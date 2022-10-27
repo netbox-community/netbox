@@ -78,6 +78,12 @@ class RegionForm(NetBoxModelForm):
     )
     slug = SlugField()
 
+    fieldsets = (
+        ('Region', (
+            'parent', 'name', 'slug', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = Region
         fields = (
@@ -91,6 +97,12 @@ class SiteGroupForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
+
+    fieldsets = (
+        ('Site Group', (
+            'parent', 'name', 'slug', 'description', 'tags',
+        )),
+    )
 
     class Meta:
         model = SiteGroup
@@ -213,6 +225,12 @@ class LocationForm(TenancyForm, NetBoxModelForm):
 class RackRoleForm(NetBoxModelForm):
     slug = SlugField()
 
+    fieldsets = (
+        ('Rack Role', (
+            'name', 'slug', 'color', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = RackRole
         fields = [
@@ -260,7 +278,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
         fields = [
             'region', 'site_group', 'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status',
             'role', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'weight', 'weight_unit', 'comments', 'tags',
+            'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'comments', 'tags',
         ]
         help_texts = {
             'site': "The site at which the rack exists",
@@ -341,6 +359,12 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
 class ManufacturerForm(NetBoxModelForm):
     slug = SlugField()
 
+    fieldsets = (
+        ('Manufacturer', (
+            'name', 'slug', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = Manufacturer
         fields = [
@@ -413,6 +437,12 @@ class ModuleTypeForm(NetBoxModelForm):
 class DeviceRoleForm(NetBoxModelForm):
     slug = SlugField()
 
+    fieldsets = (
+        ('Device Role', (
+            'name', 'slug', 'color', 'vm_role', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = DeviceRole
         fields = [
@@ -427,6 +457,13 @@ class PlatformForm(NetBoxModelForm):
     )
     slug = SlugField(
         max_length=64
+    )
+
+    fieldsets = (
+        ('Platform', (
+            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'tags',
+
+        )),
     )
 
     class Meta:
@@ -1583,6 +1620,12 @@ class InventoryItemForm(DeviceComponentForm):
 
 class InventoryItemRoleForm(NetBoxModelForm):
     slug = SlugField()
+
+    fieldsets = (
+        ('Inventory Item Role', (
+            'name', 'slug', 'color', 'description', 'tags',
+        )),
+    )
 
     class Meta:
         model = InventoryItemRole

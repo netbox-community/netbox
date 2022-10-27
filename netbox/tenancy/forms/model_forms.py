@@ -27,6 +27,12 @@ class TenantGroupForm(NetBoxModelForm):
     )
     slug = SlugField()
 
+    fieldsets = (
+        ('Tenant Group', (
+            'parent', 'name', 'slug', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = TenantGroup
         fields = [
@@ -64,6 +70,12 @@ class ContactGroupForm(NetBoxModelForm):
     )
     slug = SlugField()
 
+    fieldsets = (
+        ('Contact Group', (
+            'parent', 'name', 'slug', 'description', 'tags',
+        )),
+    )
+
     class Meta:
         model = ContactGroup
         fields = ('parent', 'name', 'slug', 'description', 'tags')
@@ -71,6 +83,12 @@ class ContactGroupForm(NetBoxModelForm):
 
 class ContactRoleForm(NetBoxModelForm):
     slug = SlugField()
+
+    fieldsets = (
+        ('Contact Role', (
+            'name', 'slug', 'description', 'tags',
+        )),
+    )
 
     class Meta:
         model = ContactRole
