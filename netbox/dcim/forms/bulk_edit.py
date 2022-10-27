@@ -281,6 +281,10 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         widget=StaticSelect()
     )
+    mounting_depth = forms.IntegerField(
+        required=False,
+        min_value=1
+    )
     comments = CommentField(
         widget=SmallTextarea,
         label='Comments'
@@ -300,11 +304,14 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         ('Rack', ('status', 'role', 'tenant', 'serial', 'asset_tag')),
         ('Location', ('region', 'site_group', 'site', 'location')),
-        ('Hardware', ('type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit')),
+        ('Hardware', (
+            'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
+        )),
         ('Weight', ('weight', 'weight_unit')),
     )
     nullable_fields = (
-        'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments', 'weight', 'weight_unit'
+        'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
+        'weight', 'weight_unit'
     )
 
 

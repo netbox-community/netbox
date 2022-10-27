@@ -210,8 +210,8 @@ class RackSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display', 'name', 'facility_id', 'site', 'location', 'tenant', 'status', 'role', 'serial',
             'asset_tag', 'type', 'width', 'u_height', 'weight', 'weight_unit', 'desc_units', 'outer_width',
-            'outer_depth', 'outer_unit', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
-            'powerfeed_count',
+            'outer_depth', 'outer_unit', 'mounting_depth', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated', 'device_count', 'powerfeed_count',
         ]
 
 

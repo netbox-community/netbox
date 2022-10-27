@@ -167,6 +167,14 @@ class Rack(NetBoxModel, WeightMixin):
         choices=RackDimensionUnitChoices,
         blank=True,
     )
+    mounting_depth = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        help_text=(
+            'Maximum depth of a mounted device, in millimeters. For four-post racks, this is the '
+            'distance between the front and rear rails.'
+        )
+    )
     comments = models.TextField(
         blank=True
     )
@@ -187,7 +195,7 @@ class Rack(NetBoxModel, WeightMixin):
 
     clone_fields = (
         'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
-        'outer_depth', 'outer_unit', 'weight', 'weight_unit',
+        'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'weight_unit',
     )
 
     class Meta:
