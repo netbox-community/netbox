@@ -20,11 +20,13 @@ To create a new object in NetBox, find the object type in the navigation menu an
 
 ## Bulk Import (CSV/YAML)
 
-NetBox supports the bulk import of new objects using CSV-formatted data. This method can be ideal for importing spreadsheet data, which is very easy to convert to CSV data. CSV data can be imported either as raw text using the form field, or by uploading a properly formatted CSV file.
+NetBox supports the bulk import of new objects, and updating of existing objects using CSV-formatted data. This method can be ideal for importing spreadsheet data, which is very easy to convert to CSV data. CSV data can be imported either as raw text using the form field, or by uploading a properly formatted CSV file.
 
 When viewing the CSV import form for an object type, you'll notice that the headers for the required columns have been pre-populated. Each form has a table beneath it titled "CSV Field Options," which lists _all_ supported columns for your reference. (Generally, these map to the fields you see in the corresponding creation form for individual objects.)
 
 <!-- TODO: Screenshot -->
+
+If an "id" field is added the data will be used to update existing records instead of importing new objects.
 
 Note that some models (namely device types and module types) do not support CSV import. Instead, they accept YAML-formatted data to facilitate the import of both the parent object as well as child components.
 

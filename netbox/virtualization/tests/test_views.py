@@ -16,11 +16,12 @@ class ClusterGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        ClusterGroup.objects.bulk_create([
+        cluster_groups = (
             ClusterGroup(name='Cluster Group 1', slug='cluster-group-1'),
             ClusterGroup(name='Cluster Group 2', slug='cluster-group-2'),
             ClusterGroup(name='Cluster Group 3', slug='cluster-group-3'),
-        ])
+        )
+        ClusterGroup.objects.bulk_create(cluster_groups)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -38,6 +39,13 @@ class ClusterGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Cluster Group 6,cluster-group-6,Sixth cluster group",
         )
 
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{cluster_groups[0].pk},Cluster Group 7,Fourth cluster group7",
+            f"{cluster_groups[1].pk},Cluster Group 8,Fifth cluster group8",
+            f"{cluster_groups[2].pk},Cluster Group 9,Sixth cluster group9",
+        )
+
         cls.bulk_edit_data = {
             'description': 'New description',
         }
@@ -49,11 +57,12 @@ class ClusterTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        ClusterType.objects.bulk_create([
+        cluster_types = (
             ClusterType(name='Cluster Type 1', slug='cluster-type-1'),
             ClusterType(name='Cluster Type 2', slug='cluster-type-2'),
             ClusterType(name='Cluster Type 3', slug='cluster-type-3'),
-        ])
+        )
+        ClusterType.objects.bulk_create(cluster_types)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -69,6 +78,13 @@ class ClusterTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Cluster Type 4,cluster-type-4,Fourth cluster type",
             "Cluster Type 5,cluster-type-5,Fifth cluster type",
             "Cluster Type 6,cluster-type-6,Sixth cluster type",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{cluster_types[0].pk},Cluster Type 7,Fourth cluster type7",
+            f"{cluster_types[1].pk},Cluster Type 8,Fifth cluster type8",
+            f"{cluster_types[2].pk},Cluster Type 9,Sixth cluster type9",
         )
 
         cls.bulk_edit_data = {
@@ -100,11 +116,12 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         ClusterType.objects.bulk_create(clustertypes)
 
-        Cluster.objects.bulk_create([
+        clusters = (
             Cluster(name='Cluster 1', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[0]),
             Cluster(name='Cluster 2', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[0]),
             Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[0]),
-        ])
+        )
+        Cluster.objects.bulk_create(clusters)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -124,6 +141,13 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Cluster 4,Cluster Type 1,active",
             "Cluster 5,Cluster Type 1,active",
             "Cluster 6,Cluster Type 1,active",
+        )
+
+        cls.csv_update_data = (
+            "id,name,comments",
+            f"{clusters[0].pk},Cluster 7,New comments 7",
+            f"{clusters[1].pk},Cluster 8,New comments 8",
+            f"{clusters[2].pk},Cluster 9,New comments 9",
         )
 
         cls.bulk_edit_data = {
@@ -187,11 +211,12 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             create_test_device('device2', site=sites[1], cluster=clusters[1]),
         )
 
-        VirtualMachine.objects.bulk_create([
+        virtual_machines = (
             VirtualMachine(name='Virtual Machine 1', site=sites[0], cluster=clusters[0], device=devices[0], role=deviceroles[0], platform=platforms[0]),
             VirtualMachine(name='Virtual Machine 2', site=sites[0], cluster=clusters[0], device=devices[0], role=deviceroles[0], platform=platforms[0]),
             VirtualMachine(name='Virtual Machine 3', site=sites[0], cluster=clusters[0], device=devices[0], role=deviceroles[0], platform=platforms[0]),
-        ])
+        )
+        VirtualMachine.objects.bulk_create(virtual_machines)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -219,6 +244,13 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Virtual Machine 4,active,Site 1,Cluster 1,device1",
             "Virtual Machine 5,active,Site 1,Cluster 1,device1",
             "Virtual Machine 6,active,Site 1,Cluster 1,",
+        )
+
+        cls.csv_update_data = (
+            "id,name,comments",
+            f"{virtual_machines[0].pk},Virtual Machine 7,New comments 7",
+            f"{virtual_machines[1].pk},Virtual Machine 8,New comments 8",
+            f"{virtual_machines[2].pk},Virtual Machine 9,New comments 9",
         )
 
         cls.bulk_edit_data = {
@@ -325,6 +357,13 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             f"Virtual Machine 2,Interface 4,{vrfs[0].pk}",
             f"Virtual Machine 2,Interface 5,{vrfs[0].pk}",
             f"Virtual Machine 2,Interface 6,{vrfs[0].pk}",
+        )
+
+        cls.csv_update_data = (
+            f"id,name,description",
+            f"{interfaces[0].pk},Interface 7,New description 7",
+            f"{interfaces[1].pk},Interface 8,New description 8",
+            f"{interfaces[2].pk},Interface 9,New description 9",
         )
 
         cls.bulk_edit_data = {

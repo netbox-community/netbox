@@ -1,5 +1,8 @@
+import csv
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import ForeignKey
 from django.test import override_settings
 from django.urls import reverse
 
@@ -18,6 +21,7 @@ __all__ = (
 #
 # UI Tests
 #
+
 
 class ModelViewTestCase(ModelTestCase):
     """
@@ -546,6 +550,9 @@ class ViewTestCases:
         def _get_csv_data(self):
             return '\n'.join(self.csv_data)
 
+        def _get_update_csv_data(self):
+            return self.csv_update_data, '\n'.join(self.csv_update_data)
+
         def test_bulk_import_objects_without_permission(self):
             data = {
                 'csv': self._get_csv_data(),
@@ -582,6 +589,42 @@ class ViewTestCases:
             # Test POST with permission
             self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.csv_data) - 1)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_bulk_update_objects_with_permission(self):
+            if not hasattr(self, 'csv_update_data'):
+                raise NotImplementedError("The test must define csv_update_data.")
+
+            initial_count = self._get_queryset().count()
+            array, csv_data = self._get_update_csv_data()
+            data = {
+                'csv': csv_data,
+            }
+
+            # Assign model-level permission
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['add']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+
+            # Test POST with permission
+            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+            self.assertEqual(initial_count, self._get_queryset().count())
+
+            reader = csv.DictReader(array, delimiter=',')
+            check_data = list(reader)
+            for line in check_data:
+                obj = self.model.objects.get(id=line["id"])
+                for attr, value in line.items():
+                    if attr != "id":
+                        field = self.model._meta.get_field(attr)
+                        value = getattr(obj, attr)
+                        # cannot verify FK fields as don't know what name the CSV maps to
+                        if value is not None and not isinstance(field, ForeignKey):
+                            self.assertEqual(value, value)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_import_objects_with_constrained_permission(self):

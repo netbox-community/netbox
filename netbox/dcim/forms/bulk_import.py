@@ -576,7 +576,7 @@ class PowerOutletCSVForm(NetBoxModelCSVForm):
         super().__init__(*args, **kwargs)
 
         # Limit PowerPort choices to those belonging to this device (or VC master)
-        if self.is_bound:
+        if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
             except forms.ValidationError:
@@ -711,7 +711,7 @@ class FrontPortCSVForm(NetBoxModelCSVForm):
         super().__init__(*args, **kwargs)
 
         # Limit RearPort choices to those belonging to this device (or VC master)
-        if self.is_bound:
+        if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
             except forms.ValidationError:
@@ -782,7 +782,7 @@ class DeviceBayCSVForm(NetBoxModelCSVForm):
         super().__init__(*args, **kwargs)
 
         # Limit installed device choices to devices of the correct type and location
-        if self.is_bound:
+        if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
             except forms.ValidationError:

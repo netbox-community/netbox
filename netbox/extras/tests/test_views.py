@@ -48,6 +48,13 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'field7,Field 7,object,dcim.site,dcim.region,100,4000,exact,,,,,read-write',
         )
 
+        cls.csv_update_data = (
+            'id,label',
+            f'{custom_fields[0].pk},New label 1',
+            f'{custom_fields[1].pk},New label 2',
+            f'{custom_fields[2].pk},New label 3',
+        )
+
         cls.bulk_edit_data = {
             'required': True,
             'weight': 200,
@@ -86,6 +93,13 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Custom Link 6,dcim.site,False,100,blue,Link 6,http://exmaple.com/?6",
         )
 
+        cls.csv_update_data = (
+            "id,name",
+            f"{custom_links[0].pk},Custom Link 7",
+            f"{custom_links[1].pk},Custom Link 8",
+            f"{custom_links[2].pk},Custom Link 9",
+        )
+
         cls.bulk_edit_data = {
             'button_class': CustomLinkButtonClassChoices.CYAN,
             'enabled': False,
@@ -121,6 +135,13 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"Export Template 4,dcim.site,{TEMPLATE_CODE}",
             f"Export Template 5,dcim.site,{TEMPLATE_CODE}",
             f"Export Template 6,dcim.site,{TEMPLATE_CODE}",
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{export_templates[0].pk},Export Template 7",
+            f"{export_templates[1].pk},Export Template 8",
+            f"{export_templates[2].pk},Export Template 9",
         )
 
         cls.bulk_edit_data = {
@@ -165,6 +186,13 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Webhook 6,dcim.site,True,http://example.com/?6,GET,application/json",
         )
 
+        cls.csv_update_data = (
+            "id,name",
+            f"{webhooks[0].pk},Webhook 7",
+            f"{webhooks[1].pk},Webhook 8",
+            f"{webhooks[2].pk},Webhook 9",
+        )
+
         cls.bulk_edit_data = {
             'enabled': False,
             'type_create': False,
@@ -180,11 +208,12 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        Tag.objects.bulk_create((
+        tags = (
             Tag(name='Tag 1', slug='tag-1'),
             Tag(name='Tag 2', slug='tag-2'),
             Tag(name='Tag 3', slug='tag-3'),
-        ))
+        )
+        Tag.objects.bulk_create(tags)
 
         cls.form_data = {
             'name': 'Tag X',
@@ -198,6 +227,13 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Tag 4,tag-4,ff0000,Fourth tag",
             "Tag 5,tag-5,00ff00,Fifth tag",
             "Tag 6,tag-6,0000ff,Sixth tag",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{tags[0].pk},Tag 7,Fourth tag7",
+            f"{tags[1].pk},Tag 8,Fifth tag8",
+            f"{tags[2].pk},Tag 9,Sixth tag9",
         )
 
         cls.bulk_edit_data = {
