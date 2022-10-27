@@ -37,3 +37,6 @@ jsonschema==3.2.0
 
 # Temporary fix for #10712
 swagger-spec-validator==2.7.6
+
+# Pillow's plugin for HEIF image format
+pillow-heif==0.7.0
