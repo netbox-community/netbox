@@ -16,6 +16,10 @@
 
 NetBox's global search functionality has been completely overhauled and replaced by a new cache-based lookup.
 
+#### CSV-Based Bulk Updates ([#7961](https://github.com/netbox-community/netbox/issues/7961))
+
+NetBox's CSV-based bulk import functionality has been extended to support also modifying existing objects. When an `id` column is present in the import form, it will be used to infer the object to be modified, rather than a new object being created. All fields (columns) are optional when modifying existing objects.
+
 #### Top-Level Plugin Navigation Menus ([#9071](https://github.com/netbox-community/netbox/issues/9071))
 
 A new `PluginMenu` class has been introduced, which enables a plugin to inject a top-level menu in NetBox's navigation menu. This menu can have one or more groups of menu items, just like core items. Backward compatibility with the existing `menu_items` has been maintained.
