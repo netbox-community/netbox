@@ -331,7 +331,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
     def _update_objects(self, form, request, headers, records):
         from utilities.forms import CSVModelChoiceField
-        new_objs = []
+        updated_objs = []
 
         ids = [int(record["id"]) for record in records]
         qs = self.queryset.model.objects.filter(id__in=ids)
@@ -356,13 +356,13 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
             if obj_form.is_valid():
                 obj = self._save_obj(obj_form, request)
-                new_objs.append(obj)
+                updated_objs.append(obj)
             else:
                 for field, err in obj_form.errors.items():
                     form.add_error('csv', f'Row {row} {field}: {err[0]}')
                 raise ValidationError("")
 
-        return new_objs
+        return updated_objs
 
     def _create_objects(self, form, request, headers, records):
         new_objs = []

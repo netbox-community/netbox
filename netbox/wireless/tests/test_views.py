@@ -32,14 +32,14 @@ class WirelessLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         cls.csv_data = (
             "name,slug,description",
-            "Wireles sLAN Group 4,wireless-lan-group-4,Fourth wireless LAN group",
+            "Wireless LAN Group 4,wireless-lan-group-4,Fourth wireless LAN group",
             "Wireless LAN Group 5,wireless-lan-group-5,Fifth wireless LAN group",
             "Wireless LAN Group 6,wireless-lan-group-6,Sixth wireless LAN group",
         )
 
         cls.csv_update_data = (
             "id,name,description",
-            f"{groups[0].pk},Wireles sLAN Group 7,Fourth wireless LAN group7",
+            f"{groups[0].pk},Wireless LAN Group 7,Fourth wireless LAN group7",
             f"{groups[1].pk},Wireless LAN Group 8,Fifth wireless LAN group8",
             f"{groups[2].pk},Wireless LAN Group 9,Sixth wireless LAN group9",
         )
