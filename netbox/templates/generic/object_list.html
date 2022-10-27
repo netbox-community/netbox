@@ -64,7 +64,7 @@ Context:
 
       {# Applied filters #}
       {% if filter_form %}
-        {% applied_filters filter_form request.GET %}
+        {% applied_filters model filter_form request.GET %}
       {% endif %}
 
       {# "Select all" form #}

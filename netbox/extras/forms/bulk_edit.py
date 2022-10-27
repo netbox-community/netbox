@@ -1,11 +1,9 @@
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 
 from extras.choices import *
 from extras.models import *
-from extras.utils import FeatureQuery
 from utilities.forms import (
-    add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, ContentTypeChoiceField, StaticSelect,
+    add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, StaticSelect,
 )
 
 __all__ = (
@@ -14,6 +12,7 @@ __all__ = (
     'CustomLinkBulkEditForm',
     'ExportTemplateBulkEditForm',
     'JournalEntryBulkEditForm',
+    'SavedFilterBulkEditForm',
     'TagBulkEditForm',
     'WebhookBulkEditForm',
 )
@@ -94,6 +93,30 @@ class ExportTemplateBulkEditForm(BulkEditForm):
     )
 
     nullable_fields = ('description', 'mime_type', 'file_extension')
+
+
+class SavedFilterBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=SavedFilter.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    shared = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+
+    nullable_fields = ('description',)
 
 
 class WebhookBulkEditForm(BulkEditForm):

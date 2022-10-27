@@ -18,6 +18,7 @@ __all__ = (
     'JournalEntry',
     'ObjectChange',
     'Report',
+    'SavedFilter',
     'Script',
     'Tag',
     'TaggedItem',

@@ -12,6 +12,7 @@ __all__ = (
     'CustomFieldCSVForm',
     'CustomLinkCSVForm',
     'ExportTemplateCSVForm',
+    'SavedFilterCSVForm',
     'TagCSVForm',
     'WebhookCSVForm',
 )
@@ -78,6 +79,19 @@ class ExportTemplateCSVForm(CSVModelForm):
         model = ExportTemplate
         fields = (
             'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'template_code',
+        )
+
+
+class SavedFilterCSVForm(CSVModelForm):
+    content_types = CSVMultipleContentTypeField(
+        queryset=ContentType.objects.all(),
+        help_text="One or more assigned object types"
+    )
+
+    class Meta:
+        model = SavedFilter
+        fields = (
+            'name', 'content_types', 'description', 'weight', 'enabled', 'shared', 'parameters',
         )
 
 

@@ -23,6 +23,7 @@ __all__ = (
     'JournalEntryFilterSet',
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
+    'SavedFilterFilterSet',
     'TagFilterSet',
     'WebhookFilterSet',
 )
@@ -128,6 +129,29 @@ class ExportTemplateFilterSet(BaseFilterSet):
     class Meta:
         model = ExportTemplate
         fields = ['id', 'content_types', 'name', 'description']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
+
+class SavedFilterFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    content_type_id = MultiValueNumberFilter(
+        field_name='content_types__id'
+    )
+    content_types = ContentTypeFilter()
+
+    class Meta:
+        model = SavedFilter
+        fields = ['id', 'content_types', 'name', 'description', 'user', 'enabled', 'shared', 'weight']
 
     def search(self, queryset, name, value):
         if not value.strip():

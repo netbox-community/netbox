@@ -10,6 +10,7 @@ __all__ = (
     'ImageAttachmentType',
     'JournalEntryType',
     'ObjectChangeType',
+    'SavedFilterType',
     'TagType',
     'WebhookType',
 )
@@ -69,6 +70,14 @@ class ObjectChangeType(BaseObjectType):
         model = models.ObjectChange
         fields = '__all__'
         filterset_class = filtersets.ObjectChangeFilterSet
+
+
+class SavedFilterType(ObjectType):
+
+    class Meta:
+        model = models.SavedFilter
+        exclude = ('content_types', )
+        filterset_class = filtersets.SavedFilterFilterSet
 
 
 class TagType(ObjectType):

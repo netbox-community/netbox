@@ -4,7 +4,7 @@ from django.db.models import Q
 
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
 from extras.forms.customfields import CustomFieldsMixin
-from extras.models import CustomField, Tag
+from extras.models import CustomField, SavedFilter, Tag
 from utilities.forms import BootstrapMixin, CSVModelForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 
@@ -128,6 +128,19 @@ class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
         required=False,
         label='Search'
     )
+    filter = DynamicModelMultipleChoiceField(
+        queryset=SavedFilter.objects.all(),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit saved filters to those applicable to the form's model
+        content_type = ContentType.objects.get_for_model(self.model)
+        self.fields['filter'].widget.add_query_params({
+            'content_type_id': content_type.pk,
+        })
 
     def _get_custom_fields(self, content_type):
         return super()._get_custom_fields(content_type).exclude(

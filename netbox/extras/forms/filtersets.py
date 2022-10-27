@@ -25,6 +25,7 @@ __all__ = (
     'JournalEntryFilterForm',
     'LocalConfigContextFilterForm',
     'ObjectChangeFilterForm',
+    'SavedFilterFilterForm',
     'TagFilterForm',
     'WebhookFilterForm',
 )
@@ -167,6 +168,33 @@ class ExportTemplateFilterForm(FilterForm):
         widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+
+
+class SavedFilterFilterForm(FilterForm):
+    fieldsets = (
+        (None, ('q',)),
+        ('Attributes', ('content_types', 'enabled', 'shared', 'weight')),
+    )
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('export_templates'),
+        required=False
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    shared = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    weight = forms.IntegerField(
+        required=False
     )
 
 

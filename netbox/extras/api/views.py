@@ -99,6 +99,17 @@ class ExportTemplateViewSet(NetBoxModelViewSet):
 
 
 #
+# Saved filters
+#
+
+class SavedFilterViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = SavedFilter.objects.all()
+    serializer_class = serializers.SavedFilterSerializer
+    filterset_class = filtersets.SavedFilterFilterSet
+
+
+#
 # Tags
 #
 

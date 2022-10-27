@@ -144,7 +144,7 @@ class SiteGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Site
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('status', 'region_id', 'group_id', 'asn_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
