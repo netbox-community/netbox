@@ -23,6 +23,7 @@
 * [#10643](https://github.com/netbox-community/netbox/issues/10643) - Ensure consistent display of custom fields for all model forms
 * [#10646](https://github.com/netbox-community/netbox/issues/10646) - Fix filtering of power feed by power panel when connecting a cable
 * [#10655](https://github.com/netbox-community/netbox/issues/10655) - Correct display of assigned contacts in object tables
+* [#10666](https://github.com/netbox-community/netbox/issues/10666) - Re-evaluate disabled LDAP user when processing API requests
 * [#10682](https://github.com/netbox-community/netbox/issues/10682) - Correct home view links to connection lists
 * [#10712](https://github.com/netbox-community/netbox/issues/10712) - Fix ModuleNotFoundError exception when generating API schema under Python 3.9+
 * [#10716](https://github.com/netbox-community/netbox/issues/10716) - Add left/right page plugin content embeds for tag view
