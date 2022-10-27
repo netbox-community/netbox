@@ -54,7 +54,7 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "id,name,description",
             f"{regions[0].pk},Region 7,Fourth region7",
             f"{regions[1].pk},Region 8,Fifth region8",
-            f"{regions[2].pk},Region 9,Sixth region9",
+            f"{regions[2].pk},Region 0,Sixth region9",
         )
 
         cls.bulk_edit_data = {
@@ -98,7 +98,7 @@ class SiteGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "id,name,description",
             f"{sitegroups[0].pk},Site Group 7,Fourth site group7",
             f"{sitegroups[1].pk},Site Group 8,Fifth site group8",
-            f"{sitegroups[2].pk},Site Group 9,Sixth site group9",
+            f"{sitegroups[2].pk},Site Group 0,Sixth site group9",
         )
 
         cls.bulk_edit_data = {
@@ -227,7 +227,7 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "id,name,description",
             f"{locations[0].pk},Location 7,Fourth location7",
             f"{locations[1].pk},Location 8,Fifth location8",
-            f"{locations[2].pk},Location 9,Sixth location9",
+            f"{locations[2].pk},Location 0,Sixth location9",
         )
 
         cls.bulk_edit_data = {

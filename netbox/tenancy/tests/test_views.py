@@ -36,7 +36,7 @@ class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "id,name,description",
             f"{tenant_groups[0].pk},Tenant Group 7,Fourth tenant group7",
             f"{tenant_groups[1].pk},Tenant Group 8,Fifth tenant group8",
-            f"{tenant_groups[2].pk},Tenant Group 9,Sixth tenant group9",
+            f"{tenant_groups[2].pk},Tenant Group 0,Sixth tenant group9",
         )
 
         cls.bulk_edit_data = {
@@ -128,7 +128,7 @@ class ContactGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "id,name,description",
             f"{contact_groups[0].pk},Contact Group 7,Fourth contact group7",
             f"{contact_groups[1].pk},Contact Group 8,Fifth contact group8",
-            f"{contact_groups[2].pk},Contact Group 9,Sixth contact group9",
+            f"{contact_groups[2].pk},Contact Group 0,Sixth contact group9",
         )
 
         cls.bulk_edit_data = {

@@ -41,7 +41,7 @@ class WirelessLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "id,name,description",
             f"{groups[0].pk},Wireless LAN Group 7,Fourth wireless LAN group7",
             f"{groups[1].pk},Wireless LAN Group 8,Fifth wireless LAN group8",
-            f"{groups[2].pk},Wireless LAN Group 9,Sixth wireless LAN group9",
+            f"{groups[2].pk},Wireless LAN Group 0,Sixth wireless LAN group9",
         )
 
         cls.bulk_edit_data = {
