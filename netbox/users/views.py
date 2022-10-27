@@ -20,7 +20,7 @@ from extras.tables import ObjectChangeTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from utilities.forms import ConfirmationForm
-from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
+from .forms import LoginForm, PasswordChangeForm, TokenForm, TokenViewForm, UserConfigForm
 from .models import Token, UserConfig
 from .tables import TokenTable
 
@@ -274,6 +274,12 @@ class TokenEditView(LoginRequiredMixin, View):
             form = TokenForm(request.POST)
 
         if form.is_valid():
+            if 'view_token' in request.POST and request.POST['view_token']:
+                if '_addanother' in request.POST:
+                    return redirect(request.path)
+                else:
+                    return redirect('users:token_list')
+
             token = form.save(commit=False)
             token.user = request.user
             token.save()
@@ -282,7 +288,13 @@ class TokenEditView(LoginRequiredMixin, View):
             messages.success(request, msg)
 
             if not pk and not settings.ALLOW_TOKEN_RETRIEVAL:
-                return redirect('users:token_key', pk=token.pk)
+                form = TokenViewForm(initial={'view_token': True})
+                return render(request, 'users/api_token.html', {
+                    'object': token,
+                    'form': form,
+                    'key': token.key,
+                    'return_url': reverse('users:token_list'),
+                })
             elif '_addanother' in request.POST:
                 return redirect(request.path)
             else:
@@ -326,23 +338,3 @@ class TokenDeleteView(LoginRequiredMixin, View):
             'form': form,
             'return_url': reverse('users:token_list'),
         })
-
-
-class TokenKeyView(LoginRequiredMixin, View):
-
-    def get(self, request, pk):
-        token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
-
-        return render(request, 'users/api_token.html', {
-            'object': token,
-            'key': token.key,
-            'return_url': reverse('users:token_list'),
-        })
-
-    def post(self, request, pk):
-        token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
-
-        if '_addanother' in request.POST:
-            return redirect('users:token_add')
-        else:
-            return redirect('users:token_list')

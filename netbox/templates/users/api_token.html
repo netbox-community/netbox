@@ -1,4 +1,5 @@
 {% extends 'generic/object.html' %}
+{% load form_helpers %}
 {% load helpers %}
 {% load plugins %}
 
@@ -17,6 +18,7 @@
           </table>
           <form method="post">
             {% csrf_token %}
+            {% render_form form %}
             <div class="row my-3">
               <div class="col col-md-12 text-center">
                 <button type="submit" name="_addanother" class="btn btn-outline-primary">

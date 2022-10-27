@@ -127,3 +127,7 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
             keyfield.disabled = True
             keyfield.required = False
             keyfield.widget = forms.HiddenInput()
+
+
+class TokenViewForm(BootstrapMixin, forms.Form):
+    view_token = forms.BooleanField(widget=forms.HiddenInput(), required=False)
