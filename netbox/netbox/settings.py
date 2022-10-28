@@ -24,11 +24,6 @@ import django
 from django.utils.encoding import force_str
 django.utils.encoding.force_text = force_str
 
-try:
-    from pillow_heif import HeifImagePlugin
-except ImportError:
-    HeifImagePlugin = None
-
 #
 # Environment setup
 #

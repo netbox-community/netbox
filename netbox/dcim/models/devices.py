@@ -1,15 +1,23 @@
 import decimal
+import sys
+from io import BytesIO
 
 import yaml
 
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, ProtectedError
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+
+try:
+    from pillow_heif import HeifImageFile, HeifImagePlugin
+except ImportError:
+    HeifImagePlugin = HeifImageFile = None
 
 from dcim.choices import *
 from dcim.constants import *
@@ -20,7 +28,6 @@ from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from .device_components import *
-
 
 __all__ = (
     'Device',
@@ -280,6 +287,16 @@ class DeviceType(NetBoxModel):
             })
 
     def save(self, *args, **kwargs):
+        if HeifImagePlugin is not None:
+            for im in (self.front_image, self.rear_image):
+                if im and isinstance(im.file, InMemoryUploadedFile) and isinstance(im.file.image, HeifImageFile):
+                    output_stream = BytesIO()
+                    im.file.image.save(output_stream, format="JPEG")
+                    output_stream.seek(0)
+                    im.name = "%s.jpg" % im.file.name.split('.')[0]
+                    im.file = InMemoryUploadedFile(output_stream, 'ImageField', im.name,
+                                                   'image/jpeg', sys.getsizeof(output_stream), None)
+
         ret = super().save(*args, **kwargs)
 
         # Delete any previously uploaded image files that are no longer in use
