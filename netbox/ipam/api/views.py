@@ -112,6 +112,18 @@ class IPAddressViewSet(NetBoxModelViewSet):
     serializer_class = serializers.IPAddressSerializer
     filterset_class = filtersets.IPAddressFilterSet
 
+    @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
 
 class FHRPGroupViewSet(NetBoxModelViewSet):
     queryset = FHRPGroup.objects.prefetch_related('ip_addresses', 'tags')
