@@ -39,4 +39,4 @@ jsonschema==3.2.0
 swagger-spec-validator==2.7.6
 
 # Pillow's plugin for HEIF image format
-pillow-heif==0.7.0
+pi-heif==0.7.0

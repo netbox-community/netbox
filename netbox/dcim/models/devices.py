@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 try:
-    from pillow_heif import HeifImageFile, HeifImagePlugin
+    from pi_heif import HeifImageFile, HeifImagePlugin
 except ImportError:
     HeifImagePlugin = HeifImageFile = None
 
@@ -28,6 +28,7 @@ from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from .device_components import *
+
 
 __all__ = (
     'Device',

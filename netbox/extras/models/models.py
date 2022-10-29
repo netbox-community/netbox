@@ -1,11 +1,14 @@
 import json
+import sys
 import uuid
+from io import BytesIO
 
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse
@@ -14,6 +17,11 @@ from django.utils import timezone
 from django.utils.formats import date_format
 from rest_framework.utils.encoders import JSONEncoder
 import django_rq
+
+try:
+    from pi_heif import HeifImageFile, HeifImagePlugin
+except ImportError:
+    HeifImagePlugin = HeifImageFile = None
 
 from extras.choices import *
 from extras.constants import *
@@ -385,6 +393,17 @@ class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
             return self.name
         filename = self.image.name.rsplit('/', 1)[-1]
         return filename.split('_', 2)[2]
+
+    def save(self, *args, **kwargs):
+        if HeifImagePlugin is not None and self.image:
+            if isinstance(self.image.file, InMemoryUploadedFile) and isinstance(self.image.file.image, HeifImageFile):
+                output_stream = BytesIO()
+                self.image.file.image.save(output_stream, format="JPEG")
+                output_stream.seek(0)
+                self.image.name = "%s.jpg" % self.image.file.name.split('.')[0]
+                self.image.file = InMemoryUploadedFile(output_stream, 'ImageField', self.image.name,
+                                                       'image/jpeg', sys.getsizeof(output_stream), None)
+        super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
 
