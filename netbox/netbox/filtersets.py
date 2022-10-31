@@ -88,7 +88,7 @@ class BaseFilterSet(django_filters.FilterSet):
         self.base_filters = self.__class__.get_filters()
 
         # Apply any referenced SavedFilters
-        if 'filter' in data:
+        if data and 'filter' in data:
             data = data.copy()  # Get a mutable copy
             saved_filters = SavedFilter.objects.filter(pk__in=data.pop('filter'))
             for sf in saved_filters:

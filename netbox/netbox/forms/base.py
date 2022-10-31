@@ -3,8 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
-from extras.forms.customfields import CustomFieldsMixin
-from extras.models import CustomField, SavedFilter, Tag
+from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin
+from extras.models import CustomField, Tag
 from utilities.forms import BootstrapMixin, CSVModelForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 
@@ -114,7 +114,7 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
         self.nullable_fields = (*self.nullable_fields, *nullable_custom_fields)
 
 
-class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
+class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, SavedFiltersMixin, forms.Form):
     """
     Base form for FilerSet forms. These are used to filter object lists in the NetBox UI. Note that the
     corresponding FilterSet *must* provide a `q` filter.
@@ -127,10 +127,6 @@ class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
     q = forms.CharField(
         required=False,
         label='Search'
-    )
-    filter = DynamicModelMultipleChoiceField(
-        queryset=SavedFilter.objects.all(),
-        required=False
     )
 
     def __init__(self, *args, **kwargs):

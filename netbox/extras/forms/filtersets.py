@@ -15,6 +15,7 @@ from utilities.forms import (
     StaticSelect, TagFilterField,
 )
 from virtualization.models import Cluster, ClusterGroup, ClusterType
+from .mixins import SavedFiltersMixin
 
 __all__ = (
     'ConfigContextFilterForm',
@@ -31,9 +32,9 @@ __all__ = (
 )
 
 
-class CustomFieldFilterForm(FilterForm):
+class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q',)),
+        (None, ('q', 'filter')),
         ('Attributes', ('type', 'content_type_id', 'group_name', 'weight', 'required', 'ui_visibility')),
     )
     content_type_id = ContentTypeMultipleChoiceField(
@@ -67,9 +68,9 @@ class CustomFieldFilterForm(FilterForm):
     )
 
 
-class JobResultFilterForm(FilterForm):
+class JobResultFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q',)),
+        (None, ('q', 'filter')),
         ('Attributes', ('obj_type', 'status')),
         ('Creation', ('created__before', 'created__after', 'completed__before', 'completed__after',
                       'scheduled_time__before', 'scheduled_time__after', 'user')),
@@ -119,9 +120,9 @@ class JobResultFilterForm(FilterForm):
     )
 
 
-class CustomLinkFilterForm(FilterForm):
+class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q',)),
+        (None, ('q', 'filter')),
         ('Attributes', ('content_types', 'enabled', 'new_window', 'weight')),
     )
     content_types = ContentTypeMultipleChoiceField(
@@ -146,9 +147,9 @@ class CustomLinkFilterForm(FilterForm):
     )
 
 
-class ExportTemplateFilterForm(FilterForm):
+class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q',)),
+        (None, ('q', 'filter')),
         ('Attributes', ('content_types', 'mime_type', 'file_extension', 'as_attachment')),
     )
     content_types = ContentTypeMultipleChoiceField(
@@ -171,9 +172,9 @@ class ExportTemplateFilterForm(FilterForm):
     )
 
 
-class SavedFilterFilterForm(FilterForm):
+class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q',)),
+        (None, ('q', 'filter')),
         ('Attributes', ('content_types', 'enabled', 'shared', 'weight')),
     )
     content_types = ContentTypeMultipleChoiceField(
@@ -198,9 +199,9 @@ class SavedFilterFilterForm(FilterForm):
     )
 
 
-class WebhookFilterForm(FilterForm):
+class WebhookFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q',)),
+        (None, ('q', 'filter')),
         ('Attributes', ('content_type_id', 'http_method', 'enabled')),
         ('Events', ('type_create', 'type_update', 'type_delete')),
     )
@@ -241,7 +242,7 @@ class WebhookFilterForm(FilterForm):
     )
 
 
-class TagFilterForm(FilterForm):
+class TagFilterForm(SavedFiltersMixin, FilterForm):
     model = Tag
     content_type_id = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.filter(FeatureQuery('tags').get_query()),
@@ -250,9 +251,9 @@ class TagFilterForm(FilterForm):
     )
 
 
-class ConfigContextFilterForm(FilterForm):
+class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'tag_id')),
+        (None, ('q', 'filter', 'tag_id')),
         ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id')),
         ('Device', ('device_type_id', 'platform_id', 'role_id')),
         ('Cluster', ('cluster_type_id', 'cluster_group_id', 'cluster_id')),
@@ -339,7 +340,7 @@ class LocalConfigContextFilterForm(forms.Form):
 class JournalEntryFilterForm(NetBoxModelFilterSetForm):
     model = JournalEntry
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Creation', ('created_before', 'created_after', 'created_by_id')),
         ('Attributes', ('assigned_object_type_id', 'kind'))
     )
@@ -377,10 +378,10 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ObjectChangeFilterForm(FilterForm):
+class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
     model = ObjectChange
     fieldsets = (
-        (None, ('q',)),
+        (None, ('q', 'filter')),
         ('Time', ('time_before', 'time_after')),
         ('Attributes', ('action', 'user_id', 'changed_object_type_id')),
     )

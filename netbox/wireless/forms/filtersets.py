@@ -28,7 +28,7 @@ class WirelessLANGroupFilterForm(NetBoxModelFilterSetForm):
 class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = WirelessLAN
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('ssid', 'group_id',)),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
@@ -62,7 +62,7 @@ class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = WirelessLink
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('ssid', 'status',)),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),

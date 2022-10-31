@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.http import Http404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -107,6 +108,21 @@ class SavedFilterViewSet(NetBoxModelViewSet):
     queryset = SavedFilter.objects.all()
     serializer_class = serializers.SavedFilterSerializer
     filterset_class = filtersets.SavedFilterFilterSet
+
+    def get_queryset(self):
+        """
+        Return only shared SavedFilters, or those owned by the current user, unless
+        this is a superuser.
+        """
+        queryset = super().get_queryset()
+        user = self.request.user
+        if user.is_superuser:
+            return queryset
+        if user.is_anonymous:
+            return queryset.filter(shared=True)
+        return queryset.filter(
+            Q(shared=True) | Q(user=user)
+        )
 
 
 #

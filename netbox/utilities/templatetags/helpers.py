@@ -309,7 +309,7 @@ def applied_filters(context, model, form, query_params):
         })
 
     save_link = None
-    if len(applied_filters) > 1 and user.has_perm('extras.add_saved_filter') and 'filter' not in context['request'].GET:
+    if user.has_perm('extras.add_savedfilter') and 'filter' not in context['request'].GET:
         content_type = ContentType.objects.get_for_model(model).pk
         parameters = context['request'].GET.urlencode()
         url = reverse('extras:savedfilter_add')

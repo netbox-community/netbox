@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -162,20 +162,37 @@ class ExportTemplateBulkDeleteView(generic.BulkDeleteView):
 # Saved filters
 #
 
-class SavedFilterListView(generic.ObjectListView):
-    queryset = SavedFilter.objects.all()
+class SavedFilterMixin:
+
+    def get_queryset(self, request):
+        """
+        Return only shared SavedFilters, or those owned by the current user, unless
+        this is a superuser.
+        """
+        queryset = SavedFilter.objects.all()
+        user = request.user
+        if user.is_superuser:
+            return queryset
+        if user.is_anonymous:
+            return queryset.filter(shared=True)
+        return queryset.filter(
+            Q(shared=True) | Q(user=user)
+        )
+
+
+class SavedFilterListView(SavedFilterMixin, generic.ObjectListView):
     filterset = filtersets.SavedFilterFilterSet
     filterset_form = forms.SavedFilterFilterForm
     table = tables.SavedFilterTable
 
 
 @register_model_view(SavedFilter)
-class SavedFilterView(generic.ObjectView):
+class SavedFilterView(SavedFilterMixin, generic.ObjectView):
     queryset = SavedFilter.objects.all()
 
 
 @register_model_view(SavedFilter, 'edit')
-class SavedFilterEditView(generic.ObjectEditView):
+class SavedFilterEditView(SavedFilterMixin, generic.ObjectEditView):
     queryset = SavedFilter.objects.all()
     form = forms.SavedFilterForm
 
@@ -186,24 +203,24 @@ class SavedFilterEditView(generic.ObjectEditView):
 
 
 @register_model_view(SavedFilter, 'delete')
-class SavedFilterDeleteView(generic.ObjectDeleteView):
+class SavedFilterDeleteView(SavedFilterMixin, generic.ObjectDeleteView):
     queryset = SavedFilter.objects.all()
 
 
-class SavedFilterBulkImportView(generic.BulkImportView):
+class SavedFilterBulkImportView(SavedFilterMixin, generic.BulkImportView):
     queryset = SavedFilter.objects.all()
     model_form = forms.SavedFilterCSVForm
     table = tables.SavedFilterTable
 
 
-class SavedFilterBulkEditView(generic.BulkEditView):
+class SavedFilterBulkEditView(SavedFilterMixin, generic.BulkEditView):
     queryset = SavedFilter.objects.all()
     filterset = filtersets.SavedFilterFilterSet
     table = tables.SavedFilterTable
     form = forms.SavedFilterBulkEditForm
 
 
-class SavedFilterBulkDeleteView(generic.BulkDeleteView):
+class SavedFilterBulkDeleteView(SavedFilterMixin, generic.BulkDeleteView):
     queryset = SavedFilter.objects.all()
     filterset = filtersets.SavedFilterFilterSet
     table = tables.SavedFilterTable
