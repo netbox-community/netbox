@@ -64,7 +64,7 @@ class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
     """
     tags = TagField(
         required=False,
-        help_text='Tags (as quoted list: "tag1,tag2")'
+        help_text='Tags (as quoted string: "tag1,tag2")'
     )
 
     def _get_custom_fields(self, content_type):
