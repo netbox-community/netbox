@@ -26,7 +26,7 @@ class TenantGroupCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = TenantGroup
-        fields = ('name', 'slug', 'parent', 'description')
+        fields = ('name', 'slug', 'parent', 'description', 'tags')
 
 
 class TenantCSVForm(NetBoxModelCSVForm):
@@ -40,7 +40,7 @@ class TenantCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Tenant
-        fields = ('name', 'slug', 'group', 'description', 'comments')
+        fields = ('name', 'slug', 'group', 'description', 'comments', 'tags')
 
 
 #
@@ -58,7 +58,7 @@ class ContactGroupCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = ContactGroup
-        fields = ('name', 'slug', 'parent', 'description')
+        fields = ('name', 'slug', 'parent', 'description', 'tags')
 
 
 class ContactRoleCSVForm(NetBoxModelCSVForm):
@@ -79,4 +79,4 @@ class ContactCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Contact
-        fields = ('name', 'title', 'phone', 'email', 'address', 'link', 'group', 'description', 'comments')
+        fields = ('name', 'title', 'phone', 'email', 'address', 'link', 'group', 'description', 'comments', 'tags')

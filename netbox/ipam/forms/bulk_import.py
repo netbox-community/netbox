@@ -41,7 +41,7 @@ class VRFCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = VRF
-        fields = ('name', 'rd', 'tenant', 'enforce_unique', 'description', 'comments')
+        fields = ('name', 'rd', 'tenant', 'enforce_unique', 'description', 'comments', 'tags')
 
 
 class RouteTargetCSVForm(NetBoxModelCSVForm):
@@ -54,7 +54,7 @@ class RouteTargetCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = RouteTarget
-        fields = ('name', 'tenant', 'description', 'comments')
+        fields = ('name', 'tenant', 'description', 'comments', 'tags')
 
 
 class RIRCSVForm(NetBoxModelCSVForm):
@@ -62,7 +62,7 @@ class RIRCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = RIR
-        fields = ('name', 'slug', 'is_private', 'description')
+        fields = ('name', 'slug', 'is_private', 'description', 'tags')
         help_texts = {
             'name': 'RIR name',
         }
@@ -83,7 +83,7 @@ class AggregateCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Aggregate
-        fields = ('prefix', 'rir', 'tenant', 'date_added', 'description', 'comments')
+        fields = ('prefix', 'rir', 'tenant', 'date_added', 'description', 'comments', 'tags')
 
 
 class ASNCSVForm(NetBoxModelCSVForm):
@@ -101,8 +101,7 @@ class ASNCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = ASN
-        fields = ('asn', 'rir', 'tenant', 'description', 'comments')
-        help_texts = {}
+        fields = ('asn', 'rir', 'tenant', 'description', 'comments', 'tags')
 
 
 class RoleCSVForm(NetBoxModelCSVForm):
@@ -110,7 +109,7 @@ class RoleCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Role
-        fields = ('name', 'slug', 'weight', 'description')
+        fields = ('name', 'slug', 'weight', 'description', 'tags')
 
 
 class PrefixCSVForm(NetBoxModelCSVForm):
@@ -159,7 +158,7 @@ class PrefixCSVForm(NetBoxModelCSVForm):
         model = Prefix
         fields = (
             'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized',
-            'description', 'comments',
+            'description', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -204,7 +203,7 @@ class IPRangeCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = IPRange
         fields = (
-            'start_address', 'end_address', 'vrf', 'tenant', 'status', 'role', 'description', 'comments',
+            'start_address', 'end_address', 'vrf', 'tenant', 'status', 'role', 'description', 'comments', 'tags',
         )
 
 
@@ -257,7 +256,7 @@ class IPAddressCSVForm(NetBoxModelCSVForm):
         model = IPAddress
         fields = [
             'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'is_primary',
-            'dns_name', 'description', 'comments',
+            'dns_name', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -326,7 +325,7 @@ class FHRPGroupCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = FHRPGroup
-        fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'description', 'comments')
+        fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'description', 'comments', 'tags')
 
 
 class VLANGroupCSVForm(NetBoxModelCSVForm):
@@ -351,7 +350,7 @@ class VLANGroupCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = VLANGroup
-        fields = ('name', 'slug', 'scope_type', 'scope_id', 'min_vid', 'max_vid', 'description')
+        fields = ('name', 'slug', 'scope_type', 'scope_id', 'min_vid', 'max_vid', 'description', 'tags')
         labels = {
             'scope_id': 'Scope ID',
         }
@@ -389,7 +388,7 @@ class VLANCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = VLAN
-        fields = ('site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'comments')
+        fields = ('site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'comments', 'tags')
         help_texts = {
             'vid': 'Numeric VLAN ID (1-4094)',
             'name': 'VLAN name',
@@ -404,7 +403,7 @@ class ServiceTemplateCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = ServiceTemplate
-        fields = ('name', 'protocol', 'ports', 'description', 'comments')
+        fields = ('name', 'protocol', 'ports', 'description', 'comments', 'tags')
 
 
 class ServiceCSVForm(NetBoxModelCSVForm):
@@ -427,7 +426,7 @@ class ServiceCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Service
-        fields = ('device', 'virtual_machine', 'name', 'protocol', 'ports', 'description', 'comments')
+        fields = ('device', 'virtual_machine', 'name', 'protocol', 'ports', 'description', 'comments', 'tags')
 
 
 class L2VPNCSVForm(NetBoxModelCSVForm):
@@ -443,7 +442,7 @@ class L2VPNCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = L2VPN
-        fields = ('identifier', 'name', 'slug', 'type', 'description', 'comments')
+        fields = ('identifier', 'name', 'slug', 'type', 'description', 'comments', 'tags')
 
 
 class L2VPNTerminationCSVForm(NetBoxModelCSVForm):
@@ -480,7 +479,7 @@ class L2VPNTerminationCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = L2VPNTermination
-        fields = ('l2vpn', 'device', 'virtual_machine', 'interface', 'vlan')
+        fields = ('l2vpn', 'device', 'virtual_machine', 'interface', 'vlan', 'tags')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
