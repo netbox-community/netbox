@@ -107,6 +107,58 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = SavedFilter
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        saved_filters = (
+            SavedFilter(name='Saved Filter 1', user=users[0], weight=100, parameters={'status': ['active']}),
+            SavedFilter(name='Saved Filter 2', user=users[1], weight=200, parameters={'status': ['planned']}),
+            SavedFilter(name='Saved Filter 3', user=users[2], weight=300, parameters={'status': ['retired']}),
+        )
+        SavedFilter.objects.bulk_create(saved_filters)
+        for i, savedfilter in enumerate(saved_filters):
+            savedfilter.content_types.set([site_ct])
+
+        cls.form_data = {
+            'name': 'Saved Filter X',
+            'content_types': [site_ct.pk],
+            'description': 'Foo',
+            'weight': 1000,
+            'enabled': True,
+            'shared': True,
+            'parameters': '{"foo": 123}',
+        }
+
+        cls.csv_data = (
+            'name,content_types,weight,enabled,shared,parameters',
+            'Saved Filter 4,dcim.device,400,True,True,{"foo": "a"}',
+            'Saved Filter 5,dcim.device,500,True,True,{"foo": "b"}',
+            'Saved Filter 6,dcim.device,600,True,True,{"foo": "c"}',
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{saved_filters[0].pk},Saved Filter 7",
+            f"{saved_filters[1].pk},Saved Filter 8",
+            f"{saved_filters[2].pk},Saved Filter 9",
+        )
+
+        cls.bulk_edit_data = {
+            'weight': 999,
+        }
+
+
 class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ExportTemplate
 

@@ -3,7 +3,6 @@ from unittest import skipIf
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from django_rq.queues import get_connection
@@ -16,7 +15,6 @@ from extras.models import *
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
-
 
 rq_worker_running = Worker.count(get_connection('default'))
 
@@ -190,6 +188,73 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
         CustomLink.objects.bulk_create(custom_links)
         for i, custom_link in enumerate(custom_links):
             custom_link.content_types.set([site_ct])
+
+
+class SavedFilterTest(APIViewTestCases.APIViewTestCase):
+    model = SavedFilter
+    brief_fields = ['display', 'id', 'name', 'url']
+    create_data = [
+        {
+            'content_types': ['dcim.site'],
+            'name': 'Saved Filter 4',
+            'weight': 100,
+            'enabled': True,
+            'shared': True,
+            'parameters': {'status': ['active']},
+        },
+        {
+            'content_types': ['dcim.site'],
+            'name': 'Saved Filter 5',
+            'weight': 200,
+            'enabled': True,
+            'shared': True,
+            'parameters': {'status': ['planned']},
+        },
+        {
+            'content_types': ['dcim.site'],
+            'name': 'Saved Filter 6',
+            'weight': 300,
+            'enabled': True,
+            'shared': True,
+            'parameters': {'status': ['retired']},
+        },
+    ]
+    bulk_update_data = {
+        'weight': 1000,
+        'enabled': False,
+        'shared': False,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+
+        saved_filters = (
+            SavedFilter(
+                name='Saved Filter 1',
+                weight=100,
+                enabled=True,
+                shared=True,
+                parameters={'status': ['active']}
+            ),
+            SavedFilter(
+                name='Saved Filter 2',
+                weight=200,
+                enabled=True,
+                shared=True,
+                parameters={'status': ['planned']}
+            ),
+            SavedFilter(
+                name='Saved Filter 3',
+                weight=300,
+                enabled=True,
+                shared=True,
+                parameters={'status': ['retired']}
+            ),
+        )
+        SavedFilter.objects.bulk_create(saved_filters)
+        for i, savedfilter in enumerate(saved_filters):
+            savedfilter.content_types.set([site_ct])
 
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):

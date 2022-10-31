@@ -148,10 +148,20 @@ class SavedFilterFilterSet(BaseFilterSet):
         field_name='content_types__id'
     )
     content_types = ContentTypeFilter()
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=User.objects.all(),
+        label='User (ID)',
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='user__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+        label='User (name)',
+    )
 
     class Meta:
         model = SavedFilter
-        fields = ['id', 'content_types', 'name', 'description', 'user', 'enabled', 'shared', 'weight']
+        fields = ['id', 'content_types', 'name', 'description', 'enabled', 'shared', 'weight']
 
     def search(self, queryset, name, value):
         if not value.strip():
