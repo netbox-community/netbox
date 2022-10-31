@@ -38,6 +38,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 * [#10556](https://github.com/netbox-community/netbox/issues/10556) - Include a `display` field in all GraphQL object types
 * [#10595](https://github.com/netbox-community/netbox/issues/10595) - Add GraphQL relationships for additional generic foreign key fields
 * [#10761](https://github.com/netbox-community/netbox/issues/10761) - Enable associating an export template with multiple object types
+* [#10781](https://github.com/netbox-community/netbox/issues/10781) - Add support for Python v3.11
 
 ### Plugins API
 
