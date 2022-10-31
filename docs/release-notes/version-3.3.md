@@ -2,6 +2,11 @@
 
 ## v3.3.7 (FUTURE)
 
+### Bug Fixes
+
+* [#10282](https://github.com/netbox-community/netbox/issues/10282) - Enforce advisory locks when allocating available IP addresses to prevent race conditions
+* [#10770](https://github.com/netbox-community/netbox/issues/10282) - Fix social authentication for new users
+
 ---
 
 ## v3.3.6 (2022-10-26)
