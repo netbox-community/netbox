@@ -188,6 +188,8 @@ class ContactGroupView(generic.ObjectView):
 
         contacts = Contact.objects.restrict(request.user, 'view').filter(
             group=instance
+        ).annotate(
+            assignment_count=count_related(ContactAssignment, 'contact')
         )
         contacts_table = tables.ContactTable(contacts, user=request.user, exclude=('group',))
         contacts_table.configure(request)
@@ -338,14 +340,18 @@ class ContactBulkImportView(generic.BulkImportView):
 
 
 class ContactBulkEditView(generic.BulkEditView):
-    queryset = Contact.objects.all()
+    queryset = Contact.objects.annotate(
+        assignment_count=count_related(ContactAssignment, 'contact')
+    )
     filterset = filtersets.ContactFilterSet
     table = tables.ContactTable
     form = forms.ContactBulkEditForm
 
 
 class ContactBulkDeleteView(generic.BulkDeleteView):
-    queryset = Contact.objects.all()
+    queryset = Contact.objects.annotate(
+        assignment_count=count_related(ContactAssignment, 'contact')
+    )
     filterset = filtersets.ContactFilterSet
     table = tables.ContactTable
 

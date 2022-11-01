@@ -6,6 +6,7 @@
 
 * [#10282](https://github.com/netbox-community/netbox/issues/10282) - Enforce advisory locks when allocating available IP addresses to prevent race conditions
 * [#10770](https://github.com/netbox-community/netbox/issues/10282) - Fix social authentication for new users
+* [#10803](https://github.com/netbox-community/netbox/issues/10803) - Fix exception when ordering contacts by number of assignments
 
 ---
 
