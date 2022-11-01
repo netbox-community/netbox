@@ -1,6 +1,18 @@
 # NetBox v3.3
 
-## v3.3.7 (FUTURE)
+## v3.3.8 (FUTURE)
+
+---
+
+## v3.3.7 (2022-11-01)
+
+### Bug Fixes
+
+* [#10282](https://github.com/netbox-community/netbox/issues/10282) - Enforce advisory locks when allocating available IP addresses to prevent race conditions
+* [#10770](https://github.com/netbox-community/netbox/issues/10282) - Fix social authentication for new users
+* [#10791](https://github.com/netbox-community/netbox/issues/10791) - Permit nullifying VLAN group `scope_type` via REST API
+* [#10803](https://github.com/netbox-community/netbox/issues/10803) - Fix exception when ordering contacts by number of assignments
+* [#10809](https://github.com/netbox-community/netbox/issues/10809) - Permit nullifying site `time_zone` via REST API
 
 ---
 

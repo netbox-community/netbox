@@ -496,7 +496,7 @@ for param in dir(configuration):
 
 # Force usage of PostgreSQL's JSONB field for extra data
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
-SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = 'netbox.users.utils.clean_username'
+SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = 'users.utils.clean_username'
 
 #
 # Django Prometheus

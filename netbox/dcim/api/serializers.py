@@ -130,7 +130,7 @@ class SiteSerializer(NetBoxModelSerializer):
     region = NestedRegionSerializer(required=False, allow_null=True)
     group = NestedSiteGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    time_zone = TimeZoneSerializerField(required=False)
+    time_zone = TimeZoneSerializerField(required=False, allow_null=True)
     asns = SerializedPKRelatedField(
         queryset=ASN.objects.all(),
         serializer=NestedASNSerializer,
