@@ -175,6 +175,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
         queryset=ContentType.objects.filter(
             model__in=VLANGROUP_SCOPE_TYPES
         ),
+        allow_null=True,
         required=False,
         default=None
     )
