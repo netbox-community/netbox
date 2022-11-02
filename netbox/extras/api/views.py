@@ -109,21 +109,6 @@ class SavedFilterViewSet(NetBoxModelViewSet):
     serializer_class = serializers.SavedFilterSerializer
     filterset_class = filtersets.SavedFilterFilterSet
 
-    def get_queryset(self):
-        """
-        Return only shared SavedFilters, or those owned by the current user, unless
-        this is a superuser.
-        """
-        queryset = super().get_queryset()
-        user = self.request.user
-        if user.is_superuser:
-            return queryset
-        if user.is_anonymous:
-            return queryset.filter(shared=True)
-        return queryset.filter(
-            Q(shared=True) | Q(user=user)
-        )
-
 
 #
 # Tags

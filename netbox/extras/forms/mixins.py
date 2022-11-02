@@ -66,7 +66,8 @@ class SavedFiltersMixin(forms.Form):
     filter = DynamicModelMultipleChoiceField(
         queryset=SavedFilter.objects.all(),
         required=False,
+        label='Saved Filter',
         query_params={
-            'enabled': True,
+            'usable': True,
         }
     )

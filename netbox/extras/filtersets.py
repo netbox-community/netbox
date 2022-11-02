@@ -158,6 +158,9 @@ class SavedFilterFilterSet(BaseFilterSet):
         to_field_name='username',
         label='User (name)',
     )
+    usable = django_filters.BooleanFilter(
+        method='_usable'
+    )
 
     class Meta:
         model = SavedFilter
@@ -170,6 +173,19 @@ class SavedFilterFilterSet(BaseFilterSet):
             Q(name__icontains=value) |
             Q(description__icontains=value)
         )
+
+    def _usable(self, queryset, name, value):
+        """
+        Return only SavedFilters that are both enabled and are shared (or belong to the current user).
+        """
+        user = self.request.user if self.request else None
+        if not user or user.is_anonymous:
+            if value:
+                return queryset.filter(enabled=True, shared=True)
+            return queryset.filter(Q(enabled=False) | Q(shared=False))
+        if value:
+            return queryset.filter(enabled=True).filter(Q(shared=True) | Q(user=user))
+        return queryset.filter(Q(enabled=False) | Q(Q(shared=False) & ~Q(user=user)))
 
 
 class ImageAttachmentFilterSet(BaseFilterSet):

@@ -300,6 +300,13 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
         params = {'enabled': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
+    def test_usable(self):
+        # Filtering for an anonymous user
+        params = {'usable': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'usable': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
 
 class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
     queryset = ExportTemplate.objects.all()
