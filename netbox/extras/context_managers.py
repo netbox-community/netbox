@@ -3,8 +3,7 @@ from contextlib import contextmanager
 from django.db.models.signals import m2m_changed, pre_delete, post_save
 
 from extras.signals import clear_webhooks, clear_webhook_queue, handle_changed_object, handle_deleted_object
-from netbox import thread_locals
-from netbox.request_context import set_request
+from netbox.context import current_request, webhooks_queue
 from .webhooks import flush_webhooks
 
 
@@ -16,8 +15,8 @@ def change_logging(request):
 
     :param request: WSGIRequest object with a unique `id` set
     """
-    set_request(request)
-    thread_locals.webhook_queue = []
+    current_request.set(request)
+    webhooks_queue.set([])
 
     # Connect our receivers to the post_save and post_delete signals.
     post_save.connect(handle_changed_object, dispatch_uid='handle_changed_object')
@@ -35,8 +34,8 @@ def change_logging(request):
     clear_webhooks.disconnect(clear_webhook_queue, dispatch_uid='clear_webhook_queue')
 
     # Flush queued webhooks to RQ
-    flush_webhooks(thread_locals.webhook_queue)
-    del thread_locals.webhook_queue
+    flush_webhooks(webhooks_queue.get())
 
-    # Clear the request from thread-local storage
-    set_request(None)
+    # Clear context vars
+    current_request.set(None)
+    webhooks_queue.set([])
