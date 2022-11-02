@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-import pytz
 import yaml
+from backports.zoneinfo import ZoneInfo
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
@@ -12,7 +12,6 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
-from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
@@ -153,7 +152,7 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tenant': None,
             'facility': 'Facility X',
             'asns': [asns[6].pk, asns[7].pk],
-            'time_zone': pytz.UTC,
+            'time_zone': ZoneInfo('UTC'),
             'description': 'Site description',
             'physical_address': '742 Evergreen Terrace, Springfield, USA',
             'shipping_address': '742 Evergreen Terrace, Springfield, USA',
@@ -182,7 +181,7 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'region': regions[1].pk,
             'group': groups[1].pk,
             'tenant': None,
-            'time_zone': pytz.timezone('US/Eastern'),
+            'time_zone': ZoneInfo('US/Eastern'),
             'description': 'New description',
         }
 

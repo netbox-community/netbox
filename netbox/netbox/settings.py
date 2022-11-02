@@ -389,7 +389,6 @@ LANGUAGE_CODE = 'en-us'
 USE_I18N = True
 USE_L10N = False
 USE_TZ = True
-USE_DEPRECATED_PYTZ = True
 
 # WSGI
 WSGI_APPLICATION = 'netbox.wsgi.application'

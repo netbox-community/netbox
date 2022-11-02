@@ -59,6 +59,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 * [#10697](https://github.com/netbox-community/netbox/issues/10697) - Move application registry into core app
 * [#10699](https://github.com/netbox-community/netbox/issues/10699) - Remove custom `import_object()` function
 * [#10816](https://github.com/netbox-community/netbox/issues/10816) - Pass the current request when instantiating a FilterSet within UI views
+* [#10820](https://github.com/netbox-community/netbox/issues/10820) - Switch timezone library from pytz to zoneinfo
 
 ### REST API Changes
 
