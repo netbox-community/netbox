@@ -12,8 +12,7 @@ from extras.models import CustomField, CustomLink
 from extras.choices import CustomFieldVisibilityChoices
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.templatetags.builtins.filters import bettertitle
-from utilities.utils import highlight_string
+from utilities.utils import highlight_string, title
 
 __all__ = (
     'BaseTable',
@@ -223,7 +222,7 @@ class SearchTable(tables.Table):
 
     def render_field(self, value, record):
         if hasattr(record.object, value):
-            return bettertitle(record.object._meta.get_field(value).verbose_name)
+            return title(record.object._meta.get_field(value).verbose_name)
         return value
 
     def render_value(self, value):

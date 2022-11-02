@@ -21,6 +21,13 @@ from netbox.config import get_config
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 
 
+def title(value):
+    """
+    Improved implementation of str.title(); retains all existing uppercase letters.
+    """
+    return ' '.join([w[0].upper() + w[1:] for w in str(value).split()])
+
+
 def get_viewname(model, action=None, rest_api=False):
     """
     Return the view name for the given model and action, if valid.
@@ -393,13 +400,17 @@ def array_to_string(array):
     return ', '.join(ret)
 
 
-def content_type_name(ct):
+def content_type_name(ct, include_app=True):
     """
     Return a human-friendly ContentType name (e.g. "DCIM > Site").
     """
     try:
         meta = ct.model_class()._meta
-        return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
+        app_label = title(meta.app_config.verbose_name)
+        model_name = title(meta.verbose_name)
+        if include_app:
+            return f'{app_label} > {model_name}'
+        return model_name
     except AttributeError:
         # Model no longer exists
         return f'{ct.app_label} > {ct.model}'
