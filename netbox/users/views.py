@@ -20,7 +20,7 @@ from extras.tables import ObjectChangeTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from utilities.forms import ConfirmationForm
-from .forms import LoginForm, PasswordChangeForm, TokenForm, TokenViewForm, UserConfigForm
+from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
 from .models import Token, UserConfig
 from .tables import TokenTable
 
@@ -261,7 +261,6 @@ class TokenEditView(LoginRequiredMixin, View):
             'object': token,
             'form': form,
             'return_url': reverse('users:token_list'),
-            'disable_addanother': not settings.ALLOW_TOKEN_RETRIEVAL
         })
 
     def post(self, request, pk=None):
@@ -288,10 +287,8 @@ class TokenEditView(LoginRequiredMixin, View):
             messages.success(request, msg)
 
             if not pk and not settings.ALLOW_TOKEN_RETRIEVAL:
-                form = TokenViewForm(initial={'view_token': True})
                 return render(request, 'users/api_token.html', {
                     'object': token,
-                    'form': form,
                     'key': token.key,
                     'return_url': reverse('users:token_list'),
                 })

@@ -1,4 +1,3 @@
-from django.conf import settings
 from .models import Token
 from netbox.tables import NetBoxTable, columns
 
@@ -7,14 +6,16 @@ __all__ = (
 )
 
 
-TOKEN = """<samp><span id="token_{{ record.pk }}">{{ value }}</span></samp>"""
+TOKEN = """<samp><span id="token_{{ record.pk }}">{{ record }}</span></samp>"""
 
 ALLOWED_IPS = """{{ value|join:", " }}"""
 
 COPY_BUTTON = """
-<a class="btn btn-sm btn-success copy-token" data-clipboard-target="#token_{{ record.pk }}" title="Copy to clipboard">
-  <i class="mdi mdi-content-copy"></i>
-</a>
+{% if settings.ALLOW_TOKEN_RETRIEVAL %}
+  <a class="btn btn-sm btn-success copy-token" data-clipboard-target="#token_{{ record.pk }}" title="Copy to clipboard">
+    <i class="mdi mdi-content-copy"></i>
+  </a>
+{% endif %}
 """
 
 
@@ -41,9 +42,3 @@ class TokenTable(NetBoxTable):
         fields = (
             'pk', 'description', 'key', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
         )
-
-    def render_key(self, value):
-        if settings.ALLOW_TOKEN_RETRIEVAL:
-            return value
-        else:
-            return "****************************************"

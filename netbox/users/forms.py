@@ -121,13 +121,7 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        instance = getattr(self, 'instance', None)
-        if instance and instance.id and not settings.ALLOW_TOKEN_RETRIEVAL:
-            keyfield = self.fields['key']
-            keyfield.disabled = True
-            keyfield.required = False
-            keyfield.widget = forms.HiddenInput()
 
-
-class TokenViewForm(BootstrapMixin, forms.Form):
-    view_token = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+        # Omit the key field if token retrieval is not permitted
+        if self.instance.pk and not settings.ALLOW_TOKEN_RETRIEVAL:
+            del self.fields['key']

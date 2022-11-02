@@ -72,6 +72,9 @@ ADMINS = [
     # ('John Doe', 'jdoe@example.com'),
 ]
 
+# Permit the retrieval of API tokens after their creation.
+ALLOW_TOKEN_RETRIEVAL = False
+
 # Enable any desired validators for local account passwords below. For a list of included validators, please see the
 # Django documentation at https://docs.djangoproject.com/en/stable/topics/auth/passwords/#password-validation.
 AUTH_PASSWORD_VALIDATORS = [
@@ -224,7 +227,3 @@ TIME_FORMAT = 'g:i a'
 SHORT_TIME_FORMAT = 'H:i:s'
 DATETIME_FORMAT = 'N j, Y g:i a'
 SHORT_DATETIME_FORMAT = 'Y-m-d H:i'
-
-# Allow API Tokens to be viewed after creation.  Before NetBox 3.4 the default was to allow viewing of the tokens
-# so this flag was created for backwards compatability.
-ALLOW_TOKEN_RETRIEVAL = False
