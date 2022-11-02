@@ -116,7 +116,7 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
 class RegionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Region
     fieldsets = (
-        (None, ('q', 'tag', 'parent_id')),
+        (None, ('q', 'filter', 'tag', 'parent_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group'))
     )
     parent_id = DynamicModelMultipleChoiceField(
@@ -130,7 +130,7 @@ class RegionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 class SiteGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = SiteGroup
     fieldsets = (
-        (None, ('q', 'tag', 'parent_id')),
+        (None, ('q', 'filter', 'tag', 'parent_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group'))
     )
     parent_id = DynamicModelMultipleChoiceField(
@@ -144,7 +144,7 @@ class SiteGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Site
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('status', 'region_id', 'group_id', 'asn_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
@@ -174,7 +174,7 @@ class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
 class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Location
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('region_id', 'site_group_id', 'site_id', 'parent_id', 'status')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
@@ -222,7 +222,7 @@ class RackRoleFilterForm(NetBoxModelFilterSetForm):
 class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Rack
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id')),
         ('Function', ('status', 'role_id')),
         ('Hardware', ('type', 'width', 'serial', 'asset_tag')),
@@ -306,7 +306,7 @@ class RackElevationFilterForm(RackFilterForm):
 class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = RackReservation
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('User', ('user_id',)),
         ('Rack', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
@@ -362,7 +362,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class ManufacturerFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Manufacturer
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Contacts', ('contact', 'contact_role', 'contact_group'))
     )
     tag = TagFilterField(model)
@@ -371,7 +371,7 @@ class ManufacturerFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     model = DeviceType
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Hardware', ('manufacturer_id', 'part_number', 'subdevice_role', 'airflow')),
         ('Images', ('has_front_image', 'has_rear_image')),
         ('Components', (
@@ -486,7 +486,7 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
 class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     model = ModuleType
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Hardware', ('manufacturer_id', 'part_number')),
         ('Components', (
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
@@ -578,7 +578,7 @@ class DeviceFilterForm(
 ):
     model = Device
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
         ('Operation', ('status', 'role_id', 'airflow', 'serial', 'asset_tag', 'mac_address')),
         ('Hardware', ('manufacturer_id', 'device_type_id', 'platform_id')),
@@ -731,7 +731,7 @@ class DeviceFilterForm(
 class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Module
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Hardware', ('manufacturer_id', 'module_type_id', 'serial', 'asset_tag')),
     )
     manufacturer_id = DynamicModelMultipleChoiceField(
@@ -761,7 +761,7 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxMo
 class VirtualChassisFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = VirtualChassis
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
     )
@@ -790,7 +790,7 @@ class VirtualChassisFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Cable
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Location', ('site_id', 'location_id', 'rack_id', 'device_id')),
         ('Attributes', ('type', 'status', 'color', 'length', 'length_unit')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
@@ -862,7 +862,7 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class PowerPanelFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = PowerPanel
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
@@ -900,7 +900,7 @@ class PowerPanelFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 class PowerFeedFilterForm(NetBoxModelFilterSetForm):
     model = PowerFeed
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Location', ('region_id', 'site_group_id', 'site_id', 'power_panel_id', 'rack_id')),
         ('Attributes', ('status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization')),
     )
@@ -1002,7 +1002,7 @@ class PathEndpointFilterForm(CabledFilterForm):
 class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = ConsolePort
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('name', 'label', 'type', 'speed')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
         ('Connection', ('cabled', 'connected', 'occupied')),
@@ -1021,7 +1021,7 @@ class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
 class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = ConsoleServerPort
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('name', 'label', 'type', 'speed')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
         ('Connection', ('cabled', 'connected', 'occupied')),
@@ -1040,7 +1040,7 @@ class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterF
 class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = PowerPort
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('name', 'label', 'type')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
         ('Connection', ('cabled', 'connected', 'occupied')),
@@ -1055,7 +1055,7 @@ class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
 class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = PowerOutlet
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('name', 'label', 'type')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
         ('Connection', ('cabled', 'connected', 'occupied')),
@@ -1070,7 +1070,7 @@ class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
 class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = Interface
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('name', 'label', 'kind', 'type', 'speed', 'duplex', 'enabled', 'mgmt_only')),
         ('Addressing', ('vrf_id', 'mac_address', 'wwn')),
         ('PoE', ('poe_mode', 'poe_type')),
@@ -1159,7 +1159,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
 
 class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('name', 'label', 'type', 'color')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
         ('Cable', ('cabled', 'occupied')),
@@ -1178,7 +1178,7 @@ class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
 class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
     model = RearPort
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('name', 'label', 'type', 'color')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
         ('Cable', ('cabled', 'occupied')),
@@ -1196,7 +1196,7 @@ class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
 class ModuleBayFilterForm(DeviceComponentFilterForm):
     model = ModuleBay
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('name', 'label', 'position')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
     )
@@ -1209,7 +1209,7 @@ class ModuleBayFilterForm(DeviceComponentFilterForm):
 class DeviceBayFilterForm(DeviceComponentFilterForm):
     model = DeviceBay
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('name', 'label')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
     )
@@ -1219,7 +1219,7 @@ class DeviceBayFilterForm(DeviceComponentFilterForm):
 class InventoryItemFilterForm(DeviceComponentFilterForm):
     model = InventoryItem
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('name', 'label', 'role_id', 'manufacturer_id', 'serial', 'asset_tag', 'discovered')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
     )

@@ -39,6 +39,7 @@ __all__ = (
     'ReportDetailSerializer',
     'ReportSerializer',
     'ReportInputSerializer',
+    'SavedFilterSerializer',
     'ScriptDetailSerializer',
     'ScriptInputSerializer',
     'ScriptLogMessageSerializer',
@@ -146,6 +147,25 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'display', 'content_types', 'name', 'description', 'template_code', 'mime_type',
             'file_extension', 'as_attachment', 'created', 'last_updated',
+        ]
+
+
+#
+# Saved filters
+#
+
+class SavedFilterSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:savedfilter-detail')
+    content_types = ContentTypeField(
+        queryset=ContentType.objects.all(),
+        many=True
+    )
+
+    class Meta:
+        model = SavedFilter
+        fields = [
+            'id', 'url', 'display', 'content_types', 'name', 'description', 'user', 'weight',
+            'enabled', 'shared', 'parameters', 'created', 'last_updated',
         ]
 
 

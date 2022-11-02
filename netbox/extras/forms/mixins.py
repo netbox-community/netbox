@@ -1,10 +1,13 @@
 from django.contrib.contenttypes.models import ContentType
+from django import forms
 
 from extras.models import *
 from extras.choices import CustomFieldVisibilityChoices
+from utilities.forms.fields import DynamicModelMultipleChoiceField
 
 __all__ = (
     'CustomFieldsMixin',
+    'SavedFiltersMixin',
 )
 
 
@@ -57,3 +60,14 @@ class CustomFieldsMixin:
             if customfield.group_name not in self.custom_field_groups:
                 self.custom_field_groups[customfield.group_name] = []
             self.custom_field_groups[customfield.group_name].append(field_name)
+
+
+class SavedFiltersMixin(forms.Form):
+    filter = DynamicModelMultipleChoiceField(
+        queryset=SavedFilter.objects.all(),
+        required=False,
+        label='Saved Filter',
+        query_params={
+            'usable': True,
+        }
+    )

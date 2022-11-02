@@ -31,6 +31,14 @@ urlpatterns = [
     path('export-templates/delete/', views.ExportTemplateBulkDeleteView.as_view(), name='exporttemplate_bulk_delete'),
     path('export-templates/<int:pk>/', include(get_model_urls('extras', 'exporttemplate'))),
 
+    # Saved filters
+    path('saved-filters/', views.SavedFilterListView.as_view(), name='savedfilter_list'),
+    path('saved-filters/add/', views.SavedFilterEditView.as_view(), name='savedfilter_add'),
+    path('saved-filters/import/', views.SavedFilterBulkImportView.as_view(), name='savedfilter_import'),
+    path('saved-filters/edit/', views.SavedFilterBulkEditView.as_view(), name='savedfilter_bulk_edit'),
+    path('saved-filters/delete/', views.SavedFilterBulkDeleteView.as_view(), name='savedfilter_bulk_delete'),
+    path('saved-filters/<int:pk>/', include(get_model_urls('extras', 'savedfilter'))),
+
     # Webhooks
     path('webhooks/', views.WebhookListView.as_view(), name='webhook_list'),
     path('webhooks/add/', views.WebhookEditView.as_view(), name='webhook_add'),

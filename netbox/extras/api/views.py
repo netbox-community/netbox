@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.http import Http404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -96,6 +97,17 @@ class ExportTemplateViewSet(NetBoxModelViewSet):
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
     filterset_class = filtersets.ExportTemplateFilterSet
+
+
+#
+# Saved filters
+#
+
+class SavedFilterViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = SavedFilter.objects.all()
+    serializer_class = serializers.SavedFilterSerializer
+    filterset_class = filtersets.SavedFilterFilterSet
 
 
 #

@@ -30,7 +30,7 @@ class ClusterGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = ClusterGroup
     tag = TagFilterField(model)
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
 
@@ -38,7 +38,7 @@ class ClusterGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Cluster
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Attributes', ('group_id', 'type_id', 'status')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
@@ -90,7 +90,7 @@ class VirtualMachineFilterForm(
 ):
     model = VirtualMachine
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Cluster', ('cluster_group_id', 'cluster_type_id', 'cluster_id', 'device_id')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Attributes', ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data')),
@@ -175,7 +175,7 @@ class VirtualMachineFilterForm(
 class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     model = VMInterface
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Virtual Machine', ('cluster_id', 'virtual_machine_id')),
         ('Attributes', ('enabled', 'mac_address', 'vrf_id')),
     )

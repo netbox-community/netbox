@@ -13,15 +13,12 @@ __all__ = (
     'ExportTemplateTable',
     'JournalEntryTable',
     'ObjectChangeTable',
+    'SavedFilterTable',
     'TaggedItemTable',
     'TagTable',
     'WebhookTable',
 )
 
-
-#
-# Custom fields
-#
 
 class CustomFieldTable(NetBoxTable):
     name = tables.Column(
@@ -40,10 +37,6 @@ class CustomFieldTable(NetBoxTable):
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
 
 
-#
-# Custom fields
-#
-
 class JobResultTable(NetBoxTable):
     name = tables.Column(
         linkify=True
@@ -61,10 +54,6 @@ class JobResultTable(NetBoxTable):
         default_columns = ('pk', 'id', 'name', 'obj_type', 'status', 'created', 'completed', 'user',)
 
 
-#
-# Custom links
-#
-
 class CustomLinkTable(NetBoxTable):
     name = tables.Column(
         linkify=True
@@ -81,10 +70,6 @@ class CustomLinkTable(NetBoxTable):
         )
         default_columns = ('pk', 'name', 'content_types', 'enabled', 'group_name', 'button_class', 'new_window')
 
-
-#
-# Export templates
-#
 
 class ExportTemplateTable(NetBoxTable):
     name = tables.Column(
@@ -104,9 +89,24 @@ class ExportTemplateTable(NetBoxTable):
         )
 
 
-#
-# Webhooks
-#
+class SavedFilterTable(NetBoxTable):
+    name = tables.Column(
+        linkify=True
+    )
+    content_types = columns.ContentTypesColumn()
+    enabled = columns.BooleanColumn()
+    shared = columns.BooleanColumn()
+
+    class Meta(NetBoxTable.Meta):
+        model = SavedFilter
+        fields = (
+            'pk', 'id', 'name', 'content_types', 'description', 'user', 'weight', 'enabled', 'shared',
+            'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'content_types', 'user', 'description', 'enabled', 'shared',
+        )
+
 
 class WebhookTable(NetBoxTable):
     name = tables.Column(
@@ -138,10 +138,6 @@ class WebhookTable(NetBoxTable):
             'payload_url',
         )
 
-
-#
-# Tags
-#
 
 class TagTable(NetBoxTable):
     name = tables.Column(

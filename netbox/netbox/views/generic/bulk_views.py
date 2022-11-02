@@ -4,17 +4,17 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
 from django.db.models.fields.reverse_related import ManyToManyRel
-from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, model_to_dict
+from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django_tables2.export import TableExport
 from django.utils.safestring import mark_safe
+from django_tables2.export import TableExport
 
-from extras.models import ExportTemplate
+from extras.models import ExportTemplate, SavedFilter
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
@@ -330,7 +330,6 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         return headers, records
 
     def _update_objects(self, form, request, headers, records):
-        from utilities.forms import CSVModelChoiceField
         updated_objs = []
 
         ids = [int(record["id"]) for record in records]

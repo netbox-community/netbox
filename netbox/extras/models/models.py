@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.validators import ValidationError
 from django.db import models
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
@@ -34,6 +34,7 @@ __all__ = (
     'JobResult',
     'JournalEntry',
     'Report',
+    'SavedFilter',
     'Script',
     'Webhook',
 )
@@ -348,6 +349,69 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
         return response
+
+
+class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+    """
+    A set of predefined keyword parameters that can be reused to filter for specific objects.
+    """
+    content_types = models.ManyToManyField(
+        to=ContentType,
+        related_name='saved_filters',
+        help_text='The object type(s) to which this filter applies.'
+    )
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=100
+    )
+    enabled = models.BooleanField(
+        default=True
+    )
+    shared = models.BooleanField(
+        default=True
+    )
+    parameters = models.JSONField()
+
+    clone_fields = (
+        'enabled', 'weight',
+    )
+
+    class Meta:
+        ordering = ('weight', 'name')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:savedfilter', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        # Verify that `parameters` is a JSON object
+        if type(self.parameters) is not dict:
+            raise ValidationError(
+                {'parameters': 'Filter parameters must be stored as a dictionary of keyword arguments.'}
+            )
+
+    @property
+    def url_params(self):
+        qd = QueryDict(mutable=True)
+        qd.update(self.parameters)
+        return qd.urlencode()
 
 
 class ImageAttachment(WebhooksMixin, ChangeLoggedModel):

@@ -4,10 +4,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django_filters.exceptions import FieldLookupError
 from django_filters.utils import get_model_field, resolve_field
+from django.shortcuts import get_object_or_404
 
 from extras.choices import CustomFieldFilterLogicChoices
 from extras.filters import TagFilter
-from extras.models import CustomField
+from extras.models import CustomField, SavedFilter
 from utilities.constants import (
     FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_NEGATION_LOOKUP_MAP, FILTER_TREENODE_NEGATION_LOOKUP_MAP,
     FILTER_NUMERIC_BASED_LOOKUP_MAP
@@ -80,12 +81,28 @@ class BaseFilterSet(django_filters.FilterSet):
         },
     })
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, data=None, *args, **kwargs):
         # bit of a hack for #9231 - extras.lookup.Empty is registered in apps.ready
         # however FilterSet Factory is setup before this which creates the
         # initial filters.  This recreates the filters so Empty is picked up correctly.
         self.base_filters = self.__class__.get_filters()
-        super().__init__(*args, **kwargs)
+
+        # Apply any referenced SavedFilters
+        if data and 'filter' in data:
+            data = data.copy()  # Get a mutable copy
+            saved_filters = SavedFilter.objects.filter(pk__in=data.pop('filter'))
+            for sf in saved_filters:
+                for key, value in sf.parameters.items():
+                    # QueryDicts are... fun
+                    if type(value) not in (list, tuple):
+                        value = [value]
+                    if key in data:
+                        for v in value:
+                            data.appendlist(key, v)
+                    else:
+                        data.setlist(key, value)
+
+        super().__init__(data, *args, **kwargs)
 
     @staticmethod
     def _get_filter_lookup_dict(existing_filter):

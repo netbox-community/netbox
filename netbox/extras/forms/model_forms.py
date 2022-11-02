@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.http import QueryDict
 
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
@@ -20,6 +21,7 @@ __all__ = (
     'ExportTemplateForm',
     'ImageAttachmentForm',
     'JournalEntryForm',
+    'SavedFilterForm',
     'TagForm',
     'WebhookForm',
 )
@@ -106,6 +108,34 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'template_code': forms.Textarea(attrs={'class': 'font-monospace'}),
         }
+
+
+class SavedFilterForm(BootstrapMixin, forms.ModelForm):
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all()
+    )
+
+    fieldsets = (
+        ('Saved Filter', ('name', 'content_types', 'description', 'weight', 'enabled', 'shared')),
+        ('Parameters', ('parameters',)),
+    )
+
+    class Meta:
+        model = SavedFilter
+        exclude = ('user',)
+        widgets = {
+            'parameters': forms.Textarea(attrs={'class': 'font-monospace'}),
+        }
+
+    def __init__(self, *args, initial=None, **kwargs):
+
+        # Convert any parameters delivered via initial data to a dictionary
+        if initial and 'parameters' in initial:
+            if type(initial['parameters']) is str:
+                # TODO: Make a utility function for this
+                initial['parameters'] = dict(QueryDict(initial['parameters']).lists())
+
+        super().__init__(*args, initial=initial, **kwargs)
 
 
 class WebhookForm(BootstrapMixin, forms.ModelForm):

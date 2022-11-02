@@ -20,6 +20,9 @@ class ExtrasQuery(graphene.ObjectType):
     image_attachment = ObjectField(ImageAttachmentType)
     image_attachment_list = ObjectListField(ImageAttachmentType)
 
+    saved_filter = ObjectField(SavedFilterType)
+    saved_filter_list = ObjectListField(SavedFilterType)
+
     journal_entry = ObjectField(JournalEntryType)
     journal_entry_list = ObjectListField(JournalEntryType)
 

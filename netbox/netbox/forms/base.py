@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
-from extras.forms.customfields import CustomFieldsMixin
+from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin
 from extras.models import CustomField, Tag
 from utilities.forms import BootstrapMixin, CSVModelForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField
@@ -114,7 +114,7 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
         self.nullable_fields = (*self.nullable_fields, *nullable_custom_fields)
 
 
-class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
+class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, SavedFiltersMixin, forms.Form):
     """
     Base form for FilerSet forms. These are used to filter object lists in the NetBox UI. Note that the
     corresponding FilterSet *must* provide a `q` filter.
@@ -128,6 +128,15 @@ class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
         required=False,
         label='Search'
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit saved filters to those applicable to the form's model
+        content_type = ContentType.objects.get_for_model(self.model)
+        self.fields['filter'].widget.add_query_params({
+            'content_type_id': content_type.pk,
+        })
 
     def _get_custom_fields(self, content_type):
         return super()._get_custom_fields(content_type).exclude(

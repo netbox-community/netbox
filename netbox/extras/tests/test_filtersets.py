@@ -222,6 +222,92 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
+class SavedFilterTestCase(TestCase, BaseFilterSetTests):
+    queryset = SavedFilter.objects.all()
+    filterset = SavedFilterFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        saved_filters = (
+            SavedFilter(
+                name='Saved Filter 1',
+                user=users[0],
+                weight=100,
+                enabled=True,
+                shared=True,
+                parameters={'status': ['active']}
+            ),
+            SavedFilter(
+                name='Saved Filter 2',
+                user=users[1],
+                weight=200,
+                enabled=True,
+                shared=True,
+                parameters={'status': ['planned']}
+            ),
+            SavedFilter(
+                name='Saved Filter 3',
+                user=users[2],
+                weight=300,
+                enabled=False,
+                shared=False,
+                parameters={'status': ['retired']}
+            ),
+        )
+        SavedFilter.objects.bulk_create(saved_filters)
+        for i, savedfilter in enumerate(saved_filters):
+            savedfilter.content_types.set([content_types[i]])
+
+    def test_name(self):
+        params = {'name': ['Saved Filter 1', 'Saved Filter 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_content_types(self):
+        params = {'content_types': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'content_type_id': [ContentType.objects.get_for_model(Site).pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_user(self):
+        users = User.objects.filter(username__startswith='User')
+        params = {'user': [users[0].username, users[1].username]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'user_id': [users[0].pk, users[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight(self):
+        params = {'weight': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_shared(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_usable(self):
+        # Filtering for an anonymous user
+        params = {'usable': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'usable': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+
 class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
     queryset = ExportTemplate.objects.all()
     filterset = ExportTemplateFilterSet
