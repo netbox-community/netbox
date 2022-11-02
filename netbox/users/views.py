@@ -273,11 +273,6 @@ class TokenEditView(LoginRequiredMixin, View):
             form = TokenForm(request.POST)
 
         if form.is_valid():
-            if 'view_token' in request.POST and request.POST['view_token']:
-                if '_addanother' in request.POST:
-                    return redirect(request.path)
-                else:
-                    return redirect('users:token_list')
 
             token = form.save(commit=False)
             token.user = request.user
