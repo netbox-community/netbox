@@ -1,7 +1,11 @@
 from decimal import Decimal
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    # Python 3.8
+    from backports.zoneinfo import ZoneInfo
 
 import yaml
-from backports.zoneinfo import ZoneInfo
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
