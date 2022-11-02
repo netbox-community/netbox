@@ -24,6 +24,7 @@ AUTH_BACKEND_ATTRS = {
     'azuread-oauth2': ('Microsoft Azure AD', 'microsoft'),
     'azuread-b2c-oauth2': ('Microsoft Azure AD', 'microsoft'),
     'azuread-tenant-oauth2': ('Microsoft Azure AD', 'microsoft'),
+    'azuread-v2-tenant-oauth2': ('Microsoft Azure AD', 'microsoft'),
     'bitbucket': ('BitBucket', 'bitbucket'),
     'bitbucket-oauth2': ('BitBucket', 'bitbucket'),
     'digitalocean': ('DigitalOcean', 'digital-ocean'),
