@@ -1,6 +1,7 @@
 import binascii
 import os
 
+from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
@@ -230,12 +231,12 @@ class Token(models.Model):
                   'Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"',
     )
 
-    class Meta:
-        pass
-
     def __str__(self):
-        # Only display the last 24 bits of the token to avoid accidental exposure.
-        return f"{self.key[-6:]} ({self.user})"
+        return self.key if settings.ALLOW_TOKEN_RETRIEVAL else self.partial
+
+    @property
+    def partial(self):
+        return f'**********************************{self.key[-6:]}' if self.key else ''
 
     def save(self, *args, **kwargs):
         if not self.key:
