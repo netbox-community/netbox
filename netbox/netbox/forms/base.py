@@ -83,6 +83,8 @@ class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
             if tag.strip().lower() not in existing_tags:
                 raise ValidationError(f"Unknown tag: {tag}")
 
+        return data
+
 
 class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
     """
