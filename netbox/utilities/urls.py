@@ -2,7 +2,7 @@ from django.urls import path
 from django.utils.module_loading import import_string
 from django.views.generic import View
 
-from extras.registry import registry
+from netbox.registry import registry
 
 
 def get_model_urls(app_label, model_name):

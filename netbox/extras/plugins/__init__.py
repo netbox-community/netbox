@@ -7,8 +7,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import get_template
 from django.utils.module_loading import import_string
 
-from extras.registry import registry
 from netbox.navigation import MenuGroup
+from netbox.registry import registry
 from netbox.search import register_search
 from utilities.choices import ButtonColorChoices
 

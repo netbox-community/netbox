@@ -2,7 +2,7 @@ from collections import namedtuple
 
 from django.db import models
 
-from extras.registry import registry
+from netbox.registry import registry
 
 ObjectFieldValue = namedtuple('ObjectFieldValue', ('name', 'type', 'weight', 'value'))
 

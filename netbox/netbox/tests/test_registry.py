@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from extras.registry import Registry
+from netbox.registry import Registry
 
 
 class RegistryTest(TestCase):

@@ -3,7 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
-from extras.registry import registry
+from netbox.registry import registry
 from .permissions import resolve_permission
 
 __all__ = (

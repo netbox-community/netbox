@@ -2,7 +2,7 @@ from django import template
 from django.urls import reverse
 from django.utils.module_loading import import_string
 
-from extras.registry import registry
+from netbox.registry import registry
 
 register = template.Library()
 

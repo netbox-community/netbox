@@ -9,7 +9,7 @@ from django.db.models.signals import post_delete, post_save
 from django.utils.module_loading import import_string
 
 from extras.models import CachedValue, CustomField
-from extras.registry import registry
+from netbox.registry import registry
 from utilities.querysets import RestrictedPrefetch
 from utilities.templatetags.builtins.filters import bettertitle
 from . import FieldTypes, LookupTypes, get_indexer

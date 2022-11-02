@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand, CommandError
 
-from extras.registry import registry
+from netbox.registry import registry
 from netbox.search.backends import search_backend
 
 

@@ -3,7 +3,7 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 
 from extras.plugins import PluginTemplateExtension
-from extras.registry import registry
+from netbox.registry import registry
 
 register = template_.Library()
 

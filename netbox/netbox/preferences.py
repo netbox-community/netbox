@@ -1,4 +1,4 @@
-from extras.registry import registry
+from netbox.registry import registry
 from users.preferences import UserPreference
 from utilities.paginator import EnhancedPaginator
 

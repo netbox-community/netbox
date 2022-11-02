@@ -6,9 +6,9 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from extras.plugins import PluginMenu
-from extras.registry import registry
 from extras.tests.dummy_plugin import config as dummy_config
 from netbox.graphql.schema import Query
+from netbox.registry import registry
 
 
 @skipIf('extras.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")

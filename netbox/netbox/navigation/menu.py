@@ -1,4 +1,4 @@
-from extras.registry import registry
+from netbox.registry import registry
 from . import *
 
 
