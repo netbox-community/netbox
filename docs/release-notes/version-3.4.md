@@ -56,6 +56,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 * [#9046](https://github.com/netbox-community/netbox/issues/9046) - Remove legacy contact fields from provider model
 * [#10358](https://github.com/netbox-community/netbox/issues/10358) - Raise minimum required PostgreSQL version from 10 to 11
 * [#10699](https://github.com/netbox-community/netbox/issues/10699) - Remove custom `import_object()` function
+* [#10816](https://github.com/netbox-community/netbox/issues/10816) - Pass the current request when instantiating a FilterSet within UI views
 
 ### REST API Changes
 

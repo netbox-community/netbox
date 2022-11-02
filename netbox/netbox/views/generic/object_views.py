@@ -126,7 +126,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         child_objects = self.get_children(request, instance)
 
         if self.filterset:
-            child_objects = self.filterset(request.GET, child_objects).qs
+            child_objects = self.filterset(request.GET, child_objects, request=request).qs
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user, model=self.child_model)
