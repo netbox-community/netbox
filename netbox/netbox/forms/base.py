@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
@@ -74,6 +75,13 @@ class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
 
     def _get_form_field(self, customfield):
         return customfield.to_form_field(for_csv_import=True)
+
+    def clean_tags(self):
+        data = self.cleaned_data['tags']
+        existing_tags = Tag.objects.values_list('slug', flat=True)
+        for tag in data:
+            if tag.strip().lower() not in existing_tags:
+                raise ValidationError(f"Unknown tag: {tag}")
 
 
 class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
