@@ -42,7 +42,7 @@ class WirelessLANSerializer(NetBoxModelSerializer):
         model = WirelessLAN
         fields = [
             'id', 'url', 'display', 'ssid', 'description', 'group', 'vlan', 'tenant', 'auth_type', 'auth_cipher',
-            'auth_psk', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'auth_psk', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -59,5 +59,5 @@ class WirelessLinkSerializer(NetBoxModelSerializer):
         model = WirelessLink
         fields = [
             'id', 'url', 'display', 'interface_a', 'interface_b', 'ssid', 'status', 'tenant', 'auth_type',
-            'auth_cipher', 'auth_psk', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'auth_cipher', 'auth_psk', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
