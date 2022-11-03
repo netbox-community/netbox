@@ -1,3 +1,4 @@
+from django.utils.translation import gettext as _
 from dcim.models import Device, Interface, Location, Region, Site, SiteGroup
 from ipam.models import VLAN, VLANGroup
 from netbox.forms import NetBoxModelForm
@@ -63,7 +64,7 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
-        label='VLAN group',
+        label=_('VLAN group'),
         null_option='None',
         query_params={
             'site': '$site'
@@ -75,7 +76,7 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='VLAN',
+        label=_('VLAN'),
         query_params={
             'site_id': '$site',
             'group_id': '$vlan_group',
@@ -107,7 +108,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
     site_a = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        label='Site',
+        label=_('Site'),
         initial_params={
             'devices': '$device_a',
         }
@@ -118,7 +119,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'site_id': '$site_a',
         },
         required=False,
-        label='Location',
+        label=_('Location'),
         initial_params={
             'devices': '$device_a',
         }
@@ -130,7 +131,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'location_id': '$location_a',
         },
         required=False,
-        label='Device',
+        label=_('Device'),
         initial_params={
             'interfaces': '$interface_a'
         }
@@ -142,12 +143,12 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'device_id': '$device_a',
         },
         disabled_indicator='_occupied',
-        label='Interface'
+        label=_('Interface')
     )
     site_b = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        label='Site',
+        label=_('Site'),
         initial_params={
             'devices': '$device_b',
         }
@@ -158,7 +159,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'site_id': '$site_b',
         },
         required=False,
-        label='Location',
+        label=_('Location'),
         initial_params={
             'devices': '$device_b',
         }
@@ -170,7 +171,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'location_id': '$location_b',
         },
         required=False,
-        label='Device',
+        label=_('Device'),
         initial_params={
             'interfaces': '$interface_b'
         }
@@ -182,7 +183,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'device_id': '$device_b',
         },
         disabled_indicator='_occupied',
-        label='Interface'
+        label=_('Interface')
     )
     comments = CommentField()
 

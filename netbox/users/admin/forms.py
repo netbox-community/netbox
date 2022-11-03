@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError, ValidationError
+from django.utils.translation import gettext as _
 
 from users.constants import CONSTRAINT_TOKEN_USER, OBJECTPERMISSION_OBJECT_TYPES
 from users.models import ObjectPermission, Token
@@ -46,7 +47,7 @@ class GroupAdminForm(forms.ModelForm):
 class TokenAdminForm(forms.ModelForm):
     key = forms.CharField(
         required=False,
-        help_text="If no key is provided, one will be generated automatically."
+        help_text=_("If no key is provided, one will be generated automatically.")
     )
 
     class Meta:
@@ -70,10 +71,10 @@ class ObjectPermissionForm(forms.ModelForm):
         model = ObjectPermission
         exclude = []
         help_texts = {
-            'actions': 'Actions granted in addition to those listed above',
-            'constraints': 'JSON expression of a queryset filter that will return only permitted objects. Leave null '
-                           'to match all objects of this type. A list of multiple objects will result in a logical OR '
-                           'operation.'
+            'actions': _('Actions granted in addition to those listed above'),
+            'constraints': _('JSON expression of a queryset filter that will return only permitted objects. Leave null '
+                             'to match all objects of this type. A list of multiple objects will result in a logical OR '
+                             'operation.')
         }
         labels = {
             'actions': 'Additional actions'

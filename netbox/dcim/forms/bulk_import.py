@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from dcim.choices import *
 from dcim.constants import *
@@ -52,7 +53,7 @@ class RegionCSVForm(NetBoxModelCSVForm):
         queryset=Region.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of parent region'
+        help_text=_('Name of parent region')
     )
 
     class Meta:
@@ -65,7 +66,7 @@ class SiteGroupCSVForm(NetBoxModelCSVForm):
         queryset=SiteGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of parent site group'
+        help_text=_('Name of parent site group')
     )
 
     class Meta:
@@ -76,25 +77,25 @@ class SiteGroupCSVForm(NetBoxModelCSVForm):
 class SiteCSVForm(NetBoxModelCSVForm):
     status = CSVChoiceField(
         choices=SiteStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     region = CSVModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned region'
+        help_text=_('Assigned region')
     )
     group = CSVModelChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned group'
+        help_text=_('Assigned group')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
 
     class Meta:
@@ -105,7 +106,7 @@ class SiteCSVForm(NetBoxModelCSVForm):
         )
         help_texts = {
             'time_zone': mark_safe(
-                'Time zone (<a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">available options</a>)'
+                _('Time zone (<a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">available options</a>)')
             )
         }
 
@@ -114,26 +115,26 @@ class LocationCSVForm(NetBoxModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Assigned site'
+        help_text=_('Assigned site')
     )
     parent = CSVModelChoiceField(
         queryset=Location.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent location',
+        help_text=_('Parent location'),
         error_messages={
-            'invalid_choice': 'Location not found.',
+            'invalid_choice': _('Location not found.'),
         }
     )
     status = CSVChoiceField(
         choices=LocationStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
 
     class Meta:
@@ -148,7 +149,7 @@ class RackRoleCSVForm(NetBoxModelCSVForm):
         model = RackRole
         fields = ('name', 'slug', 'color', 'description', 'tags')
         help_texts = {
-            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
+            'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
         }
 
 
@@ -166,31 +167,31 @@ class RackCSVForm(NetBoxModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned tenant'
+        help_text=_('Name of assigned tenant')
     )
     status = CSVChoiceField(
         choices=RackStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     role = CSVModelChoiceField(
         queryset=RackRole.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned role'
+        help_text=_('Name of assigned role')
     )
     type = CSVChoiceField(
         choices=RackTypeChoices,
         required=False,
-        help_text='Rack type'
+        help_text=_('Rack type')
     )
     width = forms.ChoiceField(
         choices=RackWidthChoices,
-        help_text='Rail-to-rail width (in inches)'
+        help_text=_('Rail-to-rail width (in inches)')
     )
     outer_unit = CSVChoiceField(
         choices=RackDimensionUnitChoices,
         required=False,
-        help_text='Unit for outer dimensions'
+        help_text=_('Unit for outer dimensions')
     )
 
     class Meta:
@@ -215,29 +216,29 @@ class RackReservationCSVForm(NetBoxModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Parent site'
+        help_text=_('Parent site')
     )
     location = CSVModelChoiceField(
         queryset=Location.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Rack's location (if any)"
+        help_text=_("Rack's location (if any)")
     )
     rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
         to_field_name='name',
-        help_text='Rack'
+        help_text=_('Rack')
     )
     units = SimpleArrayField(
         base_field=forms.IntegerField(),
         required=True,
-        help_text='Comma-separated list of individual unit numbers'
+        help_text=_('Comma-separated list of individual unit numbers')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
 
     class Meta:
@@ -275,7 +276,7 @@ class DeviceRoleCSVForm(NetBoxModelCSVForm):
         model = DeviceRole
         fields = ('name', 'slug', 'color', 'vm_role', 'description', 'tags')
         help_texts = {
-            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
+            'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
         }
 
 
@@ -285,7 +286,7 @@ class PlatformCSVForm(NetBoxModelCSVForm):
         queryset=Manufacturer.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Limit platform assignments to this manufacturer'
+        help_text=_('Limit platform assignments to this manufacturer')
     )
 
     class Meta:
@@ -297,45 +298,45 @@ class BaseDeviceCSVForm(NetBoxModelCSVForm):
     device_role = CSVModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
-        help_text='Assigned role'
+        help_text=_('Assigned role')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     manufacturer = CSVModelChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='name',
-        help_text='Device type manufacturer'
+        help_text=_('Device type manufacturer')
     )
     device_type = CSVModelChoiceField(
         queryset=DeviceType.objects.all(),
         to_field_name='model',
-        help_text='Device type model'
+        help_text=_('Device type model')
     )
     platform = CSVModelChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned platform'
+        help_text=_('Assigned platform')
     )
     status = CSVChoiceField(
         choices=DeviceStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     virtual_chassis = CSVModelChoiceField(
         queryset=VirtualChassis.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Virtual chassis'
+        help_text=_('Virtual chassis')
     )
     cluster = CSVModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Virtualization cluster'
+        help_text=_('Virtualization cluster')
     )
 
     class Meta:
@@ -360,29 +361,29 @@ class DeviceCSVForm(BaseDeviceCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Assigned site'
+        help_text=_('Assigned site')
     )
     location = CSVModelChoiceField(
         queryset=Location.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Assigned location (if any)"
+        help_text=_("Assigned location (if any)")
     )
     rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Assigned rack (if any)"
+        help_text=_("Assigned rack (if any)")
     )
     face = CSVChoiceField(
         choices=DeviceFaceChoices,
         required=False,
-        help_text='Mounted rack face'
+        help_text=_('Mounted rack face')
     )
     airflow = CSVChoiceField(
         choices=DeviceAirflowChoices,
         required=False,
-        help_text='Airflow direction'
+        help_text=_('Airflow direction')
     )
 
     class Meta(BaseDeviceCSVForm.Meta):
@@ -442,12 +443,12 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
     parent = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Parent device'
+        help_text=_('Parent device')
     )
     device_bay = CSVModelChoiceField(
         queryset=DeviceBay.objects.all(),
         to_field_name='name',
-        help_text='Device bay in which this device is installed'
+        help_text=_('Device bay in which this device is installed')
     )
 
     class Meta(BaseDeviceCSVForm.Meta):
@@ -492,14 +493,14 @@ class ConsolePortCSVForm(NetBoxModelCSVForm):
     type = CSVChoiceField(
         choices=ConsolePortTypeChoices,
         required=False,
-        help_text='Port type'
+        help_text=_('Port type')
     )
     speed = CSVTypedChoiceField(
         choices=ConsolePortSpeedChoices,
         coerce=int,
         empty_value=None,
         required=False,
-        help_text='Port speed in bps'
+        help_text=_('Port speed in bps')
     )
 
     class Meta:
@@ -515,14 +516,14 @@ class ConsoleServerPortCSVForm(NetBoxModelCSVForm):
     type = CSVChoiceField(
         choices=ConsolePortTypeChoices,
         required=False,
-        help_text='Port type'
+        help_text=_('Port type')
     )
     speed = CSVTypedChoiceField(
         choices=ConsolePortSpeedChoices,
         coerce=int,
         empty_value=None,
         required=False,
-        help_text='Port speed in bps'
+        help_text=_('Port speed in bps')
     )
 
     class Meta:
@@ -538,7 +539,7 @@ class PowerPortCSVForm(NetBoxModelCSVForm):
     type = CSVChoiceField(
         choices=PowerPortTypeChoices,
         required=False,
-        help_text='Port type'
+        help_text=_('Port type')
     )
 
     class Meta:
@@ -556,18 +557,18 @@ class PowerOutletCSVForm(NetBoxModelCSVForm):
     type = CSVChoiceField(
         choices=PowerOutletTypeChoices,
         required=False,
-        help_text='Outlet type'
+        help_text=_('Outlet type')
     )
     power_port = CSVModelChoiceField(
         queryset=PowerPort.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Local power port which feeds this outlet'
+        help_text=_('Local power port which feeds this outlet')
     )
     feed_leg = CSVChoiceField(
         choices=PowerOutletFeedLegChoices,
         required=False,
-        help_text='Electrical phase (for three-phase circuits)'
+        help_text=_('Electrical phase (for three-phase circuits)')
     )
 
     class Meta:
@@ -606,23 +607,23 @@ class InterfaceCSVForm(NetBoxModelCSVForm):
         queryset=Interface.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent interface'
+        help_text=_('Parent interface')
     )
     bridge = CSVModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Bridged interface'
+        help_text=_('Bridged interface')
     )
     lag = CSVModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent LAG interface'
+        help_text=_('Parent LAG interface')
     )
     type = CSVChoiceField(
         choices=InterfaceTypeChoices,
-        help_text='Physical medium'
+        help_text=_('Physical medium')
     )
     duplex = CSVChoiceField(
         choices=InterfaceDuplexChoices,
@@ -631,28 +632,28 @@ class InterfaceCSVForm(NetBoxModelCSVForm):
     poe_mode = CSVChoiceField(
         choices=InterfacePoEModeChoices,
         required=False,
-        help_text='PoE mode'
+        help_text=_('PoE mode')
     )
     poe_type = CSVChoiceField(
         choices=InterfacePoETypeChoices,
         required=False,
-        help_text='PoE type'
+        help_text=_('PoE type')
     )
     mode = CSVChoiceField(
         choices=InterfaceModeChoices,
         required=False,
-        help_text='IEEE 802.1Q operational mode (for L2 interfaces)'
+        help_text=_('IEEE 802.1Q operational mode (for L2 interfaces)')
     )
     vrf = CSVModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
         to_field_name='rd',
-        help_text='Assigned VRF'
+        help_text=_('Assigned VRF')
     )
     rf_role = CSVChoiceField(
         choices=WirelessRoleChoices,
         required=False,
-        help_text='Wireless role (AP/station)'
+        help_text=_('Wireless role (AP/station)')
     )
 
     class Meta:
@@ -692,11 +693,11 @@ class FrontPortCSVForm(NetBoxModelCSVForm):
     rear_port = CSVModelChoiceField(
         queryset=RearPort.objects.all(),
         to_field_name='name',
-        help_text='Corresponding rear port'
+        help_text=_('Corresponding rear port')
     )
     type = CSVChoiceField(
         choices=PortTypeChoices,
-        help_text='Physical medium classification'
+        help_text=_('Physical medium classification')
     )
 
     class Meta:
@@ -706,7 +707,7 @@ class FrontPortCSVForm(NetBoxModelCSVForm):
             'description', 'tags'
         )
         help_texts = {
-            'rear_port_position': 'Mapped position on corresponding rear port',
+            'rear_port_position': _('Mapped position on corresponding rear port'),
         }
 
     def __init__(self, *args, **kwargs):
@@ -738,7 +739,7 @@ class RearPortCSVForm(NetBoxModelCSVForm):
         to_field_name='name'
     )
     type = CSVChoiceField(
-        help_text='Physical medium classification',
+        help_text=_('Physical medium classification'),
         choices=PortTypeChoices,
     )
 
@@ -746,7 +747,7 @@ class RearPortCSVForm(NetBoxModelCSVForm):
         model = RearPort
         fields = ('device', 'name', 'label', 'type', 'color', 'mark_connected', 'positions', 'description', 'tags')
         help_texts = {
-            'positions': 'Number of front ports which may be mapped'
+            'positions': _('Number of front ports which may be mapped')
         }
 
 
@@ -770,9 +771,9 @@ class DeviceBayCSVForm(NetBoxModelCSVForm):
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Child device installed within this bay',
+        help_text=_('Child device installed within this bay'),
         error_messages={
-            'invalid_choice': 'Child device not found.',
+            'invalid_choice': _('Child device not found.'),
         }
     )
 
@@ -826,7 +827,7 @@ class InventoryItemCSVForm(NetBoxModelCSVForm):
         queryset=Device.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Parent inventory item'
+        help_text=_('Parent inventory item')
     )
 
     class Meta:
@@ -863,7 +864,7 @@ class InventoryItemRoleCSVForm(NetBoxModelCSVForm):
         model = InventoryItemRole
         fields = ('name', 'slug', 'color', 'description')
         help_texts = {
-            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
+            'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
         }
 
 
@@ -876,53 +877,53 @@ class CableCSVForm(NetBoxModelCSVForm):
     side_a_device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Side A device'
+        help_text=_('Side A device')
     )
     side_a_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=CABLE_TERMINATION_MODELS,
-        help_text='Side A type'
+        help_text=_('Side A type')
     )
     side_a_name = forms.CharField(
-        help_text='Side A component name'
+        help_text=_('Side A component name')
     )
 
     # Termination B
     side_b_device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Side B device'
+        help_text=_('Side B device')
     )
     side_b_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=CABLE_TERMINATION_MODELS,
-        help_text='Side B type'
+        help_text=_('Side B type')
     )
     side_b_name = forms.CharField(
-        help_text='Side B component name'
+        help_text=_('Side B component name')
     )
 
     # Cable attributes
     status = CSVChoiceField(
         choices=LinkStatusChoices,
         required=False,
-        help_text='Connection status'
+        help_text=_('Connection status')
     )
     type = CSVChoiceField(
         choices=CableTypeChoices,
         required=False,
-        help_text='Physical medium classification'
+        help_text=_('Physical medium classification')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     length_unit = CSVChoiceField(
         choices=CableLengthUnitChoices,
         required=False,
-        help_text='Length unit'
+        help_text=_('Length unit')
     )
 
     class Meta:
@@ -932,7 +933,7 @@ class CableCSVForm(NetBoxModelCSVForm):
             'status', 'tenant', 'label', 'color', 'length', 'length_unit', 'description', 'comments', 'tags',
         ]
         help_texts = {
-            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
+            'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
         }
 
     def _clean_side(self, side):
@@ -981,7 +982,7 @@ class VirtualChassisCSVForm(NetBoxModelCSVForm):
         queryset=Device.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Master device'
+        help_text=_('Master device')
     )
 
     class Meta:
@@ -997,7 +998,7 @@ class PowerPanelCSVForm(NetBoxModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Name of parent site'
+        help_text=_('Name of parent site')
     )
     location = CSVModelChoiceField(
         queryset=Location.objects.all(),
@@ -1023,40 +1024,40 @@ class PowerFeedCSVForm(NetBoxModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Assigned site'
+        help_text=_('Assigned site')
     )
     power_panel = CSVModelChoiceField(
         queryset=PowerPanel.objects.all(),
         to_field_name='name',
-        help_text='Upstream power panel'
+        help_text=_('Upstream power panel')
     )
     location = CSVModelChoiceField(
         queryset=Location.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Rack's location (if any)"
+        help_text=_("Rack's location (if any)")
     )
     rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Rack'
+        help_text=_('Rack')
     )
     status = CSVChoiceField(
         choices=PowerFeedStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     type = CSVChoiceField(
         choices=PowerFeedTypeChoices,
-        help_text='Primary or redundant'
+        help_text=_('Primary or redundant')
     )
     supply = CSVChoiceField(
         choices=PowerFeedSupplyChoices,
-        help_text='Supply type (AC/DC)'
+        help_text=_('Supply type (AC/DC)')
     )
     phase = CSVChoiceField(
         choices=PowerFeedPhaseChoices,
-        help_text='Single or three-phase'
+        help_text=_('Single or three-phase')
     )
 
     class Meta:

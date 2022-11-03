@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin, DateTimePicker
 
@@ -11,6 +12,6 @@ class ReportForm(BootstrapMixin, forms.Form):
     schedule_at = forms.DateTimeField(
         required=False,
         widget=DateTimePicker(),
-        label="Schedule at",
-        help_text="Schedule execution of report to a set time",
+        label=_("Schedule at"),
+        help_text=_("Schedule execution of report to a set time"),
     )

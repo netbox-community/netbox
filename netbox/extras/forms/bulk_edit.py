@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from extras.choices import *
 from extras.models import *
@@ -37,7 +38,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
         required=False
     )
     ui_visibility = forms.ChoiceField(
-        label="UI visibility",
+        label=_("UI visibility"),
         choices=add_blank_choice(CustomFieldVisibilityChoices),
         required=False,
         initial='',
@@ -143,23 +144,23 @@ class WebhookBulkEditForm(BulkEditForm):
     http_method = forms.ChoiceField(
         choices=add_blank_choice(WebhookHttpMethodChoices),
         required=False,
-        label='HTTP method'
+        label=_('HTTP method')
     )
     payload_url = forms.CharField(
         required=False,
-        label='Payload URL'
+        label=_('Payload URL')
     )
     ssl_verification = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),
-        label='SSL verification'
+        label=_('SSL verification')
     )
     secret = forms.CharField(
         required=False
     )
     ca_file_path = forms.CharField(
         required=False,
-        label='CA file path'
+        label=_('CA file path')
     )
 
     nullable_fields = ('secret', 'conditions', 'ca_file_path')

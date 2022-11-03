@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.http import QueryDict
+from django.utils.translation import gettext as _
 
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
@@ -31,14 +32,14 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
-        label='Model(s)'
+        label=_('Model(s)')
     )
     object_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
         # TODO: Come up with a canonical way to register suitable models
         limit_choices_to=FeatureQuery('webhooks'),
         required=False,
-        help_text="Type of the related object (for object/multi-object fields only)"
+        help_text=_("Type of the related object (for object/multi-object fields only)")
     )
 
     fieldsets = (
@@ -54,8 +55,8 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         model = CustomField
         fields = '__all__'
         help_texts = {
-            'type': "The type of data stored in this field. For object/multi-object fields, select the related object "
-                    "type below."
+            'type': _("The type of data stored in this field. For object/multi-object fields, select the related object "
+                      "type below.")
         }
         widgets = {
             'type': StaticSelect(),
@@ -84,9 +85,9 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
             'link_url': forms.Textarea(attrs={'class': 'font-monospace'}),
         }
         help_texts = {
-            'link_text': 'Jinja2 template code for the link text. Reference the object as <code>{{ object }}</code>. '
-                         'Links which render as empty text will not be displayed.',
-            'link_url': 'Jinja2 template code for the link URL. Reference the object as <code>{{ object }}</code>.',
+            'link_text': _('Jinja2 template code for the link text. Reference the object as <code>{{ object }}</code>. '
+                           'Links which render as empty text will not be displayed.'),
+            'link_url': _('Jinja2 template code for the link URL. Reference the object as <code>{{ object }}</code>.'),
         }
 
 

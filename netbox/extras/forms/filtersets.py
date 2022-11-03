@@ -41,7 +41,7 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
         required=False,
-        label='Object type'
+        label=_('Object type')
     )
     type = MultipleChoiceField(
         choices=CustomFieldTypeChoices,
@@ -209,7 +209,7 @@ class WebhookFilterForm(SavedFiltersMixin, FilterForm):
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('webhooks'),
         required=False,
-        label='Object type'
+        label=_('Object type')
     )
     http_method = MultipleChoiceField(
         choices=WebhookHttpMethodChoices,

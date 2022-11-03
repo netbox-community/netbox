@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from dcim.choices import *
 from dcim.constants import *
@@ -12,13 +13,13 @@ class InterfaceCommonForm(forms.Form):
     mac_address = forms.CharField(
         empty_value=None,
         required=False,
-        label='MAC address'
+        label=_('MAC address')
     )
     mtu = forms.IntegerField(
         required=False,
         min_value=INTERFACE_MTU_MIN,
         max_value=INTERFACE_MTU_MAX,
-        label='MTU'
+        label=_('MTU')
     )
 
     def clean(self):

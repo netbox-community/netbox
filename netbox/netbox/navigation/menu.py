@@ -1,119 +1,120 @@
+from django.utils.translation import gettext as _
+
 from netbox.registry import registry
 from . import *
-
 
 #
 # Nav menus
 #
 
 ORGANIZATION_MENU = Menu(
-    label='Organization',
+    label=_('Organization'),
     icon_class='mdi mdi-domain',
     groups=(
         MenuGroup(
-            label='Sites',
+            label=_('Sites'),
             items=(
-                get_model_item('dcim', 'site', 'Sites'),
-                get_model_item('dcim', 'region', 'Regions'),
-                get_model_item('dcim', 'sitegroup', 'Site Groups'),
-                get_model_item('dcim', 'location', 'Locations'),
+                get_model_item('dcim', 'site', _('Sites')),
+                get_model_item('dcim', 'region', _('Regions')),
+                get_model_item('dcim', 'sitegroup', _('Site Groups')),
+                get_model_item('dcim', 'location', _('Locations')),
             ),
         ),
         MenuGroup(
-            label='Racks',
+            label=_('Racks'),
             items=(
-                get_model_item('dcim', 'rack', 'Racks'),
-                get_model_item('dcim', 'rackrole', 'Rack Roles'),
-                get_model_item('dcim', 'rackreservation', 'Reservations'),
+                get_model_item('dcim', 'rack', _('Racks')),
+                get_model_item('dcim', 'rackrole', _('Rack Roles')),
+                get_model_item('dcim', 'rackreservation', _('Reservations')),
                 MenuItem(
                     link='dcim:rack_elevation_list',
-                    link_text='Elevations',
+                    link_text=_('Elevations'),
                     permissions=['dcim.view_rack']
                 ),
             ),
         ),
         MenuGroup(
-            label='Tenancy',
+            label=_('Tenancy'),
             items=(
-                get_model_item('tenancy', 'tenant', 'Tenants'),
-                get_model_item('tenancy', 'tenantgroup', 'Tenant Groups'),
+                get_model_item('tenancy', 'tenant', _('Tenants')),
+                get_model_item('tenancy', 'tenantgroup', _('Tenant Groups')),
             ),
         ),
         MenuGroup(
-            label='Contacts',
+            label=_('Contacts'),
             items=(
-                get_model_item('tenancy', 'contact', 'Contacts'),
-                get_model_item('tenancy', 'contactgroup', 'Contact Groups'),
-                get_model_item('tenancy', 'contactrole', 'Contact Roles'),
+                get_model_item('tenancy', 'contact', _('Contacts')),
+                get_model_item('tenancy', 'contactgroup', _('Contact Groups')),
+                get_model_item('tenancy', 'contactrole', _('Contact Roles')),
             ),
         ),
     ),
 )
 
 DEVICES_MENU = Menu(
-    label='Devices',
+    label=_('Devices'),
     icon_class='mdi mdi-server',
     groups=(
         MenuGroup(
-            label='Devices',
+            label=_('Devices'),
             items=(
-                get_model_item('dcim', 'device', 'Devices'),
-                get_model_item('dcim', 'module', 'Modules'),
-                get_model_item('dcim', 'devicerole', 'Device Roles'),
-                get_model_item('dcim', 'platform', 'Platforms'),
-                get_model_item('dcim', 'virtualchassis', 'Virtual Chassis'),
-                get_model_item('dcim', 'virtualdevicecontext', 'Virtual Device Contexts'),
+                get_model_item('dcim', 'device', _('Devices')),
+                get_model_item('dcim', 'module', _('Modules')),
+                get_model_item('dcim', 'devicerole', _('Device Roles')),
+                get_model_item('dcim', 'platform', _('Platforms')),
+                get_model_item('dcim', 'virtualchassis', _('Virtual Chassis')),
+                get_model_item('dcim', 'virtualdevicecontext', _('Virtual Device Contexts')),
             ),
         ),
         MenuGroup(
-            label='Device Types',
+            label=_('Device Types'),
             items=(
-                get_model_item('dcim', 'devicetype', 'Device Types'),
-                get_model_item('dcim', 'moduletype', 'Module Types'),
-                get_model_item('dcim', 'manufacturer', 'Manufacturers'),
+                get_model_item('dcim', 'devicetype', _('Device Types')),
+                get_model_item('dcim', 'moduletype', _('Module Types')),
+                get_model_item('dcim', 'manufacturer', _('Manufacturers')),
             ),
         ),
         MenuGroup(
-            label='Device Components',
+            label=_('Device Components'),
             items=(
-                get_model_item('dcim', 'interface', 'Interfaces', actions=['import']),
-                get_model_item('dcim', 'frontport', 'Front Ports', actions=['import']),
-                get_model_item('dcim', 'rearport', 'Rear Ports', actions=['import']),
-                get_model_item('dcim', 'consoleport', 'Console Ports', actions=['import']),
-                get_model_item('dcim', 'consoleserverport', 'Console Server Ports', actions=['import']),
-                get_model_item('dcim', 'powerport', 'Power Ports', actions=['import']),
-                get_model_item('dcim', 'poweroutlet', 'Power Outlets', actions=['import']),
-                get_model_item('dcim', 'modulebay', 'Module Bays', actions=['import']),
-                get_model_item('dcim', 'devicebay', 'Device Bays', actions=['import']),
-                get_model_item('dcim', 'inventoryitem', 'Inventory Items', actions=['import']),
-                get_model_item('dcim', 'inventoryitemrole', 'Inventory Item Roles'),
+                get_model_item('dcim', 'interface', _('Interfaces'), actions=['import']),
+                get_model_item('dcim', 'frontport', _('Front Ports'), actions=['import']),
+                get_model_item('dcim', 'rearport', _('Rear Ports'), actions=['import']),
+                get_model_item('dcim', 'consoleport', _('Console Ports'), actions=['import']),
+                get_model_item('dcim', 'consoleserverport', _('Console Server Ports'), actions=['import']),
+                get_model_item('dcim', 'powerport', _('Power Ports'), actions=['import']),
+                get_model_item('dcim', 'poweroutlet', _('Power Outlets'), actions=['import']),
+                get_model_item('dcim', 'modulebay', _('Module Bays'), actions=['import']),
+                get_model_item('dcim', 'devicebay', _('Device Bays'), actions=['import']),
+                get_model_item('dcim', 'inventoryitem', _('Inventory Items'), actions=['import']),
+                get_model_item('dcim', 'inventoryitemrole', _('Inventory Item Roles')),
             ),
         ),
     ),
 )
 
 CONNECTIONS_MENU = Menu(
-    label='Connections',
+    label=_('Connections'),
     icon_class='mdi mdi-connection',
     groups=(
         MenuGroup(
-            label='Connections',
+            label=_('Connections'),
             items=(
-                get_model_item('dcim', 'cable', 'Cables', actions=['import']),
-                get_model_item('wireless', 'wirelesslink', 'Wireless Links', actions=['import']),
+                get_model_item('dcim', 'cable', _('Cables'), actions=['import']),
+                get_model_item('wireless', 'wirelesslink', _('Wireless Links'), actions=['import']),
                 MenuItem(
                     link='dcim:interface_connections_list',
-                    link_text='Interface Connections',
+                    link_text=_('Interface Connections'),
                     permissions=['dcim.view_interface']
                 ),
                 MenuItem(
                     link='dcim:console_connections_list',
-                    link_text='Console Connections',
+                    link_text=_('Console Connections'),
                     permissions=['dcim.view_consoleport']
                 ),
                 MenuItem(
                     link='dcim:power_connections_list',
-                    link_text='Power Connections',
+                    link_text=_('Power Connections'),
                     permissions=['dcim.view_powerport']
                 ),
             ),
@@ -122,192 +123,192 @@ CONNECTIONS_MENU = Menu(
 )
 
 WIRELESS_MENU = Menu(
-    label='Wireless',
+    label=_('Wireless'),
     icon_class='mdi mdi-wifi',
     groups=(
         MenuGroup(
-            label='Wireless',
+            label=_('Wireless'),
             items=(
-                get_model_item('wireless', 'wirelesslan', 'Wireless LANs'),
-                get_model_item('wireless', 'wirelesslangroup', 'Wireless LAN Groups'),
+                get_model_item('wireless', 'wirelesslan', _('Wireless LANs')),
+                get_model_item('wireless', 'wirelesslangroup', _('Wireless LAN Groups')),
             ),
         ),
     ),
 )
 
 IPAM_MENU = Menu(
-    label='IPAM',
+    label=_('IPAM'),
     icon_class='mdi mdi-counter',
     groups=(
         MenuGroup(
-            label='IP Addresses',
+            label=_('IP Addresses'),
             items=(
-                get_model_item('ipam', 'ipaddress', 'IP Addresses'),
-                get_model_item('ipam', 'iprange', 'IP Ranges'),
+                get_model_item('ipam', 'ipaddress', _('IP Addresses')),
+                get_model_item('ipam', 'iprange', _('IP Ranges')),
             ),
         ),
         MenuGroup(
-            label='Prefixes',
+            label=_('Prefixes'),
             items=(
-                get_model_item('ipam', 'prefix', 'Prefixes'),
-                get_model_item('ipam', 'role', 'Prefix & VLAN Roles'),
+                get_model_item('ipam', 'prefix', _('Prefixes')),
+                get_model_item('ipam', 'role', _('Prefix & VLAN Roles')),
             ),
         ),
         MenuGroup(
-            label='ASNs',
+            label=_('ASNs'),
             items=(
-                get_model_item('ipam', 'asn', 'ASNs'),
+                get_model_item('ipam', 'asn', _('ASNs')),
             ),
         ),
         MenuGroup(
-            label='Aggregates',
+            label=_('Aggregates'),
             items=(
-                get_model_item('ipam', 'aggregate', 'Aggregates'),
-                get_model_item('ipam', 'rir', 'RIRs'),
+                get_model_item('ipam', 'aggregate', _('Aggregates')),
+                get_model_item('ipam', 'rir', _('RIRs')),
             ),
         ),
         MenuGroup(
-            label='VRFs',
+            label=_('VRFs'),
             items=(
-                get_model_item('ipam', 'vrf', 'VRFs'),
-                get_model_item('ipam', 'routetarget', 'Route Targets'),
+                get_model_item('ipam', 'vrf', _('VRFs')),
+                get_model_item('ipam', 'routetarget', _('Route Targets')),
             ),
         ),
         MenuGroup(
-            label='VLANs',
+            label=_('VLANs'),
             items=(
-                get_model_item('ipam', 'vlan', 'VLANs'),
-                get_model_item('ipam', 'vlangroup', 'VLAN Groups'),
+                get_model_item('ipam', 'vlan', _('VLANs')),
+                get_model_item('ipam', 'vlangroup', _('VLAN Groups')),
             ),
         ),
         MenuGroup(
-            label='Other',
+            label=_('Other'),
             items=(
-                get_model_item('ipam', 'fhrpgroup', 'FHRP Groups'),
-                get_model_item('ipam', 'servicetemplate', 'Service Templates'),
-                get_model_item('ipam', 'service', 'Services'),
+                get_model_item('ipam', 'fhrpgroup', _('FHRP Groups')),
+                get_model_item('ipam', 'servicetemplate', _('Service Templates')),
+                get_model_item('ipam', 'service', _('Services')),
             ),
         ),
     ),
 )
 
 OVERLAY_MENU = Menu(
-    label='Overlay',
+    label=_('Overlay'),
     icon_class='mdi mdi-graph-outline',
     groups=(
         MenuGroup(
             label='L2VPNs',
             items=(
-                get_model_item('ipam', 'l2vpn', 'L2VPNs'),
-                get_model_item('ipam', 'l2vpntermination', 'Terminations'),
+                get_model_item('ipam', 'l2vpn', _('L2VPNs')),
+                get_model_item('ipam', 'l2vpntermination', _('Terminations')),
             ),
         ),
     ),
 )
 
 VIRTUALIZATION_MENU = Menu(
-    label='Virtualization',
+    label=_('Virtualization'),
     icon_class='mdi mdi-monitor',
     groups=(
         MenuGroup(
-            label='Virtual Machines',
+            label=_('Virtual Machines'),
             items=(
-                get_model_item('virtualization', 'virtualmachine', 'Virtual Machines'),
-                get_model_item('virtualization', 'vminterface', 'Interfaces', actions=['import']),
+                get_model_item('virtualization', 'virtualmachine', _('Virtual Machines')),
+                get_model_item('virtualization', 'vminterface', _('Interfaces'), actions=['import']),
             ),
         ),
         MenuGroup(
-            label='Clusters',
+            label=_('Clusters'),
             items=(
-                get_model_item('virtualization', 'cluster', 'Clusters'),
-                get_model_item('virtualization', 'clustertype', 'Cluster Types'),
-                get_model_item('virtualization', 'clustergroup', 'Cluster Groups'),
+                get_model_item('virtualization', 'cluster', _('Clusters')),
+                get_model_item('virtualization', 'clustertype', _('Cluster Types')),
+                get_model_item('virtualization', 'clustergroup', _('Cluster Groups')),
             ),
         ),
     ),
 )
 
 CIRCUITS_MENU = Menu(
-    label='Circuits',
+    label=_('Circuits'),
     icon_class='mdi mdi-transit-connection-variant',
     groups=(
         MenuGroup(
-            label='Circuits',
+            label=_('Circuits'),
             items=(
-                get_model_item('circuits', 'circuit', 'Circuits'),
-                get_model_item('circuits', 'circuittype', 'Circuit Types'),
+                get_model_item('circuits', 'circuit', _('Circuits')),
+                get_model_item('circuits', 'circuittype', _('Circuit Types')),
             ),
         ),
         MenuGroup(
-            label='Providers',
+            label=_('Providers'),
             items=(
-                get_model_item('circuits', 'provider', 'Providers'),
-                get_model_item('circuits', 'providernetwork', 'Provider Networks'),
+                get_model_item('circuits', 'provider', _('Providers')),
+                get_model_item('circuits', 'providernetwork', _('Provider Networks')),
             ),
         ),
     ),
 )
 
 POWER_MENU = Menu(
-    label='Power',
+    label=_('Power'),
     icon_class='mdi mdi-flash',
     groups=(
         MenuGroup(
-            label='Power',
+            label=_('Power'),
             items=(
-                get_model_item('dcim', 'powerfeed', 'Power Feeds'),
-                get_model_item('dcim', 'powerpanel', 'Power Panels'),
+                get_model_item('dcim', 'powerfeed', _('Power Feeds')),
+                get_model_item('dcim', 'powerpanel', _('Power Panels')),
             ),
         ),
     ),
 )
 
 OTHER_MENU = Menu(
-    label='Other',
+    label=_('Other'),
     icon_class='mdi mdi-notification-clear-all',
     groups=(
         MenuGroup(
-            label='Logging',
+            label=_('Logging'),
             items=(
-                get_model_item('extras', 'journalentry', 'Journal Entries', actions=[]),
-                get_model_item('extras', 'objectchange', 'Change Log', actions=[]),
+                get_model_item('extras', 'journalentry', _('Journal Entries'), actions=[]),
+                get_model_item('extras', 'objectchange', _('Change Log'), actions=[]),
             ),
         ),
         MenuGroup(
-            label='Customization',
+            label=_('Customization'),
             items=(
-                get_model_item('extras', 'customfield', 'Custom Fields'),
-                get_model_item('extras', 'customlink', 'Custom Links'),
-                get_model_item('extras', 'exporttemplate', 'Export Templates'),
-                get_model_item('extras', 'savedfilter', 'Saved Filters'),
+                get_model_item('extras', 'customfield', _('Custom Fields')),
+                get_model_item('extras', 'customlink', _('Custom Links')),
+                get_model_item('extras', 'exporttemplate', _('Export Templates')),
+                get_model_item('extras', 'savedfilter', _('Saved Filters')),
             ),
         ),
         MenuGroup(
-            label='Integrations',
+            label=_('Integrations'),
             items=(
-                get_model_item('extras', 'webhook', 'Webhooks'),
+                get_model_item('extras', 'webhook', _('Webhooks')),
                 MenuItem(
                     link='extras:report_list',
-                    link_text='Reports',
+                    link_text=_('Reports'),
                     permissions=['extras.view_report']
                 ),
                 MenuItem(
                     link='extras:script_list',
-                    link_text='Scripts',
+                    link_text=_('Scripts'),
                     permissions=['extras.view_script']
                 ),
                 MenuItem(
                     link='extras:jobresult_list',
-                    link_text='Job Results',
+                    link_text=_('Job Results'),
                     permissions=['extras.view_jobresult'],
                 ),
             ),
         ),
         MenuGroup(
-            label='Other',
+            label=_('Other'),
             items=(
                 get_model_item('extras', 'tag', 'Tags'),
-                get_model_item('extras', 'configcontext', 'Config Contexts', actions=['add']),
+                get_model_item('extras', 'configcontext', _('Config Contexts'), actions=['add']),
             ),
         ),
     ),
@@ -342,7 +343,7 @@ if registry['plugins']['menu_items']:
         for label, items in registry['plugins']['menu_items'].items()
     ]
     plugins_menu = Menu(
-        label="Plugins",
+        label=_("Plugins"),
         icon_class="mdi mdi-puzzle",
         groups=groups
     )

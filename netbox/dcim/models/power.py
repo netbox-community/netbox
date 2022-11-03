@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from dcim.choices import *
 from netbox.config import ConfigItem
@@ -125,7 +126,7 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
     max_utilization = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
         default=ConfigItem('POWERFEED_DEFAULT_MAX_UTILIZATION'),
-        help_text="Maximum permissible draw (percentage)"
+        help_text=_("Maximum permissible draw (percentage)")
     )
     available_power = models.PositiveIntegerField(
         default=0,

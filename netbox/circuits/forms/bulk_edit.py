@@ -28,7 +28,7 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
     account = forms.CharField(
         max_length=30,
         required=False,
-        label='Account number'
+        label=_('Account number')
     )
     description = forms.CharField(
         max_length=200,
@@ -36,7 +36,7 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
     )
     comments = CommentField(
         widget=SmallTextarea,
-        label='Comments'
+        label=_('Comments')
     )
 
     model = Provider
@@ -56,7 +56,7 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
     service_id = forms.CharField(
         max_length=100,
         required=False,
-        label='Service ID'
+        label=_('Service ID')
     )
     description = forms.CharField(
         max_length=200,
@@ -64,7 +64,7 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
     )
     comments = CommentField(
         widget=SmallTextarea,
-        label='Comments'
+        label=_('Comments')
     )
 
     model = ProviderNetwork
@@ -118,7 +118,7 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
     )
     commit_rate = forms.IntegerField(
         required=False,
-        label='Commit rate (Kbps)'
+        label=_('Commit rate (Kbps)')
     )
     description = forms.CharField(
         max_length=100,
@@ -126,7 +126,7 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
     )
     comments = CommentField(
         widget=SmallTextarea,
-        label='Comments'
+        label=_('Comments')
     )
 
     model = Circuit

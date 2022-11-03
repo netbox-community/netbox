@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from dcim.models import Interface
 from ipam.choices import *
@@ -50,7 +51,7 @@ class VLANGroup(OrganizationalModel):
             MinValueValidator(VLAN_VID_MIN),
             MaxValueValidator(VLAN_VID_MAX)
         ),
-        help_text='Lowest permissible ID of a child VLAN'
+        help_text=_('Lowest permissible ID of a child VLAN')
     )
     max_vid = models.PositiveSmallIntegerField(
         verbose_name='Maximum VLAN ID',
@@ -59,7 +60,7 @@ class VLANGroup(OrganizationalModel):
             MinValueValidator(VLAN_VID_MIN),
             MaxValueValidator(VLAN_VID_MAX)
         ),
-        help_text='Highest permissible ID of a child VLAN'
+        help_text=_('Highest permissible ID of a child VLAN')
     )
 
     class Meta:

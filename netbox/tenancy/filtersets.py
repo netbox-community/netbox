@@ -1,5 +1,6 @@
 import django_filters
 from django.db.models import Q
+from django.utils.translation import gettext as _
 
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
 from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
@@ -25,13 +26,13 @@ __all__ = (
 class ContactGroupFilterSet(OrganizationalModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
-        label='Contact group (ID)',
+        label=_('Contact group (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=ContactGroup.objects.all(),
         to_field_name='slug',
-        label='Contact group (slug)',
+        label=_('Contact group (slug)'),
     )
 
     class Meta:
@@ -51,14 +52,14 @@ class ContactFilterSet(NetBoxModelFilterSet):
         queryset=ContactGroup.objects.all(),
         field_name='group',
         lookup_expr='in',
-        label='Contact group (ID)',
+        label=_('Contact group (ID)'),
     )
     group = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
         field_name='group',
         lookup_expr='in',
         to_field_name='slug',
-        label='Contact group (slug)',
+        label=_('Contact group (slug)'),
     )
 
     class Meta:
@@ -83,17 +84,17 @@ class ContactAssignmentFilterSet(ChangeLoggedModelFilterSet):
     content_type = ContentTypeFilter()
     contact_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Contact.objects.all(),
-        label='Contact (ID)',
+        label=_('Contact (ID)'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContactRole.objects.all(),
-        label='Contact role (ID)',
+        label=_('Contact role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='role__slug',
         queryset=ContactRole.objects.all(),
         to_field_name='slug',
-        label='Contact role (slug)',
+        label=_('Contact role (slug)'),
     )
 
     class Meta:
@@ -105,18 +106,18 @@ class ContactModelFilterSet(django_filters.FilterSet):
     contact = django_filters.ModelMultipleChoiceFilter(
         field_name='contacts__contact',
         queryset=Contact.objects.all(),
-        label='Contact',
+        label=_('Contact'),
     )
     contact_role = django_filters.ModelMultipleChoiceFilter(
         field_name='contacts__role',
         queryset=ContactRole.objects.all(),
-        label='Contact Role'
+        label=_('Contact Role')
     )
     contact_group = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
         field_name='contacts__contact__group',
         lookup_expr='in',
-        label='Contact group',
+        label=_('Contact group'),
     )
 
 
@@ -127,13 +128,13 @@ class ContactModelFilterSet(django_filters.FilterSet):
 class TenantGroupFilterSet(OrganizationalModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
-        label='Tenant group (ID)',
+        label=_('Tenant group (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
-        label='Tenant group (slug)',
+        label=_('Tenant group (slug)'),
     )
 
     class Meta:
@@ -146,14 +147,14 @@ class TenantFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         queryset=TenantGroup.objects.all(),
         field_name='group',
         lookup_expr='in',
-        label='Tenant group (ID)',
+        label=_('Tenant group (ID)'),
     )
     group = TreeNodeMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
         field_name='group',
         lookup_expr='in',
         to_field_name='slug',
-        label='Tenant group (slug)',
+        label=_('Tenant group (slug)'),
     )
 
     class Meta:
@@ -179,22 +180,22 @@ class TenancyFilterSet(django_filters.FilterSet):
         queryset=TenantGroup.objects.all(),
         field_name='tenant__group',
         lookup_expr='in',
-        label='Tenant Group (ID)',
+        label=_('Tenant Group (ID)'),
     )
     tenant_group = TreeNodeMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
         field_name='tenant__group',
         to_field_name='slug',
         lookup_expr='in',
-        label='Tenant Group (slug)',
+        label=_('Tenant Group (slug)'),
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
+        label=_('Tenant (ID)'),
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
         field_name='tenant__slug',
         to_field_name='slug',
-        label='Tenant (slug)',
+        label=_('Tenant (slug)'),
     )

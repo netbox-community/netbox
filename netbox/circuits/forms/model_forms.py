@@ -39,7 +39,7 @@ class ProviderForm(NetBoxModelForm):
             'name', 'slug', 'account', 'asns', 'description', 'comments', 'tags',
         ]
         help_texts = {
-            'name': "Full name of the provider",
+            'name': _("Full name of the provider"),
         }
 
 
@@ -98,8 +98,8 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
             'tenant_group', 'tenant', 'comments', 'tags',
         ]
         help_texts = {
-            'cid': "Unique circuit ID",
-            'commit_rate': "Committed rate",
+            'cid': _("Unique circuit ID"),
+            'commit_rate': _("Committed rate"),
         }
         widgets = {
             'status': StaticSelect(),
@@ -157,9 +157,9 @@ class CircuitTerminationForm(NetBoxModelForm):
             'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         help_texts = {
-            'port_speed': "Physical circuit speed",
-            'xconnect_id': "ID of the local cross-connect",
-            'pp_info': "Patch panel ID and port number(s)"
+            'port_speed': _("Physical circuit speed"),
+            'xconnect_id': _("ID of the local cross-connect"),
+            'pp_info': _("Patch panel ID and port number(s)")
         }
         widgets = {
             'term_side': StaticSelect(),

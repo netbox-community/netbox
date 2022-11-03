@@ -1,7 +1,7 @@
 from django import forms
-from django.utils.translation import gettext as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 from timezone_field import TimeZoneFormField
 
 from dcim.choices import *
@@ -163,14 +163,14 @@ class SiteForm(TenancyForm, NetBoxModelForm):
             'time_zone': StaticSelect(),
         }
         help_texts = {
-            'name': "Full name of the site",
-            'facility': "Data center provider and facility (e.g. Equinix NY7)",
-            'time_zone': "Local time zone",
-            'description': "Short description (will appear in sites list)",
-            'physical_address': "Physical location of the building (e.g. for GPS)",
-            'shipping_address': "If different from the physical address",
-            'latitude': "Latitude in decimal format (xx.yyyyyy)",
-            'longitude': "Longitude in decimal format (xx.yyyyyy)"
+            'name': _("Full name of the site"),
+            'facility': _("Data center provider and facility (e.g. Equinix NY7)"),
+            'time_zone': _("Local time zone"),
+            'description': _("Short description (will appear in sites list)"),
+            'physical_address': _("Physical location of the building (e.g. for GPS)"),
+            'shipping_address': _("If different from the physical address"),
+            'latitude': _("Latitude in decimal format (xx.yyyyyy)"),
+            'longitude': _("Longitude in decimal format (xx.yyyyyy)")
         }
 
 
@@ -282,10 +282,10 @@ class RackForm(TenancyForm, NetBoxModelForm):
             'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'description', 'comments', 'tags',
         ]
         help_texts = {
-            'site': "The site at which the rack exists",
-            'name': "Organizational rack name",
-            'facility_id': "The unique rack ID assigned by the facility",
-            'u_height': "Height in rack units",
+            'site': _("The site at which the rack exists"),
+            'name': _("Organizational rack name"),
+            'facility_id': _("The unique rack ID assigned by the facility"),
+            'u_height': _("Height in rack units"),
         }
         widgets = {
             'status': StaticSelect(),
@@ -335,7 +335,7 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
     )
     units = NumericArrayField(
         base_field=forms.IntegerField(),
-        help_text="Comma-separated list of numeric unit IDs. A range may be specified using a hyphen."
+        help_text=_("Comma-separated list of numeric unit IDs. A range may be specified using a hyphen.")
     )
     user = forms.ModelChoiceField(
         queryset=User.objects.order_by(
@@ -519,7 +519,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     )
     position = forms.DecimalField(
         required=False,
-        help_text="The lowest-numbered unit occupied by the device",
+        help_text=_("The lowest-numbered unit occupied by the device"),
         widget=APISelect(
             api_url='/api/dcim/racks/{{rack}}/elevation/',
             attrs={
@@ -577,13 +577,13 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     )
     vc_position = forms.IntegerField(
         required=False,
-        label='Position',
-        help_text="The position in the virtual chassis this device is identified by"
+        label=_('Position'),
+        help_text=_("The position in the virtual chassis this device is identified by")
     )
     vc_priority = forms.IntegerField(
         required=False,
-        label='Priority',
-        help_text="The priority of the device in the virtual chassis"
+        label=_('Priority'),
+        help_text=_("The priority of the device in the virtual chassis")
     )
 
     class Meta:
@@ -595,10 +595,10 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             'description', 'comments', 'tags', 'local_context_data'
         ]
         help_texts = {
-            'device_role': "The function this device serves",
-            'serial': "Chassis serial number",
-            'local_context_data': "Local config context data overwrites all source contexts in the final rendered "
-                                  "config context",
+            'device_role': _("The function this device serves"),
+            'serial': _("Chassis serial number"),
+            'local_context_data': _("Local config context data overwrites all source contexts in the final rendered "
+                                    "config context"),
         }
         widgets = {
             'face': StaticSelect(),
@@ -695,13 +695,13 @@ class ModuleForm(NetBoxModelForm):
     replicate_components = forms.BooleanField(
         required=False,
         initial=True,
-        help_text="Automatically populate components associated with this module type"
+        help_text=_("Automatically populate components associated with this module type")
     )
 
     adopt_components = forms.BooleanField(
         required=False,
         initial=False,
-        help_text="Adopt already existing components"
+        help_text=_("Adopt already existing components")
     )
 
     fieldsets = (
@@ -1390,7 +1390,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     parent = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        label='Parent interface',
+        label=_('Parent interface'),
         query_params={
             'device_id': '$device',
         }
@@ -1398,7 +1398,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     bridge = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        label='Bridged interface',
+        label=_('Bridged interface'),
         query_params={
             'device_id': '$device',
         }
@@ -1406,7 +1406,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     lag = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        label='LAG interface',
+        label=_('LAG interface'),
         query_params={
             'device_id': '$device',
             'type': 'lag',
@@ -1415,12 +1415,12 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     wireless_lan_group = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False,
-        label='Wireless LAN group'
+        label=_('Wireless LAN group')
     )
     wireless_lans = DynamicModelMultipleChoiceField(
         queryset=WirelessLAN.objects.all(),
         required=False,
-        label='Wireless LANs',
+        label=_('Wireless LANs'),
         query_params={
             'group_id': '$wireless_lan_group',
         }
@@ -1428,12 +1428,12 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
-        label='VLAN group'
+        label=_('VLAN group')
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Untagged VLAN',
+        label=_('Untagged VLAN'),
         query_params={
             'group_id': '$vlan_group',
             'available_on_device': '$device',
@@ -1442,7 +1442,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Tagged VLANs',
+        label=_('Tagged VLANs'),
         query_params={
             'group_id': '$vlan_group',
             'available_on_device': '$device',
@@ -1451,13 +1451,13 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label=_('VRF')
     )
 
     wwn = forms.CharField(
         empty_value=None,
         required=False,
-        label='WWN'
+        label=_('WWN')
     )
 
     fieldsets = (
@@ -1495,8 +1495,8 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         }
         help_texts = {
             'mode': INTERFACE_MODE_HELP_TEXT,
-            'rf_channel_frequency': "Populated by selected channel (if set)",
-            'rf_channel_width': "Populated by selected channel (if set)",
+            'rf_channel_frequency': _("Populated by selected channel (if set)"),
+            'rf_channel_width': _("Populated by selected channel (if set)"),
         }
 
 
@@ -1570,8 +1570,8 @@ class DeviceBayForm(DeviceComponentForm):
 class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
     installed_device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
-        label='Child Device',
-        help_text="Child devices must first be created and assigned to the site/rack of the parent device.",
+        label=_('Child Device'),
+        help_text=_("Child devices must first be created and assigned to the site/rack of the parent device."),
         widget=StaticSelect(),
     )
 

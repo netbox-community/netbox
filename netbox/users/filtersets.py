@@ -1,6 +1,7 @@
 import django_filters
 from django.contrib.auth.models import Group, User
 from django.db.models import Q
+from django.utils.translation import gettext as _
 
 from netbox.filtersets import BaseFilterSet
 from users.models import ObjectPermission, Token
@@ -15,7 +16,7 @@ __all__ = (
 class GroupFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
 
     class Meta:
@@ -31,18 +32,18 @@ class GroupFilterSet(BaseFilterSet):
 class UserFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='groups',
         queryset=Group.objects.all(),
-        label='Group',
+        label=_('Group'),
     )
     group = django_filters.ModelMultipleChoiceFilter(
         field_name='groups__name',
         queryset=Group.objects.all(),
         to_field_name='name',
-        label='Group (name)',
+        label=_('Group (name)'),
     )
 
     class Meta:
@@ -63,18 +64,18 @@ class UserFilterSet(BaseFilterSet):
 class TokenFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='user',
         queryset=User.objects.all(),
-        label='User',
+        label=_('User'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
         queryset=User.objects.all(),
         to_field_name='username',
-        label='User (name)',
+        label=_('User (name)'),
     )
     created = django_filters.DateTimeFilter()
     created__gte = django_filters.DateTimeFilter(
@@ -111,29 +112,29 @@ class TokenFilterSet(BaseFilterSet):
 class ObjectPermissionFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='users',
         queryset=User.objects.all(),
-        label='User',
+        label=_('User'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='users__username',
         queryset=User.objects.all(),
         to_field_name='username',
-        label='User (name)',
+        label=_('User (name)'),
     )
     group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='groups',
         queryset=Group.objects.all(),
-        label='Group',
+        label=_('Group'),
     )
     group = django_filters.ModelMultipleChoiceFilter(
         field_name='groups__name',
         queryset=Group.objects.all(),
         to_field_name='name',
-        label='Group (name)',
+        label=_('Group (name)'),
     )
 
     class Meta:

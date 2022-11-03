@@ -160,11 +160,11 @@ class VirtualMachineFilterForm(
     )
     mac_address = forms.CharField(
         required=False,
-        label='MAC address'
+        label=_('MAC address')
     )
     has_primary_ip = forms.NullBooleanField(
         required=False,
-        label='Has a primary IP',
+        label=_('Has a primary IP'),
         widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )

@@ -1,5 +1,6 @@
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
+from django.utils.translation import gettext as _
 from netbox.forms import NetBoxModelCSVForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVModelChoiceField, SlugField
@@ -26,7 +27,7 @@ class ProviderNetworkCSVForm(NetBoxModelCSVForm):
     provider = CSVModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
-        help_text='Assigned provider'
+        help_text=_('Assigned provider')
     )
 
     class Meta:
@@ -43,7 +44,7 @@ class CircuitTypeCSVForm(NetBoxModelCSVForm):
         model = CircuitType
         fields = ('name', 'slug', 'description', 'tags')
         help_texts = {
-            'name': 'Name of circuit type',
+            'name': _('Name of circuit type'),
         }
 
 
@@ -51,22 +52,22 @@ class CircuitCSVForm(NetBoxModelCSVForm):
     provider = CSVModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
-        help_text='Assigned provider'
+        help_text=_('Assigned provider')
     )
     type = CSVModelChoiceField(
         queryset=CircuitType.objects.all(),
         to_field_name='name',
-        help_text='Type of circuit'
+        help_text=_('Type of circuit')
     )
     status = CSVChoiceField(
         choices=CircuitStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
 
     class Meta:

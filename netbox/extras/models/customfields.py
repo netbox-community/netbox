@@ -11,6 +11,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from extras.choices import *
 from extras.utils import FeatureQuery
@@ -57,25 +58,25 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         to=ContentType,
         related_name='custom_fields',
         limit_choices_to=FeatureQuery('custom_fields'),
-        help_text='The object(s) to which this field applies.'
+        help_text=_('The object(s) to which this field applies.')
     )
     type = models.CharField(
         max_length=50,
         choices=CustomFieldTypeChoices,
         default=CustomFieldTypeChoices.TYPE_TEXT,
-        help_text='The type of data this custom field holds'
+        help_text=_('The type of data this custom field holds')
     )
     object_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.PROTECT,
         blank=True,
         null=True,
-        help_text='The type of NetBox object this field maps to (for object fields)'
+        help_text=_('The type of NetBox object this field maps to (for object fields)')
     )
     name = models.CharField(
         max_length=50,
         unique=True,
-        help_text='Internal field name',
+        help_text=_('Internal field name'),
         validators=(
             RegexValidator(
                 regex=r'^[a-z0-9_]+$',
@@ -87,13 +88,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
     label = models.CharField(
         max_length=50,
         blank=True,
-        help_text='Name of the field as displayed to users (if not provided, '
-                  'the field\'s name will be used)'
+        help_text=_('Name of the field as displayed to users (if not provided, '
+                    'the field\'s name will be used)')
     )
     group_name = models.CharField(
         max_length=50,
         blank=True,
-        help_text="Custom fields within the same group will be displayed together"
+        help_text=_("Custom fields within the same group will be displayed together")
     )
     description = models.CharField(
         max_length=200,
@@ -101,64 +102,64 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
     )
     required = models.BooleanField(
         default=False,
-        help_text='If true, this field is required when creating new objects '
-                  'or editing an existing object.'
+        help_text=_('If true, this field is required when creating new objects '
+                    'or editing an existing object.')
     )
     search_weight = models.PositiveSmallIntegerField(
         default=1000,
-        help_text='Weighting for search. Lower values are considered more important. '
-                  'Fields with a search weight of zero will be ignored.'
+        help_text=_('Weighting for search. Lower values are considered more important. '
+                    'Fields with a search weight of zero will be ignored.')
     )
     filter_logic = models.CharField(
         max_length=50,
         choices=CustomFieldFilterLogicChoices,
         default=CustomFieldFilterLogicChoices.FILTER_LOOSE,
-        help_text='Loose matches any instance of a given string; exact '
-                  'matches the entire field.'
+        help_text=_('Loose matches any instance of a given string; exact '
+                    'matches the entire field.')
     )
     default = models.JSONField(
         blank=True,
         null=True,
-        help_text='Default value for the field (must be a JSON value). Encapsulate '
-                  'strings with double quotes (e.g. "Foo").'
+        help_text=_('Default value for the field (must be a JSON value). Encapsulate '
+                    'strings with double quotes (e.g. "Foo").')
     )
     weight = models.PositiveSmallIntegerField(
         default=100,
         verbose_name='Display weight',
-        help_text='Fields with higher weights appear lower in a form.'
+        help_text=_('Fields with higher weights appear lower in a form.')
     )
     validation_minimum = models.IntegerField(
         blank=True,
         null=True,
         verbose_name='Minimum value',
-        help_text='Minimum allowed value (for numeric fields)'
+        help_text=_('Minimum allowed value (for numeric fields)')
     )
     validation_maximum = models.IntegerField(
         blank=True,
         null=True,
         verbose_name='Maximum value',
-        help_text='Maximum allowed value (for numeric fields)'
+        help_text=_('Maximum allowed value (for numeric fields)')
     )
     validation_regex = models.CharField(
         blank=True,
         validators=[validate_regex],
         max_length=500,
         verbose_name='Validation regex',
-        help_text='Regular expression to enforce on text field values. Use ^ and $ to force matching of entire string. '
-                  'For example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
+        help_text=_('Regular expression to enforce on text field values. Use ^ and $ to force matching of entire string. '
+                    'For example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.')
     )
     choices = ArrayField(
         base_field=models.CharField(max_length=100),
         blank=True,
         null=True,
-        help_text='Comma-separated list of available choices (for selection fields)'
+        help_text=_('Comma-separated list of available choices (for selection fields)')
     )
     ui_visibility = models.CharField(
         max_length=50,
         choices=CustomFieldVisibilityChoices,
         default=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE,
         verbose_name='UI visibility',
-        help_text='Specifies the visibility of custom field in the UI'
+        help_text=_('Specifies the visibility of custom field in the UI')
     )
 
     objects = CustomFieldManager()

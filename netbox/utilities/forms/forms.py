@@ -5,8 +5,9 @@ from io import StringIO
 
 import yaml
 from django import forms
-from utilities.forms.utils import parse_csv
+from django.utils.translation import gettext as _
 
+from utilities.forms.utils import parse_csv
 from .choices import ImportFormatChoices
 from .widgets import APISelect, APISelectMultiple, ClearableFileInput, StaticSelect
 
@@ -103,7 +104,7 @@ class BulkRenameForm(BootstrapMixin, forms.Form):
     use_regex = forms.BooleanField(
         required=False,
         initial=True,
-        label='Use regular expressions'
+        label=_('Use regular expressions')
     )
 
     def clean(self):
@@ -145,7 +146,7 @@ class ImportForm(BootstrapMixin, forms.Form):
     data = forms.CharField(
         required=False,
         widget=forms.Textarea(attrs={'class': 'font-monospace'}),
-        help_text="Enter object data in CSV, JSON or YAML format."
+        help_text=_("Enter object data in CSV, JSON or YAML format.")
     )
     data_file = forms.FileField(
         label="Data file",
@@ -219,7 +220,7 @@ class FilterForm(BootstrapMixin, forms.Form):
     """
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
 
 
@@ -233,7 +234,7 @@ class TableConfigForm(BootstrapMixin, forms.Form):
         widget=forms.SelectMultiple(
             attrs={'size': 10, 'class': 'form-select'}
         ),
-        label='Available Columns'
+        label=_('Available Columns')
     )
     columns = forms.MultipleChoiceField(
         choices=[],
@@ -241,7 +242,7 @@ class TableConfigForm(BootstrapMixin, forms.Form):
         widget=forms.SelectMultiple(
             attrs={'size': 10, 'class': 'form-select'}
         ),
-        label='Selected Columns'
+        label=_('Selected Columns')
     )
 
     def __init__(self, table, *args, **kwargs):

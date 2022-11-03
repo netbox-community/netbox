@@ -5,6 +5,7 @@ from django.db import models
 from django_filters.exceptions import FieldLookupError
 from django_filters.utils import get_model_field, resolve_field
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 
 from extras.choices import CustomFieldFilterLogicChoices
 from extras.filters import TagFilter
@@ -235,7 +236,7 @@ class NetBoxModelFilterSet(ChangeLoggedModelFilterSet):
     """
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     tag = TagFilter()
 

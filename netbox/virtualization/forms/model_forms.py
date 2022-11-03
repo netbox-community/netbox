@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 from dcim.forms.common import InterfaceCommonForm
 from dcim.forms.model_forms import INTERFACE_MODE_HELP_TEXT
@@ -204,7 +205,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
             'cluster_id': '$cluster',
             'site_id': '$site',
         },
-        help_text="Optionally pin this VM to a specific host device within the cluster"
+        help_text=_("Optionally pin this VM to a specific host device within the cluster")
     )
     role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -240,8 +241,8 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
             'local_context_data',
         ]
         help_texts = {
-            'local_context_data': "Local config context data overwrites all sources contexts in the final rendered "
-                                  "config context",
+            'local_context_data': _("Local config context data overwrites all sources contexts in the final rendered "
+                                    "config context"),
         }
         widgets = {
             "status": StaticSelect(),
@@ -297,7 +298,7 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
-        label='Parent interface',
+        label=_('Parent interface'),
         query_params={
             'virtual_machine_id': '$virtual_machine',
         }
@@ -305,7 +306,7 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
     bridge = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
-        label='Bridged interface',
+        label=_('Bridged interface'),
         query_params={
             'virtual_machine_id': '$virtual_machine',
         }
@@ -313,12 +314,12 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
-        label='VLAN group'
+        label=_('VLAN group')
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Untagged VLAN',
+        label=_('Untagged VLAN'),
         query_params={
             'group_id': '$vlan_group',
             'available_on_virtualmachine': '$virtual_machine',
@@ -327,7 +328,7 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Tagged VLANs',
+        label=_('Tagged VLANs'),
         query_params={
             'group_id': '$vlan_group',
             'available_on_virtualmachine': '$virtual_machine',
@@ -336,7 +337,7 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label=_('VRF')
     )
 
     fieldsets = (

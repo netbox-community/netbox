@@ -1,3 +1,4 @@
+from django.utils.translation import gettext as _
 from netbox.forms import NetBoxModelCSVForm
 from tenancy.models import *
 from utilities.forms import CSVModelChoiceField, SlugField
@@ -20,7 +21,7 @@ class TenantGroupCSVForm(NetBoxModelCSVForm):
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent group'
+        help_text=_('Parent group')
     )
     slug = SlugField()
 
@@ -35,7 +36,7 @@ class TenantCSVForm(NetBoxModelCSVForm):
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned group'
+        help_text=_('Assigned group')
     )
 
     class Meta:
@@ -52,7 +53,7 @@ class ContactGroupCSVForm(NetBoxModelCSVForm):
         queryset=ContactGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent group'
+        help_text=_('Parent group')
     )
     slug = SlugField()
 
@@ -74,7 +75,7 @@ class ContactCSVForm(NetBoxModelCSVForm):
         queryset=ContactGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned group'
+        help_text=_('Assigned group')
     )
 
     class Meta:

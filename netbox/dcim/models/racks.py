@@ -10,6 +10,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from dcim.choices import *
 from dcim.constants import *
@@ -64,7 +65,7 @@ class Rack(PrimaryModel, WeightMixin):
         blank=True,
         null=True,
         verbose_name='Facility ID',
-        help_text='Locally-assigned identifier'
+        help_text=_('Locally-assigned identifier')
     )
     site = models.ForeignKey(
         to='dcim.Site',
@@ -96,7 +97,7 @@ class Rack(PrimaryModel, WeightMixin):
         related_name='racks',
         blank=True,
         null=True,
-        help_text='Functional role'
+        help_text=_('Functional role')
     )
     serial = models.CharField(
         max_length=50,
@@ -109,7 +110,7 @@ class Rack(PrimaryModel, WeightMixin):
         null=True,
         unique=True,
         verbose_name='Asset tag',
-        help_text='A unique tag used to identify this rack'
+        help_text=_('A unique tag used to identify this rack')
     )
     type = models.CharField(
         choices=RackTypeChoices,
@@ -121,28 +122,28 @@ class Rack(PrimaryModel, WeightMixin):
         choices=RackWidthChoices,
         default=RackWidthChoices.WIDTH_19IN,
         verbose_name='Width',
-        help_text='Rail-to-rail width'
+        help_text=_('Rail-to-rail width')
     )
     u_height = models.PositiveSmallIntegerField(
         default=RACK_U_HEIGHT_DEFAULT,
         verbose_name='Height (U)',
         validators=[MinValueValidator(1), MaxValueValidator(100)],
-        help_text='Height in rack units'
+        help_text=_('Height in rack units')
     )
     desc_units = models.BooleanField(
         default=False,
         verbose_name='Descending units',
-        help_text='Units are numbered top-to-bottom'
+        help_text=_('Units are numbered top-to-bottom')
     )
     outer_width = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
-        help_text='Outer dimension of rack (width)'
+        help_text=_('Outer dimension of rack (width)')
     )
     outer_depth = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
-        help_text='Outer dimension of rack (depth)'
+        help_text=_('Outer dimension of rack (depth)')
     )
     outer_unit = models.CharField(
         max_length=50,
@@ -153,8 +154,8 @@ class Rack(PrimaryModel, WeightMixin):
         blank=True,
         null=True,
         help_text=(
-            'Maximum depth of a mounted device, in millimeters. For four-post racks, this is the '
-            'distance between the front and rear rails.'
+            _('Maximum depth of a mounted device, in millimeters. For four-post racks, this is the '
+              'distance between the front and rear rails.')
         )
     )
 

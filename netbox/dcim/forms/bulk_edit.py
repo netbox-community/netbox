@@ -1,6 +1,6 @@
 from django import forms
-from django.utils.translation import gettext as _
 from django.contrib.auth.models import User
+from django.utils.translation import gettext as _
 from timezone_field import TimeZoneFormField
 
 from dcim.choices import *
@@ -126,7 +126,7 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
     )
     contact_email = forms.EmailField(
         required=False,
-        label='Contact E-mail'
+        label=_('Contact E-mail')
     )
     time_zone = TimeZoneFormField(
         choices=add_blank_choice(TimeZoneFormField().choices),
@@ -248,7 +248,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
     serial = forms.CharField(
         max_length=50,
         required=False,
-        label='Serial Number'
+        label=_('Serial Number')
     )
     asset_tag = forms.CharField(
         max_length=50,
@@ -266,12 +266,12 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
     )
     u_height = forms.IntegerField(
         required=False,
-        label='Height (U)'
+        label=_('Height (U)')
     )
     desc_units = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect,
-        label='Descending units'
+        label=_('Descending units')
     )
     outer_width = forms.IntegerField(
         required=False,
@@ -380,7 +380,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
     is_full_depth = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),
-        label='Is full depth'
+        label=_('Is full depth')
     )
     airflow = forms.ChoiceField(
         choices=add_blank_choice(DeviceAirflowChoices),
@@ -456,7 +456,7 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
     vm_role = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect,
-        label='VM role'
+        label=_('VM role')
     )
     description = forms.CharField(
         max_length=200,
@@ -540,7 +540,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
     serial = forms.CharField(
         max_length=50,
         required=False,
-        label='Serial Number'
+        label=_('Serial Number')
     )
     description = forms.CharField(
         max_length=200,
@@ -577,7 +577,7 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
     serial = forms.CharField(
         max_length=50,
         required=False,
-        label='Serial Number'
+        label=_('Serial Number')
     )
     description = forms.CharField(
         max_length=200,
@@ -767,7 +767,7 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
     )
     comments = CommentField(
         widget=SmallTextarea,
-        label='Comments'
+        label=_('Comments')
     )
 
     model = PowerFeed
@@ -838,12 +838,12 @@ class PowerPortTemplateBulkEditForm(BulkEditForm):
     maximum_draw = forms.IntegerField(
         min_value=1,
         required=False,
-        help_text="Maximum power draw (watts)"
+        help_text=_("Maximum power draw (watts)")
     )
     allocated_draw = forms.IntegerField(
         min_value=1,
         required=False,
-        help_text="Allocated power draw (watts)"
+        help_text=_("Allocated power draw (watts)")
     )
     description = forms.CharField(
         required=False
@@ -916,7 +916,7 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
     mgmt_only = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect,
-        label='Management only'
+        label=_('Management only')
     )
     description = forms.CharField(
         required=False
@@ -926,14 +926,14 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
         required=False,
         initial='',
         widget=StaticSelect(),
-        label='PoE mode'
+        label=_('PoE mode')
     )
     poe_type = forms.ChoiceField(
         choices=add_blank_choice(InterfacePoETypeChoices),
         required=False,
         initial='',
         widget=StaticSelect(),
-        label='PoE type'
+        label=_('PoE type')
     )
 
     nullable_fields = ('label', 'description', 'poe_mode', 'poe_type')
@@ -1174,31 +1174,31 @@ class InterfaceBulkEditForm(
         query_params={
             'type': 'lag',
         },
-        label='LAG'
+        label=_('LAG')
     )
     speed = forms.IntegerField(
         required=False,
         widget=SelectSpeedWidget(),
-        label='Speed'
+        label=_('Speed')
     )
     mgmt_only = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect,
-        label='Management only'
+        label=_('Management only')
     )
     poe_mode = forms.ChoiceField(
         choices=add_blank_choice(InterfacePoEModeChoices),
         required=False,
         initial='',
         widget=StaticSelect(),
-        label='PoE mode'
+        label=_('PoE mode')
     )
     poe_type = forms.ChoiceField(
         choices=add_blank_choice(InterfacePoETypeChoices),
         required=False,
         initial='',
         widget=StaticSelect(),
-        label='PoE type'
+        label=_('PoE type')
     )
     mark_connected = forms.NullBooleanField(
         required=False,
@@ -1213,7 +1213,7 @@ class InterfaceBulkEditForm(
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
-        label='VLAN group'
+        label=_('VLAN group')
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -1221,7 +1221,7 @@ class InterfaceBulkEditForm(
         query_params={
             'group_id': '$vlan_group',
         },
-        label='Untagged VLAN'
+        label=_('Untagged VLAN')
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
@@ -1229,12 +1229,12 @@ class InterfaceBulkEditForm(
         query_params={
             'group_id': '$vlan_group',
         },
-        label='Tagged VLANs'
+        label=_('Tagged VLANs')
     )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label=_('VRF')
     )
 
     model = Interface

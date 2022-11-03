@@ -5,6 +5,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Q
+from django.utils.translation import gettext as _
 
 from utilities.choices import unpack_grouped_choices
 from utilities.forms.utils import parse_csv, validate_csv
@@ -50,9 +51,9 @@ class CSVDataField(forms.CharField):
         if not self.initial:
             self.initial = ','.join(self.required_fields) + '\n'
         if not self.help_text:
-            self.help_text = 'Enter the list of column headers followed by one line per record to be imported, using ' \
-                             'commas to separate values. Multi-line data and values containing commas may be wrapped ' \
-                             'in double quotes.'
+            self.help_text = _('Enter the list of column headers followed by one line per record to be imported, using '
+                               'commas to separate values. Multi-line data and values containing commas may be wrapped '
+                               'in double quotes.')
 
     def to_python(self, value):
         reader = csv.reader(StringIO(value.strip()))
