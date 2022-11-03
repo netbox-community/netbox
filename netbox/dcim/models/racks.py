@@ -14,7 +14,7 @@ from django.urls import reverse
 from dcim.choices import *
 from dcim.constants import *
 from dcim.svg import RackElevationSVG
-from netbox.models import OrganizationalModel, NetBoxModel
+from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.utils import array_to_string, drange
@@ -46,7 +46,7 @@ class RackRole(OrganizationalModel):
         return reverse('dcim:rackrole', args=[self.pk])
 
 
-class Rack(NetBoxModel, WeightMixin):
+class Rack(PrimaryModel, WeightMixin):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
@@ -156,9 +156,6 @@ class Rack(NetBoxModel, WeightMixin):
             'Maximum depth of a mounted device, in millimeters. For four-post racks, this is the '
             'distance between the front and rear rails.'
         )
-    )
-    comments = models.TextField(
-        blank=True
     )
 
     # Generic relations
@@ -463,7 +460,7 @@ class Rack(NetBoxModel, WeightMixin):
         return round(total_weight / 1000, 2)
 
 
-class RackReservation(NetBoxModel):
+class RackReservation(PrimaryModel):
     """
     One or more reserved units within a Rack.
     """

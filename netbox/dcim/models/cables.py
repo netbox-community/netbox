@@ -12,8 +12,8 @@ from django.urls import reverse
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
-from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_object
-from netbox.models import NetBoxModel
+from dcim.utils import decompile_path_node, object_to_path_node
+from netbox.models import PrimaryModel
 from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import to_meters
@@ -34,7 +34,7 @@ trace_paths = Signal()
 # Cables
 #
 
-class Cable(NetBoxModel):
+class Cable(PrimaryModel):
     """
     A physical connection between two endpoints.
     """

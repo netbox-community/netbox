@@ -6,7 +6,7 @@ from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
-from netbox.models import NestedGroupModel, NetBoxModel
+from netbox.models import NestedGroupModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
 
 __all__ = (
@@ -131,7 +131,7 @@ class SiteGroup(NestedGroupModel):
 # Sites
 #
 
-class Site(NetBoxModel):
+class Site(PrimaryModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
@@ -188,10 +188,6 @@ class Site(NetBoxModel):
     time_zone = TimeZoneField(
         blank=True
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
     physical_address = models.CharField(
         max_length=200,
         blank=True
@@ -213,9 +209,6 @@ class Site(NetBoxModel):
         blank=True,
         null=True,
         help_text='GPS coordinate (longitude)'
-    )
-    comments = models.TextField(
-        blank=True
     )
 
     # Generic relations

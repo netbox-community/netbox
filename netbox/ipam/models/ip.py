@@ -9,7 +9,7 @@ from django.utils.functional import cached_property
 
 from dcim.fields import ASNField
 from dcim.models import Device
-from netbox.models import OrganizationalModel, NetBoxModel
+from netbox.models import OrganizationalModel, PrimaryModel
 from ipam.choices import *
 from ipam.constants import *
 from ipam.fields import IPNetworkField, IPAddressField
@@ -76,7 +76,7 @@ class RIR(OrganizationalModel):
         return reverse('ipam:rir', args=[self.pk])
 
 
-class ASN(NetBoxModel):
+class ASN(PrimaryModel):
     """
     An autonomous system (AS) number is typically used to represent an independent routing domain. A site can have
     one or more ASNs assigned to it.
@@ -85,10 +85,6 @@ class ASN(NetBoxModel):
         unique=True,
         verbose_name='ASN',
         help_text='32-bit autonomous system number'
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
     )
     rir = models.ForeignKey(
         to='ipam.RIR',
@@ -139,7 +135,7 @@ class ASN(NetBoxModel):
             return self.asn
 
 
-class Aggregate(GetAvailablePrefixesMixin, NetBoxModel):
+class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
     """
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
     the hierarchy and track the overall utilization of available address space. Each Aggregate is assigned to a RIR.
@@ -161,10 +157,6 @@ class Aggregate(GetAvailablePrefixesMixin, NetBoxModel):
     date_added = models.DateField(
         blank=True,
         null=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
     )
 
     clone_fields = (
@@ -264,7 +256,7 @@ class Role(OrganizationalModel):
         return reverse('ipam:role', args=[self.pk])
 
 
-class Prefix(GetAvailablePrefixesMixin, NetBoxModel):
+class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
     """
     A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
     VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role. A Prefix can also be
@@ -326,10 +318,6 @@ class Prefix(GetAvailablePrefixesMixin, NetBoxModel):
     mark_utilized = models.BooleanField(
         default=False,
         help_text="Treat as 100% utilized"
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
     )
 
     # Cached depth & child counts
@@ -545,7 +533,7 @@ class Prefix(GetAvailablePrefixesMixin, NetBoxModel):
         return min(utilization, 100)
 
 
-class IPRange(NetBoxModel):
+class IPRange(PrimaryModel):
     """
     A range of IP addresses, defined by start and end addresses.
     """
@@ -586,10 +574,6 @@ class IPRange(NetBoxModel):
         blank=True,
         null=True,
         help_text='The primary function of this range'
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
     )
 
     clone_fields = (
@@ -740,7 +724,7 @@ class IPRange(NetBoxModel):
         return int(float(child_count) / self.size * 100)
 
 
-class IPAddress(NetBoxModel):
+class IPAddress(PrimaryModel):
     """
     An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is
     configured in the real world. (Typically, only loopback interfaces are configured with /32 or /128 masks.) Like
@@ -812,10 +796,6 @@ class IPAddress(NetBoxModel):
         validators=[DNSValidator],
         verbose_name='DNS Name',
         help_text='Hostname or FQDN (not case-sensitive)'
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
     )
 
     objects = IPAddressManager()

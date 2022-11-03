@@ -2,11 +2,11 @@ from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.models import MPTTModel
 
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
-from netbox.models import NestedGroupModel, NetBoxModel
+from netbox.models import NestedGroupModel, PrimaryModel
 from .choices import *
 from .constants import *
 
@@ -69,7 +69,7 @@ class WirelessLANGroup(NestedGroupModel):
         return reverse('wireless:wirelesslangroup', args=[self.pk])
 
 
-class WirelessLAN(WirelessAuthenticationBase, NetBoxModel):
+class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
     """
     A wireless network formed among an arbitrary number of access point and clients.
     """
@@ -98,10 +98,6 @@ class WirelessLAN(WirelessAuthenticationBase, NetBoxModel):
         blank=True,
         null=True
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
 
     clone_fields = ('ssid', 'group', 'tenant', 'description')
 
@@ -122,7 +118,7 @@ def get_wireless_interface_types():
     return {'type__in': WIRELESS_IFACE_TYPES}
 
 
-class WirelessLink(WirelessAuthenticationBase, NetBoxModel):
+class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
     """
     A point-to-point connection between two wireless Interfaces.
     """
@@ -156,10 +152,6 @@ class WirelessLink(WirelessAuthenticationBase, NetBoxModel):
         related_name='wireless_links',
         blank=True,
         null=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
     )
 
     # Cache the associated device for the A and B interfaces. This enables filtering of WirelessLinks by their

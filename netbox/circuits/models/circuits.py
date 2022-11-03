@@ -7,7 +7,7 @@ from django.urls import reverse
 from circuits.choices import *
 from dcim.models import CabledObjectModel
 from netbox.models import (
-    ChangeLoggedModel, CustomFieldsMixin, CustomLinksMixin, OrganizationalModel, NetBoxModel, TagsMixin,
+    ChangeLoggedModel, CustomFieldsMixin, CustomLinksMixin, OrganizationalModel, PrimaryModel, TagsMixin,
 )
 from netbox.models.features import WebhooksMixin
 
@@ -27,7 +27,7 @@ class CircuitType(OrganizationalModel):
         return reverse('circuits:circuittype', args=[self.pk])
 
 
-class Circuit(NetBoxModel):
+class Circuit(PrimaryModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
     circuits. Each circuit is also assigned a CircuitType and a Site.  Circuit port speed and commit rate are measured
@@ -73,13 +73,6 @@ class Circuit(NetBoxModel):
         blank=True,
         null=True,
         verbose_name='Commit rate (Kbps)')
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-    comments = models.TextField(
-        blank=True
-    )
 
     # Generic relations
     contacts = GenericRelation(
