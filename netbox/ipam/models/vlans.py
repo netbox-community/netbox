@@ -83,9 +83,6 @@ class VLANGroup(OrganizationalModel):
         verbose_name = 'VLAN group'
         verbose_name_plural = 'VLAN groups'
 
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
         return reverse('ipam:vlangroup', args=[self.pk])
 

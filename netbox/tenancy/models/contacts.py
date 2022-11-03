@@ -20,25 +20,6 @@ class ContactGroup(NestedGroupModel):
     """
     An arbitrary collection of Contacts.
     """
-    name = models.CharField(
-        max_length=100
-    )
-    slug = models.SlugField(
-        max_length=100
-    )
-    parent = TreeForeignKey(
-        to='self',
-        on_delete=models.CASCADE,
-        related_name='children',
-        blank=True,
-        null=True,
-        db_index=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
     class Meta:
         ordering = ['name']
         constraints = (
@@ -56,25 +37,6 @@ class ContactRole(OrganizationalModel):
     """
     Functional role for a Contact assigned to an object.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True,
-    )
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
         return reverse('tenancy:contactrole', args=[self.pk])
 

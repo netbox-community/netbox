@@ -72,7 +72,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(blank=True, max_length=200)),
             ],
             options={
-                'ordering': ['name'],
+                'ordering': ('name',),
             },
         ),
         migrations.CreateModel(
@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(blank=True, max_length=200)),
             ],
             options={
-                'ordering': ['name'],
+                'ordering': ('name',),
             },
         ),
         migrations.CreateModel(

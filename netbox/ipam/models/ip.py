@@ -61,31 +61,16 @@ class RIR(OrganizationalModel):
     A Regional Internet Registry (RIR) is responsible for the allocation of a large portion of the global IP address
     space. This can be an organization like ARIN or RIPE, or a governing standard such as RFC 1918.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
     is_private = models.BooleanField(
         default=False,
         verbose_name='Private',
         help_text='IP space managed by this RIR is considered private'
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
         verbose_name = 'RIR'
         verbose_name_plural = 'RIRs'
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('ipam:rir', args=[self.pk])
@@ -265,24 +250,12 @@ class Role(OrganizationalModel):
     A Role represents the functional role of a Prefix or VLAN; for example, "Customer," "Infrastructure," or
     "Management."
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
     weight = models.PositiveSmallIntegerField(
         default=1000
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True,
-    )
 
     class Meta:
-        ordering = ['weight', 'name']
+        ordering = ('weight', 'name')
 
     def __str__(self):
         return self.name

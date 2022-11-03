@@ -33,25 +33,6 @@ class ClusterType(OrganizationalModel):
     """
     A type of Cluster.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
         return reverse('virtualization:clustertype', args=[self.pk])
 
@@ -64,19 +45,6 @@ class ClusterGroup(OrganizationalModel):
     """
     An organizational group of Clusters.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
     # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
@@ -87,12 +55,6 @@ class ClusterGroup(OrganizationalModel):
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
     )
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('virtualization:clustergroup', args=[self.pk])

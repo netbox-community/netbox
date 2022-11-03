@@ -23,18 +23,6 @@ class TenantGroup(NestedGroupModel):
         max_length=100,
         unique=True
     )
-    parent = TreeForeignKey(
-        to='self',
-        on_delete=models.CASCADE,
-        related_name='children',
-        blank=True,
-        null=True,
-        db_index=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
 
     class Meta:
         ordering = ['name']

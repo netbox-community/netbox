@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={
-                'ordering': ['name'],
+                'ordering': ('name',),
             },
         ),
         migrations.AddField(

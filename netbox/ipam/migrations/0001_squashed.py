@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'RIR',
                 'verbose_name_plural': 'RIRs',
-                'ordering': ['name'],
+                'ordering': ('name',),
             },
         ),
         migrations.CreateModel(
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(blank=True, max_length=200)),
             ],
             options={
-                'ordering': ['weight', 'name'],
+                'ordering': ('weight', 'name'),
             },
         ),
         migrations.CreateModel(
