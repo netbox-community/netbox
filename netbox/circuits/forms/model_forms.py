@@ -29,7 +29,7 @@ class ProviderForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Provider', ('name', 'slug', 'asns', 'tags')),
+        ('Provider', ('name', 'slug', 'asns', 'description', 'tags')),
         ('Support Info', ('account',)),
     )
 

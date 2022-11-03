@@ -30,6 +30,10 @@
                         <td>{{ object.platform|linkify|placeholder }}</td>
                     </tr>
                     <tr>
+                      <th scope="row">Description</th>
+                      <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Tenant</th>
                         <td>
                             {% if object.tenant.group %}

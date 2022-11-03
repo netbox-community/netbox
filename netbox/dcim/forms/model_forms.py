@@ -278,7 +278,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
         fields = [
             'region', 'site_group', 'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status',
             'role', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'comments', 'tags',
+            'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'description', 'comments', 'tags',
         ]
         help_texts = {
             'site': "The site at which the rack exists",
@@ -384,10 +384,10 @@ class DeviceTypeForm(NetBoxModelForm):
 
     fieldsets = (
         ('Device Type', (
-            'manufacturer', 'model', 'slug', 'part_number', 'tags',
+            'manufacturer', 'model', 'slug', 'description', 'tags',
         )),
         ('Chassis', (
-            'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
+            'u_height', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow',
         )),
         ('Attributes', ('weight', 'weight_unit')),
         ('Images', ('front_image', 'rear_image')),
@@ -419,9 +419,8 @@ class ModuleTypeForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Module Type', (
-            'manufacturer', 'model', 'part_number', 'tags', 'weight', 'weight_unit', 'description',
-        )),
+        ('Module Type', ('manufacturer', 'model', 'part_number', 'description', 'tags')),
+        ('Weight', ('weight', 'weight_unit'))
     )
 
     class Meta:
@@ -706,7 +705,7 @@ class ModuleForm(NetBoxModelForm):
 
     fieldsets = (
         ('Module', (
-            'device', 'module_bay', 'manufacturer', 'module_type', 'tags',
+            'device', 'module_bay', 'manufacturer', 'module_type', 'description', 'tags',
         )),
         ('Hardware', (
             'serial', 'asset_tag', 'replicate_components', 'adopt_components',
