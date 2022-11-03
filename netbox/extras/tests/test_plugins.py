@@ -5,7 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from extras.plugins import PluginMenu
+from extras.plugins import PluginMenu, get_plugin_config
 from extras.tests.dummy_plugin import config as dummy_config
 from netbox.graphql.schema import Query
 from netbox.registry import registry
@@ -173,3 +173,13 @@ class PluginTest(TestCase):
 
         self.assertIn(DummyQuery, registry['plugins']['graphql_schemas'])
         self.assertTrue(issubclass(Query, DummyQuery))
+
+    @override_settings(PLUGINS_CONFIG={'extras.tests.dummy_plugin': {'foo': 123}})
+    def test_get_plugin_config(self):
+        """
+        Validate that get_plugin_config() returns config parameters correctly.
+        """
+        plugin = 'extras.tests.dummy_plugin'
+        self.assertEqual(get_plugin_config(plugin, 'foo'), 123)
+        self.assertEqual(get_plugin_config(plugin, 'bar'), None)
+        self.assertEqual(get_plugin_config(plugin, 'bar', default=456), 456)
