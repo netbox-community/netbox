@@ -63,7 +63,7 @@ class ClusterCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Cluster
-        fields = ('name', 'type', 'group', 'status', 'site', 'comments')
+        fields = ('name', 'type', 'group', 'status', 'site', 'description', 'comments')
 
 
 class VirtualMachineCSVForm(NetBoxModelCSVForm):
@@ -114,7 +114,7 @@ class VirtualMachineCSVForm(NetBoxModelCSVForm):
         model = VirtualMachine
         fields = (
             'name', 'status', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'comments',
+            'description', 'comments',
         )
 
 

@@ -8,8 +8,8 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BulkEditNullBooleanSelect, DynamicModelChoiceField, NumericArrayField, StaticSelect,
-    DynamicModelMultipleChoiceField,
+    add_blank_choice, BulkEditNullBooleanSelect, CommentField, DynamicModelChoiceField, NumericArrayField,
+    SmallTextarea, StaticSelect, DynamicModelMultipleChoiceField,
 )
 
 __all__ = (
@@ -43,15 +43,19 @@ class VRFBulkEditForm(NetBoxModelBulkEditForm):
         label='Enforce unique space'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=200,
         required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = VRF
     fieldsets = (
         (None, ('tenant', 'enforce_unique', 'description')),
     )
-    nullable_fields = ('tenant', 'description')
+    nullable_fields = ('tenant', 'description', 'comments')
 
 
 class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
@@ -63,12 +67,16 @@ class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
+    )
 
     model = RouteTarget
     fieldsets = (
         (None, ('tenant', 'description')),
     )
-    nullable_fields = ('tenant', 'description')
+    nullable_fields = ('tenant', 'description', 'comments')
 
 
 class RIRBulkEditForm(NetBoxModelBulkEditForm):
@@ -103,15 +111,19 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=200,
         required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = ASN
     fieldsets = (
         (None, ('sites', 'rir', 'tenant', 'description')),
     )
-    nullable_fields = ('date_added', 'description')
+    nullable_fields = ('date_added', 'description', 'comments')
 
 
 class AggregateBulkEditForm(NetBoxModelBulkEditForm):
@@ -128,15 +140,19 @@ class AggregateBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=200,
         required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = Aggregate
     fieldsets = (
         (None, ('rir', 'tenant', 'date_added', 'description')),
     )
-    nullable_fields = ('date_added', 'description')
+    nullable_fields = ('date_added', 'description', 'comments')
 
 
 class RoleBulkEditForm(NetBoxModelBulkEditForm):
@@ -206,8 +222,12 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
         label='Treat as 100% utilized'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=200,
         required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = Prefix
@@ -217,7 +237,7 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
         ('Addressing', ('vrf', 'prefix_length', 'is_pool', 'mark_utilized')),
     )
     nullable_fields = (
-        'site', 'vrf', 'tenant', 'role', 'description',
+        'site', 'vrf', 'tenant', 'role', 'description', 'comments',
     )
 
 
@@ -241,8 +261,12 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=200,
         required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = IPRange
@@ -250,7 +274,7 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
         (None, ('status', 'role', 'vrf', 'tenant', 'description')),
     )
     nullable_fields = (
-        'vrf', 'tenant', 'role', 'description',
+        'vrf', 'tenant', 'role', 'description', 'comments',
     )
 
 
@@ -285,8 +309,12 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
         label='DNS name'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=200,
         required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = IPAddress
@@ -295,7 +323,7 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
         ('Addressing', ('vrf', 'mask_length', 'dns_name')),
     )
     nullable_fields = (
-        'vrf', 'role', 'tenant', 'dns_name', 'description',
+        'vrf', 'role', 'tenant', 'dns_name', 'description', 'comments',
     )
 
 
@@ -329,13 +357,17 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
+    )
 
     model = FHRPGroup
     fieldsets = (
         (None, ('protocol', 'group_id', 'name', 'description')),
         ('Authentication', ('auth_type', 'auth_key')),
     )
-    nullable_fields = ('auth_type', 'auth_key', 'name', 'description')
+    nullable_fields = ('auth_type', 'auth_key', 'name', 'description', 'comments')
 
 
 class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
@@ -405,8 +437,12 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=200,
         required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = VLAN
@@ -415,7 +451,7 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
         ('Site & Group', ('region', 'site_group', 'site', 'group')),
     )
     nullable_fields = (
-        'site', 'group', 'tenant', 'role', 'description',
+        'site', 'group', 'tenant', 'role', 'description', 'comments',
     )
 
 
@@ -433,15 +469,19 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=200,
         required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = ServiceTemplate
     fieldsets = (
         (None, ('protocol', 'ports', 'description')),
     )
-    nullable_fields = ('description',)
+    nullable_fields = ('description', 'comments')
 
 
 class ServiceBulkEditForm(ServiceTemplateBulkEditForm):
@@ -459,15 +499,19 @@ class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=200,
         required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = L2VPN
     fieldsets = (
-        (None, ('type', 'description', 'tenant')),
+        (None, ('type', 'tenant', 'description')),
     )
-    nullable_fields = ('tenant', 'description',)
+    nullable_fields = ('tenant', 'description', 'comments')
 
 
 class L2VPNTerminationBulkEditForm(NetBoxModelBulkEditForm):

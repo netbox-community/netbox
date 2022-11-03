@@ -30,7 +30,7 @@ class DeviceTypeImportForm(BootstrapMixin, forms.ModelForm):
         model = DeviceType
         fields = [
             'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
-            'comments',
+            'description', 'comments',
         ]
 
 
@@ -42,7 +42,7 @@ class ModuleTypeImportForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ModuleType
-        fields = ['manufacturer', 'model', 'part_number', 'comments']
+        fields = ['manufacturer', 'model', 'part_number', 'description', 'comments']
 
 
 #

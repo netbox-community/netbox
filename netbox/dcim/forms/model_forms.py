@@ -342,6 +342,7 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
         ),
         widget=StaticSelect()
     )
+    comments = CommentField()
 
     fieldsets = (
         ('Reservation', ('region', 'site_group', 'site', 'location', 'rack', 'units', 'user', 'description', 'tags')),
@@ -352,7 +353,7 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
         model = RackReservation
         fields = [
             'region', 'site_group', 'site', 'location', 'rack', 'units', 'user', 'tenant_group', 'tenant',
-            'description', 'tags',
+            'description', 'comments', 'tags',
         ]
 
 
@@ -396,7 +397,7 @@ class DeviceTypeForm(NetBoxModelForm):
         model = DeviceType
         fields = [
             'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
-            'weight', 'weight_unit', 'front_image', 'rear_image', 'comments', 'tags',
+            'weight', 'weight_unit', 'front_image', 'rear_image', 'description', 'comments', 'tags',
         ]
         widgets = {
             'airflow': StaticSelect(),
@@ -419,14 +420,14 @@ class ModuleTypeForm(NetBoxModelForm):
 
     fieldsets = (
         ('Module Type', (
-            'manufacturer', 'model', 'part_number', 'tags', 'weight', 'weight_unit'
+            'manufacturer', 'model', 'part_number', 'tags', 'weight', 'weight_unit', 'description',
         )),
     )
 
     class Meta:
         model = ModuleType
         fields = [
-            'manufacturer', 'model', 'part_number', 'weight', 'weight_unit', 'comments', 'tags',
+            'manufacturer', 'model', 'part_number', 'weight', 'weight_unit', 'description', 'comments', 'tags',
         ]
 
         widgets = {
@@ -591,7 +592,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'rack',
             'location', 'position', 'face', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6',
             'cluster_group', 'cluster', 'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'comments', 'tags', 'local_context_data'
+            'description', 'comments', 'tags', 'local_context_data'
         ]
         help_texts = {
             'device_role': "The function this device serves",
@@ -716,7 +717,7 @@ class ModuleForm(NetBoxModelForm):
         model = Module
         fields = [
             'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag', 'tags',
-            'replicate_components', 'adopt_components', 'comments',
+            'replicate_components', 'adopt_components', 'description', 'comments',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -793,11 +794,13 @@ class ModuleForm(NetBoxModelForm):
 
 
 class CableForm(TenancyForm, NetBoxModelForm):
+    comments = CommentField()
 
     class Meta:
         model = Cable
         fields = [
-            'type', 'status', 'tenant_group', 'tenant', 'label', 'color', 'length', 'length_unit', 'tags',
+            'type', 'status', 'tenant_group', 'tenant', 'label', 'color', 'length', 'length_unit', 'description',
+            'comments', 'tags',
         ]
         widgets = {
             'status': StaticSelect,
@@ -840,15 +843,16 @@ class PowerPanelForm(NetBoxModelForm):
             'site_id': '$site'
         }
     )
+    comments = CommentField()
 
     fieldsets = (
-        ('Power Panel', ('region', 'site_group', 'site', 'location', 'name', 'tags')),
+        ('Power Panel', ('region', 'site_group', 'site', 'location', 'name', 'description', 'tags')),
     )
 
     class Meta:
         model = PowerPanel
         fields = [
-            'region', 'site_group', 'site', 'location', 'name', 'tags',
+            'region', 'site_group', 'site', 'location', 'name', 'description', 'comments', 'tags',
         ]
 
 
@@ -894,7 +898,7 @@ class PowerFeedForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Power Panel', ('region', 'site', 'power_panel')),
+        ('Power Panel', ('region', 'site', 'power_panel', 'description')),
         ('Power Feed', ('rack', 'name', 'status', 'type', 'mark_connected', 'tags')),
         ('Characteristics', ('supply', 'voltage', 'amperage', 'phase', 'max_utilization')),
     )
@@ -903,7 +907,7 @@ class PowerFeedForm(NetBoxModelForm):
         model = PowerFeed
         fields = [
             'region', 'site_group', 'site', 'power_panel', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply',
-            'phase', 'voltage', 'amperage', 'max_utilization', 'comments', 'tags',
+            'phase', 'voltage', 'amperage', 'max_utilization', 'description', 'comments', 'tags',
         ]
         widgets = {
             'status': StaticSelect(),
@@ -922,11 +926,12 @@ class VirtualChassisForm(NetBoxModelForm):
         queryset=Device.objects.all(),
         required=False,
     )
+    comments = CommentField()
 
     class Meta:
         model = VirtualChassis
         fields = [
-            'name', 'domain', 'master', 'tags',
+            'name', 'domain', 'master', 'description', 'comments', 'tags',
         ]
         widgets = {
             'master': SelectWithPK(),

@@ -2,7 +2,7 @@ from dcim.models import Device, Interface, Location, Region, Site, SiteGroup
 from ipam.models import VLAN, VLANGroup
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import DynamicModelChoiceField, SlugField, StaticSelect
+from utilities.forms import CommentField, DynamicModelChoiceField, SlugField, StaticSelect
 from wireless.models import *
 
 __all__ = (
@@ -82,6 +82,7 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
             'group_id': '$vlan_group',
         }
     )
+    comments = CommentField()
 
     fieldsets = (
         ('Wireless LAN', ('ssid', 'group', 'description', 'tags')),
@@ -93,8 +94,8 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = WirelessLAN
         fields = [
-            'ssid', 'group', 'description', 'region', 'site_group', 'site', 'vlan_group', 'vlan', 'tenant_group',
-            'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
+            'ssid', 'group', 'region', 'site_group', 'site', 'vlan_group', 'vlan', 'tenant_group', 'tenant',
+            'auth_type', 'auth_cipher', 'auth_psk', 'description', 'comments', 'tags',
         ]
         widgets = {
             'auth_type': StaticSelect,
@@ -183,6 +184,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
         disabled_indicator='_occupied',
         label='Interface'
     )
+    comments = CommentField()
 
     fieldsets = (
         ('Side A', ('site_a', 'location_a', 'device_a', 'interface_a')),
@@ -196,7 +198,8 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
         model = WirelessLink
         fields = [
             'site_a', 'location_a', 'device_a', 'interface_a', 'site_b', 'location_b', 'device_b', 'interface_b',
-            'status', 'ssid', 'tenant_group', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
+            'status', 'ssid', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description',
+            'comments', 'tags',
         ]
         widgets = {
             'status': StaticSelect,

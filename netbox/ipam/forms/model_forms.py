@@ -11,7 +11,7 @@ from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField,
+    add_blank_choice, BootstrapMixin, CommentField, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, NumericArrayField, SlugField, StaticSelect, StaticSelectMultiple,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
@@ -49,6 +49,7 @@ class VRFForm(TenancyForm, NetBoxModelForm):
         queryset=RouteTarget.objects.all(),
         required=False
     )
+    comments = CommentField()
 
     fieldsets = (
         ('VRF', ('name', 'rd', 'enforce_unique', 'description', 'tags')),
@@ -59,8 +60,8 @@ class VRFForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = VRF
         fields = [
-            'name', 'rd', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'tenant_group', 'tenant',
-            'tags',
+            'name', 'rd', 'enforce_unique', 'import_targets', 'export_targets', 'tenant_group', 'tenant', 'description',
+            'comments', 'tags',
         ]
         labels = {
             'rd': "RD",
@@ -75,11 +76,12 @@ class RouteTargetForm(TenancyForm, NetBoxModelForm):
         ('Route Target', ('name', 'description', 'tags')),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
+    comments = CommentField()
 
     class Meta:
         model = RouteTarget
         fields = [
-            'name', 'description', 'tenant_group', 'tenant', 'tags',
+            'name', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
         ]
 
 
@@ -104,6 +106,7 @@ class AggregateForm(TenancyForm, NetBoxModelForm):
         queryset=RIR.objects.all(),
         label='RIR'
     )
+    comments = CommentField()
 
     fieldsets = (
         ('Aggregate', ('prefix', 'rir', 'date_added', 'description', 'tags')),
@@ -113,7 +116,7 @@ class AggregateForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Aggregate
         fields = [
-            'prefix', 'rir', 'date_added', 'description', 'tenant_group', 'tenant', 'tags',
+            'prefix', 'rir', 'date_added', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
         ]
         help_texts = {
             'prefix': "IPv4 or IPv6 network",
@@ -134,6 +137,7 @@ class ASNForm(TenancyForm, NetBoxModelForm):
         label='Sites',
         required=False
     )
+    comments = CommentField()
 
     fieldsets = (
         ('ASN', ('asn', 'rir', 'sites', 'description', 'tags')),
@@ -143,7 +147,7 @@ class ASNForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = ASN
         fields = [
-            'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description', 'tags'
+            'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description', 'comments', 'tags'
         ]
         help_texts = {
             'asn': "AS number",
@@ -235,6 +239,7 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         queryset=Role.objects.all(),
         required=False
     )
+    comments = CommentField()
 
     fieldsets = (
         ('Prefix', ('prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags')),
@@ -245,8 +250,8 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Prefix
         fields = [
-            'prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
-            'tenant_group', 'tenant', 'tags',
+            'prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'tenant_group', 'tenant',
+            'description', 'comments', 'tags',
         ]
         widgets = {
             'status': StaticSelect(),
@@ -263,6 +268,7 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
         queryset=Role.objects.all(),
         required=False
     )
+    comments = CommentField()
 
     fieldsets = (
         ('IP Range', ('vrf', 'start_address', 'end_address', 'role', 'status', 'description', 'tags')),
@@ -272,7 +278,8 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = IPRange
         fields = [
-            'vrf', 'start_address', 'end_address', 'status', 'role', 'description', 'tenant_group', 'tenant', 'tags',
+            'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant', 'description',
+            'comments', 'tags',
         ]
         widgets = {
             'status': StaticSelect(),
@@ -394,13 +401,14 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         required=False,
         label='Make this the primary IP for the device/VM'
     )
+    comments = CommentField()
 
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'primary_for_parent', 'nat_site', 'nat_rack',
-            'nat_device', 'nat_cluster', 'nat_virtual_machine', 'nat_vrf', 'nat_inside', 'tenant_group', 'tenant',
-            'tags',
+            'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'nat_site', 'nat_rack', 'nat_device',
+            'nat_cluster', 'nat_virtual_machine', 'nat_vrf', 'nat_inside', 'tenant_group', 'tenant', 'description',
+            'comments', 'tags',
         ]
         widgets = {
             'status': StaticSelect(),
@@ -535,6 +543,7 @@ class FHRPGroupForm(NetBoxModelForm):
         required=False,
         label='Status'
     )
+    comments = CommentField()
 
     fieldsets = (
         ('FHRP Group', ('protocol', 'group_id', 'name', 'description', 'tags')),
@@ -545,7 +554,8 @@ class FHRPGroupForm(NetBoxModelForm):
     class Meta:
         model = FHRPGroup
         fields = (
-            'protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'description', 'ip_vrf', 'ip_address', 'ip_status', 'tags',
+            'protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'ip_vrf', 'ip_address', 'ip_status', 'description',
+            'comments', 'tags',
         )
 
     def save(self, *args, **kwargs):
@@ -767,11 +777,13 @@ class VLANForm(TenancyForm, NetBoxModelForm):
         queryset=Role.objects.all(),
         required=False
     )
+    comments = CommentField()
 
     class Meta:
         model = VLAN
         fields = [
-            'site', 'group', 'vid', 'name', 'status', 'role', 'description', 'tenant_group', 'tenant', 'tags',
+            'site', 'group', 'vid', 'name', 'status', 'role', 'tenant_group', 'tenant', 'description', 'comments',
+            'tags',
         ]
         help_texts = {
             'site': "Leave blank if this VLAN spans multiple sites",
@@ -794,6 +806,7 @@ class ServiceTemplateForm(NetBoxModelForm):
         ),
         help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen."
     )
+    comments = CommentField()
 
     fieldsets = (
         ('Service Template', (
@@ -803,7 +816,7 @@ class ServiceTemplateForm(NetBoxModelForm):
 
     class Meta:
         model = ServiceTemplate
-        fields = ('name', 'protocol', 'ports', 'description', 'tags')
+        fields = ('name', 'protocol', 'ports', 'description', 'comments', 'tags')
         widgets = {
             'protocol': StaticSelect(),
         }
@@ -834,11 +847,12 @@ class ServiceForm(NetBoxModelForm):
             'virtual_machine_id': '$virtual_machine',
         }
     )
+    comments = CommentField()
 
     class Meta:
         model = Service
         fields = [
-            'device', 'virtual_machine', 'name', 'protocol', 'ports', 'ipaddresses', 'description', 'tags',
+            'device', 'virtual_machine', 'name', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
         ]
         help_texts = {
             'ipaddresses': "IP address assignment is optional. If no IPs are selected, the service is assumed to be "
@@ -899,6 +913,7 @@ class L2VPNForm(TenancyForm, NetBoxModelForm):
         queryset=RouteTarget.objects.all(),
         required=False
     )
+    comments = CommentField()
 
     fieldsets = (
         ('L2VPN', ('name', 'slug', 'type', 'identifier', 'description', 'tags')),
@@ -909,7 +924,8 @@ class L2VPNForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = L2VPN
         fields = (
-            'name', 'slug', 'type', 'identifier', 'description', 'import_targets', 'export_targets', 'tenant', 'tags'
+            'name', 'slug', 'type', 'identifier', 'import_targets', 'export_targets', 'tenant', 'description',
+            'comments', 'tags'
         )
         widgets = {
             'type': StaticSelect(),

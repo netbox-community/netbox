@@ -30,6 +30,10 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label='Account number'
     )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
     comments = CommentField(
         widget=SmallTextarea,
         label='Comments'
@@ -40,7 +44,7 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
         (None, ('asns', 'account', )),
     )
     nullable_fields = (
-        'asns', 'account', 'comments',
+        'asns', 'account', 'description', 'comments',
     )
 
 
