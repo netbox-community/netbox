@@ -35,7 +35,7 @@ class ModuleTypeTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ModuleType
         fields = (
-            'pk', 'id', 'model', 'manufacturer', 'part_number', 'weight', 'comments', 'tags',
+            'pk', 'id', 'model', 'manufacturer', 'part_number', 'weight', 'description', 'comments', 'tags',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number',
@@ -64,8 +64,8 @@ class ModuleTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Module
         fields = (
-            'pk', 'id', 'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag', 'comments',
-            'tags',
+            'pk', 'id', 'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag', 'description',
+            'comments', 'tags',
         )
         default_columns = (
             'pk', 'id', 'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag',

@@ -1,19 +1,6 @@
 import django_tables2 as tables
 
-from dcim.models import (
-    ConsolePortTemplate,
-    ConsoleServerPortTemplate,
-    DeviceBayTemplate,
-    DeviceType,
-    FrontPortTemplate,
-    InterfaceTemplate,
-    InventoryItemTemplate,
-    Manufacturer,
-    ModuleBayTemplate,
-    PowerOutletTemplate,
-    PowerPortTemplate,
-    RearPortTemplate,
-)
+from dcim import models
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin
 from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS, DEVICE_WEIGHT
@@ -59,7 +46,7 @@ class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
     )
 
     class Meta(NetBoxTable.Meta):
-        model = Manufacturer
+        model = models.Manufacturer
         fields = (
             'pk', 'id', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug',
             'contacts', 'actions', 'created', 'last_updated',
@@ -100,15 +87,12 @@ class DeviceTypeTable(NetBoxTable):
         template_code=DEVICE_WEIGHT,
         order_by=('_abs_weight', 'weight_unit')
     )
-    u_height = columns.TemplateColumn(
-        template_code='{{ value|floatformat }}'
-    )
 
     class Meta(NetBoxTable.Meta):
-        model = DeviceType
+        model = models.DeviceType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
-            'airflow', 'weight', 'comments', 'instance_count', 'tags', 'created', 'last_updated',
+            'airflow', 'weight', 'description', 'comments', 'instance_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count',
@@ -138,7 +122,7 @@ class ConsolePortTemplateTable(ComponentTemplateTable):
     )
 
     class Meta(ComponentTemplateTable.Meta):
-        model = ConsolePortTemplate
+        model = models.ConsolePortTemplate
         fields = ('pk', 'name', 'label', 'type', 'description', 'actions')
         empty_text = "None"
 
@@ -150,7 +134,7 @@ class ConsoleServerPortTemplateTable(ComponentTemplateTable):
     )
 
     class Meta(ComponentTemplateTable.Meta):
-        model = ConsoleServerPortTemplate
+        model = models.ConsoleServerPortTemplate
         fields = ('pk', 'name', 'label', 'type', 'description', 'actions')
         empty_text = "None"
 
@@ -162,7 +146,7 @@ class PowerPortTemplateTable(ComponentTemplateTable):
     )
 
     class Meta(ComponentTemplateTable.Meta):
-        model = PowerPortTemplate
+        model = models.PowerPortTemplate
         fields = ('pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'actions')
         empty_text = "None"
 
@@ -174,7 +158,7 @@ class PowerOutletTemplateTable(ComponentTemplateTable):
     )
 
     class Meta(ComponentTemplateTable.Meta):
-        model = PowerOutletTemplate
+        model = models.PowerOutletTemplate
         fields = ('pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'actions')
         empty_text = "None"
 
@@ -189,7 +173,7 @@ class InterfaceTemplateTable(ComponentTemplateTable):
     )
 
     class Meta(ComponentTemplateTable.Meta):
-        model = InterfaceTemplate
+        model = models.InterfaceTemplate
         fields = ('pk', 'name', 'label', 'mgmt_only', 'type', 'description', 'poe_mode', 'poe_type', 'actions')
         empty_text = "None"
 
@@ -205,7 +189,7 @@ class FrontPortTemplateTable(ComponentTemplateTable):
     )
 
     class Meta(ComponentTemplateTable.Meta):
-        model = FrontPortTemplate
+        model = models.FrontPortTemplate
         fields = ('pk', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description', 'actions')
         empty_text = "None"
 
@@ -218,7 +202,7 @@ class RearPortTemplateTable(ComponentTemplateTable):
     )
 
     class Meta(ComponentTemplateTable.Meta):
-        model = RearPortTemplate
+        model = models.RearPortTemplate
         fields = ('pk', 'name', 'label', 'type', 'color', 'positions', 'description', 'actions')
         empty_text = "None"
 
@@ -229,7 +213,7 @@ class ModuleBayTemplateTable(ComponentTemplateTable):
     )
 
     class Meta(ComponentTemplateTable.Meta):
-        model = ModuleBayTemplate
+        model = models.ModuleBayTemplate
         fields = ('pk', 'name', 'label', 'position', 'description', 'actions')
         empty_text = "None"
 
@@ -240,7 +224,7 @@ class DeviceBayTemplateTable(ComponentTemplateTable):
     )
 
     class Meta(ComponentTemplateTable.Meta):
-        model = DeviceBayTemplate
+        model = models.DeviceBayTemplate
         fields = ('pk', 'name', 'label', 'description', 'actions')
         empty_text = "None"
 
@@ -260,7 +244,7 @@ class InventoryItemTemplateTable(ComponentTemplateTable):
     )
 
     class Meta(ComponentTemplateTable.Meta):
-        model = InventoryItemTemplate
+        model = models.InventoryItemTemplate
         fields = (
             'pk', 'name', 'label', 'parent', 'role', 'manufacturer', 'part_id', 'component', 'description', 'actions',
         )

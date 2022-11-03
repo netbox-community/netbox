@@ -90,8 +90,8 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'tenant_group', 'role', 'serial',
             'asset_tag', 'type', 'u_height', 'width', 'outer_width', 'outer_depth', 'mounting_depth', 'weight',
-            'comments', 'device_count', 'get_utilization', 'get_power_utilization', 'contacts', 'tags', 'created',
-            'last_updated',
+            'comments', 'device_count', 'get_utilization', 'get_power_utilization', 'description', 'contacts', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
@@ -123,6 +123,7 @@ class RackReservationTable(TenancyColumnsMixin, NetBoxTable):
         orderable=False,
         verbose_name='Units'
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='dcim:rackreservation_list'
     )
@@ -130,7 +131,7 @@ class RackReservationTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = RackReservation
         fields = (
-            'pk', 'id', 'reservation', 'site', 'location', 'rack', 'unit_list', 'user', 'created', 'tenant', 'tenant_group', 'description', 'tags',
-            'actions', 'created', 'last_updated',
+            'pk', 'id', 'reservation', 'site', 'location', 'rack', 'unit_list', 'user', 'created', 'tenant',
+            'tenant_group', 'description', 'comments', 'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = ('pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'description')
