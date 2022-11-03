@@ -397,13 +397,13 @@ class VLANGroupFilterForm(NetBoxModelFilterSetForm):
         required=False,
         min_value=VLAN_VID_MIN,
         max_value=VLAN_VID_MAX,
-        label='Minimum VID'
+        label=_('Minimum VID')
     )
     max_vid = forms.IntegerField(
         required=False,
         min_value=VLAN_VID_MIN,
         max_value=VLAN_VID_MAX,
-        label='Maximum VID'
+        label=_('Maximum VID')
     )
     tag = TagFilterField(model)
 

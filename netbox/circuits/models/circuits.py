@@ -3,6 +3,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from circuits.choices import *
 from dcim.models import CabledObjectModel
@@ -168,7 +169,7 @@ class CircuitTermination(
         blank=True,
         null=True,
         verbose_name='Upstream speed (Kbps)',
-        help_text='Upstream speed, if different from port speed'
+        help_text=_('Upstream speed, if different from port speed')
     )
     xconnect_id = models.CharField(
         max_length=50,

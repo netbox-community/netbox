@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from dcim.models import Region, Site, SiteGroup
 from ipam.choices import *
@@ -40,7 +41,7 @@ class VRFBulkEditForm(NetBoxModelBulkEditForm):
     enforce_unique = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),
-        label='Enforce unique space'
+        label=_('Enforce unique space')
     )
     description = forms.CharField(
         max_length=200,
@@ -104,7 +105,7 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         required=False,
-        label='RIR'
+        label=_('RIR')
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -130,7 +131,7 @@ class AggregateBulkEditForm(NetBoxModelBulkEditForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         required=False,
-        label='RIR'
+        label=_('RIR')
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -191,7 +192,7 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label=_('VRF')
     )
     prefix_length = forms.IntegerField(
         min_value=PREFIX_LENGTH_MIN,
@@ -214,12 +215,12 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     is_pool = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),
-        label='Is a pool'
+        label=_('Is a pool')
     )
     mark_utilized = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),
-        label='Treat as 100% utilized'
+        label=_('Treat as 100% utilized')
     )
     description = forms.CharField(
         max_length=200,
@@ -245,7 +246,7 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label=_('VRF')
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -282,7 +283,7 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label=_('VRF')
     )
     mask_length = forms.IntegerField(
         min_value=IPADDRESS_MASK_LENGTH_MIN,
@@ -306,7 +307,7 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
     dns_name = forms.CharField(
         max_length=255,
         required=False,
-        label='DNS name'
+        label=_('DNS name')
     )
     description = forms.CharField(
         max_length=200,
@@ -336,18 +337,18 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
     group_id = forms.IntegerField(
         min_value=0,
         required=False,
-        label='Group ID'
+        label=_('Group ID')
     )
     auth_type = forms.ChoiceField(
         choices=add_blank_choice(FHRPGroupAuthTypeChoices),
         required=False,
         widget=StaticSelect(),
-        label='Authentication type'
+        label=_('Authentication type')
     )
     auth_key = forms.CharField(
         max_length=255,
         required=False,
-        label='Authentication key'
+        label=_('Authentication key')
     )
     name = forms.CharField(
         max_length=100,
@@ -379,13 +380,13 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
         min_value=VLAN_VID_MIN,
         max_value=VLAN_VID_MAX,
         required=False,
-        label='Minimum child VLAN VID'
+        label=_('Minimum child VLAN VID')
     )
     max_vid = forms.IntegerField(
         min_value=VLAN_VID_MIN,
         max_value=VLAN_VID_MAX,
         required=False,
-        label='Maximum child VLAN VID'
+        label=_('Maximum child VLAN VID')
     )
     description = forms.CharField(
         max_length=200,

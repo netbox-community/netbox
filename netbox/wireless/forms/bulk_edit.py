@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from dcim.choices import LinkStatusChoices
 from ipam.models import VLAN
@@ -45,12 +46,12 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='VLAN'
+        label=_('VLAN')
     )
     ssid = forms.CharField(
         max_length=SSID_MAX_LENGTH,
         required=False,
-        label='SSID'
+        label=_('SSID')
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -66,7 +67,7 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
     )
     auth_psk = forms.CharField(
         required=False,
-        label='Pre-shared key'
+        label=_('Pre-shared key')
     )
     description = forms.CharField(
         max_length=200,
@@ -91,7 +92,7 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
     ssid = forms.CharField(
         max_length=SSID_MAX_LENGTH,
         required=False,
-        label='SSID'
+        label=_('SSID')
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(LinkStatusChoices),
@@ -111,7 +112,7 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
     )
     auth_psk = forms.CharField(
         required=False,
-        label='Pre-shared key'
+        label=_('Pre-shared key')
     )
     description = forms.CharField(
         max_length=200,

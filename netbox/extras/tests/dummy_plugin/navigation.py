@@ -1,3 +1,4 @@
+from django.utils.translation import gettext as _
 from extras.plugins import PluginMenu, PluginMenuButton, PluginMenuItem
 
 
@@ -25,7 +26,7 @@ items = (
 )
 
 menu = PluginMenu(
-    label='Dummy',
+    label=_('Dummy'),
     groups=(('Group 1', items),),
 )
 menu_items = items

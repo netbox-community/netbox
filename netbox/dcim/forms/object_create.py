@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from dcim.models import *
 from netbox.forms import NetBoxModelForm
@@ -39,7 +40,7 @@ class ComponentCreateForm(forms.Form):
     name = ExpandableNameField()
     label = ExpandableNameField(
         required=False,
-        help_text='Alphanumeric ranges are supported. (Must match the number of objects being created.)'
+        help_text=_('Alphanumeric ranges are supported. (Must match the number of objects being created.)')
     )
 
     # Identify the fields which support replication (i.e. ExpandableNameFields). This is referenced by
@@ -97,8 +98,8 @@ class InterfaceTemplateCreateForm(ComponentCreateForm, model_forms.InterfaceTemp
 class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemplateForm):
     rear_port = forms.MultipleChoiceField(
         choices=[],
-        label='Rear ports',
-        help_text='Select one rear port assignment for each front port being created.',
+        label=_('Rear ports'),
+        help_text=_('Select one rear port assignment for each front port being created.'),
     )
 
     # Override fieldsets from FrontPortTemplateForm to omit rear_port_position
@@ -166,9 +167,9 @@ class DeviceBayTemplateCreateForm(ComponentCreateForm, model_forms.DeviceBayTemp
 
 class ModuleBayTemplateCreateForm(ComponentCreateForm, model_forms.ModuleBayTemplateForm):
     position = ExpandableNameField(
-        label='Position',
+        label=_('Position'),
         required=False,
-        help_text='Alphanumeric ranges are supported. (Must match the number of objects being created.)'
+        help_text=_('Alphanumeric ranges are supported. (Must match the number of objects being created.)')
     )
     replication_fields = ('name', 'label', 'position')
 
@@ -226,8 +227,8 @@ class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
 class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
     rear_port = forms.MultipleChoiceField(
         choices=[],
-        label='Rear ports',
-        help_text='Select one rear port assignment for each front port being created.',
+        label=_('Rear ports'),
+        help_text=_('Select one rear port assignment for each front port being created.'),
     )
 
     # Override fieldsets from FrontPortForm to omit rear_port_position
@@ -290,9 +291,9 @@ class DeviceBayCreateForm(ComponentCreateForm, model_forms.DeviceBayForm):
 
 class ModuleBayCreateForm(ComponentCreateForm, model_forms.ModuleBayForm):
     position = ExpandableNameField(
-        label='Position',
+        label=_('Position'),
         required=False,
-        help_text='Alphanumeric ranges are supported. (Must match the number of objects being created.)'
+        help_text=_('Alphanumeric ranges are supported. (Must match the number of objects being created.)')
     )
     replication_fields = ('name', 'label', 'position')
 
@@ -352,7 +353,7 @@ class VirtualChassisCreateForm(NetBoxModelForm):
     initial_position = forms.IntegerField(
         initial=1,
         required=False,
-        help_text='Position of the first member device. Increases by one for each additional member.'
+        help_text=_('Position of the first member device. Increases by one for each additional member.')
     )
 
     class Meta:

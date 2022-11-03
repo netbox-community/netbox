@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.utils.translation import gettext as _
 
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
 from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin
@@ -132,7 +133,7 @@ class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, SavedFiltersMi
     """
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
 
     def __init__(self, *args, **kwargs):

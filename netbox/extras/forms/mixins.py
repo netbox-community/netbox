@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django import forms
+from django.utils.translation import gettext as _
 
 from extras.models import *
 from extras.choices import CustomFieldVisibilityChoices
@@ -66,7 +67,7 @@ class SavedFiltersMixin(forms.Form):
     filter = DynamicModelMultipleChoiceField(
         queryset=SavedFilter.objects.all(),
         required=False,
-        label='Saved Filter',
+        label=_('Saved Filter'),
         query_params={
             'usable': True,
         }

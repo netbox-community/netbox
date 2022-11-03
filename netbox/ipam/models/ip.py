@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models import F
 from django.urls import reverse
 from django.utils.functional import cached_property
+from django.utils.translation import gettext as _
 
 from dcim.fields import ASNField
 from dcim.models import Device
@@ -64,7 +65,7 @@ class RIR(OrganizationalModel):
     is_private = models.BooleanField(
         default=False,
         verbose_name='Private',
-        help_text='IP space managed by this RIR is considered private'
+        help_text=_('IP space managed by this RIR is considered private')
     )
 
     class Meta:
@@ -84,7 +85,7 @@ class ASN(PrimaryModel):
     asn = ASNField(
         unique=True,
         verbose_name='ASN',
-        help_text='32-bit autonomous system number'
+        help_text=_('32-bit autonomous system number')
     )
     rir = models.ForeignKey(
         to='ipam.RIR',
@@ -263,7 +264,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
     assigned to a VLAN where appropriate.
     """
     prefix = IPNetworkField(
-        help_text='IPv4 or IPv6 network with mask'
+        help_text=_('IPv4 or IPv6 network with mask')
     )
     site = models.ForeignKey(
         to='dcim.Site',
@@ -300,7 +301,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         choices=PrefixStatusChoices,
         default=PrefixStatusChoices.STATUS_ACTIVE,
         verbose_name='Status',
-        help_text='Operational status of this prefix'
+        help_text=_('Operational status of this prefix')
     )
     role = models.ForeignKey(
         to='ipam.Role',
@@ -308,16 +309,16 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         related_name='prefixes',
         blank=True,
         null=True,
-        help_text='The primary function of this prefix'
+        help_text=_('The primary function of this prefix')
     )
     is_pool = models.BooleanField(
         verbose_name='Is a pool',
         default=False,
-        help_text='All IP addresses within this prefix are considered usable'
+        help_text=_('All IP addresses within this prefix are considered usable')
     )
     mark_utilized = models.BooleanField(
         default=False,
-        help_text="Treat as 100% utilized"
+        help_text=_("Treat as 100% utilized")
     )
 
     # Cached depth & child counts
@@ -538,10 +539,10 @@ class IPRange(PrimaryModel):
     A range of IP addresses, defined by start and end addresses.
     """
     start_address = IPAddressField(
-        help_text='IPv4 or IPv6 address (with mask)'
+        help_text=_('IPv4 or IPv6 address (with mask)')
     )
     end_address = IPAddressField(
-        help_text='IPv4 or IPv6 address (with mask)'
+        help_text=_('IPv4 or IPv6 address (with mask)')
     )
     size = models.PositiveIntegerField(
         editable=False
@@ -565,7 +566,7 @@ class IPRange(PrimaryModel):
         max_length=50,
         choices=IPRangeStatusChoices,
         default=IPRangeStatusChoices.STATUS_ACTIVE,
-        help_text='Operational status of this range'
+        help_text=_('Operational status of this range')
     )
     role = models.ForeignKey(
         to='ipam.Role',
@@ -573,7 +574,7 @@ class IPRange(PrimaryModel):
         related_name='ip_ranges',
         blank=True,
         null=True,
-        help_text='The primary function of this range'
+        help_text=_('The primary function of this range')
     )
 
     clone_fields = (
@@ -736,7 +737,7 @@ class IPAddress(PrimaryModel):
     which has a NAT outside IP, that Interface's Device can use either the inside or outside IP as its primary IP.
     """
     address = IPAddressField(
-        help_text='IPv4 or IPv6 address (with mask)'
+        help_text=_('IPv4 or IPv6 address (with mask)')
     )
     vrf = models.ForeignKey(
         to='ipam.VRF',
@@ -757,13 +758,13 @@ class IPAddress(PrimaryModel):
         max_length=50,
         choices=IPAddressStatusChoices,
         default=IPAddressStatusChoices.STATUS_ACTIVE,
-        help_text='The operational status of this IP'
+        help_text=_('The operational status of this IP')
     )
     role = models.CharField(
         max_length=50,
         choices=IPAddressRoleChoices,
         blank=True,
-        help_text='The functional role of this IP'
+        help_text=_('The functional role of this IP')
     )
     assigned_object_type = models.ForeignKey(
         to=ContentType,
@@ -788,14 +789,14 @@ class IPAddress(PrimaryModel):
         blank=True,
         null=True,
         verbose_name='NAT (Inside)',
-        help_text='The IP for which this address is the "outside" IP'
+        help_text=_('The IP for which this address is the "outside" IP')
     )
     dns_name = models.CharField(
         max_length=255,
         blank=True,
         validators=[DNSValidator],
         verbose_name='DNS Name',
-        help_text='Hostname or FQDN (not case-sensitive)'
+        help_text=_('Hostname or FQDN (not case-sensitive)')
     )
 
     objects = IPAddressManager()

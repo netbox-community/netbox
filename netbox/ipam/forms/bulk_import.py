@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 from dcim.models import Device, Interface, Site
 from ipam.choices import *
@@ -36,7 +37,7 @@ class VRFCSVForm(NetBoxModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
 
     class Meta:
@@ -49,7 +50,7 @@ class RouteTargetCSVForm(NetBoxModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
 
     class Meta:
@@ -64,7 +65,7 @@ class RIRCSVForm(NetBoxModelCSVForm):
         model = RIR
         fields = ('name', 'slug', 'is_private', 'description', 'tags')
         help_texts = {
-            'name': 'RIR name',
+            'name': _('RIR name'),
         }
 
 
@@ -72,13 +73,13 @@ class AggregateCSVForm(NetBoxModelCSVForm):
     rir = CSVModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
-        help_text='Assigned RIR'
+        help_text=_('Assigned RIR')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
 
     class Meta:
@@ -90,13 +91,13 @@ class ASNCSVForm(NetBoxModelCSVForm):
     rir = CSVModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
-        help_text='Assigned RIR'
+        help_text=_('Assigned RIR')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
 
     class Meta:
@@ -117,41 +118,41 @@ class PrefixCSVForm(NetBoxModelCSVForm):
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned VRF'
+        help_text=_('Assigned VRF')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned site'
+        help_text=_('Assigned site')
     )
     vlan_group = CSVModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text="VLAN's group (if any)"
+        help_text=_("VLAN's group (if any)")
     )
     vlan = CSVModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         to_field_name='vid',
-        help_text="Assigned VLAN"
+        help_text=_("Assigned VLAN")
     )
     status = CSVChoiceField(
         choices=PrefixStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     role = CSVModelChoiceField(
         queryset=Role.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Functional role'
+        help_text=_('Functional role')
     )
 
     class Meta:
@@ -181,23 +182,23 @@ class IPRangeCSVForm(NetBoxModelCSVForm):
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned VRF'
+        help_text=_('Assigned VRF')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     status = CSVChoiceField(
         choices=IPRangeStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     role = CSVModelChoiceField(
         queryset=Role.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Functional role'
+        help_text=_('Functional role')
     )
 
     class Meta:
@@ -212,43 +213,43 @@ class IPAddressCSVForm(NetBoxModelCSVForm):
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned VRF'
+        help_text=_('Assigned VRF')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     status = CSVChoiceField(
         choices=IPAddressStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     role = CSVChoiceField(
         choices=IPAddressRoleChoices,
         required=False,
-        help_text='Functional role'
+        help_text=_('Functional role')
     )
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent device of assigned interface (if any)'
+        help_text=_('Parent device of assigned interface (if any)')
     )
     virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent VM of assigned interface (if any)'
+        help_text=_('Parent VM of assigned interface (if any)')
     )
     interface = CSVModelChoiceField(
         queryset=Interface.objects.none(),  # Can also refer to VMInterface
         required=False,
         to_field_name='name',
-        help_text='Assigned interface'
+        help_text=_('Assigned interface')
     )
     is_primary = forms.BooleanField(
-        help_text='Make this the primary IP for the assigned device',
+        help_text=_('Make this the primary IP for the assigned device'),
         required=False
     )
 
@@ -333,7 +334,7 @@ class VLANGroupCSVForm(NetBoxModelCSVForm):
     scope_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False,
-        label='Scope type (app & model)'
+        label=_('Scope type (app & model)')
     )
     min_vid = forms.IntegerField(
         min_value=VLAN_VID_MIN,
@@ -361,29 +362,29 @@ class VLANCSVForm(NetBoxModelCSVForm):
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned site'
+        help_text=_('Assigned site')
     )
     group = CSVModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned VLAN group'
+        help_text=_('Assigned VLAN group')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     status = CSVChoiceField(
         choices=VLANStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     role = CSVModelChoiceField(
         queryset=Role.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Functional role'
+        help_text=_('Functional role')
     )
 
     class Meta:
@@ -398,7 +399,7 @@ class VLANCSVForm(NetBoxModelCSVForm):
 class ServiceTemplateCSVForm(NetBoxModelCSVForm):
     protocol = CSVChoiceField(
         choices=ServiceProtocolChoices,
-        help_text='IP protocol'
+        help_text=_('IP protocol')
     )
 
     class Meta:
@@ -411,17 +412,17 @@ class ServiceCSVForm(NetBoxModelCSVForm):
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Required if not assigned to a VM'
+        help_text=_('Required if not assigned to a VM')
     )
     virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Required if not assigned to a device'
+        help_text=_('Required if not assigned to a device')
     )
     protocol = CSVChoiceField(
         choices=ServiceProtocolChoices,
-        help_text='IP protocol'
+        help_text=_('IP protocol')
     )
 
     class Meta:
@@ -437,7 +438,7 @@ class L2VPNCSVForm(NetBoxModelCSVForm):
     )
     type = CSVChoiceField(
         choices=L2VPNTypeChoices,
-        help_text='L2VPN type'
+        help_text=_('L2VPN type')
     )
 
     class Meta:
@@ -450,31 +451,31 @@ class L2VPNTerminationCSVForm(NetBoxModelCSVForm):
         queryset=L2VPN.objects.all(),
         required=True,
         to_field_name='name',
-        label='L2VPN',
+        label=_('L2VPN'),
     )
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent device (for interface)'
+        help_text=_('Parent device (for interface)')
     )
     virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent virtual machine (for interface)'
+        help_text=_('Parent virtual machine (for interface)')
     )
     interface = CSVModelChoiceField(
         queryset=Interface.objects.none(),  # Can also refer to VMInterface
         required=False,
         to_field_name='name',
-        help_text='Assigned interface (device or VM)'
+        help_text=_('Assigned interface (device or VM)')
     )
     vlan = CSVModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned VLAN'
+        help_text=_('Assigned VLAN')
     )
 
     class Meta:

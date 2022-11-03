@@ -1,3 +1,4 @@
+from django.utils.translation import gettext as _
 from dcim.choices import LinkStatusChoices
 from dcim.models import Interface
 from ipam.models import VLAN
@@ -19,7 +20,7 @@ class WirelessLANGroupCSVForm(NetBoxModelCSVForm):
         queryset=WirelessLANGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent group'
+        help_text=_('Parent group')
     )
     slug = SlugField()
 
@@ -33,7 +34,7 @@ class WirelessLANCSVForm(NetBoxModelCSVForm):
         queryset=WirelessLANGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned group'
+        help_text=_('Assigned group')
     )
     status = CSVChoiceField(
         choices=WirelessLANStatusChoices,
@@ -43,23 +44,23 @@ class WirelessLANCSVForm(NetBoxModelCSVForm):
         queryset=VLAN.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Bridged VLAN'
+        help_text=_('Bridged VLAN')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     auth_type = CSVChoiceField(
         choices=WirelessAuthTypeChoices,
         required=False,
-        help_text='Authentication type'
+        help_text=_('Authentication type')
     )
     auth_cipher = CSVChoiceField(
         choices=WirelessAuthCipherChoices,
         required=False,
-        help_text='Authentication cipher'
+        help_text=_('Authentication cipher')
     )
 
     class Meta:
@@ -73,7 +74,7 @@ class WirelessLANCSVForm(NetBoxModelCSVForm):
 class WirelessLinkCSVForm(NetBoxModelCSVForm):
     status = CSVChoiceField(
         choices=LinkStatusChoices,
-        help_text='Connection status'
+        help_text=_('Connection status')
     )
     interface_a = CSVModelChoiceField(
         queryset=Interface.objects.all()
@@ -85,17 +86,17 @@ class WirelessLinkCSVForm(NetBoxModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     auth_type = CSVChoiceField(
         choices=WirelessAuthTypeChoices,
         required=False,
-        help_text='Authentication type'
+        help_text=_('Authentication type')
     )
     auth_cipher = CSVChoiceField(
         choices=WirelessAuthCipherChoices,
         required=False,
-        help_text='Authentication cipher'
+        help_text=_('Authentication cipher')
     )
 
     class Meta:

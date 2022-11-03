@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from dcim.choices import InterfacePoEModeChoices, InterfacePoETypeChoices, InterfaceTypeChoices, PortTypeChoices
 from dcim.models import *
@@ -115,12 +116,12 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     poe_mode = forms.ChoiceField(
         choices=InterfacePoEModeChoices,
         required=False,
-        label='PoE mode'
+        label=_('PoE mode')
     )
     poe_type = forms.ChoiceField(
         choices=InterfacePoETypeChoices,
         required=False,
-        label='PoE type'
+        label=_('PoE type')
     )
 
     class Meta:

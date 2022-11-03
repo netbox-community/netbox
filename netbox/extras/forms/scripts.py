@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin, DateTimePicker
 
@@ -11,14 +12,14 @@ class ScriptForm(BootstrapMixin, forms.Form):
     _commit = forms.BooleanField(
         required=False,
         initial=True,
-        label="Commit changes",
-        help_text="Commit changes to the database (uncheck for a dry-run)"
+        label=_("Commit changes"),
+        help_text=_("Commit changes to the database (uncheck for a dry-run)")
     )
     _schedule_at = forms.DateTimeField(
         required=False,
         widget=DateTimePicker(),
-        label="Schedule at",
-        help_text="Schedule execution of script to a set time",
+        label=_("Schedule at"),
+        help_text=_("Schedule execution of script to a set time"),
     )
 
     def __init__(self, *args, **kwargs):

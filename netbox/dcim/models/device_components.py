@@ -7,6 +7,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
@@ -60,7 +61,7 @@ class ComponentModel(NetBoxModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="Physical label"
+        help_text=_("Physical label")
     )
     description = models.CharField(
         max_length=200,
@@ -129,7 +130,7 @@ class CabledObjectModel(models.Model):
     )
     mark_connected = models.BooleanField(
         default=False,
-        help_text="Treat as if a cable is connected"
+        help_text=_("Treat as if a cable is connected")
     )
 
     cable_terminations = GenericRelation(
@@ -261,13 +262,13 @@ class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint):
         max_length=50,
         choices=ConsolePortTypeChoices,
         blank=True,
-        help_text='Physical port type'
+        help_text=_('Physical port type')
     )
     speed = models.PositiveIntegerField(
         choices=ConsolePortSpeedChoices,
         blank=True,
         null=True,
-        help_text='Port speed in bits per second'
+        help_text=_('Port speed in bits per second')
     )
 
     clone_fields = ('device', 'module', 'type', 'speed')
@@ -284,13 +285,13 @@ class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
         max_length=50,
         choices=ConsolePortTypeChoices,
         blank=True,
-        help_text='Physical port type'
+        help_text=_('Physical port type')
     )
     speed = models.PositiveIntegerField(
         choices=ConsolePortSpeedChoices,
         blank=True,
         null=True,
-        help_text='Port speed in bits per second'
+        help_text=_('Port speed in bits per second')
     )
 
     clone_fields = ('device', 'module', 'type', 'speed')
@@ -311,19 +312,19 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
         max_length=50,
         choices=PowerPortTypeChoices,
         blank=True,
-        help_text='Physical port type'
+        help_text=_('Physical port type')
     )
     maximum_draw = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Maximum power draw (watts)"
+        help_text=_("Maximum power draw (watts)")
     )
     allocated_draw = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Allocated power draw (watts)"
+        help_text=_("Allocated power draw (watts)")
     )
 
     clone_fields = ('device', 'module', 'maximum_draw', 'allocated_draw')
@@ -420,7 +421,7 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint):
         max_length=50,
         choices=PowerOutletTypeChoices,
         blank=True,
-        help_text='Physical port type'
+        help_text=_('Physical port type')
     )
     power_port = models.ForeignKey(
         to='dcim.PowerPort',
@@ -433,7 +434,7 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint):
         max_length=50,
         choices=PowerOutletFeedLegChoices,
         blank=True,
-        help_text="Phase (for three-phase feeds)"
+        help_text=_("Phase (for three-phase feeds)")
     )
 
     clone_fields = ('device', 'module', 'type', 'power_port', 'feed_leg')
@@ -550,7 +551,7 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
     mgmt_only = models.BooleanField(
         default=False,
         verbose_name='Management only',
-        help_text='This interface is used only for out-of-band management'
+        help_text=_('This interface is used only for out-of-band management')
     )
     speed = models.PositiveIntegerField(
         blank=True,
@@ -567,7 +568,7 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         null=True,
         blank=True,
         verbose_name='WWN',
-        help_text='64-bit World Wide Name'
+        help_text=_('64-bit World Wide Name')
     )
     rf_role = models.CharField(
         max_length=30,
@@ -970,7 +971,7 @@ class ModuleBay(ComponentModel):
     position = models.CharField(
         max_length=30,
         blank=True,
-        help_text='Identifier to reference when renaming installed components'
+        help_text=_('Identifier to reference when renaming installed components')
     )
 
     clone_fields = ('device',)
@@ -1084,7 +1085,7 @@ class InventoryItem(MPTTModel, ComponentModel):
         max_length=50,
         verbose_name='Part ID',
         blank=True,
-        help_text='Manufacturer-assigned part identifier'
+        help_text=_('Manufacturer-assigned part identifier')
     )
     serial = models.CharField(
         max_length=50,
@@ -1097,11 +1098,11 @@ class InventoryItem(MPTTModel, ComponentModel):
         blank=True,
         null=True,
         verbose_name='Asset tag',
-        help_text='A unique tag used to identify this item'
+        help_text=_('A unique tag used to identify this item')
     )
     discovered = models.BooleanField(
         default=False,
-        help_text='This item was automatically discovered'
+        help_text=_('This item was automatically discovered')
     )
 
     objects = TreeManager()

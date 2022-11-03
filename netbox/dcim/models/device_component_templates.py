@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.translation import gettext as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
@@ -52,7 +53,7 @@ class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="Physical label"
+        help_text=_("Physical label")
     )
     description = models.CharField(
         max_length=200,
@@ -222,13 +223,13 @@ class PowerPortTemplate(ModularComponentTemplateModel):
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Maximum power draw (watts)"
+        help_text=_("Maximum power draw (watts)")
     )
     allocated_draw = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Allocated power draw (watts)"
+        help_text=_("Allocated power draw (watts)")
     )
 
     component_model = PowerPort
@@ -283,7 +284,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         max_length=50,
         choices=PowerOutletFeedLegChoices,
         blank=True,
-        help_text="Phase (for three-phase feeds)"
+        help_text=_("Phase (for three-phase feeds)")
     )
 
     component_model = PowerOutlet
@@ -526,7 +527,7 @@ class ModuleBayTemplate(ComponentTemplateModel):
     position = models.CharField(
         max_length=30,
         blank=True,
-        help_text='Identifier to reference when renaming installed components'
+        help_text=_('Identifier to reference when renaming installed components')
     )
 
     component_model = ModuleBay
@@ -621,7 +622,7 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
         max_length=50,
         verbose_name='Part ID',
         blank=True,
-        help_text='Manufacturer-assigned part identifier'
+        help_text=_('Manufacturer-assigned part identifier')
     )
 
     objects = TreeManager()

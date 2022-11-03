@@ -1,6 +1,7 @@
 import decimal
 
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from timezone_field.rest_framework import TimeZoneSerializerField
@@ -197,7 +198,7 @@ class RackSerializer(NetBoxModelSerializer):
     status = ChoiceField(choices=RackStatusChoices, required=False)
     role = NestedRackRoleSerializer(required=False, allow_null=True)
     type = ChoiceField(choices=RackTypeChoices, allow_blank=True, required=False)
-    facility_id = serializers.CharField(max_length=50, allow_blank=True, allow_null=True, label='Facility ID',
+    facility_id = serializers.CharField(max_length=50, allow_blank=True, allow_null=True, label=_('Facility ID'),
                                         default=None)
     width = ChoiceField(choices=RackWidthChoices, required=False)
     outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False)
@@ -311,7 +312,7 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
     u_height = serializers.DecimalField(
         max_digits=4,
         decimal_places=1,
-        label='Position (U)',
+        label=_('Position (U)'),
         min_value=0,
         default=1.0
     )
@@ -636,7 +637,7 @@ class DeviceSerializer(NetBoxModelSerializer):
         max_digits=4,
         decimal_places=1,
         allow_null=True,
-        label='Position (U)',
+        label=_('Position (U)'),
         min_value=decimal.Decimal(0.5),
         default=None
     )
