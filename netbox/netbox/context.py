@@ -6,5 +6,5 @@ __all__ = (
 )
 
 
-current_request = ContextVar('current_request')
+current_request = ContextVar('current_request', default=None)
 webhooks_queue = ContextVar('webhooks_queue')
