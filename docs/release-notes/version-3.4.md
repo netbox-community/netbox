@@ -28,6 +28,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 
 * [#8245](https://github.com/netbox-community/netbox/issues/8245) - Enable GraphQL filtering of related objects
 * [#8274](https://github.com/netbox-community/netbox/issues/8274) - Enable associating a custom link with multiple object types
+* [#8485](https://github.com/netbox-community/netbox/issues/8485) - Enable journaling for all organizational models
 * [#8853](https://github.com/netbox-community/netbox/issues/8853) - Introduce the `ALLOW_TOKEN_RETRIEVAL` config parameter to restrict the display of API tokens
 * [#9249](https://github.com/netbox-community/netbox/issues/9249) - Device and virtual machine names are no longer case-sensitive
 * [#9478](https://github.com/netbox-community/netbox/issues/9478) - Add `link_peers` field to GraphQL types for cabled objects
@@ -50,6 +51,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 * [#9880](https://github.com/netbox-community/netbox/issues/9880) - Introduce `django_apps` plugin configuration parameter
 * [#9887](https://github.com/netbox-community/netbox/issues/9887) - Inspect `docs_url` property to determine link to model documentation
 * [#10314](https://github.com/netbox-community/netbox/issues/10314) - Move `clone()` method from NetBoxModel to CloningMixin
+* [#10543](https://github.com/netbox-community/netbox/issues/10543) - Introduce `get_plugin_config()` utility function
 * [#10739](https://github.com/netbox-community/netbox/issues/10739) - Introduce `get_queryset()` method on generic views
 
 ### Other Changes

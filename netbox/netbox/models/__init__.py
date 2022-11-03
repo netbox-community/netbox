@@ -21,6 +21,7 @@ class NetBoxFeatureSet(
     CustomLinksMixin,
     CustomValidationMixin,
     ExportTemplatesMixin,
+    JournalingMixin,
     TagsMixin,
     WebhooksMixin
 ):
@@ -55,7 +56,7 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, models.Model)
         abstract = True
 
 
-class NetBoxModel(CloningMixin, JournalingMixin, NetBoxFeatureSet, models.Model):
+class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
     """
     Primary models represent real objects within the infrastructure being modeled.
     """
