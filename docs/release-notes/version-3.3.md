@@ -2,6 +2,11 @@
 
 ## v3.3.8 (FUTURE)
 
+### Bug Fixes
+
+* [#10709](https://github.com/netbox-community/netbox/issues/10709) - Correct UI display for `azuread-v2-tenant-oauth2` SSO backend
+* [#10829](https://github.com/netbox-community/netbox/issues/10829) - Fix bulk edit/delete buttons ad top of object lists
+
 ---
 
 ## v3.3.7 (2022-11-01)
