@@ -26,6 +26,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 
 ### Enhancements
 
+* [#7376](https://github.com/netbox-community/netbox/issues/7376) - Enable the assignment of tags during CSV import
 * [#8245](https://github.com/netbox-community/netbox/issues/8245) - Enable GraphQL filtering of related objects
 * [#8274](https://github.com/netbox-community/netbox/issues/8274) - Enable associating a custom link with multiple object types
 * [#8485](https://github.com/netbox-community/netbox/issues/8485) - Enable journaling for all organizational models
@@ -40,6 +41,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 * [#10556](https://github.com/netbox-community/netbox/issues/10556) - Include a `display` field in all GraphQL object types
 * [#10595](https://github.com/netbox-community/netbox/issues/10595) - Add GraphQL relationships for additional generic foreign key fields
 * [#10698](https://github.com/netbox-community/netbox/issues/10698) - Omit app label from content type in table columns
+* [#10710](https://github.com/netbox-community/netbox/issues/10710) - Add `status` field to WirelessLAN
 * [#10761](https://github.com/netbox-community/netbox/issues/10761) - Enable associating an export template with multiple object types
 * [#10781](https://github.com/netbox-community/netbox/issues/10781) - Add support for Python v3.11
 
@@ -129,6 +131,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 * virtualization.VirtualMachine
     * Added a `description` field
 * wireless.WirelessLAN
+    * Added a required `status` choice field
     * Added a `comments` field
 * wireless.WirelessLink
     * Added a `comments` field
