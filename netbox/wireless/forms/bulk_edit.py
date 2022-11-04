@@ -34,6 +34,10 @@ class WirelessLANGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
+    status = forms.ChoiceField(
+        choices=add_blank_choice(WirelessLANStatusChoices),
+        required=False
+    )
     group = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
@@ -75,7 +79,7 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
 
     model = WirelessLAN
     fieldsets = (
-        (None, ('group', 'ssid', 'vlan', 'tenant', 'description')),
+        (None, ('group', 'ssid', 'status', 'vlan', 'tenant', 'description')),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
     )
     nullable_fields = (

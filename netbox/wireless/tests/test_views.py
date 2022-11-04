@@ -70,9 +70,24 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             group.save()
 
         wireless_lans = (
-            WirelessLAN(group=groups[0], ssid='WLAN1', tenant=tenants[0]),
-            WirelessLAN(group=groups[0], ssid='WLAN2', tenant=tenants[0]),
-            WirelessLAN(group=groups[0], ssid='WLAN3', tenant=tenants[0]),
+            WirelessLAN(
+                group=groups[0],
+                ssid='WLAN1',
+                status=WirelessLANStatusChoices.STATUS_ACTIVE,
+                tenant=tenants[0]
+            ),
+            WirelessLAN(
+                group=groups[0],
+                ssid='WLAN2',
+                status=WirelessLANStatusChoices.STATUS_ACTIVE,
+                tenant=tenants[0]
+            ),
+            WirelessLAN(
+                group=groups[0],
+                ssid='WLAN3',
+                status=WirelessLANStatusChoices.STATUS_ACTIVE,
+                tenant=tenants[0]
+            ),
         )
         WirelessLAN.objects.bulk_create(wireless_lans)
 
@@ -81,15 +96,16 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'ssid': 'WLAN2',
             'group': groups[1].pk,
+            'status': WirelessLANStatusChoices.STATUS_DISABLED,
             'tenant': tenants[1].pk,
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            f"group,ssid,tenant",
-            f"Wireless LAN Group 2,WLAN4,{tenants[0].name}",
-            f"Wireless LAN Group 2,WLAN5,{tenants[1].name}",
-            f"Wireless LAN Group 2,WLAN6,{tenants[2].name}",
+            f"group,ssid,status,tenant",
+            f"Wireless LAN Group 2,WLAN4,{WirelessLANStatusChoices.STATUS_ACTIVE},{tenants[0].name}",
+            f"Wireless LAN Group 2,WLAN5,{WirelessLANStatusChoices.STATUS_DISABLED},{tenants[1].name}",
+            f"Wireless LAN Group 2,WLAN6,{WirelessLANStatusChoices.STATUS_RESERVED},{tenants[2].name}",
         )
 
         cls.csv_update_data = (
@@ -100,6 +116,7 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
+            'status': WirelessLANStatusChoices.STATUS_DISABLED,
             'description': 'New description',
         }
 

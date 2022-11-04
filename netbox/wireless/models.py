@@ -84,6 +84,11 @@ class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
         blank=True,
         null=True
     )
+    status = models.CharField(
+        max_length=50,
+        choices=WirelessLANStatusChoices,
+        default=WirelessLANStatusChoices.STATUS_ACTIVE
+    )
     vlan = models.ForeignKey(
         to='ipam.VLAN',
         on_delete=models.PROTECT,
@@ -110,6 +115,9 @@ class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('wireless:wirelesslan', args=[self.pk])
+
+    def get_status_color(self):
+        return WirelessLANStatusChoices.colors.get(self.status)
 
 
 def get_wireless_interface_types():

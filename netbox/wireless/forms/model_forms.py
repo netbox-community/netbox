@@ -37,7 +37,6 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
         queryset=WirelessLANGroup.objects.all(),
         required=False
     )
-
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -85,7 +84,7 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Wireless LAN', ('ssid', 'group', 'description', 'tags')),
+        ('Wireless LAN', ('ssid', 'group', 'status', 'description', 'tags')),
         ('VLAN', ('region', 'site_group', 'site', 'vlan_group', 'vlan',)),
         ('Tenancy', ('tenant_group', 'tenant')),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
@@ -94,10 +93,11 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = WirelessLAN
         fields = [
-            'ssid', 'group', 'region', 'site_group', 'site', 'vlan_group', 'vlan', 'tenant_group', 'tenant',
+            'ssid', 'group', 'region', 'site_group', 'site', 'status', 'vlan_group', 'vlan', 'tenant_group', 'tenant',
             'auth_type', 'auth_cipher', 'auth_psk', 'description', 'comments', 'tags',
         ]
         widgets = {
+            'status': StaticSelect,
             'auth_type': StaticSelect,
             'auth_cipher': StaticSelect,
         }
