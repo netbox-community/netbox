@@ -9,6 +9,7 @@
 * The `asn` field has been removed from the provider model. Please replicate any provider ASN assignments to the ASN model introduced in NetBox v3.1 prior to upgrading.
 * The `noc_contact`, `admin_contact`, and `portal_url` fields have been removed from the provider model. Please replicate any data remaining in these fields to the contact model introduced in NetBox v3.1 prior to upgrading.
 * The `content_type` field on the CustomLink and ExportTemplate models have been renamed to `content_types` and now supports the assignment of multiple content types.
+* The `cf` property on an object with custom fields now returns deserialized values. For example, a custom field referencing an object will return the object instance rather than its numeric ID. To access the raw serialized values, use `custom_field_data` instead.
 
 ### New Features
 
@@ -37,6 +38,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 * [#9817](https://github.com/netbox-community/netbox/issues/9817) - Add `assigned_object` field to GraphQL type for IP addresses and L2VPN terminations
 * [#9832](https://github.com/netbox-community/netbox/issues/9832) - Add `mounting_depth` field to rack model
 * [#9892](https://github.com/netbox-community/netbox/issues/9892) - Add optional `name` field for FHRP groups
+* [#10052](https://github.com/netbox-community/netbox/issues/10052) - The `cf` attribute now returns deserialized custom field data
 * [#10348](https://github.com/netbox-community/netbox/issues/10348) - Add decimal custom field type
 * [#10556](https://github.com/netbox-community/netbox/issues/10556) - Include a `display` field in all GraphQL object types
 * [#10595](https://github.com/netbox-community/netbox/issues/10595) - Add GraphQL relationships for additional generic foreign key fields

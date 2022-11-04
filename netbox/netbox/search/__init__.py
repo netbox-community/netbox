@@ -82,7 +82,7 @@ class SearchIndex:
         # Capture custom fields
         if getattr(instance, 'custom_field_data', None):
             if custom_fields is None:
-                custom_fields = instance.get_custom_fields().keys()
+                custom_fields = instance.custom_fields
             for cf in custom_fields:
                 type_ = cf.search_type
                 value = instance.custom_field_data.get(cf.name)

@@ -1022,7 +1022,7 @@ class CustomFieldModelTest(TestCase):
         site = Site(name='Test Site', slug='test-site')
 
         # Check custom field data on new instance
-        site.cf['foo'] = 'abc'
+        site.custom_field_data['foo'] = 'abc'
         self.assertEqual(site.cf['foo'], 'abc')
 
         # Check custom field data from database
@@ -1037,12 +1037,12 @@ class CustomFieldModelTest(TestCase):
         site = Site(name='Test Site', slug='test-site')
 
         # Set custom field data
-        site.cf['foo'] = 'abc'
-        site.cf['bar'] = 'def'
+        site.custom_field_data['foo'] = 'abc'
+        site.custom_field_data['bar'] = 'def'
         with self.assertRaises(ValidationError):
             site.clean()
 
-        del site.cf['bar']
+        del site.custom_field_data['bar']
         site.clean()
 
     def test_missing_required_field(self):
@@ -1056,11 +1056,11 @@ class CustomFieldModelTest(TestCase):
         site = Site(name='Test Site', slug='test-site')
 
         # Set custom field data with a required field omitted
-        site.cf['foo'] = 'abc'
+        site.custom_field_data['foo'] = 'abc'
         with self.assertRaises(ValidationError):
             site.clean()
 
-        site.cf['baz'] = 'def'
+        site.custom_field_data['baz'] = 'def'
         site.clean()
 
 
