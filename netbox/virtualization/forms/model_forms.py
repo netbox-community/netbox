@@ -90,7 +90,7 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Cluster', ('name', 'type', 'group', 'status', 'tags')),
+        ('Cluster', ('name', 'type', 'group', 'status', 'description', 'tags')),
         ('Site', ('region', 'site_group', 'site')),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
@@ -98,7 +98,8 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'status', 'tenant', 'region', 'site_group', 'site', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'tenant', 'region', 'site_group', 'site', 'description', 'comments',
+            'tags',
         )
         widgets = {
             'status': StaticSelect(),
@@ -220,9 +221,10 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         required=False,
         label=''
     )
+    comments = CommentField()
 
     fieldsets = (
-        ('Virtual Machine', ('name', 'role', 'status', 'tags')),
+        ('Virtual Machine', ('name', 'role', 'status', 'description', 'tags')),
         ('Site/Cluster', ('site', 'cluster_group', 'cluster', 'device')),
         ('Tenancy', ('tenant_group', 'tenant')),
         ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
@@ -234,7 +236,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         model = VirtualMachine
         fields = [
             'name', 'status', 'site', 'cluster_group', 'cluster', 'device', 'role', 'tenant_group', 'tenant',
-            'platform', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'tags',
+            'platform', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments', 'tags',
             'local_context_data',
         ]
         help_texts = {

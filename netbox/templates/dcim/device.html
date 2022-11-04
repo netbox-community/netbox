@@ -94,7 +94,11 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Airflow</td>
+                            <th scope="row">Description</th>
+                            <td>{{ object.description|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Airflow</th>
                             <td>
                                 {{ object.get_airflow_display|placeholder }}
                             </td>

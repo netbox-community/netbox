@@ -41,7 +41,7 @@ class VRFCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = VRF
-        fields = ('name', 'rd', 'tenant', 'enforce_unique', 'description')
+        fields = ('name', 'rd', 'tenant', 'enforce_unique', 'description', 'comments')
 
 
 class RouteTargetCSVForm(NetBoxModelCSVForm):
@@ -54,7 +54,7 @@ class RouteTargetCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = RouteTarget
-        fields = ('name', 'description', 'tenant')
+        fields = ('name', 'tenant', 'description', 'comments')
 
 
 class RIRCSVForm(NetBoxModelCSVForm):
@@ -83,7 +83,7 @@ class AggregateCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Aggregate
-        fields = ('prefix', 'rir', 'tenant', 'date_added', 'description')
+        fields = ('prefix', 'rir', 'tenant', 'date_added', 'description', 'comments')
 
 
 class ASNCSVForm(NetBoxModelCSVForm):
@@ -101,7 +101,7 @@ class ASNCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = ASN
-        fields = ('asn', 'rir', 'tenant', 'description')
+        fields = ('asn', 'rir', 'tenant', 'description', 'comments')
         help_texts = {}
 
 
@@ -159,7 +159,7 @@ class PrefixCSVForm(NetBoxModelCSVForm):
         model = Prefix
         fields = (
             'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized',
-            'description',
+            'description', 'comments',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -204,7 +204,7 @@ class IPRangeCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = IPRange
         fields = (
-            'start_address', 'end_address', 'vrf', 'tenant', 'status', 'role', 'description',
+            'start_address', 'end_address', 'vrf', 'tenant', 'status', 'role', 'description', 'comments',
         )
 
 
@@ -257,7 +257,7 @@ class IPAddressCSVForm(NetBoxModelCSVForm):
         model = IPAddress
         fields = [
             'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'is_primary',
-            'dns_name', 'description',
+            'dns_name', 'description', 'comments',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -326,7 +326,7 @@ class FHRPGroupCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = FHRPGroup
-        fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'description')
+        fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'description', 'comments')
 
 
 class VLANGroupCSVForm(NetBoxModelCSVForm):
@@ -389,7 +389,7 @@ class VLANCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = VLAN
-        fields = ('site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description')
+        fields = ('site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'comments')
         help_texts = {
             'vid': 'Numeric VLAN ID (1-4094)',
             'name': 'VLAN name',
@@ -404,7 +404,7 @@ class ServiceTemplateCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = ServiceTemplate
-        fields = ('name', 'protocol', 'ports', 'description')
+        fields = ('name', 'protocol', 'ports', 'description', 'comments')
 
 
 class ServiceCSVForm(NetBoxModelCSVForm):
@@ -427,7 +427,7 @@ class ServiceCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Service
-        fields = ('device', 'virtual_machine', 'name', 'protocol', 'ports', 'description')
+        fields = ('device', 'virtual_machine', 'name', 'protocol', 'ports', 'description', 'comments')
 
 
 class L2VPNCSVForm(NetBoxModelCSVForm):
@@ -443,7 +443,7 @@ class L2VPNCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = L2VPN
-        fields = ('identifier', 'name', 'slug', 'type', 'description')
+        fields = ('identifier', 'name', 'slug', 'type', 'description', 'comments')
 
 
 class L2VPNTerminationCSVForm(NetBoxModelCSVForm):

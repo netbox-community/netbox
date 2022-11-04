@@ -69,18 +69,69 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 
 * circuits.provider
     * Removed the `asn`, `noc_contact`, `admin_contact`, and `portal_url` fields
+    * Added a `description` field
+* dcim.Cable
+    * Added `description` and `comments` fields
+* dcim.Device
+    * Added a `description` field
 * dcim.DeviceType
+    * Added a `description` field
     * Added optional `weight` and `weight_unit` fields
+* dcim.Module
+    * Added a `description` field
 * dcim.ModuleType
+    * Added a `description` field
     * Added optional `weight` and `weight_unit` fields
+* dcim.PowerFeed
+    * Added a `description` field
+* dcim.PowerPanel
+    * Added `description` and `comments` fields
 * dcim.Rack
+    * Added a `description` field
     * Added optional `weight` and `weight_unit` fields
+* dcim.RackReservation
+    * Added a `comments` field
+* dcim.VirtualChassis
+    * Added `description` and `comments` fields
 * extras.CustomLink
     * Renamed `content_type` field to `content_types`
 * extras.ExportTemplate
     * Renamed `content_type` field to `content_types`
+* ipam.Aggregate
+    * Added a `comments` field
+* ipam.ASN
+    * Added a `comments` field
 * ipam.FHRPGroup
+    * Added a `comments` field
     * Added optional `name` field
+* ipam.IPAddress
+    * Added a `comments` field
+* ipam.IPRange
+    * Added a `comments` field
+* ipam.L2VPN
+    * Added a `comments` field
+* ipam.Prefix
+    * Added a `comments` field
+* ipam.RouteTarget
+    * Added a `comments` field
+* ipam.Service
+    * Added a `comments` field
+* ipam.ServiceTemplate
+    * Added a `comments` field
+* ipam.VLAN
+    * Added a `comments` field
+* ipam.VRF
+    * Added a `comments` field
+* tenancy.Contact
+    * Added a `description` field
+* virtualization.Cluster
+    * Added a `description` field
+* virtualization.VirtualMachine
+    * Added a `description` field
+* wireless.WirelessLAN
+    * Added a `comments` field
+* wireless.WirelessLink
+    * Added a `comments` field
 
 ### GraphQL API Changes
 

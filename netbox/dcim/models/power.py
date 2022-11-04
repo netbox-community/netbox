@@ -6,9 +6,8 @@ from django.db import models
 from django.urls import reverse
 
 from dcim.choices import *
-from dcim.constants import *
 from netbox.config import ConfigItem
-from netbox.models import NetBoxModel
+from netbox.models import PrimaryModel
 from utilities.validators import ExclusionValidator
 from .device_components import CabledObjectModel, PathEndpoint
 
@@ -22,7 +21,7 @@ __all__ = (
 # Power
 #
 
-class PowerPanel(NetBoxModel):
+class PowerPanel(PrimaryModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
     """
@@ -77,7 +76,7 @@ class PowerPanel(NetBoxModel):
             )
 
 
-class PowerFeed(NetBoxModel, PathEndpoint, CabledObjectModel):
+class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
     """
     An electrical circuit delivered from a PowerPanel.
     """
@@ -131,9 +130,6 @@ class PowerFeed(NetBoxModel, PathEndpoint, CabledObjectModel):
     available_power = models.PositiveIntegerField(
         default=0,
         editable=False
-    )
-    comments = models.TextField(
-        blank=True
     )
 
     clone_fields = (

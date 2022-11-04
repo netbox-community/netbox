@@ -196,7 +196,8 @@ class RackCSVForm(NetBoxModelCSVForm):
         model = Rack
         fields = (
             'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag',
-            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'comments',
+            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
+            'description', 'comments',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -240,7 +241,7 @@ class RackReservationCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = RackReservation
-        fields = ('site', 'location', 'rack', 'units', 'tenant', 'description')
+        fields = ('site', 'location', 'rack', 'units', 'tenant', 'description', 'comments')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -387,7 +388,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'location', 'rack', 'position', 'face', 'airflow', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'cluster', 'comments',
+            'cluster', 'description', 'comments',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -424,7 +425,7 @@ class ModuleCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = Module
         fields = (
-            'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'comments',
+            'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'description', 'comments',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -927,7 +928,7 @@ class CableCSVForm(NetBoxModelCSVForm):
         model = Cable
         fields = [
             'side_a_device', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_type', 'side_b_name', 'type',
-            'status', 'tenant', 'label', 'color', 'length', 'length_unit',
+            'status', 'tenant', 'label', 'color', 'length', 'length_unit', 'description', 'comments',
         ]
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
@@ -984,7 +985,7 @@ class VirtualChassisCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = VirtualChassis
-        fields = ('name', 'domain', 'master')
+        fields = ('name', 'domain', 'master', 'description')
 
 
 #
@@ -1005,7 +1006,7 @@ class PowerPanelCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = PowerPanel
-        fields = ('site', 'location', 'name')
+        fields = ('site', 'location', 'name', 'description', 'comments')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -1061,7 +1062,7 @@ class PowerFeedCSVForm(NetBoxModelCSVForm):
         model = PowerFeed
         fields = (
             'site', 'power_panel', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase',
-            'voltage', 'amperage', 'max_utilization', 'comments',
+            'voltage', 'amperage', 'max_utilization', 'description', 'comments',
         )
 
     def __init__(self, data=None, *args, **kwargs):

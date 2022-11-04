@@ -1,4 +1,3 @@
-from django import forms
 from django.utils.translation import gettext as _
 
 from circuits.models import *
@@ -7,8 +6,8 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import (
-    BootstrapMixin, CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    SelectSpeedWidget, SmallTextarea, SlugField, StaticSelect,
+    CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SelectSpeedWidget, SlugField,
+    StaticSelect,
 )
 
 __all__ = (
@@ -30,14 +29,14 @@ class ProviderForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Provider', ('name', 'slug', 'asns', 'tags')),
+        ('Provider', ('name', 'slug', 'asns', 'description', 'tags')),
         ('Support Info', ('account',)),
     )
 
     class Meta:
         model = Provider
         fields = [
-            'name', 'slug', 'account', 'asns', 'comments', 'tags',
+            'name', 'slug', 'account', 'asns', 'description', 'comments', 'tags',
         ]
         help_texts = {
             'name': "Full name of the provider",

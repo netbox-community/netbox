@@ -111,6 +111,7 @@ class CableTable(TenancyColumnsMixin, NetBoxTable):
         order_by=('_abs_length', 'length_unit')
     )
     color = columns.ColorColumn()
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='dcim:cable_list'
     )
@@ -120,7 +121,7 @@ class CableTable(TenancyColumnsMixin, NetBoxTable):
         fields = (
             'pk', 'id', 'label', 'a_terminations', 'b_terminations', 'device_a', 'device_b', 'rack_a', 'rack_b',
             'location_a', 'location_b', 'site_a', 'site_b', 'status', 'type', 'tenant', 'tenant_group', 'color',
-            'length', 'tags', 'created', 'last_updated',
+            'length', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'id', 'label', 'a_terminations', 'b_terminations', 'status', 'type',

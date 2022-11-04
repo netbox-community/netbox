@@ -4,7 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 
-from netbox.models import ChangeLoggedModel, NetBoxModel
+from netbox.models import ChangeLoggedModel, PrimaryModel
 from netbox.models.features import WebhooksMixin
 from ipam.choices import *
 from ipam.constants import *
@@ -15,7 +15,7 @@ __all__ = (
 )
 
 
-class FHRPGroup(NetBoxModel):
+class FHRPGroup(PrimaryModel):
     """
     A grouping of next hope resolution protocol (FHRP) peers. (For instance, VRRP or HSRP.)
     """
@@ -40,10 +40,6 @@ class FHRPGroup(NetBoxModel):
         max_length=255,
         blank=True,
         verbose_name='Authentication key'
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
     )
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',

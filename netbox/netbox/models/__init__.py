@@ -10,8 +10,9 @@ from netbox.models.features import *
 __all__ = (
     'ChangeLoggedModel',
     'NestedGroupModel',
-    'OrganizationalModel',
     'NetBoxModel',
+    'OrganizationalModel',
+    'PrimaryModel',
 )
 
 
@@ -58,9 +59,25 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, models.Model)
 
 class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
     """
-    Primary models represent real objects within the infrastructure being modeled.
+    Base model for most object types. Suitable for use by plugins.
     """
     objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        abstract = True
+
+
+class PrimaryModel(NetBoxModel):
+    """
+    Primary models represent real objects within the infrastructure being modeled.
+    """
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    comments = models.TextField(
+        blank=True
+    )
 
     class Meta:
         abstract = True

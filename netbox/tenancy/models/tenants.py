@@ -1,9 +1,8 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
-from mptt.models import TreeForeignKey
 
-from netbox.models import NestedGroupModel, NetBoxModel
+from netbox.models import NestedGroupModel, PrimaryModel
 
 __all__ = (
     'Tenant',
@@ -31,7 +30,7 @@ class TenantGroup(NestedGroupModel):
         return reverse('tenancy:tenantgroup', args=[self.pk])
 
 
-class Tenant(NetBoxModel):
+class Tenant(PrimaryModel):
     """
     A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal
     department.
@@ -50,13 +49,6 @@ class Tenant(NetBoxModel):
         related_name='tenants',
         blank=True,
         null=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-    comments = models.TextField(
-        blank=True
     )
 
     # Generic relations

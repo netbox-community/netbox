@@ -103,13 +103,13 @@ class ContactForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Contact', ('group', 'name', 'title', 'phone', 'email', 'address', 'link', 'tags')),
+        ('Contact', ('group', 'name', 'title', 'phone', 'email', 'address', 'link', 'description', 'tags')),
     )
 
     class Meta:
         model = Contact
         fields = (
-            'group', 'name', 'title', 'phone', 'email', 'address', 'link', 'comments', 'tags',
+            'group', 'name', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments', 'tags',
         )
         widgets = {
             'address': SmallTextarea(attrs={'rows': 3}),
