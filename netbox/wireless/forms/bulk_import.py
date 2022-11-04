@@ -25,7 +25,7 @@ class WirelessLANGroupCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = WirelessLANGroup
-        fields = ('name', 'slug', 'parent', 'description')
+        fields = ('name', 'slug', 'parent', 'description', 'tags')
 
 
 class WirelessLANCSVForm(NetBoxModelCSVForm):
@@ -62,6 +62,7 @@ class WirelessLANCSVForm(NetBoxModelCSVForm):
         model = WirelessLAN
         fields = (
             'ssid', 'group', 'vlan', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description', 'comments',
+            'tags',
         )
 
 
@@ -97,5 +98,5 @@ class WirelessLinkCSVForm(NetBoxModelCSVForm):
         model = WirelessLink
         fields = (
             'interface_a', 'interface_b', 'ssid', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description',
-            'comments',
+            'comments', 'tags',
         )

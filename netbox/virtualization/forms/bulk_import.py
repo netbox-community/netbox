@@ -21,7 +21,7 @@ class ClusterTypeCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = ClusterType
-        fields = ('name', 'slug', 'description')
+        fields = ('name', 'slug', 'description', 'tags')
 
 
 class ClusterGroupCSVForm(NetBoxModelCSVForm):
@@ -29,7 +29,7 @@ class ClusterGroupCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = ClusterGroup
-        fields = ('name', 'slug', 'description')
+        fields = ('name', 'slug', 'description', 'tags')
 
 
 class ClusterCSVForm(NetBoxModelCSVForm):
@@ -63,7 +63,7 @@ class ClusterCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Cluster
-        fields = ('name', 'type', 'group', 'status', 'site', 'description', 'comments')
+        fields = ('name', 'type', 'group', 'status', 'site', 'description', 'comments', 'tags')
 
 
 class VirtualMachineCSVForm(NetBoxModelCSVForm):
@@ -114,7 +114,7 @@ class VirtualMachineCSVForm(NetBoxModelCSVForm):
         model = VirtualMachine
         fields = (
             'name', 'status', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'description', 'comments',
+            'description', 'comments', 'tags',
         )
 
 
@@ -151,7 +151,7 @@ class VMInterfaceCSVForm(NetBoxModelCSVForm):
         model = VMInterface
         fields = (
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
-            'vrf',
+            'vrf', 'tags'
         )
 
     def __init__(self, data=None, *args, **kwargs):

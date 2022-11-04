@@ -1,12 +1,13 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
 from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin
 from extras.models import CustomField, Tag
 from utilities.forms import BootstrapMixin, CSVModelForm
-from utilities.forms.fields import DynamicModelMultipleChoiceField
+from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
 
 __all__ = (
     'NetBoxModelForm',
@@ -61,7 +62,12 @@ class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
     """
     Base form for creating a NetBox objects from CSV data. Used for bulk importing.
     """
-    tags = None  # Temporary fix in lieu of tag import support (see #9158)
+    tags = CSVModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+        to_field_name='slug',
+        help_text='Tag slugs separated by commas, encased with double quotes (e.g. "tag1,tag2,tag3")'
+    )
 
     def _get_custom_fields(self, content_type):
         return CustomField.objects.filter(content_types=content_type).filter(
