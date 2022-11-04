@@ -6,9 +6,8 @@ from django.db.models import Q
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
 from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin
 from extras.models import CustomField, Tag
-from taggit.forms import TagField
 from utilities.forms import BootstrapMixin, CSVModelForm
-from utilities.forms.fields import DynamicModelMultipleChoiceField
+from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
 
 __all__ = (
     'NetBoxModelForm',
@@ -63,9 +62,11 @@ class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
     """
     Base form for creating a NetBox objects from CSV data. Used for bulk importing.
     """
-    tags = TagField(
+    tags = CSVModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False,
-        help_text='Tags (as quoted string: "tag1,tag2")'
+        to_field_name='slug',
+        help_text='Tag slugs separated by commas, encased with double quotes (e.g. "tag1,tag2,tag3")'
     )
 
     def _get_custom_fields(self, content_type):
@@ -75,15 +76,6 @@ class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
 
     def _get_form_field(self, customfield):
         return customfield.to_form_field(for_csv_import=True)
-
-    def clean_tags(self):
-        data = self.cleaned_data['tags']
-        existing_tags = Tag.objects.values_list('slug', flat=True)
-        for tag in data:
-            if tag.strip().lower() not in existing_tags:
-                raise ValidationError(f"Unknown tag: {tag}")
-
-        return data
 
 
 class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
