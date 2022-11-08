@@ -6,7 +6,8 @@ from decimal import Decimal
 from itertools import count, groupby
 
 import bleach
-from django.core.serializers import serialize
+from django.contrib.contenttypes.models import ContentType
+from django.core import serializers
 from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.http import QueryDict
@@ -142,7 +143,7 @@ def serialize_object(obj, extra=None):
     can be provided to exclude them from the returned dictionary. Private fields (prefaced with an underscore) are
     implicitly excluded.
     """
-    json_str = serialize('json', [obj])
+    json_str = serializers.serialize('json', [obj])
     data = json.loads(json_str)[0]['fields']
 
     # Exclude any MPTTModel fields
@@ -170,6 +171,20 @@ def serialize_object(obj, extra=None):
             data.pop(key)
 
     return data
+
+
+def deserialize_object(model, fields, pk=None):
+    content_type = ContentType.objects.get_for_model(model)
+    if 'custom_fields' in fields:
+        fields['custom_field_data'] = fields.pop('custom_fields')
+    data = {
+        'model': '.'.join(content_type.natural_key()),
+        'pk': pk,
+        'fields': fields,
+    }
+    instance = list(serializers.deserialize('python', [data]))[0]
+
+    return instance
 
 
 def dict_to_filter_params(d, prefix=''):

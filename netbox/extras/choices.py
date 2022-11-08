@@ -182,3 +182,20 @@ class WebhookHttpMethodChoices(ChoiceSet):
         (METHOD_PATCH, 'PATCH'),
         (METHOD_DELETE, 'DELETE'),
     )
+
+
+#
+# Staging
+#
+
+class ChangeActionChoices(ChoiceSet):
+
+    ACTION_CREATE = 'create'
+    ACTION_UPDATE = 'update'
+    ACTION_DELETE = 'delete'
+
+    CHOICES = (
+        (ACTION_CREATE, 'Created'),
+        (ACTION_UPDATE, 'Updated'),
+        (ACTION_DELETE, 'Deleted'),
+    )
