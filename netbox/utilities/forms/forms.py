@@ -123,15 +123,14 @@ class CSVModelForm(forms.ModelForm):
     """
     ModelForm used for the import of objects in CSV format.
     """
-
     def __init__(self, *args, headers=None, **kwargs):
+        headers = headers or {}
         super().__init__(*args, **kwargs)
 
         # Modify the model form to accommodate any customized to_field_name properties
-        if headers:
-            for field, to_field in headers.items():
-                if to_field is not None:
-                    self.fields[field].to_field_name = to_field
+        for field, to_field in headers.items():
+            if to_field is not None:
+                self.fields[field].to_field_name = to_field
 
 
 class ImportForm(BootstrapMixin, forms.Form):
