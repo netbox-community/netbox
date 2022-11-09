@@ -9,12 +9,12 @@ from django_rq.queues import get_connection
 from rq import Worker
 
 from netbox.views import generic
-from utilities.forms import ConfirmationForm
 from utilities.htmx import is_htmx
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
-from utilities.views import ContentTypePermissionRequiredMixin
+from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
+from .forms.reports import ReportForm
 from .models import *
 from .reports import get_report, get_reports, run_report
 from .scripts import get_scripts, run_script
@@ -31,15 +31,18 @@ class CustomFieldListView(generic.ObjectListView):
     table = tables.CustomFieldTable
 
 
+@register_model_view(CustomField)
 class CustomFieldView(generic.ObjectView):
     queryset = CustomField.objects.all()
 
 
+@register_model_view(CustomField, 'edit')
 class CustomFieldEditView(generic.ObjectEditView):
     queryset = CustomField.objects.all()
     form = forms.CustomFieldForm
 
 
+@register_model_view(CustomField, 'delete')
 class CustomFieldDeleteView(generic.ObjectDeleteView):
     queryset = CustomField.objects.all()
 
@@ -74,15 +77,18 @@ class CustomLinkListView(generic.ObjectListView):
     table = tables.CustomLinkTable
 
 
+@register_model_view(CustomLink)
 class CustomLinkView(generic.ObjectView):
     queryset = CustomLink.objects.all()
 
 
+@register_model_view(CustomLink, 'edit')
 class CustomLinkEditView(generic.ObjectEditView):
     queryset = CustomLink.objects.all()
     form = forms.CustomLinkForm
 
 
+@register_model_view(CustomLink, 'delete')
 class CustomLinkDeleteView(generic.ObjectDeleteView):
     queryset = CustomLink.objects.all()
 
@@ -117,15 +123,18 @@ class ExportTemplateListView(generic.ObjectListView):
     table = tables.ExportTemplateTable
 
 
+@register_model_view(ExportTemplate)
 class ExportTemplateView(generic.ObjectView):
     queryset = ExportTemplate.objects.all()
 
 
+@register_model_view(ExportTemplate, 'edit')
 class ExportTemplateEditView(generic.ObjectEditView):
     queryset = ExportTemplate.objects.all()
     form = forms.ExportTemplateForm
 
 
+@register_model_view(ExportTemplate, 'delete')
 class ExportTemplateDeleteView(generic.ObjectDeleteView):
     queryset = ExportTemplate.objects.all()
 
@@ -150,6 +159,74 @@ class ExportTemplateBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Saved filters
+#
+
+class SavedFilterMixin:
+
+    def get_queryset(self, request):
+        """
+        Return only shared SavedFilters, or those owned by the current user, unless
+        this is a superuser.
+        """
+        queryset = SavedFilter.objects.all()
+        user = request.user
+        if user.is_superuser:
+            return queryset
+        if user.is_anonymous:
+            return queryset.filter(shared=True)
+        return queryset.filter(
+            Q(shared=True) | Q(user=user)
+        )
+
+
+class SavedFilterListView(SavedFilterMixin, generic.ObjectListView):
+    filterset = filtersets.SavedFilterFilterSet
+    filterset_form = forms.SavedFilterFilterForm
+    table = tables.SavedFilterTable
+
+
+@register_model_view(SavedFilter)
+class SavedFilterView(SavedFilterMixin, generic.ObjectView):
+    queryset = SavedFilter.objects.all()
+
+
+@register_model_view(SavedFilter, 'edit')
+class SavedFilterEditView(SavedFilterMixin, generic.ObjectEditView):
+    queryset = SavedFilter.objects.all()
+    form = forms.SavedFilterForm
+
+    def alter_object(self, obj, request, url_args, url_kwargs):
+        if not obj.pk:
+            obj.user = request.user
+        return obj
+
+
+@register_model_view(SavedFilter, 'delete')
+class SavedFilterDeleteView(SavedFilterMixin, generic.ObjectDeleteView):
+    queryset = SavedFilter.objects.all()
+
+
+class SavedFilterBulkImportView(SavedFilterMixin, generic.BulkImportView):
+    queryset = SavedFilter.objects.all()
+    model_form = forms.SavedFilterCSVForm
+    table = tables.SavedFilterTable
+
+
+class SavedFilterBulkEditView(SavedFilterMixin, generic.BulkEditView):
+    queryset = SavedFilter.objects.all()
+    filterset = filtersets.SavedFilterFilterSet
+    table = tables.SavedFilterTable
+    form = forms.SavedFilterBulkEditForm
+
+
+class SavedFilterBulkDeleteView(SavedFilterMixin, generic.BulkDeleteView):
+    queryset = SavedFilter.objects.all()
+    filterset = filtersets.SavedFilterFilterSet
+    table = tables.SavedFilterTable
+
+
+#
 # Webhooks
 #
 
@@ -160,15 +237,18 @@ class WebhookListView(generic.ObjectListView):
     table = tables.WebhookTable
 
 
+@register_model_view(Webhook)
 class WebhookView(generic.ObjectView):
     queryset = Webhook.objects.all()
 
 
+@register_model_view(Webhook, 'edit')
 class WebhookEditView(generic.ObjectEditView):
     queryset = Webhook.objects.all()
     form = forms.WebhookForm
 
 
+@register_model_view(Webhook, 'delete')
 class WebhookDeleteView(generic.ObjectDeleteView):
     queryset = Webhook.objects.all()
 
@@ -205,6 +285,7 @@ class TagListView(generic.ObjectListView):
     table = tables.TagTable
 
 
+@register_model_view(Tag)
 class TagView(generic.ObjectView):
     queryset = Tag.objects.all()
 
@@ -230,11 +311,13 @@ class TagView(generic.ObjectView):
         }
 
 
+@register_model_view(Tag, 'edit')
 class TagEditView(generic.ObjectEditView):
     queryset = Tag.objects.all()
     form = forms.TagForm
 
 
+@register_model_view(Tag, 'delete')
 class TagDeleteView(generic.ObjectDeleteView):
     queryset = Tag.objects.all()
 
@@ -272,6 +355,7 @@ class ConfigContextListView(generic.ObjectListView):
     actions = ('add', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(ConfigContext)
 class ConfigContextView(generic.ObjectView):
     queryset = ConfigContext.objects.all()
 
@@ -309,6 +393,7 @@ class ConfigContextView(generic.ObjectView):
         }
 
 
+@register_model_view(ConfigContext, 'edit')
 class ConfigContextEditView(generic.ObjectEditView):
     queryset = ConfigContext.objects.all()
     form = forms.ConfigContextForm
@@ -321,6 +406,7 @@ class ConfigContextBulkEditView(generic.BulkEditView):
     form = forms.ConfigContextBulkEditForm
 
 
+@register_model_view(ConfigContext, 'delete')
 class ConfigContextDeleteView(generic.ObjectDeleteView):
     queryset = ConfigContext.objects.all()
 
@@ -352,7 +438,6 @@ class ObjectConfigContextView(generic.ObjectView):
             'source_contexts': source_contexts,
             'format': format,
             'base_template': self.base_template,
-            'active_tab': 'config-context',
         }
 
 
@@ -369,6 +454,7 @@ class ObjectChangeListView(generic.ObjectListView):
     actions = ('export',)
 
 
+@register_model_view(ObjectChange)
 class ObjectChangeView(generic.ObjectView):
     queryset = ObjectChange.objects.all()
 
@@ -426,6 +512,7 @@ class ObjectChangeView(generic.ObjectView):
 # Image attachments
 #
 
+@register_model_view(ImageAttachment, 'edit')
 class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()
     form = forms.ImageAttachmentForm
@@ -448,6 +535,7 @@ class ImageAttachmentEditView(generic.ObjectEditView):
         }
 
 
+@register_model_view(ImageAttachment, 'delete')
 class ImageAttachmentDeleteView(generic.ObjectDeleteView):
     queryset = ImageAttachment.objects.all()
 
@@ -467,10 +555,12 @@ class JournalEntryListView(generic.ObjectListView):
     actions = ('export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(JournalEntry)
 class JournalEntryView(generic.ObjectView):
     queryset = JournalEntry.objects.all()
 
 
+@register_model_view(JournalEntry, 'edit')
 class JournalEntryEditView(generic.ObjectEditView):
     queryset = JournalEntry.objects.all()
     form = forms.JournalEntryForm
@@ -488,6 +578,7 @@ class JournalEntryEditView(generic.ObjectEditView):
         return reverse(viewname, kwargs={'pk': obj.pk})
 
 
+@register_model_view(JournalEntry, 'delete')
 class JournalEntryDeleteView(generic.ObjectDeleteView):
     queryset = JournalEntry.objects.all()
 
@@ -569,7 +660,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
 
         return render(request, 'extras/report.html', {
             'report': report,
-            'run_form': ConfirmationForm(),
+            'form': ReportForm(),
         })
 
     def post(self, request, module, name):
@@ -582,24 +673,36 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         if report is None:
             raise Http404
 
-        # Allow execution only if RQ worker process is running
-        if not Worker.count(get_connection('default')):
-            messages.error(request, "Unable to run report: RQ worker process not running.")
-            return render(request, 'extras/report.html', {
-                'report': report,
-            })
+        schedule_at = None
+        form = ReportForm(request.POST)
 
-        # Run the Report. A new JobResult is created.
-        report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        job_result = JobResult.enqueue_job(
-            run_report,
-            report.full_name,
-            report_content_type,
-            request.user,
-            job_timeout=report.job_timeout
-        )
+        if form.is_valid():
+            schedule_at = form.cleaned_data.get("schedule_at")
 
-        return redirect('extras:report_result', job_result_pk=job_result.pk)
+            # Allow execution only if RQ worker process is running
+            if not Worker.count(get_connection('default')):
+                messages.error(request, "Unable to run report: RQ worker process not running.")
+                return render(request, 'extras/report.html', {
+                    'report': report,
+                })
+
+            # Run the Report. A new JobResult is created.
+            report_content_type = ContentType.objects.get(app_label='extras', model='report')
+            job_result = JobResult.enqueue_job(
+                run_report,
+                report.full_name,
+                report_content_type,
+                request.user,
+                job_timeout=report.job_timeout,
+                schedule_at=schedule_at,
+            )
+
+            return redirect('extras:report_result', job_result_pk=job_result.pk)
+
+        return render(request, 'extras/report.html', {
+            'report': report,
+            'form': form,
+        })
 
 
 class ReportResultView(ContentTypePermissionRequiredMixin, View):
@@ -714,6 +817,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
 
         elif form.is_valid():
             commit = form.cleaned_data.pop('_commit')
+            schedule_at = form.cleaned_data.pop("_schedule_at")
 
             script_content_type = ContentType.objects.get(app_label='extras', model='script')
 
@@ -726,6 +830,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
                 request=copy_safe_request(request),
                 commit=commit,
                 job_timeout=script.job_timeout,
+                schedule_at=schedule_at,
             )
 
             return redirect('extras:script_result', job_result_pk=job_result.pk)
@@ -765,3 +870,25 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, GetScriptMixin, View)
             'result': result,
             'class_name': script.__class__.__name__
         })
+
+
+#
+# Job results
+#
+
+class JobResultListView(generic.ObjectListView):
+    queryset = JobResult.objects.all()
+    filterset = filtersets.JobResultFilterSet
+    filterset_form = forms.JobResultFilterForm
+    table = tables.JobResultTable
+    actions = ('export', 'delete', 'bulk_delete', )
+
+
+class JobResultDeleteView(generic.ObjectDeleteView):
+    queryset = JobResult.objects.all()
+
+
+class JobResultBulkDeleteView(generic.BulkDeleteView):
+    queryset = JobResult.objects.all()
+    filterset = filtersets.JobResultFilterSet
+    table = tables.JobResultTable

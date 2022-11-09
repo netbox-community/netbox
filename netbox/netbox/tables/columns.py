@@ -300,7 +300,7 @@ class ContentTypeColumn(tables.Column):
     def render(self, value):
         if value is None:
             return None
-        return content_type_name(value)
+        return content_type_name(value, include_app=False)
 
     def value(self, value):
         if value is None:
@@ -319,7 +319,7 @@ class ContentTypesColumn(tables.ManyToManyColumn):
         super().__init__(separator=separator, *args, **kwargs)
 
     def transform(self, obj):
-        return content_type_name(obj)
+        return content_type_name(obj, include_app=False)
 
     def value(self, value):
         return ','.join([

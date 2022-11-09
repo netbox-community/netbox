@@ -1,12 +1,13 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 
-from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices
-from extras.forms.customfields import CustomFieldsMixin
+from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
+from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin
 from extras.models import CustomField, Tag
 from utilities.forms import BootstrapMixin, CSVModelForm
-from utilities.forms.fields import DynamicModelMultipleChoiceField
+from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
 
 __all__ = (
     'NetBoxModelForm',
@@ -61,7 +62,17 @@ class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
     """
     Base form for creating a NetBox objects from CSV data. Used for bulk importing.
     """
-    tags = None  # Temporary fix in lieu of tag import support (see #9158)
+    tags = CSVModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+        to_field_name='slug',
+        help_text='Tag slugs separated by commas, encased with double quotes (e.g. "tag1,tag2,tag3")'
+    )
+
+    def _get_custom_fields(self, content_type):
+        return CustomField.objects.filter(content_types=content_type).filter(
+            ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE
+        )
 
     def _get_form_field(self, customfield):
         return customfield.to_form_field(for_csv_import=True)
@@ -109,7 +120,7 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
         self.nullable_fields = (*self.nullable_fields, *nullable_custom_fields)
 
 
-class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
+class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, SavedFiltersMixin, forms.Form):
     """
     Base form for FilerSet forms. These are used to filter object lists in the NetBox UI. Note that the
     corresponding FilterSet *must* provide a `q` filter.
@@ -124,11 +135,20 @@ class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
         label='Search'
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit saved filters to those applicable to the form's model
+        content_type = ContentType.objects.get_for_model(self.model)
+        self.fields['filter'].widget.add_query_params({
+            'content_type_id': content_type.pk,
+        })
+
     def _get_custom_fields(self, content_type):
-        return CustomField.objects.filter(content_types=content_type).exclude(
+        return super()._get_custom_fields(content_type).exclude(
             Q(filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED) |
             Q(type=CustomFieldTypeChoices.TYPE_JSON)
         )
 
     def _get_form_field(self, customfield):
-        return customfield.to_form_field(set_initial=False, enforce_required=False)
+        return customfield.to_form_field(set_initial=False, enforce_required=False, enforce_visibility=False)

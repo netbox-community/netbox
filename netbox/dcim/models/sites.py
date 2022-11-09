@@ -2,12 +2,11 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from mptt.models import TreeForeignKey
 from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
-from netbox.models import NestedGroupModel, NetBoxModel
+from netbox.models import NestedGroupModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
 
 __all__ = (
@@ -28,25 +27,6 @@ class Region(NestedGroupModel):
     states, and/or cities. Regions are recursively nested into a hierarchy: all sites belonging to a child region are
     also considered to be members of its parent and ancestor region(s).
     """
-    parent = TreeForeignKey(
-        to='self',
-        on_delete=models.CASCADE,
-        related_name='children',
-        blank=True,
-        null=True,
-        db_index=True
-    )
-    name = models.CharField(
-        max_length=100
-    )
-    slug = models.SlugField(
-        max_length=100
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
     # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
@@ -102,25 +82,6 @@ class SiteGroup(NestedGroupModel):
     within corporate sites you might distinguish between offices and data centers. Like regions, site groups can be
     nested recursively to form a hierarchy.
     """
-    parent = TreeForeignKey(
-        to='self',
-        on_delete=models.CASCADE,
-        related_name='children',
-        blank=True,
-        null=True,
-        db_index=True
-    )
-    name = models.CharField(
-        max_length=100
-    )
-    slug = models.SlugField(
-        max_length=100
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
     # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
@@ -170,7 +131,7 @@ class SiteGroup(NestedGroupModel):
 # Sites
 #
 
-class Site(NetBoxModel):
+class Site(PrimaryModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
@@ -227,10 +188,6 @@ class Site(NetBoxModel):
     time_zone = TimeZoneField(
         blank=True
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
     physical_address = models.CharField(
         max_length=200,
         blank=True
@@ -252,9 +209,6 @@ class Site(NetBoxModel):
         blank=True,
         null=True,
         help_text='GPS coordinate (longitude)'
-    )
-    comments = models.TextField(
-        blank=True
     )
 
     # Generic relations
@@ -298,24 +252,10 @@ class Location(NestedGroupModel):
     A Location represents a subgroup of Racks and/or Devices within a Site. A Location may represent a building within a
     site, or a room within a building, for example.
     """
-    name = models.CharField(
-        max_length=100
-    )
-    slug = models.SlugField(
-        max_length=100
-    )
     site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.CASCADE,
         related_name='locations'
-    )
-    parent = TreeForeignKey(
-        to='self',
-        on_delete=models.CASCADE,
-        related_name='children',
-        blank=True,
-        null=True,
-        db_index=True
     )
     status = models.CharField(
         max_length=50,
@@ -328,10 +268,6 @@ class Location(NestedGroupModel):
         related_name='locations',
         blank=True,
         null=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
     )
 
     # Generic relations

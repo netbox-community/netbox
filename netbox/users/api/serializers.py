@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
@@ -63,7 +64,13 @@ class GroupSerializer(ValidatedModelSerializer):
 
 class TokenSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:token-detail')
-    key = serializers.CharField(min_length=40, max_length=40, allow_blank=True, required=False)
+    key = serializers.CharField(
+        min_length=40,
+        max_length=40,
+        allow_blank=True,
+        required=False,
+        write_only=not settings.ALLOW_TOKEN_RETRIEVAL
+    )
     user = NestedUserSerializer()
     allowed_ips = serializers.ListField(
         child=IPNetworkSerializer(),

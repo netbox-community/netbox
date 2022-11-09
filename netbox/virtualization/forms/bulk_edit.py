@@ -84,6 +84,10 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
             'group_id': '$site_group',
         }
     )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
     comments = CommentField(
         widget=SmallTextarea,
         label='Comments'
@@ -91,11 +95,11 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Cluster
     fieldsets = (
-        (None, ('type', 'group', 'status', 'tenant',)),
-        ('Site', ('region', 'site_group', 'site',)),
+        (None, ('type', 'group', 'status', 'tenant', 'description')),
+        ('Site', ('region', 'site_group', 'site')),
     )
     nullable_fields = (
-        'group', 'site', 'comments', 'tenant',
+        'group', 'site', 'tenant', 'description', 'comments',
     )
 
 
@@ -153,6 +157,10 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label='Disk (GB)'
     )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
     comments = CommentField(
         widget=SmallTextarea,
         label='Comments'
@@ -160,11 +168,11 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
 
     model = VirtualMachine
     fieldsets = (
-        (None, ('site', 'cluster', 'device', 'status', 'role', 'tenant', 'platform')),
+        (None, ('site', 'cluster', 'device', 'status', 'role', 'tenant', 'platform', 'description')),
         ('Resources', ('vcpus', 'memory', 'disk'))
     )
     nullable_fields = (
-        'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+        'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'description', 'comments',
     )
 
 

@@ -1,18 +1,83 @@
 # NetBox v3.3
 
-## v3.3.5 (FUTURE)
+## v3.3.8 (FUTURE)
+
+---
+
+## v3.3.7 (2022-11-01)
+
+### Bug Fixes
+
+* [#10282](https://github.com/netbox-community/netbox/issues/10282) - Enforce advisory locks when allocating available IP addresses to prevent race conditions
+* [#10770](https://github.com/netbox-community/netbox/issues/10282) - Fix social authentication for new users
+* [#10791](https://github.com/netbox-community/netbox/issues/10791) - Permit nullifying VLAN group `scope_type` via REST API
+* [#10803](https://github.com/netbox-community/netbox/issues/10803) - Fix exception when ordering contacts by number of assignments
+* [#10809](https://github.com/netbox-community/netbox/issues/10809) - Permit nullifying site `time_zone` via REST API
+
+---
+
+## v3.3.6 (2022-10-26)
+
+### Enhancements
+
+* [#9584](https://github.com/netbox-community/netbox/issues/9584) - Enable filtering devices by device type slug
+* [#9722](https://github.com/netbox-community/netbox/issues/9722) - Add LDAP configuration parameters to specify certificates
+* [#10580](https://github.com/netbox-community/netbox/issues/10580) - Link "assigned" checkbox in IP address table to assigned interface
+* [#10639](https://github.com/netbox-community/netbox/issues/10639) - Set cookie paths according to configured `BASE_PATH`
+* [#10685](https://github.com/netbox-community/netbox/issues/10685) - Position A/Z termination cards above the fold under circuit view
+
+### Bug Fixes
+
+* [#9669](https://github.com/netbox-community/netbox/issues/9669) - Strip colons from usernames when using remote authentication
+* [#10575](https://github.com/netbox-community/netbox/issues/10575) - Include OIDC dependencies for python-social-auth
+* [#10584](https://github.com/netbox-community/netbox/issues/10584) - Fix service clone link
+* [#10610](https://github.com/netbox-community/netbox/issues/10610) - Allow assignment of VC member to LAG on non-master peer
+* [#10643](https://github.com/netbox-community/netbox/issues/10643) - Ensure consistent display of custom fields for all model forms
+* [#10646](https://github.com/netbox-community/netbox/issues/10646) - Fix filtering of power feed by power panel when connecting a cable
+* [#10655](https://github.com/netbox-community/netbox/issues/10655) - Correct display of assigned contacts in object tables
+* [#10666](https://github.com/netbox-community/netbox/issues/10666) - Re-evaluate disabled LDAP user when processing API requests
+* [#10682](https://github.com/netbox-community/netbox/issues/10682) - Correct home view links to connection lists
+* [#10712](https://github.com/netbox-community/netbox/issues/10712) - Fix ModuleNotFoundError exception when generating API schema under Python 3.9+
+* [#10716](https://github.com/netbox-community/netbox/issues/10716) - Add left/right page plugin content embeds for tag view
+* [#10719](https://github.com/netbox-community/netbox/issues/10719) - Prevent user without sufficient permission from creating an IP address via FHRP group creation
+* [#10723](https://github.com/netbox-community/netbox/issues/10723) - Distinguish between inside/outside NAT assignments for device/VM primary IPs
+* [#10745](https://github.com/netbox-community/netbox/issues/10745) - Correct display of status field in clusters list
+* [#10746](https://github.com/netbox-community/netbox/issues/10746) - Add missing status attribute to cluster view
+
+---
+
+## v3.3.5 (2022-10-05)
+
+### Enhancements
+
+* [#8424](https://github.com/netbox-community/netbox/issues/8424) - Include rack elevation under device view
+* [#10352](https://github.com/netbox-community/netbox/issues/10352) - Omit extraneous URL query attributes during search
+* [#10465](https://github.com/netbox-community/netbox/issues/10465) - Improve formatting of device heights and rack positions
 
 ### Bug Fixes
 
 * [#9497](https://github.com/netbox-community/netbox/issues/9497) - Adjust non-racked device filter on site and location detailed view
+* [#10408](https://github.com/netbox-community/netbox/issues/10408) - Fix validation when attempting to add redundant contact assignments
+* [#10423](https://github.com/netbox-community/netbox/issues/10423) - Enforce object type validation when creating journal entries
 * [#10435](https://github.com/netbox-community/netbox/issues/10435) - Fix exception when filtering VLANs by virtual machine with no cluster assigned
 * [#10439](https://github.com/netbox-community/netbox/issues/10439) - Fix form widget styling for DeviceType airflow field
+* [#10445](https://github.com/netbox-community/netbox/issues/10445) - Avoid rounding virtual machine memory values
+* [#10460](https://github.com/netbox-community/netbox/issues/10460) - Restore missing connection details for device components
+* [#10461](https://github.com/netbox-community/netbox/issues/10461) - Enable filtering by read-only custom fields in the UI
+* [#10470](https://github.com/netbox-community/netbox/issues/10470) - Omit read-only custom fields from CSV import forms
+* [#10480](https://github.com/netbox-community/netbox/issues/10480) - Cable trace SVG links should not force a new window
+* [#10491](https://github.com/netbox-community/netbox/issues/10491) - Clarify representation of blocking contact assignments during contact deletion
+* [#10513](https://github.com/netbox-community/netbox/issues/10513) - Disable the reassignment of a module to a new device
+* [#10517](https://github.com/netbox-community/netbox/issues/10517) - Automatically inherit site assignment from cluster when creating a virtual machine
+* [#10559](https://github.com/netbox-community/netbox/issues/10559) - Permit the pinning of a VM to a particular device within a cluster which has no site assignment
+* [#10562](https://github.com/netbox-community/netbox/issues/10562) - Correct URL for contacts table tags column
 
 ---
 
 ## v3.3.4 (2022-09-16)
 
 ### Bug Fixes
+
 * [#10383](https://github.com/netbox-community/netbox/issues/10383) - Fix assignment of component templates to module types via web UI
 * [#10387](https://github.com/netbox-community/netbox/issues/10387) - Fix `MultiValueDictKeyError` exception when editing a device interface
 

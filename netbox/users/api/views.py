@@ -88,6 +88,8 @@ class TokenProvisionView(APIView):
         token = Token(user=user)
         token.save()
         data = serializers.TokenSerializer(token, context={'request': request}).data
+        # Manually append the token key, which is normally write-only
+        data['key'] = token.key
 
         return Response(data, status=HTTP_201_CREATED)
 

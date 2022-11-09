@@ -12,6 +12,7 @@ __all__ = (
     'CustomFieldCSVForm',
     'CustomLinkCSVForm',
     'ExportTemplateCSVForm',
+    'SavedFilterCSVForm',
     'TagCSVForm',
     'WebhookCSVForm',
 )
@@ -46,38 +47,51 @@ class CustomFieldCSVForm(CSVModelForm):
     class Meta:
         model = CustomField
         fields = (
-            'name', 'label', 'group_name', 'type', 'content_types', 'object_type', 'required', 'description', 'weight',
-            'filter_logic', 'default', 'choices', 'weight', 'validation_minimum', 'validation_maximum',
+            'name', 'label', 'group_name', 'type', 'content_types', 'object_type', 'required', 'description',
+            'search_weight', 'filter_logic', 'default', 'choices', 'weight', 'validation_minimum', 'validation_maximum',
             'validation_regex', 'ui_visibility',
         )
 
 
 class CustomLinkCSVForm(CSVModelForm):
-    content_type = CSVContentTypeField(
+    content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_links'),
-        help_text="Assigned object type"
+        help_text="One or more assigned object types"
     )
 
     class Meta:
         model = CustomLink
         fields = (
-            'name', 'content_type', 'enabled', 'weight', 'group_name', 'button_class', 'new_window', 'link_text',
+            'name', 'content_types', 'enabled', 'weight', 'group_name', 'button_class', 'new_window', 'link_text',
             'link_url',
         )
 
 
 class ExportTemplateCSVForm(CSVModelForm):
-    content_type = CSVContentTypeField(
+    content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('export_templates'),
-        help_text="Assigned object type"
+        help_text="One or more assigned object types"
     )
 
     class Meta:
         model = ExportTemplate
         fields = (
-            'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment', 'template_code',
+            'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'template_code',
+        )
+
+
+class SavedFilterCSVForm(CSVModelForm):
+    content_types = CSVMultipleContentTypeField(
+        queryset=ContentType.objects.all(),
+        help_text="One or more assigned object types"
+    )
+
+    class Meta:
+        model = SavedFilter
+        fields = (
+            'name', 'content_types', 'description', 'weight', 'enabled', 'shared', 'parameters',
         )
 
 

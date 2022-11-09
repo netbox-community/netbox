@@ -2,11 +2,11 @@ from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.models import MPTTModel
 
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
-from netbox.models import NestedGroupModel, NetBoxModel
+from netbox.models import NestedGroupModel, PrimaryModel
 from .choices import *
 from .constants import *
 
@@ -54,18 +54,6 @@ class WirelessLANGroup(NestedGroupModel):
         max_length=100,
         unique=True
     )
-    parent = TreeForeignKey(
-        to='self',
-        on_delete=models.CASCADE,
-        related_name='children',
-        blank=True,
-        null=True,
-        db_index=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
 
     class Meta:
         ordering = ('name', 'pk')
@@ -77,14 +65,11 @@ class WirelessLANGroup(NestedGroupModel):
         )
         verbose_name = 'Wireless LAN Group'
 
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
         return reverse('wireless:wirelesslangroup', args=[self.pk])
 
 
-class WirelessLAN(WirelessAuthenticationBase, NetBoxModel):
+class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
     """
     A wireless network formed among an arbitrary number of access point and clients.
     """
@@ -98,6 +83,11 @@ class WirelessLAN(WirelessAuthenticationBase, NetBoxModel):
         related_name='wireless_lans',
         blank=True,
         null=True
+    )
+    status = models.CharField(
+        max_length=50,
+        choices=WirelessLANStatusChoices,
+        default=WirelessLANStatusChoices.STATUS_ACTIVE
     )
     vlan = models.ForeignKey(
         to='ipam.VLAN',
@@ -113,10 +103,6 @@ class WirelessLAN(WirelessAuthenticationBase, NetBoxModel):
         blank=True,
         null=True
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
 
     clone_fields = ('ssid', 'group', 'tenant', 'description')
 
@@ -130,6 +116,9 @@ class WirelessLAN(WirelessAuthenticationBase, NetBoxModel):
     def get_absolute_url(self):
         return reverse('wireless:wirelesslan', args=[self.pk])
 
+    def get_status_color(self):
+        return WirelessLANStatusChoices.colors.get(self.status)
+
 
 def get_wireless_interface_types():
     # Wrap choices in a callable to avoid generating dummy migrations
@@ -137,7 +126,7 @@ def get_wireless_interface_types():
     return {'type__in': WIRELESS_IFACE_TYPES}
 
 
-class WirelessLink(WirelessAuthenticationBase, NetBoxModel):
+class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
     """
     A point-to-point connection between two wireless Interfaces.
     """
@@ -171,10 +160,6 @@ class WirelessLink(WirelessAuthenticationBase, NetBoxModel):
         related_name='wireless_links',
         blank=True,
         null=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
     )
 
     # Cache the associated device for the A and B interfaces. This enables filtering of WirelessLinks by their

@@ -1,4 +1,4 @@
-import django.core.serializers.json
+from utilities.json import CustomFieldJSONEncoder
 from django.db import migrations, models
 import django.db.models.deletion
 import taggit.managers
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('model', models.CharField(max_length=100)),
                 ('part_number', models.CharField(blank=True, max_length=50)),
@@ -125,7 +125,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
                 ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
@@ -145,7 +145,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('local_context_data', models.JSONField(blank=True, null=True)),
                 ('serial', models.CharField(blank=True, max_length=50)),

@@ -1,5 +1,7 @@
 name: CI
 on: [push, pull_request]
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -7,7 +9,7 @@ jobs:
       NETBOX_CONFIGURATION: netbox.configuration_testing
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version: ['3.8', '3.9', '3.10', '3.11']
         node-version: ['14.x']
     services:
       redis:

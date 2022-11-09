@@ -33,6 +33,7 @@ class WirelessLANGroupSerializer(NestedGroupModelSerializer):
 class WirelessLANSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslan-detail')
     group = NestedWirelessLANGroupSerializer(required=False, allow_null=True)
+    status = ChoiceField(choices=WirelessLANStatusChoices, required=False, allow_blank=True)
     vlan = NestedVLANSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     auth_type = ChoiceField(choices=WirelessAuthTypeChoices, required=False, allow_blank=True)
@@ -41,8 +42,8 @@ class WirelessLANSerializer(NetBoxModelSerializer):
     class Meta:
         model = WirelessLAN
         fields = [
-            'id', 'url', 'display', 'ssid', 'description', 'group', 'vlan', 'tenant', 'auth_type', 'auth_cipher',
-            'auth_psk', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'ssid', 'description', 'group', 'status', 'vlan', 'tenant', 'auth_type',
+            'auth_cipher', 'auth_psk', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -59,5 +60,5 @@ class WirelessLinkSerializer(NetBoxModelSerializer):
         model = WirelessLink
         fields = [
             'id', 'url', 'display', 'interface_a', 'interface_b', 'ssid', 'status', 'tenant', 'auth_type',
-            'auth_cipher', 'auth_psk', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'auth_cipher', 'auth_psk', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]

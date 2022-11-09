@@ -130,7 +130,7 @@ class SiteSerializer(NetBoxModelSerializer):
     region = NestedRegionSerializer(required=False, allow_null=True)
     group = NestedSiteGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    time_zone = TimeZoneSerializerField(required=False)
+    time_zone = TimeZoneSerializerField(required=False, allow_null=True)
     asns = SerializedPKRelatedField(
         queryset=ASN.objects.all(),
         serializer=NestedASNSerializer,
@@ -201,6 +201,7 @@ class RackSerializer(NetBoxModelSerializer):
                                         default=None)
     width = ChoiceField(choices=RackWidthChoices, required=False)
     outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False)
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False)
     device_count = serializers.IntegerField(read_only=True)
     powerfeed_count = serializers.IntegerField(read_only=True)
 
@@ -208,8 +209,9 @@ class RackSerializer(NetBoxModelSerializer):
         model = Rack
         fields = [
             'id', 'url', 'display', 'name', 'facility_id', 'site', 'location', 'tenant', 'status', 'role', 'serial',
-            'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
+            'asset_tag', 'type', 'width', 'u_height', 'weight', 'weight_unit', 'desc_units', 'outer_width',
+            'outer_depth', 'outer_unit', 'mounting_depth', 'description', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated', 'device_count', 'powerfeed_count',
         ]
 
 
@@ -241,8 +243,8 @@ class RackReservationSerializer(NetBoxModelSerializer):
     class Meta:
         model = RackReservation
         fields = [
-            'id', 'url', 'display', 'rack', 'units', 'created', 'last_updated', 'user', 'tenant', 'description', 'tags',
-            'custom_fields',
+            'id', 'url', 'display', 'rack', 'units', 'created', 'last_updated', 'user', 'tenant', 'description',
+            'comments', 'tags', 'custom_fields',
         ]
 
 
@@ -315,27 +317,28 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
     )
     subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False)
     device_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = DeviceType
         fields = [
             'id', 'url', 'display', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'airflow', 'front_image', 'rear_image', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated', 'device_count',
+            'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image', 'description',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
         ]
 
 
 class ModuleTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:moduletype-detail')
     manufacturer = NestedManufacturerSerializer()
-    # module_count = serializers.IntegerField(read_only=True)
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False)
 
     class Meta:
         model = ModuleType
         fields = [
-            'id', 'url', 'display', 'manufacturer', 'model', 'part_number', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'manufacturer', 'model', 'part_number', 'weight', 'weight_unit', 'description',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -652,8 +655,8 @@ class DeviceSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
-            'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments',
-            'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
+            'comments', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
     @swagger_serializer_method(serializer_or_field=NestedDeviceSerializer)
@@ -677,8 +680,8 @@ class ModuleSerializer(NetBoxModelSerializer):
     class Meta:
         model = Module
         fields = [
-            'id', 'url', 'display', 'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'description',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -1016,7 +1019,7 @@ class CableSerializer(NetBoxModelSerializer):
         model = Cable
         fields = [
             'id', 'url', 'display', 'type', 'a_terminations', 'b_terminations', 'status', 'tenant', 'label', 'color',
-            'length', 'length_unit', 'tags', 'custom_fields', 'created', 'last_updated',
+            'length', 'length_unit', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -1082,8 +1085,8 @@ class VirtualChassisSerializer(NetBoxModelSerializer):
     class Meta:
         model = VirtualChassis
         fields = [
-            'id', 'url', 'display', 'name', 'domain', 'master', 'tags', 'custom_fields', 'member_count',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'domain', 'master', 'description', 'comments', 'tags', 'custom_fields',
+            'member_count', 'created', 'last_updated',
         ]
 
 
@@ -1104,8 +1107,8 @@ class PowerPanelSerializer(NetBoxModelSerializer):
     class Meta:
         model = PowerPanel
         fields = [
-            'id', 'url', 'display', 'site', 'location', 'name', 'tags', 'custom_fields', 'powerfeed_count',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'site', 'location', 'name', 'description', 'comments', 'tags', 'custom_fields',
+            'powerfeed_count', 'created', 'last_updated',
         ]
 
 
@@ -1138,7 +1141,7 @@ class PowerFeedSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
         model = PowerFeed
         fields = [
             'id', 'url', 'display', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
-            'amperage', 'max_utilization', 'comments', 'mark_connected', 'cable', 'cable_end', 'link_peers',
-            'link_peers_type', 'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable',
-            'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'amperage', 'max_utilization', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type',
+            'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'description',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]

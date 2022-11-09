@@ -82,26 +82,28 @@ class ThingEditView(ObjectEditView):
 Below are the class definitions for NetBox's object views. These views handle CRUD actions for individual objects. The view, add/edit, and delete views each inherit from `BaseObjectView`, which is not intended to be used directly.
 
 ::: netbox.views.generic.base.BaseObjectView
+    options:
+      members:
+        - get_queryset
+        - get_object
+        - get_extra_context
 
 ::: netbox.views.generic.ObjectView
-    selection:
+    options:
       members:
-        - get_object
         - get_template_name
 
 ::: netbox.views.generic.ObjectEditView
-    selection:
+    options:
       members:
-        - get_object
         - alter_object
 
 ::: netbox.views.generic.ObjectDeleteView
-    selection:
-      members:
-        - get_object
+    options:
+      members: false
 
 ::: netbox.views.generic.ObjectChildrenView
-    selection:
+    options:
       members:
         - get_children
         - prep_table_data
@@ -111,24 +113,28 @@ Below are the class definitions for NetBox's object views. These views handle CR
 Below are the class definitions for NetBox's multi-object views. These views handle simultaneous actions for sets objects. The list, import, edit, and delete views each inherit from `BaseMultiObjectView`, which is not intended to be used directly.
 
 ::: netbox.views.generic.base.BaseMultiObjectView
+    options:
+      members:
+        - get_queryset
+        - get_extra_context
 
 ::: netbox.views.generic.ObjectListView
-    selection:
+    options:
       members:
         - get_table
         - export_table
         - export_template
 
 ::: netbox.views.generic.BulkImportView
-    selection:
+    options:
       members: false
 
 ::: netbox.views.generic.BulkEditView
-    selection:
+    options:
       members: false
 
 ::: netbox.views.generic.BulkDeleteView
-    selection:
+    options:
       members:
         - get_form
 
@@ -137,16 +143,42 @@ Below are the class definitions for NetBox's multi-object views. These views han
 These views are provided to enable or enhance certain NetBox model features, such as change logging or journaling. These typically do not need to be subclassed: They can be used directly e.g. in a URL path.
 
 ::: netbox.views.generic.ObjectChangeLogView
-    selection:
+    options:
       members:
         - get_form
 
 ::: netbox.views.generic.ObjectJournalView
-    selection:
+    options:
       members:
         - get_form
 
 ## Extending Core Views
+
+### Additional Tabs
+
+Plugins can "attach" a custom view to a core NetBox model by registering it with `register_model_view()`. To include a tab for this view within the NetBox UI, declare a TabView instance named `tab`:
+
+```python
+from dcim.models import Site
+from myplugin.models import Stuff
+from netbox.views import generic
+from utilities.views import ViewTab, register_model_view
+
+@register_model_view(Site, 'mview', path='some-other-stuff')
+class MyView(generic.ObjectView):
+    ...
+    tab = ViewTab(
+        label='Other Stuff',
+        badge=lambda obj: Stuff.objects.filter(site=obj).count(),
+        permission='myplugin.view_stuff'
+    )
+```
+
+::: utilities.views.register_model_view
+
+::: utilities.views.ViewTab
+
+### Extra Template Content
 
 Plugins can inject custom content into certain areas of the detail views of applicable models. This is accomplished by subclassing `PluginTemplateExtension`, designating a particular NetBox model, and defining the desired methods to render custom content. Four methods are available:
 

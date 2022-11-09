@@ -20,7 +20,6 @@ class FHRPGroupTable(NetBoxTable):
     group_id = tables.Column(
         linkify=True
     )
-    comments = columns.MarkdownColumn()
     ip_addresses = tables.TemplateColumn(
         template_code=IPADDRESSES,
         orderable=False,
@@ -29,6 +28,7 @@ class FHRPGroupTable(NetBoxTable):
     member_count = tables.Column(
         verbose_name='Members'
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:fhrpgroup_list'
     )
@@ -36,7 +36,7 @@ class FHRPGroupTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = FHRPGroup
         fields = (
-            'pk', 'group_id', 'protocol', 'name', 'auth_type', 'auth_key', 'description', 'ip_addresses',
+            'pk', 'group_id', 'protocol', 'name', 'auth_type', 'auth_key', 'description', 'comments', 'ip_addresses',
             'member_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (

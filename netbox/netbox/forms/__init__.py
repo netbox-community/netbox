@@ -1,45 +1,45 @@
 from django import forms
+from django.utils.translation import gettext as _
 
-from netbox.search import SEARCH_TYPE_HIERARCHY
-from utilities.forms import BootstrapMixin
+from netbox.search import LookupTypes
+from netbox.search.backends import search_backend
+from utilities.forms import BootstrapMixin, StaticSelect, StaticSelectMultiple
+
 from .base import *
 
-
-def build_search_choices():
-    result = list()
-    result.append(('', 'All Objects'))
-    for category, items in SEARCH_TYPE_HIERARCHY.items():
-        subcategories = list()
-        for slug, obj in items.items():
-            name = obj['queryset'].model._meta.verbose_name_plural
-            name = name[0].upper() + name[1:]
-            subcategories.append((slug, name))
-        result.append((category, tuple(subcategories)))
-
-    return tuple(result)
-
-
-OBJ_TYPE_CHOICES = build_search_choices()
-
-
-def build_options():
-    options = [{"label": OBJ_TYPE_CHOICES[0][1], "items": []}]
-
-    for label, choices in OBJ_TYPE_CHOICES[1:]:
-        items = []
-
-        for value, choice_label in choices:
-            items.append({"label": choice_label, "value": value})
-
-        options.append({"label": label, "items": items})
-    return options
+LOOKUP_CHOICES = (
+    ('', _('Partial match')),
+    (LookupTypes.EXACT, _('Exact match')),
+    (LookupTypes.STARTSWITH, _('Starts with')),
+    (LookupTypes.ENDSWITH, _('Ends with')),
+)
 
 
 class SearchForm(BootstrapMixin, forms.Form):
     q = forms.CharField(
-        label='Search'
+        label='Search',
+        widget=forms.TextInput(
+            attrs={
+                'hx-get': '',
+                'hx-target': '#object_list',
+                'hx-trigger': 'keyup[target.value.length >= 3] changed delay:500ms',
+            }
+        )
     )
-    obj_type = forms.ChoiceField(
-        choices=OBJ_TYPE_CHOICES, required=False, label='Type'
+    obj_types = forms.MultipleChoiceField(
+        choices=[],
+        required=False,
+        label='Object type(s)',
+        widget=StaticSelectMultiple()
     )
-    options = build_options()
+    lookup = forms.ChoiceField(
+        choices=LOOKUP_CHOICES,
+        initial=LookupTypes.PARTIAL,
+        required=False,
+        widget=StaticSelect()
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['obj_types'].choices = search_backend.get_object_types()

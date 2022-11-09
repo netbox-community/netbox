@@ -127,14 +127,18 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label='Contact E-mail'
     )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
     time_zone = TimeZoneFormField(
         choices=add_blank_choice(TimeZoneFormField().choices),
         required=False,
         widget=StaticSelect()
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = Site
@@ -142,7 +146,7 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
         (None, ('status', 'region', 'group', 'tenant', 'asns', 'time_zone', 'description')),
     )
     nullable_fields = (
-        'region', 'group', 'tenant', 'asns', 'description', 'time_zone',
+        'region', 'group', 'tenant', 'asns', 'time_zone', 'description', 'comments',
     )
 
 
@@ -281,6 +285,24 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         widget=StaticSelect()
     )
+    mounting_depth = forms.IntegerField(
+        required=False,
+        min_value=1
+    )
+    weight = forms.DecimalField(
+        min_value=0,
+        required=False
+    )
+    weight_unit = forms.ChoiceField(
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
     comments = CommentField(
         widget=SmallTextarea,
         label='Comments'
@@ -288,12 +310,16 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Rack
     fieldsets = (
-        ('Rack', ('status', 'role', 'tenant', 'serial', 'asset_tag')),
+        ('Rack', ('status', 'role', 'tenant', 'serial', 'asset_tag', 'description')),
         ('Location', ('region', 'site_group', 'site', 'location')),
-        ('Hardware', ('type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit')),
+        ('Hardware', (
+            'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
+        )),
+        ('Weight', ('weight', 'weight_unit')),
     )
     nullable_fields = (
-        'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
+        'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'weight',
+        'weight_unit', 'description', 'comments',
     )
 
 
@@ -310,14 +336,19 @@ class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=200,
         required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = RackReservation
     fieldsets = (
         (None, ('user', 'tenant', 'description')),
     )
+    nullable_fields = ('comments',)
 
 
 class ManufacturerBulkEditForm(NetBoxModelBulkEditForm):
@@ -355,12 +386,31 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         widget=StaticSelect()
     )
+    weight = forms.DecimalField(
+        min_value=0,
+        required=False
+    )
+    weight_unit = forms.ChoiceField(
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
+    )
 
     model = DeviceType
     fieldsets = (
-        (None, ('manufacturer', 'part_number', 'u_height', 'is_full_depth', 'airflow')),
+        ('Device Type', ('manufacturer', 'part_number', 'u_height', 'is_full_depth', 'airflow', 'description')),
+        ('Weight', ('weight', 'weight_unit')),
     )
-    nullable_fields = ('part_number', 'airflow')
+    nullable_fields = ('part_number', 'airflow', 'weight', 'weight_unit', 'description', 'comments')
 
 
 class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
@@ -371,12 +421,31 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
     part_number = forms.CharField(
         required=False
     )
+    weight = forms.DecimalField(
+        min_value=0,
+        required=False
+    )
+    weight_unit = forms.ChoiceField(
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
+    )
 
     model = ModuleType
     fieldsets = (
-        (None, ('manufacturer', 'part_number')),
+        ('Module Type', ('manufacturer', 'part_number', 'description')),
+        ('Weight', ('weight', 'weight_unit')),
     )
-    nullable_fields = ('part_number',)
+    nullable_fields = ('part_number', 'weight', 'weight_unit', 'description', 'comments')
 
 
 class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
@@ -472,15 +541,23 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label='Serial Number'
     )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
+    )
 
     model = Device
     fieldsets = (
-        ('Device', ('device_role', 'status', 'tenant', 'platform')),
+        ('Device', ('device_role', 'status', 'tenant', 'platform', 'description')),
         ('Location', ('site', 'location')),
         ('Hardware', ('manufacturer', 'device_type', 'airflow', 'serial')),
     )
     nullable_fields = (
-        'location', 'tenant', 'platform', 'serial', 'airflow',
+        'location', 'tenant', 'platform', 'serial', 'airflow', 'description', 'comments',
     )
 
 
@@ -501,12 +578,20 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label='Serial Number'
     )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
+    )
 
     model = Module
     fieldsets = (
-        (None, ('manufacturer', 'module_type', 'serial')),
+        (None, ('manufacturer', 'module_type', 'serial', 'description')),
     )
-    nullable_fields = ('serial',)
+    nullable_fields = ('serial', 'description', 'comments')
 
 
 class CableBulkEditForm(NetBoxModelBulkEditForm):
@@ -543,26 +628,23 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
         initial='',
         widget=StaticSelect()
     )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
+    )
 
     model = Cable
     fieldsets = (
-        (None, ('type', 'status', 'tenant', 'label')),
+        (None, ('type', 'status', 'tenant', 'label', 'description')),
         ('Attributes', ('color', 'length', 'length_unit')),
     )
     nullable_fields = (
-        'type', 'status', 'tenant', 'label', 'color', 'length',
+        'type', 'status', 'tenant', 'label', 'color', 'length', 'description', 'comments',
     )
-
-    def clean(self):
-        super().clean()
-
-        # Validate length/unit
-        length = self.cleaned_data.get('length')
-        length_unit = self.cleaned_data.get('length_unit')
-        if length and not length_unit:
-            raise forms.ValidationError({
-                'length_unit': "Must specify a unit when setting length"
-            })
 
 
 class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):
@@ -570,12 +652,20 @@ class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):
         max_length=30,
         required=False
     )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
+    )
 
     model = VirtualChassis
     fieldsets = (
-        (None, ('domain',)),
+        (None, ('domain', 'description')),
     )
-    nullable_fields = ('domain',)
+    nullable_fields = ('domain', 'description', 'comments')
 
 
 class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
@@ -608,12 +698,20 @@ class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
             'site_id': '$site'
         }
     )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
+    )
 
     model = PowerPanel
     fieldsets = (
-        (None, ('region', 'site_group', 'site', 'location')),
+        (None, ('region', 'site_group', 'site', 'location', 'description')),
     )
-    nullable_fields = ('location',)
+    nullable_fields = ('location', 'description', 'comments')
 
 
 class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
@@ -662,6 +760,10 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect
     )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
     comments = CommentField(
         widget=SmallTextarea,
         label='Comments'
@@ -669,10 +771,10 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
 
     model = PowerFeed
     fieldsets = (
-        (None, ('power_panel', 'rack', 'status', 'type', 'mark_connected')),
+        (None, ('power_panel', 'rack', 'status', 'type', 'mark_connected', 'description')),
         ('Power', ('supply', 'phase', 'voltage', 'amperage', 'max_utilization'))
     )
-    nullable_fields = ('location', 'comments')
+    nullable_fields = ('location', 'description', 'comments')
 
 
 #

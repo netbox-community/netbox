@@ -136,6 +136,14 @@ class CSVModelForm(forms.ModelForm):
 
 
 class BaseImportForm(BootstrapMixin, forms.Form):
+    data_field = 'data'
+
+    # TODO: Enable auto-detection of format
+    format = forms.ChoiceField(
+        choices=ImportFormatChoices,
+        initial=ImportFormatChoices.CSV,
+        widget=StaticSelect()
+    )
 
     def __init__(self, *args, **kwargs):
         related = kwargs.pop("related", False)
@@ -143,10 +151,6 @@ class BaseImportForm(BootstrapMixin, forms.Form):
         if related:
             self.fields['format'].choices = ImportFormatChoicesRelated.CHOICES
             self.fields['format'].initial = ImportFormatChoicesRelated.YAML
-
-    @property
-    def data_field(self):
-        return 'data'
 
     def convert_data(self, data):
         format = self.cleaned_data['format']
@@ -180,21 +184,16 @@ class BaseImportForm(BootstrapMixin, forms.Form):
 
 class ImportForm(BaseImportForm):
     """
-    Generic form for creating an object from JSON/YAML data
+    Generic form for creating an object from CSV/JSON/YAML data
     """
     data = forms.CharField(
         widget=forms.Textarea(attrs={'class': 'font-monospace'}),
         help_text="Enter object data in CSV, JSON or YAML format."
     )
-    format = forms.ChoiceField(
-        choices=ImportFormatChoices.CHOICES,
-        initial=ImportFormatChoices.CSV
-    )
 
     def clean(self):
         super().clean()
-
-        data = self.cleaned_data['data'] if 'data' in self.cleaned_data else None
+        data = self.cleaned_data.get('data')
         self.convert_data(data)
 
 
@@ -206,20 +205,12 @@ class FileUploadImportForm(BaseImportForm):
         label="data file",
         required=False
     )
-    format = forms.ChoiceField(
-        choices=ImportFormatChoices.CHOICES,
-        initial=ImportFormatChoices.CSV
-    )
 
-    @property
-    def data_field(self):
-        return 'data_file'
+    data_field = 'data_file'
 
     def clean(self):
         super().clean()
-
         file = self.files.get('data_file')
-
         data = file.read().decode('utf-8')
         self.convert_data(data)
 

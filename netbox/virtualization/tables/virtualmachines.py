@@ -1,9 +1,9 @@
 import django_tables2 as tables
-
 from dcim.tables.devices import BaseInterfaceTable
-from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from virtualization.models import VirtualMachine, VMInterface
+
+from netbox.tables import NetBoxTable, columns
 
 __all__ = (
     'VirtualMachineTable',
@@ -37,7 +37,7 @@ VMINTERFACE_BUTTONS = """
 # Virtual machines
 #
 
-class VirtualMachineTable(TenancyColumnsMixin, NetBoxTable):
+class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         order_by=('_name',),
         linkify=True
@@ -67,9 +67,6 @@ class VirtualMachineTable(TenancyColumnsMixin, NetBoxTable):
         order_by=('primary_ip4', 'primary_ip6'),
         verbose_name='IP Address'
     )
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
-    )
     tags = columns.TagColumn(
         url_name='virtualization:virtualmachine_list'
     )
@@ -78,8 +75,8 @@ class VirtualMachineTable(TenancyColumnsMixin, NetBoxTable):
         model = VirtualMachine
         fields = (
             'pk', 'id', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'tenant_group', 'platform',
-            'vcpus', 'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'comments', 'contacts', 'tags',
-            'created', 'last_updated',
+            'vcpus', 'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description', 'comments',
+            'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',

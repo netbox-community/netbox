@@ -30,6 +30,10 @@
                         <td>{{ object.platform|linkify|placeholder }}</td>
                     </tr>
                     <tr>
+                      <th scope="row">Description</th>
+                      <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Tenant</th>
                         <td>
                             {% if object.tenant.group %}
@@ -46,7 +50,7 @@
                             {% if object.primary_ip4.nat_inside %}
                               (NAT for <a href="{{ object.primary_ip4.nat_inside.get_absolute_url }}">{{ object.primary_ip4.nat_inside.address.ip }}</a>)
                             {% elif object.primary_ip4.nat_outside.exists %}
-                              (NAT for {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                              (NAT: {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                             {% endif %}
                           {% else %}
                             {{ ''|placeholder }}
@@ -61,7 +65,7 @@
                             {% if object.primary_ip6.nat_inside %}
                               (NAT for <a href="{{ object.primary_ip6.nat_inside.get_absolute_url }}">{{ object.primary_ip6.nat_inside.address.ip }}</a>)
                             {% elif object.primary_ip6.nat_outside.exists %}
-                              (NAT for {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                              (NAT: {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                             {% endif %}
                           {% else %}
                             {{ ''|placeholder }}

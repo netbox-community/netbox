@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.http import Http404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -96,6 +97,17 @@ class ExportTemplateViewSet(NetBoxModelViewSet):
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
     filterset_class = filtersets.ExportTemplateFilterSet
+
+
+#
+# Saved filters
+#
+
+class SavedFilterViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = SavedFilter.objects.all()
+    serializer_class = serializers.SavedFilterSerializer
+    filterset_class = filtersets.SavedFilterFilterSet
 
 
 #
@@ -231,19 +243,26 @@ class ReportViewSet(ViewSet):
 
         # Retrieve and run the Report. This will create a new JobResult.
         report = self._retrieve_report(pk)
-        report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        job_result = JobResult.enqueue_job(
-            run_report,
-            report.full_name,
-            report_content_type,
-            request.user,
-            job_timeout=report.job_timeout
-        )
-        report.result = job_result
+        input_serializer = serializers.ReportInputSerializer(data=request.data)
 
-        serializer = serializers.ReportDetailSerializer(report, context={'request': request})
+        if input_serializer.is_valid():
+            schedule_at = input_serializer.validated_data.get('schedule_at')
 
-        return Response(serializer.data)
+            report_content_type = ContentType.objects.get(app_label='extras', model='report')
+            job_result = JobResult.enqueue_job(
+                run_report,
+                report.full_name,
+                report_content_type,
+                request.user,
+                job_timeout=report.job_timeout,
+                schedule_at=schedule_at,
+            )
+            report.result = job_result
+
+            serializer = serializers.ReportDetailSerializer(report, context={'request': request})
+
+            return Response(serializer.data)
+        return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 #
@@ -312,6 +331,7 @@ class ScriptViewSet(ViewSet):
         if input_serializer.is_valid():
             data = input_serializer.data['data']
             commit = input_serializer.data['commit']
+            schedule_at = input_serializer.validated_data.get('schedule_at')
 
             script_content_type = ContentType.objects.get(app_label='extras', model='script')
             job_result = JobResult.enqueue_job(
@@ -323,6 +343,7 @@ class ScriptViewSet(ViewSet):
                 request=copy_safe_request(request),
                 commit=commit,
                 job_timeout=script.job_timeout,
+                schedule_at=schedule_at,
             )
             script.result = job_result
             serializer = serializers.ScriptDetailSerializer(script, context={'request': request})

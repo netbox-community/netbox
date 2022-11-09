@@ -273,6 +273,7 @@ class TokenEditView(LoginRequiredMixin, View):
             form = TokenForm(request.POST)
 
         if form.is_valid():
+
             token = form.save(commit=False)
             token.user = request.user
             token.save()
@@ -280,7 +281,13 @@ class TokenEditView(LoginRequiredMixin, View):
             msg = f"Modified token {token}" if pk else f"Created token {token}"
             messages.success(request, msg)
 
-            if '_addanother' in request.POST:
+            if not pk and not settings.ALLOW_TOKEN_RETRIEVAL:
+                return render(request, 'users/api_token.html', {
+                    'object': token,
+                    'key': token.key,
+                    'return_url': reverse('users:token_list'),
+                })
+            elif '_addanother' in request.POST:
                 return redirect(request.path)
             else:
                 return redirect('users:token_list')
@@ -289,6 +296,7 @@ class TokenEditView(LoginRequiredMixin, View):
             'object': token,
             'form': form,
             'return_url': reverse('users:token_list'),
+            'disable_addanother': not settings.ALLOW_TOKEN_RETRIEVAL
         })
 
 

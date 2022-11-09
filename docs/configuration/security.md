@@ -1,5 +1,13 @@
 # Security & Authentication Parameters
 
+## ALLOW_TOKEN_RETRIEVAL
+
+Default: True
+
+If disabled, the values of API tokens will not be displayed after each token's initial creation. A user **must** record the value of a token immediately upon its creation, or it will be lost. Note that this affects _all_ users, regardless of assigned permissions.
+
+---
+
 ## ALLOWED_URL_SCHEMES
 
 !!! tip "Dynamic Configuration Parameter"

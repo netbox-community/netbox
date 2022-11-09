@@ -1,6 +1,7 @@
 import datetime
 import decimal
 import json
+import re
 from decimal import Decimal
 from itertools import count, groupby
 
@@ -9,14 +10,22 @@ from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.http import QueryDict
+from django.utils.html import escape
 from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
-from dcim.choices import CableLengthUnitChoices
+from dcim.choices import CableLengthUnitChoices, WeightUnitChoices
 from extras.plugins import PluginConfig
 from extras.utils import is_taggable
 from netbox.config import get_config
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
+
+
+def title(value):
+    """
+    Improved implementation of str.title(); retains all existing uppercase letters.
+    """
+    return ' '.join([w[0].upper() + w[1:] for w in str(value).split()])
 
 
 def get_viewname(model, action=None, rest_api=False):
@@ -270,6 +279,31 @@ def to_meters(length, unit):
     raise ValueError(f"Unknown unit {unit}. Must be 'km', 'm', 'cm', 'mi', 'ft', or 'in'.")
 
 
+def to_grams(weight, unit):
+    """
+    Convert the given weight to kilograms.
+    """
+    try:
+        if weight < 0:
+            raise ValueError("Weight must be a positive number")
+    except TypeError:
+        raise TypeError(f"Invalid value '{weight}' for weight (must be a number)")
+
+    valid_units = WeightUnitChoices.values()
+    if unit not in valid_units:
+        raise ValueError(f"Unknown unit {unit}. Must be one of the following: {', '.join(valid_units)}")
+
+    if unit == WeightUnitChoices.UNIT_KILOGRAM:
+        return weight * 1000
+    if unit == WeightUnitChoices.UNIT_GRAM:
+        return weight
+    if unit == WeightUnitChoices.UNIT_POUND:
+        return weight * Decimal(453.592)
+    if unit == WeightUnitChoices.UNIT_OUNCE:
+        return weight * Decimal(28.3495)
+    raise ValueError(f"Unknown unit {unit}. Must be 'kg', 'g', 'lb', 'oz'.")
+
+
 def render_jinja2(template_code, context):
     """
     Render a Jinja2 template with the provided context. Return the rendered content.
@@ -366,13 +400,17 @@ def array_to_string(array):
     return ', '.join(ret)
 
 
-def content_type_name(ct):
+def content_type_name(ct, include_app=True):
     """
     Return a human-friendly ContentType name (e.g. "DCIM > Site").
     """
     try:
         meta = ct.model_class()._meta
-        return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
+        app_label = title(meta.app_config.verbose_name)
+        model_name = title(meta.verbose_name)
+        if include_app:
+            return f'{app_label} > {model_name}'
+        return model_name
     except AttributeError:
         # Model no longer exists
         return f'{ct.app_label} > {ct.model}'
@@ -447,3 +485,23 @@ def clean_html(html, schemes):
         attributes=ALLOWED_ATTRIBUTES,
         protocols=schemes
     )
+
+
+def highlight_string(value, highlight, trim_pre=None, trim_post=None, trim_placeholder='...'):
+    """
+    Highlight a string within a string and optionally trim the pre/post portions of the original string.
+    """
+    # Split value on highlight string
+    try:
+        pre, match, post = re.split(fr'({highlight})', value, maxsplit=1, flags=re.IGNORECASE)
+    except ValueError:
+        # Match not found
+        return escape(value)
+
+    # Trim pre/post sections to length
+    if trim_pre and len(pre) > trim_pre:
+        pre = trim_placeholder + pre[-trim_pre:]
+    if trim_post and len(post) > trim_post:
+        post = post[:trim_post] + trim_placeholder
+
+    return f'{escape(pre)}<mark>{escape(match)}</mark>{escape(post)}'

@@ -1,5 +1,5 @@
 from utilities.forms import ExpandableNameField
-from .models import VMInterfaceForm
+from .model_forms import VMInterfaceForm
 
 __all__ = (
     'VMInterfaceCreateForm',

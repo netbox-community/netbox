@@ -1,3 +1,4 @@
+import inspect
 import json
 
 from django.conf import settings
@@ -5,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.test import override_settings
-from graphene.types import Dynamic as GQLDynamic, List as GQLList
+from graphene.types import Dynamic as GQLDynamic, List as GQLList, Union as GQLUnion
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -449,6 +450,12 @@ class APIViewTestCases:
                 if type(field) is GQLDynamic:
                     # Dynamic fields must specify a subselection
                     fields_string += f'{field_name} {{ id }}\n'
+                elif inspect.isclass(field.type) and issubclass(field.type, GQLUnion):
+                    # Union types dont' have an id or consistent values
+                    continue
+                elif type(field.type) is GQLList and inspect.isclass(field.type.of_type) and issubclass(field.type.of_type, GQLUnion):
+                    # Union types dont' have an id or consistent values
+                    continue
                 elif type(field.type) is GQLList and field_name != 'choices':
                     # TODO: Come up with something more elegant
                     # Temporary hack to support automated testing of reverse generic relations
@@ -467,6 +474,7 @@ class APIViewTestCases:
             return query
 
         @override_settings(LOGIN_REQUIRED=True)
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user'])
         def test_graphql_get_object(self):
             url = reverse('graphql')
             field_name = self._get_graphql_base_name()
@@ -492,6 +500,7 @@ class APIViewTestCases:
             self.assertNotIn('errors', data)
 
         @override_settings(LOGIN_REQUIRED=True)
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user'])
         def test_graphql_list_objects(self):
             url = reverse('graphql')
             field_name = f'{self._get_graphql_base_name()}_list'

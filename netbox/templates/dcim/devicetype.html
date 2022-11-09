@@ -28,12 +28,26 @@
                             <td>{{ object.part_number|placeholder }}</td>
                         </tr>
                         <tr>
+                            <td>Description</td>
+                            <td>{{ object.description|placeholder }}</td>
+                        </tr>
+                        <tr>
                             <td>Height (U)</td>
-                            <td>{{ object.u_height }}</td>
+                            <td>{{ object.u_height|floatformat }}</td>
                         </tr>
                         <tr>
                             <td>Full Depth</td>
                             <td>{% checkmark object.is_full_depth %}</td>
+                        </tr>
+                        <tr>
+                            <td>Weight</td>
+                            <td>
+                            {% if object.weight %}
+                              {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
+                            {% else %}
+                              {{ ''|placeholder }}
+                            {% endif %}
+                            </td>
                         </tr>
                         <tr>
                             <td>Parent/Child</td>

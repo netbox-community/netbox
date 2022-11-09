@@ -33,7 +33,7 @@ Each site can have multiple [AS numbers](../ipam/asn.md) assigned to it.
 
 ### Time Zone
 
-The site's local time zone. (Time zones are provided by the [pytz](https://pypi.org/project/pytz/) package.)
+The site's local time zone. (Time zones are provided by the [zoneinfo](https://docs.python.org/3/library/zoneinfo.html) library.)
 
 ### Physical Address
 

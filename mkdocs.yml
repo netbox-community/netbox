@@ -30,7 +30,7 @@ plugins:
             - os.chdir('netbox/')
             - os.environ.setdefault("DJANGO_SETTINGS_MODULE", "netbox.settings")
             - django.setup()
-          rendering:
+          options:
             heading_level: 3
             members_order: source
             show_root_heading: true
@@ -38,7 +38,6 @@ plugins:
             show_root_toc_entry: false
             show_source: false
 extra:
-  readthedocs: !ENV READTHEDOCS
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/netbox-community/netbox
@@ -133,6 +132,7 @@ nav:
             - GraphQL API: 'plugins/development/graphql-api.md'
             - Background Tasks: 'plugins/development/background-tasks.md'
             - Exceptions: 'plugins/development/exceptions.md'
+            - Search: 'plugins/development/search.md'
     - Administration:
         - Authentication:
             - Overview: 'administration/authentication/overview.md'
@@ -245,6 +245,7 @@ nav:
         - Adding Models: 'development/adding-models.md'
         - Extending Models: 'development/extending-models.md'
         - Signals: 'development/signals.md'
+        - Search: 'development/search.md'
         - Application Registry: 'development/application-registry.md'
         - User Preferences: 'development/user-preferences.md'
         - Web UI: 'development/web-ui.md'

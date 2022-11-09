@@ -16,6 +16,7 @@ __all__ = (
     'CSVDataField',
     'CSVFileField',
     'CSVModelChoiceField',
+    'CSVModelMultipleChoiceField',
     'CSVMultipleChoiceField',
     'CSVMultipleContentTypeField',
     'CSVTypedChoiceField',
@@ -142,7 +143,7 @@ class CSVModelChoiceField(forms.ModelChoiceField):
     Extends Django's `ModelChoiceField` to provide additional validation for CSV values.
     """
     default_error_messages = {
-        'invalid_choice': 'Object not found.',
+        'invalid_choice': 'Object not found: %(value)s',
     }
 
     def to_python(self, value):
@@ -152,6 +153,19 @@ class CSVModelChoiceField(forms.ModelChoiceField):
             raise forms.ValidationError(
                 f'"{value}" is not a unique value for this field; multiple objects were found'
             )
+
+
+class CSVModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    """
+    Extends Django's `ModelMultipleChoiceField` to support comma-separated values.
+    """
+    default_error_messages = {
+        'invalid_choice': 'Object not found: %(value)s',
+    }
+
+    def clean(self, value):
+        value = value.split(',') if value else []
+        return super().clean(value)
 
 
 class CSVContentTypeField(CSVModelChoiceField):

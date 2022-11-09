@@ -33,6 +33,10 @@
               <td>{{ object.label|placeholder }}</td>
             </tr>
             <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
               <th scope="row">Color</th>
               <td>
                 {% if object.color %}
@@ -57,6 +61,7 @@
       </div>
       {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
       {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">

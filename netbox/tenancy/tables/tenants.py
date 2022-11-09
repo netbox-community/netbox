@@ -1,7 +1,8 @@
 import django_tables2 as tables
+from tenancy.models import *
+from tenancy.tables import ContactsColumnMixin
 
 from netbox.tables import NetBoxTable, columns
-from tenancy.models import *
 
 __all__ = (
     'TenantGroupTable',
@@ -30,7 +31,7 @@ class TenantGroupTable(NetBoxTable):
         default_columns = ('pk', 'name', 'tenant_count', 'description')
 
 
-class TenantTable(NetBoxTable):
+class TenantTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -38,11 +39,8 @@ class TenantTable(NetBoxTable):
         linkify=True
     )
     comments = columns.MarkdownColumn()
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
-    )
     tags = columns.TagColumn(
-        url_name='tenancy:tenant_list'
+        url_name='tenancy:contact_list'
     )
 
     class Meta(NetBoxTable.Meta):

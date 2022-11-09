@@ -72,6 +72,9 @@ ADMINS = [
     # ('John Doe', 'jdoe@example.com'),
 ]
 
+# Permit the retrieval of API tokens after their creation.
+ALLOW_TOKEN_RETRIEVAL = False
+
 # Enable any desired validators for local account passwords below. For a list of included validators, please see the
 # Django documentation at https://docs.djangoproject.com/en/stable/topics/auth/passwords/#password-validation.
 AUTH_PASSWORD_VALIDATORS = [

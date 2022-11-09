@@ -31,12 +31,13 @@
         </div>
       </div>
       {% plugin_left_page object %}
-      </div>
-      <div class="col col-md-6">
-        {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/tags.html' %}
-        {% plugin_right_page object %}
-      </div>
+    </div>
+    <div class="col col-md-6">
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% plugin_right_page object %}
+    </div>
   </div>
   <div class="row mb-3">
     <div class="col col-md-12">

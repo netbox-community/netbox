@@ -1,4 +1,5 @@
 import decimal
+from functools import cached_property
 
 from django.apps import apps
 from django.contrib.auth.models import User
@@ -13,12 +14,13 @@ from django.urls import reverse
 from dcim.choices import *
 from dcim.constants import *
 from dcim.svg import RackElevationSVG
-from netbox.models import OrganizationalModel, NetBoxModel
+from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.utils import array_to_string, drange
 from .device_components import PowerPort
-from .devices import Device
+from .devices import Device, Module
+from .mixins import WeightMixin
 from .power import PowerFeed
 
 __all__ = (
@@ -36,33 +38,15 @@ class RackRole(OrganizationalModel):
     """
     Racks can be organized by functional role, similar to Devices.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
     color = ColorField(
         default=ColorChoices.COLOR_GREY
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True,
-    )
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:rackrole', args=[self.pk])
 
 
-class Rack(NetBoxModel):
+class Rack(PrimaryModel, WeightMixin):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
@@ -165,8 +149,13 @@ class Rack(NetBoxModel):
         choices=RackDimensionUnitChoices,
         blank=True,
     )
-    comments = models.TextField(
-        blank=True
+    mounting_depth = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        help_text=(
+            'Maximum depth of a mounted device, in millimeters. For four-post racks, this is the '
+            'distance between the front and rear rails.'
+        )
     )
 
     # Generic relations
@@ -185,7 +174,7 @@ class Rack(NetBoxModel):
 
     clone_fields = (
         'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
-        'outer_depth', 'outer_unit',
+        'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'weight_unit',
     )
 
     class Meta:
@@ -454,8 +443,24 @@ class Rack(NetBoxModel):
 
         return int(allocated_draw / available_power_total * 100)
 
+    @cached_property
+    def total_weight(self):
+        total_weight = sum(
+            device.device_type._abs_weight
+            for device in self.devices.exclude(device_type___abs_weight__isnull=True).prefetch_related('device_type')
+        )
+        total_weight += sum(
+            module.module_type._abs_weight
+            for module in Module.objects.filter(device__rack=self)
+            .exclude(module_type___abs_weight__isnull=True)
+            .prefetch_related('module_type')
+        )
+        if self._abs_weight:
+            total_weight += self._abs_weight
+        return round(total_weight / 1000, 2)
 
-class RackReservation(NetBoxModel):
+
+class RackReservation(PrimaryModel):
     """
     One or more reserved units within a Rack.
     """

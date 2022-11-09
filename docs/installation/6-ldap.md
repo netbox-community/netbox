@@ -46,7 +46,7 @@ Next, create a file in the same directory as `configuration.py` (typically `/opt
 ### General Server Configuration
 
 !!! info
-    When using Windows Server 2012 you may need to specify a port on `AUTH_LDAP_SERVER_URI`. Use `3269` for secure, or `3268` for non-secure.
+    When using Active Directory you may need to specify a port on `AUTH_LDAP_SERVER_URI` to authenticate users from all domains in the forest. Use `3269` for secure, or `3268` for non-secure access to the GC (Global Catalog).
 
 ```python
 import ldap
@@ -67,6 +67,16 @@ AUTH_LDAP_BIND_PASSWORD = "demo"
 # Note that this is a NetBox-specific setting which sets:
 #     ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 LDAP_IGNORE_CERT_ERRORS = True
+
+# Include this setting if you want to validate the LDAP server certificates against a CA certificate directory on your server
+# Note that this is a NetBox-specific setting which sets:
+#     ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, LDAP_CA_CERT_DIR)
+LDAP_CA_CERT_DIR = '/etc/ssl/certs'
+
+# Include this setting if you want to validate the LDAP server certificates against your own CA.
+# Note that this is a NetBox-specific setting which sets:
+#     ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, LDAP_CA_CERT_FILE)
+LDAP_CA_CERT_FILE = '/path/to/example-CA.crt'
 ```
 
 STARTTLS can be configured by setting `AUTH_LDAP_START_TLS = True` and using the `ldap://` URI scheme.

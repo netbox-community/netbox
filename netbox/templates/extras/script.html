@@ -43,7 +43,7 @@
             You do not have permission to run scripts.
           </div>
         {% endif %}
-        <form action="" method="post" enctype="multipart/form-data" class="form form-horizontal">
+        <form action="" method="post" enctype="multipart/form-data" class="form form-object-edit">
           {% csrf_token %}
           <div class="field-group my-4">
             {% if form.requires_input %}

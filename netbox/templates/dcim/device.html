@@ -7,7 +7,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col col-md-6">
+        <div class="col col-12 col-xl-6">
             <div class="card">
                 <h5 class="card-header">
                     Device
@@ -66,7 +66,7 @@
                                     {% with object.parent_bay.device as parent %}
                                         {{ parent|linkify }} / {{ object.parent_bay }}
                                         {% if parent.position %}
-                                            (U{{ parent.position }} / {{ parent.get_face_display }})
+                                            (U{{ parent.position|floatformat }} / {{ parent.get_face_display }})
                                         {% endif %}
                                     {% endwith %}
                                 {% elif object.rack and object.position %}
@@ -90,11 +90,15 @@
                         <tr>
                             <th scope="row">Device Type</th>
                             <td>
-                                {{ object.device_type|linkify:"get_full_name" }} ({{ object.device_type.u_height }}U)
+                                {{ object.device_type|linkify:"get_full_name" }} ({{ object.device_type.u_height|floatformat }}U)
                             </td>
                         </tr>
                         <tr>
-                            <td>Airflow</td>
+                            <th scope="row">Description</th>
+                            <td>{{ object.description|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Airflow</th>
                             <td>
                                 {{ object.get_airflow_display|placeholder }}
                             </td>
@@ -153,7 +157,7 @@
             {% include 'inc/panels/comments.html' %}
             {% plugin_left_page object %}
         </div>
-        <div class="col col-md-6">
+        <div class="col col-12 col-xl-6">
             <div class="card">
                 <h5 class="card-header">Management</h5>
                 <div class="card-body">
@@ -178,7 +182,7 @@
                                 {% if object.primary_ip4.nat_inside %}
                                   (NAT for <a href="{{ object.primary_ip4.nat_inside.get_absolute_url }}">{{ object.primary_ip4.nat_inside.address.ip }}</a>)
                                 {% elif object.primary_ip4.nat_outside.exists %}
-                                  (NAT for {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                                  (NAT: {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                                 {% endif %}
                               {% else %}
                                 {{ ''|placeholder }}
@@ -193,7 +197,7 @@
                                 {% if object.primary_ip6.nat_inside %}
                                   (NAT for <a href="{{ object.primary_ip6.nat_inside.get_absolute_url }}">{{ object.primary_ip6.nat_inside.address.ip }}</a>)
                                 {% elif object.primary_ip6.nat_outside.exists %}
-                                  (NAT for {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                                  (NAT: {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                                 {% endif %}
                               {% else %}
                                 {{ ''|placeholder }}
@@ -286,6 +290,22 @@
             </div>
             {% include 'inc/panels/contacts.html' %}
             {% include 'inc/panels/image_attachments.html' %}
+            {% if object.rack and object.position %}
+            <div class="row" style="margin-bottom: 20px">
+                <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
+                  <div style="margin-left: 30px">
+                    <h4>Front</h4>
+                    {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='front' extra_params=svg_extra %}
+                  </div>
+                </div>
+                <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
+                  <div style="margin-left: 30px">
+                    <h4>Rear</h4>
+                    {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='rear' extra_params=svg_extra %}
+                  </div>
+                </div>
+            </div>
+            {% endif %}
             {% plugin_right_page object %}
         </div>
     </div>

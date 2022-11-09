@@ -5,11 +5,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django_rq import get_queue
 
+from netbox.registry import registry
 from utilities.api import get_serializer_for_model
 from utilities.utils import serialize_object
 from .choices import *
 from .models import Webhook
-from .registry import registry
 
 
 def serialize_for_webhook(instance):

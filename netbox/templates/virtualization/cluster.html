@@ -20,8 +20,16 @@
                     <td>{{ object.type|linkify }}</td>
                 </tr>
                 <tr>
+                  <th scope="row">Status</th>
+                  <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Description</th>
+                  <td>{{ object.description|placeholder }}</td>
+                </tr>
+                <tr>
                     <th scope="row">Group</th>
-                    <td>{{ object.group|linkify }}</td>
+                    <td>{{ object.group|linkify|placeholder }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Tenant</th>
@@ -34,7 +42,7 @@
                 </tr>
                 <tr>
                     <th scope="row">Site</th>
-                    <td>{{ object.site|linkify }}</td>
+                    <td>{{ object.site|linkify|placeholder }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Virtual Machines</th>

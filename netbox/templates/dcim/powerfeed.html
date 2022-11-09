@@ -39,10 +39,14 @@
                         <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Connected Device</th>
                         <td>
-                            {% if object.connected_endpoint %}
-                                {{ object.connected_endpoint.device|linkify }} ({{ object.connected_endpoint }})
+                            {% if object.connected_endpoints %}
+                                {{ object.connected_endpoints.0.device|linkify }} ({{ object.connected_endpoints.0|linkify:"name" }})
                             {% else %}
                                 {{ ''|placeholder }}
                             {% endif %}
@@ -50,7 +54,7 @@
                     </tr>
                     <tr>
                         <th scope="row">Utilization (Allocated)</th>
-                        {% with utilization=object.connected_endpoint.get_power_draw %}
+                        {% with utilization=object.connected_endpoints.0.get_power_draw %}
                             {% if utilization %}
                                 <td>
                                     {{ utilization.allocated }}VA / {{ object.available_power }}VA
@@ -100,73 +104,33 @@
         {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
-        <div class="card">
-            <h5 class="card-header">
-                Connection
-            </h5>
-            <div class="card-body">
-            {% if object.mark_connected %}
-                <div class="text-muted">
-                  <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as connected
-                </div>
-            {% elif object.cable %}
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">Cable</th>
-                        <td>
-                            {{ object.cable|linkify }}
-                            <a href="{% url 'dcim:powerfeed_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
-                                <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% if object.connected_endpoint %}
-                        <tr>
-                            <th scope="row">Device</th>
-                            <td>{{ object.connected_endpoint.device|linkify }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Name</th>
-                            <td>{{ object.connected_endpoint|linkify:"name" }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Type</th>
-                            <td>{{ object.connected_endpoint.get_type_display|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Description</th>
-                            <td>{{ object.connected_endpoint.description|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Path Status</th>
-                            <td>
-                                {% if object.path.is_active %}
-                                    <span class="badge bg-success">Reachable</span>
-                                {% else %}
-                                    <span class="badge bg-danger">Not Reachable</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endif %}
-                </table>
-            {% else %}
-                <div class="text-muted">
-                    Not connected
-                </div>
-            {% endif %}
+      <div class="card">
+        <h5 class="card-header">Connection</h5>
+        <div class="card-body">
+          {% if object.mark_connected %}
+            <div class="text-muted">
+              <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as connected
             </div>
-            {% if not object.mark_connected and not object.cable %}
-            <div class="card-footer">
-            {% if perms.dcim.add_cable %}
-                <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.powerfeed&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&termination_b_site={{ object.device.site.pk }}&termination_b_rack={{ object.device.rack.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm float-end">
-                    <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> Connect
-                </a>
-                    {% endif %}
+          {% elif object.cable %}
+            {% include 'dcim/inc/connection_endpoints.html' %}
+          {% else %}
+            <div class="text-muted">
+              Not connected
             </div>
-            {% endif %}
+          {% endif %}
         </div>
-        {% include 'inc/panels/comments.html' %}
-        {% plugin_right_page object %}
+        {% if not object.mark_connected and not object.cable %}
+        <div class="card-footer">
+          {% if perms.dcim.add_cable %}
+            <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.powerfeed&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&termination_b_site={{ object.device.site.pk }}&termination_b_rack={{ object.device.rack.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm float-end">
+              <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> Connect
+            </a>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% include 'inc/panels/comments.html' %}
+      {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">

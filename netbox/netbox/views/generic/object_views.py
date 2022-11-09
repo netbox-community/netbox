@@ -2,10 +2,8 @@ import logging
 from copy import deepcopy
 
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
-from django.forms.widgets import HiddenInput
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -13,8 +11,8 @@ from django.utils.safestring import mark_safe
 
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
-from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
-from utilities.forms import ConfirmationForm, ImportForm, restrict_form_fields
+from utilities.exceptions import AbortRequest, PermissionsViolation
+from utilities.forms import ConfirmationForm, restrict_form_fields
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields
@@ -37,7 +35,12 @@ class ObjectView(BaseObjectView):
     Retrieve a single object for display.
 
     Note: If `template_name` is not specified, it will be determined automatically based on the queryset model.
+
+    Attributes:
+        tab: A ViewTab instance for the view
     """
+    tab = None
+
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
 
@@ -66,6 +69,7 @@ class ObjectView(BaseObjectView):
 
         return render(request, self.get_template_name(), {
             'object': instance,
+            'tab': self.tab,
             **self.get_extra_context(request, instance),
         })
 
@@ -120,7 +124,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         child_objects = self.get_children(request, instance)
 
         if self.filterset:
-            child_objects = self.filterset(request.GET, child_objects).qs
+            child_objects = self.filterset(request.GET, child_objects, request=request).qs
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user, model=self.child_model)
@@ -140,6 +144,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
             'child_model': self.child_model,
             'table': table,
             'actions': actions,
+            'tab': self.tab,
             **self.get_extra_context(request, instance),
         })
 
@@ -249,7 +254,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
                     obj = form.save()
 
                     # Check that the new object conforms with any assigned object-level permissions
-                    if not self.queryset.filter(pk=obj.pk).first():
+                    if not self.queryset.filter(pk=obj.pk).exists():
                         raise PermissionsViolation()
 
                 msg = '{} {}'.format(

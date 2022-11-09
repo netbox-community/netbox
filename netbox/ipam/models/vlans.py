@@ -8,11 +8,9 @@ from django.urls import reverse
 from dcim.models import Interface
 from ipam.choices import *
 from ipam.constants import *
-from ipam.models import L2VPNTermination
 from ipam.querysets import VLANQuerySet
-from netbox.models import OrganizationalModel, NetBoxModel
+from netbox.models import OrganizationalModel, PrimaryModel
 from virtualization.models import VMInterface
-
 
 __all__ = (
     'VLAN',
@@ -63,10 +61,6 @@ class VLANGroup(OrganizationalModel):
         ),
         help_text='Highest permissible ID of a child VLAN'
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
 
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique
@@ -82,9 +76,6 @@ class VLANGroup(OrganizationalModel):
         )
         verbose_name = 'VLAN group'
         verbose_name_plural = 'VLAN groups'
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('ipam:vlangroup', args=[self.pk])
@@ -123,7 +114,7 @@ class VLANGroup(OrganizationalModel):
         return None
 
 
-class VLAN(NetBoxModel):
+class VLAN(PrimaryModel):
     """
     A VLAN is a distinct layer two forwarding domain identified by a 12-bit integer (1-4094). Each VLAN must be assigned
     to a Site, however VLAN IDs need not be unique within a Site. A VLAN may optionally be assigned to a VLANGroup,
@@ -174,10 +165,6 @@ class VLAN(NetBoxModel):
         related_name='vlans',
         blank=True,
         null=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
     )
 
     l2vpn_terminations = GenericRelation(

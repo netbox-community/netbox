@@ -27,11 +27,15 @@
             <th scope="row">Master</th>
             <td>{{ object.master|linkify }}</td>
           </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
         </table>
       </div>
     </div>
-    {% include 'inc/panels/custom_fields.html' %}
     {% include 'inc/panels/tags.html' %}
+    {% include 'inc/panels/custom_fields.html' %}
     {% plugin_left_page object %}
     </div>
     <div class="col col-md-8">
@@ -73,6 +77,7 @@
           </div>
         {% endif %}
       </div>
+      {% include 'inc/panels/comments.html' %}
       {% plugin_right_page object %}
 	</div>
 </div>

@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.validators import ValidationError
 from django.db import models
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
@@ -34,6 +34,7 @@ __all__ = (
     'JobResult',
     'JournalEntry',
     'Report',
+    'SavedFilter',
     'Script',
     'Webhook',
 )
@@ -197,10 +198,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
     """
-    content_type = models.ForeignKey(
+    content_types = models.ManyToManyField(
         to=ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=FeatureQuery('custom_links')
+        related_name='custom_links',
+        help_text='The object type(s) to which this link applies.'
     )
     name = models.CharField(
         max_length=100,
@@ -236,7 +237,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
     )
 
     clone_fields = (
-        'content_type', 'enabled', 'weight', 'group_name', 'button_class', 'new_window',
+        'enabled', 'weight', 'group_name', 'button_class', 'new_window',
     )
 
     class Meta:
@@ -268,10 +269,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
 
 
 class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
-    content_type = models.ForeignKey(
+    content_types = models.ManyToManyField(
         to=ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=FeatureQuery('export_templates')
+        related_name='export_templates',
+        help_text='The object type(s) to which this template applies.'
     )
     name = models.CharField(
         max_length=100
@@ -301,16 +302,10 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     )
 
     class Meta:
-        ordering = ['content_type', 'name']
-        constraints = (
-            models.UniqueConstraint(
-                fields=('content_type', 'name'),
-                name='%(app_label)s_%(class)s_unique_content_type_name'
-            ),
-        )
+        ordering = ('name',)
 
     def __str__(self):
-        return f"{self.content_type}: {self.name}"
+        return self.name
 
     def get_absolute_url(self):
         return reverse('extras:exporttemplate', args=[self.pk])
@@ -354,6 +349,69 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
         return response
+
+
+class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+    """
+    A set of predefined keyword parameters that can be reused to filter for specific objects.
+    """
+    content_types = models.ManyToManyField(
+        to=ContentType,
+        related_name='saved_filters',
+        help_text='The object type(s) to which this filter applies.'
+    )
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=100
+    )
+    enabled = models.BooleanField(
+        default=True
+    )
+    shared = models.BooleanField(
+        default=True
+    )
+    parameters = models.JSONField()
+
+    clone_fields = (
+        'enabled', 'weight',
+    )
+
+    class Meta:
+        ordering = ('weight', 'name')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:savedfilter', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        # Verify that `parameters` is a JSON object
+        if type(self.parameters) is not dict:
+            raise ValidationError(
+                {'parameters': 'Filter parameters must be stored as a dictionary of keyword arguments.'}
+            )
+
+    @property
+    def url_params(self):
+        qd = QueryDict(mutable=True)
+        qd.update(self.parameters)
+        return qd.urlencode()
 
 
 class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
@@ -471,6 +529,14 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin
     def get_absolute_url(self):
         return reverse('extras:journalentry', args=[self.pk])
 
+    def clean(self):
+        super().clean()
+
+        # Prevent the creation of journal entries on unsupported models
+        permitted_types = ContentType.objects.filter(FeatureQuery('journaling').get_query())
+        if self.assigned_object_type not in permitted_types:
+            raise ValidationError(f"Journaling is not supported for this object type ({self.assigned_object_type}).")
+
     def get_kind_color(self):
         return JournalEntryKindChoices.colors.get(self.kind)
 
@@ -497,6 +563,10 @@ class JobResult(models.Model):
         null=True,
         blank=True
     )
+    scheduled_time = models.DateTimeField(
+        null=True,
+        blank=True
+    )
     user = models.ForeignKey(
         to=User,
         on_delete=models.SET_NULL,
@@ -517,11 +587,25 @@ class JobResult(models.Model):
         unique=True
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
-        ordering = ['obj_type', 'name', '-created']
+        ordering = ['-created']
 
     def __str__(self):
         return str(self.job_id)
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+
+        queue = django_rq.get_queue("default")
+        job = queue.fetch_job(str(self.job_id))
+
+        if job:
+            job.cancel()
+
+    def get_absolute_url(self):
+        return reverse(f'extras:{self.obj_type.name}_result', args=[self.pk])
 
     @property
     def duration(self):
@@ -543,7 +627,7 @@ class JobResult(models.Model):
             self.completed = timezone.now()
 
     @classmethod
-    def enqueue_job(cls, func, name, obj_type, user, *args, **kwargs):
+    def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, *args, **kwargs):
         """
         Create a JobResult instance and enqueue a job using the given callable
 
@@ -551,10 +635,11 @@ class JobResult(models.Model):
         name: Name for the JobResult instance
         obj_type: ContentType to link to the JobResult instance obj_type
         user: User object to link to the JobResult instance
+        schedule_at: Schedule the job to be executed at the passed date and time
         args: additional args passed to the callable
         kwargs: additional kargs passed to the callable
         """
-        job_result = cls.objects.create(
+        job_result: JobResult = cls.objects.create(
             name=name,
             obj_type=obj_type,
             user=user,
@@ -562,7 +647,15 @@ class JobResult(models.Model):
         )
 
         queue = django_rq.get_queue("default")
-        queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
+
+        if schedule_at:
+            job_result.status = JobResultStatusChoices.STATUS_SCHEDULED
+            job_result.scheduled_time = schedule_at
+            job_result.save()
+
+            queue.enqueue_at(schedule_at, func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
+        else:
+            queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
 
         return job_result
 

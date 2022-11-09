@@ -16,12 +16,14 @@ __all__ = (
     'ConfigContextFilterSet',
     'ContentTypeFilterSet',
     'CustomFieldFilterSet',
+    'JobResultFilterSet',
     'CustomLinkFilterSet',
     'ExportTemplateFilterSet',
     'ImageAttachmentFilterSet',
     'JournalEntryFilterSet',
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
+    'SavedFilterFilterSet',
     'TagFilterSet',
     'WebhookFilterSet',
 )
@@ -72,8 +74,8 @@ class CustomFieldFilterSet(BaseFilterSet):
     class Meta:
         model = CustomField
         fields = [
-            'id', 'content_types', 'name', 'group_name', 'required', 'filter_logic', 'ui_visibility', 'weight',
-            'description',
+            'id', 'content_types', 'name', 'group_name', 'required', 'search_weight', 'filter_logic', 'ui_visibility',
+            'weight', 'description',
         ]
 
     def search(self, queryset, name, value):
@@ -92,11 +94,15 @@ class CustomLinkFilterSet(BaseFilterSet):
         method='search',
         label='Search',
     )
+    content_type_id = MultiValueNumberFilter(
+        field_name='content_types__id'
+    )
+    content_types = ContentTypeFilter()
 
     class Meta:
         model = CustomLink
         fields = [
-            'id', 'content_type', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name', 'new_window',
+            'id', 'content_types', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name', 'new_window',
         ]
 
     def search(self, queryset, name, value):
@@ -115,10 +121,14 @@ class ExportTemplateFilterSet(BaseFilterSet):
         method='search',
         label='Search',
     )
+    content_type_id = MultiValueNumberFilter(
+        field_name='content_types__id'
+    )
+    content_types = ContentTypeFilter()
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'content_type', 'name', 'description']
+        fields = ['id', 'content_types', 'name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -127,6 +137,55 @@ class ExportTemplateFilterSet(BaseFilterSet):
             Q(name__icontains=value) |
             Q(description__icontains=value)
         )
+
+
+class SavedFilterFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    content_type_id = MultiValueNumberFilter(
+        field_name='content_types__id'
+    )
+    content_types = ContentTypeFilter()
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=User.objects.all(),
+        label='User (ID)',
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='user__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+        label='User (name)',
+    )
+    usable = django_filters.BooleanFilter(
+        method='_usable'
+    )
+
+    class Meta:
+        model = SavedFilter
+        fields = ['id', 'content_types', 'name', 'description', 'enabled', 'shared', 'weight']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
+    def _usable(self, queryset, name, value):
+        """
+        Return only SavedFilters that are both enabled and are shared (or belong to the current user).
+        """
+        user = self.request.user if self.request else None
+        if not user or user.is_anonymous:
+            if value:
+                return queryset.filter(enabled=True, shared=True)
+            return queryset.filter(Q(enabled=False) | Q(shared=False))
+        if value:
+            return queryset.filter(enabled=True).filter(Q(shared=True) | Q(user=user))
+        return queryset.filter(Q(enabled=False) | Q(Q(shared=False) & ~Q(user=user)))
 
 
 class ImageAttachmentFilterSet(BaseFilterSet):
@@ -435,7 +494,32 @@ class JobResultFilterSet(BaseFilterSet):
         label='Search',
     )
     created = django_filters.DateTimeFilter()
+    created__before = django_filters.DateTimeFilter(
+        field_name='created',
+        lookup_expr='lte'
+    )
+    created__after = django_filters.DateTimeFilter(
+        field_name='created',
+        lookup_expr='gte'
+    )
     completed = django_filters.DateTimeFilter()
+    completed__before = django_filters.DateTimeFilter(
+        field_name='completed',
+        lookup_expr='lte'
+    )
+    completed__after = django_filters.DateTimeFilter(
+        field_name='completed',
+        lookup_expr='gte'
+    )
+    scheduled_time = django_filters.DateTimeFilter()
+    scheduled_time__before = django_filters.DateTimeFilter(
+        field_name='scheduled_time',
+        lookup_expr='lte'
+    )
+    scheduled_time__after = django_filters.DateTimeFilter(
+        field_name='scheduled_time',
+        lookup_expr='gte'
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=JobResultStatusChoices,
         null_value=None
@@ -444,14 +528,15 @@ class JobResultFilterSet(BaseFilterSet):
     class Meta:
         model = JobResult
         fields = [
-            'id', 'created', 'completed', 'status', 'user', 'obj_type', 'name'
+            'id', 'created', 'completed', 'scheduled_time', 'status', 'user', 'obj_type', 'name'
         ]
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(user__username__icontains=value)
+            Q(user__username__icontains=value) |
+            Q(name__icontains=value)
         )
 
 

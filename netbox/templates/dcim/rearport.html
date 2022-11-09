@@ -105,16 +105,16 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a class="dropdown-link" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ object.pk }}&b_terminations_type=dcim.interface&termination_b_site={{ object.device.site.pk }}&termination_b_rack={{ object.device.rack.pk }}&return_url={{ object.get_absolute_url }}">Interface</a>
+                                        <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ object.pk }}&b_terminations_type=dcim.interface&termination_b_site={{ object.device.site.pk }}&termination_b_rack={{ object.device.rack.pk }}&return_url={{ object.get_absolute_url }}" class="dropdown-item">Interface</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-link" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ object.pk }}&b_terminations_type=dcim.frontport&termination_b_site={{ object.device.site.pk }}&termination_b_rack={{ object.device.rack.pk }}&return_url={{ object.get_absolute_url }}">Front Port</a>
+                                        <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ object.pk }}&b_terminations_type=dcim.frontport&termination_b_site={{ object.device.site.pk }}&termination_b_rack={{ object.device.rack.pk }}&return_url={{ object.get_absolute_url }}" class="dropdown-item">Front Port</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-link" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ object.pk }}&b_terminations_type=dcim.rearport&termination_b_site={{ object.device.site.pk }}&termination_b_rack={{ object.device.rack.pk }}&return_url={{ object.get_absolute_url }}">Rear Port</a>
+                                        <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ object.pk }}&b_terminations_type=dcim.rearport&termination_b_site={{ object.device.site.pk }}&termination_b_rack={{ object.device.rack.pk }}&return_url={{ object.get_absolute_url }}" class="dropdown-item">Rear Port</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-link" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ object.pk }}&b_terminations_type=circuits.circuittermination&termination_b_site={{ object.device.site.pk }}&return_url={{ object.get_absolute_url }}">Circuit Termination</a>
+                                        <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.rearport&a_terminations={{ object.pk }}&b_terminations_type=circuits.circuittermination&termination_b_site={{ object.device.site.pk }}&return_url={{ object.get_absolute_url }}" class="dropdown-item">Circuit Termination</a>
                                     </li>
                                 </ul>
                             </span>

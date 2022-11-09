@@ -35,7 +35,7 @@ class Node(Hyperlink):
     """
 
     def __init__(self, position, width, url, color, labels, radius=10, **extra):
-        super(Node, self).__init__(href=url, target='_blank', **extra)
+        super(Node, self).__init__(href=url, target='_parent', **extra)
 
         x, y = position
 

@@ -320,7 +320,7 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'asset_tag', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit',
+            'outer_unit', 'mounting_depth', 'weight', 'weight_unit'
         ]
 
     def search(self, queryset, name, value):
@@ -482,7 +482,7 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
+            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
         ]
 
     def search(self, queryset, name, value):
@@ -576,7 +576,7 @@ class ModuleTypeFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ModuleType
-        fields = ['id', 'model', 'part_number']
+        fields = ['id', 'model', 'part_number', 'weight', 'weight_unit']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -799,6 +799,12 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
         label='Manufacturer (slug)',
+    )
+    device_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='device_type__slug',
+        queryset=DeviceType.objects.all(),
+        to_field_name='slug',
+        label='Device type (slug)',
     )
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
@@ -1360,7 +1366,7 @@ class InterfaceFilterSet(
         try:
             devices = Device.objects.filter(pk__in=id_list)
             for device in devices:
-                vc_interface_ids += device.vc_interfaces().values_list('id', flat=True)
+                vc_interface_ids += device.vc_interfaces(if_master=False).values_list('id', flat=True)
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()

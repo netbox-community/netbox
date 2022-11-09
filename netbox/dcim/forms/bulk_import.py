@@ -56,7 +56,7 @@ class RegionCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Region
-        fields = ('name', 'slug', 'parent', 'description')
+        fields = ('name', 'slug', 'parent', 'description', 'tags')
 
 
 class SiteGroupCSVForm(NetBoxModelCSVForm):
@@ -100,7 +100,7 @@ class SiteCSVForm(NetBoxModelCSVForm):
         model = Site
         fields = (
             'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'description',
-            'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments',
+            'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments', 'tags'
         )
         help_texts = {
             'time_zone': mark_safe(
@@ -137,7 +137,7 @@ class LocationCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Location
-        fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'description')
+        fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'description', 'tags')
 
 
 class RackRoleCSVForm(NetBoxModelCSVForm):
@@ -145,7 +145,7 @@ class RackRoleCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = RackRole
-        fields = ('name', 'slug', 'color', 'description')
+        fields = ('name', 'slug', 'color', 'description', 'tags')
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
@@ -196,7 +196,8 @@ class RackCSVForm(NetBoxModelCSVForm):
         model = Rack
         fields = (
             'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag',
-            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
+            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
+            'description', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -240,7 +241,7 @@ class RackReservationCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = RackReservation
-        fields = ('site', 'location', 'rack', 'units', 'tenant', 'description')
+        fields = ('site', 'location', 'rack', 'units', 'tenant', 'description', 'comments', 'tags')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -263,7 +264,7 @@ class ManufacturerCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Manufacturer
-        fields = ('name', 'slug', 'description')
+        fields = ('name', 'slug', 'description', 'tags')
 
 
 class DeviceRoleCSVForm(NetBoxModelCSVForm):
@@ -271,7 +272,7 @@ class DeviceRoleCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = DeviceRole
-        fields = ('name', 'slug', 'color', 'vm_role', 'description')
+        fields = ('name', 'slug', 'color', 'vm_role', 'description', 'tags')
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
@@ -288,7 +289,7 @@ class PlatformCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = Platform
-        fields = ('name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description')
+        fields = ('name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'tags')
 
 
 class BaseDeviceCSVForm(NetBoxModelCSVForm):
@@ -387,7 +388,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'location', 'rack', 'position', 'face', 'airflow', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'cluster', 'comments',
+            'cluster', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -424,7 +425,7 @@ class ModuleCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = Module
         fields = (
-            'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'comments',
+            'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'description', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -451,7 +452,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-            'parent', 'device_bay', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster', 'comments',
+            'parent', 'device_bay', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster', 'comments', 'tags'
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -502,7 +503,7 @@ class ConsolePortCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = ConsolePort
-        fields = ('device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description')
+        fields = ('device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags')
 
 
 class ConsoleServerPortCSVForm(NetBoxModelCSVForm):
@@ -525,7 +526,7 @@ class ConsoleServerPortCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ('device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description')
+        fields = ('device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags')
 
 
 class PowerPortCSVForm(NetBoxModelCSVForm):
@@ -542,7 +543,7 @@ class PowerPortCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = PowerPort
         fields = (
-            'device', 'name', 'label', 'type', 'mark_connected', 'maximum_draw', 'allocated_draw', 'description',
+            'device', 'name', 'label', 'type', 'mark_connected', 'maximum_draw', 'allocated_draw', 'description', 'tags'
         )
 
 
@@ -570,13 +571,13 @@ class PowerOutletCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = PowerOutlet
-        fields = ('device', 'name', 'label', 'type', 'mark_connected', 'power_port', 'feed_leg', 'description')
+        fields = ('device', 'name', 'label', 'type', 'mark_connected', 'power_port', 'feed_leg', 'description', 'tags')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Limit PowerPort choices to those belonging to this device (or VC master)
-        if self.is_bound:
+        if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
             except forms.ValidationError:
@@ -658,7 +659,7 @@ class InterfaceCSVForm(NetBoxModelCSVForm):
         fields = (
             'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'speed', 'duplex', 'enabled',
             'mark_connected', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
-            'vrf', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
+            'vrf', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'tags'
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -701,7 +702,7 @@ class FrontPortCSVForm(NetBoxModelCSVForm):
         model = FrontPort
         fields = (
             'device', 'name', 'label', 'type', 'color', 'mark_connected', 'rear_port', 'rear_port_position',
-            'description',
+            'description', 'tags'
         )
         help_texts = {
             'rear_port_position': 'Mapped position on corresponding rear port',
@@ -711,7 +712,7 @@ class FrontPortCSVForm(NetBoxModelCSVForm):
         super().__init__(*args, **kwargs)
 
         # Limit RearPort choices to those belonging to this device (or VC master)
-        if self.is_bound:
+        if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
             except forms.ValidationError:
@@ -742,7 +743,7 @@ class RearPortCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = RearPort
-        fields = ('device', 'name', 'label', 'type', 'color', 'mark_connected', 'positions', 'description')
+        fields = ('device', 'name', 'label', 'type', 'color', 'mark_connected', 'positions', 'description', 'tags')
         help_texts = {
             'positions': 'Number of front ports which may be mapped'
         }
@@ -756,7 +757,7 @@ class ModuleBayCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = ModuleBay
-        fields = ('device', 'name', 'label', 'position', 'description')
+        fields = ('device', 'name', 'label', 'position', 'description', 'tags')
 
 
 class DeviceBayCSVForm(NetBoxModelCSVForm):
@@ -776,13 +777,13 @@ class DeviceBayCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = DeviceBay
-        fields = ('device', 'name', 'label', 'installed_device', 'description')
+        fields = ('device', 'name', 'label', 'installed_device', 'description', 'tags')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Limit installed device choices to devices of the correct type and location
-        if self.is_bound:
+        if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
             except forms.ValidationError:
@@ -831,7 +832,7 @@ class InventoryItemCSVForm(NetBoxModelCSVForm):
         model = InventoryItem
         fields = (
             'device', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered',
-            'description',
+            'description', 'tags'
         )
 
     def __init__(self, *args, **kwargs):
@@ -927,7 +928,7 @@ class CableCSVForm(NetBoxModelCSVForm):
         model = Cable
         fields = [
             'side_a_device', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_type', 'side_b_name', 'type',
-            'status', 'tenant', 'label', 'color', 'length', 'length_unit',
+            'status', 'tenant', 'label', 'color', 'length', 'length_unit', 'description', 'comments', 'tags',
         ]
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
@@ -984,7 +985,7 @@ class VirtualChassisCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = VirtualChassis
-        fields = ('name', 'domain', 'master')
+        fields = ('name', 'domain', 'master', 'description', 'comments', 'tags')
 
 
 #
@@ -1005,7 +1006,7 @@ class PowerPanelCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = PowerPanel
-        fields = ('site', 'location', 'name')
+        fields = ('site', 'location', 'name', 'description', 'comments', 'tags')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -1061,7 +1062,7 @@ class PowerFeedCSVForm(NetBoxModelCSVForm):
         model = PowerFeed
         fields = (
             'site', 'power_panel', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase',
-            'voltage', 'amperage', 'max_utilization', 'comments',
+            'voltage', 'amperage', 'max_utilization', 'description', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):

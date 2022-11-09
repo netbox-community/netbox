@@ -18,7 +18,7 @@ class ProviderCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = Provider
         fields = (
-            'name', 'slug', 'account', 'comments',
+            'name', 'slug', 'account', 'description', 'comments', 'tags',
         )
 
 
@@ -32,7 +32,7 @@ class ProviderNetworkCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = ProviderNetwork
         fields = [
-            'provider', 'name', 'service_id', 'description', 'comments',
+            'provider', 'name', 'service_id', 'description', 'comments', 'tags'
         ]
 
 
@@ -41,7 +41,7 @@ class CircuitTypeCSVForm(NetBoxModelCSVForm):
 
     class Meta:
         model = CircuitType
-        fields = ('name', 'slug', 'description')
+        fields = ('name', 'slug', 'description', 'tags')
         help_texts = {
             'name': 'Name of circuit type',
         }
@@ -73,5 +73,5 @@ class CircuitCSVForm(NetBoxModelCSVForm):
         model = Circuit
         fields = [
             'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate',
-            'description', 'comments',
+            'description', 'comments', 'tags'
         ]

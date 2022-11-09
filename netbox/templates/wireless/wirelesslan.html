@@ -19,6 +19,10 @@
             <td>{{ object.group|linkify|placeholder }}</td>
           </tr>
           <tr>
+            <td>Status</td>
+            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+          </tr>
+          <tr>
             <th scope="row">Description</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
@@ -39,6 +43,7 @@
       </div>
     </div>
     {% include 'inc/panels/tags.html' %}
+    {% include 'inc/panels/comments.html' %}
     {% plugin_left_page object %}
   </div>
   <div class="col col-md-6">

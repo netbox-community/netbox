@@ -1,6 +1,7 @@
 from dcim.models import Interface
 from netbox.views import generic
 from utilities.utils import count_related
+from utilities.views import register_model_view
 from . import filtersets, forms, tables
 from .models import *
 
@@ -22,6 +23,7 @@ class WirelessLANGroupListView(generic.ObjectListView):
     table = tables.WirelessLANGroupTable
 
 
+@register_model_view(WirelessLANGroup)
 class WirelessLANGroupView(generic.ObjectView):
     queryset = WirelessLANGroup.objects.all()
 
@@ -37,11 +39,13 @@ class WirelessLANGroupView(generic.ObjectView):
         }
 
 
+@register_model_view(WirelessLANGroup, 'edit')
 class WirelessLANGroupEditView(generic.ObjectEditView):
     queryset = WirelessLANGroup.objects.all()
     form = forms.WirelessLANGroupForm
 
 
+@register_model_view(WirelessLANGroup, 'delete')
 class WirelessLANGroupDeleteView(generic.ObjectDeleteView):
     queryset = WirelessLANGroup.objects.all()
 
@@ -90,6 +94,7 @@ class WirelessLANListView(generic.ObjectListView):
     table = tables.WirelessLANTable
 
 
+@register_model_view(WirelessLAN)
 class WirelessLANView(generic.ObjectView):
     queryset = WirelessLAN.objects.all()
 
@@ -105,11 +110,13 @@ class WirelessLANView(generic.ObjectView):
         }
 
 
+@register_model_view(WirelessLAN, 'edit')
 class WirelessLANEditView(generic.ObjectEditView):
     queryset = WirelessLAN.objects.all()
     form = forms.WirelessLANForm
 
 
+@register_model_view(WirelessLAN, 'delete')
 class WirelessLANDeleteView(generic.ObjectDeleteView):
     queryset = WirelessLAN.objects.all()
 
@@ -144,15 +151,18 @@ class WirelessLinkListView(generic.ObjectListView):
     table = tables.WirelessLinkTable
 
 
+@register_model_view(WirelessLink)
 class WirelessLinkView(generic.ObjectView):
     queryset = WirelessLink.objects.all()
 
 
+@register_model_view(WirelessLink, 'edit')
 class WirelessLinkEditView(generic.ObjectEditView):
     queryset = WirelessLink.objects.all()
     form = forms.WirelessLinkForm
 
 
+@register_model_view(WirelessLink, 'delete')
 class WirelessLinkDeleteView(generic.ObjectDeleteView):
     queryset = WirelessLink.objects.all()
 

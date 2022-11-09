@@ -8,19 +8,17 @@ from .template_code import *
 __all__ = (
     'ConfigContextTable',
     'CustomFieldTable',
+    'JobResultTable',
     'CustomLinkTable',
     'ExportTemplateTable',
     'JournalEntryTable',
     'ObjectChangeTable',
+    'SavedFilterTable',
     'TaggedItemTable',
     'TagTable',
     'WebhookTable',
 )
 
-
-#
-# Custom fields
-#
 
 class CustomFieldTable(NetBoxTable):
     name = tables.Column(
@@ -33,58 +31,82 @@ class CustomFieldTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = CustomField
         fields = (
-            'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'weight', 'default',
-            'description', 'filter_logic', 'ui_visibility', 'choices', 'created', 'last_updated',
+            'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'default', 'description',
+            'search_weight', 'filter_logic', 'ui_visibility', 'weight', 'choices', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
 
 
-#
-# Custom links
-#
+class JobResultTable(NetBoxTable):
+    name = tables.Column(
+        linkify=True
+    )
+
+    actions = columns.ActionsColumn(
+        actions=('delete',)
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = JobResult
+        fields = (
+            'pk', 'id', 'name', 'obj_type', 'job_id', 'created', 'completed', 'scheduled_time', 'user', 'status',
+        )
+        default_columns = ('pk', 'id', 'name', 'obj_type', 'status', 'created', 'completed', 'user',)
+
 
 class CustomLinkTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    content_type = columns.ContentTypeColumn()
+    content_types = columns.ContentTypesColumn()
     enabled = columns.BooleanColumn()
     new_window = columns.BooleanColumn()
 
     class Meta(NetBoxTable.Meta):
         model = CustomLink
         fields = (
-            'pk', 'id', 'name', 'content_type', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
+            'pk', 'id', 'name', 'content_types', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
             'button_class', 'new_window', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'content_type', 'enabled', 'group_name', 'button_class', 'new_window')
+        default_columns = ('pk', 'name', 'content_types', 'enabled', 'group_name', 'button_class', 'new_window')
 
-
-#
-# Export templates
-#
 
 class ExportTemplateTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    content_type = columns.ContentTypeColumn()
+    content_types = columns.ContentTypesColumn()
     as_attachment = columns.BooleanColumn()
 
     class Meta(NetBoxTable.Meta):
         model = ExportTemplate
         fields = (
-            'pk', 'id', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
+            'pk', 'id', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
             'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
+            'pk', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
         )
 
 
-#
-# Webhooks
-#
+class SavedFilterTable(NetBoxTable):
+    name = tables.Column(
+        linkify=True
+    )
+    content_types = columns.ContentTypesColumn()
+    enabled = columns.BooleanColumn()
+    shared = columns.BooleanColumn()
+
+    class Meta(NetBoxTable.Meta):
+        model = SavedFilter
+        fields = (
+            'pk', 'id', 'name', 'content_types', 'description', 'user', 'weight', 'enabled', 'shared',
+            'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'content_types', 'user', 'description', 'enabled', 'shared',
+        )
+
 
 class WebhookTable(NetBoxTable):
     name = tables.Column(
@@ -116,10 +138,6 @@ class WebhookTable(NetBoxTable):
             'payload_url',
         )
 
-
-#
-# Tags
-#
 
 class TagTable(NetBoxTable):
     name = tables.Column(

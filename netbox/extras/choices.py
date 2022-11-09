@@ -10,6 +10,7 @@ class CustomFieldTypeChoices(ChoiceSet):
     TYPE_TEXT = 'text'
     TYPE_LONGTEXT = 'longtext'
     TYPE_INTEGER = 'integer'
+    TYPE_DECIMAL = 'decimal'
     TYPE_BOOLEAN = 'boolean'
     TYPE_DATE = 'date'
     TYPE_URL = 'url'
@@ -23,6 +24,7 @@ class CustomFieldTypeChoices(ChoiceSet):
         (TYPE_TEXT, 'Text'),
         (TYPE_LONGTEXT, 'Text (long)'),
         (TYPE_INTEGER, 'Integer'),
+        (TYPE_DECIMAL, 'Decimal'),
         (TYPE_BOOLEAN, 'Boolean (true/false)'),
         (TYPE_DATE, 'Date'),
         (TYPE_URL, 'URL'),
@@ -139,6 +141,7 @@ class LogLevelChoices(ChoiceSet):
 class JobResultStatusChoices(ChoiceSet):
 
     STATUS_PENDING = 'pending'
+    STATUS_SCHEDULED = 'scheduled'
     STATUS_RUNNING = 'running'
     STATUS_COMPLETED = 'completed'
     STATUS_ERRORED = 'errored'
@@ -146,6 +149,7 @@ class JobResultStatusChoices(ChoiceSet):
 
     CHOICES = (
         (STATUS_PENDING, 'Pending'),
+        (STATUS_SCHEDULED, 'Scheduled'),
         (STATUS_RUNNING, 'Running'),
         (STATUS_COMPLETED, 'Completed'),
         (STATUS_ERRORED, 'Errored'),

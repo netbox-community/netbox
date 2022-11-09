@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
@@ -9,8 +10,9 @@ from netbox.models.features import *
 __all__ = (
     'ChangeLoggedModel',
     'NestedGroupModel',
-    'OrganizationalModel',
     'NetBoxModel',
+    'OrganizationalModel',
+    'PrimaryModel',
 )
 
 
@@ -26,6 +28,10 @@ class NetBoxFeatureSet(
 ):
     class Meta:
         abstract = True
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/'
 
     @classmethod
     def get_prerequisite_models(cls):
@@ -53,9 +59,25 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, models.Model)
 
 class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
     """
-    Primary models represent real objects within the infrastructure being modeled.
+    Base model for most object types. Suitable for use by plugins.
     """
     objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        abstract = True
+
+
+class PrimaryModel(NetBoxModel):
+    """
+    Primary models represent real objects within the infrastructure being modeled.
+    """
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    comments = models.TextField(
+        blank=True
+    )
 
     class Meta:
         abstract = True
@@ -75,6 +97,9 @@ class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
         db_index=True
     )
     name = models.CharField(
+        max_length=100
+    )
+    slug = models.SlugField(
         max_length=100
     )
     description = models.CharField(
@@ -130,3 +155,6 @@ class OrganizationalModel(NetBoxFeatureSet, models.Model):
     class Meta:
         abstract = True
         ordering = ('name',)
+
+    def __str__(self):
+        return self.name

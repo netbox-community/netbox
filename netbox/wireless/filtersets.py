@@ -43,6 +43,9 @@ class WirelessLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         lookup_expr='in',
         to_field_name='slug'
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=WirelessLANStatusChoices
+    )
     vlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLAN.objects.all()
     )
