@@ -18,9 +18,7 @@ from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
-from utilities.forms import (
-    BulkRenameForm, ConfirmationForm, ImportForm, FileUploadImportForm, restrict_form_fields,
-)
+from utilities.forms import BulkRenameForm, ConfirmationForm, ImportForm, restrict_form_fields
 from utilities.forms.choices import ImportFormatChoices
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
@@ -308,15 +306,6 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         """
         return data
 
-    def _get_records(self, form, request):
-        headers = form.cleaned_data['headers']
-        if request.FILES:
-            records = form.cleaned_data['data_file']
-        else:
-            records = form.cleaned_data['data']
-
-        return headers, records
-
     def _create_object(self, request, model_form):
 
         # Save the primary object
@@ -361,7 +350,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         for i, record in enumerate(form.cleaned_data['data'], start=1):
             if form.cleaned_data['format'] == ImportFormatChoices.CSV:
-                model_form = self.model_form(record, headers=form.cleaned_data['headers'])
+                model_form = self.model_form(record, headers=form._csv_headers)
             else:
                 model_form = self.model_form(record)
                 # Assign default values for any fields which were not specified.
@@ -391,8 +380,10 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         return new_objs
 
-    def _update_objects(self, form, request, headers, records):
+    def _update_objects(self, form, request):
         updated_objs = []
+        records = form.cleaned_data['data']
+        headers = form._csv_headers
 
         ids = [int(record["id"]) for record in records]
         qs = self.queryset.model.objects.filter(id__in=ids)
@@ -435,37 +426,21 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     # Request handlers
     #
 
-    def get_context(self, request, data_form, file_form, form=None):
-        # small hack - need to return 'form' set to either the file or data form
-        # as the bulk_import base view relies on it for error reporting.
-        return {
+    def get(self, request):
+        form = ImportForm()
+
+        return render(request, self.template_name, {
             'model': self.model_form._meta.model,
-            'data_form': data_form,
             'form': form,
-            'file_form': file_form,
             'fields': self.model_form().fields,
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
-        }
-
-    def get(self, request):
-        data_form = ImportForm(related=self.related_object_forms)
-        file_form = FileUploadImportForm(related=self.related_object_forms)
-
-        return render(request, self.template_name, self.get_context(request, data_form, file_form))
+        })
 
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkImportView')
 
-        # Instantiate form based on action
-        if 'file_submit' in request.POST:
-            data_form = ImportForm(related=self.related_object_forms)
-            file_form = FileUploadImportForm(request.POST, request.FILES, related=self.related_object_forms)
-            form = file_form
-        else:  # data_submit
-            data_form = ImportForm(request.POST, related=self.related_object_forms)
-            file_form = FileUploadImportForm(related=self.related_object_forms)
-            form = data_form
+        form = ImportForm(request.POST, request.FILES)
 
         if form.is_valid():
             logger.debug("Import form validation was successful")
@@ -474,9 +449,8 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 # Iterate through data and bind each record to a new model form instance.
                 with transaction.atomic():
                     if form.cleaned_data['format'] == 'csv':
-                        headers, records = self._get_records(form, request)
-                        if 'id' in headers:
-                            new_objs = self._update_objects(form, request, headers, records)
+                        if 'id' in form._csv_headers:
+                            new_objs = self._update_objects(form, request)
                         else:
                             new_objs = self._create_objects(form, request)
                     else:
@@ -510,7 +484,13 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         else:
             logger.debug("Form validation failed")
 
-        return render(request, self.template_name, self.get_context(request, data_form, file_form, form))
+        return render(request, self.template_name, {
+            'model': self.model_form._meta.model,
+            'form': form,
+            'fields': self.model_form().fields,
+            'return_url': self.get_return_url(request),
+            **self.get_extra_context(request),
+        })
 
 
 class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):

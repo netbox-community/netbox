@@ -37,7 +37,8 @@ Context:
               <div class="col col-md-12 col-lg-10">
                   <form action="" method="post" enctype="multipart/form-data" class="form">
                     {% csrf_token %}
-                    {% render_form data_form %}
+                    {% render_field form.data %}
+                    {% render_field form.format %}
                     <div class="form-group">
                       <div class="col col-md-12 text-end">
                         <button type="submit" name="data_submit" class="btn btn-primary">Submit</button>
@@ -57,7 +58,8 @@ Context:
               <div class="col col-md-12 col-lg-10">
                   <form action="" method="post" enctype="multipart/form-data" class="form">
                     {% csrf_token %}
-                    {% render_form file_form %}
+                    {% render_field form.data_file %}
+                    {% render_field form.format %}
                     <div class="form-group">
                       <div class="col col-md-12 text-end">
                         <button type="submit" name="file_submit" class="btn btn-primary">Submit</button>

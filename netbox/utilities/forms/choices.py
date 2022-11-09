@@ -15,13 +15,3 @@ class ImportFormatChoices(ChoiceSet):
         (JSON, 'JSON'),
         (YAML, 'YAML'),
     ]
-
-
-class ImportFormatChoicesRelated(ChoiceSet):
-    JSON = 'json'
-    YAML = 'yaml'
-
-    CHOICES = [
-        (JSON, 'JSON'),
-        (YAML, 'YAML'),
-    ]
