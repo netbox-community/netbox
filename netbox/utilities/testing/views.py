@@ -9,6 +9,7 @@ from django.urls import reverse
 from extras.choices import ObjectChangeActionChoices
 from extras.models import ObjectChange
 from users.models import ObjectPermission
+from utilities.forms.choices import ImportFormatChoices
 from .base import ModelTestCase
 from .utils import disable_warnings, post_data
 
@@ -555,7 +556,8 @@ class ViewTestCases:
 
         def test_bulk_import_objects_without_permission(self):
             data = {
-                'csv': self._get_csv_data(),
+                'data': self._get_csv_data(),
+                'format': 'csv',
             }
 
             # Test GET without permission
@@ -571,7 +573,8 @@ class ViewTestCases:
         def test_bulk_import_objects_with_permission(self):
             initial_count = self._get_queryset().count()
             data = {
-                'csv': self._get_csv_data(),
+                'data': self._get_csv_data(),
+                'format': 'csv',
             }
 
             # Assign model-level permission
@@ -598,7 +601,8 @@ class ViewTestCases:
             initial_count = self._get_queryset().count()
             array, csv_data = self._get_update_csv_data()
             data = {
-                'csv': csv_data,
+                'format': ImportFormatChoices.CSV,
+                'data': csv_data,
             }
 
             # Assign model-level permission
@@ -630,7 +634,8 @@ class ViewTestCases:
         def test_bulk_import_objects_with_constrained_permission(self):
             initial_count = self._get_queryset().count()
             data = {
-                'csv': self._get_csv_data(),
+                'data': self._get_csv_data(),
+                'format': 'csv',
             }
 
             # Assign constrained permission

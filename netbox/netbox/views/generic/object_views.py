@@ -2,7 +2,6 @@ import logging
 from copy import deepcopy
 
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
 from django.shortcuts import redirect, render
@@ -12,8 +11,8 @@ from django.utils.safestring import mark_safe
 
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
-from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
-from utilities.forms import ConfirmationForm, ImportForm, restrict_form_fields
+from utilities.exceptions import AbortRequest, PermissionsViolation
+from utilities.forms import ConfirmationForm, restrict_form_fields
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields
@@ -27,7 +26,6 @@ __all__ = (
     'ObjectChildrenView',
     'ObjectDeleteView',
     'ObjectEditView',
-    'ObjectImportView',
     'ObjectView',
 )
 
@@ -148,146 +146,6 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
             'actions': actions,
             'tab': self.tab,
             **self.get_extra_context(request, instance),
-        })
-
-
-class ObjectImportView(GetReturnURLMixin, BaseObjectView):
-    """
-    Import a single object (YAML or JSON format).
-
-    Attributes:
-        model_form: The ModelForm used to create individual objects
-        related_object_forms: A dictionary mapping of forms to be used for the creation of related (child) objects
-    """
-    template_name = 'generic/object_import.html'
-    model_form = None
-    related_object_forms = dict()
-
-    def get_required_permission(self):
-        return get_permission_for_model(self.queryset.model, 'add')
-
-    def prep_related_object_data(self, parent, data):
-        """
-        Hook to modify the data for related objects before it's passed to the related object form (for example, to
-        assign a parent object).
-        """
-        return data
-
-    def _create_object(self, model_form):
-
-        # Save the primary object
-        obj = model_form.save()
-
-        # Enforce object-level permissions
-        if not self.queryset.filter(pk=obj.pk).exists():
-            raise PermissionsViolation()
-
-        # Iterate through the related object forms (if any), validating and saving each instance.
-        for field_name, related_object_form in self.related_object_forms.items():
-
-            related_obj_pks = []
-            for i, rel_obj_data in enumerate(model_form.data.get(field_name, list())):
-                rel_obj_data = self.prep_related_object_data(obj, rel_obj_data)
-                f = related_object_form(rel_obj_data)
-
-                for subfield_name, field in f.fields.items():
-                    if subfield_name not in rel_obj_data and hasattr(field, 'initial'):
-                        f.data[subfield_name] = field.initial
-
-                if f.is_valid():
-                    related_obj = f.save()
-                    related_obj_pks.append(related_obj.pk)
-                else:
-                    # Replicate errors on the related object form to the primary form for display
-                    for subfield_name, errors in f.errors.items():
-                        for err in errors:
-                            err_msg = "{}[{}] {}: {}".format(field_name, i, subfield_name, err)
-                            model_form.add_error(None, err_msg)
-                    raise AbortTransaction()
-
-            # Enforce object-level permissions on related objects
-            model = related_object_form.Meta.model
-            if model.objects.filter(pk__in=related_obj_pks).count() != len(related_obj_pks):
-                raise ObjectDoesNotExist
-
-        return obj
-
-    #
-    # Request handlers
-    #
-
-    def get(self, request):
-        form = ImportForm()
-
-        return render(request, self.template_name, {
-            'form': form,
-            'obj_type': self.queryset.model._meta.verbose_name,
-            'return_url': self.get_return_url(request),
-        })
-
-    def post(self, request):
-        logger = logging.getLogger('netbox.views.ObjectImportView')
-        form = ImportForm(request.POST)
-
-        if form.is_valid():
-            logger.debug("Import form validation was successful")
-
-            # Initialize model form
-            data = form.cleaned_data['data']
-            model_form = self.model_form(data)
-            restrict_form_fields(model_form, request.user)
-
-            # Assign default values for any fields which were not specified. We have to do this manually because passing
-            # 'initial=' to the form on initialization merely sets default values for the widgets. Since widgets are not
-            # used for YAML/JSON import, we first bind the imported data normally, then update the form's data with the
-            # applicable field defaults as needed prior to form validation.
-            for field_name, field in model_form.fields.items():
-                if field_name not in data and hasattr(field, 'initial'):
-                    model_form.data[field_name] = field.initial
-
-            if model_form.is_valid():
-
-                try:
-                    with transaction.atomic():
-                        obj = self._create_object(model_form)
-
-                except AbortTransaction:
-                    clear_webhooks.send(sender=self)
-
-                except (AbortRequest, PermissionsViolation) as e:
-                    logger.debug(e.message)
-                    form.add_error(None, e.message)
-                    clear_webhooks.send(sender=self)
-
-            if not model_form.errors:
-                logger.info(f"Import object {obj} (PK: {obj.pk})")
-                msg = f'Imported object: <a href="{obj.get_absolute_url()}">{obj}</a>'
-                messages.success(request, mark_safe(msg))
-
-                if '_addanother' in request.POST:
-                    return redirect(request.get_full_path())
-
-                self.get_return_url(request, obj)
-                return redirect(self.get_return_url(request, obj))
-
-            else:
-                logger.debug("Model form validation failed")
-
-                # Replicate model form errors for display
-                for field, errors in model_form.errors.items():
-                    for err in errors:
-                        if field == '__all__':
-                            form.add_error(None, err)
-                        else:
-                            form.add_error(None, "{}: {}".format(field, err))
-
-        else:
-            logger.debug("Import form validation failed")
-
-        return render(request, self.template_name, {
-            'form': form,
-            'obj_type': self.queryset.model._meta.verbose_name,
-            'return_url': self.get_return_url(request),
         })
 
 

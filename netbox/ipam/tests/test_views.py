@@ -920,7 +920,11 @@ class L2VPNTerminationTestCase(
     def setUpTestData(cls):
         device = create_test_device('Device 1')
         interface = Interface.objects.create(name='Interface 1', device=device, type='1000baset')
-        l2vpn = L2VPN.objects.create(name='L2VPN 1', slug='l2vpn-1', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=650001)
+        l2vpns = (
+            L2VPN(name='L2VPN 1', slug='l2vpn-1', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=650001),
+            L2VPN(name='L2VPN 2', slug='l2vpn-2', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=650002),
+        )
+        L2VPN.objects.bulk_create(l2vpns)
 
         vlans = (
             VLAN(name='Vlan 1', vid=1001),
@@ -933,14 +937,14 @@ class L2VPNTerminationTestCase(
         VLAN.objects.bulk_create(vlans)
 
         terminations = (
-            L2VPNTermination(l2vpn=l2vpn, assigned_object=vlans[0]),
-            L2VPNTermination(l2vpn=l2vpn, assigned_object=vlans[1]),
-            L2VPNTermination(l2vpn=l2vpn, assigned_object=vlans[2])
+            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[0]),
+            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[1]),
+            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[2])
         )
         L2VPNTermination.objects.bulk_create(terminations)
 
         cls.form_data = {
-            'l2vpn': l2vpn.pk,
+            'l2vpn': l2vpns[0].pk,
             'device': device.pk,
             'interface': interface.pk,
         }
@@ -953,10 +957,10 @@ class L2VPNTerminationTestCase(
         )
 
         cls.csv_update_data = (
-            "id,l2vpn",
-            f"{terminations[0].pk},L2VPN 2",
-            f"{terminations[1].pk},L2VPN 2",
-            f"{terminations[2].pk},L2VPN 2",
+            f"id,l2vpn",
+            f"{terminations[0].pk},{l2vpns[0].name}",
+            f"{terminations[1].pk},{l2vpns[0].name}",
+            f"{terminations[2].pk},{l2vpns[0].name}",
         )
 
         cls.bulk_edit_data = {}

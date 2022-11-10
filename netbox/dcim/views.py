@@ -807,7 +807,7 @@ class RackReservationImportView(generic.BulkImportView):
     model_form = forms.RackReservationCSVForm
     table = tables.RackReservationTable
 
-    def _save_obj(self, obj_form, request):
+    def save_object(self, obj_form, request):
         """
         Assign the currently authenticated user to the RackReservation.
         """
@@ -1082,7 +1082,7 @@ class DeviceTypeInventoryItemsView(DeviceTypeComponentsView):
     )
 
 
-class DeviceTypeImportView(generic.ObjectImportView):
+class DeviceTypeImportView(generic.BulkImportView):
     additional_permissions = [
         'dcim.add_devicetype',
         'dcim.add_consoleporttemplate',
@@ -1098,6 +1098,7 @@ class DeviceTypeImportView(generic.ObjectImportView):
     ]
     queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeImportForm
+    table = tables.DeviceTypeTable
     related_object_forms = {
         'console-ports': forms.ConsolePortTemplateImportForm,
         'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
@@ -1267,7 +1268,7 @@ class ModuleTypeRearPortsView(ModuleTypeComponentsView):
     )
 
 
-class ModuleTypeImportView(generic.ObjectImportView):
+class ModuleTypeImportView(generic.BulkImportView):
     additional_permissions = [
         'dcim.add_moduletype',
         'dcim.add_consoleporttemplate',
@@ -1280,6 +1281,7 @@ class ModuleTypeImportView(generic.ObjectImportView):
     ]
     queryset = ModuleType.objects.all()
     model_form = forms.ModuleTypeImportForm
+    table = tables.ModuleTypeTable
     related_object_forms = {
         'console-ports': forms.ConsolePortTemplateImportForm,
         'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
@@ -2026,8 +2028,7 @@ class ChildDeviceBulkImportView(generic.BulkImportView):
     table = tables.DeviceImportTable
     template_name = 'dcim/device_import_child.html'
 
-    def _save_obj(self, obj_form, request):
-
+    def save_object(self, obj_form, request):
         obj = obj_form.save()
 
         # Save the reverse relation to the parent device bay

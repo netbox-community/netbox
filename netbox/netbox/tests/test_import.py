@@ -3,6 +3,7 @@ from django.test import override_settings
 
 from dcim.models import *
 from users.models import ObjectPermission
+from utilities.forms.choices import ImportFormatChoices
 from utilities.testing import ModelViewTestCase, create_tags
 
 
@@ -27,7 +28,8 @@ class CSVImportTestCase(ModelViewTestCase):
         )
 
         data = {
-            'csv': self._get_csv_data(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'data': self._get_csv_data(csv_data),
         }
 
         # Assign model-level permission
@@ -67,7 +69,8 @@ class CSVImportTestCase(ModelViewTestCase):
         )
 
         data = {
-            'csv': self._get_csv_data(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'data': self._get_csv_data(csv_data),
         }
 
         # Assign model-level permission
