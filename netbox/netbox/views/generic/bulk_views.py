@@ -306,10 +306,10 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         """
         return data
 
-    def _create_object(self, request, model_form):
+    def _save_object(self, model_form, request):
 
         # Save the primary object
-        obj = self._save_obj(model_form, request)
+        obj = self.save_object(model_form, request)
 
         # Enforce object-level permissions
         if not self.queryset.filter(pk=obj.pk).first():
@@ -345,15 +345,14 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         return obj
 
-    def _save_obj(self, obj_form, request):
+    def save_object(self, obj_form, request):
         """
         Provide a hook to modify the object immediately before saving it (e.g. to encrypt secret data).
         """
         return obj_form.save()
 
     def create_and_update_objects(self, form, request):
-        created_objects = []
-        updated_objects = []
+        saved_objects = []
 
         records = list(form.cleaned_data['data'])
 
@@ -400,12 +399,8 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             restrict_form_fields(model_form, request.user)
 
             if model_form.is_valid():
-                if object_id:
-                    obj = self._save_obj(model_form, request)
-                    updated_objects.append(obj)
-                else:
-                    obj = self._create_object(request, model_form)
-                    created_objects.append(obj)
+                obj = self._save_object(model_form, request)
+                saved_objects.append(obj)
             else:
                 # Replicate model form errors for display
                 for field, errors in model_form.errors.items():
@@ -417,7 +412,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
                 raise ValidationError("")
 
-        return [*created_objects, *updated_objects]
+        return saved_objects
 
     #
     # Request handlers

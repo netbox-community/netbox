@@ -807,7 +807,7 @@ class RackReservationImportView(generic.BulkImportView):
     model_form = forms.RackReservationCSVForm
     table = tables.RackReservationTable
 
-    def _save_obj(self, obj_form, request):
+    def save_object(self, obj_form, request):
         """
         Assign the currently authenticated user to the RackReservation.
         """
@@ -2028,8 +2028,7 @@ class ChildDeviceBulkImportView(generic.BulkImportView):
     table = tables.DeviceImportTable
     template_name = 'dcim/device_import_child.html'
 
-    def _save_obj(self, obj_form, request):
-
+    def save_object(self, obj_form, request):
         obj = obj_form.save()
 
         # Save the reverse relation to the parent device bay
