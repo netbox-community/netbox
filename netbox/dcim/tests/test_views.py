@@ -3077,54 +3077,13 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         response = self.client.get(reverse('dcim:powerfeed_trace', kwargs={'pk': powerfeed.pk}))
         self.assertHttpStatus(response, 200)
 
-# TODO: VDC Test Cases
-
 
 class VirtualDeviceContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualDeviceContext
 
     @classmethod
     def setUpTestData(cls):
-
-        sites = (
-            Site(name='Site 1', slug='site-1'),
-            Site(name='Site 2', slug='site-2'),
-        )
-        Site.objects.bulk_create(sites)
-
-        location = Location(site=sites[0], name='Location 1', slug='location-1')
-        location.save()
-
-        racks = (
-            Rack(name='Rack 1', site=sites[0], location=location),
-            Rack(name='Rack 2', site=sites[1]),
-        )
-        Rack.objects.bulk_create(racks)
-
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-
-        devicetypes = (
-            DeviceType(model='Device Type 1', slug='device-type-1', manufacturer=manufacturer),
-            DeviceType(model='Device Type 2', slug='device-type-2', manufacturer=manufacturer),
-        )
-        DeviceType.objects.bulk_create(devicetypes)
-
-        deviceroles = (
-            DeviceRole(name='Device Role 1', slug='device-role-1'),
-            DeviceRole(name='Device Role 2', slug='device-role-2'),
-        )
-        DeviceRole.objects.bulk_create(deviceroles)
-
-        platforms = (
-            Platform(name='Platform 1', slug='platform-1'),
-            Platform(name='Platform 2', slug='platform-2'),
-        )
-        Platform.objects.bulk_create(platforms)
-
-        devices = (
-            Device(name='Device 1', site=sites[0], rack=racks[0], device_type=devicetypes[0], device_role=deviceroles[0], platform=platforms[0]),
-        )
-        Device.objects.bulk_create(devices)
+        devices = [create_test_device(name='Device 1')]
 
         vdcs = (
             VirtualDeviceContext(name='VDC 1', identifier=1, device=devices[0], status='active'),

@@ -590,7 +590,7 @@ class CableTestCase(TestCase):
             cable.clean()
 
 
-class CableTestCase(TestCase):
+class VirtualDeviceContextTestCase(TestCase):
 
     def setUp(self):
 
@@ -606,12 +606,32 @@ class CableTestCase(TestCase):
             device_type=devicetype, device_role=devicerole, name='TestDevice1', site=site
         )
 
-        self.vdc1 = VirtualDeviceContext.objects.create(device=self.device, name="VDC 1", identifier=1)
-        self.vdc2 = VirtualDeviceContext.objects.create(device=self.device, name="VDC 2", identifier=1)
+    def test_vdc_and_interface_creation(self):
 
-        self.interface1 = Interface.objects.create(device=self.device1, name='Eth1/1', type='10gbase-t')
-        self.interface2 = Interface.objects.create(device=self.device2, name='Eth1/2', type='10gbase-t')
-        self.interface3 = Interface.objects.create(device=self.device2, name='Eth1/3', type='10gbase-t')
+        vdc = VirtualDeviceContext(device=self.device, name="VDC 1", identifier=1, status='active')
+        vdc.full_clean()
+        vdc.save()
 
-        self.interface2.vdcs.set([self.vdc1])
-        self.interface3.vdcs.set([self.vdc2])
+        interface = Interface(device=self.device, name='Eth1/1', type='10gbase-t')
+        interface.full_clean()
+        interface.save()
+
+        interface.vdcs.set([vdc])
+
+    def test_vdc_duplicate_name(self):
+        vdc1 = VirtualDeviceContext(device=self.device, name="VDC 1", identifier=1, status='active')
+        vdc1.full_clean()
+        vdc1.save()
+
+        vdc2 = VirtualDeviceContext(device=self.device, name="VDC 1", identifier=2, status='active')
+        with self.assertRaises(ValidationError):
+            vdc2.full_clean()
+
+    def test_vdc_duplicate_identifier(self):
+        vdc1 = VirtualDeviceContext(device=self.device, name="VDC 1", identifier=1, status='active')
+        vdc1.full_clean()
+        vdc1.save()
+
+        vdc2 = VirtualDeviceContext(device=self.device, name="VDC 2", identifier=1, status='active')
+        with self.assertRaises(ValidationError):
+            vdc2.full_clean()
