@@ -17,6 +17,10 @@
 
 NetBox's global search functionality has been completely overhauled and replaced by a new cache-based lookup.
 
+### JSON/YAML Bulk Imports ([#4347](https://github.com/netbox-community/netbox/issues/4347))
+
+NetBox's bulk import feature, which was previously limited to CSV-formatted data for most objects, has been extended to support the import of objects from JSON and/or YAML data as well.
+
 #### CSV-Based Bulk Updates ([#7961](https://github.com/netbox-community/netbox/issues/7961))
 
 NetBox's CSV-based bulk import functionality has been extended to support also modifying existing objects. When an `id` column is present in the import form, it will be used to infer the object to be modified, rather than a new object being created. All fields (columns) are optional when modifying existing objects.

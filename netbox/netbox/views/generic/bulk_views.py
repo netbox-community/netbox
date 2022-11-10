@@ -375,19 +375,14 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     form.add_error('data', f"Row {i}: Object with ID {object_id} does not exist")
                     raise ValidationError('')
 
+            # Instantiate the model form for the object
+            model_form_kwargs = {
+                'data': record,
+                'instance': instance,
+            }
             if form.cleaned_data['format'] == ImportFormatChoices.CSV:
-                model_form = self.model_form(record, instance=instance, headers=form._csv_headers)
-            else:
-                model_form = self.model_form(record, instance=instance)
-                # Assign default values for any fields which were not specified.
-                # We have to do this manually because passing 'initial=' to the form
-                # on initialization merely sets default values for the widgets.
-                # Since widgets are not used for YAML/JSON import, we first bind the
-                # imported data normally, then update the form's data with the applicable
-                # field defaults as needed prior to form validation.
-                for field_name, field in model_form.fields.items():
-                    if field_name not in record and hasattr(field, 'initial'):
-                        model_form.data[field_name] = field.initial
+                model_form_kwargs['headers'] = form._csv_headers
+            model_form = self.model_form(**model_form_kwargs)
 
             # When updating, omit all form fields other than those specified in the record. (No
             # fields are required when modifying an existing object.)
