@@ -1081,6 +1081,7 @@ class VirtualDeviceContext(PrimaryModel):
         choices=VirtualDeviceContextStatusChoices,
     )
     identifier = models.PositiveSmallIntegerField(
+        help_text='Unique identifier provided by the platform being virtualized (Example: Nexus VDC Identifier)',
         blank=True,
         null=True,
     )
