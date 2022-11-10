@@ -84,21 +84,28 @@ class Change(ChangeLoggedModel):
             ),
         )
 
-    def apply(self):
-        model = self.object_type.model_class()
-        pk = self.object_id
+    def __str__(self):
+        return f"{self.get_action_display()} {self.model}"
 
+    @property
+    def model(self):
+        return self.object_type.model_class()
+
+    def apply(self):
+        """
+        Apply the staged create/update/delete action to the database.
+        """
         if self.action == ChangeActionChoices.ACTION_CREATE:
-            instance = deserialize_object(model, self.data, pk=pk)
-            logger.info(f'Creating {model._meta.verbose_name} {instance}')
+            instance = deserialize_object(self.model, self.data, pk=self.object_id)
+            logger.info(f'Creating {self.model._meta.verbose_name} {instance}')
             instance.save()
 
         if self.action == ChangeActionChoices.ACTION_UPDATE:
-            instance = deserialize_object(model, self.data, pk=pk)
-            logger.info(f'Updating {model._meta.verbose_name} {instance}')
+            instance = deserialize_object(self.model, self.data, pk=self.object_id)
+            logger.info(f'Updating {self.model._meta.verbose_name} {instance}')
             instance.save()
 
         if self.action == ChangeActionChoices.ACTION_DELETE:
-            instance = model.objects.get(pk=self.object_id)
-            logger.info(f'Deleting {model._meta.verbose_name} {instance}')
+            instance = self.model.objects.get(pk=self.object_id)
+            logger.info(f'Deleting {self.model._meta.verbose_name} {instance}')
             instance.delete()

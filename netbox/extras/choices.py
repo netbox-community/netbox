@@ -195,7 +195,7 @@ class ChangeActionChoices(ChoiceSet):
     ACTION_DELETE = 'delete'
 
     CHOICES = (
-        (ACTION_CREATE, 'Created'),
-        (ACTION_UPDATE, 'Updated'),
-        (ACTION_DELETE, 'Deleted'),
+        (ACTION_CREATE, 'Create'),
+        (ACTION_UPDATE, 'Update'),
+        (ACTION_DELETE, 'Delete'),
     )

@@ -6,28 +6,24 @@ from django.db.models.signals import pre_delete, post_save
 
 from extras.choices import ChangeActionChoices
 from extras.models import Change
-from utilities.utils import serialize_object, shallow_compare_dict
+from utilities.utils import serialize_object
 
 logger = logging.getLogger('netbox.staging')
 
 
-def get_changed_fields(instance):
-    model = instance._meta.model
-    original = model.objects.get(pk=instance.pk)
-    return shallow_compare_dict(
-        serialize_object(original),
-        serialize_object(instance),
-        exclude=('last_updated',)
-    )
-
-
-def get_key_for_instance(instance):
-    object_type = ContentType.objects.get_for_model(instance)
-    return object_type, instance.pk
-
-
 class checkout:
+    """
+    Context manager for staging changes to NetBox objects. Staged changes are saved out-of-band
+    (as Change instances) for application at a later time, without modifying the production
+    database.
 
+        branch = Branch.objects.create(name='my-branch')
+        with checkout(branch):
+            # All changes made herein will be rolled back and stored for later
+
+    Note that invoking the context disabled transaction autocommit to facilitate manual rollbacks,
+    and restores its original value upon exit.
+    """
     def __init__(self, branch):
         self.branch = branch
         self.queue = {}
@@ -37,13 +33,12 @@ class checkout:
         # Disable autocommit to effect a new transaction
         logger.debug(f"Entering transaction for {self.branch}")
         self._autocommit = transaction.get_autocommit()
-
         transaction.set_autocommit(False)
 
         # Apply any existing Changes assigned to this Branch
         changes = self.branch.changes.all()
-        if changes.exists():
-            logger.debug(f"Applying {changes.count()} pre-staged changes...")
+        if change_count := changes.count():
+            logger.debug(f"Applying {change_count} pre-staged changes...")
             for change in changes:
                 change.apply()
         else:
@@ -56,42 +51,63 @@ class checkout:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
 
-        # Roll back the transaction to return the database to its original state
-        logger.debug("Rolling back transaction")
-        transaction.rollback()
-        logger.debug(f"Restoring autocommit state {self._autocommit}")
-        transaction.set_autocommit(self._autocommit)
-
         # Disconnect signal handlers
         logger.debug("Disconnecting signal handlers")
         post_save.disconnect(self.post_save_handler)
         pre_delete.disconnect(self.pre_delete_handler)
 
+        # Roll back the transaction to return the database to its original state
+        logger.debug("Rolling back database transaction")
+        transaction.rollback()
+        logger.debug(f"Restoring autocommit state ({self._autocommit})")
+        transaction.set_autocommit(self._autocommit)
+
         # Process queued changes
+        self.process_queue()
+
+    def process_queue(self):
+        """
+        Create Change instances for all actions stored in the queue.
+        """
         changes = []
-        logger.debug(f"Processing {len(self.queue)} queued changes:")
+        if not self.queue:
+            logger.debug(f"No queued changes; aborting")
+            return
+        logger.debug(f"Processing {len(self.queue)} queued changes")
+
+        # Iterate through the in-memory queue, creating Change instances
         for key, change in self.queue.items():
             logger.debug(f'  {key}: {change}')
             object_type, pk = key
             action, instance = change
+            data = None
             if action in (ChangeActionChoices.ACTION_CREATE, ChangeActionChoices.ACTION_UPDATE):
                 data = serialize_object(instance)
-            else:
-                data = None
 
-            change = Change(
+            changes.append(Change(
                 branch=self.branch,
                 action=action,
                 object_type=object_type,
                 object_id=pk,
                 data=data
-            )
-            changes.append(change)
+            ))
 
+        # Save all Change instances to the database
         Change.objects.bulk_create(changes)
 
+    @staticmethod
+    def get_key_for_instance(instance):
+        return ContentType.objects.get_for_model(instance), instance.pk
+
+    #
+    # Signal handlers
+    #
+
     def post_save_handler(self, sender, instance, created, **kwargs):
-        key = get_key_for_instance(instance)
+        """
+        Hooks to the post_save signal when a branch is active to queue create and update actions.
+        """
+        key = self.get_key_for_instance(instance)
         object_type = instance._meta.verbose_name
 
         if created:
@@ -108,7 +124,10 @@ class checkout:
             self.queue[key] = (ChangeActionChoices.ACTION_UPDATE, instance)
 
     def pre_delete_handler(self, sender, instance, **kwargs):
-        key = get_key_for_instance(instance)
+        """
+        Hooks to the pre_delete signal when a branch is active to queue delete actions.
+        """
+        key = self.get_key_for_instance(instance)
         if key in self.queue and self.queue[key][0] == 'create':
             # Cancel the creation of a new object
             logger.debug(f"[{self.branch}] Removing staged deletion of {instance} (PK: {instance.pk})")
