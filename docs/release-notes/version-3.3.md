@@ -8,6 +8,7 @@
 * [#10829](https://github.com/netbox-community/netbox/issues/10829) - Fix bulk edit/delete buttons ad top of object lists
 * [#10837](https://github.com/netbox-community/netbox/issues/10837) - Correct cookie paths when `BASE_PATH` is set
 * [#10874](https://github.com/netbox-community/netbox/issues/10874) - Remove erroneous link for contact assignment count
+* [#10881](https://github.com/netbox-community/netbox/issues/10881) - Fix dark mode coloring for data on device status page
 
 ---
 
