@@ -77,12 +77,6 @@ class Change(ChangeLoggedModel):
 
     class Meta:
         ordering = ('pk',)
-        constraints = (
-            models.UniqueConstraint(
-                fields=('branch', 'object_type', 'object_id'),
-                name='extras_change_unique_branch_object'
-            ),
-        )
 
     def __str__(self):
         return f"{self.get_action_display()} {self.model}"

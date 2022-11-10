@@ -44,8 +44,4 @@ class Migration(migrations.Migration):
                 'ordering': ('pk',),
             },
         ),
-        migrations.AddConstraint(
-            model_name='change',
-            constraint=models.UniqueConstraint(fields=('branch', 'object_type', 'object_id'), name='extras_change_unique_branch_object'),
-        ),
     ]
