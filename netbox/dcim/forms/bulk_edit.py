@@ -1413,6 +1413,6 @@ class VirtualDeviceContextBulkEditForm(NetBoxModelBulkEditForm):
     )
     model = VirtualDeviceContext
     fieldsets = (
-        (None, ('device',)),
+        (None, ('device', 'status', 'tenant')),
     )
     nullable_fields = ('device', )

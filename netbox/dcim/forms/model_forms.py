@@ -1699,7 +1699,8 @@ class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
 
     fieldsets = (
         ('Device', ('region', 'site_group', 'site', 'location', 'rack', 'device')),
-        ('Virtual Device Context', ('name', 'identifier', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant')),
+        ('Virtual Device Context', ('name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tenant_group',
+                                    'tenant')),
         (None, ('tags', ))
     )
 
