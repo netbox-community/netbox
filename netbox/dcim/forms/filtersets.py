@@ -735,7 +735,7 @@ class VirtualDeviceContextFilterForm(
 ):
     model = VirtualDeviceContext
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter', 'tag')),
         ('Hardware', ('device',)),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Miscellaneous', ('has_primary_ip',))
