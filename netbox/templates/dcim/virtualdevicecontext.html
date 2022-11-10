@@ -7,14 +7,6 @@
   <li class="breadcrumb-item"><a href="{% url 'dcim:virtualdevicecontext_list' %}">Virtual Device Contexts</a></li>
 {% endblock %}
 
-{% block extra_controls %}
-  {% if perms.dcim.add_interface %}
-    <a href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&vdc={{ object.pk }}" class="btn btn-sm btn-primary">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Interface
-    </a>
-  {% endif %}
-{% endblock extra_controls %}
-
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">
