@@ -1078,7 +1078,6 @@ class VirtualDeviceContext(PrimaryModel):
     )
     status = models.CharField(
         max_length=50,
-        blank=True,
         choices=VirtualDeviceContextStatusChoices,
     )
     identifier = models.PositiveSmallIntegerField(
