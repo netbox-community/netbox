@@ -45,10 +45,10 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='virtualdevicecontext',
-            constraint=models.UniqueConstraint(fields=('device', 'identifier'), name='dcim_virtualdevicecontext_device_identifiers', violation_error_message='A VDC with this identifier already exists on this device.'),
+            constraint=models.UniqueConstraint(fields=('device', 'identifier'), name='dcim_virtualdevicecontext_device_identifiers'),
         ),
         migrations.AddConstraint(
             model_name='virtualdevicecontext',
-            constraint=models.UniqueConstraint(fields=('device', 'name'), name='dcim_virtualdevicecontext_name', violation_error_message='A VDC with this name already exists on this device.'),
+            constraint=models.UniqueConstraint(fields=('device', 'name'), name='dcim_virtualdevicecontext_name'),
         ),
     ]

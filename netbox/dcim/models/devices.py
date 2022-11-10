@@ -1116,13 +1116,11 @@ class VirtualDeviceContext(PrimaryModel):
         constraints = (
             models.UniqueConstraint(
                 fields=('device', 'identifier',),
-                name='%(app_label)s_%(class)s_device_identifiers',
-                violation_error_message="A VDC with this identifier already exists on this device."
+                name='%(app_label)s_%(class)s_device_identifiers'
             ),
             models.UniqueConstraint(
                 fields=('device', 'name',),
-                name='%(app_label)s_%(class)s_name',
-                violation_error_message="A VDC with this name already exists on this device."
+                name='%(app_label)s_%(class)s_name'
             ),
         )
 
