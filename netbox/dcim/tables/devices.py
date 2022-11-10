@@ -891,7 +891,6 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    indentifier = tables.Column()
     device = tables.TemplateColumn(
         order_by=('_name',),
         template_code=DEVICE_LINK
