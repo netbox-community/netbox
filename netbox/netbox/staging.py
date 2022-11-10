@@ -65,17 +65,25 @@ class checkout:
         # Process queued changes
         self.process_queue()
 
+    #
+    # Queuing
+    #
+
+    @staticmethod
+    def get_key_for_instance(instance):
+        return ContentType.objects.get_for_model(instance), instance.pk
+
     def process_queue(self):
         """
         Create Change instances for all actions stored in the queue.
         """
-        changes = []
         if not self.queue:
             logger.debug(f"No queued changes; aborting")
             return
         logger.debug(f"Processing {len(self.queue)} queued changes")
 
         # Iterate through the in-memory queue, creating Change instances
+        changes = []
         for key, change in self.queue.items():
             logger.debug(f'  {key}: {change}')
             object_type, pk = key
@@ -95,10 +103,6 @@ class checkout:
         # Save all Change instances to the database
         Change.objects.bulk_create(changes)
 
-    @staticmethod
-    def get_key_for_instance(instance):
-        return ContentType.objects.get_for_model(instance), instance.pk
-
     #
     # Signal handlers
     #
@@ -112,11 +116,11 @@ class checkout:
 
         if created:
             # Creating a new object
-            logger.debug(f"[{self.branch}] Staging creation of {object_type} {instance}")
+            logger.debug(f"[{self.branch}] Staging creation of {object_type} {instance} (PK: {instance.pk})")
             self.queue[key] = (ChangeActionChoices.ACTION_CREATE, instance)
         elif key in self.queue:
             # Object has already been created/updated at least once
-            logger.debug(f"[{self.branch}] Updating staged value for {object_type} {instance}")
+            logger.debug(f"[{self.branch}] Updating staged value for {object_type} {instance} (PK: {instance.pk})")
             self.queue[key] = (self.queue[key][0], instance)
         else:
             # Modifying an existing object
@@ -128,11 +132,13 @@ class checkout:
         Hooks to the pre_delete signal when a branch is active to queue delete actions.
         """
         key = self.get_key_for_instance(instance)
-        if key in self.queue and self.queue[key][0] == 'create':
+        object_type = instance._meta.verbose_name
+
+        if key in self.queue and self.queue[key][0] == ChangeActionChoices.ACTION_CREATE:
             # Cancel the creation of a new object
-            logger.debug(f"[{self.branch}] Removing staged deletion of {instance} (PK: {instance.pk})")
+            logger.debug(f"[{self.branch}] Removing staged creation of {object_type} {instance} (PK: {instance.pk})")
             del self.queue[key]
         else:
             # Delete an existing object
-            logger.debug(f"[{self.branch}] Staging deletion of {instance} (PK: {instance.pk})")
+            logger.debug(f"[{self.branch}] Staging deletion of {object_type} {instance} (PK: {instance.pk})")
             self.queue[key] = (ChangeActionChoices.ACTION_DELETE, instance)

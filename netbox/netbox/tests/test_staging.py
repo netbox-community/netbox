@@ -1,6 +1,7 @@
 from django.test import TransactionTestCase
 
 from circuits.models import Provider, Circuit, CircuitType
+from extras.choices import ChangeActionChoices
 from extras.models import Branch, Change, Tag
 from netbox.staging import checkout
 from utilities.testing import create_tags
@@ -9,7 +10,7 @@ from utilities.testing import create_tags
 class StagingTestCase(TransactionTestCase):
 
     def setUp(self):
-        create_tags('Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot')
+        create_tags('Alpha', 'Bravo', 'Charlie')
 
         providers = (
             Provider(name='Provider A', slug='provider-a'),
@@ -34,7 +35,7 @@ class StagingTestCase(TransactionTestCase):
 
     def test_object_creation(self):
         branch = Branch.objects.create(name='Branch 1')
-        tags = Tag.objects.all()[:3]
+        tags = Tag.objects.all()
 
         with checkout(branch):
             provider = Provider.objects.create(name='Provider D', slug='provider-d')
@@ -68,8 +69,7 @@ class StagingTestCase(TransactionTestCase):
 
     def test_object_modification(self):
         branch = Branch.objects.create(name='Branch 1')
-        tags = Tag.objects.all()[:3]
-        self.assertEqual(len(tags), 3)
+        tags = Tag.objects.all()
 
         with checkout(branch):
             provider = Provider.objects.get(name='Provider A')
@@ -174,7 +174,7 @@ class StagingTestCase(TransactionTestCase):
         # Check that a create Change was recorded
         self.assertEqual(Change.objects.count(), 1)
         change = Change.objects.first()
-        self.assertEqual(change.action, 'create')
+        self.assertEqual(change.action, ChangeActionChoices.ACTION_CREATE)
         self.assertEqual(change.data['name'], provider.name)
 
         with checkout(branch):
@@ -187,7 +187,7 @@ class StagingTestCase(TransactionTestCase):
         # Check that a second Change object has been created for the object
         self.assertEqual(Change.objects.count(), 2)
         change = Change.objects.last()
-        self.assertEqual(change.action, 'update')
+        self.assertEqual(change.action, ChangeActionChoices.ACTION_UPDATE)
         self.assertEqual(change.data['name'], provider.name)
         self.assertEqual(change.data['comments'], provider.comments)
 
@@ -200,5 +200,5 @@ class StagingTestCase(TransactionTestCase):
         # Check that a third Change has recorded the object's deletion
         self.assertEqual(Change.objects.count(), 3)
         change = Change.objects.last()
-        self.assertEqual(change.action, 'delete')
+        self.assertEqual(change.action, ChangeActionChoices.ACTION_DELETE)
         self.assertIsNone(change.data)
