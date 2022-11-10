@@ -923,5 +923,5 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, NetBoxTable):
             'primary_ip', 'primary_ip4', 'primary_ip6', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'identifier', 'tenant', 'primary_ip',
+            'pk', 'name', 'identifier', 'status', 'tenant', 'primary_ip',
         )

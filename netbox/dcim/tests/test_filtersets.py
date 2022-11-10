@@ -3023,7 +3023,6 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         devices = Device.objects.last()
         vdc = VirtualDeviceContext.objects.filter(device=devices, name='VDC 2')
         params = {'vdc_identifier': vdc.values_list('identifier', flat=True)}
-        print(params)
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
