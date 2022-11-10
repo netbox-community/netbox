@@ -1,12 +1,10 @@
 import logging
 
-from django import forms
-from django.db.models.signals import post_save, post_delete, pre_delete, m2m_changed
+from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
 from .choices import CableEndChoices, LinkStatusChoices
-from .models import Cable, CablePath, CableTermination, Device, PathEndpoint, PowerPanel, Rack, Location, \
-    VirtualChassis, VirtualDeviceContext, Interface
+from .models import Cable, CablePath, CableTermination, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
 from .models.cables import trace_paths
 from .utils import create_cablepath, rebuild_paths
 
