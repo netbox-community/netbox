@@ -36,6 +36,9 @@ class Branch(ChangeLoggedModel):
     class Meta:
         ordering = ('name',)
 
+    def __str__(self):
+        return f'{self.name} ({self.pk})'
+
     def merge(self):
         logger.info(f'Merging changes in branch {self}')
         with transaction.atomic():
@@ -87,15 +90,15 @@ class Change(ChangeLoggedModel):
 
         if self.action == ChangeActionChoices.ACTION_CREATE:
             instance = deserialize_object(model, self.data, pk=pk)
-            logger.info(f'Creating {model} {instance}')
+            logger.info(f'Creating {model._meta.verbose_name} {instance}')
             instance.save()
 
         if self.action == ChangeActionChoices.ACTION_UPDATE:
             instance = deserialize_object(model, self.data, pk=pk)
-            logger.info(f'Updating {model} {instance}')
+            logger.info(f'Updating {model._meta.verbose_name} {instance}')
             instance.save()
 
         if self.action == ChangeActionChoices.ACTION_DELETE:
             instance = model.objects.get(pk=self.object_id)
-            logger.info(f'Deleting {model} {instance}')
+            logger.info(f'Deleting {model._meta.verbose_name} {instance}')
             instance.delete()

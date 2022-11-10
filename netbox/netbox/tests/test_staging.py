@@ -1,14 +1,13 @@
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 from circuits.models import Provider, Circuit, CircuitType
 from extras.models import Change, Branch
 from netbox.staging import checkout
 
 
-class StagingTestCase(TestCase):
+class StagingTestCase(TransactionTestCase):
 
-    @classmethod
-    def setUpTestData(cls):
+    def setUp(self):
         providers = (
             Provider(name='Provider A', slug='provider-a'),
             Provider(name='Provider B', slug='provider-b'),
