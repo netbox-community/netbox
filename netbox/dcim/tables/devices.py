@@ -919,7 +919,7 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.VirtualDeviceContext
         fields = (
-            'pk', 'id', 'name', 'identifier', 'tenant', 'tenant_group',
+            'pk', 'id', 'name', 'identifier', 'tenant', 'tenant_group', 'status',
             'primary_ip', 'primary_ip4', 'primary_ip6', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
