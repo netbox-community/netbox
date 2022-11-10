@@ -1411,8 +1411,12 @@ class VirtualDeviceContextBulkEditForm(NetBoxModelBulkEditForm):
         choices=add_blank_choice(VirtualDeviceContextStatusChoices),
         widget=StaticSelect()
     )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
     model = VirtualDeviceContext
     fieldsets = (
         (None, ('device', 'status', 'tenant')),
     )
-    nullable_fields = ('device', )
+    nullable_fields = ('device', 'tenant', )
