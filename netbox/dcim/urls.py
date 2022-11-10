@@ -188,7 +188,6 @@ urlpatterns = [
     path('vdcs/add/', views.VirtualDeviceContextEditView.as_view(), name='virtualdevicecontext_add'),
     path('vdcs/import/', views.VirtualDeviceContextBulkImportView.as_view(), name='virtualdevicecontext_import'),
     path('vdcs/edit/', views.VirtualDeviceContextBulkEditView.as_view(), name='virtualdevicecontext_bulk_edit'),
-    path('vdcs/rename/', views.VirtualDeviceContextBulkRenameView.as_view(), name='virtualdevicecontext_bulk_rename'),
     path('vdcs/delete/', views.VirtualDeviceContextBulkDeleteView.as_view(), name='virtualdevicecontext_bulk_delete'),
     path('vdcs/<int:pk>/', include(get_model_urls('dcim', 'virtualdevicecontext'))),
 

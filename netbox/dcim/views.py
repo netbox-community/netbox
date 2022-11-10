@@ -3611,12 +3611,6 @@ class VirtualDeviceContextBulkImportView(generic.BulkImportView):
     table = tables.VirtualDeviceContextTable
 
 
-class VirtualDeviceContextBulkRenameView(generic.BulkRenameView):
-    queryset = VirtualDeviceContext.objects.all()
-    filterset = filtersets.VirtualDeviceContextFilterSet
-    table = tables.VirtualDeviceContextTable
-
-
 class VirtualDeviceContextBulkEditView(generic.BulkEditView):
     queryset = VirtualDeviceContext.objects.all()
     filterset = filtersets.VirtualDeviceContextFilterSet
