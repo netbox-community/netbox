@@ -168,25 +168,6 @@ class StagingTestCase(TransactionTestCase):
         self.assertEqual(Circuit.objects.count(), 6)
         self.assertEqual(Change.objects.count(), 0)
 
-    def test_create_update_delete_clean(self):
-        branch = Branch.objects.create(name='Branch 1')
-
-        with checkout(branch):
-
-            # Create a new object
-            provider = Provider.objects.create(name='Provider D', slug='provider-d')
-            provider.save()
-
-            # Update it
-            provider.comments = 'Another change'
-            provider.save()
-
-            # Delete it
-            provider.delete()
-
-        # Check that the staged Change has been deleted
-        self.assertFalse(Change.objects.exists())
-
     def test_exit_enter_context(self):
         branch = Branch.objects.create(name='Branch 1')
 

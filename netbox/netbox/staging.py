@@ -143,12 +143,6 @@ class checkout:
         key = self.get_key_for_instance(instance)
         object_type = instance._meta.verbose_name
 
-        # Cancel the creation of a new object
-        if key in self.queue and self.queue[key][0] == ChangeActionChoices.ACTION_CREATE:
-            logger.debug(f"[{self.branch}] Removing staged creation of {object_type} {instance} (PK: {instance.pk})")
-            del self.queue[key]
-            return
-
         # Delete an existing object
         logger.debug(f"[{self.branch}] Staging deletion of {object_type} {instance} (PK: {instance.pk})")
         self.queue[key] = (ChangeActionChoices.ACTION_DELETE, None)
