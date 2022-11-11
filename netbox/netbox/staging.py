@@ -2,7 +2,7 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
-from django.db.models.signals import pre_delete, post_save
+from django.db.models.signals import m2m_changed, pre_delete, post_save
 
 from extras.choices import ChangeActionChoices
 from extras.models import Change
@@ -47,6 +47,7 @@ class checkout:
         # Connect signal handlers
         logger.debug("Connecting signal handlers")
         post_save.connect(self.post_save_handler)
+        m2m_changed.connect(self.post_save_handler)
         pre_delete.connect(self.pre_delete_handler)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -54,6 +55,7 @@ class checkout:
         # Disconnect signal handlers
         logger.debug("Disconnecting signal handlers")
         post_save.disconnect(self.post_save_handler)
+        m2m_changed.disconnect(self.post_save_handler)
         pre_delete.disconnect(self.pre_delete_handler)
 
         # Roll back the transaction to return the database to its original state
@@ -87,10 +89,7 @@ class checkout:
         for key, change in self.queue.items():
             logger.debug(f'  {key}: {change}')
             object_type, pk = key
-            action, instance = change
-            data = None
-            if action in (ChangeActionChoices.ACTION_CREATE, ChangeActionChoices.ACTION_UPDATE):
-                data = serialize_object(instance)
+            action, data = change
 
             changes.append(Change(
                 branch=self.branch,
@@ -107,25 +106,35 @@ class checkout:
     # Signal handlers
     #
 
-    def post_save_handler(self, sender, instance, created, **kwargs):
+    def post_save_handler(self, sender, instance, **kwargs):
         """
         Hooks to the post_save signal when a branch is active to queue create and update actions.
         """
         key = self.get_key_for_instance(instance)
         object_type = instance._meta.verbose_name
 
-        if created:
-            # Creating a new object
+        # Creating a new object
+        if kwargs.get('created'):
             logger.debug(f"[{self.branch}] Staging creation of {object_type} {instance} (PK: {instance.pk})")
-            self.queue[key] = (ChangeActionChoices.ACTION_CREATE, instance)
-        elif key in self.queue:
-            # Object has already been created/updated at least once
+            data = serialize_object(instance, resolve_tags=False)
+            self.queue[key] = (ChangeActionChoices.ACTION_CREATE, data)
+            return
+
+        # Ignore pre_* many-to-many actions
+        if 'action' in kwargs and kwargs['action'] not in ('post_add', 'post_remove', 'post_clear'):
+            return
+
+        # Object has already been created/updated in the queue; update its queued representation
+        if key in self.queue:
             logger.debug(f"[{self.branch}] Updating staged value for {object_type} {instance} (PK: {instance.pk})")
-            self.queue[key] = (self.queue[key][0], instance)
-        else:
-            # Modifying an existing object
-            logger.debug(f"[{self.branch}] Staging changes to {object_type} {instance} (PK: {instance.pk})")
-            self.queue[key] = (ChangeActionChoices.ACTION_UPDATE, instance)
+            data = serialize_object(instance, resolve_tags=False)
+            self.queue[key] = (self.queue[key][0], data)
+            return
+
+        # Modifying an existing object for the first time
+        logger.debug(f"[{self.branch}] Staging changes to {object_type} {instance} (PK: {instance.pk})")
+        data = serialize_object(instance, resolve_tags=False)
+        self.queue[key] = (ChangeActionChoices.ACTION_UPDATE, data)
 
     def pre_delete_handler(self, sender, instance, **kwargs):
         """
@@ -134,11 +143,12 @@ class checkout:
         key = self.get_key_for_instance(instance)
         object_type = instance._meta.verbose_name
 
+        # Cancel the creation of a new object
         if key in self.queue and self.queue[key][0] == ChangeActionChoices.ACTION_CREATE:
-            # Cancel the creation of a new object
             logger.debug(f"[{self.branch}] Removing staged creation of {object_type} {instance} (PK: {instance.pk})")
             del self.queue[key]
-        else:
-            # Delete an existing object
-            logger.debug(f"[{self.branch}] Staging deletion of {object_type} {instance} (PK: {instance.pk})")
-            self.queue[key] = (ChangeActionChoices.ACTION_DELETE, instance)
+            return
+
+        # Delete an existing object
+        logger.debug(f"[{self.branch}] Staging deletion of {object_type} {instance} (PK: {instance.pk})")
+        self.queue[key] = (ChangeActionChoices.ACTION_DELETE, None)

@@ -3,6 +3,7 @@ from django.test import TransactionTestCase
 from circuits.models import Provider, Circuit, CircuitType
 from extras.choices import ChangeActionChoices
 from extras.models import Branch, Change, Tag
+from ipam.models import ASN, RIR
 from netbox.staging import checkout
 from utilities.testing import create_tags
 
@@ -11,6 +12,14 @@ class StagingTestCase(TransactionTestCase):
 
     def setUp(self):
         create_tags('Alpha', 'Bravo', 'Charlie')
+
+        rir = RIR.objects.create(name='RIR 1', slug='rir-1')
+        asns = (
+            ASN(asn=65001, rir=rir),
+            ASN(asn=65002, rir=rir),
+            ASN(asn=65003, rir=rir),
+        )
+        ASN.objects.bulk_create(asns)
 
         providers = (
             Provider(name='Provider A', slug='provider-a'),
@@ -36,14 +45,17 @@ class StagingTestCase(TransactionTestCase):
     def test_object_creation(self):
         branch = Branch.objects.create(name='Branch 1')
         tags = Tag.objects.all()
+        asns = ASN.objects.all()
 
         with checkout(branch):
             provider = Provider.objects.create(name='Provider D', slug='provider-d')
+            provider.asns.set(asns)
             circuit = Circuit.objects.create(provider=provider, cid='Circuit D1', type=CircuitType.objects.first())
             circuit.tags.set(tags)
 
             # Sanity-checking
             self.assertEqual(Provider.objects.count(), 4)
+            self.assertListEqual(list(provider.asns.all()), list(asns))
             self.assertEqual(Circuit.objects.count(), 10)
             self.assertListEqual(list(circuit.tags.all()), list(tags))
 
@@ -56,6 +68,8 @@ class StagingTestCase(TransactionTestCase):
         with checkout(branch):
             self.assertEqual(Provider.objects.count(), 4)
             self.assertEqual(Circuit.objects.count(), 10)
+            provider = Provider.objects.get(name='Provider D')
+            self.assertListEqual(list(provider.asns.all()), list(asns))
             circuit = Circuit.objects.get(cid='Circuit D1')
             self.assertListEqual(list(circuit.tags.all()), list(tags))
 
@@ -63,6 +77,8 @@ class StagingTestCase(TransactionTestCase):
         branch.merge()
         self.assertEqual(Provider.objects.count(), 4)
         self.assertEqual(Circuit.objects.count(), 10)
+        provider = Provider.objects.get(name='Provider D')
+        self.assertListEqual(list(provider.asns.all()), list(asns))
         circuit = Circuit.objects.get(cid='Circuit D1')
         self.assertListEqual(list(circuit.tags.all()), list(tags))
         self.assertEqual(Change.objects.count(), 0)
@@ -70,11 +86,13 @@ class StagingTestCase(TransactionTestCase):
     def test_object_modification(self):
         branch = Branch.objects.create(name='Branch 1')
         tags = Tag.objects.all()
+        asns = ASN.objects.all()
 
         with checkout(branch):
             provider = Provider.objects.get(name='Provider A')
             provider.name = 'Provider X'
             provider.save()
+            provider.asns.set(asns)
             circuit = Circuit.objects.get(cid='Circuit A1')
             circuit.cid = 'Circuit X'
             circuit.save()
@@ -83,6 +101,7 @@ class StagingTestCase(TransactionTestCase):
             # Sanity-checking
             self.assertEqual(Provider.objects.count(), 3)
             self.assertEqual(Provider.objects.get(pk=provider.pk).name, 'Provider X')
+            self.assertListEqual(list(provider.asns.all()), list(asns))
             self.assertEqual(Circuit.objects.count(), 9)
             self.assertEqual(Circuit.objects.get(pk=circuit.pk).cid, 'Circuit X')
             self.assertListEqual(list(circuit.tags.all()), list(tags))
@@ -90,6 +109,8 @@ class StagingTestCase(TransactionTestCase):
         # Verify that changes have been rolled back after exiting the context
         self.assertEqual(Provider.objects.count(), 3)
         self.assertEqual(Provider.objects.get(pk=provider.pk).name, 'Provider A')
+        provider = Provider.objects.get(pk=provider.pk)
+        self.assertListEqual(list(provider.asns.all()), [])
         self.assertEqual(Circuit.objects.count(), 9)
         circuit = Circuit.objects.get(pk=circuit.pk)
         self.assertEqual(circuit.cid, 'Circuit A1')
@@ -100,6 +121,8 @@ class StagingTestCase(TransactionTestCase):
         with checkout(branch):
             self.assertEqual(Provider.objects.count(), 3)
             self.assertEqual(Provider.objects.get(pk=provider.pk).name, 'Provider X')
+            provider = Provider.objects.get(pk=provider.pk)
+            self.assertListEqual(list(provider.asns.all()), list(asns))
             self.assertEqual(Circuit.objects.count(), 9)
             circuit = Circuit.objects.get(pk=circuit.pk)
             self.assertEqual(circuit.cid, 'Circuit X')
@@ -109,6 +132,8 @@ class StagingTestCase(TransactionTestCase):
         branch.merge()
         self.assertEqual(Provider.objects.count(), 3)
         self.assertEqual(Provider.objects.get(pk=provider.pk).name, 'Provider X')
+        provider = Provider.objects.get(pk=provider.pk)
+        self.assertListEqual(list(provider.asns.all()), list(asns))
         self.assertEqual(Circuit.objects.count(), 9)
         circuit = Circuit.objects.get(pk=circuit.pk)
         self.assertEqual(circuit.cid, 'Circuit X')
