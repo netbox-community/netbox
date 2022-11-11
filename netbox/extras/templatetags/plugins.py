@@ -76,8 +76,8 @@ def plugin_full_width_page(context, obj):
 
 
 @register.simple_tag(takes_context=True)
-def plugin_list_buttons(context, obj):
+def plugin_list_buttons(context, model):
     """
     Render all list buttons registered by plugins
     """
-    return _get_registered_content(obj, 'list_buttons', context)
+    return _get_registered_content(model, 'list_buttons', context)
