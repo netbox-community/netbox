@@ -65,6 +65,7 @@ __all__ = (
     'SiteFilterSet',
     'SiteGroupFilterSet',
     'VirtualChassisFilterSet',
+    'VirtualDeviceContextFilterSet',
 )
 
 
@@ -482,7 +483,7 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
+            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
         ]
 
     def search(self, queryset, name, value):
@@ -1009,6 +1010,44 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         return queryset.exclude(devicebays__isnull=value)
 
 
+class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device',
+        queryset=Device.objects.all(),
+        label='VDC (ID)',
+    )
+    device = django_filters.ModelMultipleChoiceFilter(
+        field_name='device',
+        queryset=Device.objects.all(),
+        label='Device model',
+    )
+    status = django_filters.MultipleChoiceFilter(
+        choices=VirtualDeviceContextStatusChoices
+    )
+    has_primary_ip = django_filters.BooleanFilter(
+        method='_has_primary_ip',
+        label='Has a primary IP',
+    )
+
+    class Meta:
+        model = VirtualDeviceContext
+        fields = ['id', 'device', 'name', ]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(identifier=value.strip())
+        ).distinct()
+
+    def _has_primary_ip(self, queryset, name, value):
+        params = Q(primary_ip4__isnull=False) | Q(primary_ip6__isnull=False)
+        if value:
+            return queryset.filter(params)
+        return queryset.exclude(params)
+
+
 class ModuleFilterSet(NetBoxModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='module_type__manufacturer',
@@ -1341,6 +1380,23 @@ class InterfaceFilterSet(
         queryset=VRF.objects.all(),
         to_field_name='rd',
         label='VRF (RD)',
+    )
+    vdc_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vdcs',
+        queryset=VirtualDeviceContext.objects.all(),
+        label='Virtual Device Context',
+    )
+    vdc_identifier = django_filters.ModelMultipleChoiceFilter(
+        field_name='vdcs__identifier',
+        queryset=VirtualDeviceContext.objects.all(),
+        to_field_name='identifier',
+        label='Virtual Device Context (Identifier)',
+    )
+    vdc = django_filters.ModelMultipleChoiceFilter(
+        field_name='vdcs__name',
+        queryset=VirtualDeviceContext.objects.all(),
+        to_field_name='name',
+        label='Virtual Device Context',
     )
 
     class Meta:

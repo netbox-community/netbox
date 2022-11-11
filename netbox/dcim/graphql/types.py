@@ -500,3 +500,11 @@ class VirtualChassisType(NetBoxObjectType):
         model = models.VirtualChassis
         fields = '__all__'
         filterset_class = filtersets.VirtualChassisFilterSet
+
+
+class VirtualDeviceContextType(NetBoxObjectType):
+
+    class Meta:
+        model = models.VirtualDeviceContext
+        fields = '__all__'
+        filterset_class = filtersets.VirtualDeviceContextFilterSet

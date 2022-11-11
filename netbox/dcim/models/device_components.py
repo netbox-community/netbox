@@ -531,6 +531,10 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         max_length=100,
         blank=True
     )
+    vdcs = models.ManyToManyField(
+        to='dcim.VirtualDeviceContext',
+        related_name='interfaces'
+    )
     lag = models.ForeignKey(
         to='self',
         on_delete=models.SET_NULL,

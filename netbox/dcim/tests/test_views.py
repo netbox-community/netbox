@@ -3076,3 +3076,48 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         response = self.client.get(reverse('dcim:powerfeed_trace', kwargs={'pk': powerfeed.pk}))
         self.assertHttpStatus(response, 200)
+
+
+class VirtualDeviceContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = VirtualDeviceContext
+
+    @classmethod
+    def setUpTestData(cls):
+        devices = [create_test_device(name='Device 1')]
+
+        vdcs = (
+            VirtualDeviceContext(name='VDC 1', identifier=1, device=devices[0], status='active'),
+            VirtualDeviceContext(name='VDC 2', identifier=2, device=devices[0], status='active'),
+            VirtualDeviceContext(name='VDC 3', identifier=3, device=devices[0], status='active'),
+        )
+        VirtualDeviceContext.objects.bulk_create(vdcs)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'device': devices[0].pk,
+            'status': 'active',
+            'name': 'VDC 4',
+            'identifier': 4,
+            'primary_ip4': None,
+            'primary_ip6': None,
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "device,status,name,identifier",
+            "Device 1,active,VDC 5,5",
+            "Device 1,active,VDC 6,6",
+            "Device 1,active,VDC 7,7",
+        )
+
+        cls.csv_update_data = (
+            "id,status",
+            f"{vdcs[0].pk},{VirtualDeviceContextStatusChoices.STATUS_PLANNED}",
+            f"{vdcs[1].pk},{VirtualDeviceContextStatusChoices.STATUS_PLANNED}",
+            f"{vdcs[2].pk},{VirtualDeviceContextStatusChoices.STATUS_PLANNED}",
+        )
+
+        cls.bulk_edit_data = {
+            'status': VirtualDeviceContextStatusChoices.STATUS_OFFLINE,
+        }

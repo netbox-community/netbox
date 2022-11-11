@@ -34,6 +34,7 @@ __all__ = (
     'ModuleType',
     'Platform',
     'VirtualChassis',
+    'VirtualDeviceContext',
 )
 
 
@@ -119,7 +120,7 @@ class DeviceType(PrimaryModel, WeightMixin):
     )
 
     clone_fields = (
-        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
+        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
     )
 
     class Meta:
@@ -1062,3 +1063,81 @@ class VirtualChassis(PrimaryModel):
             )
 
         return super().delete(*args, **kwargs)
+
+
+class VirtualDeviceContext(PrimaryModel):
+    device = models.ForeignKey(
+        to='Device',
+        on_delete=models.PROTECT,
+        related_name='vdcs',
+        blank=True,
+        null=True
+    )
+    name = models.CharField(
+        max_length=64
+    )
+    status = models.CharField(
+        max_length=50,
+        choices=VirtualDeviceContextStatusChoices,
+    )
+    identifier = models.PositiveSmallIntegerField(
+        help_text='Unique identifier provided by the platform being virtualized (Example: Nexus VDC Identifier)',
+        blank=True,
+        null=True,
+    )
+    primary_ip4 = models.OneToOneField(
+        to='ipam.IPAddress',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name='Primary IPv4'
+    )
+    primary_ip6 = models.OneToOneField(
+        to='ipam.IPAddress',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name='Primary IPv6'
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='vdcs',
+        blank=True,
+        null=True
+    )
+    comments = models.TextField(
+        blank=True
+    )
+
+    class Meta:
+        ordering = ['name']
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'identifier',),
+                name='%(app_label)s_%(class)s_device_identifiers'
+            ),
+            models.UniqueConstraint(
+                fields=('device', 'name',),
+                name='%(app_label)s_%(class)s_name'
+            ),
+        )
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:virtualdevicecontext', kwargs={'pk': self.pk})
+
+    @property
+    def primary_ip(self):
+        if ConfigItem('PREFER_IPV4')() and self.primary_ip4:
+            return self.primary_ip4
+        elif self.primary_ip6:
+            return self.primary_ip6
+        elif self.primary_ip4:
+            return self.primary_ip4
+        else:
+            return None

@@ -50,6 +50,7 @@ __all__ = (
     'SiteFilterForm',
     'SiteGroupFilterForm',
     'VirtualChassisFilterForm',
+    'VirtualDeviceContextFilterForm'
 )
 
 
@@ -728,6 +729,37 @@ class DeviceFilterForm(
     tag = TagFilterField(model)
 
 
+class VirtualDeviceContextFilterForm(
+    TenancyFilterForm,
+    NetBoxModelFilterSetForm
+):
+    model = VirtualDeviceContext
+    fieldsets = (
+        (None, ('q', 'filter', 'tag')),
+        ('Hardware', ('device', 'status', )),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Miscellaneous', ('has_primary_ip',))
+    )
+    device = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Device'),
+        fetch_trigger='open'
+    )
+    status = MultipleChoiceField(
+        required=False,
+        choices=add_blank_choice(VirtualDeviceContextStatusChoices)
+    )
+    has_primary_ip = forms.NullBooleanField(
+        required=False,
+        label='Has a primary IP',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    tag = TagFilterField(model)
+
+
 class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Module
     fieldsets = (
@@ -1075,8 +1107,17 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         ('Addressing', ('vrf_id', 'mac_address', 'wwn')),
         ('PoE', ('poe_mode', 'poe_type')),
         ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power')),
-        ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
+        ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id',
+                    'device_id', 'vdc_id')),
         ('Connection', ('cabled', 'connected', 'occupied')),
+    )
+    vdc_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualDeviceContext.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device_id',
+        },
+        label=_('Virtual Device Context')
     )
     kind = MultipleChoiceField(
         choices=InterfaceKindChoices,

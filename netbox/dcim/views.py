@@ -2442,6 +2442,14 @@ class InterfaceView(generic.ObjectView):
     queryset = Interface.objects.all()
 
     def get_extra_context(self, request, instance):
+        # Get assigned VDC's
+        vdc_table = tables.VirtualDeviceContextTable(
+            data=instance.vdcs.restrict(request.user, 'view').prefetch_related('device'),
+            exclude=('tenant', 'tenant_group', 'primary_ip', 'primary_ip4', 'primary_ip6', 'comments', 'tags',
+                     'created', 'last_updated', 'actions', ),
+            orderable=False
+        )
+
         # Get assigned IP addresses
         ipaddress_table = AssignedIPAddressesTable(
             data=instance.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
@@ -2479,6 +2487,7 @@ class InterfaceView(generic.ObjectView):
         )
 
         return {
+            'vdc_table': vdc_table,
             'ipaddress_table': ipaddress_table,
             'bridge_interfaces_table': bridge_interfaces_tables,
             'child_interfaces_table': child_interfaces_tables,
@@ -3562,3 +3571,55 @@ class PowerFeedBulkDeleteView(generic.BulkDeleteView):
 
 # Trace view
 register_model_view(PowerFeed, 'trace', kwargs={'model': PowerFeed})(PathTraceView)
+
+
+# VDC
+class VirtualDeviceContextListView(generic.ObjectListView):
+    queryset = VirtualDeviceContext.objects.all()
+    filterset = filtersets.VirtualDeviceContextFilterSet
+    filterset_form = forms.VirtualDeviceContextFilterForm
+    table = tables.VirtualDeviceContextTable
+
+
+@register_model_view(VirtualDeviceContext)
+class VirtualDeviceContextView(generic.ObjectView):
+    queryset = VirtualDeviceContext.objects.all()
+
+    def get_extra_context(self, request, instance):
+        interfaces_table = tables.InterfaceTable(instance.interfaces, user=request.user)
+        interfaces_table.configure(request)
+
+        return {
+            'interfaces_table': interfaces_table,
+            'interface_count': instance.interfaces.count(),
+        }
+
+
+@register_model_view(VirtualDeviceContext, 'edit')
+class VirtualDeviceContextEditView(generic.ObjectEditView):
+    queryset = VirtualDeviceContext.objects.all()
+    form = forms.VirtualDeviceContextForm
+
+
+@register_model_view(VirtualDeviceContext, 'delete')
+class VirtualDeviceContextDeleteView(generic.ObjectDeleteView):
+    queryset = VirtualDeviceContext.objects.all()
+
+
+class VirtualDeviceContextBulkImportView(generic.BulkImportView):
+    queryset = VirtualDeviceContext.objects.all()
+    model_form = forms.VirtualDeviceContextCSVForm
+    table = tables.VirtualDeviceContextTable
+
+
+class VirtualDeviceContextBulkEditView(generic.BulkEditView):
+    queryset = VirtualDeviceContext.objects.all()
+    filterset = filtersets.VirtualDeviceContextFilterSet
+    table = tables.VirtualDeviceContextTable
+    form = forms.VirtualDeviceContextBulkEditForm
+
+
+class VirtualDeviceContextBulkDeleteView(generic.BulkDeleteView):
+    queryset = VirtualDeviceContext.objects.all()
+    filterset = filtersets.VirtualDeviceContextFilterSet
+    table = tables.VirtualDeviceContextTable

@@ -2681,6 +2681,13 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         VRF.objects.bulk_create(vrfs)
 
+        # Virtual Device Context Creation
+        vdcs = (
+            VirtualDeviceContext(device=devices[3], name='VDC 1', identifier=1, status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE),
+            VirtualDeviceContext(device=devices[3], name='VDC 2', identifier=2, status=VirtualDeviceContextStatusChoices.STATUS_PLANNED),
+        )
+        VirtualDeviceContext.objects.bulk_create(vdcs)
+
         # VirtualChassis assignment for filtering
         virtual_chassis = VirtualChassis.objects.create(master=devices[0])
         Device.objects.filter(pk=devices[0].pk).update(virtual_chassis=virtual_chassis, vc_position=1, vc_priority=1)
@@ -2792,6 +2799,12 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
             ),
         )
         Interface.objects.bulk_create(interfaces)
+
+        interfaces[3].vdcs.set([vdcs[0], vdcs[1]])
+        interfaces[4].vdcs.set([vdcs[0], vdcs[1]])
+        interfaces[5].vdcs.set([vdcs[0]])
+        interfaces[6].vdcs.set([vdcs[0]])
+        interfaces[7].vdcs.set([vdcs[1]])
 
         # Cables
         Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[3]]).save()
@@ -2996,6 +3009,21 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vrf': [vrfs[0].rd, vrfs[1].rd]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_vdc(self):
+        params = {'vdc': ['VDC 1']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+        devices = Device.objects.last()
+        vdc = VirtualDeviceContext.objects.filter(device=devices, name='VDC 2')
+        params = {'vdc_id': vdc.values_list('pk', flat=True)}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_vdc_identifier(self):
+        devices = Device.objects.last()
+        vdc = VirtualDeviceContext.objects.filter(device=devices, name='VDC 2')
+        params = {'vdc_identifier': vdc.values_list('identifier', flat=True)}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -4254,4 +4282,83 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-# TODO: Connection filters
+class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = VirtualDeviceContext.objects.all()
+    filterset = VirtualDeviceContextFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+        )
+        Device.objects.bulk_create(devices)
+
+        vdcs = (
+            VirtualDeviceContext(device=devices[0], name='VDC 1', identifier=1, status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE),
+            VirtualDeviceContext(device=devices[0], name='VDC 2', identifier=2, status=VirtualDeviceContextStatusChoices.STATUS_PLANNED),
+            VirtualDeviceContext(device=devices[1], name='VDC 1', status=VirtualDeviceContextStatusChoices.STATUS_OFFLINE),
+            VirtualDeviceContext(device=devices[1], name='VDC 2', status=VirtualDeviceContextStatusChoices.STATUS_PLANNED),
+            VirtualDeviceContext(device=devices[2], name='VDC 1', status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE),
+            VirtualDeviceContext(device=devices[2], name='VDC 2', status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE),
+        )
+        VirtualDeviceContext.objects.bulk_create(vdcs)
+
+        interfaces = (
+            Interface(device=devices[0], name='Interface 1', type='virtual'),
+            Interface(device=devices[0], name='Interface 2', type='virtual'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        interfaces[0].vdcs.set([vdcs[0]])
+        interfaces[1].vdcs.set([vdcs[1]])
+
+        addresses = (
+            IPAddress(assigned_object=interfaces[0], address='10.1.1.1/24'),
+            IPAddress(assigned_object=interfaces[1], address='10.1.1.2/24'),
+        )
+        IPAddress.objects.bulk_create(addresses)
+
+        vdcs[0].primary_ip4 = addresses[0]
+        vdcs[0].save()
+        vdcs[1].primary_ip4 = addresses[1]
+        vdcs[1].save()
+
+    def test_device(self):
+        params = {'device': ['Device 1', 'Device 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_status(self):
+        params = {'status': ['active']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_device_id(self):
+        devices = Device.objects.filter(name__in=['Device 1', 'Device 2'])
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_has_primary_ip(self):
+        params = {'has_primary_ip': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'has_primary_ip': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)

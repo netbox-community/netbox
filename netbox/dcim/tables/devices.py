@@ -36,6 +36,7 @@ __all__ = (
     'PowerPortTable',
     'RearPortTable',
     'VirtualChassisTable',
+    'VirtualDeviceContextTable'
 )
 
 
@@ -884,3 +885,43 @@ class VirtualChassisTable(NetBoxTable):
             'last_updated',
         )
         default_columns = ('pk', 'name', 'domain', 'master', 'member_count')
+
+
+class VirtualDeviceContextTable(TenancyColumnsMixin, NetBoxTable):
+    name = tables.Column(
+        linkify=True
+    )
+    device = tables.TemplateColumn(
+        order_by=('_name',),
+        template_code=DEVICE_LINK
+    )
+    status = columns.ChoiceFieldColumn()
+    primary_ip = tables.Column(
+        linkify=True,
+        order_by=('primary_ip4', 'primary_ip6'),
+        verbose_name='IP Address'
+    )
+    primary_ip4 = tables.Column(
+        linkify=True,
+        verbose_name='IPv4 Address'
+    )
+    primary_ip6 = tables.Column(
+        linkify=True,
+        verbose_name='IPv6 Address'
+    )
+
+    comments = columns.MarkdownColumn()
+
+    tags = columns.TagColumn(
+        url_name='dcim:vdc_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = models.VirtualDeviceContext
+        fields = (
+            'pk', 'id', 'name', 'status', 'identifier', 'tenant', 'tenant_group',
+            'primary_ip', 'primary_ip4', 'primary_ip6', 'comments', 'tags', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'identifier', 'status', 'tenant', 'primary_ip',
+        )

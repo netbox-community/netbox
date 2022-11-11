@@ -45,6 +45,7 @@ __all__ = [
     'NestedSiteSerializer',
     'NestedSiteGroupSerializer',
     'NestedVirtualChassisSerializer',
+    'NestedVirtualDeviceContextSerializer',
 ]
 
 
@@ -466,3 +467,12 @@ class NestedPowerFeedSerializer(WritableNestedSerializer):
     class Meta:
         model = models.PowerFeed
         fields = ['id', 'url', 'display', 'name', 'cable', '_occupied']
+
+
+class NestedVirtualDeviceContextSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualdevicecontext-detail')
+    device = NestedDeviceSerializer()
+
+    class Meta:
+        model = models.VirtualDeviceContext
+        fields = ['id', 'url', 'display', 'name', 'identifier', 'device']

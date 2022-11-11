@@ -43,6 +43,7 @@ __all__ = (
     'SiteCSVForm',
     'SiteGroupCSVForm',
     'VirtualChassisCSVForm',
+    'VirtualDeviceContextCSVForm'
 )
 
 
@@ -1084,3 +1085,25 @@ class PowerFeedCSVForm(NetBoxModelCSVForm):
                 f"location__{self.fields['location'].to_field_name}": data.get('location'),
             }
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
+
+
+class VirtualDeviceContextCSVForm(NetBoxModelCSVForm):
+
+    device = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Assigned role'
+    )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
+
+    class Meta:
+        fields = [
+            'name', 'device', 'status', 'tenant', 'identifier', 'comments',
+        ]
+        model = VirtualDeviceContext
+        help_texts = {}

@@ -1399,3 +1399,20 @@ class PowerFeedPhaseChoices(ChoiceSet):
         (PHASE_SINGLE, 'Single phase'),
         (PHASE_3PHASE, 'Three-phase'),
     )
+
+
+#
+# VDC
+#
+class VirtualDeviceContextStatusChoices(ChoiceSet):
+    key = 'VirtualDeviceContext.status'
+
+    STATUS_PLANNED = 'planned'
+    STATUS_ACTIVE = 'active'
+    STATUS_OFFLINE = 'offline'
+
+    CHOICES = [
+        (STATUS_PLANNED, 'Planned', 'cyan'),
+        (STATUS_ACTIVE, 'Active', 'green'),
+        (STATUS_OFFLINE, 'Offline', 'red'),
+    ]

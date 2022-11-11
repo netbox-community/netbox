@@ -183,6 +183,14 @@ urlpatterns = [
     path('devices/delete/', views.DeviceBulkDeleteView.as_view(), name='device_bulk_delete'),
     path('devices/<int:pk>/', include(get_model_urls('dcim', 'device'))),
 
+    # Virtual Device Context
+    path('vdcs/', views.VirtualDeviceContextListView.as_view(), name='virtualdevicecontext_list'),
+    path('vdcs/add/', views.VirtualDeviceContextEditView.as_view(), name='virtualdevicecontext_add'),
+    path('vdcs/import/', views.VirtualDeviceContextBulkImportView.as_view(), name='virtualdevicecontext_import'),
+    path('vdcs/edit/', views.VirtualDeviceContextBulkEditView.as_view(), name='virtualdevicecontext_bulk_edit'),
+    path('vdcs/delete/', views.VirtualDeviceContextBulkDeleteView.as_view(), name='virtualdevicecontext_bulk_delete'),
+    path('vdcs/<int:pk>/', include(get_model_urls('dcim', 'virtualdevicecontext'))),
+
     # Modules
     path('modules/', views.ModuleListView.as_view(), name='module_list'),
     path('modules/add/', views.ModuleEditView.as_view(), name='module_add'),

@@ -62,6 +62,7 @@ __all__ = (
     'SiteGroupForm',
     'VCMemberSelectForm',
     'VirtualChassisForm',
+    'VirtualDeviceContextForm'
 )
 
 INTERFACE_MODE_HELP_TEXT = """
@@ -1378,6 +1379,14 @@ class PowerOutletForm(ModularDeviceComponentForm):
 
 
 class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
+    vdcs = DynamicModelMultipleChoiceField(
+        queryset=VirtualDeviceContext.objects.all(),
+        required=False,
+        label='Virtual Device Contexts',
+        query_params={
+            'device_id': '$device',
+        }
+    )
     parent = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -1452,7 +1461,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     )
 
     fieldsets = (
-        ('Interface', ('device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'description', 'tags')),
+        ('Interface', ('device', 'module', 'vdcs', 'name', 'label', 'type', 'speed', 'duplex', 'description', 'tags')),
         ('Addressing', ('vrf', 'mac_address', 'wwn')),
         ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
         ('Related Interfaces', ('parent', 'bridge', 'lag')),
@@ -1466,7 +1475,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge', 'lag',
+            'device', 'module', 'vdcs', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge', 'lag',
             'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans',
             'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
@@ -1636,3 +1645,74 @@ class InventoryItemRoleForm(NetBoxModelForm):
         fields = [
             'name', 'slug', 'color', 'description', 'tags',
         ]
+
+
+class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        query_params={
+            'region_id': '$region',
+            'group_id': '$site_group',
+        }
+    )
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site'
+        },
+        initial_params={
+            'racks': '$rack'
+        }
+    )
+    rack = DynamicModelChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site',
+            'location_id': '$location',
+        }
+    )
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        query_params={
+            'site_id': '$site',
+            'location_id': '$location',
+            'rack_id': '$rack',
+        }
+    )
+
+    fieldsets = (
+        ('Device', ('region', 'site_group', 'site', 'location', 'rack', 'device')),
+        ('Virtual Device Context', ('name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tenant_group',
+                                    'tenant')),
+        (None, ('tags', ))
+    )
+
+    class Meta:
+        model = VirtualDeviceContext
+        fields = [
+            'region', 'site_group', 'site', 'location', 'rack',
+            'device', 'name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant',
+            'comments', 'tags'
+        ]
+        help_texts = {}
+        widgets = {
+            'primary_ip4': StaticSelect(),
+            'primary_ip6': StaticSelect(),
+        }

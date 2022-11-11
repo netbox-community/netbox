@@ -62,6 +62,7 @@ DEVICES_MENU = Menu(
                 get_model_item('dcim', 'devicerole', 'Device Roles'),
                 get_model_item('dcim', 'platform', 'Platforms'),
                 get_model_item('dcim', 'virtualchassis', 'Virtual Chassis'),
+                get_model_item('dcim', 'virtualdevicecontext', 'Virtual Device Contexts'),
             ),
         ),
         MenuGroup(

@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 
 from circuits.models import Circuit
-from dcim.models import Cable, Device, Location, Rack, RackReservation, Site
+from dcim.models import Cable, Device, Location, Rack, RackReservation, Site, VirtualDeviceContext
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF, ASN
 from netbox.views import generic
 from utilities.utils import count_related
@@ -109,6 +109,7 @@ class TenantView(generic.ObjectView):
             'rackreservation_count': RackReservation.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'location_count': Location.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'vdc_count': VirtualDeviceContext.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'aggregate_count': Aggregate.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),

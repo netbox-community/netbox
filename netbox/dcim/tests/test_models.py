@@ -588,3 +588,50 @@ class CableTestCase(TestCase):
         cable = Cable(a_terminations=[self.interface2], b_terminations=[wireless_interface])
         with self.assertRaises(ValidationError):
             cable.clean()
+
+
+class VirtualDeviceContextTestCase(TestCase):
+
+    def setUp(self):
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='TestDevice1', site=site
+        )
+
+    def test_vdc_and_interface_creation(self):
+
+        vdc = VirtualDeviceContext(device=self.device, name="VDC 1", identifier=1, status='active')
+        vdc.full_clean()
+        vdc.save()
+
+        interface = Interface(device=self.device, name='Eth1/1', type='10gbase-t')
+        interface.full_clean()
+        interface.save()
+
+        interface.vdcs.set([vdc])
+
+    def test_vdc_duplicate_name(self):
+        vdc1 = VirtualDeviceContext(device=self.device, name="VDC 1", identifier=1, status='active')
+        vdc1.full_clean()
+        vdc1.save()
+
+        vdc2 = VirtualDeviceContext(device=self.device, name="VDC 1", identifier=2, status='active')
+        with self.assertRaises(ValidationError):
+            vdc2.full_clean()
+
+    def test_vdc_duplicate_identifier(self):
+        vdc1 = VirtualDeviceContext(device=self.device, name="VDC 1", identifier=1, status='active')
+        vdc1.full_clean()
+        vdc1.save()
+
+        vdc2 = VirtualDeviceContext(device=self.device, name="VDC 2", identifier=1, status='active')
+        with self.assertRaises(ValidationError):
+            vdc2.full_clean()
