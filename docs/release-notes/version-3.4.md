@@ -17,6 +17,10 @@
 
 NetBox's global search functionality has been completely overhauled and replaced by a new cache-based lookup.
 
+#### Virtual Device Contexts ([#7854](https://github.com/netbox-community/netbox/issues/7854))
+
+A new model representing virtual device contexts (VDCs) has been added. VDCs are logical partitions of resources within a device that can be managed independently. A VDC is created within a device and may have device interfaces assigned to it. An interface can be allocated to any number of VDCs on its device.
+
 ### JSON/YAML Bulk Imports ([#4347](https://github.com/netbox-community/netbox/issues/4347))
 
 NetBox's bulk import feature, which was previously limited to CSV-formatted data for most objects, has been extended to support the import of objects from JSON and/or YAML data as well.
@@ -75,6 +79,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 
 ### REST API Changes
 
+* Added the `/api/dcim/virtual-device-contexts/` endpoint
 * circuits.provider
     * Removed the `asn`, `noc_contact`, `admin_contact`, and `portal_url` fields
     * Added a `description` field
@@ -87,6 +92,8 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
     * Added optional `weight` and `weight_unit` fields
 * dcim.Module
     * Added a `description` field
+* dcim.Interface
+    * Added the `vdcs` field
 * dcim.ModuleType
     * Added a `description` field
     * Added optional `weight` and `weight_unit` fields

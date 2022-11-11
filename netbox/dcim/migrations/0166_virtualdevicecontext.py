@@ -45,10 +45,10 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='virtualdevicecontext',
-            constraint=models.UniqueConstraint(fields=('device', 'identifier'), name='dcim_virtualdevicecontext_device_identifiers'),
+            constraint=models.UniqueConstraint(fields=('device', 'identifier'), name='dcim_virtualdevicecontext_device_identifier'),
         ),
         migrations.AddConstraint(
             model_name='virtualdevicecontext',
-            constraint=models.UniqueConstraint(fields=('device', 'name'), name='dcim_virtualdevicecontext_name'),
+            constraint=models.UniqueConstraint(fields=('device', 'name'), name='dcim_virtualdevicecontext_device_name'),
         ),
     ]

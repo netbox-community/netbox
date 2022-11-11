@@ -1117,11 +1117,11 @@ class VirtualDeviceContext(PrimaryModel):
         constraints = (
             models.UniqueConstraint(
                 fields=('device', 'identifier',),
-                name='%(app_label)s_%(class)s_device_identifiers'
+                name='%(app_label)s_%(class)s_device_identifier'
             ),
             models.UniqueConstraint(
                 fields=('device', 'name',),
-                name='%(app_label)s_%(class)s_name'
+                name='%(app_label)s_%(class)s_device_name'
             ),
         )
 
