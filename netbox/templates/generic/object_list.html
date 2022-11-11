@@ -24,6 +24,8 @@ Context:
 {% block controls %}
   <div class="controls">
     <div class="control-group">
+      {% plugin_list_buttons object %}
+
       {% block extra_controls %}{% endblock %}
       {% if 'add' in actions %}
           {% add_button model %}
