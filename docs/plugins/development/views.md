@@ -187,11 +187,16 @@ Plugins can inject custom content into certain areas of the detail views of appl
 * `full_width_page()` - Inject content across the entire bottom of the page
 * `buttons()` - Add buttons to the top of the page
 
+Plugins can also inject custom content into certain areas of the list views of applicable models using the same subclass of `PluginTemplateExtension`. One method is available:
+
+* `list_buttons()` - Add buttons to the top of the list view page
+
 Additionally, a `render()` method is available for convenience. This method accepts the name of a template to render, and any additional context data you want to pass. Its use is optional, however.
 
 When a PluginTemplateExtension is instantiated, context data is assigned to `self.context`. Available data include:
 
-* `object` - The object being viewed
+* `object` - The object being viewed (for detail views only)
+* `model` - The model of the list view (for list views only)
 * `request` - The current request
 * `settings` - Global NetBox settings
 * `config` - Plugin-specific configuration parameters

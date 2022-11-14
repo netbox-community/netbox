@@ -16,5 +16,8 @@ class SiteContent(PluginTemplateExtension):
     def buttons(self):
         return "SITE CONTENT - BUTTONS"
 
+    def list_buttons(self):
+        return "SITE CONTENT - LIST BUTTONS"
+
 
 template_extensions = [SiteContent]

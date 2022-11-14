@@ -1,6 +1,7 @@
 {% extends 'base/layout.html' %}
 {% load buttons %}
 {% load helpers %}
+{% load plugins %}
 {% load render_table from django_tables2 %}
 {% load static %}
 
@@ -24,6 +25,8 @@ Context:
 {% block controls %}
   <div class="controls">
     <div class="control-group">
+      {% plugin_list_buttons model %}
+
       {% block extra_controls %}{% endblock %}
       {% if 'add' in actions %}
           {% add_button model %}
