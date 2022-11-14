@@ -1025,7 +1025,7 @@ class Module(PrimaryModel, ConfigContextModel):
             update_fields = ['module']
             component_model.objects.bulk_update(update_instances, update_fields)
             # Emit the post_save signal for each updated object
-            for component in create_instances:
+            for component in update_instances:
                 post_save.send(
                     sender=component_model,
                     instance=component,
