@@ -10,6 +10,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, ProtectedError
 from django.db.models.functions import Lower
+from django.db.models.signals import post_save
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -769,6 +770,32 @@ class Device(PrimaryModel, ConfigContextModel):
                 'vc_position': "A device assigned to a virtual chassis must have its position defined."
             })
 
+    def _instantiate_components(self, queryset, bulk_create=True):
+        """
+        Instantiate components for the device from the specified component templates.
+
+        Args:
+            bulk_create: If True, bulk_create() will be called to create all components in a single query
+                         (default). Otherwise, save() will be called on each instance individually.
+        """
+        components = [obj.instantiate(device=self) for obj in queryset]
+        if components and bulk_create:
+            model = components[0]._meta.model
+            model.objects.bulk_create(components)
+            # Manually send the post_save signal for each of the newly created components
+            for component in components:
+                post_save.send(
+                    sender=model,
+                    instance=component,
+                    created=True,
+                    raw=False,
+                    using='default',
+                    update_fields=None
+                )
+        elif components:
+            for component in components:
+                component.save()
+
     def save(self, *args, **kwargs):
         is_new = not bool(self.pk)
 
@@ -778,38 +805,19 @@ class Device(PrimaryModel, ConfigContextModel):
 
         super().save(*args, **kwargs)
 
-        # If this is a new Device, instantiate all of the related components per the DeviceType definition
+        # If this is a new Device, instantiate all the related components per the DeviceType definition
         if is_new:
-            ConsolePort.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.consoleporttemplates.all()]
-            )
-            ConsoleServerPort.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.consoleserverporttemplates.all()]
-            )
-            PowerPort.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.powerporttemplates.all()]
-            )
-            PowerOutlet.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.poweroutlettemplates.all()]
-            )
-            Interface.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.interfacetemplates.all()]
-            )
-            RearPort.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.rearporttemplates.all()]
-            )
-            FrontPort.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.frontporttemplates.all()]
-            )
-            ModuleBay.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.modulebaytemplates.all()]
-            )
-            DeviceBay.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.devicebaytemplates.all()]
-            )
-            # Avoid bulk_create to handle MPTT
-            for x in self.device_type.inventoryitemtemplates.all():
-                x.instantiate(device=self).save()
+            self._instantiate_components(self.device_type.consoleporttemplates.all())
+            self._instantiate_components(self.device_type.consoleserverporttemplates.all())
+            self._instantiate_components(self.device_type.powerporttemplates.all())
+            self._instantiate_components(self.device_type.poweroutlettemplates.all())
+            self._instantiate_components(self.device_type.interfacetemplates.all())
+            self._instantiate_components(self.device_type.rearporttemplates.all())
+            self._instantiate_components(self.device_type.frontporttemplates.all())
+            self._instantiate_components(self.device_type.modulebaytemplates.all())
+            self._instantiate_components(self.device_type.devicebaytemplates.all())
+            # Disable bulk_create to accommodate MPTT
+            self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
 
         # Update Site and Rack assignment for any child Devices
         devices = Device.objects.filter(parent_bay__device=self)
@@ -980,7 +988,8 @@ class Module(PrimaryModel, ConfigContextModel):
 
             # Prefetch installed components
             installed_components = {
-                component.name: component for component in getattr(self.device, component_attribute).filter(module__isnull=True)
+                component.name: component
+                for component in getattr(self.device, component_attribute).filter(module__isnull=True)
             }
 
             # Get the template for the module type.
@@ -1002,7 +1011,29 @@ class Module(PrimaryModel, ConfigContextModel):
                     create_instances.append(template_instance)
 
             component_model.objects.bulk_create(create_instances)
-            component_model.objects.bulk_update(update_instances, ['module'])
+            # Emit the post_save signal for each newly created object
+            for component in create_instances:
+                post_save.send(
+                    sender=component_model,
+                    instance=component,
+                    created=True,
+                    raw=False,
+                    using='default',
+                    update_fields=None
+                )
+
+            update_fields = ['module']
+            component_model.objects.bulk_update(update_instances, update_fields)
+            # Emit the post_save signal for each updated object
+            for component in update_instances:
+                post_save.send(
+                    sender=component_model,
+                    instance=component,
+                    created=False,
+                    raw=False,
+                    using='default',
+                    update_fields=update_fields
+                )
 
 
 #
