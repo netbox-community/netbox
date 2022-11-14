@@ -9,6 +9,7 @@
 * [#10837](https://github.com/netbox-community/netbox/issues/10837) - Correct cookie paths when `BASE_PATH` is set
 * [#10874](https://github.com/netbox-community/netbox/issues/10874) - Remove erroneous link for contact assignment count
 * [#10881](https://github.com/netbox-community/netbox/issues/10881) - Fix dark mode coloring for data on device status page
+* [#10910](https://github.com/netbox-community/netbox/issues/10910) - Fix cable creation links on power port view
 
 ---
 
