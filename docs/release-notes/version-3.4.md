@@ -15,11 +15,15 @@
 
 #### New Global Search ([#10560](https://github.com/netbox-community/netbox/issues/10560))
 
-NetBox's global search functionality has been completely overhauled and replaced by a new cache-based lookup.
+NetBox's global search functionality has been completely overhauled and replaced by a new cache-based lookup. This new implementation provides a much speedier, more intelligent search capability. Matches are returned in order of precedence regardless of object type, and matched field values are highlighted in the results. Additionally, custom field values are now included in global search results (when enabled). Plugins can also register their own models with the new global search engine.
 
 #### Virtual Device Contexts ([#7854](https://github.com/netbox-community/netbox/issues/7854))
 
 A new model representing virtual device contexts (VDCs) has been added. VDCs are logical partitions of resources within a device that can be managed independently. A VDC is created within a device and may have device interfaces assigned to it. An interface can be allocated to any number of VDCs on its device.
+
+#### Saved Filters ([#9623](https://github.com/netbox-community/netbox/issues/9623))
+
+Object lists can be filtered by a variety of different fields and characteristics. Applied filters can now be saved for reuse as a convenience. Saved filters can be kept private, or shared among NetBox users.
 
 ### JSON/YAML Bulk Imports ([#4347](https://github.com/netbox-community/netbox/issues/4347))
 
@@ -29,9 +33,9 @@ NetBox's bulk import feature, which was previously limited to CSV-formatted data
 
 NetBox's CSV-based bulk import functionality has been extended to support also modifying existing objects. When an `id` column is present in the import form, it will be used to infer the object to be modified, rather than a new object being created. All fields (columns) are optional when modifying existing objects.
 
-#### Top-Level Plugin Navigation Menus ([#9071](https://github.com/netbox-community/netbox/issues/9071))
+#### Scheduled Reports & Scripts ([#8366](https://github.com/netbox-community/netbox/issues/8366))
 
-A new `PluginMenu` class has been introduced, which enables a plugin to inject a top-level menu in NetBox's navigation menu. This menu can have one or more groups of menu items, just like core items. Backward compatibility with the existing `menu_items` has been maintained.
+Reports and custom scripts can now be scheduled for execution at a desired time.
 
 #### API for Staged Changes ([#10851](https://github.com/netbox-community/netbox/issues/10851))
 
@@ -42,6 +46,7 @@ This release introduces a new programmatic API that enables plugins and custom s
 
 ### Enhancements
 
+* [#6003](https://github.com/netbox-community/netbox/issues/6003) - Enable the inclusion of custom field values in global search
 * [#7376](https://github.com/netbox-community/netbox/issues/7376) - Enable the assignment of tags during CSV import
 * [#8245](https://github.com/netbox-community/netbox/issues/8245) - Enable GraphQL filtering of related objects
 * [#8274](https://github.com/netbox-community/netbox/issues/8274) - Enable associating a custom link with multiple object types
@@ -55,6 +60,7 @@ This release introduces a new programmatic API that enables plugins and custom s
 * [#9892](https://github.com/netbox-community/netbox/issues/9892) - Add optional `name` field for FHRP groups
 * [#10052](https://github.com/netbox-community/netbox/issues/10052) - The `cf` attribute now returns deserialized custom field data
 * [#10348](https://github.com/netbox-community/netbox/issues/10348) - Add decimal custom field type
+* [#10545](https://github.com/netbox-community/netbox/issues/10545) - Standardize the use of `description` and `comments` fields on all primary models
 * [#10556](https://github.com/netbox-community/netbox/issues/10556) - Include a `display` field in all GraphQL object types
 * [#10595](https://github.com/netbox-community/netbox/issues/10595) - Add GraphQL relationships for additional generic foreign key fields
 * [#10698](https://github.com/netbox-community/netbox/issues/10698) - Omit app label from content type in table columns
@@ -66,9 +72,9 @@ This release introduces a new programmatic API that enables plugins and custom s
 
 * [#4751](https://github.com/netbox-community/netbox/issues/4751) - Add `plugin_list_buttons` template tag to embed buttons on object lists
 * [#8927](https://github.com/netbox-community/netbox/issues/8927) - Enable inclusion of plugin models in global search via `SearchIndex`
-* [#9071](https://github.com/netbox-community/netbox/issues/9071) - Introduce `PluginMenu` for top-level plugin navigation menus
+* [#9071](https://github.com/netbox-community/netbox/issues/9071) - Enable plugins to register top-level navigation menus
 * [#9072](https://github.com/netbox-community/netbox/issues/9072) - Enable registration of tabbed plugin views for core NetBox models
-* [#9880](https://github.com/netbox-community/netbox/issues/9880) - Introduce `django_apps` plugin configuration parameter
+* [#9880](https://github.com/netbox-community/netbox/issues/9880) - Enable plugins to install and register other Django apps
 * [#9887](https://github.com/netbox-community/netbox/issues/9887) - Inspect `docs_url` property to determine link to model documentation
 * [#10314](https://github.com/netbox-community/netbox/issues/10314) - Move `clone()` method from NetBoxModel to CloningMixin
 * [#10543](https://github.com/netbox-community/netbox/issues/10543) - Introduce `get_plugin_config()` utility function
@@ -117,6 +123,8 @@ This release introduces a new programmatic API that enables plugins and custom s
     * Added a `comments` field
 * dcim.VirtualChassis
     * Added `description` and `comments` fields
+* extras.CustomField
+    * Added the `search_weight` field
 * extras.CustomLink
     * Renamed `content_type` field to `content_types`
 * extras.ExportTemplate
