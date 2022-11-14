@@ -5,7 +5,7 @@ from django.db import transaction
 from django.db.models.signals import m2m_changed, pre_delete, post_save
 
 from extras.choices import ChangeActionChoices
-from extras.models import Change
+from extras.models import StagedChange
 from utilities.utils import serialize_object
 
 logger = logging.getLogger('netbox.staging')
@@ -36,10 +36,10 @@ class checkout:
         transaction.set_autocommit(False)
 
         # Apply any existing Changes assigned to this Branch
-        changes = self.branch.changes.all()
-        if change_count := changes.count():
+        staged_changes = self.branch.staged_changes.all()
+        if change_count := staged_changes.count():
             logger.debug(f"Applying {change_count} pre-staged changes...")
-            for change in changes:
+            for change in staged_changes:
                 change.apply()
         else:
             logger.debug("No pre-staged changes found")
@@ -91,7 +91,7 @@ class checkout:
             object_type, pk = key
             action, data = change
 
-            changes.append(Change(
+            changes.append(StagedChange(
                 branch=self.branch,
                 action=action,
                 object_type=object_type,
@@ -100,7 +100,7 @@ class checkout:
             ))
 
         # Save all Change instances to the database
-        Change.objects.bulk_create(changes)
+        StagedChange.objects.bulk_create(changes)
 
     #
     # Signal handlers

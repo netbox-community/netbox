@@ -7,9 +7,8 @@ from .staging import *
 from .tags import Tag, TaggedItem
 
 __all__ = (
-    'CachedValue',
-    'Change',
     'Branch',
+    'CachedValue',
     'ConfigContext',
     'ConfigContextModel',
     'ConfigRevision',
@@ -23,6 +22,7 @@ __all__ = (
     'Report',
     'SavedFilter',
     'Script',
+    'StagedChange',
     'Tag',
     'TaggedItem',
     'Webhook',

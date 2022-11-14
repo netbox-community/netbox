@@ -2,7 +2,7 @@ from django.test import TransactionTestCase
 
 from circuits.models import Provider, Circuit, CircuitType
 from extras.choices import ChangeActionChoices
-from extras.models import Branch, Change, Tag
+from extras.models import Branch, StagedChange, Tag
 from ipam.models import ASN, RIR
 from netbox.staging import checkout
 from utilities.testing import create_tags
@@ -62,7 +62,7 @@ class StagingTestCase(TransactionTestCase):
         # Verify that changes have been rolled back after exiting the context
         self.assertEqual(Provider.objects.count(), 3)
         self.assertEqual(Circuit.objects.count(), 9)
-        self.assertEqual(Change.objects.count(), 5)
+        self.assertEqual(StagedChange.objects.count(), 5)
 
         # Verify that changes are replayed upon entering the context
         with checkout(branch):
@@ -81,7 +81,7 @@ class StagingTestCase(TransactionTestCase):
         self.assertListEqual(list(provider.asns.all()), list(asns))
         circuit = Circuit.objects.get(cid='Circuit D1')
         self.assertListEqual(list(circuit.tags.all()), list(tags))
-        self.assertEqual(Change.objects.count(), 0)
+        self.assertEqual(StagedChange.objects.count(), 0)
 
     def test_object_modification(self):
         branch = Branch.objects.create(name='Branch 1')
@@ -115,7 +115,7 @@ class StagingTestCase(TransactionTestCase):
         circuit = Circuit.objects.get(pk=circuit.pk)
         self.assertEqual(circuit.cid, 'Circuit A1')
         self.assertListEqual(list(circuit.tags.all()), [])
-        self.assertEqual(Change.objects.count(), 5)
+        self.assertEqual(StagedChange.objects.count(), 5)
 
         # Verify that changes are replayed upon entering the context
         with checkout(branch):
@@ -138,7 +138,7 @@ class StagingTestCase(TransactionTestCase):
         circuit = Circuit.objects.get(pk=circuit.pk)
         self.assertEqual(circuit.cid, 'Circuit X')
         self.assertListEqual(list(circuit.tags.all()), list(tags))
-        self.assertEqual(Change.objects.count(), 0)
+        self.assertEqual(StagedChange.objects.count(), 0)
 
     def test_object_deletion(self):
         branch = Branch.objects.create(name='Branch 1')
@@ -155,7 +155,7 @@ class StagingTestCase(TransactionTestCase):
         # Verify that changes have been rolled back after exiting the context
         self.assertEqual(Provider.objects.count(), 3)
         self.assertEqual(Circuit.objects.count(), 9)
-        self.assertEqual(Change.objects.count(), 4)
+        self.assertEqual(StagedChange.objects.count(), 4)
 
         # Verify that changes are replayed upon entering the context
         with checkout(branch):
@@ -166,7 +166,7 @@ class StagingTestCase(TransactionTestCase):
         branch.merge()
         self.assertEqual(Provider.objects.count(), 2)
         self.assertEqual(Circuit.objects.count(), 6)
-        self.assertEqual(Change.objects.count(), 0)
+        self.assertEqual(StagedChange.objects.count(), 0)
 
     def test_exit_enter_context(self):
         branch = Branch.objects.create(name='Branch 1')
@@ -178,8 +178,8 @@ class StagingTestCase(TransactionTestCase):
             provider.save()
 
         # Check that a create Change was recorded
-        self.assertEqual(Change.objects.count(), 1)
-        change = Change.objects.first()
+        self.assertEqual(StagedChange.objects.count(), 1)
+        change = StagedChange.objects.first()
         self.assertEqual(change.action, ChangeActionChoices.ACTION_CREATE)
         self.assertEqual(change.data['name'], provider.name)
 
@@ -191,8 +191,8 @@ class StagingTestCase(TransactionTestCase):
             provider.save()
 
         # Check that a second Change object has been created for the object
-        self.assertEqual(Change.objects.count(), 2)
-        change = Change.objects.last()
+        self.assertEqual(StagedChange.objects.count(), 2)
+        change = StagedChange.objects.last()
         self.assertEqual(change.action, ChangeActionChoices.ACTION_UPDATE)
         self.assertEqual(change.data['name'], provider.name)
         self.assertEqual(change.data['comments'], provider.comments)
@@ -204,7 +204,7 @@ class StagingTestCase(TransactionTestCase):
             provider.delete()
 
         # Check that a third Change has recorded the object's deletion
-        self.assertEqual(Change.objects.count(), 3)
-        change = Change.objects.last()
+        self.assertEqual(StagedChange.objects.count(), 3)
+        change = StagedChange.objects.last()
         self.assertEqual(change.action, ChangeActionChoices.ACTION_DELETE)
         self.assertIsNone(change.data)

@@ -11,13 +11,16 @@ from utilities.utils import deserialize_object
 
 __all__ = (
     'Branch',
-    'Change',
+    'StagedChange',
 )
 
 logger = logging.getLogger('netbox.staging')
 
 
 class Branch(ChangeLoggedModel):
+    """
+    A collection of related StagedChanges.
+    """
     name = models.CharField(
         max_length=100,
         unique=True
@@ -42,16 +45,20 @@ class Branch(ChangeLoggedModel):
     def merge(self):
         logger.info(f'Merging changes in branch {self}')
         with transaction.atomic():
-            for change in self.changes.all():
+            for change in self.staged_changes.all():
                 change.apply()
-        self.changes.all().delete()
+        self.staged_changes.all().delete()
 
 
-class Change(ChangeLoggedModel):
+class StagedChange(ChangeLoggedModel):
+    """
+    The prepared creation, modification, or deletion of an object to be applied to the active database at a
+    future point.
+    """
     branch = models.ForeignKey(
         to=Branch,
         on_delete=models.CASCADE,
-        related_name='changes'
+        related_name='staged_changes'
     )
     action = models.CharField(
         max_length=20,
@@ -79,7 +86,9 @@ class Change(ChangeLoggedModel):
         ordering = ('pk',)
 
     def __str__(self):
-        return f"{self.get_action_display()} {self.model}"
+        action = self.get_action_display()
+        app_label, model_name = self.object_type.natural_key()
+        return f"{action} {app_label}.{model_name} ({self.object_id})"
 
     @property
     def model(self):
