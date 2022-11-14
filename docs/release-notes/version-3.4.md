@@ -33,6 +33,13 @@ NetBox's CSV-based bulk import functionality has been extended to support also m
 
 A new `PluginMenu` class has been introduced, which enables a plugin to inject a top-level menu in NetBox's navigation menu. This menu can have one or more groups of menu items, just like core items. Backward compatibility with the existing `menu_items` has been maintained.
 
+#### API for Staged Changes ([#10851](https://github.com/netbox-community/netbox/issues/10851))
+
+This release introduces a new programmatic API that enables plugins and custom scripts to prepare changes in NetBox without actually committing them to the active database. To stage changes, create and activate a branch using the `checkout()` context manager. Any changes made within this context will be captured, recorded, and rolled back for future use. Once ready, a branch can be applied to the active database by calling `merge()`. 
+
+!!! danger "Experimental Feature"
+    This feature is still under active development and considered experimental in nature. Its use in production is strongly discouraged at this time.
+
 ### Enhancements
 
 * [#7376](https://github.com/netbox-community/netbox/issues/7376) - Enable the assignment of tags during CSV import
@@ -57,6 +64,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 
 ### Plugins API
 
+* [#4751](https://github.com/netbox-community/netbox/issues/4751) - Add `plugin_list_buttons` template tag to embed buttons on object lists
 * [#8927](https://github.com/netbox-community/netbox/issues/8927) - Enable inclusion of plugin models in global search via `SearchIndex`
 * [#9071](https://github.com/netbox-community/netbox/issues/9071) - Introduce `PluginMenu` for top-level plugin navigation menus
 * [#9072](https://github.com/netbox-community/netbox/issues/9072) - Enable registration of tabbed plugin views for core NetBox models
@@ -71,6 +79,7 @@ A new `PluginMenu` class has been introduced, which enables a plugin to inject a
 * [#9045](https://github.com/netbox-community/netbox/issues/9045) - Remove legacy ASN field from provider model
 * [#9046](https://github.com/netbox-community/netbox/issues/9046) - Remove legacy contact fields from provider model
 * [#10358](https://github.com/netbox-community/netbox/issues/10358) - Raise minimum required PostgreSQL version from 10 to 11
+* [#10694](https://github.com/netbox-community/netbox/issues/10694) - Emit the `post_save` signal when creating device components in bulk
 * [#10697](https://github.com/netbox-community/netbox/issues/10697) - Move application registry into core app
 * [#10699](https://github.com/netbox-community/netbox/issues/10699) - Remove custom `import_object()` function
 * [#10816](https://github.com/netbox-community/netbox/issues/10816) - Pass the current request when instantiating a FilterSet within UI views
