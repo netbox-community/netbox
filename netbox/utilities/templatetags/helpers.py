@@ -171,6 +171,14 @@ def meters_to_feet(n):
     return float(n) * 3.28084
 
 
+@register.filter()
+def kg_to_pounds(n):
+    """
+    Convert a weight from kilograms to pounds.
+    """
+    return float(n) * 2.204623
+
+
 @register.filter("startswith")
 def startswith(text: str, starts: str) -> bool:
     """

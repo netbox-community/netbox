@@ -56,17 +56,20 @@
                 <div class="form-text">Unit</div>
             </div>
         </div>
+        <div class="row mb-3">
+            <label class="col col-md-3 col-form-label text-lg-end">Weight</label>
+            <div class="col col-md-6 mb-1">
+                {{ form.weight }}
+                <div class="form-text">Weight</div>
+            </div>
+            <div class="col col-md-3 mb-1">
+                {{ form.weight_unit }}
+                <div class="form-text">Unit</div>
+            </div>
+        </div>
         {% render_field form.mounting_depth %}
         {% render_field form.desc_units %}
     </div>
-    <div class="field-group my-5">
-        <div class="row mb-2">
-          <h5 class="offset-sm-3">Weight</h5>
-        </div>
-        {% render_field form.weight %}
-        {% render_field form.weight_unit %}
-    </div>
-
 
     {% if form.custom_fields %}
       <div class="field-group my-5">

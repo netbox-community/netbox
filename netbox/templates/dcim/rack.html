@@ -171,7 +171,10 @@
                     </tr>
                     <tr>
                         <th scope="row">Total Weight</th>
-                        <td>{{ object.total_weight|floatformat }} Kilograms</td>
+                        <td>
+                          {{ object.total_weight|floatformat }} Kilograms
+                          ({{ object.total_weight|kg_to_pounds|floatformat }} Pounds)
+                        </td>
                     </tr>
                 </table>
             </div>

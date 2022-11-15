@@ -384,13 +384,10 @@ class DeviceTypeForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Device Type', (
-            'manufacturer', 'model', 'slug', 'description', 'tags',
-        )),
+        ('Device Type', ('manufacturer', 'model', 'slug', 'description', 'tags')),
         ('Chassis', (
-            'u_height', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow',
+            'u_height', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
         )),
-        ('Attributes', ('weight', 'weight_unit')),
         ('Images', ('front_image', 'rear_image')),
     )
 
