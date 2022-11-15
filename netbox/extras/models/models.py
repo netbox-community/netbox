@@ -1,6 +1,7 @@
 import json
 import uuid
 
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -146,6 +147,10 @@ class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     def get_absolute_url(self):
         return reverse('extras:webhook', args=[self.pk])
 
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/webhook/'
+
     def clean(self):
         super().clean()
 
@@ -250,6 +255,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
     def get_absolute_url(self):
         return reverse('extras:customlink', args=[self.pk])
 
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/customlink/'
+
     def render(self, context):
         """
         Render the CustomLink given the provided context, and return the text, link, and link_target.
@@ -310,6 +319,10 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
 
     def get_absolute_url(self):
         return reverse('extras:exporttemplate', args=[self.pk])
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/exporttemplate/'
 
     def clean(self):
         super().clean()
@@ -402,6 +415,10 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
 
     def get_absolute_url(self):
         return reverse('extras:savedfilter', args=[self.pk])
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/savedfilter/'
 
     def clean(self):
         super().clean()

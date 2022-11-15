@@ -4,6 +4,7 @@ import decimal
 
 import django_filters
 from django import forms
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
@@ -178,6 +179,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
 
     def get_absolute_url(self):
         return reverse('extras:customfield', args=[self.pk])
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/customfield/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
