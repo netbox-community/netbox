@@ -585,6 +585,10 @@ class JobResult(models.Model):
         null=True,
         blank=True
     )
+    started = models.DateTimeField(
+        null=True,
+        blank=True
+    )
     completed = models.DateTimeField(
         null=True,
         blank=True
@@ -639,9 +643,18 @@ class JobResult(models.Model):
 
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
 
+    def start(self):
+        """
+        Record the job's start time and update its status to "running."
+        """
+        if self.started is None:
+            self.started = timezone.now()
+            self.status = JobResultStatusChoices.STATUS_RUNNING
+            JobResult.objects.filter(pk=self.pk).update(started=self.started, status=self.status)
+
     def set_status(self, status):
         """
-        Helper method to change the status of the job result. If the target status is terminal, the  completion
+        Helper method to change the status of the job result. If the target status is terminal, the completion
         time is also set.
         """
         self.status = status

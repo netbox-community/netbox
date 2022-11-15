@@ -503,15 +503,6 @@ class JobResultFilterSet(BaseFilterSet):
         field_name='created',
         lookup_expr='gte'
     )
-    completed = django_filters.DateTimeFilter()
-    completed__before = django_filters.DateTimeFilter(
-        field_name='completed',
-        lookup_expr='lte'
-    )
-    completed__after = django_filters.DateTimeFilter(
-        field_name='completed',
-        lookup_expr='gte'
-    )
     scheduled = django_filters.DateTimeFilter()
     scheduled__before = django_filters.DateTimeFilter(
         field_name='scheduled',
@@ -521,6 +512,24 @@ class JobResultFilterSet(BaseFilterSet):
         field_name='scheduled',
         lookup_expr='gte'
     )
+    started = django_filters.DateTimeFilter()
+    started__before = django_filters.DateTimeFilter(
+        field_name='started',
+        lookup_expr='lte'
+    )
+    started__after = django_filters.DateTimeFilter(
+        field_name='started',
+        lookup_expr='gte'
+    )
+    completed = django_filters.DateTimeFilter()
+    completed__before = django_filters.DateTimeFilter(
+        field_name='completed',
+        lookup_expr='lte'
+    )
+    completed__after = django_filters.DateTimeFilter(
+        field_name='completed',
+        lookup_expr='gte'
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=JobResultStatusChoices,
         null_value=None
@@ -528,9 +537,7 @@ class JobResultFilterSet(BaseFilterSet):
 
     class Meta:
         model = JobResult
-        fields = [
-            'id', 'status', 'created', 'scheduled', 'completed', 'user', 'obj_type', 'name'
-        ]
+        fields = ('id', 'status', 'user', 'obj_type', 'name')
 
     def search(self, queryset, name, value):
         if not value.strip():

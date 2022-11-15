@@ -433,15 +433,13 @@ def is_variable(obj):
 def run_script(data, request, commit=True, *args, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
-    exists outside of the Script class to ensure it cannot be overridden by a script author.
+    exists outside the Script class to ensure it cannot be overridden by a script author.
     """
     job_result = kwargs.pop('job_result')
+    job_result.start()
+
     module, script_name = job_result.name.split('.', 1)
-
     script = get_script(module, script_name)()
-
-    job_result.status = JobResultStatusChoices.STATUS_RUNNING
-    job_result.save()
 
     logger = logging.getLogger(f"netbox.scripts.{module}.{script_name}")
     logger.info(f"Running script (commit={commit})")

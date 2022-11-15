@@ -13,6 +13,11 @@ class Migration(migrations.Migration):
             name='scheduled',
             field=models.DateTimeField(blank=True, null=True),
         ),
+        migrations.AddField(
+            model_name='jobresult',
+            name='started',
+            field=models.DateTimeField(blank=True, null=True),
+        ),
         migrations.AlterModelOptions(
             name='jobresult',
             options={'ordering': ['-created']},

@@ -1,9 +1,12 @@
 {% load helpers %}
 
 <p>
-  Initiated: <strong>{{ result.created|annotated_date }}</strong>
-  {% if result.scheduled %}
+  {% if result.started %}
+    Started: <strong>{{ result.started|annotated_date }}</strong>
+  {% elif result.scheduled %}
     Scheduled for: <strong>{{ result.scheduled|annotated_date }}</strong>
+  {% else %}
+    Created: <strong>{{ result.created|annotated_date }}</strong>
   {% endif %}
   {% if result.completed %}
     Duration: <strong>{{ result.duration }}</strong>
@@ -71,6 +74,6 @@
       </table>
     </div>
   </div>
-{% else %}
+{% elif result.started %}
   {% include 'extras/inc/result_pending.html' %}
 {% endif %}

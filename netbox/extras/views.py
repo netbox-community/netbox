@@ -726,7 +726,7 @@ class ReportResultView(ContentTypePermissionRequiredMixin, View):
                 'report': report,
                 'result': result,
             })
-            if result.completed:
+            if result.completed or not result.started:
                 response.status_code = 286
             return response
 
@@ -860,7 +860,7 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, GetScriptMixin, View)
                 'script': script,
                 'result': result,
             })
-            if result.completed:
+            if result.completed or not result.started:
                 response.status_code = 286
             return response
 

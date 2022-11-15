@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('extras', '0079_jobresult_scheduled'),
+        ('extras', '0079_scheduled_jobs'),
     ]
 
     operations = [

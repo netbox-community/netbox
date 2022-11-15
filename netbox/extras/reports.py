@@ -83,6 +83,7 @@ def run_report(job_result, *args, **kwargs):
     report = get_report(module_name, report_name)
 
     try:
+        job_result.start()
         report.run(job_result)
     except Exception as e:
         job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
