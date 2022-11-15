@@ -302,6 +302,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         """
         if value is None:
             return value
+        if self.type == CustomFieldTypeChoices.TYPE_DATE and type(value) is date:
+            return value.isoformat()
         if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             return value.pk
         if self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
@@ -314,6 +316,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         """
         if value is None:
             return value
+        if self.type == CustomFieldTypeChoices.TYPE_DATE:
+            try:
+                return date.fromisoformat(value)
+            except ValueError:
+                return value
         if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             model = self.object_type.model_class()
             return model.objects.filter(pk=value).first()
