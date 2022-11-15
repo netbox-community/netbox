@@ -34,7 +34,7 @@ __all__ = (
 
 class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter')),
+        (None, ('q', 'filter_id')),
         ('Attributes', ('type', 'content_type_id', 'group_name', 'weight', 'required', 'ui_visibility')),
     )
     content_type_id = ContentTypeMultipleChoiceField(
@@ -70,7 +70,7 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
 
 class JobResultFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter')),
+        (None, ('q', 'filter_id')),
         ('Attributes', ('obj_type', 'status')),
         ('Creation', ('created__before', 'created__after', 'completed__before', 'completed__after',
                       'scheduled_time__before', 'scheduled_time__after', 'user')),
@@ -122,7 +122,7 @@ class JobResultFilterForm(SavedFiltersMixin, FilterForm):
 
 class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter')),
+        (None, ('q', 'filter_id')),
         ('Attributes', ('content_types', 'enabled', 'new_window', 'weight')),
     )
     content_types = ContentTypeMultipleChoiceField(
@@ -149,7 +149,7 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
 
 class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter')),
+        (None, ('q', 'filter_id')),
         ('Attributes', ('content_types', 'mime_type', 'file_extension', 'as_attachment')),
     )
     content_types = ContentTypeMultipleChoiceField(
@@ -174,7 +174,7 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
 
 class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter')),
+        (None, ('q', 'filter_id')),
         ('Attributes', ('content_types', 'enabled', 'shared', 'weight')),
     )
     content_types = ContentTypeMultipleChoiceField(
@@ -201,7 +201,7 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
 
 class WebhookFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter')),
+        (None, ('q', 'filter_id')),
         ('Attributes', ('content_type_id', 'http_method', 'enabled')),
         ('Events', ('type_create', 'type_update', 'type_delete')),
     )
@@ -253,7 +253,7 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
 
 class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter', 'tag_id')),
+        (None, ('q', 'filter_id', 'tag_id')),
         ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id')),
         ('Device', ('device_type_id', 'platform_id', 'role_id')),
         ('Cluster', ('cluster_type_id', 'cluster_group_id', 'cluster_id')),
@@ -340,7 +340,7 @@ class LocalConfigContextFilterForm(forms.Form):
 class JournalEntryFilterForm(NetBoxModelFilterSetForm):
     model = JournalEntry
     fieldsets = (
-        (None, ('q', 'filter', 'tag')),
+        (None, ('q', 'filter_id', 'tag')),
         ('Creation', ('created_before', 'created_after', 'created_by_id')),
         ('Attributes', ('assigned_object_type_id', 'kind'))
     )
@@ -381,7 +381,7 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
 class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
     model = ObjectChange
     fieldsets = (
-        (None, ('q', 'filter')),
+        (None, ('q', 'filter_id')),
         ('Time', ('time_before', 'time_after')),
         ('Attributes', ('action', 'user_id', 'changed_object_type_id')),
     )

@@ -92,7 +92,7 @@ class SavedFilterCSVForm(CSVModelForm):
     class Meta:
         model = SavedFilter
         fields = (
-            'name', 'content_types', 'description', 'weight', 'enabled', 'shared', 'parameters',
+            'name', 'slug', 'content_types', 'description', 'weight', 'enabled', 'shared', 'parameters',
         )
 
 

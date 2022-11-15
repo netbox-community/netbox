@@ -164,8 +164,8 @@ class SavedFilterSerializer(ValidatedModelSerializer):
     class Meta:
         model = SavedFilter
         fields = [
-            'id', 'url', 'display', 'content_types', 'name', 'description', 'user', 'weight',
-            'enabled', 'shared', 'parameters', 'created', 'last_updated',
+            'id', 'url', 'display', 'content_types', 'name', 'slug', 'description', 'user', 'weight', 'enabled',
+            'shared', 'parameters', 'created', 'last_updated',
         ]
 
 

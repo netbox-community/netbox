@@ -2,9 +2,9 @@ import django_filters
 from copy import deepcopy
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models import Q
 from django_filters.exceptions import FieldLookupError
 from django_filters.utils import get_model_field, resolve_field
-from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
 from extras.choices import CustomFieldFilterLogicChoices
@@ -89,9 +89,12 @@ class BaseFilterSet(django_filters.FilterSet):
         self.base_filters = self.__class__.get_filters()
 
         # Apply any referenced SavedFilters
-        if data and 'filter' in data:
+        if data and ('filter' in data or 'filter_id' in data):
             data = data.copy()  # Get a mutable copy
-            saved_filters = SavedFilter.objects.filter(pk__in=data.pop('filter'))
+            saved_filters = SavedFilter.objects.filter(
+                Q(slug__in=data.pop('filter', [])) |
+                Q(pk__in=data.pop('filter_id', []))
+            )
             for sf in saved_filters:
                 for key, value in sf.parameters.items():
                     # QueryDicts are... fun

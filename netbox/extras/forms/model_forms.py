@@ -112,12 +112,13 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class SavedFilterForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all()
     )
 
     fieldsets = (
-        ('Saved Filter', ('name', 'content_types', 'description', 'weight', 'enabled', 'shared')),
+        ('Saved Filter', ('name', 'slug', 'content_types', 'description', 'weight', 'enabled', 'shared')),
         ('Parameters', ('parameters',)),
     )
 

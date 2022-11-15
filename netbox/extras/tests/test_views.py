@@ -122,9 +122,27 @@ class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         User.objects.bulk_create(users)
 
         saved_filters = (
-            SavedFilter(name='Saved Filter 1', user=users[0], weight=100, parameters={'status': ['active']}),
-            SavedFilter(name='Saved Filter 2', user=users[1], weight=200, parameters={'status': ['planned']}),
-            SavedFilter(name='Saved Filter 3', user=users[2], weight=300, parameters={'status': ['retired']}),
+            SavedFilter(
+                name='Saved Filter 1',
+                slug='saved-filter-1',
+                user=users[0],
+                weight=100,
+                parameters={'status': ['active']}
+            ),
+            SavedFilter(
+                name='Saved Filter 2',
+                slug='saved-filter-2',
+                user=users[1],
+                weight=200,
+                parameters={'status': ['planned']}
+            ),
+            SavedFilter(
+                name='Saved Filter 3',
+                slug='saved-filter-3',
+                user=users[2],
+                weight=300,
+                parameters={'status': ['retired']}
+            ),
         )
         SavedFilter.objects.bulk_create(saved_filters)
         for i, savedfilter in enumerate(saved_filters):
@@ -132,6 +150,7 @@ class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'name': 'Saved Filter X',
+            'slug': 'saved-filter-x',
             'content_types': [site_ct.pk],
             'description': 'Foo',
             'weight': 1000,
@@ -141,10 +160,10 @@ class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            'name,content_types,weight,enabled,shared,parameters',
-            'Saved Filter 4,dcim.device,400,True,True,{"foo": "a"}',
-            'Saved Filter 5,dcim.device,500,True,True,{"foo": "b"}',
-            'Saved Filter 6,dcim.device,600,True,True,{"foo": "c"}',
+            'name,slug,content_types,weight,enabled,shared,parameters',
+            'Saved Filter 4,saved-filter-4,dcim.device,400,True,True,{"foo": "a"}',
+            'Saved Filter 5,saved-filter-5,dcim.device,500,True,True,{"foo": "b"}',
+            'Saved Filter 6,saved-filter-6,dcim.device,600,True,True,{"foo": "c"}',
         )
 
         cls.csv_update_data = (

@@ -192,11 +192,12 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
 
 class SavedFilterTest(APIViewTestCases.APIViewTestCase):
     model = SavedFilter
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'content_types': ['dcim.site'],
             'name': 'Saved Filter 4',
+            'slug': 'saved-filter-4',
             'weight': 100,
             'enabled': True,
             'shared': True,
@@ -205,6 +206,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
         {
             'content_types': ['dcim.site'],
             'name': 'Saved Filter 5',
+            'slug': 'saved-filter-5',
             'weight': 200,
             'enabled': True,
             'shared': True,
@@ -213,6 +215,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
         {
             'content_types': ['dcim.site'],
             'name': 'Saved Filter 6',
+            'slug': 'saved-filter-6',
             'weight': 300,
             'enabled': True,
             'shared': True,
@@ -232,6 +235,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
         saved_filters = (
             SavedFilter(
                 name='Saved Filter 1',
+                slug='saved-filter-1',
                 weight=100,
                 enabled=True,
                 shared=True,
@@ -239,6 +243,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
             ),
             SavedFilter(
                 name='Saved Filter 2',
+                slug='saved-filter-2',
                 weight=200,
                 enabled=True,
                 shared=True,
@@ -246,6 +251,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
             ),
             SavedFilter(
                 name='Saved Filter 3',
+                slug='saved-filter-3',
                 weight=300,
                 enabled=True,
                 shared=True,

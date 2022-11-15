@@ -100,7 +100,7 @@ class SavedFilterTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = SavedFilter
         fields = (
-            'pk', 'id', 'name', 'content_types', 'description', 'user', 'weight', 'enabled', 'shared',
+            'pk', 'id', 'name', 'slug', 'content_types', 'description', 'user', 'weight', 'enabled', 'shared',
             'created', 'last_updated',
         )
         default_columns = (

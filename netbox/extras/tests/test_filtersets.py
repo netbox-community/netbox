@@ -240,6 +240,7 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
         saved_filters = (
             SavedFilter(
                 name='Saved Filter 1',
+                slug='saved-filter-1',
                 user=users[0],
                 weight=100,
                 enabled=True,
@@ -248,6 +249,7 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
             ),
             SavedFilter(
                 name='Saved Filter 2',
+                slug='saved-filter-2',
                 user=users[1],
                 weight=200,
                 enabled=True,
@@ -256,6 +258,7 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
             ),
             SavedFilter(
                 name='Saved Filter 3',
+                slug='saved-filter-3',
                 user=users[2],
                 weight=300,
                 enabled=False,
@@ -269,6 +272,10 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
 
     def test_name(self):
         params = {'name': ['Saved Filter 1', 'Saved Filter 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['saved-filter-1', 'saved-filter-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_content_types(self):

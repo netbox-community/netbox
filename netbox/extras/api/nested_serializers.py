@@ -64,7 +64,7 @@ class NestedSavedFilterSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.SavedFilter
-        fields = ['id', 'url', 'display', 'name']
+        fields = ['id', 'url', 'display', 'name', 'slug']
 
 
 class NestedImageAttachmentSerializer(WritableNestedSerializer):

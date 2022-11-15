@@ -365,6 +365,10 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         max_length=100,
         unique=True
     )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True
+    )
     description = models.CharField(
         max_length=200,
         blank=True

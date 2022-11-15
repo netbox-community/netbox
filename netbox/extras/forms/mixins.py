@@ -64,7 +64,7 @@ class CustomFieldsMixin:
 
 
 class SavedFiltersMixin(forms.Form):
-    filter = DynamicModelMultipleChoiceField(
+    filter_id = DynamicModelMultipleChoiceField(
         queryset=SavedFilter.objects.all(),
         required=False,
         label=_('Saved Filter'),

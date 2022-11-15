@@ -165,7 +165,7 @@ class SavedFilterFilterSet(BaseFilterSet):
 
     class Meta:
         model = SavedFilter
-        fields = ['id', 'content_types', 'name', 'description', 'enabled', 'shared', 'weight']
+        fields = ['id', 'content_types', 'name', 'slug', 'description', 'enabled', 'shared', 'weight']
 
     def search(self, queryset, name, value):
         if not value.strip():

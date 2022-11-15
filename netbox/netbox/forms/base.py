@@ -141,7 +141,7 @@ class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, SavedFiltersMi
 
         # Limit saved filters to those applicable to the form's model
         content_type = ContentType.objects.get_for_model(self.model)
-        self.fields['filter'].widget.add_query_params({
+        self.fields['filter_id'].widget.add_query_params({
             'content_type_id': content_type.pk,
         })
 
