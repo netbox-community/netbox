@@ -143,12 +143,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         verbose_name='UI visibility',
         help_text='Specifies the visibility of custom field in the UI'
     )
+    is_cloneable = models.BooleanField(
+        default=False,
+        verbose_name='Cloneable',
+        help_text='If true, this field will be copied over when cloning objects.'
+    )
 
     objects = CustomFieldManager()
 
     clone_fields = (
         'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'filter_logic', 'default',
-        'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'ui_visibility',
+        'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'ui_visibility', 'is_cloneable',
     )
 
     class Meta:

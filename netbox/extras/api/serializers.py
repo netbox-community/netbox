@@ -91,7 +91,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         model = CustomField
         fields = [
             'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
-            'description', 'required', 'filter_logic', 'ui_visibility', 'default', 'weight', 'validation_minimum',
+            'description', 'required', 'filter_logic', 'ui_visibility', 'is_cloneable', 'default', 'weight', 'validation_minimum',
             'validation_maximum', 'validation_regex', 'choices', 'created', 'last_updated',
         ]
 
