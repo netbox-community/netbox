@@ -23,6 +23,7 @@ __all__ = (
     'DeviceBayCSVForm',
     'DeviceCSVForm',
     'DeviceRoleCSVForm',
+    'DeviceTypeImportForm',
     'FrontPortCSVForm',
     'InterfaceCSVForm',
     'InventoryItemCSVForm',
@@ -31,6 +32,7 @@ __all__ = (
     'ManufacturerCSVForm',
     'ModuleCSVForm',
     'ModuleBayCSVForm',
+    'ModuleTypeImportForm',
     'PlatformCSVForm',
     'PowerFeedCSVForm',
     'PowerOutletCSVForm',
@@ -267,6 +269,31 @@ class ManufacturerCSVForm(NetBoxModelCSVForm):
     class Meta:
         model = Manufacturer
         fields = ('name', 'slug', 'description', 'tags')
+
+
+class DeviceTypeImportForm(NetBoxModelCSVForm):
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name'
+    )
+
+    class Meta:
+        model = DeviceType
+        fields = [
+            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
+            'description', 'comments',
+        ]
+
+
+class ModuleTypeImportForm(NetBoxModelCSVForm):
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name'
+    )
+
+    class Meta:
+        model = ModuleType
+        fields = ['manufacturer', 'model', 'part_number', 'description', 'comments']
 
 
 class DeviceRoleCSVForm(NetBoxModelCSVForm):
