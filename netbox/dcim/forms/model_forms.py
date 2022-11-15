@@ -1698,21 +1698,19 @@ class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
     )
 
     fieldsets = (
-        ('Device', ('region', 'site_group', 'site', 'location', 'rack', 'device')),
-        ('Virtual Device Context', ('name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tenant_group',
-                                    'tenant')),
-        (None, ('tags', ))
+        ('Assigned Device', ('region', 'site_group', 'site', 'location', 'rack', 'device')),
+        ('Virtual Device Context', ('name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant'))
     )
 
     class Meta:
         model = VirtualDeviceContext
         fields = [
-            'region', 'site_group', 'site', 'location', 'rack',
-            'device', 'name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant',
-            'comments', 'tags'
+            'region', 'site_group', 'site', 'location', 'rack', 'device', 'name', 'status', 'identifier',
+            'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'comments', 'tags'
         ]
-        help_texts = {}
         widgets = {
+            'status': StaticSelect(),
             'primary_ip4': StaticSelect(),
             'primary_ip6': StaticSelect(),
         }

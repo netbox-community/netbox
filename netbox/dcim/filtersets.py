@@ -1032,7 +1032,7 @@ class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = VirtualDeviceContext
-        fields = ['id', 'device', 'name', ]
+        fields = ['id', 'device', 'name']
 
     def search(self, queryset, name, value):
         if not value.strip():

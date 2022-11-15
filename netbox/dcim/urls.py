@@ -184,12 +184,12 @@ urlpatterns = [
     path('devices/<int:pk>/', include(get_model_urls('dcim', 'device'))),
 
     # Virtual Device Context
-    path('vdcs/', views.VirtualDeviceContextListView.as_view(), name='virtualdevicecontext_list'),
-    path('vdcs/add/', views.VirtualDeviceContextEditView.as_view(), name='virtualdevicecontext_add'),
-    path('vdcs/import/', views.VirtualDeviceContextBulkImportView.as_view(), name='virtualdevicecontext_import'),
-    path('vdcs/edit/', views.VirtualDeviceContextBulkEditView.as_view(), name='virtualdevicecontext_bulk_edit'),
-    path('vdcs/delete/', views.VirtualDeviceContextBulkDeleteView.as_view(), name='virtualdevicecontext_bulk_delete'),
-    path('vdcs/<int:pk>/', include(get_model_urls('dcim', 'virtualdevicecontext'))),
+    path('virtual-device-contexts/', views.VirtualDeviceContextListView.as_view(), name='virtualdevicecontext_list'),
+    path('virtual-device-contexts/add/', views.VirtualDeviceContextEditView.as_view(), name='virtualdevicecontext_add'),
+    path('virtual-device-contexts/import/', views.VirtualDeviceContextBulkImportView.as_view(), name='virtualdevicecontext_import'),
+    path('virtual-device-contexts/edit/', views.VirtualDeviceContextBulkEditView.as_view(), name='virtualdevicecontext_bulk_edit'),
+    path('virtual-device-contexts/delete/', views.VirtualDeviceContextBulkDeleteView.as_view(), name='virtualdevicecontext_bulk_delete'),
+    path('virtual-device-contexts/<int:pk>/', include(get_model_urls('dcim', 'virtualdevicecontext'))),
 
     # Modules
     path('modules/', views.ModuleListView.as_view(), name='module_list'),

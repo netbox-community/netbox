@@ -1837,11 +1837,14 @@ class DeviceView(generic.ObjectView):
         else:
             vc_members = []
 
-        # Services
         services = Service.objects.restrict(request.user, 'view').filter(device=instance)
+        vdcs = VirtualDeviceContext.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
+            'tenant'
+        )
 
         return {
             'services': services,
+            'vdcs': vdcs,
             'vc_members': vc_members,
             'svg_extra': f'highlight=id:{instance.pk}'
         }

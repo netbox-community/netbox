@@ -1113,7 +1113,7 @@ class VirtualDeviceContext(PrimaryModel):
         choices=VirtualDeviceContextStatusChoices,
     )
     identifier = models.PositiveSmallIntegerField(
-        help_text='Unique identifier provided by the platform being virtualized (Example: Nexus VDC Identifier)',
+        help_text='Numeric identifier unique to the parent device',
         blank=True,
         null=True,
     )
@@ -1162,6 +1162,9 @@ class VirtualDeviceContext(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('dcim:virtualdevicecontext', kwargs={'pk': self.pk})
+
+    def get_status_color(self):
+        return VirtualDeviceContextStatusChoices.colors.get(self.status)
 
     @property
     def primary_ip(self):

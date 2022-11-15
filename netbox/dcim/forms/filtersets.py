@@ -736,9 +736,8 @@ class VirtualDeviceContextFilterForm(
     model = VirtualDeviceContext
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Hardware', ('device', 'status', )),
+        ('Attributes', ('device', 'status', 'has_primary_ip')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Miscellaneous', ('has_primary_ip',))
     )
     device = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),

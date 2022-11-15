@@ -28,7 +28,6 @@
             <th scope="row">Identifier</th>
             <td>{{ object.identifier|placeholder }}</td>
           </tr>
-          </tr>
           <tr>
             <th scope="row">Primary IPv4</th>
             <td>
@@ -39,6 +38,15 @@
             <th scope="row">Primary IPv6</th>
             <td>
               {{ object.primary_ip6|placeholder }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Tenant</th>
+            <td>
+              {% if object.tenant.group %}
+                {{ object.tenant.group|linkify }} /
+              {% endif %}
+              {{ object.tenant|linkify|placeholder }}
             </td>
           </tr>
         </table>

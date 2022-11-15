@@ -1407,12 +1407,12 @@ class PowerFeedPhaseChoices(ChoiceSet):
 class VirtualDeviceContextStatusChoices(ChoiceSet):
     key = 'VirtualDeviceContext.status'
 
-    STATUS_PLANNED = 'planned'
     STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
     STATUS_OFFLINE = 'offline'
 
     CHOICES = [
-        (STATUS_PLANNED, 'Planned', 'cyan'),
         (STATUS_ACTIVE, 'Active', 'green'),
+        (STATUS_PLANNED, 'Planned', 'cyan'),
         (STATUS_OFFLINE, 'Offline', 'red'),
     ]
