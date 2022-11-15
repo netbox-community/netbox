@@ -52,7 +52,7 @@ class WirelessLANGroupDeleteView(generic.ObjectDeleteView):
 
 class WirelessLANGroupBulkImportView(generic.BulkImportView):
     queryset = WirelessLANGroup.objects.all()
-    model_form = forms.WirelessLANGroupCSVForm
+    model_form = forms.WirelessLANGroupImportForm
     table = tables.WirelessLANGroupTable
 
 
@@ -123,7 +123,7 @@ class WirelessLANDeleteView(generic.ObjectDeleteView):
 
 class WirelessLANBulkImportView(generic.BulkImportView):
     queryset = WirelessLAN.objects.all()
-    model_form = forms.WirelessLANCSVForm
+    model_form = forms.WirelessLANImportForm
     table = tables.WirelessLANTable
 
 
@@ -169,7 +169,7 @@ class WirelessLinkDeleteView(generic.ObjectDeleteView):
 
 class WirelessLinkBulkImportView(generic.BulkImportView):
     queryset = WirelessLink.objects.all()
-    model_form = forms.WirelessLinkCSVForm
+    model_form = forms.WirelessLinkImportForm
     table = tables.WirelessLinkTable
 
 

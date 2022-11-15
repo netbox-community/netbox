@@ -2,22 +2,22 @@ from dcim.choices import InterfaceModeChoices
 from dcim.models import Device, DeviceRole, Platform, Site
 from django.utils.translation import gettext as _
 from ipam.models import VRF
-from netbox.forms import NetBoxModelCSVForm
+from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVModelChoiceField, SlugField
 from virtualization.choices import *
 from virtualization.models import *
 
 __all__ = (
-    'ClusterCSVForm',
-    'ClusterGroupCSVForm',
-    'ClusterTypeCSVForm',
-    'VirtualMachineCSVForm',
-    'VMInterfaceCSVForm',
+    'ClusterImportForm',
+    'ClusterGroupImportForm',
+    'ClusterTypeImportForm',
+    'VirtualMachineImportForm',
+    'VMInterfaceImportForm',
 )
 
 
-class ClusterTypeCSVForm(NetBoxModelCSVForm):
+class ClusterTypeImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
@@ -25,7 +25,7 @@ class ClusterTypeCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'slug', 'description', 'tags')
 
 
-class ClusterGroupCSVForm(NetBoxModelCSVForm):
+class ClusterGroupImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
@@ -33,7 +33,7 @@ class ClusterGroupCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'slug', 'description', 'tags')
 
 
-class ClusterCSVForm(NetBoxModelCSVForm):
+class ClusterImportForm(NetBoxModelImportForm):
     type = CSVModelChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='name',
@@ -67,7 +67,7 @@ class ClusterCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'type', 'group', 'status', 'site', 'description', 'comments', 'tags')
 
 
-class VirtualMachineCSVForm(NetBoxModelCSVForm):
+class VirtualMachineImportForm(NetBoxModelImportForm):
     status = CSVChoiceField(
         choices=VirtualMachineStatusChoices,
         help_text=_('Operational status')
@@ -119,7 +119,7 @@ class VirtualMachineCSVForm(NetBoxModelCSVForm):
         )
 
 
-class VMInterfaceCSVForm(NetBoxModelCSVForm):
+class VMInterfaceImportForm(NetBoxModelImportForm):
     virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         to_field_name='name'

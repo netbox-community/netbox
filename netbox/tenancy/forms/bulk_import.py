@@ -1,14 +1,14 @@
 from django.utils.translation import gettext as _
-from netbox.forms import NetBoxModelCSVForm
+from netbox.forms import NetBoxModelImportForm
 from tenancy.models import *
 from utilities.forms import CSVModelChoiceField, SlugField
 
 __all__ = (
-    'ContactCSVForm',
-    'ContactGroupCSVForm',
-    'ContactRoleCSVForm',
-    'TenantCSVForm',
-    'TenantGroupCSVForm',
+    'ContactImportForm',
+    'ContactGroupImportForm',
+    'ContactRoleImportForm',
+    'TenantImportForm',
+    'TenantGroupImportForm',
 )
 
 
@@ -16,7 +16,7 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupCSVForm(NetBoxModelCSVForm):
+class TenantGroupImportForm(NetBoxModelImportForm):
     parent = CSVModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
@@ -30,7 +30,7 @@ class TenantGroupCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'slug', 'parent', 'description', 'tags')
 
 
-class TenantCSVForm(NetBoxModelCSVForm):
+class TenantImportForm(NetBoxModelImportForm):
     slug = SlugField()
     group = CSVModelChoiceField(
         queryset=TenantGroup.objects.all(),
@@ -48,7 +48,7 @@ class TenantCSVForm(NetBoxModelCSVForm):
 # Contacts
 #
 
-class ContactGroupCSVForm(NetBoxModelCSVForm):
+class ContactGroupImportForm(NetBoxModelImportForm):
     parent = CSVModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,
@@ -62,7 +62,7 @@ class ContactGroupCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'slug', 'parent', 'description', 'tags')
 
 
-class ContactRoleCSVForm(NetBoxModelCSVForm):
+class ContactRoleImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
@@ -70,7 +70,7 @@ class ContactRoleCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'slug', 'description')
 
 
-class ContactCSVForm(NetBoxModelCSVForm):
+class ContactImportForm(NetBoxModelImportForm):
     group = CSVModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,

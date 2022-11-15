@@ -1,19 +1,19 @@
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
 from django.utils.translation import gettext as _
-from netbox.forms import NetBoxModelCSVForm
+from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVModelChoiceField, SlugField
 
 __all__ = (
-    'CircuitCSVForm',
-    'CircuitTypeCSVForm',
-    'ProviderCSVForm',
-    'ProviderNetworkCSVForm',
+    'CircuitImportForm',
+    'CircuitTypeImportForm',
+    'ProviderImportForm',
+    'ProviderNetworkImportForm',
 )
 
 
-class ProviderCSVForm(NetBoxModelCSVForm):
+class ProviderImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
@@ -23,7 +23,7 @@ class ProviderCSVForm(NetBoxModelCSVForm):
         )
 
 
-class ProviderNetworkCSVForm(NetBoxModelCSVForm):
+class ProviderNetworkImportForm(NetBoxModelImportForm):
     provider = CSVModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
@@ -37,7 +37,7 @@ class ProviderNetworkCSVForm(NetBoxModelCSVForm):
         ]
 
 
-class CircuitTypeCSVForm(NetBoxModelCSVForm):
+class CircuitTypeImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
@@ -48,7 +48,7 @@ class CircuitTypeCSVForm(NetBoxModelCSVForm):
         }
 
 
-class CircuitCSVForm(NetBoxModelCSVForm):
+class CircuitImportForm(NetBoxModelImportForm):
     provider = CSVModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',

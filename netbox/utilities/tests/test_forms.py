@@ -1,7 +1,7 @@
 from django import forms
 from django.test import TestCase
 
-from ipam.forms import IPAddressCSVForm
+from ipam.forms import IPAddressImportForm
 from utilities.forms.fields import CSVDataField
 from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 
@@ -288,7 +288,7 @@ class ExpandAlphanumeric(TestCase):
 class CSVDataFieldTest(TestCase):
 
     def setUp(self):
-        self.field = CSVDataField(from_form=IPAddressCSVForm)
+        self.field = CSVDataField(from_form=IPAddressImportForm)
 
     def test_clean(self):
         input = """

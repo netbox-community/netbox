@@ -10,16 +10,16 @@ from extras.utils import FeatureQuery
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelForm, CSVMultipleContentTypeField, SlugField
 
 __all__ = (
-    'CustomFieldCSVForm',
-    'CustomLinkCSVForm',
-    'ExportTemplateCSVForm',
-    'SavedFilterCSVForm',
-    'TagCSVForm',
-    'WebhookCSVForm',
+    'CustomFieldImportForm',
+    'CustomLinkImportForm',
+    'ExportTemplateImportForm',
+    'SavedFilterImportForm',
+    'TagImportForm',
+    'WebhookImportForm',
 )
 
 
-class CustomFieldCSVForm(CSVModelForm):
+class CustomFieldImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
@@ -54,7 +54,7 @@ class CustomFieldCSVForm(CSVModelForm):
         )
 
 
-class CustomLinkCSVForm(CSVModelForm):
+class CustomLinkImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_links'),
@@ -69,7 +69,7 @@ class CustomLinkCSVForm(CSVModelForm):
         )
 
 
-class ExportTemplateCSVForm(CSVModelForm):
+class ExportTemplateImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('export_templates'),
@@ -83,7 +83,7 @@ class ExportTemplateCSVForm(CSVModelForm):
         )
 
 
-class SavedFilterCSVForm(CSVModelForm):
+class SavedFilterImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         help_text=_("One or more assigned object types")
@@ -96,7 +96,7 @@ class SavedFilterCSVForm(CSVModelForm):
         )
 
 
-class WebhookCSVForm(CSVModelForm):
+class WebhookImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('webhooks'),
@@ -112,7 +112,7 @@ class WebhookCSVForm(CSVModelForm):
         )
 
 
-class TagCSVForm(CSVModelForm):
+class TagImportForm(CSVModelForm):
     slug = SlugField()
 
     class Meta:

@@ -49,7 +49,7 @@ class CustomFieldDeleteView(generic.ObjectDeleteView):
 
 class CustomFieldBulkImportView(generic.BulkImportView):
     queryset = CustomField.objects.all()
-    model_form = forms.CustomFieldCSVForm
+    model_form = forms.CustomFieldImportForm
     table = tables.CustomFieldTable
 
 
@@ -95,7 +95,7 @@ class CustomLinkDeleteView(generic.ObjectDeleteView):
 
 class CustomLinkBulkImportView(generic.BulkImportView):
     queryset = CustomLink.objects.all()
-    model_form = forms.CustomLinkCSVForm
+    model_form = forms.CustomLinkImportForm
     table = tables.CustomLinkTable
 
 
@@ -141,7 +141,7 @@ class ExportTemplateDeleteView(generic.ObjectDeleteView):
 
 class ExportTemplateBulkImportView(generic.BulkImportView):
     queryset = ExportTemplate.objects.all()
-    model_form = forms.ExportTemplateCSVForm
+    model_form = forms.ExportTemplateImportForm
     table = tables.ExportTemplateTable
 
 
@@ -209,7 +209,7 @@ class SavedFilterDeleteView(SavedFilterMixin, generic.ObjectDeleteView):
 
 class SavedFilterBulkImportView(SavedFilterMixin, generic.BulkImportView):
     queryset = SavedFilter.objects.all()
-    model_form = forms.SavedFilterCSVForm
+    model_form = forms.SavedFilterImportForm
     table = tables.SavedFilterTable
 
 
@@ -255,7 +255,7 @@ class WebhookDeleteView(generic.ObjectDeleteView):
 
 class WebhookBulkImportView(generic.BulkImportView):
     queryset = Webhook.objects.all()
-    model_form = forms.WebhookCSVForm
+    model_form = forms.WebhookImportForm
     table = tables.WebhookTable
 
 
@@ -324,7 +324,7 @@ class TagDeleteView(generic.ObjectDeleteView):
 
 class TagBulkImportView(generic.BulkImportView):
     queryset = Tag.objects.all()
-    model_form = forms.TagCSVForm
+    model_form = forms.TagImportForm
     table = tables.TagTable
 
 

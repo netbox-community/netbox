@@ -7,32 +7,32 @@ from dcim.models import Device, Interface, Site
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
-from netbox.forms import NetBoxModelCSVForm
+from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField
 from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
-    'AggregateCSVForm',
-    'ASNCSVForm',
-    'FHRPGroupCSVForm',
-    'IPAddressCSVForm',
-    'IPRangeCSVForm',
-    'L2VPNCSVForm',
-    'L2VPNTerminationCSVForm',
-    'PrefixCSVForm',
-    'RIRCSVForm',
-    'RoleCSVForm',
-    'RouteTargetCSVForm',
-    'ServiceCSVForm',
-    'ServiceTemplateCSVForm',
-    'VLANCSVForm',
-    'VLANGroupCSVForm',
-    'VRFCSVForm',
+    'AggregateImportForm',
+    'ASNImportForm',
+    'FHRPGroupImportForm',
+    'IPAddressImportForm',
+    'IPRangeImportForm',
+    'L2VPNImportForm',
+    'L2VPNTerminationImportForm',
+    'PrefixImportForm',
+    'RIRImportForm',
+    'RoleImportForm',
+    'RouteTargetImportForm',
+    'ServiceImportForm',
+    'ServiceTemplateImportForm',
+    'VLANImportForm',
+    'VLANGroupImportForm',
+    'VRFImportForm',
 )
 
 
-class VRFCSVForm(NetBoxModelCSVForm):
+class VRFImportForm(NetBoxModelImportForm):
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -45,7 +45,7 @@ class VRFCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'rd', 'tenant', 'enforce_unique', 'description', 'comments', 'tags')
 
 
-class RouteTargetCSVForm(NetBoxModelCSVForm):
+class RouteTargetImportForm(NetBoxModelImportForm):
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -58,7 +58,7 @@ class RouteTargetCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'tenant', 'description', 'comments', 'tags')
 
 
-class RIRCSVForm(NetBoxModelCSVForm):
+class RIRImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
@@ -69,7 +69,7 @@ class RIRCSVForm(NetBoxModelCSVForm):
         }
 
 
-class AggregateCSVForm(NetBoxModelCSVForm):
+class AggregateImportForm(NetBoxModelImportForm):
     rir = CSVModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
@@ -87,7 +87,7 @@ class AggregateCSVForm(NetBoxModelCSVForm):
         fields = ('prefix', 'rir', 'tenant', 'date_added', 'description', 'comments', 'tags')
 
 
-class ASNCSVForm(NetBoxModelCSVForm):
+class ASNImportForm(NetBoxModelImportForm):
     rir = CSVModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
@@ -105,7 +105,7 @@ class ASNCSVForm(NetBoxModelCSVForm):
         fields = ('asn', 'rir', 'tenant', 'description', 'comments', 'tags')
 
 
-class RoleCSVForm(NetBoxModelCSVForm):
+class RoleImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
@@ -113,7 +113,7 @@ class RoleCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'slug', 'weight', 'description', 'tags')
 
 
-class PrefixCSVForm(NetBoxModelCSVForm):
+class PrefixImportForm(NetBoxModelImportForm):
     vrf = CSVModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='name',
@@ -177,7 +177,7 @@ class PrefixCSVForm(NetBoxModelCSVForm):
                 self.fields['vlan'].queryset = self.fields['vlan'].queryset.filter(**params)
 
 
-class IPRangeCSVForm(NetBoxModelCSVForm):
+class IPRangeImportForm(NetBoxModelImportForm):
     vrf = CSVModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='name',
@@ -208,7 +208,7 @@ class IPRangeCSVForm(NetBoxModelCSVForm):
         )
 
 
-class IPAddressCSVForm(NetBoxModelCSVForm):
+class IPAddressImportForm(NetBoxModelImportForm):
     vrf = CSVModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='name',
@@ -315,7 +315,7 @@ class IPAddressCSVForm(NetBoxModelCSVForm):
         return ipaddress
 
 
-class FHRPGroupCSVForm(NetBoxModelCSVForm):
+class FHRPGroupImportForm(NetBoxModelImportForm):
     protocol = CSVChoiceField(
         choices=FHRPGroupProtocolChoices
     )
@@ -329,7 +329,7 @@ class FHRPGroupCSVForm(NetBoxModelCSVForm):
         fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'description', 'comments', 'tags')
 
 
-class VLANGroupCSVForm(NetBoxModelCSVForm):
+class VLANGroupImportForm(NetBoxModelImportForm):
     slug = SlugField()
     scope_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
@@ -357,7 +357,7 @@ class VLANGroupCSVForm(NetBoxModelCSVForm):
         }
 
 
-class VLANCSVForm(NetBoxModelCSVForm):
+class VLANImportForm(NetBoxModelImportForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -396,7 +396,7 @@ class VLANCSVForm(NetBoxModelCSVForm):
         }
 
 
-class ServiceTemplateCSVForm(NetBoxModelCSVForm):
+class ServiceTemplateImportForm(NetBoxModelImportForm):
     protocol = CSVChoiceField(
         choices=ServiceProtocolChoices,
         help_text=_('IP protocol')
@@ -407,7 +407,7 @@ class ServiceTemplateCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'protocol', 'ports', 'description', 'comments', 'tags')
 
 
-class ServiceCSVForm(NetBoxModelCSVForm):
+class ServiceImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -430,7 +430,7 @@ class ServiceCSVForm(NetBoxModelCSVForm):
         fields = ('device', 'virtual_machine', 'name', 'protocol', 'ports', 'description', 'comments', 'tags')
 
 
-class L2VPNCSVForm(NetBoxModelCSVForm):
+class L2VPNImportForm(NetBoxModelImportForm):
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -446,7 +446,7 @@ class L2VPNCSVForm(NetBoxModelCSVForm):
         fields = ('identifier', 'name', 'slug', 'type', 'description', 'comments', 'tags')
 
 
-class L2VPNTerminationCSVForm(NetBoxModelCSVForm):
+class L2VPNTerminationImportForm(NetBoxModelImportForm):
     l2vpn = CSVModelChoiceField(
         queryset=L2VPN.objects.all(),
         required=True,

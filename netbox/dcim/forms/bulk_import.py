@@ -9,48 +9,48 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import VRF
-from netbox.forms import NetBoxModelCSVForm
+from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField, SlugField
 from virtualization.models import Cluster
 from wireless.choices import WirelessRoleChoices
 
 __all__ = (
-    'CableCSVForm',
-    'ChildDeviceCSVForm',
-    'ConsolePortCSVForm',
-    'ConsoleServerPortCSVForm',
-    'DeviceBayCSVForm',
-    'DeviceCSVForm',
-    'DeviceRoleCSVForm',
+    'CableImportForm',
+    'ChildDeviceImportForm',
+    'ConsolePortImportForm',
+    'ConsoleServerPortImportForm',
+    'DeviceBayImportForm',
+    'DeviceImportForm',
+    'DeviceRoleImportForm',
     'DeviceTypeImportForm',
-    'FrontPortCSVForm',
-    'InterfaceCSVForm',
-    'InventoryItemCSVForm',
-    'InventoryItemRoleCSVForm',
-    'LocationCSVForm',
-    'ManufacturerCSVForm',
-    'ModuleCSVForm',
-    'ModuleBayCSVForm',
+    'FrontPortImportForm',
+    'InterfaceImportForm',
+    'InventoryItemImportForm',
+    'InventoryItemRoleImportForm',
+    'LocationImportForm',
+    'ManufacturerImportForm',
+    'ModuleImportForm',
+    'ModuleBayImportForm',
     'ModuleTypeImportForm',
-    'PlatformCSVForm',
-    'PowerFeedCSVForm',
-    'PowerOutletCSVForm',
-    'PowerPanelCSVForm',
-    'PowerPortCSVForm',
-    'RackCSVForm',
-    'RackReservationCSVForm',
-    'RackRoleCSVForm',
-    'RearPortCSVForm',
-    'RegionCSVForm',
-    'SiteCSVForm',
-    'SiteGroupCSVForm',
-    'VirtualChassisCSVForm',
-    'VirtualDeviceContextCSVForm'
+    'PlatformImportForm',
+    'PowerFeedImportForm',
+    'PowerOutletImportForm',
+    'PowerPanelImportForm',
+    'PowerPortImportForm',
+    'RackImportForm',
+    'RackReservationImportForm',
+    'RackRoleImportForm',
+    'RearPortImportForm',
+    'RegionImportForm',
+    'SiteImportForm',
+    'SiteGroupImportForm',
+    'VirtualChassisImportForm',
+    'VirtualDeviceContextImportForm'
 )
 
 
-class RegionCSVForm(NetBoxModelCSVForm):
+class RegionImportForm(NetBoxModelImportForm):
     parent = CSVModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -63,7 +63,7 @@ class RegionCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'slug', 'parent', 'description', 'tags')
 
 
-class SiteGroupCSVForm(NetBoxModelCSVForm):
+class SiteGroupImportForm(NetBoxModelImportForm):
     parent = CSVModelChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
@@ -76,7 +76,7 @@ class SiteGroupCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'slug', 'parent', 'description')
 
 
-class SiteCSVForm(NetBoxModelCSVForm):
+class SiteImportForm(NetBoxModelImportForm):
     status = CSVChoiceField(
         choices=SiteStatusChoices,
         help_text=_('Operational status')
@@ -113,7 +113,7 @@ class SiteCSVForm(NetBoxModelCSVForm):
         }
 
 
-class LocationCSVForm(NetBoxModelCSVForm):
+class LocationImportForm(NetBoxModelImportForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -144,7 +144,7 @@ class LocationCSVForm(NetBoxModelCSVForm):
         fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'description', 'tags')
 
 
-class RackRoleCSVForm(NetBoxModelCSVForm):
+class RackRoleImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
@@ -155,7 +155,7 @@ class RackRoleCSVForm(NetBoxModelCSVForm):
         }
 
 
-class RackCSVForm(NetBoxModelCSVForm):
+class RackImportForm(NetBoxModelImportForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name'
@@ -214,7 +214,7 @@ class RackCSVForm(NetBoxModelCSVForm):
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
 
-class RackReservationCSVForm(NetBoxModelCSVForm):
+class RackReservationImportForm(NetBoxModelImportForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -264,14 +264,14 @@ class RackReservationCSVForm(NetBoxModelCSVForm):
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
-class ManufacturerCSVForm(NetBoxModelCSVForm):
+class ManufacturerImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = Manufacturer
         fields = ('name', 'slug', 'description', 'tags')
 
 
-class DeviceTypeImportForm(NetBoxModelCSVForm):
+class DeviceTypeImportForm(NetBoxModelImportForm):
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='name'
@@ -285,7 +285,7 @@ class DeviceTypeImportForm(NetBoxModelCSVForm):
         ]
 
 
-class ModuleTypeImportForm(NetBoxModelCSVForm):
+class ModuleTypeImportForm(NetBoxModelImportForm):
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='name'
@@ -296,7 +296,7 @@ class ModuleTypeImportForm(NetBoxModelCSVForm):
         fields = ['manufacturer', 'model', 'part_number', 'description', 'comments']
 
 
-class DeviceRoleCSVForm(NetBoxModelCSVForm):
+class DeviceRoleImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
@@ -307,7 +307,7 @@ class DeviceRoleCSVForm(NetBoxModelCSVForm):
         }
 
 
-class PlatformCSVForm(NetBoxModelCSVForm):
+class PlatformImportForm(NetBoxModelImportForm):
     slug = SlugField()
     manufacturer = CSVModelChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -321,7 +321,7 @@ class PlatformCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'tags')
 
 
-class BaseDeviceCSVForm(NetBoxModelCSVForm):
+class BaseDeviceImportForm(NetBoxModelImportForm):
     device_role = CSVModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
@@ -384,7 +384,7 @@ class BaseDeviceCSVForm(NetBoxModelCSVForm):
             self.fields['device_type'].queryset = self.fields['device_type'].queryset.filter(**params)
 
 
-class DeviceCSVForm(BaseDeviceCSVForm):
+class DeviceImportForm(BaseDeviceImportForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -413,7 +413,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         help_text=_('Airflow direction')
     )
 
-    class Meta(BaseDeviceCSVForm.Meta):
+    class Meta(BaseDeviceImportForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'location', 'rack', 'position', 'face', 'airflow', 'virtual_chassis', 'vc_position', 'vc_priority',
@@ -437,7 +437,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
-class ModuleCSVForm(NetBoxModelCSVForm):
+class ModuleImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -466,7 +466,7 @@ class ModuleCSVForm(NetBoxModelCSVForm):
             self.fields['module_bay'].queryset = self.fields['module_bay'].queryset.filter(**params)
 
 
-class ChildDeviceCSVForm(BaseDeviceCSVForm):
+class ChildDeviceImportForm(BaseDeviceImportForm):
     parent = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -478,7 +478,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
         help_text=_('Device bay in which this device is installed')
     )
 
-    class Meta(BaseDeviceCSVForm.Meta):
+    class Meta(BaseDeviceImportForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
             'parent', 'device_bay', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster', 'comments', 'tags'
@@ -512,7 +512,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
 # Device components
 #
 
-class ConsolePortCSVForm(NetBoxModelCSVForm):
+class ConsolePortImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -535,7 +535,7 @@ class ConsolePortCSVForm(NetBoxModelCSVForm):
         fields = ('device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags')
 
 
-class ConsoleServerPortCSVForm(NetBoxModelCSVForm):
+class ConsoleServerPortImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -558,7 +558,7 @@ class ConsoleServerPortCSVForm(NetBoxModelCSVForm):
         fields = ('device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags')
 
 
-class PowerPortCSVForm(NetBoxModelCSVForm):
+class PowerPortImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -576,7 +576,7 @@ class PowerPortCSVForm(NetBoxModelCSVForm):
         )
 
 
-class PowerOutletCSVForm(NetBoxModelCSVForm):
+class PowerOutletImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -625,7 +625,7 @@ class PowerOutletCSVForm(NetBoxModelCSVForm):
             self.fields['power_port'].queryset = PowerPort.objects.none()
 
 
-class InterfaceCSVForm(NetBoxModelCSVForm):
+class InterfaceImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -712,7 +712,7 @@ class InterfaceCSVForm(NetBoxModelCSVForm):
             return self.cleaned_data['enabled']
 
 
-class FrontPortCSVForm(NetBoxModelCSVForm):
+class FrontPortImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -760,7 +760,7 @@ class FrontPortCSVForm(NetBoxModelCSVForm):
             self.fields['rear_port'].queryset = RearPort.objects.none()
 
 
-class RearPortCSVForm(NetBoxModelCSVForm):
+class RearPortImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -778,7 +778,7 @@ class RearPortCSVForm(NetBoxModelCSVForm):
         }
 
 
-class ModuleBayCSVForm(NetBoxModelCSVForm):
+class ModuleBayImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -789,7 +789,7 @@ class ModuleBayCSVForm(NetBoxModelCSVForm):
         fields = ('device', 'name', 'label', 'position', 'description', 'tags')
 
 
-class DeviceBayCSVForm(NetBoxModelCSVForm):
+class DeviceBayImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -835,7 +835,7 @@ class DeviceBayCSVForm(NetBoxModelCSVForm):
             self.fields['installed_device'].queryset = Interface.objects.none()
 
 
-class InventoryItemCSVForm(NetBoxModelCSVForm):
+class InventoryItemImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -884,7 +884,7 @@ class InventoryItemCSVForm(NetBoxModelCSVForm):
 # Device component roles
 #
 
-class InventoryItemRoleCSVForm(NetBoxModelCSVForm):
+class InventoryItemRoleImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
@@ -899,7 +899,7 @@ class InventoryItemRoleCSVForm(NetBoxModelCSVForm):
 # Cables
 #
 
-class CableCSVForm(NetBoxModelCSVForm):
+class CableImportForm(NetBoxModelImportForm):
     # Termination A
     side_a_device = CSVModelChoiceField(
         queryset=Device.objects.all(),
@@ -1004,7 +1004,7 @@ class CableCSVForm(NetBoxModelCSVForm):
 # Virtual chassis
 #
 
-class VirtualChassisCSVForm(NetBoxModelCSVForm):
+class VirtualChassisImportForm(NetBoxModelImportForm):
     master = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -1021,7 +1021,7 @@ class VirtualChassisCSVForm(NetBoxModelCSVForm):
 # Power
 #
 
-class PowerPanelCSVForm(NetBoxModelCSVForm):
+class PowerPanelImportForm(NetBoxModelImportForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -1047,7 +1047,7 @@ class PowerPanelCSVForm(NetBoxModelCSVForm):
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
 
-class PowerFeedCSVForm(NetBoxModelCSVForm):
+class PowerFeedImportForm(NetBoxModelImportForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -1115,7 +1115,7 @@ class PowerFeedCSVForm(NetBoxModelCSVForm):
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
-class VirtualDeviceContextCSVForm(NetBoxModelCSVForm):
+class VirtualDeviceContextImportForm(NetBoxModelImportForm):
 
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),

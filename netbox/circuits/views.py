@@ -57,7 +57,7 @@ class ProviderDeleteView(generic.ObjectDeleteView):
 
 class ProviderBulkImportView(generic.BulkImportView):
     queryset = Provider.objects.all()
-    model_form = forms.ProviderCSVForm
+    model_form = forms.ProviderImportForm
     table = tables.ProviderTable
 
 
@@ -122,7 +122,7 @@ class ProviderNetworkDeleteView(generic.ObjectDeleteView):
 
 class ProviderNetworkBulkImportView(generic.BulkImportView):
     queryset = ProviderNetwork.objects.all()
-    model_form = forms.ProviderNetworkCSVForm
+    model_form = forms.ProviderNetworkImportForm
     table = tables.ProviderNetworkTable
 
 
@@ -179,7 +179,7 @@ class CircuitTypeDeleteView(generic.ObjectDeleteView):
 
 class CircuitTypeBulkImportView(generic.BulkImportView):
     queryset = CircuitType.objects.all()
-    model_form = forms.CircuitTypeCSVForm
+    model_form = forms.CircuitTypeImportForm
     table = tables.CircuitTypeTable
 
 
@@ -231,7 +231,7 @@ class CircuitDeleteView(generic.ObjectDeleteView):
 
 class CircuitBulkImportView(generic.BulkImportView):
     queryset = Circuit.objects.all()
-    model_form = forms.CircuitCSVForm
+    model_form = forms.CircuitImportForm
     table = tables.CircuitTable
 
 

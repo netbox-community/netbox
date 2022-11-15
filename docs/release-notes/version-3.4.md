@@ -10,6 +10,7 @@
 * The `noc_contact`, `admin_contact`, and `portal_url` fields have been removed from the provider model. Please replicate any data remaining in these fields to the contact model introduced in NetBox v3.1 prior to upgrading.
 * The `content_type` field on the CustomLink and ExportTemplate models have been renamed to `content_types` and now supports the assignment of multiple content types.
 * The `cf` property on an object with custom fields now returns deserialized values. For example, a custom field referencing an object will return the object instance rather than its numeric ID. To access the raw serialized values, use `custom_field_data` instead.
+* The `NetBoxModelCSVForm` class has been renamed to `NetBoxModelImportForm`. Backward compatability with the previous name has been retained for this release, but will be dropped in NetBox v3.5.
 
 ### New Features
 

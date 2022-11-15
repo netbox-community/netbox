@@ -2,20 +2,20 @@ from django.utils.translation import gettext as _
 from dcim.choices import LinkStatusChoices
 from dcim.models import Interface
 from ipam.models import VLAN
-from netbox.forms import NetBoxModelCSVForm
+from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVModelChoiceField, SlugField
 from wireless.choices import *
 from wireless.models import *
 
 __all__ = (
-    'WirelessLANCSVForm',
-    'WirelessLANGroupCSVForm',
-    'WirelessLinkCSVForm',
+    'WirelessLANImportForm',
+    'WirelessLANGroupImportForm',
+    'WirelessLinkImportForm',
 )
 
 
-class WirelessLANGroupCSVForm(NetBoxModelCSVForm):
+class WirelessLANGroupImportForm(NetBoxModelImportForm):
     parent = CSVModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False,
@@ -29,7 +29,7 @@ class WirelessLANGroupCSVForm(NetBoxModelCSVForm):
         fields = ('name', 'slug', 'parent', 'description', 'tags')
 
 
-class WirelessLANCSVForm(NetBoxModelCSVForm):
+class WirelessLANImportForm(NetBoxModelImportForm):
     group = CSVModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False,
@@ -71,7 +71,7 @@ class WirelessLANCSVForm(NetBoxModelCSVForm):
         )
 
 
-class WirelessLinkCSVForm(NetBoxModelCSVForm):
+class WirelessLinkImportForm(NetBoxModelImportForm):
     status = CSVChoiceField(
         choices=LinkStatusChoices,
         help_text=_('Connection status')

@@ -11,8 +11,9 @@ from utilities.forms import BootstrapMixin, CSVModelForm
 from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
 
 __all__ = (
-    'NetBoxModelForm',
     'NetBoxModelCSVForm',
+    'NetBoxModelForm',
+    'NetBoxModelImportForm',
     'NetBoxModelBulkEditForm',
     'NetBoxModelFilterSetForm',
 )
@@ -59,7 +60,7 @@ class NetBoxModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
         return super().clean()
 
 
-class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
+class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
     """
     Base form for creating a NetBox objects from CSV data. Used for bulk importing.
     """
@@ -81,6 +82,14 @@ class NetBoxModelCSVForm(CSVModelForm, NetBoxModelForm):
 
     def _get_form_field(self, customfield):
         return customfield.to_form_field(for_csv_import=True)
+
+
+class NetBoxModelCSVForm(NetBoxModelImportForm):
+    """
+    Maintains backward compatibility for NetBoxModelImportForm for plugins.
+    """
+    # TODO: Remove in NetBox v3.5
+    pass
 
 
 class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):

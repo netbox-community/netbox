@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from dcim.filtersets import SiteFilterSet
-from dcim.forms import SiteCSVForm
+from dcim.forms import SiteImportForm
 from dcim.models import Manufacturer, Rack, Site
 from extras.choices import *
 from extras.models import CustomField
@@ -983,7 +983,7 @@ class CustomFieldImportTest(TestCase):
             'slug': 'site-1',
         }
 
-        form = SiteCSVForm(data=form_data)
+        form = SiteImportForm(data=form_data)
         self.assertFalse(form.is_valid())
         self.assertIn('cf_text', form.errors)
 
@@ -997,7 +997,7 @@ class CustomFieldImportTest(TestCase):
             'cf_select': 'Choice X'
         }
 
-        form = SiteCSVForm(data=form_data)
+        form = SiteImportForm(data=form_data)
         self.assertFalse(form.is_valid())
         self.assertIn('cf_select', form.errors)
 
