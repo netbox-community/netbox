@@ -156,6 +156,9 @@ These views are provided to enable or enhance certain NetBox model features, suc
 
 ### Additional Tabs
 
+!!! note
+    This feature was introduced in NetBox v3.4.
+
 Plugins can "attach" a custom view to a core NetBox model by registering it with `register_model_view()`. To include a tab for this view within the NetBox UI, declare a TabView instance named `tab`:
 
 ```python
@@ -164,7 +167,7 @@ from myplugin.models import Stuff
 from netbox.views import generic
 from utilities.views import ViewTab, register_model_view
 
-@register_model_view(Site, 'mview', path='some-other-stuff')
+@register_model_view(Site, name='myview', path='some-other-stuff')
 class MyView(generic.ObjectView):
     ...
     tab = ViewTab(
@@ -180,23 +183,22 @@ class MyView(generic.ObjectView):
 
 ### Extra Template Content
 
-Plugins can inject custom content into certain areas of the detail views of applicable models. This is accomplished by subclassing `PluginTemplateExtension`, designating a particular NetBox model, and defining the desired methods to render custom content. Four methods are available:
+Plugins can inject custom content into certain areas of core NetBox views. This is accomplished by subclassing `PluginTemplateExtension`, designating a particular NetBox model, and defining the desired method(s) to render custom content. Five methods are available:
 
-* `left_page()` - Inject content on the left side of the page
-* `right_page()` - Inject content on the right side of the page
-* `full_width_page()` - Inject content across the entire bottom of the page
-* `buttons()` - Add buttons to the top of the page
-
-Plugins can also inject custom content into certain areas of the list views of applicable models using the same subclass of `PluginTemplateExtension`. One method is available:
-
-* `list_buttons()` - Add buttons to the top of the list view page
+| Method              | View        | Description                                         |
+|---------------------|-------------|-----------------------------------------------------|
+| `left_page()`       | Object view | Inject content on the left side of the page         |
+| `right_page()`      | Object view | Inject content on the right side of the page        |
+| `full_width_page()` | Object view | Inject content across the entire bottom of the page |
+| `buttons()`         | Object view | Add buttons to the top of the page                  |
+| `list_buttons()`    | List view   | Add buttons to the top of the page                  |
 
 Additionally, a `render()` method is available for convenience. This method accepts the name of a template to render, and any additional context data you want to pass. Its use is optional, however.
 
 When a PluginTemplateExtension is instantiated, context data is assigned to `self.context`. Available data include:
 
-* `object` - The object being viewed (for detail views only)
-* `model` - The model of the list view (for list views only)
+* `object` - The object being viewed (object views only)
+* `model` - The model of the list view (list views only)
 * `request` - The current request
 * `settings` - Global NetBox settings
 * `config` - Plugin-specific configuration parameters

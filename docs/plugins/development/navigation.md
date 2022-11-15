@@ -16,7 +16,7 @@ menu = PluginMenu(
         ('Foo', (item1, item2, item3)),
         ('Bar', (item4, item5)),
     ),
-    icon='mdi mdi-router'
+    icon_class='mdi mdi-router'
 )
 ```
 

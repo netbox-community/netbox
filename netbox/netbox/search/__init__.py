@@ -24,7 +24,7 @@ class SearchIndex:
     """
     Base class for building search indexes.
 
-    Attrs:
+    Attributes:
         model: The model class for which this index is used.
         category: The label of the group under which this indexer is categorized (for form field display). If none,
             the name of the model's app will be used.
