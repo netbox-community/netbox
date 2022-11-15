@@ -72,8 +72,10 @@ class JobResultFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
         ('Attributes', ('obj_type', 'status')),
-        ('Creation', ('created__before', 'created__after', 'completed__before', 'completed__after',
-                      'scheduled_time__before', 'scheduled_time__after', 'user')),
+        ('Creation', (
+            'created__before', 'created__after', 'completed__before', 'completed__after', 'scheduled__before',
+            'scheduled__after', 'user',
+        )),
     )
 
     obj_type = ContentTypeChoiceField(
@@ -102,11 +104,11 @@ class JobResultFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         widget=DateTimePicker()
     )
-    scheduled_time__after = forms.DateTimeField(
+    scheduled__after = forms.DateTimeField(
         required=False,
         widget=DateTimePicker()
     )
-    scheduled_time__before = forms.DateTimeField(
+    scheduled__before = forms.DateTimeField(
         required=False,
         widget=DateTimePicker()
     )

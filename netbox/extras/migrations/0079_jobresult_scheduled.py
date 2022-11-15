@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='jobresult',
-            name='scheduled_time',
+            name='scheduled',
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AlterModelOptions(

@@ -385,7 +385,8 @@ class JobResultSerializer(BaseModelSerializer):
     class Meta:
         model = JobResult
         fields = [
-            'id', 'url', 'display', 'created', 'completed', 'scheduled_time', 'name', 'obj_type', 'status', 'user', 'data', 'job_id',
+            'id', 'url', 'display', 'status', 'created', 'scheduled', 'completed', 'name', 'obj_type', 'user', 'data',
+            'job_id',
         ]
 
 

@@ -130,6 +130,8 @@ This release introduces a new programmatic API that enables plugins and custom s
     * Renamed `content_type` field to `content_types`
 * extras.ExportTemplate
     * Renamed `content_type` field to `content_types`
+* extras.JobResult
+    * Added the `scheduled` field
 * ipam.Aggregate
     * Added a `comments` field
 * ipam.ASN

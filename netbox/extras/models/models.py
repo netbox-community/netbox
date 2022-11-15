@@ -581,11 +581,11 @@ class JobResult(models.Model):
     created = models.DateTimeField(
         auto_now_add=True
     )
-    completed = models.DateTimeField(
+    scheduled = models.DateTimeField(
         null=True,
         blank=True
     )
-    scheduled_time = models.DateTimeField(
+    completed = models.DateTimeField(
         null=True,
         blank=True
     )
@@ -672,7 +672,7 @@ class JobResult(models.Model):
 
         if schedule_at:
             job_result.status = JobResultStatusChoices.STATUS_SCHEDULED
-            job_result.scheduled_time = schedule_at
+            job_result.scheduled = schedule_at
             job_result.save()
 
             queue.enqueue_at(schedule_at, func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)

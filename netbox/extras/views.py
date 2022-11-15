@@ -673,7 +673,6 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         if report is None:
             raise Http404
 
-        schedule_at = None
         form = ReportForm(request.POST)
 
         if form.is_valid():
