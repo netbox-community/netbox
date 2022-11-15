@@ -7,6 +7,8 @@ class CableIndex(SearchIndex):
     model = models.Cable
     fields = (
         ('label', 100),
+        ('description', 500),
+        ('comments', 5000),
     )
 
 
@@ -39,6 +41,7 @@ class DeviceIndex(SearchIndex):
         ('asset_tag', 50),
         ('serial', 60),
         ('name', 100),
+        ('description', 500),
         ('comments', 5000),
     )
 
@@ -69,6 +72,7 @@ class DeviceTypeIndex(SearchIndex):
     fields = (
         ('model', 100),
         ('part_number', 200),
+        ('description', 500),
         ('comments', 5000),
     )
 
@@ -136,6 +140,7 @@ class ModuleIndex(SearchIndex):
     fields = (
         ('asset_tag', 50),
         ('serial', 60),
+        ('description', 500),
         ('comments', 5000),
     )
 
@@ -156,6 +161,7 @@ class ModuleTypeIndex(SearchIndex):
     fields = (
         ('model', 100),
         ('part_number', 200),
+        ('description', 500),
         ('comments', 5000),
     )
 
@@ -176,6 +182,7 @@ class PowerFeedIndex(SearchIndex):
     model = models.PowerFeed
     fields = (
         ('name', 100),
+        ('description', 500),
         ('comments', 5000),
     )
 
@@ -195,6 +202,8 @@ class PowerPanelIndex(SearchIndex):
     model = models.PowerPanel
     fields = (
         ('name', 100),
+        ('description', 500),
+        ('comments', 5000),
     )
 
 
@@ -218,6 +227,7 @@ class RackIndex(SearchIndex):
         ('serial', 60),
         ('name', 100),
         ('facility_id', 200),
+        ('description', 500),
         ('comments', 5000),
     )
 
@@ -227,6 +237,7 @@ class RackReservationIndex(SearchIndex):
     model = models.RackReservation
     fields = (
         ('description', 500),
+        ('comments', 5000),
     )
 
 
@@ -256,7 +267,7 @@ class RegionIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('slug', 110),
-        ('description', 500)
+        ('description', 500),
     )
 
 
@@ -280,7 +291,7 @@ class SiteGroupIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('slug', 110),
-        ('description', 500)
+        ('description', 500),
     )
 
 
@@ -289,5 +300,18 @@ class VirtualChassisIndex(SearchIndex):
     model = models.VirtualChassis
     fields = (
         ('name', 100),
-        ('domain', 300)
+        ('domain', 300),
+        ('description', 500),
+        ('comments', 5000),
+    )
+
+
+@register_search
+class VirtualDeviceContextIndex(SearchIndex):
+    model = models.VirtualDeviceContext
+    fields = (
+        ('name', 100),
+        ('identifier', 300),
+        ('description', 500),
+        ('comments', 5000),
     )

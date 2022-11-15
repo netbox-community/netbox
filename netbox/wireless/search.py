@@ -9,6 +9,7 @@ class WirelessLANIndex(SearchIndex):
         ('ssid', 100),
         ('description', 500),
         ('auth_psk', 2000),
+        ('comments', 5000),
     )
 
 
@@ -29,4 +30,5 @@ class WirelessLinkIndex(SearchIndex):
         ('ssid', 100),
         ('description', 500),
         ('auth_psk', 2000),
+        ('comments', 5000),
     )

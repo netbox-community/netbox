@@ -9,6 +9,7 @@ class AggregateIndex(SearchIndex):
         ('prefix', 100),
         ('description', 500),
         ('date_added', 2000),
+        ('comments', 5000),
     )
 
 
@@ -28,6 +29,7 @@ class FHRPGroupIndex(SearchIndex):
         ('name', 100),
         ('group_id', 2000),
         ('description', 500),
+        ('comments', 5000),
     )
 
 
@@ -38,6 +40,7 @@ class IPAddressIndex(SearchIndex):
         ('address', 100),
         ('dns_name', 300),
         ('description', 500),
+        ('comments', 5000),
     )
 
 
@@ -48,6 +51,7 @@ class IPRangeIndex(SearchIndex):
         ('start_address', 100),
         ('end_address', 300),
         ('description', 500),
+        ('comments', 5000),
     )
 
 
@@ -58,6 +62,7 @@ class L2VPNIndex(SearchIndex):
         ('name', 100),
         ('slug', 110),
         ('description', 500),
+        ('comments', 5000),
     )
 
 
@@ -67,6 +72,7 @@ class PrefixIndex(SearchIndex):
     fields = (
         ('prefix', 100),
         ('description', 500),
+        ('comments', 5000),
     )
 
 
@@ -96,6 +102,7 @@ class RouteTargetIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('description', 500),
+        ('comments', 5000),
     )
 
 
@@ -105,6 +112,17 @@ class ServiceIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('description', 500),
+        ('comments', 5000),
+    )
+
+
+@register_search
+class ServiceTemplateIndex(SearchIndex):
+    model = models.ServiceTemplate
+    fields = (
+        ('name', 100),
+        ('description', 500),
+        ('comments', 5000),
     )
 
 
@@ -115,6 +133,7 @@ class VLANIndex(SearchIndex):
         ('name', 100),
         ('vid', 100),
         ('description', 500),
+        ('comments', 5000),
     )
 
 
@@ -136,4 +155,5 @@ class VRFIndex(SearchIndex):
         ('name', 100),
         ('rd', 200),
         ('description', 500),
+        ('comments', 5000),
     )

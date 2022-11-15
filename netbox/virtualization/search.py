@@ -7,6 +7,7 @@ class ClusterIndex(SearchIndex):
     model = models.Cluster
     fields = (
         ('name', 100),
+        ('description', 500),
         ('comments', 5000),
     )
 
@@ -36,6 +37,7 @@ class VirtualMachineIndex(SearchIndex):
     model = models.VirtualMachine
     fields = (
         ('name', 100),
+        ('description', 500),
         ('comments', 5000),
     )
 

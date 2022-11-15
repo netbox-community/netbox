@@ -40,6 +40,7 @@ class ProviderIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('account', 200),
+        ('description', 500),
         ('comments', 5000),
     )
 

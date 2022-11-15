@@ -12,6 +12,7 @@ class ContactIndex(SearchIndex):
         ('email', 300),
         ('address', 300),
         ('link', 300),
+        ('description', 500),
         ('comments', 5000),
     )
 
