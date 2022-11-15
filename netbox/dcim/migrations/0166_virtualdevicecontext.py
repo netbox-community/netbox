@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('ipam', '0063_standardize_description_comments'),
-        ('extras', '0083_savedfilter'),
+        ('extras', '0082_savedfilter'),
         ('tenancy', '0009_standardize_description_comments'),
         ('dcim', '0165_standardize_description_comments'),
     ]

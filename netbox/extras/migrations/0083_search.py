@@ -1,13 +1,28 @@
-from django.db import migrations, models
-import django.db.models.deletion
+import sys
 import uuid
+
+import django.db.models.deletion
+from django.core import management
+from django.db import migrations, models
+
+
+def reindex(apps, schema_editor):
+    # Build the search index (except during tests)
+    if 'test' not in sys.argv:
+        management.call_command('reindex')
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('circuits', '0041_standardize_description_comments'),
         ('contenttypes', '0002_remove_content_type_name'),
-        ('extras', '0079_jobresult_scheduled_time'),
+        ('dcim', '0166_virtualdevicecontext'),
+        ('extras', '0082_savedfilter'),
+        ('ipam', '0063_standardize_description_comments'),
+        ('tenancy', '0009_standardize_description_comments'),
+        ('virtualization', '0034_standardize_description_comments'),
+        ('wireless', '0008_wirelesslan_status'),
     ]
 
     operations = [
@@ -31,5 +46,9 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('weight', 'object_type', 'object_id'),
             },
+        ),
+        migrations.RunPython(
+            code=reindex,
+            reverse_code=migrations.RunPython.noop
         ),
     ]
