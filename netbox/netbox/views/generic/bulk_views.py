@@ -345,11 +345,15 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         return obj
 
-    def save_object(self, obj_form, request):
+    def save_object(self, object_form, request):
         """
         Provide a hook to modify the object immediately before saving it (e.g. to encrypt secret data).
+
+        Args:
+            object_form: The model form instance
+            request: The current request
         """
-        return obj_form.save()
+        return object_form.save()
 
     def create_and_update_objects(self, form, request):
         saved_objects = []

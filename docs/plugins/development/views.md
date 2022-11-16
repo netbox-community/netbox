@@ -127,7 +127,8 @@ Below are the class definitions for NetBox's multi-object views. These views han
 
 ::: netbox.views.generic.BulkImportView
     options:
-      members: false
+      members:
+        - save_object
 
 ::: netbox.views.generic.BulkEditView
     options:
