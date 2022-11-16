@@ -4,10 +4,13 @@
 
 ### Enhancements
 
+* [#10356](https://github.com/netbox-community/netbox/issues/10356) - Add backplane Ethernet interface types
 * [#10902](https://github.com/netbox-community/netbox/issues/10902) - Add location selector to power feed form
+* [#10904](https://github.com/netbox-community/netbox/issues/10904) - Use front/rear port colors in cable trace SVG
 * [#10914](https://github.com/netbox-community/netbox/issues/10914) - Include "add module type" button on manufacturer view
 * [#10915](https://github.com/netbox-community/netbox/issues/10915) - Add count of L2VPNs to tenant view
 * [#10919](https://github.com/netbox-community/netbox/issues/10919) - Include device location under cable view
+* [#10920](https://github.com/netbox-community/netbox/issues/10920) - Include request cookies when queuing a custom script
 
 ### Bug Fixes
 
