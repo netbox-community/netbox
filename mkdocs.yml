@@ -72,6 +72,7 @@ nav:
         - Virtualization: 'features/virtualization.md'
         - Tenancy: 'features/tenancy.md'
         - Contacts: 'features/contacts.md'
+        - Search: 'features/search.md'
         - Context Data: 'features/context-data.md'
         - Change Logging: 'features/change-logging.md'
         - Journaling: 'features/journaling.md'
