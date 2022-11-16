@@ -902,9 +902,6 @@ class FrontPort(ModularComponentModel, CabledObjectModel):
             ('rear_port', 'rear_port_position'),
         )
 
-    def get_color(self):
-        return self.color
-
     def get_absolute_url(self):
         return reverse('dcim:frontport', kwargs={'pk': self.pk})
 
@@ -950,9 +947,6 @@ class RearPort(ModularComponentModel, CabledObjectModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def get_color(self):
-        return self.color
 
     def get_absolute_url(self):
         return reverse('dcim:rearport', kwargs={'pk': self.pk})

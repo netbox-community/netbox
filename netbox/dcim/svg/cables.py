@@ -166,9 +166,7 @@ class CableTraceSVG:
         """
         if hasattr(instance, 'parent_object'):
             # Termination
-            if(hasattr(instance, 'get_color') and instance.get_color()):
-                return instance.get_color()
-            return 'f0f0f0'
+            return getattr(instance, 'color', 'f0f0f0') or 'f0f0f0'
         if hasattr(instance, 'device_role'):
             # Device
             return instance.device_role.color
