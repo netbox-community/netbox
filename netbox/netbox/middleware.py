@@ -11,7 +11,7 @@ from django.http import Http404, HttpResponseRedirect
 
 from extras.context_managers import change_logging
 from netbox.config import clear_config
-from netbox.views import server_error
+from netbox.views import handler_500
 from utilities.api import is_api_request, rest_api_server_error
 
 
@@ -201,4 +201,4 @@ class ExceptionHandlingMiddleware:
 
         # Return a custom error message, or fall back to Django's default 500 error handling
         if custom_template:
-            return server_error(request, template_name=custom_template)
+            return handler_500(request, template_name=custom_template)
