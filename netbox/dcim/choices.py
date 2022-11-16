@@ -783,6 +783,17 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_400GE_QSFP_DD = '400gbase-x-qsfpdd'
     TYPE_400GE_OSFP = '400gbase-x-osfp'
 
+    # Ethernet Backplane
+    TYPE_1GE_KX = '1000base-kx'
+    TYPE_10GE_KR = '10gbase-kr'
+    TYPE_10GE_KX4 = '10gbase-kx4'
+    TYPE_25GE_KR = '25gbase-kr'
+    TYPE_40GE_KR4 = '40gbase-kr4'
+    TYPE_50GE_KR = '50gbase-kr'
+    TYPE_100GE_KP4 = '100gbase-kp4'
+    TYPE_100GE_KR2 = '100gbase-kr2'
+    TYPE_100GE_KR4 = '100gbase-kr4'
+
     # Wireless
     TYPE_80211A = 'ieee802.11a'
     TYPE_80211G = 'ieee802.11g'
@@ -909,6 +920,20 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_200GE_QSFP56, 'QSFP56 (200GE)'),
                 (TYPE_400GE_QSFP_DD, 'QSFP-DD (400GE)'),
                 (TYPE_400GE_OSFP, 'OSFP (400GE)'),
+            )
+        ),
+        (
+            'Ethernet (backplane)',
+            (
+                (TYPE_1GE_KX, '1000BASE-KX (1GE)'),
+                (TYPE_10GE_KR, '10GBASE-KR (10GE)'),
+                (TYPE_10GE_KX4, '10GBASE-KX4 (10GE)'),
+                (TYPE_25GE_KR, '25GBASE-KR (25GE)'),
+                (TYPE_40GE_KR4, '40GBASE-KR4 (40GE)'),
+                (TYPE_50GE_KR, '50GBASE-KR (50GE)'),
+                (TYPE_100GE_KP4, '100GBASE-KP4 (100GE)'),
+                (TYPE_100GE_KR2, '100GBASE-KR2 (100GE)'),
+                (TYPE_100GE_KR4, '100GBASE-KR4 (100GE)'),
             )
         ),
         (
