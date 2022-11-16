@@ -295,27 +295,7 @@
                     </div>
                 </div>
             {% endif %}
-            <div class="card">
-              <h5 class="card-header">Services</h5>
-              <div class="card-body">
-                {% if services %}
-                  <table class="table table-hover">
-                    {% for service in services %}
-                      {% include 'ipam/inc/service.html' %}
-                    {% endfor %}
-                  </table>
-                {% else %}
-                  <div class="text-muted">None</div>
-                {% endif %}
-              </div>
-              {% if perms.ipam.add_service %}
-                <div class="card-footer text-end noprint">
-                  <a href="{% url 'ipam:service_add' %}?device={{ object.pk }}" class="btn btn-sm btn-primary">
-                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Service
-                  </a>
-                </div>
-              {% endif %}
-            </div>
+            {% include 'inc/panels/services.html' %}
             {% include 'inc/panels/contacts.html' %}
             {% include 'inc/panels/image_attachments.html' %}
             {% if object.rack and object.position %}
