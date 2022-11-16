@@ -81,7 +81,7 @@
           {% else %}
             <tr>
               <td>Provider Network</td>
-              <td>{{ termination.provider_network|linkify }}</td>
+              <td>{{ termination.provider_network.provider|linkify }} / {{ termination.provider_network|linkify }}</td>
             </tr>
           {% endif %}
             <tr>
