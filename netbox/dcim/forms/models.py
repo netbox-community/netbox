@@ -880,6 +880,9 @@ class PowerFeedForm(NetBoxModelForm):
     location = DynamicModelChoiceField(
         queryset=Location.objects.all(),
         required=False,
+        query_params={
+            'site_id': '$site'
+        },
         initial_params={
             'racks': '$rack'
         }
