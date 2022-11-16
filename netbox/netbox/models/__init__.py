@@ -3,9 +3,9 @@ from django.core.validators import ValidationError
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
+from netbox.models.features import *
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
-from netbox.models.features import *
 
 __all__ = (
     'ChangeLoggedModel',
@@ -32,14 +32,6 @@ class NetBoxFeatureSet(
     @property
     def docs_url(self):
         return f'{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/'
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        """
-        Return a list of model types that are required to create this model or empty list if none.  This is used for
-        showing prerequisite warnings in the UI on the list and detail views.
-        """
-        return []
 
 
 #

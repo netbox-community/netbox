@@ -104,6 +104,10 @@ class Circuit(PrimaryModel):
     clone_fields = (
         'provider', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate', 'description',
     )
+    prerequisite_models = (
+        'circuits.CircuitType',
+        'circuits.Provider',
+    )
 
     class Meta:
         ordering = ['provider', 'cid']
@@ -116,10 +120,6 @@ class Circuit(PrimaryModel):
 
     def __str__(self):
         return self.cid
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [apps.get_model('circuits.Provider'), CircuitType]
 
     def get_absolute_url(self):
         return reverse('circuits:circuit', args=[self.pk])

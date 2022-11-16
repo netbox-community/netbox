@@ -94,6 +94,9 @@ class Cluster(PrimaryModel):
     clone_fields = (
         'type', 'group', 'status', 'tenant', 'site',
     )
+    prerequisite_models = (
+        'virtualization.ClusterType',
+    )
 
     class Meta:
         ordering = ['name']
@@ -110,10 +113,6 @@ class Cluster(PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [ClusterType, ]
 
     def get_absolute_url(self):
         return reverse('virtualization:cluster', args=[self.pk])

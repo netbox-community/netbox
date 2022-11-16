@@ -1,7 +1,6 @@
 import decimal
 from functools import cached_property
 
-from django.apps import apps
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import ArrayField
@@ -177,6 +176,9 @@ class Rack(PrimaryModel, WeightMixin):
         'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
         'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'weight_unit',
     )
+    prerequisite_models = (
+        'dcim.Site',
+    )
 
     class Meta:
         ordering = ('site', 'location', '_name', 'pk')  # (site, location, name) may be non-unique
@@ -196,10 +198,6 @@ class Rack(PrimaryModel, WeightMixin):
         if self.facility_id:
             return f'{self.name} ({self.facility_id})'
         return self.name
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [apps.get_model('dcim.Site'), ]
 
     def get_absolute_url(self):
         return reverse('dcim:rack', args=[self.pk])
@@ -488,15 +486,15 @@ class RackReservation(PrimaryModel):
         max_length=200
     )
 
+    prerequisite_models = (
+        'dcim.Rack',
+    )
+
     class Meta:
         ordering = ['created', 'pk']
 
     def __str__(self):
         return "Reservation for rack {}".format(self.rack)
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [apps.get_model('dcim.Site'), Rack, ]
 
     def get_absolute_url(self):
         return reverse('dcim:rackreservation', args=[self.pk])

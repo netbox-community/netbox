@@ -124,6 +124,9 @@ class DeviceType(PrimaryModel, WeightMixin):
     clone_fields = (
         'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
     )
+    prerequisite_models = (
+        'dcim.Manufacturer',
+    )
 
     class Meta:
         ordering = ['manufacturer', 'model']
@@ -150,10 +153,6 @@ class DeviceType(PrimaryModel, WeightMixin):
         # Save references to the original front/rear images
         self._original_front_image = self.front_image
         self._original_rear_image = self.rear_image
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [Manufacturer, ]
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
@@ -325,6 +324,9 @@ class ModuleType(PrimaryModel, WeightMixin):
     )
 
     clone_fields = ('manufacturer', 'weight', 'weight_unit',)
+    prerequisite_models = (
+        'dcim.Manufacturer',
+    )
 
     class Meta:
         ordering = ('manufacturer', 'model')
@@ -337,10 +339,6 @@ class ModuleType(PrimaryModel, WeightMixin):
 
     def __str__(self):
         return self.model
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [Manufacturer, ]
 
     def get_absolute_url(self):
         return reverse('dcim:moduletype', args=[self.pk])
@@ -599,6 +597,11 @@ class Device(PrimaryModel, ConfigContextModel):
         'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'face', 'status', 'airflow',
         'cluster', 'virtual_chassis',
     )
+    prerequisite_models = (
+        'dcim.Site',
+        'dcim.DeviceRole',
+        'dcim.DeviceType',
+    )
 
     class Meta:
         ordering = ('_name', 'pk')  # Name may be null
@@ -637,10 +640,6 @@ class Device(PrimaryModel, ConfigContextModel):
         elif self.device_type:
             return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
         return super().__str__()
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [apps.get_model('dcim.Site'), DeviceRole, DeviceType, ]
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])

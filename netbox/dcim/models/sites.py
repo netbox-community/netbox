@@ -286,6 +286,9 @@ class Location(NestedGroupModel):
     )
 
     clone_fields = ('site', 'parent', 'status', 'tenant', 'description')
+    prerequisite_models = (
+        'dcim.Site',
+    )
 
     class Meta:
         ordering = ['site', 'name']
@@ -311,10 +314,6 @@ class Location(NestedGroupModel):
                 violation_error_message="A location with this slug already exists within the specified site."
             ),
         )
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [Site, ]
 
     def get_absolute_url(self):
         return reverse('dcim:location', args=[self.pk])

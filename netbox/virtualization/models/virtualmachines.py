@@ -15,7 +15,6 @@ from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
 from virtualization.choices import *
-from .clusters import Cluster
 
 __all__ = (
     'VirtualMachine',
@@ -131,6 +130,9 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
     clone_fields = (
         'site', 'cluster', 'device', 'tenant', 'platform', 'status', 'role', 'vcpus', 'memory', 'disk',
     )
+    prerequisite_models = (
+        'virtualization.Cluster',
+    )
 
     class Meta:
         ordering = ('_name', 'pk')  # Name may be non-unique
@@ -149,10 +151,6 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
 
     def __str__(self):
         return self.name
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [Cluster, ]
 
     def get_absolute_url(self):
         return reverse('virtualization:virtualmachine', args=[self.pk])

@@ -1,4 +1,3 @@
-from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -48,6 +47,10 @@ class PowerPanel(PrimaryModel):
         to='extras.ImageAttachment'
     )
 
+    prerequisite_models = (
+        'dcim.Site',
+    )
+
     class Meta:
         ordering = ['site', 'name']
         constraints = (
@@ -59,10 +62,6 @@ class PowerPanel(PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [apps.get_model('dcim.Site'), ]
 
     def get_absolute_url(self):
         return reverse('dcim:powerpanel', args=[self.pk])
@@ -137,6 +136,9 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
         'power_panel', 'rack', 'status', 'type', 'mark_connected', 'supply', 'phase', 'voltage', 'amperage',
         'max_utilization',
     )
+    prerequisite_models = (
+        'dcim.PowerPanel',
+    )
 
     class Meta:
         ordering = ['power_panel', 'name']
@@ -149,10 +151,6 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
 
     def __str__(self):
         return self.name
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [PowerPanel, ]
 
     def get_absolute_url(self):
         return reverse('dcim:powerfeed', args=[self.pk])

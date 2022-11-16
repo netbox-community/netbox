@@ -10,7 +10,6 @@ from django.utils.translation import gettext as _
 
 from dcim.fields import ASNField
 from dcim.models import Device
-from netbox.models import OrganizationalModel, PrimaryModel
 from ipam.choices import *
 from ipam.constants import *
 from ipam.fields import IPNetworkField, IPAddressField
@@ -18,8 +17,8 @@ from ipam.managers import IPAddressManager
 from ipam.querysets import PrefixQuerySet
 from ipam.validators import DNSValidator
 from netbox.config import get_config
+from netbox.models import OrganizationalModel, PrimaryModel
 from virtualization.models import VirtualMachine
-
 
 __all__ = (
     'Aggregate',
@@ -101,6 +100,10 @@ class ASN(PrimaryModel):
         null=True
     )
 
+    prerequisite_models = (
+        'ipam.RIR',
+    )
+
     class Meta:
         ordering = ['asn']
         verbose_name = 'ASN'
@@ -108,10 +111,6 @@ class ASN(PrimaryModel):
 
     def __str__(self):
         return f'AS{self.asn_with_asdot}'
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [RIR, ]
 
     def get_absolute_url(self):
         return reverse('ipam:asn', args=[self.pk])
@@ -163,16 +162,15 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
     clone_fields = (
         'rir', 'tenant', 'date_added', 'description',
     )
+    prerequisite_models = (
+        'ipam.RIR',
+    )
 
     class Meta:
         ordering = ('prefix', 'pk')  # prefix may be non-unique
 
     def __str__(self):
         return str(self.prefix)
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [RIR, ]
 
     def get_absolute_url(self):
         return reverse('ipam:aggregate', args=[self.pk])
