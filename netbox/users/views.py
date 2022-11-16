@@ -20,6 +20,7 @@ from extras.tables import ObjectChangeTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from utilities.forms import ConfirmationForm
+from utilities.views import register_model_view
 from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
 from .models import Token, UserConfig
 from .tables import TokenTable
@@ -246,6 +247,7 @@ class TokenListView(LoginRequiredMixin, View):
         })
 
 
+@register_model_view(Token, 'edit')
 class TokenEditView(LoginRequiredMixin, View):
 
     def get(self, request, pk=None):
@@ -300,6 +302,7 @@ class TokenEditView(LoginRequiredMixin, View):
         })
 
 
+@register_model_view(Token, 'delete')
 class TokenDeleteView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
