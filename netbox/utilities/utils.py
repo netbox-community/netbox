@@ -468,6 +468,7 @@ def copy_safe_request(request):
     }
     return NetBoxFakeRequest({
         'META': meta,
+        'COOKIES': request.COOKIES,
         'POST': request.POST,
         'GET': request.GET,
         'FILES': request.FILES,

@@ -558,6 +558,11 @@ class FHRPGroupForm(NetBoxModelForm):
             'protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'ip_vrf', 'ip_address', 'ip_status', 'description',
             'comments', 'tags',
         )
+        widgets = {
+            'protocol': StaticSelect(),
+            'auth_type': StaticSelect(),
+            'ip_status': StaticSelect(),
+        }
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)

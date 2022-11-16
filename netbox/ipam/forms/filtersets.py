@@ -480,6 +480,7 @@ class ServiceTemplateFilterForm(NetBoxModelFilterSetForm):
 
 class ServiceFilterForm(ServiceTemplateFilterForm):
     model = Service
+    tag = TagFilterField(model)
 
 
 class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
