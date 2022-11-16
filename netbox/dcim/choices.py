@@ -1268,7 +1268,6 @@ class CableTypeChoices(ChoiceSet):
     TYPE_SMF_OS2 = 'smf-os2'
     TYPE_AOC = 'aoc'
     TYPE_POWER = 'power'
-    TYPE_BACKPLANE = 'backplane'
 
     CHOICES = (
         (
@@ -1285,7 +1284,6 @@ class CableTypeChoices(ChoiceSet):
                 (TYPE_DAC_PASSIVE, 'Direct Attach Copper (Passive)'),
                 (TYPE_MRJ21_TRUNK, 'MRJ21 Trunk'),
                 (TYPE_COAXIAL, 'Coaxial'),
-                (TYPE_BACKPLANE, 'Directly connected (Backplane)'),
             ),
         ),
         (
