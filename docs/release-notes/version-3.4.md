@@ -1,5 +1,13 @@
 # NetBox v3.4
 
+## v3.4.0 (FUTURE)
+
+### Bug Fixes
+
+* [#10957](https://github.com/netbox-community/netbox/issues/10957) - Add missing VDCs column to interface tables
+
+## v3.4-beta1 (2022-11-16)
+
 !!! warning "PostgreSQL 11 Required"
     NetBox v3.4 requires PostgreSQL 11 or later.
 

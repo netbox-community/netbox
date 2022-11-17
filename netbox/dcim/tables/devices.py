@@ -521,6 +521,10 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         orderable=False,
         verbose_name='Wireless LANs'
     )
+    vdcs = columns.ManyToManyColumn(
+        linkify_item=True,
+        verbose_name='VDCs'
+    )
     vrf = tables.Column(
         linkify=True
     )
@@ -534,7 +538,7 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
             'speed', 'duplex', 'mode', 'mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role', 'rf_channel',
             'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable',
-            'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vrf', 'l2vpn',
+            'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn',
             'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
@@ -568,7 +572,7 @@ class DeviceInterfaceTable(InterfaceTable):
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'enabled', 'type', 'parent', 'bridge', 'lag',
             'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
-            'wireless_lans', 'link_peer', 'connection', 'tags', 'vrf', 'l2vpn', 'ip_addresses', 'fhrp_groups',
+            'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'ip_addresses', 'fhrp_groups',
             'untagged_vlan', 'tagged_vlans', 'actions',
         )
         order_by = ('name',)
