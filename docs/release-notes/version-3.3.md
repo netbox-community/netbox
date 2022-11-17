@@ -2,6 +2,10 @@
 
 ## v3.3.9 (FUTURE)
 
+### Bug Fixes
+
+* [#9878](https://github.com/netbox-community/netbox/issues/9878) - Fix spurious error message when rendering REST API docs
+
 ---
 
 ## v3.3.8 (2022-11-16)

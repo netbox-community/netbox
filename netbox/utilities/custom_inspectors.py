@@ -28,13 +28,12 @@ class NetBoxSwaggerAutoSchema(SwaggerAutoSchema):
         serializer = super().get_request_serializer()
 
         if serializer is not None and self.method in self.implicit_body_methods:
-            writable_class = self.get_writable_class(serializer)
-            if writable_class is not None:
+            if writable_class := self.get_writable_class(serializer):
                 if hasattr(serializer, 'child'):
                     child_serializer = self.get_writable_class(serializer.child)
-                    serializer = writable_class(child=child_serializer)
+                    serializer = writable_class(context=serializer.context, child=child_serializer)
                 else:
-                    serializer = writable_class()
+                    serializer = writable_class(context=serializer.context)
         return serializer
 
     def get_writable_class(self, serializer):
