@@ -1,9 +1,24 @@
 # NetBox v3.3
 
-## v3.3.8 (FUTURE)
+## v3.3.9 (FUTURE)
+
+---
+
+## v3.3.8 (2022-11-16)
+
+### Enhancements
+
+* [#10356](https://github.com/netbox-community/netbox/issues/10356) - Add backplane Ethernet interface types
+* [#10902](https://github.com/netbox-community/netbox/issues/10902) - Add location selector to power feed form
+* [#10904](https://github.com/netbox-community/netbox/issues/10904) - Use front/rear port colors in cable trace SVG
+* [#10914](https://github.com/netbox-community/netbox/issues/10914) - Include "add module type" button on manufacturer view
+* [#10915](https://github.com/netbox-community/netbox/issues/10915) - Add count of L2VPNs to tenant view
+* [#10919](https://github.com/netbox-community/netbox/issues/10919) - Include device location under cable view
+* [#10920](https://github.com/netbox-community/netbox/issues/10920) - Include request cookies when queuing a custom script
 
 ### Bug Fixes
 
+* [#9439](https://github.com/netbox-community/netbox/issues/9439) - Ensure thread safety of change logging functions
 * [#10709](https://github.com/netbox-community/netbox/issues/10709) - Correct UI display for `azuread-v2-tenant-oauth2` SSO backend
 * [#10829](https://github.com/netbox-community/netbox/issues/10829) - Fix bulk edit/delete buttons ad top of object lists
 * [#10837](https://github.com/netbox-community/netbox/issues/10837) - Correct cookie paths when `BASE_PATH` is set
