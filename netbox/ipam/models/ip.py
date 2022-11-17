@@ -9,7 +9,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 
 from dcim.fields import ASNField
-from dcim.models import Device
+from dcim.models import Device, VirtualDeviceContext
 from ipam.choices import *
 from ipam.constants import *
 from ipam.fields import IPNetworkField, IPAddressField
@@ -866,7 +866,7 @@ class IPAddress(PrimaryModel):
 
         # Check for primary IP assignment that doesn't match the assigned device/VM
         if self.pk:
-            for cls, attr in ((Device, 'device'), (VirtualMachine, 'virtual_machine')):
+            for cls, attr in ((Device, 'device'), (VirtualMachine, 'virtual_machine'), (VirtualDeviceContext, 'device')):
                 parent = cls.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
                 if parent and getattr(self.assigned_object, attr, None) != parent:
                     # Check for a NAT relationship
