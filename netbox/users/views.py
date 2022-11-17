@@ -106,7 +106,7 @@ class LoginView(View):
             return self.redirect_to_next(request, logger)
 
         else:
-            logger.info(f"Login form validation failed for username: {form['username'].value()}")
+            logger.debug(f"Login form validation failed for username: {form['username'].value()}")
 
         return render(request, self.template_name, {
             'form': form,
