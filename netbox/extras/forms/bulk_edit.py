@@ -44,6 +44,10 @@ class CustomFieldBulkEditForm(BulkEditForm):
         required=False,
         initial=''
     )
+    is_cloneable = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
 
     nullable_fields = ('group_name', 'description',)
 
