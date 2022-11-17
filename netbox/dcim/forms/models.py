@@ -877,10 +877,21 @@ class PowerFeedForm(NetBoxModelForm):
             'site_id': '$site'
         }
     )
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site'
+        },
+        initial_params={
+            'racks': '$rack'
+        }
+    )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         query_params={
+            'location_id': '$location',
             'site_id': '$site'
         }
     )
@@ -888,14 +899,14 @@ class PowerFeedForm(NetBoxModelForm):
 
     fieldsets = (
         ('Power Panel', ('region', 'site', 'power_panel')),
-        ('Power Feed', ('rack', 'name', 'status', 'type', 'mark_connected', 'tags')),
+        ('Power Feed', ('location', 'rack', 'name', 'status', 'type', 'mark_connected', 'tags')),
         ('Characteristics', ('supply', 'voltage', 'amperage', 'phase', 'max_utilization')),
     )
 
     class Meta:
         model = PowerFeed
         fields = [
-            'region', 'site_group', 'site', 'power_panel', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply',
+            'region', 'site_group', 'site', 'power_panel', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply',
             'phase', 'voltage', 'amperage', 'max_utilization', 'comments', 'tags',
         ]
         widgets = {
