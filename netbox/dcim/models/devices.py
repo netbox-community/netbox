@@ -1178,13 +1178,12 @@ class VirtualDeviceContext(PrimaryModel):
 
     def clean(self):
         super().clean()
-        vc_interfaces = self.device.vc_interfaces(if_master=False)
         if self.primary_ip4:
             if self.primary_ip4.family != 4:
                 raise ValidationError({
                     'primary_ip4': f"{self.primary_ip4} is not an IPv4 address."
                 })
-            if self.primary_ip4.assigned_object not in vc_interfaces:
+            if self.primary_ip4.assigned_object not in self.interfaces.all():
                 raise ValidationError({
                     'primary_ip4': f"The specified IP address ({self.primary_ip4}) is not assigned to this device."
                 })
@@ -1193,7 +1192,7 @@ class VirtualDeviceContext(PrimaryModel):
                 raise ValidationError({
                     'primary_ip6': f"{self.primary_ip6} is not an IPv6 address."
                 })
-            if self.primary_ip6.assigned_object not in vc_interfaces:
+            if self.primary_ip6.assigned_object not in self.interfaces.all():
                 raise ValidationError({
                     'primary_ip6': f"The specified IP address ({self.primary_ip6}) is not assigned to this device."
                 })

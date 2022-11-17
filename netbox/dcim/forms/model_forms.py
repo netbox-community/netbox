@@ -1705,22 +1705,6 @@ class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
             'rack_id': '$rack',
         }
     )
-    primary_ip4 = DynamicModelChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        query_params={
-            'device_id': '$device',
-            'family': 4,
-        }
-    )
-    primary_ip6 = DynamicModelChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        query_params={
-            'device_id': '$device',
-            'family': 6,
-        }
-    )
 
     fieldsets = (
         ('Assigned Device', ('region', 'site_group', 'site', 'location', 'rack', 'device')),
@@ -1736,4 +1720,35 @@ class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
         ]
         widgets = {
             'status': StaticSelect(),
+            'primary_ip4': StaticSelect(),
+            'primary_ip6': StaticSelect(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.pk:
+
+            # Compile list of choices for primary IPv4 and IPv6 addresses
+            for family in [4, 6]:
+                ip_choices = [(None, '---------')]
+
+                # Gather PKs of all interfaces belonging to this Device or a peer VirtualChassis member
+                interface_ids = self.instance.interfaces.values_list('pk', flat=True)
+
+                # Collect interface IPs
+                interface_ips = IPAddress.objects.filter(
+                    address__family=family,
+                    assigned_object_type=ContentType.objects.get_for_model(Interface),
+                    assigned_object_id__in=interface_ids
+                ).prefetch_related('assigned_object')
+                if interface_ips:
+                    ip_list = [(ip.id, f'{ip.address} ({ip.assigned_object})') for ip in interface_ips]
+                    ip_choices.append(('Interface IPs', ip_list))
+                self.fields['primary_ip{}'.format(family)].choices = ip_choices
+        else:
+            # An object that doesn't exist yet can't have any IPs assigned to it
+            self.fields['primary_ip4'].choices = []
+            self.fields['primary_ip4'].widget.attrs['readonly'] = True
+            self.fields['primary_ip6'].choices = []
+            self.fields['primary_ip6'].widget.attrs['readonly'] = True
