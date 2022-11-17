@@ -1323,6 +1323,7 @@ class CablePathTestCase(TestCase):
             is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 1)
+        self.assertTrue(CablePath.objects.first().is_complete)
 
         # Delete cable 1
         cable1.delete()

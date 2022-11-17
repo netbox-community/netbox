@@ -570,6 +570,7 @@ class CablePath(models.Model):
                         [object_to_path_node(circuit_termination)],
                         [object_to_path_node(circuit_termination.provider_network)],
                     ])
+                    is_complete = True
                     break
                 elif circuit_termination.site and not circuit_termination.cable:
                     # Circuit terminates to a Site

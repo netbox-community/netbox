@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#9878](https://github.com/netbox-community/netbox/issues/9878) - Fix spurious error message when rendering REST API docs
+* [#10579](https://github.com/netbox-community/netbox/issues/10579) - Mark cable traces terminating to a provider network as complete
 
 ---
 
