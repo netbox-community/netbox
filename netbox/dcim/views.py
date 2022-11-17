@@ -2072,6 +2072,7 @@ class NAPALMViewTab(ViewTab):
         if not (
             instance.status == 'active' and
             instance.primary_ip and
+            instance.platform and
             instance.platform.napalm_driver
         ):
             return None
