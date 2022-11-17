@@ -5,7 +5,8 @@ from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer,
 
 class NaturalOrderingTestCase(TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -15,12 +16,12 @@ class NaturalOrderingTestCase(TestCase):
         devicerole = DeviceRole.objects.create(
             name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
         )
-        self.device = Device.objects.create(
+        Device.objects.create(
             device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
         )
 
     def test_interface_ordering_numeric(self):
-
+        device = Device.objects.first()
         INTERFACES = [
             '0',
             '0.0',
@@ -57,16 +58,16 @@ class NaturalOrderingTestCase(TestCase):
         ]
 
         for name in INTERFACES:
-            iface = Interface(device=self.device, name=name)
+            iface = Interface(device=device, name=name)
             iface.save()
 
         self.assertListEqual(
-            list(Interface.objects.filter(device=self.device).values_list('name', flat=True)),
+            list(Interface.objects.filter(device=device).values_list('name', flat=True)),
             INTERFACES
         )
 
     def test_interface_ordering_linux(self):
-
+        device = Device.objects.first()
         INTERFACES = [
             'eth0',
             'eth0.1',
@@ -81,16 +82,16 @@ class NaturalOrderingTestCase(TestCase):
         ]
 
         for name in INTERFACES:
-            iface = Interface(device=self.device, name=name)
+            iface = Interface(device=device, name=name)
             iface.save()
 
         self.assertListEqual(
-            list(Interface.objects.filter(device=self.device).values_list('name', flat=True)),
+            list(Interface.objects.filter(device=device).values_list('name', flat=True)),
             INTERFACES
         )
 
     def test_interface_ordering_junos(self):
-
+        device = Device.objects.first()
         INTERFACES = [
             'xe-0/0/0',
             'xe-0/0/1',
@@ -134,16 +135,16 @@ class NaturalOrderingTestCase(TestCase):
         ]
 
         for name in INTERFACES:
-            iface = Interface(device=self.device, name=name)
+            iface = Interface(device=device, name=name)
             iface.save()
 
         self.assertListEqual(
-            list(Interface.objects.filter(device=self.device).values_list('name', flat=True)),
+            list(Interface.objects.filter(device=device).values_list('name', flat=True)),
             INTERFACES
         )
 
     def test_interface_ordering_ios(self):
-
+        device = Device.objects.first()
         INTERFACES = [
             'GigabitEthernet0/1',
             'GigabitEthernet0/2',
@@ -161,10 +162,10 @@ class NaturalOrderingTestCase(TestCase):
         ]
 
         for name in INTERFACES:
-            iface = Interface(device=self.device, name=name)
+            iface = Interface(device=device, name=name)
             iface.save()
 
         self.assertListEqual(
-            list(Interface.objects.filter(device=self.device).values_list('name', flat=True)),
+            list(Interface.objects.filter(device=device).values_list('name', flat=True)),
             INTERFACES
         )

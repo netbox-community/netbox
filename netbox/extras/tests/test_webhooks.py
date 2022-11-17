@@ -23,6 +23,7 @@ class WebhookTest(APITestCase):
     def setUp(self):
         super().setUp()
 
+        # Ensure the queue has been cleared for each test
         self.queue = django_rq.get_queue('default')
         self.queue.empty()
 

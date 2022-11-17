@@ -611,73 +611,76 @@ class ScriptTest(APITestCase):
 
 class CreatedUpdatedFilterTest(APITestCase):
 
-    def setUp(self):
-
-        super().setUp()
-
-        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
-        self.location1 = Location.objects.create(site=self.site1, name='Test Location 1', slug='test-location-1')
-        self.rackrole1 = RackRole.objects.create(name='Test Rack Role 1', slug='test-rack-role-1', color='ff0000')
-        self.rack1 = Rack.objects.create(
-            site=self.site1, location=self.location1, role=self.rackrole1, name='Test Rack 1', u_height=42,
+    @classmethod
+    def setUpTestData(cls):
+        site1 = Site.objects.create(name='Site 1', slug='site-1')
+        location1 = Location.objects.create(site=site1, name='Location 1', slug='location-1')
+        rackrole1 = RackRole.objects.create(name='Rack Role 1', slug='rack-role-1', color='ff0000')
+        racks = (
+            Rack(site=site1, location=location1, role=rackrole1, name='Rack 1', u_height=42),
+            Rack(site=site1, location=location1, role=rackrole1, name='Rack 2', u_height=42)
         )
-        self.rack2 = Rack.objects.create(
-            site=self.site1, location=self.location1, role=self.rackrole1, name='Test Rack 2', u_height=42,
-        )
+        Rack.objects.bulk_create(racks)
 
-        # change the created and last_updated of one
-        Rack.objects.filter(pk=self.rack2.pk).update(
+        # Change the created and last_updated of the second rack
+        Rack.objects.filter(pk=racks[1].pk).update(
             last_updated=make_aware(datetime.datetime(2001, 2, 3, 1, 2, 3, 4)),
             created=make_aware(datetime.datetime(2001, 2, 3))
         )
 
     def test_get_rack_created(self):
+        rack2 = Rack.objects.get(name='Rack 2')
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?created=2001-02-03'.format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
+        self.assertEqual(response.data['results'][0]['id'], rack2.pk)
 
     def test_get_rack_created_gte(self):
+        rack1 = Rack.objects.get(name='Rack 1')
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?created__gte=2001-02-04'.format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['id'], self.rack1.pk)
+        self.assertEqual(response.data['results'][0]['id'], rack1.pk)
 
     def test_get_rack_created_lte(self):
+        rack2 = Rack.objects.get(name='Rack 2')
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?created__lte=2001-02-04'.format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
+        self.assertEqual(response.data['results'][0]['id'], rack2.pk)
 
     def test_get_rack_last_updated(self):
+        rack2 = Rack.objects.get(name='Rack 2')
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?last_updated=2001-02-03%2001:02:03.000004'.format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
+        self.assertEqual(response.data['results'][0]['id'], rack2.pk)
 
     def test_get_rack_last_updated_gte(self):
+        rack1 = Rack.objects.get(name='Rack 1')
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?last_updated__gte=2001-02-04%2001:02:03.000004'.format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['id'], self.rack1.pk)
+        self.assertEqual(response.data['results'][0]['id'], rack1.pk)
 
     def test_get_rack_last_updated_lte(self):
+        rack2 = Rack.objects.get(name='Rack 2')
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?last_updated__lte=2001-02-04%2001:02:03.000004'.format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
+        self.assertEqual(response.data['results'][0]['id'], rack2.pk)
 
 
 class ContentTypeTest(APITestCase):

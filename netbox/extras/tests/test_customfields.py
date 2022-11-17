@@ -373,7 +373,8 @@ class CustomFieldTest(TestCase):
 
 class CustomFieldManagerTest(TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         content_type = ContentType.objects.get_for_model(Site)
         custom_field = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo')
         custom_field.save()
