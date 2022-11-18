@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#6389](https://github.com/netbox-community/netbox/issues/6389) - Call `snapshot()` on object when processing deletions
 * [#9878](https://github.com/netbox-community/netbox/issues/9878) - Fix spurious error message when rendering REST API docs
 * [#10579](https://github.com/netbox-community/netbox/issues/10579) - Mark cable traces terminating to a provider network as complete
 * [#10721](https://github.com/netbox-community/netbox/issues/10721) - Disable ordering by custom object field columns
