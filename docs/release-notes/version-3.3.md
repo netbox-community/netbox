@@ -9,6 +9,7 @@
 ### Bug Fixes
 
 * [#6389](https://github.com/netbox-community/netbox/issues/6389) - Call `snapshot()` on object when processing deletions
+* [#9223](https://github.com/netbox-community/netbox/issues/9223) - Fix serialization of array field values in change log
 * [#9878](https://github.com/netbox-community/netbox/issues/9878) - Fix spurious error message when rendering REST API docs
 * [#10236](https://github.com/netbox-community/netbox/issues/10236) - Fix TypeError exception when viewing PDU configured for three-phase power
 * [#10579](https://github.com/netbox-community/netbox/issues/10579) - Mark cable traces terminating to a provider network as complete
