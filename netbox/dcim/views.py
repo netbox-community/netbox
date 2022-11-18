@@ -592,6 +592,8 @@ class RackElevationListView(generic.ObjectListView):
         ORDERING_CHOICES = {
             'name': 'Name (A-Z)',
             '-name': 'Name (Z-A)',
+            'display': 'Display Name (A-Z)',
+            '-display': 'Display Name (Z-A)',
             'facility_id': 'Facility ID (A-Z)',
             '-facility_id': 'Facility ID (Z-A)',
         }
