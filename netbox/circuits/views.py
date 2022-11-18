@@ -233,6 +233,16 @@ class CircuitBulkImportView(generic.BulkImportView):
     queryset = Circuit.objects.all()
     model_form = forms.CircuitImportForm
     table = tables.CircuitTable
+    additional_permissions = [
+        'circuits.add_circuittermination',
+    ]
+    related_object_forms = {
+        'terminations': forms.CircuitTerminationImportForm,
+    }
+
+    def prep_related_object_data(self, parent, data):
+        data.update({'circuit': parent})
+        return data
 
 
 class CircuitBulkEditView(generic.BulkEditView):

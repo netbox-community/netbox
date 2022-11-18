@@ -108,6 +108,13 @@ class CircuitTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Circuit
 
+    def setUp(self):
+        super().setUp()
+
+        self.add_permissions(
+            'circuits.add_circuittermination',
+        )
+
     @classmethod
     def setUpTestData(cls):
 

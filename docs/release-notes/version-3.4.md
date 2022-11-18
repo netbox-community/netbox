@@ -2,6 +2,10 @@
 
 ## v3.4.0 (FUTURE)
 
+### Enhancements
+
+* [#815](https://github.com/netbox-community/netbox/issues/815) - Enable specifying terminations when bulk importing circuits
+
 ### Bug Fixes
 
 * [#10946](https://github.com/netbox-community/netbox/issues/10946) - Fix AttributeError exception when viewing a device with a primary IP and no platform assigned

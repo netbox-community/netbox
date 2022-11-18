@@ -458,7 +458,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                         'return_url': self.get_return_url(request),
                     })
 
-            except ValidationError:
+            except (AbortTransaction, ValidationError):
                 clear_webhooks.send(sender=self)
 
             except (AbortRequest, PermissionsViolation) as e:
