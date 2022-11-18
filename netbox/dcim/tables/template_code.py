@@ -21,9 +21,7 @@ DEVICE_WEIGHT = """
 """
 
 DEVICE_LINK = """
-<a href="{% url 'dcim:device' pk=record.pk %}">
-    {{ record.name|default:'<span class="badge bg-info">Unnamed device</span>' }}
-</a>
+{{ value|default:'<span class="badge bg-info">Unnamed device</span>' }}
 """
 
 DEVICEBAY_STATUS = """

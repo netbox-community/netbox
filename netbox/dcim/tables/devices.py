@@ -139,7 +139,8 @@ class PlatformTable(NetBoxTable):
 class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.TemplateColumn(
         order_by=('_name',),
-        template_code=DEVICE_LINK
+        template_code=DEVICE_LINK,
+        linkify=True
     )
     status = columns.ChoiceFieldColumn()
     region = tables.Column(
@@ -220,7 +221,8 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
 
 class DeviceImportTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.TemplateColumn(
-        template_code=DEVICE_LINK
+        template_code=DEVICE_LINK,
+        linkify=True
     )
     status = columns.ChoiceFieldColumn()
     site = tables.Column(
@@ -897,7 +899,8 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, NetBoxTable):
     )
     device = tables.TemplateColumn(
         order_by=('_name',),
-        template_code=DEVICE_LINK
+        template_code=DEVICE_LINK,
+        linkify=True
     )
     status = columns.ChoiceFieldColumn()
     primary_ip = tables.Column(
