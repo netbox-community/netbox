@@ -248,8 +248,8 @@
                                             <td>{{ leg.outlet_count }}</td>
                                             <td>{{ leg.allocated }}</td>
                                             {% if powerfeed.available_power %}
-                                                <td>{{ powerfeed.available_power|divide:3 }}VA</td>
                                                 {% with phase_available=powerfeed.available_power|divide:3 %}
+                                                    <td>{{ phase_available }}VA</td>
                                                     <td>{% utilization_graph leg.allocated|percentage:phase_available %}</td>
                                                 {% endwith %}
                                             {% else %}
