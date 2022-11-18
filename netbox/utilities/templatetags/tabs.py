@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.utils.module_loading import import_string
 
 from netbox.registry import registry
+from utilities.utils import get_viewname
 
 register = template.Library()
 
@@ -33,7 +34,7 @@ def model_view_tabs(context, instance):
                 continue
 
             if attrs := tab.render(instance):
-                viewname = f"{app_label}:{model_name}_{config['name']}"
+                viewname = get_viewname(instance, action=config['name'])
                 active_tab = context.get('tab')
                 tabs.append({
                     'name': config['name'],
