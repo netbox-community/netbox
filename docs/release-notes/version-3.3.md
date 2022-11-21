@@ -14,6 +14,7 @@
 * [#10236](https://github.com/netbox-community/netbox/issues/10236) - Fix TypeError exception when viewing PDU configured for three-phase power
 * [#10579](https://github.com/netbox-community/netbox/issues/10579) - Mark cable traces terminating to a provider network as complete
 * [#10721](https://github.com/netbox-community/netbox/issues/10721) - Disable ordering by custom object field columns
+* [#10969](https://github.com/netbox-community/netbox/issues/10969) - Update cable paths ending at associated rear port when creating new front ports
 
 ---
 
