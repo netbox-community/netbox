@@ -1,5 +1,6 @@
 from django import template
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.utils.module_loading import import_string
 
 from netbox.registry import registry
@@ -36,9 +37,14 @@ def model_view_tabs(context, instance):
             if attrs := tab.render(instance):
                 viewname = get_viewname(instance, action=config['name'])
                 active_tab = context.get('tab')
+                try:
+                    url = reverse(viewname, args=[instance.pk])
+                except NoReverseMatch:
+                    # No URL has been registered for this view; skip
+                    continue
                 tabs.append({
                     'name': config['name'],
-                    'url': reverse(viewname, args=[instance.pk]),
+                    'url': url,
                     'label': attrs['label'],
                     'badge': attrs['badge'],
                     'is_active': active_tab and active_tab == tab,
