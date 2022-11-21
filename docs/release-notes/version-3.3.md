@@ -12,6 +12,7 @@
 * [#9223](https://github.com/netbox-community/netbox/issues/9223) - Fix serialization of array field values in change log
 * [#9878](https://github.com/netbox-community/netbox/issues/9878) - Fix spurious error message when rendering REST API docs
 * [#10236](https://github.com/netbox-community/netbox/issues/10236) - Fix TypeError exception when viewing PDU configured for three-phase power
+* [#10241](https://github.com/netbox-community/netbox/issues/10241) - Support referencing custom field related objects by attribute in addition to PK
 * [#10579](https://github.com/netbox-community/netbox/issues/10579) - Mark cable traces terminating to a provider network as complete
 * [#10721](https://github.com/netbox-community/netbox/issues/10721) - Disable ordering by custom object field columns
 * [#10938](https://github.com/netbox-community/netbox/issues/10938) - `render_field` template tag should respect `label` kwarg
