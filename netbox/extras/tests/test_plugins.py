@@ -76,7 +76,7 @@ class PluginTest(TestCase):
         """
         menu = registry['plugins']['menus'][0]
         self.assertIsInstance(menu, PluginMenu)
-        self.assertEqual(menu.label, 'Dummy')
+        self.assertEqual(menu.label, 'Dummy Plugin')
 
     def test_menu_items(self):
         """
