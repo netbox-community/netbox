@@ -279,6 +279,17 @@ class CableTermination(models.Model):
     def clean(self):
         super().clean()
 
+        # Check for existing termination
+        existing_termination = CableTermination.objects.exclude(cable=self.cable).filter(
+            termination_type=self.termination_type,
+            termination_id=self.termination_id
+        ).first()
+        if existing_termination is not None:
+            raise ValidationError(
+                f"Duplicate termination found for {self.termination_type.app_label}.{self.termination_type.model} "
+                f"{self.termination_id}: cable {existing_termination.cable.pk}"
+            )
+
         # Validate interface type (if applicable)
         if self.termination_type.model == 'interface' and self.termination.type in NONCONNECTABLE_IFACE_TYPES:
             raise ValidationError(f"Cables cannot be terminated to {self.termination.get_type_display()} interfaces")
