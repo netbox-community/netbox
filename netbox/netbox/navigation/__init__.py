@@ -51,6 +51,10 @@ class Menu:
     icon_class: str
     groups: Sequence[MenuGroup]
 
+    @property
+    def name(self):
+        return self.label.replace(' ', '_')
+
 
 #
 # Utility functions

@@ -19,6 +19,10 @@ class PluginMenu:
         if icon_class is not None:
             self.icon_class = icon_class
 
+    @property
+    def name(self):
+        return self.label.replace(' ', '_')
+
 
 class PluginMenuItem:
     """

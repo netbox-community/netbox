@@ -14,6 +14,7 @@
 * [#10973](https://github.com/netbox-community/netbox/issues/10973) - Fix device links in VDC table
 * [#10980](https://github.com/netbox-community/netbox/issues/10980) - Fix view tabs for plugin objects
 * [#10982](https://github.com/netbox-community/netbox/issues/10982) - Catch `NoReverseMatch` exception when rendering tabs with no registered URL
+* [#10984](https://github.com/netbox-community/netbox/issues/10984) - Fix navigation menu expansion for plugin menus comprising multiple words
 
 ## v3.4-beta1 (2022-11-16)
 

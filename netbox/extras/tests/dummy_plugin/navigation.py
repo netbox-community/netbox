@@ -26,7 +26,7 @@ items = (
 )
 
 menu = PluginMenu(
-    label=_('Dummy'),
+    label=_('Dummy Plugin'),
     groups=(('Group 1', items),),
 )
 menu_items = items
