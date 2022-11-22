@@ -20,6 +20,7 @@
 * [#10938](https://github.com/netbox-community/netbox/issues/10938) - `render_field` template tag should respect `label` kwarg
 * [#10969](https://github.com/netbox-community/netbox/issues/10969) - Update cable paths ending at associated rear port when creating new front ports
 * [#10996](https://github.com/netbox-community/netbox/issues/10996) - Hide checkboxes on child object lists when no bulk operations are available
+* [#10997](https://github.com/netbox-community/netbox/issues/10997) - Fix exception when editing NAT IP for VM with no cluster
 
 ---
 

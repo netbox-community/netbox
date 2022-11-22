@@ -429,7 +429,8 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
                         initial['nat_rack'] = nat_inside_parent.device.rack.pk
                     initial['nat_device'] = nat_inside_parent.device.pk
                 elif type(nat_inside_parent) is VMInterface:
-                    initial['nat_cluster'] = nat_inside_parent.virtual_machine.cluster.pk
+                    if cluster := nat_inside_parent.virtual_machine.cluster:
+                        initial['nat_cluster'] = cluster.pk
                     initial['nat_virtual_machine'] = nat_inside_parent.virtual_machine.pk
         kwargs['initial'] = initial
 
