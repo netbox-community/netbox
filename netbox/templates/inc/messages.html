@@ -1,27 +1,6 @@
 {% load helpers %}
 
 <div id="django-messages" class="toast-container">
-  {# Django Messages #}
-
-  {# Form Field Errors #}
-  {% if form and form.errors %}
-    {% for field in form %}
-      {% for error in field.errors %}
-        <div class="django-message toast align-items-center border-0 bg-danger" data-django-type="field-error" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="60000">
-          <div class="toast-header bg-danger">
-            <strong class="me-auto">
-              <i class="mdi mdi-{{ "danger"|icon_from_status }} me-1"></i>
-              {{ field.label }}
-            </strong>
-            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-          </div>
-          <div class="toast-body">
-            {{ error|escape }}
-          </div>
-        </div>
-      {% endfor %}
-    {% endfor %}
-  {% endif %}
 
   {# Non-Field Form Errors #}
   {% if form and form.non_field_errors %}
