@@ -854,6 +854,57 @@ class CustomFieldAPITest(APITestCase):
             list(original_cfvs['multiobject_field'])
         )
 
+    def test_specify_related_object_by_attr(self):
+        site1 = Site.objects.get(name='Site 1')
+        vlans = VLAN.objects.all()[:3]
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site1.pk})
+        self.add_permissions('dcim.change_site')
+
+        # Set related objects by PK
+        data = {
+            'custom_fields': {
+                'object_field': vlans[0].pk,
+                'multiobject_field': [vlans[1].pk, vlans[2].pk],
+            },
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data['custom_fields']['object_field']['id'],
+            vlans[0].pk
+        )
+        self.assertListEqual(
+            [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
+            [vlans[1].pk, vlans[2].pk]
+        )
+
+        # Set related objects by name
+        data = {
+            'custom_fields': {
+                'object_field': {
+                    'name': vlans[0].name,
+                },
+                'multiobject_field': [
+                    {
+                        'name': vlans[1].name
+                    },
+                    {
+                        'name': vlans[2].name
+                    },
+                ],
+            },
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data['custom_fields']['object_field']['id'],
+            vlans[0].pk
+        )
+        self.assertListEqual(
+            [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
+            [vlans[1].pk, vlans[2].pk]
+        )
+
     def test_minimum_maximum_values_validation(self):
         site2 = Site.objects.get(name='Site 2')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})

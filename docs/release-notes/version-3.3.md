@@ -2,6 +2,26 @@
 
 ## v3.3.9 (FUTURE)
 
+### Enhancements
+
+* [#10653](https://github.com/netbox-community/netbox/issues/10653) - Ensure logging of failed login attempts
+
+### Bug Fixes
+
+* [#6389](https://github.com/netbox-community/netbox/issues/6389) - Call `snapshot()` on object when processing deletions
+* [#9223](https://github.com/netbox-community/netbox/issues/9223) - Fix serialization of array field values in change log
+* [#9878](https://github.com/netbox-community/netbox/issues/9878) - Fix spurious error message when rendering REST API docs
+* [#10236](https://github.com/netbox-community/netbox/issues/10236) - Fix TypeError exception when viewing PDU configured for three-phase power
+* [#10241](https://github.com/netbox-community/netbox/issues/10241) - Support referencing custom field related objects by attribute in addition to PK
+* [#10579](https://github.com/netbox-community/netbox/issues/10579) - Mark cable traces terminating to a provider network as complete
+* [#10721](https://github.com/netbox-community/netbox/issues/10721) - Disable ordering by custom object field columns
+* [#10929](https://github.com/netbox-community/netbox/issues/10929) - Raise validation error when attempting to create a duplicate cable termination
+* [#10936](https://github.com/netbox-community/netbox/issues/10936) - Permit demotion of device/VM primary IP via IP address edit form
+* [#10938](https://github.com/netbox-community/netbox/issues/10938) - `render_field` template tag should respect `label` kwarg
+* [#10969](https://github.com/netbox-community/netbox/issues/10969) - Update cable paths ending at associated rear port when creating new front ports
+* [#10996](https://github.com/netbox-community/netbox/issues/10996) - Hide checkboxes on child object lists when no bulk operations are available
+* [#10997](https://github.com/netbox-community/netbox/issues/10997) - Fix exception when editing NAT IP for VM with no cluster
+
 ---
 
 ## v3.3.8 (2022-11-16)

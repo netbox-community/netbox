@@ -8,7 +8,7 @@
             <div class="form-check{% if field.errors %} has-error{% endif %}">
                 {{ field }}
                 <label for="{{ field.id_for_label }}" class="form-check-label">
-                    {{ field.label }}
+                    {{ label }}
                 </label>
             </div>
             {% if field.help_text %}
@@ -23,7 +23,7 @@
         </div>
     </div>
 
-{% elif field|widget_type == 'textarea' and not field.label %}
+{% elif field|widget_type == 'textarea' and not label %}
     <div class="row mb-3">
         {% if label %}
         <label class="col-sm-3 col-form-label text-lg-end{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">
@@ -48,7 +48,7 @@
 {% elif field|widget_type == 'slugwidget' %}
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label text-lg-end{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">
-            {{ field.label }}
+            {{ label }}
         </label>
         <div class="col">
             <div class="input-group">
@@ -71,13 +71,13 @@
         accept="{{ field.field.widget.attrs.accept }}"
         {% if field.is_required %}required{% endif %}
     />
-    <label for="{{ field.id_for_label }}" class="input-group-text">{{ field.label|bettertitle }}</label>
+    <label for="{{ field.id_for_label }}" class="input-group-text">{{ label|bettertitle }}</label>
   </div>
 
 {% elif field|widget_type == 'clearablefileinput' %}
     <div class="row mb-3">
         <label for="{{ field.id_for_label }}" class="form-label col col-md-3 text-lg-end{% if field.field.required %} required{% endif %}">
-            {{ field.label }}
+            {{ label }}
         </label>
         <div class="col col-md-9">
             {{ field }}
@@ -87,7 +87,7 @@
 {% elif field|widget_type == 'selectmultiple' %}
     <div class="row mb-3">
         <label for="{{ field.id_for_label }}" class="form-label col col-md-3 text-lg-end{% if field.field.required %} required{% endif %}">
-            {{ field.label }}
+            {{ label }}
         </label>
         <div class="col col-md-9">
             {{ field }}
@@ -103,7 +103,7 @@
 {% else %}
     <div class="row mb-3">
         <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label text-lg-end{% if field.field.required %} required{% endif %}">
-            {{ field.label }}
+            {{ label }}
         </label>
         <div class="col">
             {{ field }}
@@ -112,7 +112,7 @@
             {% endif %}
             <div class="invalid-feedback">
                 {% if field.field.required %}
-                    <strong>{{ field.label }}</strong> field is required.
+                    <strong>{{ label }}</strong> field is required.
                 {% endif %}
             </div>
             {% if bulk_nullable %}

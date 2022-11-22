@@ -9,7 +9,6 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 
 from dcim.fields import ASNField
-from dcim.models import Device
 from ipam.choices import *
 from ipam.constants import *
 from ipam.fields import IPNetworkField, IPAddressField
@@ -18,7 +17,6 @@ from ipam.querysets import PrefixQuerySet
 from ipam.validators import DNSValidator
 from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
-from virtualization.models import VirtualMachine
 
 __all__ = (
     'Aggregate',
@@ -863,18 +861,6 @@ class IPAddress(PrimaryModel):
                             duplicate_ips.first(),
                         )
                     })
-
-        # Check for primary IP assignment that doesn't match the assigned device/VM
-        if self.pk:
-            for cls, attr in ((Device, 'device'), (VirtualMachine, 'virtual_machine')):
-                parent = cls.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
-                if parent and getattr(self.assigned_object, attr, None) != parent:
-                    # Check for a NAT relationship
-                    if not self.nat_inside or getattr(self.nat_inside.assigned_object, attr, None) != parent:
-                        raise ValidationError({
-                            'interface': f"IP address is primary for {cls._meta.model_name} {parent} but "
-                                         f"not assigned to it!"
-                        })
 
         # Validate IP status selection
         if self.status == IPAddressStatusChoices.STATUS_SLAAC and self.family != 6:

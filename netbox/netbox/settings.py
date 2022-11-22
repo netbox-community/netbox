@@ -440,6 +440,10 @@ EXEMPT_PATHS = (
     f'/{BASE_PATH}metrics',
 )
 
+SERIALIZATION_MODULES = {
+    'json': 'utilities.serializers.json',
+}
+
 
 #
 # Sentry
