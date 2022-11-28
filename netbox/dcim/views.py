@@ -590,14 +590,14 @@ class RackElevationListView(generic.ObjectListView):
         total_count = racks.count()
 
         ORDERING_CHOICES = {
-            'name': 'Name (A-Z)',
-            '-name': 'Name (Z-A)',
+            '_name': 'Name (A-Z)',
+            '-_name': 'Name (Z-A)',
             'facility_id': 'Facility ID (A-Z)',
             '-facility_id': 'Facility ID (Z-A)',
         }
-        sort = request.GET.get('sort', "name")
+        sort = request.GET.get('sort', "_name")
         if sort not in ORDERING_CHOICES:
-            sort = 'name'
+            sort = '_name'
 
         racks = racks.order_by(sort)
 
