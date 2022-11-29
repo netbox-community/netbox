@@ -173,7 +173,7 @@
                                 <td>{{ powerfeed|linkify }}</td>
                                 <td>{% badge powerfeed.get_status_display bg_color=powerfeed.get_status_color %}</td>
                                 <td>{% badge powerfeed.get_type_display bg_color=powerfeed.get_type_color %}</td>
-                                {% with power_port=powerfeed.connected_endpoint %}
+                                {% with power_port=powerfeed.connected_endpoints.0 %}
                                     {% if power_port %}
                                         <td>{% utilization_graph power_port.get_power_draw.allocated|percentage:powerfeed.available_power %}</td>
                                     {% else %}
