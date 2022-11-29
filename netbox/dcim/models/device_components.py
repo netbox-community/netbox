@@ -189,7 +189,7 @@ class PathEndpoint(models.Model):
     dcim.signals in response to changes in the cable path, and complements the `origin` GenericForeignKey field on the
     CablePath model. `_path` should not be accessed directly; rather, use the `path` property.
 
-    `connected_endpoint()` is a convenience method for returning the destination of the associated CablePath, if any.
+    `connected_endpoints()` is a convenience method for returning the destination of the associated CablePath, if any.
     """
     _path = models.ForeignKey(
         to='dcim.CablePath',
