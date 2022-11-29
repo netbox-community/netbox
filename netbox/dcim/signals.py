@@ -128,11 +128,11 @@ def nullify_connected_endpoints(instance, **kwargs):
 
 
 @receiver(post_save, sender=FrontPort)
-def extend_rearport_cable_paths(instance, created, **kwargs):
+def extend_rearport_cable_paths(instance, created, raw, **kwargs):
     """
     When a new FrontPort is created, add it to any CablePaths which end at its corresponding RearPort.
     """
-    if created:
+    if created and not raw:
         rearport = instance.rear_port
         for cablepath in CablePath.objects.filter(_nodes__contains=rearport):
             cablepath.retrace()
