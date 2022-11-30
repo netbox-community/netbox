@@ -21,6 +21,9 @@
 * [#10969](https://github.com/netbox-community/netbox/issues/10969) - Update cable paths ending at associated rear port when creating new front ports
 * [#10996](https://github.com/netbox-community/netbox/issues/10996) - Hide checkboxes on child object lists when no bulk operations are available
 * [#10997](https://github.com/netbox-community/netbox/issues/10997) - Fix exception when editing NAT IP for VM with no cluster
+* [#11014](https://github.com/netbox-community/netbox/issues/11014) - Use natural ordering when sorting rack elevations by name
+* [#11028](https://github.com/netbox-community/netbox/issues/11028) - Enable bulk clearing of color attribute of pass-through ports
+* [#11047](https://github.com/netbox-community/netbox/issues/11047) - Cloning a rack reservation should replicate rack & user
 
 ---
 

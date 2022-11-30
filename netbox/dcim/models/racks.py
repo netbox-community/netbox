@@ -477,6 +477,8 @@ class RackReservation(NetBoxModel):
         max_length=200
     )
 
+    clone_fields = ('rack', 'user', 'tenant')
+
     class Meta:
         ordering = ['created', 'pk']
 
