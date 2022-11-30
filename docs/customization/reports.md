@@ -45,7 +45,7 @@ class DeviceConnectionsReport(Report):
         # Check that every console port for every active device has a connection defined.
         active = DeviceStatusChoices.STATUS_ACTIVE
         for console_port in ConsolePort.objects.prefetch_related('device').filter(device__status=active):
-            if console_port.connected_endpoint is None:
+            if not console_port.connected_endpoints:
                 self.log_failure(
                     console_port.device,
                     "No console connection defined for {}".format(console_port.name)
@@ -64,7 +64,7 @@ class DeviceConnectionsReport(Report):
         for device in Device.objects.filter(status=DeviceStatusChoices.STATUS_ACTIVE):
             connected_ports = 0
             for power_port in PowerPort.objects.filter(device=device):
-                if power_port.connected_endpoint is not None:
+                if power_port.connected_endpoints:
                     connected_ports += 1
                     if not power_port.path.is_active:
                         self.log_warning(

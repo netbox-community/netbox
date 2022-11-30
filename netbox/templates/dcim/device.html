@@ -265,7 +265,7 @@
                                 <th>Utilization</th>
                             </tr>
                             {% for powerport in object.powerports.all %}
-                                {% with utilization=powerport.get_power_draw powerfeed=powerport.connected_endpoint %}
+                                {% with utilization=powerport.get_power_draw powerfeed=powerport.connected_endpoints.0 %}
                                     <tr>
                                         <td>{{ powerport }}</td>
                                         <td>{{ utilization.outlet_count }}</td>

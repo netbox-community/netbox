@@ -486,6 +486,7 @@ class RackReservation(PrimaryModel):
         max_length=200
     )
 
+    clone_fields = ('rack', 'user', 'tenant')
     prerequisite_models = (
         'dcim.Rack',
     )

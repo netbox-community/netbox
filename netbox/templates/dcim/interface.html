@@ -211,7 +211,7 @@
         <div class="card">
           <h5 class="card-header">Wireless</h5>
           <div class="card-body">
-            {% with peer=object.connected_endpoint %}
+            {% with peer=object.connected_endpoints.0 %}
               <table class="table table-hover">
                 <thead>
                   <tr>

@@ -653,17 +653,18 @@ class RackElevationListView(generic.ObjectListView):
         racks = filtersets.RackFilterSet(request.GET, self.queryset).qs
         total_count = racks.count()
 
+        # Ordering
         ORDERING_CHOICES = {
             'name': 'Name (A-Z)',
             '-name': 'Name (Z-A)',
             'facility_id': 'Facility ID (A-Z)',
             '-facility_id': 'Facility ID (Z-A)',
         }
-        sort = request.GET.get('sort', "name")
+        sort = request.GET.get('sort', 'name')
         if sort not in ORDERING_CHOICES:
             sort = 'name'
-
-        racks = racks.order_by(sort)
+        sort_field = sort.replace("name", "_name")  # Use natural ordering
+        racks = racks.order_by(sort_field)
 
         # Pagination
         per_page = get_paginate_count(request)
