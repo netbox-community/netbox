@@ -215,6 +215,7 @@ def status_from_tag(tag: str = "info") -> str:
         'warning': 'warning',
         'success': 'success',
         'error': 'danger',
+        'danger': 'danger',
         'debug': 'info',
         'info': 'info',
     }

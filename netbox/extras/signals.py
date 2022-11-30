@@ -14,7 +14,6 @@ from .choices import ObjectChangeActionChoices
 from .models import ConfigRevision, CustomField, ObjectChange
 from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 
-
 #
 # Change logging/webhooks
 #
@@ -100,9 +99,6 @@ def handle_deleted_object(sender, instance, **kwargs):
     """
     Fires when an object is deleted.
     """
-    if not hasattr(instance, 'to_objectchange'):
-        return
-
     # Get the current request, or bail if not set
     request = current_request.get()
     if request is None:
@@ -110,6 +106,8 @@ def handle_deleted_object(sender, instance, **kwargs):
 
     # Record an ObjectChange if applicable
     if hasattr(instance, 'to_objectchange'):
+        if hasattr(instance, 'snapshot') and not getattr(instance, '_prechange_snapshot', None):
+            instance.snapshot()
         objectchange = instance.to_objectchange(ObjectChangeActionChoices.ACTION_DELETE)
         objectchange.user = request.user
         objectchange.request_id = request.id

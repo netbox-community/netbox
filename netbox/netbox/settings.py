@@ -29,7 +29,7 @@ django.utils.encoding.force_text = force_str
 # Environment setup
 #
 
-VERSION = '3.3.8'
+VERSION = '3.3.9'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -444,6 +444,10 @@ EXEMPT_PATHS = (
     f'/{BASE_PATH}oauth/',
     f'/{BASE_PATH}metrics',
 )
+
+SERIALIZATION_MODULES = {
+    'json': 'utilities.serializers.json',
+}
 
 
 #
