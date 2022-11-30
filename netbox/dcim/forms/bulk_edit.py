@@ -1218,7 +1218,7 @@ class FrontPortBulkEditForm(
     fieldsets = (
         (None, ('module', 'type', 'label', 'color', 'description', 'mark_connected')),
     )
-    nullable_fields = ('module', 'label', 'description')
+    nullable_fields = ('module', 'label', 'description', 'color')
 
 
 class RearPortBulkEditForm(
@@ -1229,7 +1229,7 @@ class RearPortBulkEditForm(
     fieldsets = (
         (None, ('module', 'type', 'label', 'color', 'description', 'mark_connected')),
     )
-    nullable_fields = ('module', 'label', 'description')
+    nullable_fields = ('module', 'label', 'description', 'color')
 
 
 class ModuleBayBulkEditForm(
