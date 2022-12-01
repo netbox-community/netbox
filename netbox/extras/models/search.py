@@ -53,13 +53,13 @@ class CachedValue(models.Model):
             Index(
                 fields=['value'],
                 name='extras_cachedvalue_value',
-                condition=Q(LessThan(Length('value'), 1024))
+                condition=Q(LessThan(Length('value'), INDEX_MAX))
             ),
             Index(
                 fields=['value'],
                 name='extras_cachedvalue_value_like',
                 opclasses=['text_pattern_ops'],
-                condition=Q(LessThan(Length('value'), 1024))
+                condition=Q(LessThan(Length('value'), INDEX_MAX))
             ),
         )
 
