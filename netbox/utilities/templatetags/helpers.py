@@ -138,7 +138,8 @@ def percentage(x, y):
     """
     if x is None or y is None:
         return None
-    return round(x / y * 100)
+
+    return round(x / y * 100, 1)
 
 
 @register.filter()
