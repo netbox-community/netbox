@@ -2,12 +2,18 @@ import uuid
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models import Index, Q
+from django.db.models.functions import Length
+from django.db.models.lookups import LessThan
 
 from utilities.fields import RestrictedGenericForeignKey
 
 __all__ = (
     'CachedValue',
 )
+
+# Maximum cached value length to index (see #11046)
+INDEX_MAX = 1024
 
 
 class CachedValue(models.Model):
@@ -36,15 +42,26 @@ class CachedValue(models.Model):
     type = models.CharField(
         max_length=30
     )
-    value = models.TextField(
-        db_index=True
-    )
+    value = models.TextField()
     weight = models.PositiveSmallIntegerField(
         default=1000
     )
 
     class Meta:
         ordering = ('weight', 'object_type', 'object_id')
+        indexes = (
+            Index(
+                fields=['value'],
+                name='extras_cachedvalue_value',
+                condition=Q(LessThan(Length('value'), 1024))
+            ),
+            Index(
+                fields=['value'],
+                name='extras_cachedvalue_value_like',
+                opclasses=['text_pattern_ops'],
+                condition=Q(LessThan(Length('value'), 1024))
+            ),
+        )
 
     def __str__(self):
         return f'{self.object_type} {self.object_id}: {self.field}={self.value}'
