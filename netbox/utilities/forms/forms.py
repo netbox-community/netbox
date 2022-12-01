@@ -220,22 +220,20 @@ class ImportForm(BootstrapMixin, forms.Form):
         records = []
         try:
             for data in yaml.load_all(data, Loader=yaml.SafeLoader):
-                """
-                checks here are to support both arrays and multiple documents in
-                yaml data and return as a consistent list for processing (array):
-                    - address: 10.0.1.0/24
-                      status: active
-                    - address: 10.0.1.1/24
-                      status: active
-                vs (multi-document):
-                    - address: 10.0.1.0/24
-                      status: active
-                    ---
-                    - address: 10.0.1.1/24
-                      status: active
-                device_type output uses multi-document format, but array format
-                is more common output from other tools.
-                """
+                # checks here are to support both arrays and multiple documents in
+                # yaml data and return as a consistent list for processing (array):
+                #     - address: 10.0.1.0/24
+                #       status: active
+                #     - address: 10.0.1.1/24
+                #       status: active
+                # vs (multi-document):
+                #     - address: 10.0.1.0/24
+                #       status: active
+                #     ---
+                #     - address: 10.0.1.1/24
+                #       status: active
+                # device_type output uses multi-document format, but array format
+                # is more common output from other tools.
                 if type(data) == list:
                     records.extend(data)
                 elif type(data) == dict:
