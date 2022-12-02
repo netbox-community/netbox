@@ -36,9 +36,7 @@ class CachedValue(models.Model):
     type = models.CharField(
         max_length=30
     )
-    value = models.TextField(
-        db_index=True
-    )
+    value = models.TextField()
     weight = models.PositiveSmallIntegerField(
         default=1000
     )
