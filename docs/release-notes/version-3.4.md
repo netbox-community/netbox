@@ -16,6 +16,8 @@
 * [#10980](https://github.com/netbox-community/netbox/issues/10980) - Fix view tabs for plugin objects
 * [#10982](https://github.com/netbox-community/netbox/issues/10982) - Catch `NoReverseMatch` exception when rendering tabs with no registered URL
 * [#10984](https://github.com/netbox-community/netbox/issues/10984) - Fix navigation menu expansion for plugin menus comprising multiple words
+* [#11000](https://github.com/netbox-community/netbox/issues/11000) - Improve validation of YAML-formatted import data
+* [#11046](https://github.com/netbox-community/netbox/issues/11046) - Fix exception when caching very large field values for search
 
 ## v3.4-beta1 (2022-11-16)
 
