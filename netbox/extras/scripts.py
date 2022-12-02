@@ -4,8 +4,9 @@ import logging
 import os
 import pkgutil
 import sys
-import traceback
 import threading
+import traceback
+from datetime import timedelta
 
 import yaml
 from django import forms
@@ -16,6 +17,7 @@ from django.utils.functional import classproperty
 
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices, LogLevelChoices
+from extras.models import JobResult
 from extras.signals import clear_webhooks
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
@@ -490,6 +492,22 @@ def run_script(data, request, commit=True, *args, **kwargs):
             _run_script()
     else:
         _run_script()
+
+    # Schedule the next job if an interval has been set
+    if job_result.interval:
+        new_scheduled_time = job_result.scheduled + timedelta(minutes=job_result.interval)
+        JobResult.enqueue_job(
+            run_script,
+            name=job_result.name,
+            obj_type=job_result.obj_type,
+            user=job_result.user,
+            schedule_at=new_scheduled_time,
+            interval=job_result.interval,
+            job_timeout=script.job_timeout,
+            data=data,
+            request=request,
+            commit=commit
+        )
 
 
 def get_scripts(use_names=False):

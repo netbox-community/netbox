@@ -676,7 +676,6 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         form = ReportForm(request.POST)
 
         if form.is_valid():
-            schedule_at = form.cleaned_data.get("schedule_at")
 
             # Allow execution only if RQ worker process is running
             if not Worker.count(get_connection('default')):
@@ -686,14 +685,14 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
                 })
 
             # Run the Report. A new JobResult is created.
-            report_content_type = ContentType.objects.get(app_label='extras', model='report')
             job_result = JobResult.enqueue_job(
                 run_report,
-                report.full_name,
-                report_content_type,
-                request.user,
-                job_timeout=report.job_timeout,
-                schedule_at=schedule_at,
+                name=report.full_name,
+                obj_type=ContentType.objects.get_for_model(Report),
+                user=request.user,
+                schedule_at=form.cleaned_data.get('schedule_at'),
+                interval=form.cleaned_data.get('interval'),
+                job_timeout=report.job_timeout
             )
 
             return redirect('extras:report_result', job_result_pk=job_result.pk)
@@ -787,9 +786,8 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
         form = script.as_form(initial=normalize_querydict(request.GET))
 
         # Look for a pending JobResult (use the latest one by creation timestamp)
-        script_content_type = ContentType.objects.get(app_label='extras', model='script')
         script.result = JobResult.objects.filter(
-            obj_type=script_content_type,
+            obj_type=ContentType.objects.get_for_model(Script),
             name=script.full_name,
         ).exclude(
             status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
@@ -815,21 +813,17 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
             messages.error(request, "Unable to run script: RQ worker process not running.")
 
         elif form.is_valid():
-            commit = form.cleaned_data.pop('_commit')
-            schedule_at = form.cleaned_data.pop("_schedule_at")
-
-            script_content_type = ContentType.objects.get(app_label='extras', model='script')
-
             job_result = JobResult.enqueue_job(
                 run_script,
-                script.full_name,
-                script_content_type,
-                request.user,
+                name=script.full_name,
+                obj_type=ContentType.objects.get_for_model(Script),
+                user=request.user,
+                schedule_at=form.cleaned_data.pop('_schedule_at'),
+                interval=form.cleaned_data.pop('_interval'),
                 data=form.cleaned_data,
                 request=copy_safe_request(request),
-                commit=commit,
                 job_timeout=script.job_timeout,
-                schedule_at=schedule_at,
+                commit=form.cleaned_data.pop('_commit')
             )
 
             return redirect('extras:script_result', job_result_pk=job_result.pk)

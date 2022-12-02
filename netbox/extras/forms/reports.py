@@ -15,3 +15,8 @@ class ReportForm(BootstrapMixin, forms.Form):
         label=_("Schedule at"),
         help_text=_("Schedule execution of report to a set time"),
     )
+    interval = forms.IntegerField(
+        required=False,
+        label=_("Recurs every"),
+        help_text=_("Interval at which this report is re-run (in minutes)")
+    )
