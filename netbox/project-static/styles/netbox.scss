@@ -594,6 +594,10 @@ div.content-container {
   }
 }
 
+div.banner-content {
+    background-color: $tab-content-bg;
+}
+
 // Prevent scrolling of body content when nav menu is open on mobile.
 .sidebar.collapse.show ~ .content-container > .content {
   @media (max-width: map.get($grid-breakpoints, 'md')) {
