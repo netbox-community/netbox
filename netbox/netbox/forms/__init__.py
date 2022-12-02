@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.utils.translation import gettext as _
 
@@ -12,6 +14,7 @@ LOOKUP_CHOICES = (
     (LookupTypes.EXACT, _('Exact match')),
     (LookupTypes.STARTSWITH, _('Starts with')),
     (LookupTypes.ENDSWITH, _('Ends with')),
+    (LookupTypes.REGEX, _('Regex')),
 )
 
 
@@ -43,3 +46,14 @@ class SearchForm(BootstrapMixin, forms.Form):
         super().__init__(*args, **kwargs)
 
         self.fields['obj_types'].choices = search_backend.get_object_types()
+
+    def clean(self):
+
+        # Validate regular expressions
+        if self.cleaned_data['lookup'] == LookupTypes.REGEX:
+            try:
+                re.compile(self.cleaned_data['q'])
+            except re.error as e:
+                raise forms.ValidationError({
+                    'q': f'Invalid regular expression: {e}'
+                })

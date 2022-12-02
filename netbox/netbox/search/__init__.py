@@ -18,6 +18,7 @@ class LookupTypes:
     EXACT = 'iexact'
     STARTSWITH = 'istartswith'
     ENDSWITH = 'iendswith'
+    REGEX = 'iregex'
 
 
 class SearchIndex:

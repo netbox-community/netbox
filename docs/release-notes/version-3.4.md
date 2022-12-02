@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#815](https://github.com/netbox-community/netbox/issues/815) - Enable specifying terminations when bulk importing circuits
+* [#11090](https://github.com/netbox-community/netbox/issues/11090) - Add regular expression support to global search engine
 
 ### Bug Fixes
 
