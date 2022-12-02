@@ -2,7 +2,6 @@ import sys
 import uuid
 
 import django.db.models.deletion
-import django.db.models.functions.text
 import django.db.models.lookups
 from django.core import management
 from django.db import migrations, models
@@ -47,10 +46,6 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ('weight', 'object_type', 'object_id'),
-                'indexes': (
-                    models.Index(condition=models.Q(django.db.models.lookups.LessThan(django.db.models.functions.text.Length('value'), 1024)), fields=['value'], name='extras_cachedvalue_value'),
-                    models.Index(condition=models.Q(django.db.models.lookups.LessThan(django.db.models.functions.text.Length('value'), 1024)), fields=['value'], name='extras_cachedvalue_value_like', opclasses=['text_pattern_ops']),
-                )
             },
         ),
         migrations.RunPython(
