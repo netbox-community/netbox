@@ -2,6 +2,14 @@
 
 ## v3.3.10 (FUTURE)
 
+### Enhancements
+
+* [#10748](https://github.com/netbox-community/netbox/issues/10748) - Add provider selection field for provider networks to circuit termination edit view
+
+### Bug Fixes
+
+* [#11041](https://github.com/netbox-community/netbox/issues/11041) - Correct power utilization percentage precision
+
 ---
 
 ## v3.3.9 (2022-11-30)
