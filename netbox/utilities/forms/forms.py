@@ -217,12 +217,37 @@ class ImportForm(BootstrapMixin, forms.Form):
             })
 
     def _clean_yaml(self, data):
+        records = []
         try:
-            return yaml.load_all(data, Loader=yaml.SafeLoader)
+            for data in yaml.load_all(data, Loader=yaml.SafeLoader):
+                # checks here are to support both arrays and multiple documents in
+                # yaml data and return as a consistent list for processing (array):
+                #     - address: 10.0.1.0/24
+                #       status: active
+                #     - address: 10.0.1.1/24
+                #       status: active
+                # vs (multi-document):
+                #     - address: 10.0.1.0/24
+                #       status: active
+                #     ---
+                #     - address: 10.0.1.1/24
+                #       status: active
+                # device_type output uses multi-document format, but array format
+                # is more common output from other tools.
+                if type(data) == list:
+                    records.extend(data)
+                elif type(data) == dict:
+                    records.append(data)
+                else:
+                    raise forms.ValidationError({
+                        self.data_field: "Invalid YAML data: data must be dictionaries or lists of dictionaries"
+                    })
         except yaml.error.YAMLError as err:
             raise forms.ValidationError({
                 self.data_field: f"Invalid YAML data: {err}"
             })
+
+        return records
 
 
 class FilterForm(BootstrapMixin, forms.Form):
