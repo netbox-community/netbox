@@ -158,16 +158,28 @@ class CircuitTerminationForm(NetBoxModelForm):
         },
         required=False
     )
+    provider_network_provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all(),
+        required=False,
+        label='Provider',
+        initial_params={
+            'networks': 'provider_network'
+        }
+    )
     provider_network = DynamicModelChoiceField(
         queryset=ProviderNetwork.objects.all(),
+        query_params={
+            'provider_id': '$provider_network_provider',
+        },
         required=False
     )
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'provider_network', 'mark_connected',
-            'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description', 'tags',
+            'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'provider_network_provider',
+            'provider_network', 'mark_connected', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
+            'description', 'tags',
         ]
         help_texts = {
             'port_speed': "Physical circuit speed",
