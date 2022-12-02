@@ -238,6 +238,9 @@ sudo PYTHON=/usr/bin/python3.8 /opt/netbox/upgrade.sh
 !!! note
     Upon completion, the upgrade script may warn that no existing virtual environment was detected. As this is a new installation, this warning can be safely ignored.
 
+!!! note
+    If you are upgrading and have the NetBox virtual environment active, you will want to run 'deactivate' before the sudo upgrade.sh command.
+
 ## Create a Super User
 
 NetBox does not come with any predefined user accounts. You'll need to create a super user (administrative account) to be able to log into NetBox. First, enter the Python virtual environment created by the upgrade script:
