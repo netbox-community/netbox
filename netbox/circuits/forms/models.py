@@ -158,6 +158,14 @@ class CircuitTerminationForm(NetBoxModelForm):
         },
         required=False
     )
+    provider_network_provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all(),
+        required=False,
+        label='Provider',
+        initial_params={
+            'networks': 'provider_network'
+        }
+    )
     provider_network = DynamicModelChoiceField(
         queryset=ProviderNetwork.objects.all(),
         query_params={
@@ -165,19 +173,13 @@ class CircuitTerminationForm(NetBoxModelForm):
         },
         required=False
     )
-    provider_network_provider = DynamicModelChoiceField(
-        queryset=Provider.objects.all(),  # See if we can expose circuit_count to Providers filter, and only show the Providers that have a Networks
-        required=False,
-        # initial_params={
-        #     'provider_id': '$provider_network.provider'  # How can we pre-select the provider of the 'selected' item ?
-        # }
-    )
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'provider_network_provider', 'provider_network', 'mark_connected',
-            'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description', 'tags',
+            'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'provider_network_provider',
+            'provider_network', 'mark_connected', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
+            'description', 'tags',
         ]
         help_texts = {
             'port_speed': "Physical circuit speed",
