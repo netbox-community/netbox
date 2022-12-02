@@ -585,6 +585,11 @@ class JobResult(models.Model):
         null=True,
         blank=True
     )
+    interval = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text=_("Recurrence interval (in minutes)")
+    )
     started = models.DateTimeField(
         null=True,
         blank=True
@@ -662,32 +667,31 @@ class JobResult(models.Model):
             self.completed = timezone.now()
 
     @classmethod
-    def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, *args, **kwargs):
+    def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, interval=None, *args, **kwargs):
         """
         Create a JobResult instance and enqueue a job using the given callable
 
-        func: The callable object to be enqueued for execution
-        name: Name for the JobResult instance
-        obj_type: ContentType to link to the JobResult instance obj_type
-        user: User object to link to the JobResult instance
-        schedule_at: Schedule the job to be executed at the passed date and time
-        args: additional args passed to the callable
-        kwargs: additional kargs passed to the callable
+        Args:
+            func: The callable object to be enqueued for execution
+            name: Name for the JobResult instance
+            obj_type: ContentType to link to the JobResult instance obj_type
+            user: User object to link to the JobResult instance
+            schedule_at: Schedule the job to be executed at the passed date and time
+            interval: Recurrence interval (in minutes)
         """
-        job_result: JobResult = cls.objects.create(
+        queue = django_rq.get_queue('default')
+        status = JobResultStatusChoices.STATUS_SCHEDULED if schedule_at else JobResultStatusChoices.STATUS_PENDING
+        job_result: JobResult = JobResult.objects.create(
             name=name,
+            status=status,
             obj_type=obj_type,
+            scheduled=schedule_at,
+            interval=interval,
             user=user,
             job_id=uuid.uuid4()
         )
 
-        queue = django_rq.get_queue("default")
-
         if schedule_at:
-            job_result.status = JobResultStatusChoices.STATUS_SCHEDULED
-            job_result.scheduled = schedule_at
-            job_result.save()
-
             queue.enqueue_at(schedule_at, func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
         else:
             queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)

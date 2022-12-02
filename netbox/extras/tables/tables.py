@@ -8,9 +8,9 @@ from .template_code import *
 __all__ = (
     'ConfigContextTable',
     'CustomFieldTable',
-    'JobResultTable',
     'CustomLinkTable',
     'ExportTemplateTable',
+    'JobResultTable',
     'JournalEntryTable',
     'ObjectChangeTable',
     'SavedFilterTable',
@@ -41,7 +41,6 @@ class JobResultTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-
     actions = columns.ActionsColumn(
         actions=('delete',)
     )
@@ -49,10 +48,12 @@ class JobResultTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = JobResult
         fields = (
-            'pk', 'id', 'name', 'obj_type', 'status', 'created', 'scheduled', 'started', 'completed', 'user', 'job_id',
+            'pk', 'id', 'name', 'obj_type', 'status', 'created', 'scheduled', 'interval', 'started', 'completed',
+            'user', 'job_id',
         )
         default_columns = (
-            'pk', 'id', 'name', 'obj_type', 'status', 'created', 'scheduled', 'started', 'completed', 'user',
+            'pk', 'id', 'name', 'obj_type', 'status', 'created', 'scheduled', 'interval', 'started', 'completed',
+            'user',
         )
 
 
