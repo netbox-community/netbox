@@ -335,7 +335,7 @@ class SiteView(generic.ObjectView):
                 scope_id=instance.pk
             ).count(),
             'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(site=instance).count(),
-            'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).count(),
+            'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct().count(),
             'vm_count': VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=instance).count(),
         }
         locations = Location.objects.add_related_count(
