@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django_rq import get_queue
 
+from netbox.config import get_config
 from netbox.registry import registry
 from utilities.api import get_serializer_for_model
 from utilities.utils import serialize_object
@@ -78,7 +79,8 @@ def flush_webhooks(queue):
     """
     Flush a list of object representation to RQ for webhook processing.
     """
-    rq_queue = get_queue('default')
+    rq_queue_name = get_config().QUEUE_MAPPINGS.get('webhook', 'default')
+    rq_queue = get_queue(rq_queue_name)
     webhooks_cache = {
         'type_create': {},
         'type_update': {},
