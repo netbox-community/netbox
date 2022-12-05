@@ -645,6 +645,11 @@ RQ_QUEUES = {
     'low': RQ_PARAMS,
 }
 
+# Add any queues defined in QUEUE_MAPPINGS
+RQ_QUEUES.update({
+    queue: RQ_PARAMS for queue in set(QUEUE_MAPPINGS.values()) if queue not in RQ_QUEUES
+})
+
 
 #
 # Plugins
