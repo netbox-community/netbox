@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.core.validators import ValidationError
+from django.core.validators import MinValueValidator, ValidationError
 from django.db import models
 from django.http import HttpResponse, QueryDict
 from django.urls import reverse
@@ -587,6 +587,14 @@ class JobResult(models.Model):
         null=True,
         blank=True
     )
+    interval = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=(
+            MinValueValidator(1),
+        ),
+        help_text=_("Recurrence interval (in minutes)")
+    )
     started = models.DateTimeField(
         null=True,
         blank=True
@@ -635,6 +643,9 @@ class JobResult(models.Model):
     def get_absolute_url(self):
         return reverse(f'extras:{self.obj_type.name}_result', args=[self.pk])
 
+    def get_status_color(self):
+        return JobResultStatusChoices.colors.get(self.status)
+
     @property
     def duration(self):
         if not self.completed:
@@ -664,33 +675,32 @@ class JobResult(models.Model):
             self.completed = timezone.now()
 
     @classmethod
-    def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, *args, **kwargs):
+    def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, interval=None, *args, **kwargs):
         """
         Create a JobResult instance and enqueue a job using the given callable
 
-        func: The callable object to be enqueued for execution
-        name: Name for the JobResult instance
-        obj_type: ContentType to link to the JobResult instance obj_type
-        user: User object to link to the JobResult instance
-        schedule_at: Schedule the job to be executed at the passed date and time
-        args: additional args passed to the callable
-        kwargs: additional kargs passed to the callable
+        Args:
+            func: The callable object to be enqueued for execution
+            name: Name for the JobResult instance
+            obj_type: ContentType to link to the JobResult instance obj_type
+            user: User object to link to the JobResult instance
+            schedule_at: Schedule the job to be executed at the passed date and time
+            interval: Recurrence interval (in minutes)
         """
-        job_result: JobResult = cls.objects.create(
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get(obj_type.name, RQ_QUEUE_DEFAULT)
+        queue = django_rq.get_queue(rq_queue_name)
+        status = JobResultStatusChoices.STATUS_SCHEDULED if schedule_at else JobResultStatusChoices.STATUS_PENDING
+        job_result: JobResult = JobResult.objects.create(
             name=name,
+            status=status,
             obj_type=obj_type,
+            scheduled=schedule_at,
+            interval=interval,
             user=user,
             job_id=uuid.uuid4()
         )
 
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(obj_type.name, RQ_QUEUE_DEFAULT)
-        queue = django_rq.get_queue(rq_queue_name)
-
         if schedule_at:
-            job_result.status = JobResultStatusChoices.STATUS_SCHEDULED
-            job_result.scheduled = schedule_at
-            job_result.save()
-
             queue.enqueue_at(schedule_at, func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
         else:
             queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)

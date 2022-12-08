@@ -1,8 +1,8 @@
-import importlib
 import inspect
 import logging
 import pkgutil
 import traceback
+from datetime import timedelta
 
 from django.conf import settings
 from django.utils import timezone
@@ -10,7 +10,6 @@ from django_rq import job
 
 from .choices import JobResultStatusChoices, LogLevelChoices
 from .models import JobResult
-
 
 logger = logging.getLogger(__name__)
 
@@ -85,10 +84,24 @@ def run_report(job_result, *args, **kwargs):
     try:
         job_result.start()
         report.run(job_result)
-    except Exception as e:
+    except Exception:
         job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
         job_result.save()
         logging.error(f"Error during execution of report {job_result.name}")
+    finally:
+        # Schedule the next job if an interval has been set
+        start_time = job_result.scheduled or job_result.started
+        if start_time and job_result.interval:
+            new_scheduled_time = start_time + timedelta(minutes=job_result.interval)
+            JobResult.enqueue_job(
+                run_report,
+                name=job_result.name,
+                obj_type=job_result.obj_type,
+                user=job_result.user,
+                job_timeout=report.job_timeout,
+                schedule_at=new_scheduled_time,
+                interval=job_result.interval
+            )
 
 
 class Report(object):

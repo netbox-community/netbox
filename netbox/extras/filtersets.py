@@ -17,10 +17,10 @@ __all__ = (
     'ConfigContextFilterSet',
     'ContentTypeFilterSet',
     'CustomFieldFilterSet',
-    'JobResultFilterSet',
     'CustomLinkFilterSet',
     'ExportTemplateFilterSet',
     'ImageAttachmentFilterSet',
+    'JobResultFilterSet',
     'JournalEntryFilterSet',
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
@@ -537,7 +537,7 @@ class JobResultFilterSet(BaseFilterSet):
 
     class Meta:
         model = JobResult
-        fields = ('id', 'status', 'user', 'obj_type', 'name')
+        fields = ('id', 'interval', 'status', 'user', 'obj_type', 'name')
 
     def search(self, queryset, name, value):
         if not value.strip():

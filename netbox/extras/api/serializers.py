@@ -385,8 +385,8 @@ class JobResultSerializer(BaseModelSerializer):
     class Meta:
         model = JobResult
         fields = [
-            'id', 'url', 'display', 'status', 'created', 'scheduled', 'started', 'completed', 'name', 'obj_type',
-            'user', 'data', 'job_id',
+            'id', 'url', 'display', 'status', 'created', 'scheduled', 'interval', 'started', 'completed', 'name',
+            'obj_type', 'user', 'data', 'job_id',
         ]
 
 
@@ -414,6 +414,7 @@ class ReportDetailSerializer(ReportSerializer):
 
 class ReportInputSerializer(serializers.Serializer):
     schedule_at = serializers.DateTimeField(required=False, allow_null=True)
+    interval = serializers.IntegerField(required=False, allow_null=True)
 
 
 #
@@ -448,6 +449,7 @@ class ScriptInputSerializer(serializers.Serializer):
     data = serializers.JSONField()
     commit = serializers.BooleanField()
     schedule_at = serializers.DateTimeField(required=False, allow_null=True)
+    interval = serializers.IntegerField(required=False, allow_null=True)
 
 
 class ScriptLogMessageSerializer(serializers.Serializer):

@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
 from django.http import Http404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -246,16 +245,14 @@ class ReportViewSet(ViewSet):
         input_serializer = serializers.ReportInputSerializer(data=request.data)
 
         if input_serializer.is_valid():
-            schedule_at = input_serializer.validated_data.get('schedule_at')
-
-            report_content_type = ContentType.objects.get(app_label='extras', model='report')
             job_result = JobResult.enqueue_job(
                 run_report,
-                report.full_name,
-                report_content_type,
-                request.user,
+                name=report.full_name,
+                obj_type=ContentType.objects.get_for_model(Report),
+                user=request.user,
                 job_timeout=report.job_timeout,
-                schedule_at=schedule_at,
+                schedule_at=input_serializer.validated_data.get('schedule_at'),
+                interval=input_serializer.validated_data.get('interval')
             )
             report.result = job_result
 
@@ -329,21 +326,17 @@ class ScriptViewSet(ViewSet):
             raise RQWorkerNotRunningException()
 
         if input_serializer.is_valid():
-            data = input_serializer.data['data']
-            commit = input_serializer.data['commit']
-            schedule_at = input_serializer.validated_data.get('schedule_at')
-
-            script_content_type = ContentType.objects.get(app_label='extras', model='script')
             job_result = JobResult.enqueue_job(
                 run_script,
-                script.full_name,
-                script_content_type,
-                request.user,
-                data=data,
+                name=script.full_name,
+                obj_type=ContentType.objects.get_for_model(Script),
+                user=request.user,
+                data=input_serializer.data['data'],
                 request=copy_safe_request(request),
-                commit=commit,
+                commit=input_serializer.data['commit'],
                 job_timeout=script.job_timeout,
-                schedule_at=schedule_at,
+                schedule_at=input_serializer.validated_data.get('schedule_at'),
+                interval=input_serializer.validated_data.get('interval')
             )
             script.result = job_result
             serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
