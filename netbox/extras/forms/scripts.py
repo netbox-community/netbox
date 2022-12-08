@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin, DateTimePicker
@@ -23,6 +24,7 @@ class ScriptForm(BootstrapMixin, forms.Form):
     )
     _interval = forms.IntegerField(
         required=False,
+        min_value=1,
         label=_("Recurs every"),
         help_text=_("Interval at which this script is re-run (in minutes)")
     )
@@ -37,6 +39,15 @@ class ScriptForm(BootstrapMixin, forms.Form):
         self.fields['_schedule_at'] = schedule_at
         self.fields['_interval'] = interval
         self.fields['_commit'] = commit
+
+    def clean__schedule_at(self):
+        scheduled_time = self.cleaned_data['_schedule_at']
+        if scheduled_time and scheduled_time < timezone.now():
+            raise forms.ValidationError({
+                '_schedule_at': _('Scheduled time must be in the future.')
+            })
+
+        return scheduled_time
 
     @property
     def requires_input(self):
