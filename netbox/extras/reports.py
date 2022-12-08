@@ -90,8 +90,9 @@ def run_report(job_result, *args, **kwargs):
         logging.error(f"Error during execution of report {job_result.name}")
     finally:
         # Schedule the next job if an interval has been set
-        if job_result.interval:
-            new_scheduled_time = job_result.scheduled + timedelta(minutes=job_result.interval)
+        start_time = job_result.scheduled or job_result.started
+        if start_time and job_result.interval:
+            new_scheduled_time = start_time + timedelta(minutes=job_result.interval)
             JobResult.enqueue_job(
                 run_report,
                 name=job_result.name,
