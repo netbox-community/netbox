@@ -2,6 +2,18 @@
 
 ## v3.3.10 (FUTURE)
 
+### Enhancements
+
+* [#10748](https://github.com/netbox-community/netbox/issues/10748) - Add provider selection field for provider networks to circuit termination edit view
+* [#11119](https://github.com/netbox-community/netbox/issues/11119) - Enable filtering L2VPNs by slug
+
+### Bug Fixes
+
+* [#11041](https://github.com/netbox-community/netbox/issues/11041) - Correct power utilization percentage precision
+* [#11087](https://github.com/netbox-community/netbox/issues/11087) - Fix background color of bottom banner content
+* [#11101](https://github.com/netbox-community/netbox/issues/11101) - Correct circuits count under site view
+* [#11128](https://github.com/netbox-community/netbox/issues/11128) - Disable ordering changelog table by object to avoid exception
+
 ---
 
 ## v3.3.9 (2022-11-30)

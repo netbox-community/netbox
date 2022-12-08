@@ -102,13 +102,13 @@ Blocks:
               {% block content %}{% endblock %}
             </div>
           {% endblock %}
+          {# Bottom banner #}
+          {% if config.BANNER_BOTTOM %}
+            <div class="text-center mx-3">
+              {{ config.BANNER_BOTTOM|safe }}
+            </div>
+          {% endif %}
         </div>
-
-        {% if config.BANNER_BOTTOM %}
-          <div class="text-center mx-3">
-            {{ config.BANNER_BOTTOM|safe }}
-          </div>
-        {% endif %}
 
         {# BS5 pop-up modals #}
         {% block modals %}{% endblock %}
