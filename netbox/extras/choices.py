@@ -148,12 +148,12 @@ class JobResultStatusChoices(ChoiceSet):
     STATUS_FAILED = 'failed'
 
     CHOICES = (
-        (STATUS_PENDING, 'Pending'),
-        (STATUS_SCHEDULED, 'Scheduled'),
-        (STATUS_RUNNING, 'Running'),
-        (STATUS_COMPLETED, 'Completed'),
-        (STATUS_ERRORED, 'Errored'),
-        (STATUS_FAILED, 'Failed'),
+        (STATUS_PENDING, 'Pending', 'cyan'),
+        (STATUS_SCHEDULED, 'Scheduled', 'gray'),
+        (STATUS_RUNNING, 'Running', 'blue'),
+        (STATUS_COMPLETED, 'Completed', 'green'),
+        (STATUS_ERRORED, 'Errored', 'red'),
+        (STATUS_FAILED, 'Failed', 'red'),
     )
 
     TERMINAL_STATE_CHOICES = (

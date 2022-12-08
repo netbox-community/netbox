@@ -640,6 +640,9 @@ class JobResult(models.Model):
     def get_absolute_url(self):
         return reverse(f'extras:{self.obj_type.name}_result', args=[self.pk])
 
+    def get_status_color(self):
+        return JobResultStatusChoices.colors.get(self.status)
+
     @property
     def duration(self):
         if not self.completed:

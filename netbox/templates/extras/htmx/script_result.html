@@ -5,7 +5,7 @@
   {% if result.started %}
     Started: <strong>{{ result.started|annotated_date }}</strong>
   {% elif result.scheduled %}
-    Scheduled for: <strong>{{ result.scheduled|annotated_date }}</strong>
+    Scheduled for: <strong>{{ result.scheduled|annotated_date }}</strong> ({{ result.scheduled|naturaltime }})
   {% else %}
     Created: <strong>{{ result.created|annotated_date }}</strong>
   {% endif %}

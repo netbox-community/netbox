@@ -299,7 +299,7 @@ OTHER_MENU = Menu(
                 ),
                 MenuItem(
                     link='extras:jobresult_list',
-                    link_text=_('Job Results'),
+                    link_text=_('Jobs'),
                     permissions=['extras.view_jobresult'],
                 ),
             ),
