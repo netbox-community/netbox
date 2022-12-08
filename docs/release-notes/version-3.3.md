@@ -12,6 +12,7 @@
 * [#11041](https://github.com/netbox-community/netbox/issues/11041) - Correct power utilization percentage precision
 * [#11087](https://github.com/netbox-community/netbox/issues/11087) - Fix background color of bottom banner content
 * [#11101](https://github.com/netbox-community/netbox/issues/11101) - Correct circuits count under site view
+* [#11128](https://github.com/netbox-community/netbox/issues/11128) - Disable ordering changelog table by object to avoid exception
 
 ---
 
