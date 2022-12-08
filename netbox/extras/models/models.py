@@ -21,6 +21,8 @@ from extras.choices import *
 from extras.constants import *
 from extras.conditions import ConditionSet
 from extras.utils import FeatureQuery, image_upload
+from netbox.config import get_config
+from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, TagsMixin, WebhooksMixin,
@@ -679,7 +681,8 @@ class JobResult(models.Model):
             schedule_at: Schedule the job to be executed at the passed date and time
             interval: Recurrence interval (in minutes)
         """
-        queue = django_rq.get_queue('default')
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get(obj_type.name, RQ_QUEUE_DEFAULT)
+        queue = django_rq.get_queue(rq_queue_name)
         status = JobResultStatusChoices.STATUS_SCHEDULED if schedule_at else JobResultStatusChoices.STATUS_PENDING
         job_result: JobResult = JobResult.objects.create(
             name=name,

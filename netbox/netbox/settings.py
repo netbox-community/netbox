@@ -17,6 +17,7 @@ from extras.plugins import PluginConfig
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from netbox.config import PARAMS
+from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 
 
 #
@@ -101,6 +102,7 @@ MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media'
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
+QUEUE_MAPPINGS = getattr(configuration, 'QUEUE_MAPPINGS', {})
 RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
 REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_USER', False)
 REMOTE_AUTH_BACKEND = getattr(configuration, 'REMOTE_AUTH_BACKEND', 'netbox.authentication.RemoteUserBackend')
@@ -639,10 +641,15 @@ else:
     }
 
 RQ_QUEUES = {
-    'high': RQ_PARAMS,
-    'default': RQ_PARAMS,
-    'low': RQ_PARAMS,
+    RQ_QUEUE_HIGH: RQ_PARAMS,
+    RQ_QUEUE_DEFAULT: RQ_PARAMS,
+    RQ_QUEUE_LOW: RQ_PARAMS,
 }
+
+# Add any queues defined in QUEUE_MAPPINGS
+RQ_QUEUES.update({
+    queue: RQ_PARAMS for queue in set(QUEUE_MAPPINGS.values()) if queue not in RQ_QUEUES
+})
 
 
 #

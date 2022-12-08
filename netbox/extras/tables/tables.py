@@ -216,7 +216,8 @@ class ObjectChangeTable(NetBoxTable):
     object_repr = tables.TemplateColumn(
         accessor=tables.A('changed_object'),
         template_code=OBJECTCHANGE_OBJECT,
-        verbose_name='Object'
+        verbose_name='Object',
+        orderable=False
     )
     request_id = tables.TemplateColumn(
         template_code=OBJECTCHANGE_REQUEST_ID,
