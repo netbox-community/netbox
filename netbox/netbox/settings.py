@@ -17,6 +17,7 @@ from extras.plugins import PluginConfig
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from netbox.config import PARAMS
+from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 
 
 #
@@ -640,9 +641,9 @@ else:
     }
 
 RQ_QUEUES = {
-    'high': RQ_PARAMS,
-    'default': RQ_PARAMS,
-    'low': RQ_PARAMS,
+    RQ_QUEUE_HIGH: RQ_PARAMS,
+    RQ_QUEUE_DEFAULT: RQ_PARAMS,
+    RQ_QUEUE_LOW: RQ_PARAMS,
 }
 
 # Add any queues defined in QUEUE_MAPPINGS

@@ -22,6 +22,7 @@ from extras.constants import *
 from extras.conditions import ConditionSet
 from extras.utils import FeatureQuery, image_upload
 from netbox.config import get_config
+from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, TagsMixin, WebhooksMixin,
@@ -682,7 +683,7 @@ class JobResult(models.Model):
             job_id=uuid.uuid4()
         )
 
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(obj_type.name, 'default')
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get(obj_type.name, RQ_QUEUE_DEFAULT)
         queue = django_rq.get_queue(rq_queue_name)
 
         if schedule_at:
