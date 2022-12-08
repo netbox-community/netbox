@@ -6,6 +6,7 @@
 
 * [#815](https://github.com/netbox-community/netbox/issues/815) - Enable specifying terminations when bulk importing circuits
 * [#11090](https://github.com/netbox-community/netbox/issues/11090) - Add regular expression support to global search engine
+* [#11022](https://github.com/netbox-community/netbox/issues/11022) - Introduce `QUEUE_MAPPINGS` configuration parameter to allow customization of background task prioritization
 
 ### Bug Fixes
 
