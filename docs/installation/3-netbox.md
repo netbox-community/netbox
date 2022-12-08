@@ -225,6 +225,9 @@ Once NetBox has been configured, we're ready to proceed with the actual installa
 * Builds the documentation locally (for offline use)
 * Aggregate static resource files on disk
 
+!!! warning
+    If you still have a Python virtual environment active from a previous installation step, disable it now by running the `deactivate` command. This will avoid errors on systems where `sudo` has been configured to preserve the user's current environment.
+
 ```no-highlight
 sudo /opt/netbox/upgrade.sh
 ```
