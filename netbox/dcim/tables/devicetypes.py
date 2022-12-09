@@ -3,7 +3,7 @@ import django_tables2 as tables
 from dcim import models
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin
-from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS, DEVICE_WEIGHT
+from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS, WEIGHT
 
 __all__ = (
     'ConsolePortTemplateTable',
@@ -84,7 +84,7 @@ class DeviceTypeTable(NetBoxTable):
         template_code='{{ value|floatformat }}'
     )
     weight = columns.TemplateColumn(
-        template_code=DEVICE_WEIGHT,
+        template_code=WEIGHT,
         order_by=('_abs_weight', 'weight_unit')
     )
 

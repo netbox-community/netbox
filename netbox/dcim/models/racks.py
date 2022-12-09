@@ -17,7 +17,7 @@ from dcim.svg import RackElevationSVG
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.utils import array_to_string, drange
+from utilities.utils import array_to_string, drange, to_grams
 from .device_components import PowerPort
 from .devices import Device, Module
 from .mixins import WeightMixin
@@ -149,6 +149,16 @@ class Rack(PrimaryModel, WeightMixin):
         choices=RackDimensionUnitChoices,
         blank=True,
     )
+    max_weight = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text=_('Maximum load capacity for the rack')
+    )
+    # Stores the normalized max weight (in grams) for database ordering
+    _abs_max_weight = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
     mounting_depth = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
@@ -174,7 +184,7 @@ class Rack(PrimaryModel, WeightMixin):
 
     clone_fields = (
         'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
-        'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'weight_unit',
+        'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
     )
     prerequisite_models = (
         'dcim.Site',
@@ -215,6 +225,10 @@ class Rack(PrimaryModel, WeightMixin):
         elif self.outer_width is None and self.outer_depth is None:
             self.outer_unit = ''
 
+        # Validate max_weight and weight_unit
+        if self.max_weight and not self.weight_unit:
+            raise ValidationError("Must specify a unit when setting a maximum weight")
+
         if self.pk:
             # Validate that Rack is tall enough to house the installed Devices
             top_device = Device.objects.filter(
@@ -236,6 +250,16 @@ class Rack(PrimaryModel, WeightMixin):
                     raise ValidationError({
                         'location': f"Location must be from the same site, {self.site}."
                     })
+
+    def save(self, *args, **kwargs):
+
+        # Store the given max weight (if any) in grams for use in database ordering
+        if self.max_weight and self.weight_unit:
+            self._abs_max_weight = to_grams(self.max_weight, self.weight_unit)
+        else:
+            self._abs_max_weight = None
+
+        super().save(*args, **kwargs)
 
     @property
     def units(self):

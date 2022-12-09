@@ -294,6 +294,10 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         min_value=0,
         required=False
     )
+    max_weight = forms.IntegerField(
+        min_value=0,
+        required=False
+    )
     weight_unit = forms.ChoiceField(
         choices=add_blank_choice(WeightUnitChoices),
         required=False,
@@ -316,11 +320,11 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         ('Hardware', (
             'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
         )),
-        ('Weight', ('weight', 'weight_unit')),
+        ('Weight', ('weight', 'max_weight', 'weight_unit')),
     )
     nullable_fields = (
         'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'weight',
-        'weight_unit', 'description', 'comments',
+        'max_weight', 'weight_unit', 'description', 'comments',
     )
 
 

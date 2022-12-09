@@ -322,7 +322,7 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'asset_tag', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'mounting_depth', 'weight', 'weight_unit'
+            'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit'
         ]
 
     def search(self, queryset, name, value):

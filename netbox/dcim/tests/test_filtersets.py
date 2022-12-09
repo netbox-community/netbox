@@ -409,9 +409,9 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         racks = (
-            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], location=locations[0], tenant=tenants[0], status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER, weight=10, weight_unit=WeightUnitChoices.UNIT_POUND),
-            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], location=locations[1], tenant=tenants[1], status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_21IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER, weight=20, weight_unit=WeightUnitChoices.UNIT_POUND),
-            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], location=locations[2], tenant=tenants[2], status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH, weight=30, weight_unit=WeightUnitChoices.UNIT_KILOGRAM),
+            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], location=locations[0], tenant=tenants[0], status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER, weight=10, max_weight=1000, weight_unit=WeightUnitChoices.UNIT_POUND),
+            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], location=locations[1], tenant=tenants[1], status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_21IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER, weight=20, max_weight=2000, weight_unit=WeightUnitChoices.UNIT_POUND),
+            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], location=locations[2], tenant=tenants[2], status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH, weight=30, max_weight=3000, weight_unit=WeightUnitChoices.UNIT_KILOGRAM),
         )
         Rack.objects.bulk_create(racks)
 
@@ -519,6 +519,10 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_weight(self):
         params = {'weight': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_max_weight(self):
+        params = {'max_weight': [1000, 2000]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_weight_unit(self):

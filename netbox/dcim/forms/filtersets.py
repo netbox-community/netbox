@@ -229,7 +229,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         ('Hardware', ('type', 'width', 'serial', 'asset_tag')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
-        ('Weight', ('weight', 'weight_unit')),
+        ('Weight', ('weight', 'max_weight', 'weight_unit')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -284,7 +284,12 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
     )
     tag = TagFilterField(model)
     weight = forms.DecimalField(
-        required=False
+        required=False,
+        min_value=1
+    )
+    max_weight = forms.IntegerField(
+        required=False,
+        min_value=1
     )
     weight_unit = forms.ChoiceField(
         choices=add_blank_choice(WeightUnitChoices),

@@ -279,7 +279,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
         fields = [
             'region', 'site_group', 'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status',
             'role', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'description', 'comments', 'tags',
+            'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         ]
         help_texts = {
             'site': _("The site at which the rack exists"),

@@ -195,13 +195,18 @@ class RackImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Unit for outer dimensions')
     )
+    weight_unit = CSVChoiceField(
+        choices=WeightUnitChoices,
+        required=False,
+        help_text=_('Unit for rack weights')
+    )
 
     class Meta:
         model = Rack
         fields = (
             'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag',
-            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
-            'description', 'comments', 'tags',
+            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight',
+            'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):

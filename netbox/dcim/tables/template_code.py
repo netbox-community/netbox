@@ -15,9 +15,9 @@ CABLE_LENGTH = """
 {% if record.length %}{{ record.length|simplify_decimal }} {{ record.length_unit }}{% endif %}
 """
 
-DEVICE_WEIGHT = """
+WEIGHT = """
 {% load helpers %}
-{% if record.weight %}{{ record.weight|simplify_decimal }} {{ record.weight_unit }}{% endif %}
+{% if value %}{{ value|simplify_decimal }} {{ record.weight_unit }}{% endif %}
 """
 
 DEVICE_LINK = """

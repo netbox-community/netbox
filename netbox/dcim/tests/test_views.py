@@ -388,15 +388,18 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'outer_width': 500,
             'outer_depth': 500,
             'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER,
+            'weight': 100,
+            'max_weight': 2000,
+            'weight_unit': WeightUnitChoices.UNIT_POUND,
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "site,location,name,status,width,u_height",
-            "Site 1,,Rack 4,active,19,42",
-            "Site 1,Location 1,Rack 5,active,19,42",
-            "Site 2,Location 2,Rack 6,active,19,42",
+            "site,location,name,status,width,u_height,weight,max_weight,weight_unit",
+            "Site 1,,Rack 4,active,19,42,100,2000,kg",
+            "Site 1,Location 1,Rack 5,active,19,42,100,2000,kg",
+            "Site 2,Location 2,Rack 6,active,19,42,100,2000,kg",
         )
 
         cls.csv_update_data = (
@@ -420,6 +423,9 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'outer_width': 30,
             'outer_depth': 30,
             'outer_unit': RackDimensionUnitChoices.UNIT_INCH,
+            'weight': 200,
+            'max_weight': 4000,
+            'weight_unit': WeightUnitChoices.UNIT_POUND,
             'comments': 'New comments',
         }
 

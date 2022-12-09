@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from dcim.models import Module, ModuleType
 from netbox.tables import NetBoxTable, columns
-from .template_code import DEVICE_WEIGHT
+from .template_code import WEIGHT
 
 __all__ = (
     'ModuleTable',
@@ -28,7 +28,7 @@ class ModuleTypeTable(NetBoxTable):
         url_name='dcim:moduletype_list'
     )
     weight = columns.TemplateColumn(
-        template_code=DEVICE_WEIGHT,
+        template_code=WEIGHT,
         order_by=('_abs_weight', 'weight_unit')
     )
 

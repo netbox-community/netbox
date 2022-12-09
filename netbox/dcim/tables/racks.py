@@ -4,7 +4,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Rack, RackReservation, RackRole
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
-from .template_code import DEVICE_WEIGHT
+from .template_code import WEIGHT
 
 __all__ = (
     'RackTable',
@@ -81,8 +81,12 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         verbose_name='Outer Depth'
     )
     weight = columns.TemplateColumn(
-        template_code=DEVICE_WEIGHT,
+        template_code=WEIGHT,
         order_by=('_abs_weight', 'weight_unit')
+    )
+    max_weight = columns.TemplateColumn(
+        template_code=WEIGHT,
+        order_by=('_abs_max_weight', 'weight_unit')
     )
 
     class Meta(NetBoxTable.Meta):
@@ -90,8 +94,8 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'tenant_group', 'role', 'serial',
             'asset_tag', 'type', 'u_height', 'width', 'outer_width', 'outer_depth', 'mounting_depth', 'weight',
-            'comments', 'device_count', 'get_utilization', 'get_power_utilization', 'description', 'contacts', 'tags',
-            'created', 'last_updated',
+            'max_weight', 'comments', 'device_count', 'get_utilization', 'get_power_utilization', 'description',
+            'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',

@@ -170,6 +170,16 @@
                         </td>
                     </tr>
                     <tr>
+                        <th scope="row">Maximum Weight</th>
+                        <td>
+                            {% if object.max_weight %}
+                                {{ object.max_weight }} {{ object.get_weight_unit_display }}
+                            {% else %}
+                                {{ ''|placeholder }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <th scope="row">Total Weight</th>
                         <td>
                           {{ object.total_weight|floatformat }} Kilograms
