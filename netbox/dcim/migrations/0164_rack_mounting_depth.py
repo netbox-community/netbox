@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0163_rack_devicetype_moduletype_weights'),
+        ('dcim', '0163_weight_fields'),
     ]
 
     operations = [
