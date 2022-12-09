@@ -574,6 +574,12 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
             'manufacturer_id': '$manufacturer'
         }
     )
+    status = forms.ChoiceField(
+        choices=add_blank_choice(ModuleStatusChoices),
+        required=False,
+        initial='',
+        widget=StaticSelect()
+    )
     serial = forms.CharField(
         max_length=50,
         required=False,
@@ -590,7 +596,7 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Module
     fieldsets = (
-        (None, ('manufacturer', 'module_type', 'serial', 'description')),
+        (None, ('manufacturer', 'module_type', 'status', 'serial', 'description')),
     )
     nullable_fields = ('serial', 'description', 'comments')
 

@@ -697,8 +697,8 @@ class ModuleSerializer(NetBoxModelSerializer):
     class Meta:
         model = Module
         fields = [
-            'id', 'url', 'display', 'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'description',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'device', 'module_bay', 'module_type', 'status', 'serial', 'asset_tag',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 

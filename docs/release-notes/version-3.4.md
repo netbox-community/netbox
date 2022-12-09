@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#815](https://github.com/netbox-community/netbox/issues/815) - Enable specifying terminations when bulk importing circuits
+* [#10371](https://github.com/netbox-community/netbox/issues/10371) - Add operational status field for modules
 * [#10945](https://github.com/netbox-community/netbox/issues/10945) - Enabled recurring execution of scheduled reports & scripts
 * [#11090](https://github.com/netbox-community/netbox/issues/11090) - Add regular expression support to global search engine
 * [#11022](https://github.com/netbox-community/netbox/issues/11022) - Introduce `QUEUE_MAPPINGS` configuration parameter to allow customization of background task prioritization
@@ -134,6 +135,8 @@ This release introduces a new programmatic API that enables plugins and custom s
     * Added a `description` field
 * dcim.Interface
     * Added the `vdcs` field
+* dcim.Module
+    * Added a `status` field
 * dcim.ModuleType
     * Added a `description` field
     * Added optional `weight` and `weight_unit` fields

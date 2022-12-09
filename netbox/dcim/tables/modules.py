@@ -56,6 +56,7 @@ class ModuleTable(NetBoxTable):
     module_type = tables.Column(
         linkify=True
     )
+    status = columns.ChoiceFieldColumn()
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='dcim:module_list'
@@ -64,9 +65,9 @@ class ModuleTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Module
         fields = (
-            'pk', 'id', 'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag', 'description',
-            'comments', 'tags',
+            'pk', 'id', 'device', 'module_bay', 'manufacturer', 'module_type', 'status', 'serial', 'asset_tag',
+            'description', 'comments', 'tags',
         )
         default_columns = (
-            'pk', 'id', 'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag',
+            'pk', 'id', 'device', 'module_bay', 'manufacturer', 'module_type', 'status', 'serial', 'asset_tag',
         )

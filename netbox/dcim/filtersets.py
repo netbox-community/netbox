@@ -1082,13 +1082,17 @@ class ModuleFilterSet(NetBoxModelFilterSet):
         queryset=Device.objects.all(),
         label=_('Device (ID)'),
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=ModuleStatusChoices,
+        null_value=None
+    )
     serial = MultiValueCharFilter(
         lookup_expr='iexact'
     )
 
     class Meta:
         model = Module
-        fields = ['id', 'asset_tag']
+        fields = ['id', 'status', 'asset_tag']
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -450,11 +450,15 @@ class ModuleImportForm(NetBoxModelImportForm):
         queryset=ModuleType.objects.all(),
         to_field_name='model'
     )
+    status = CSVChoiceField(
+        choices=ModuleStatusChoices,
+        help_text=_('Operational status')
+    )
 
     class Meta:
         model = Module
         fields = (
-            'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'description', 'comments', 'tags',
+            'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'status', 'description', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):

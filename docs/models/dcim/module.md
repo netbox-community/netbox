@@ -18,6 +18,13 @@ The [module bay](./modulebay.md) into which the module is installed.
 
 The [module type](./moduletype.md) which represents the physical make & model of hardware. By default, module components will be instantiated automatically from the module type when creating a new module.
 
+### Status
+
+The module's operational status.
+
+!!! tip
+    Additional statuses may be defined by setting `Module.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
+
 ### Serial Number
 
 The unique physical serial number assigned to this module by its manufacturer.

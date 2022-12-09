@@ -1887,26 +1887,28 @@ class ModuleTestCase(
             'device': devices[0].pk,
             'module_bay': module_bays[3].pk,
             'module_type': module_types[0].pk,
+            'status': ModuleStatusChoices.STATUS_ACTIVE,
             'serial': 'A',
             'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
             'module_type': module_types[3].pk,
+            'status': ModuleStatusChoices.STATUS_PLANNED,
         }
 
         cls.csv_data = (
-            "device,module_bay,module_type,serial,asset_tag",
-            "Device 2,Module Bay 1,Module Type 1,A,A",
-            "Device 2,Module Bay 2,Module Type 2,B,B",
-            "Device 2,Module Bay 3,Module Type 3,C,C",
+            "device,module_bay,module_type,status,serial,asset_tag",
+            "Device 2,Module Bay 1,Module Type 1,active,A,A",
+            "Device 2,Module Bay 2,Module Type 2,planned,B,B",
+            "Device 2,Module Bay 3,Module Type 3,failed,C,C",
         )
 
         cls.csv_update_data = (
-            "id,serial",
-            f"{modules[0].pk},Serial 2",
-            f"{modules[1].pk},Serial 3",
-            f"{modules[2].pk},Serial 1",
+            "id,status,serial",
+            f"{modules[0].pk},offline,Serial 2",
+            f"{modules[1].pk},offline,Serial 3",
+            f"{modules[2].pk},offline,Serial 1",
         )
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])

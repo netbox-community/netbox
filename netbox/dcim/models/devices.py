@@ -925,6 +925,11 @@ class Module(PrimaryModel, ConfigContextModel):
         on_delete=models.PROTECT,
         related_name='instances'
     )
+    status = models.CharField(
+        max_length=50,
+        choices=ModuleStatusChoices,
+        default=ModuleStatusChoices.STATUS_ACTIVE
+    )
     serial = models.CharField(
         max_length=50,
         blank=True,
@@ -939,7 +944,7 @@ class Module(PrimaryModel, ConfigContextModel):
         help_text=_('A unique tag used to identify this device')
     )
 
-    clone_fields = ('device', 'module_type')
+    clone_fields = ('device', 'module_type', 'status')
 
     class Meta:
         ordering = ('module_bay',)
@@ -949,6 +954,9 @@ class Module(PrimaryModel, ConfigContextModel):
 
     def get_absolute_url(self):
         return reverse('dcim:module', args=[self.pk])
+
+    def get_status_color(self):
+        return ModuleStatusChoices.colors.get(self.status)
 
     def clean(self):
         super().clean()

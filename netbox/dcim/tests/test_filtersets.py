@@ -1876,15 +1876,15 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         ModuleBay.objects.bulk_create(module_bays)
 
         modules = (
-            Module(device=devices[0], module_bay=module_bays[0], module_type=module_types[0], serial='A', asset_tag='A'),
-            Module(device=devices[0], module_bay=module_bays[1], module_type=module_types[1], serial='B', asset_tag='B'),
-            Module(device=devices[0], module_bay=module_bays[2], module_type=module_types[2], serial='C', asset_tag='C'),
-            Module(device=devices[1], module_bay=module_bays[3], module_type=module_types[0], serial='D', asset_tag='D'),
-            Module(device=devices[1], module_bay=module_bays[4], module_type=module_types[1], serial='E', asset_tag='E'),
-            Module(device=devices[1], module_bay=module_bays[5], module_type=module_types[2], serial='F', asset_tag='F'),
-            Module(device=devices[2], module_bay=module_bays[6], module_type=module_types[0], serial='G', asset_tag='G'),
-            Module(device=devices[2], module_bay=module_bays[7], module_type=module_types[1], serial='H', asset_tag='H'),
-            Module(device=devices[2], module_bay=module_bays[8], module_type=module_types[2], serial='I', asset_tag='I'),
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_types[0], status=ModuleStatusChoices.STATUS_ACTIVE, serial='A', asset_tag='A'),
+            Module(device=devices[0], module_bay=module_bays[1], module_type=module_types[1], status=ModuleStatusChoices.STATUS_ACTIVE, serial='B', asset_tag='B'),
+            Module(device=devices[0], module_bay=module_bays[2], module_type=module_types[2], status=ModuleStatusChoices.STATUS_ACTIVE, serial='C', asset_tag='C'),
+            Module(device=devices[1], module_bay=module_bays[3], module_type=module_types[0], status=ModuleStatusChoices.STATUS_ACTIVE, serial='D', asset_tag='D'),
+            Module(device=devices[1], module_bay=module_bays[4], module_type=module_types[1], status=ModuleStatusChoices.STATUS_ACTIVE, serial='E', asset_tag='E'),
+            Module(device=devices[1], module_bay=module_bays[5], module_type=module_types[2], status=ModuleStatusChoices.STATUS_ACTIVE, serial='F', asset_tag='F'),
+            Module(device=devices[2], module_bay=module_bays[6], module_type=module_types[0], status=ModuleStatusChoices.STATUS_ACTIVE, serial='G', asset_tag='G'),
+            Module(device=devices[2], module_bay=module_bays[7], module_type=module_types[1], status=ModuleStatusChoices.STATUS_PLANNED, serial='H', asset_tag='H'),
+            Module(device=devices[2], module_bay=module_bays[8], module_type=module_types[2], status=ModuleStatusChoices.STATUS_FAILED, serial='I', asset_tag='I'),
         )
         Module.objects.bulk_create(modules)
 
@@ -1911,6 +1911,10 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_types = Device.objects.all()[:2]
         params = {'device_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_status(self):
+        params = {'status': [ModuleStatusChoices.STATUS_PLANNED, ModuleStatusChoices.STATUS_FAILED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_serial(self):
         params = {'serial': ['A', 'B']}

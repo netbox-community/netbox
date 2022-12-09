@@ -703,7 +703,7 @@ class ModuleForm(NetBoxModelForm):
 
     fieldsets = (
         ('Module', (
-            'device', 'module_bay', 'manufacturer', 'module_type', 'description', 'tags',
+            'device', 'module_bay', 'manufacturer', 'module_type', 'status', 'description', 'tags',
         )),
         ('Hardware', (
             'serial', 'asset_tag', 'replicate_components', 'adopt_components',
@@ -713,7 +713,7 @@ class ModuleForm(NetBoxModelForm):
     class Meta:
         model = Module
         fields = [
-            'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag', 'tags',
+            'device', 'module_bay', 'manufacturer', 'module_type', 'status', 'serial', 'asset_tag', 'tags',
             'replicate_components', 'adopt_components', 'description', 'comments',
         ]
 

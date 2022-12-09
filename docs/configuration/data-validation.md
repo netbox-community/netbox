@@ -58,9 +58,11 @@ The following model fields support configurable choices:
 * `circuits.Circuit.status`
 * `dcim.Device.status`
 * `dcim.Location.status`
+* `dcim.Module.status`
 * `dcim.PowerFeed.status`
 * `dcim.Rack.status`
 * `dcim.Site.status`
+* `dcim.VirtualDeviceContext.status`
 * `extras.JournalEntry.kind`
 * `ipam.IPAddress.status`
 * `ipam.IPRange.status`

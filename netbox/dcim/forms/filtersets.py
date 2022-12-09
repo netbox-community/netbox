@@ -763,7 +763,7 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxMo
     model = Module
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Hardware', ('manufacturer_id', 'module_type_id', 'serial', 'asset_tag')),
+        ('Hardware', ('manufacturer_id', 'module_type_id', 'status', 'serial', 'asset_tag')),
     )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -779,6 +779,10 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxMo
         },
         label=_('Type'),
         fetch_trigger='open'
+    )
+    status = MultipleChoiceField(
+        choices=ModuleStatusChoices,
+        required=False
     )
     serial = forms.CharField(
         required=False
