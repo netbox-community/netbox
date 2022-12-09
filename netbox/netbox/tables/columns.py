@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
+from django.utils.dateparse import parse_date
 from django.utils.encoding import escape_uri_path
 from django.utils.html import escape
 from django.utils.formats import date_format
@@ -51,7 +52,9 @@ class DateColumn(tables.DateColumn):
     default, making this behavior consistent in all fields of type DateField.
     """
     def value(self, value):
-        return value
+        if value:
+            return date_format(value, format="SHORT_DATE_FORMAT")
+        return None
 
     @classmethod
     def from_field(cls, field, **kwargs):
@@ -441,6 +444,7 @@ class CustomFieldColumn(tables.Column):
         return escape(item)
 
     def render(self, value):
+        print("render CustomFieldColumn")
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is True:
             return mark_safe('<i class="mdi mdi-check-bold text-success"></i>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is False:
@@ -455,6 +459,8 @@ class CustomFieldColumn(tables.Column):
             ))
         if self.customfield.type == CustomFieldTypeChoices.TYPE_LONGTEXT and value:
             return render_markdown(value)
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_DATE and value:
+            return date_format(parse_date(value), format="SHORT_DATE_FORMAT")
         if value is not None:
             obj = self.customfield.deserialize(value)
             return mark_safe(self._linkify_item(obj))
