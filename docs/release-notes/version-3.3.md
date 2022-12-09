@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#10748](https://github.com/netbox-community/netbox/issues/10748) - Add provider selection field for provider networks to circuit termination edit view
+* [#11089](https://github.com/netbox-community/netbox/issues/11089) - Permit whitespace in MAC addresses
 * [#11119](https://github.com/netbox-community/netbox/issues/11119) - Enable filtering L2VPNs by slug
 
 ### Bug Fixes

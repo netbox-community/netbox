@@ -55,6 +55,8 @@ class MACAddressField(models.Field):
     def to_python(self, value):
         if value is None:
             return value
+        if type(value) is str:
+            value = value.replace(' ', '')
         try:
             return EUI(value, version=48, dialect=mac_unix_expanded_uppercase)
         except AddrFormatError:
