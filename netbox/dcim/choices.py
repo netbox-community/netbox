@@ -55,14 +55,18 @@ class RackTypeChoices(ChoiceSet):
     TYPE_4POST = '4-post-frame'
     TYPE_CABINET = '4-post-cabinet'
     TYPE_WALLFRAME = 'wall-frame'
+    TYPE_WALLFRAME_VERTICAL = 'wall-frame-vertical'
     TYPE_WALLCABINET = 'wall-cabinet'
+    TYPE_WALLCABINET_VERTICAL = 'wall-cabinet-vertical'
 
     CHOICES = (
         (TYPE_2POST, '2-post frame'),
         (TYPE_4POST, '4-post frame'),
         (TYPE_CABINET, '4-post cabinet'),
         (TYPE_WALLFRAME, 'Wall-mounted frame'),
+        (TYPE_WALLFRAME_VERTICAL, 'Wall-mounted frame (vertical)'),
         (TYPE_WALLCABINET, 'Wall-mounted cabinet'),
+        (TYPE_WALLCABINET_VERTICAL, 'Wall-mounted cabinet (vertical)'),
     )
 
 
