@@ -250,7 +250,7 @@ class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         null_option='Global'
     )
     status = MultipleChoiceField(
-        choices=PrefixStatusChoices,
+        choices=IPRangeStatusChoices,
         required=False
     )
     role_id = DynamicModelMultipleChoiceField(
