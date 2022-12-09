@@ -3,7 +3,6 @@ import yaml
 
 from functools import cached_property
 
-from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -1175,3 +1174,20 @@ class VirtualDeviceContext(PrimaryModel):
             return self.primary_ip4
         else:
             return None
+
+    def clean(self):
+        super().clean()
+
+        # Validate primary IPv4/v6 assignment
+        for primary_ip, family in ((self.primary_ip4, 4), (self.primary_ip6, 6)):
+            if not primary_ip:
+                continue
+            if primary_ip.family != family:
+                raise ValidationError({
+                    f'primary_ip{family}': f"{primary_ip} is not an IPv{family} address."
+                })
+            device_interfaces = self.device.vc_interfaces(if_master=False)
+            if primary_ip.assigned_object not in device_interfaces:
+                raise ValidationError({
+                    f'primary_ip{family}': _('Primary IP address must belong to an interface on the assigned device.')
+                })

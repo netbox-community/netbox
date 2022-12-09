@@ -1705,6 +1705,24 @@ class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
             'rack_id': '$rack',
         }
     )
+    primary_ip4 = DynamicModelChoiceField(
+        queryset=IPAddress.objects.all(),
+        label='Primary IPv4',
+        required=False,
+        query_params={
+            'device_id': '$device',
+            'family': '4',
+        }
+    )
+    primary_ip6 = DynamicModelChoiceField(
+        queryset=IPAddress.objects.all(),
+        label='Primary IPv6',
+        required=False,
+        query_params={
+            'device_id': '$device',
+            'family': '6',
+        }
+    )
 
     fieldsets = (
         ('Assigned Device', ('region', 'site_group', 'site', 'location', 'rack', 'device')),

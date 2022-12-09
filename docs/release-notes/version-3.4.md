@@ -13,6 +13,7 @@
 
 * [#10946](https://github.com/netbox-community/netbox/issues/10946) - Fix AttributeError exception when viewing a device with a primary IP and no platform assigned
 * [#10948](https://github.com/netbox-community/netbox/issues/10948) - Linkify primary IPs for VDCs
+* [#10950](https://github.com/netbox-community/netbox/issues/10950) - Fix validation of VDC primary IPs
 * [#10957](https://github.com/netbox-community/netbox/issues/10957) - Add missing VDCs column to interface tables
 * [#10973](https://github.com/netbox-community/netbox/issues/10973) - Fix device links in VDC table
 * [#10980](https://github.com/netbox-community/netbox/issues/10980) - Fix view tabs for plugin objects
