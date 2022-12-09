@@ -47,8 +47,12 @@ def model_view_tabs(context, instance):
                     'url': url,
                     'label': attrs['label'],
                     'badge': attrs['badge'],
+                    'weight': attrs['weight'],
                     'is_active': active_tab and active_tab == tab,
                 })
+
+    # Order tabs by weight
+    tabs = sorted(tabs, key=lambda x: x['weight'])
 
     return {
         'tabs': tabs,

@@ -27,7 +27,8 @@ class ObjectChangeLogView(View):
     base_template = None
     tab = ViewTab(
         label=_('Changelog'),
-        permission='extras.view_objectchange'
+        permission='extras.view_objectchange',
+        weight=10000
     )
 
     def get(self, request, model, **kwargs):
@@ -80,7 +81,8 @@ class ObjectJournalView(View):
     tab = ViewTab(
         label=_('Journal'),
         badge=lambda obj: obj.journal_entries.count(),
-        permission='extras.view_journalentry'
+        permission='extras.view_journalentry',
+        weight=9000
     )
 
     def get(self, request, model, **kwargs):

@@ -180,7 +180,8 @@ class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('Virtual Machines'),
         badge=lambda obj: obj.virtual_machines.count(),
-        permission='virtualization.view_virtualmachine'
+        permission='virtualization.view_virtualmachine',
+        weight=500
     )
 
     def get_children(self, request, parent):
@@ -197,7 +198,8 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('Devices'),
         badge=lambda obj: obj.devices.count(),
-        permission='virtualization.view_virtualmachine'
+        permission='virtualization.view_virtualmachine',
+        weight=600
     )
 
     def get_children(self, request, parent):
@@ -370,7 +372,8 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('Interfaces'),
         badge=lambda obj: obj.interfaces.count(),
-        permission='virtualization.view_vminterface'
+        permission='virtualization.view_vminterface',
+        weight=500
     )
 
     def get_children(self, request, parent):
@@ -386,7 +389,8 @@ class VirtualMachineConfigContextView(ObjectConfigContextView):
     base_template = 'virtualization/virtualmachine.html'
     tab = ViewTab(
         label=_('Config Context'),
-        permission='extras.view_configcontext'
+        permission='extras.view_configcontext',
+        weight=2000
     )
 
 

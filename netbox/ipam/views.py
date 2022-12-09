@@ -314,7 +314,8 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('Prefixes'),
         badge=lambda x: x.get_child_prefixes().count(),
-        permission='ipam.view_prefix'
+        permission='ipam.view_prefix',
+        weight=500
     )
 
     def get_children(self, request, parent):
@@ -502,7 +503,8 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('Child Prefixes'),
         badge=lambda x: x.get_child_prefixes().count(),
-        permission='ipam.view_prefix'
+        permission='ipam.view_prefix',
+        weight=500
     )
 
     def get_children(self, request, parent):
@@ -536,7 +538,8 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('Child Ranges'),
         badge=lambda x: x.get_child_ranges().count(),
-        permission='ipam.view_iprange'
+        permission='ipam.view_iprange',
+        weight=600
     )
 
     def get_children(self, request, parent):
@@ -561,7 +564,8 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('IP Addresses'),
         badge=lambda x: x.get_child_ips().count(),
-        permission='ipam.view_ipaddress'
+        permission='ipam.view_ipaddress',
+        weight=700
     )
 
     def get_children(self, request, parent):
@@ -635,7 +639,8 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('IP Addresses'),
         badge=lambda x: x.get_child_ips().count(),
-        permission='ipam.view_ipaddress'
+        permission='ipam.view_ipaddress',
+        weight=500
     )
 
     def get_children(self, request, parent):
@@ -1075,7 +1080,8 @@ class VLANInterfacesView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('Device Interfaces'),
         badge=lambda x: x.get_interfaces().count(),
-        permission='dcim.view_interface'
+        permission='dcim.view_interface',
+        weight=500
     )
 
     def get_children(self, request, parent):
@@ -1092,7 +1098,8 @@ class VLANVMInterfacesView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('VM Interfaces'),
         badge=lambda x: x.get_vminterfaces().count(),
-        permission='virtualization.view_vminterface'
+        permission='virtualization.view_vminterface',
+        weight=510
     )
 
     def get_children(self, request, parent):

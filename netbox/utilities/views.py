@@ -142,13 +142,15 @@ class ViewTab:
         label: Human-friendly text
         badge: A static value or callable to display alongside the label (optional). If a callable is used, it must
             accept a single argument representing the object being viewed.
+        weight: Numeric weight to influence ordering among other tabs (default: 1000)
         permission: The permission required to display the tab (optional).
         hide_if_empty: If true, the tab will be displayed only if its badge has a meaningful value. (Tabs without a
             badge are always displayed.)
     """
-    def __init__(self, label, badge=None, permission=None, hide_if_empty=False):
+    def __init__(self, label, badge=None, weight=1000, permission=None, hide_if_empty=False):
         self.label = label
         self.badge = badge
+        self.weight = weight
         self.permission = permission
         self.hide_if_empty = hide_if_empty
 
@@ -160,6 +162,7 @@ class ViewTab:
         return {
             'label': self.label,
             'badge': badge_value,
+            'weight': self.weight,
         }
 
     def _get_badge_value(self, instance):
