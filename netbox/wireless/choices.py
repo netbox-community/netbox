@@ -14,7 +14,7 @@ class WirelessRoleChoices(ChoiceSet):
 
 
 class WirelessLANStatusChoices(ChoiceSet):
-    key = 'WirelessLANS.status'
+    key = 'WirelessLAN.status'
 
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'

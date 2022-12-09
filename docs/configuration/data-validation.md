@@ -70,6 +70,7 @@ The following model fields support configurable choices:
 * `ipam.VLAN.status`
 * `virtualization.Cluster.status`
 * `virtualization.VirtualMachine.status`
+* `wireless.WirelessLAN.status`
 
 The following colors are supported:
 
