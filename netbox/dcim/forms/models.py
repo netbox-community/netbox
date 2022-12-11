@@ -1610,6 +1610,13 @@ class InventoryItemForm(DeviceComponentForm):
         ('Hardware', ('manufacturer', 'part_id', 'serial', 'asset_tag')),
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Specifically allow editing the device of IntentoryItems
+        if self.instance.pk:
+            self.fields['device'].disabled = False
+
     class Meta:
         model = InventoryItem
         fields = [
