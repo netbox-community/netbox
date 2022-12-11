@@ -1153,3 +1153,20 @@ class InventoryItem(MPTTModel, ComponentModel):
             raise ValidationError({
                 "parent": "Cannot assign self as parent."
             })
+
+        # Validation for moving InventoryItems
+        if self.pk:
+            # Cannot move an InventoryItem to another device if it has a parent
+            if self.parent and self.parent.device != self.device:
+                raise ValidationError({
+                    "parent": "Parent inventory item does not belong to the same device."
+                })
+
+            # Prevent moving InventoryItems with children
+            first_child = self.get_children().first()
+            if first_child and first_child.device != self.device:
+                raise ValidationError("Cannot move an InventoryItem with dependent children")
+
+            # When moving an InventoryItem to another device, remove any associated component
+            if self.component and self.component.device != self.device:
+                self.component = None
