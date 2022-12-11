@@ -1165,7 +1165,7 @@ class InventoryItem(MPTTModel, ComponentModel):
             # Prevent moving InventoryItems with children
             first_child = self.get_children().first()
             if first_child and first_child.device != self.device:
-                raise ValidationError("Cannot move an InventoryItem with dependent children")
+                raise ValidationError("Cannot move an inventory item with dependent children")
 
             # When moving an InventoryItem to another device, remove any associated component
             if self.component and self.component.device != self.device:
