@@ -696,6 +696,7 @@ class ModuleSerializer(NetBoxModelSerializer):
     device = NestedDeviceSerializer()
     module_bay = NestedModuleBaySerializer()
     module_type = NestedModuleTypeSerializer()
+    status = ChoiceField(choices=ModuleStatusChoices, required=False)
 
     class Meta:
         model = Module
