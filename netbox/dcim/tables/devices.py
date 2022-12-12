@@ -916,6 +916,11 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, NetBoxTable):
         linkify=True,
         verbose_name='IPv6 Address'
     )
+    interface_count = columns.LinkedCountColumn(
+        viewname='dcim:interface_list',
+        url_params={'vdc_id': 'pk'},
+        verbose_name='Interfaces'
+    )
 
     comments = columns.MarkdownColumn()
 
@@ -926,8 +931,8 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.VirtualDeviceContext
         fields = (
-            'pk', 'id', 'name', 'status', 'identifier', 'tenant', 'tenant_group',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'status', 'identifier', 'tenant', 'tenant_group', 'primary_ip', 'primary_ip4',
+            'primary_ip6', 'comments', 'tags', 'interface_count', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'identifier', 'status', 'tenant', 'primary_ip',

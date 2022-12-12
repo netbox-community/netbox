@@ -680,11 +680,14 @@ class VirtualDeviceContextSerializer(NetBoxModelSerializer):
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
 
+    # Related object counts
+    interface_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = VirtualDeviceContext
         fields = [
             'id', 'url', 'display', 'name', 'device', 'identifier', 'tenant', 'primary_ip', 'primary_ip4',
-            'primary_ip6', 'status', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'primary_ip6', 'status', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'interface_count',
         ]
 
 

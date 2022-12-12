@@ -1462,7 +1462,6 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         required=False,
         label=_('VRF')
     )
-
     wwn = forms.CharField(
         empty_value=None,
         required=False,
@@ -1470,9 +1469,9 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     )
 
     fieldsets = (
-        ('Interface', ('device', 'module', 'vdcs', 'name', 'label', 'type', 'speed', 'duplex', 'description', 'tags')),
+        ('Interface', ('device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'description', 'tags')),
         ('Addressing', ('vrf', 'mac_address', 'wwn')),
-        ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
+        ('Operation', ('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
         ('Related Interfaces', ('parent', 'bridge', 'lag')),
         ('PoE', ('poe_mode', 'poe_type')),
         ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),

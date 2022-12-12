@@ -541,6 +541,8 @@ class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
 class VirtualDeviceContextViewSet(NetBoxModelViewSet):
     queryset = VirtualDeviceContext.objects.prefetch_related(
         'device__device_type', 'device', 'tenant', 'tags',
+    ).annotate(
+        interface_count=count_related(Interface, 'vdcs'),
     )
     serializer_class = serializers.VirtualDeviceContextSerializer
     filterset_class = filtersets.VirtualDeviceContextFilterSet

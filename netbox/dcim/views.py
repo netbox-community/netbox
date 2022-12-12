@@ -3611,7 +3611,9 @@ register_model_view(PowerFeed, 'trace', kwargs={'model': PowerFeed})(PathTraceVi
 
 # VDC
 class VirtualDeviceContextListView(generic.ObjectListView):
-    queryset = VirtualDeviceContext.objects.all()
+    queryset = VirtualDeviceContext.objects.annotate(
+        interface_count=count_related(Interface, 'vdcs'),
+    )
     filterset = filtersets.VirtualDeviceContextFilterSet
     filterset_form = forms.VirtualDeviceContextFilterForm
     table = tables.VirtualDeviceContextTable
@@ -3624,6 +3626,7 @@ class VirtualDeviceContextView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         interfaces_table = tables.InterfaceTable(instance.interfaces, user=request.user)
         interfaces_table.configure(request)
+        interfaces_table.columns.hide('device')
 
         return {
             'interfaces_table': interfaces_table,
