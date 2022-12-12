@@ -116,6 +116,7 @@ class SavedFilterForm(BootstrapMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all()
     )
+    parameters = JSONField()
 
     fieldsets = (
         ('Saved Filter', ('name', 'slug', 'content_types', 'description', 'weight', 'enabled', 'shared')),
@@ -125,9 +126,6 @@ class SavedFilterForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = SavedFilter
         exclude = ('user',)
-        widgets = {
-            'parameters': forms.Textarea(attrs={'class': 'font-monospace'}),
-        }
 
     def __init__(self, *args, initial=None, **kwargs):
 
