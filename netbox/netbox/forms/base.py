@@ -48,6 +48,9 @@ class NetBoxModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
 
         # Save custom field data on instance
         for cf_name, customfield in self.custom_fields.items():
+            if cf_name not in self.fields:
+                # Custom fields may be absent when performing bulk updates via import
+                continue
             key = cf_name[3:]  # Strip "cf_" from field name
             value = self.cleaned_data.get(cf_name)
 
