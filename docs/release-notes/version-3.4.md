@@ -23,6 +23,7 @@
 * [#10984](https://github.com/netbox-community/netbox/issues/10984) - Fix navigation menu expansion for plugin menus comprising multiple words
 * [#11000](https://github.com/netbox-community/netbox/issues/11000) - Improve validation of YAML-formatted import data
 * [#11046](https://github.com/netbox-community/netbox/issues/11046) - Fix exception when caching very large field values for search
+* [#11154](https://github.com/netbox-community/netbox/issues/11154) - Index VM interface MAC address and MTU for global search
 
 ## v3.4-beta1 (2022-11-16)
 

@@ -47,5 +47,7 @@ class VMInterfaceIndex(SearchIndex):
     model = models.VMInterface
     fields = (
         ('name', 100),
+        ('mac_address', 300),
         ('description', 500),
+        ('mtu', 2000),
     )
