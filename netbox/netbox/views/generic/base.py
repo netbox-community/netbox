@@ -4,9 +4,22 @@ from django.views.generic import View
 
 from utilities.views import ObjectPermissionRequiredMixin
 
+__all__ = (
+    'BaseObjectView',
+    'BaseMultiObjectView',
+)
 
-class BaseView(ObjectPermissionRequiredMixin, View):
+
+class BaseObjectView(ObjectPermissionRequiredMixin, View):
+    """
+    Base class for generic views which display or manipulate a single object.
+
+    Attributes:
+        queryset: Django QuerySet from which the object(s) will be fetched
+        template_name: The name of the HTML template file to render
+    """
     queryset = None
+    template_name = None
 
     def dispatch(self, request, *args, **kwargs):
         self.queryset = self.get_queryset(request)
@@ -14,7 +27,7 @@ class BaseView(ObjectPermissionRequiredMixin, View):
 
     def get_queryset(self, request):
         """
-        Return the base queryset for the view. By default, this returns self.queryset.all().
+        Return the base queryset for the view. By default, this returns `self.queryset.all()`.
 
         Args:
             request: The current request
@@ -25,17 +38,6 @@ class BaseView(ObjectPermissionRequiredMixin, View):
                 f"override its get_queryset() method."
             )
         return self.queryset.all()
-
-
-class BaseObjectView(BaseView):
-    """
-    Base class for generic views which display or manipulate a single object.
-
-    Attributes:
-        queryset: Django QuerySet from which the object(s) will be fetched
-        template_name: The name of the HTML template file to render
-    """
-    template_name = None
 
     def get_object(self, **kwargs):
         """
@@ -57,7 +59,7 @@ class BaseObjectView(BaseView):
         return {}
 
 
-class BaseMultiObjectView(BaseView):
+class BaseMultiObjectView(ObjectPermissionRequiredMixin, View):
     """
     Base class for generic views which display or manipulate multiple objects.
 
@@ -66,8 +68,27 @@ class BaseMultiObjectView(BaseView):
         table: The django-tables2 Table class used to render the objects list
         template_name: The name of the HTML template file to render
     """
+    queryset = None
     table = None
     template_name = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.queryset = self.get_queryset(request)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self, request):
+        """
+        Return the base queryset for the view. By default, this returns `self.queryset.all()`.
+
+        Args:
+            request: The current request
+        """
+        if self.queryset is None:
+            raise ImproperlyConfigured(
+                f"{self.__class__.__name__} does not define a queryset. Set queryset on the class or "
+                f"override its get_queryset() method."
+            )
+        return self.queryset.all()
 
     def get_extra_context(self, request):
         """
