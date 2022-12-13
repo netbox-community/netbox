@@ -854,6 +854,18 @@ class CustomFieldAPITest(APITestCase):
             [vlans[1].pk, vlans[2].pk]
         )
 
+        # Clear related objects
+        data = {
+            'custom_fields': {
+                'object_field': None,
+                'multiobject_field': [],
+            },
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['custom_fields']['object_field'])
+        self.assertListEqual(response.data['custom_fields']['multiobject_field'], [])
+
     def test_minimum_maximum_values_validation(self):
         site2 = Site.objects.get(name='Site 2')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})

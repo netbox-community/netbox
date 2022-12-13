@@ -18,6 +18,7 @@
 * [#11077](https://github.com/netbox-community/netbox/issues/11077) - Honor configured date format when displaying date custom field values in tables
 * [#11087](https://github.com/netbox-community/netbox/issues/11087) - Fix background color of bottom banner content
 * [#11101](https://github.com/netbox-community/netbox/issues/11101) - Correct circuits count under site view
+* [#11109](https://github.com/netbox-community/netbox/issues/11109) - Fix nullification of custom object & multi-object fields via REST API
 * [#11128](https://github.com/netbox-community/netbox/issues/11128) - Disable ordering changelog table by object to avoid exception
 * [#11142](https://github.com/netbox-community/netbox/issues/11142) - Correct available choices for status under IP range filter form
 * [#11168](https://github.com/netbox-community/netbox/issues/11168) - Honor `RQ_DEFAULT_TIMEOUT` config parameter when using Redis Sentinel
