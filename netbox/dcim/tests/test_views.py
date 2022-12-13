@@ -1849,6 +1849,53 @@ class ModuleTestCase(
         self.assertEqual(Interface.objects.filter(device=device).count(), 5)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_module_bulk_replication(self):
+        self.add_permissions('dcim.add_module')
+
+        # Add 5 InterfaceTemplates to a ModuleType
+        module_type = ModuleType.objects.first()
+        interface_templates = [
+            InterfaceTemplate(module_type=module_type, name=f'Interface {i}') for i in range(1, 6)
+        ]
+        InterfaceTemplate.objects.bulk_create(interface_templates)
+
+        form_data = self.form_data.copy()
+        device = Device.objects.get(pk=form_data['device'])
+
+        # Create a module *without* replicating components
+        module_bay = ModuleBay.objects.get(pk=form_data['module_bay'])
+        csv_data = [
+            "device,module_bay,module_type,replicate_components",
+            f"{device.name},{module_bay.name},{module_type.model},false"
+        ]
+        request = {
+            'path': self._get_url('import'),
+            'data': {
+                'csv': '\n'.join(csv_data),
+            }
+        }
+
+        initial_count = self._get_queryset().count()
+        self.assertHttpStatus(self.client.post(**request), 200)
+        self.assertEqual(self._get_queryset().count(), initial_count + len(csv_data) - 1)
+        self.assertEqual(Interface.objects.filter(device=device).count(), 0)
+
+        # Create a second module (in the next bay) with replicated components
+        module_bay = ModuleBay.objects.get(pk=(form_data['module_bay'] + 1))
+        csv_data[1] = f"{device.name},{module_bay.name},{module_type.model},true"
+        request = {
+            'path': self._get_url('import'),
+            'data': {
+                'csv': '\n'.join(csv_data),
+            }
+        }
+
+        initial_count = self._get_queryset().count()
+        self.assertHttpStatus(self.client.post(**request), 200)
+        self.assertEqual(self._get_queryset().count(), initial_count + len(csv_data) - 1)
+        self.assertEqual(Interface.objects.filter(device=device).count(), 5)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_module_component_adoption(self):
         self.add_permissions('dcim.add_module')
 
@@ -1878,6 +1925,49 @@ class ModuleTestCase(
         }
 
         self.assertHttpStatus(self.client.post(**request), 302)
+
+        # Re-retrieve interface to get new module id
+        interface.refresh_from_db()
+
+        # Check that the Interface now has a module
+        self.assertIsNotNone(interface.module)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_module_bulk_adoption(self):
+        self.add_permissions('dcim.add_module')
+
+        interface_name = "Interface-1"
+
+        # Add an interface to the ModuleType
+        module_type = ModuleType.objects.first()
+        InterfaceTemplate(module_type=module_type, name=interface_name).save()
+
+        form_data = self.form_data.copy()
+        device = Device.objects.get(pk=form_data['device'])
+
+        # Create an interface to be adopted
+        interface = Interface(device=device, name=interface_name, type=InterfaceTypeChoices.TYPE_10GE_FIXED)
+        interface.save()
+
+        # Ensure that interface is created with no module
+        self.assertIsNone(interface.module)
+
+        # Create a module with adopted components
+        module_bay = ModuleBay.objects.get(device=device, name='Module Bay 4')
+        csv_data = [
+            "device,module_bay,module_type,replicate_components,adopt_components",
+            f"{device.name},{module_bay.name},{module_type.model},false,true"
+        ]
+        request = {
+            'path': self._get_url('import'),
+            'data': {
+                'csv': '\n'.join(csv_data),
+            }
+        }
+
+        initial_count = self._get_queryset().count()
+        self.assertHttpStatus(self.client.post(**request), 200)
+        self.assertEqual(self._get_queryset().count(), initial_count + len(csv_data) - 1)
 
         # Re-retrieve interface to get new module id
         interface.refresh_from_db()
