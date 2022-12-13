@@ -1953,7 +1953,7 @@ class ModuleTestCase(
         self.assertIsNone(interface.module)
 
         # Create a module with adopted components
-        module_bay = ModuleBay.objects.filter(device=device).first()
+        module_bay = ModuleBay.objects.get(device=device, name='Module Bay 4')
         csv_data = [
             "device,module_bay,module_type,replicate_components,adopt_components",
             f"{device.name},{module_bay.name},{module_type.model},false,true"
