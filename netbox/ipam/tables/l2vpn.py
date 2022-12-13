@@ -29,14 +29,17 @@ class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
         template_code=L2VPN_TARGETS,
         orderable=False
     )
+    tags = columns.TagColumn(
+        url_name='ipam:l2vpn_list'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = L2VPN
         fields = (
-            'pk', 'name', 'slug', 'identifier', 'type', 'description', 'import_targets', 'export_targets', 'tenant', 'tenant_group',
-            'actions',
+            'pk', 'name', 'slug', 'identifier', 'type', 'description', 'import_targets', 'export_targets', 'tenant',
+            'tenant_group', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'identifier', 'type', 'description', 'actions')
+        default_columns = ('pk', 'name', 'identifier', 'type', 'description')
 
 
 class L2VPNTerminationTable(NetBoxTable):

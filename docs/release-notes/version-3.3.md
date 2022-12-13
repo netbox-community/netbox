@@ -21,6 +21,7 @@
 * [#11128](https://github.com/netbox-community/netbox/issues/11128) - Disable ordering changelog table by object to avoid exception
 * [#11142](https://github.com/netbox-community/netbox/issues/11142) - Correct available choices for status under IP range filter form
 * [#11168](https://github.com/netbox-community/netbox/issues/11168) - Honor `RQ_DEFAULT_TIMEOUT` config parameter when using Redis Sentinel
+* [#11173](https://github.com/netbox-community/netbox/issues/11173) - Enable missing tags columns for contact, L2VPN lists
 
 ---
 
