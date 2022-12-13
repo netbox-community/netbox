@@ -1,3 +1,5 @@
+from django.db.models.manager import Manager
+from django.db.models.query import QuerySet
 from functools import partial
 
 import graphene
@@ -36,6 +38,12 @@ class ObjectField(graphene.Field):
         return partial(self.object_resolver, self._type)
 
 
+def maybe_queryset(value):
+    if isinstance(value, Manager):
+        value = value.get_queryset()
+    return value
+
+
 class ObjectListField(DjangoListField):
     """
     Retrieve a list of objects, optionally filtered by one or more FilterSet filters.
@@ -55,7 +63,14 @@ class ObjectListField(DjangoListField):
     @staticmethod
     def list_resolver(django_object_type, resolver, default_manager, root, info, **args):
         # Get the QuerySet from the object type
-        queryset = django_object_type.get_queryset(default_manager, info)
+        # queryset = django_object_type.get_queryset(default_manager, info)
+        queryset = maybe_queryset(resolver(root, info, **args))
+        if queryset is None:
+            queryset = maybe_queryset(default_manager)
+
+        if isinstance(queryset, QuerySet):
+            # Pass queryset to the DjangoObjectType get_queryset method
+            queryset = maybe_queryset(django_object_type.get_queryset(queryset, info))
 
         # Instantiate and apply the FilterSet, if defined
         filterset_class = django_object_type._meta.filterset_class
