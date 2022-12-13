@@ -51,10 +51,12 @@ class DateColumn(tables.DateColumn):
     tables and null when exporting data. It is registered in the tables library to use this class instead of the
     default, making this behavior consistent in all fields of type DateField.
     """
-    def value(self, value):
+    def render(self, value):
         if value:
             return date_format(value, format="SHORT_DATE_FORMAT")
-        return None
+
+    def value(self, value):
+        return value
 
     @classmethod
     def from_field(cls, field, **kwargs):
@@ -444,7 +446,6 @@ class CustomFieldColumn(tables.Column):
         return escape(item)
 
     def render(self, value):
-        print("render CustomFieldColumn")
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is True:
             return mark_safe('<i class="mdi mdi-check-bold text-success"></i>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is False:
