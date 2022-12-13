@@ -1,18 +1,28 @@
 # NetBox v3.3
 
-## v3.3.10 (FUTURE)
+## v3.3.10 (2022-12-13)
 
 ### Enhancements
 
+* [#9361](https://github.com/netbox-community/netbox/issues/9361) - Add replication controls for module bulk import
+* [#10255](https://github.com/netbox-community/netbox/issues/10255) - Introduce `LOGOUT_REDIRECT_URL` config parameter to control redirection of user after logout
+* [#10447](https://github.com/netbox-community/netbox/issues/10447) - Enable reassigning an inventory item from one device to another
+* [#10516](https://github.com/netbox-community/netbox/issues/10516) - Add vertical frame & cabinet rack types
 * [#10748](https://github.com/netbox-community/netbox/issues/10748) - Add provider selection field for provider networks to circuit termination edit view
+* [#11089](https://github.com/netbox-community/netbox/issues/11089) - Permit whitespace in MAC addresses
 * [#11119](https://github.com/netbox-community/netbox/issues/11119) - Enable filtering L2VPNs by slug
 
 ### Bug Fixes
 
 * [#11041](https://github.com/netbox-community/netbox/issues/11041) - Correct power utilization percentage precision
+* [#11077](https://github.com/netbox-community/netbox/issues/11077) - Honor configured date format when displaying date custom field values in tables
 * [#11087](https://github.com/netbox-community/netbox/issues/11087) - Fix background color of bottom banner content
 * [#11101](https://github.com/netbox-community/netbox/issues/11101) - Correct circuits count under site view
+* [#11109](https://github.com/netbox-community/netbox/issues/11109) - Fix nullification of custom object & multi-object fields via REST API
 * [#11128](https://github.com/netbox-community/netbox/issues/11128) - Disable ordering changelog table by object to avoid exception
+* [#11142](https://github.com/netbox-community/netbox/issues/11142) - Correct available choices for status under IP range filter form
+* [#11168](https://github.com/netbox-community/netbox/issues/11168) - Honor `RQ_DEFAULT_TIMEOUT` config parameter when using Redis Sentinel
+* [#11173](https://github.com/netbox-community/netbox/issues/11173) - Enable missing tags columns for contact, L2VPN lists
 
 ---
 
@@ -468,7 +478,7 @@ Custom field UI visibility has no impact on API operation.
     * The `cluster` field is now optional. A virtual machine must have a site and/or cluster assigned.
     * Added the optional `device` field
     * Added the `l2vpn_termination` read-only field
-wireless.WirelessLAN
+* wireless.WirelessLAN
     * Added `tenant` field
-wireless.WirelessLink
+* wireless.WirelessLink
     * Added `tenant` field

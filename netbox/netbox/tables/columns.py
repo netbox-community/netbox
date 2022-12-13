@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
+from django.utils.dateparse import parse_date
 from django.utils.encoding import escape_uri_path
 from django.utils.html import escape
 from django.utils.formats import date_format
@@ -51,6 +52,10 @@ class DateColumn(tables.DateColumn):
     tables and null when exporting data. It is registered in the tables library to use this class instead of the
     default, making this behavior consistent in all fields of type DateField.
     """
+    def render(self, value):
+        if value:
+            return date_format(value, format="SHORT_DATE_FORMAT")
+
     def value(self, value):
         return value
 
@@ -474,6 +479,8 @@ class CustomFieldColumn(tables.Column):
             ))
         if self.customfield.type == CustomFieldTypeChoices.TYPE_LONGTEXT and value:
             return render_markdown(value)
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_DATE and value:
+            return date_format(parse_date(value), format="SHORT_DATE_FORMAT")
         if value is not None:
             obj = self.customfield.deserialize(value)
             return mark_safe(self._linkify_item(obj))

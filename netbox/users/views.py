@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme, urlencode
@@ -143,7 +143,7 @@ class LogoutView(View):
         messages.info(request, "You have logged out.")
 
         # Delete session key cookie (if set) upon logout
-        response = HttpResponseRedirect(reverse('home'))
+        response = HttpResponseRedirect(resolve_url(settings.LOGOUT_REDIRECT_URL))
         response.delete_cookie('session_key')
 
         return response

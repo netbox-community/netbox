@@ -14,6 +14,7 @@ from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField, SlugField
 from virtualization.models import Cluster
 from wireless.choices import WirelessRoleChoices
+from .common import ModuleCommonForm
 
 __all__ = (
     'CableImportForm',
@@ -442,28 +443,40 @@ class DeviceImportForm(BaseDeviceImportForm):
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
-class ModuleImportForm(NetBoxModelImportForm):
+class ModuleImportForm(ModuleCommonForm, NetBoxModelImportForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
-        to_field_name='name'
+        to_field_name='name',
+        help_text=_('The device in which this module is installed')
     )
     module_bay = CSVModelChoiceField(
         queryset=ModuleBay.objects.all(),
-        to_field_name='name'
+        to_field_name='name',
+        help_text=_('The module bay in which this module is installed')
     )
     module_type = CSVModelChoiceField(
         queryset=ModuleType.objects.all(),
-        to_field_name='model'
+        to_field_name='model',
+        help_text=_('The type of module')
     )
     status = CSVChoiceField(
         choices=ModuleStatusChoices,
         help_text=_('Operational status')
     )
+    replicate_components = forms.BooleanField(
+        required=False,
+        help_text=_('Automatically populate components associated with this module type (enabled by default)')
+    )
+    adopt_components = forms.BooleanField(
+        required=False,
+        help_text=_('Adopt already existing components')
+    )
 
     class Meta:
         model = Module
         fields = (
-            'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'status', 'description', 'comments', 'tags',
+            'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'status', 'description', 'comments',
+            'replicate_components', 'adopt_components', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -473,6 +486,13 @@ class ModuleImportForm(NetBoxModelImportForm):
             # Limit module_bay queryset by assigned device
             params = {f"device__{self.fields['device'].to_field_name}": data.get('device')}
             self.fields['module_bay'].queryset = self.fields['module_bay'].queryset.filter(**params)
+
+    def clean_replicate_components(self):
+        # Make sure replicate_components is True when it's not included in the uploaded data
+        if 'replicate_components' not in self.data:
+            return True
+        else:
+            return self.cleaned_data['replicate_components']
 
 
 class ChildDeviceImportForm(BaseDeviceImportForm):

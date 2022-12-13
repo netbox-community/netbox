@@ -49,7 +49,7 @@ class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
         model = models.Manufacturer
         fields = (
             'pk', 'id', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug',
-            'contacts', 'actions', 'created', 'last_updated',
+            'tags', 'contacts', 'actions', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug',

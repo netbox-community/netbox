@@ -17,7 +17,7 @@ from utilities.forms import (
 )
 from virtualization.models import Cluster, ClusterGroup
 from wireless.models import WirelessLAN, WirelessLANGroup
-from .common import InterfaceCommonForm
+from .common import InterfaceCommonForm, ModuleCommonForm
 
 __all__ = (
     'CableForm',
@@ -662,7 +662,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             self.fields['position'].widget.choices = [(position, f'U{position}')]
 
 
-class ModuleForm(NetBoxModelForm):
+class ModuleForm(ModuleCommonForm, NetBoxModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         initial_params={
@@ -726,68 +726,6 @@ class ModuleForm(NetBoxModelForm):
             self.fields['replicate_components'].disabled = True
             self.fields['adopt_components'].initial = False
             self.fields['adopt_components'].disabled = True
-
-    def save(self, *args, **kwargs):
-
-        # If replicate_components is False, disable automatic component replication on the instance
-        if self.instance.pk or not self.cleaned_data['replicate_components']:
-            self.instance._disable_replication = True
-
-        if self.cleaned_data['adopt_components']:
-            self.instance._adopt_components = True
-
-        return super().save(*args, **kwargs)
-
-    def clean(self):
-        super().clean()
-
-        replicate_components = self.cleaned_data.get("replicate_components")
-        adopt_components = self.cleaned_data.get("adopt_components")
-        device = self.cleaned_data['device']
-        module_type = self.cleaned_data['module_type']
-        module_bay = self.cleaned_data['module_bay']
-
-        # Bail out if we are not installing a new module or if we are not replicating components
-        if self.instance.pk or not replicate_components:
-            return
-
-        for templates, component_attribute in [
-                ("consoleporttemplates", "consoleports"),
-                ("consoleserverporttemplates", "consoleserverports"),
-                ("interfacetemplates", "interfaces"),
-                ("powerporttemplates", "powerports"),
-                ("poweroutlettemplates", "poweroutlets"),
-                ("rearporttemplates", "rearports"),
-                ("frontporttemplates", "frontports")
-        ]:
-            # Prefetch installed components
-            installed_components = {
-                component.name: component for component in getattr(device, component_attribute).all()
-            }
-
-            # Get the templates for the module type.
-            for template in getattr(module_type, templates).all():
-                # Installing modules with placeholders require that the bay has a position value
-                if MODULE_TOKEN in template.name and not module_bay.position:
-                    raise forms.ValidationError(
-                        "Cannot install module with placeholder values in a module bay with no position defined"
-                    )
-
-                resolved_name = template.name.replace(MODULE_TOKEN, module_bay.position)
-                existing_item = installed_components.get(resolved_name)
-
-                # It is not possible to adopt components already belonging to a module
-                if adopt_components and existing_item and existing_item.module:
-                    raise forms.ValidationError(
-                        f"Cannot adopt {template.component_model.__name__} '{resolved_name}' as it already belongs "
-                        f"to a module"
-                    )
-
-                # If we are not adopting components we error if the component exists
-                if not adopt_components and resolved_name in installed_components:
-                    raise forms.ValidationError(
-                        f"{template.component_model.__name__} - {resolved_name} already exists"
-                    )
 
 
 class CableForm(TenancyForm, NetBoxModelForm):
@@ -1626,6 +1564,13 @@ class InventoryItemForm(DeviceComponentForm):
         ('Inventory Item', ('device', 'parent', 'name', 'label', 'role', 'description', 'tags')),
         ('Hardware', ('manufacturer', 'part_id', 'serial', 'asset_tag')),
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Specifically allow editing the device of IntentoryItems
+        if self.instance.pk:
+            self.fields['device'].disabled = False
 
     class Meta:
         model = InventoryItem
