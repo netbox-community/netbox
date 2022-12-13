@@ -29,7 +29,7 @@ django.utils.encoding.force_text = force_str
 # Environment setup
 #
 
-VERSION = '3.3.9'
+VERSION = '3.3.10'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -102,6 +102,7 @@ LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
+LOGOUT_REDIRECT_URL = getattr(configuration, 'LOGOUT_REDIRECT_URL', 'home')
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
@@ -625,8 +626,6 @@ if TASKS_REDIS_USING_SENTINEL:
     RQ_PARAMS = {
         'SENTINELS': TASKS_REDIS_SENTINELS,
         'MASTER_NAME': TASKS_REDIS_SENTINEL_SERVICE,
-        'DB': TASKS_REDIS_DATABASE,
-        'PASSWORD': TASKS_REDIS_PASSWORD,
         'SOCKET_TIMEOUT': None,
         'CONNECTION_KWARGS': {
             'socket_connect_timeout': TASKS_REDIS_SENTINEL_TIMEOUT
@@ -636,12 +635,14 @@ else:
     RQ_PARAMS = {
         'HOST': TASKS_REDIS_HOST,
         'PORT': TASKS_REDIS_PORT,
-        'DB': TASKS_REDIS_DATABASE,
-        'PASSWORD': TASKS_REDIS_PASSWORD,
         'SSL': TASKS_REDIS_SSL,
         'SSL_CERT_REQS': None if TASKS_REDIS_SKIP_TLS_VERIFY else 'required',
-        'DEFAULT_TIMEOUT': RQ_DEFAULT_TIMEOUT,
     }
+RQ_PARAMS.update({
+    'DB': TASKS_REDIS_DATABASE,
+    'PASSWORD': TASKS_REDIS_PASSWORD,
+    'DEFAULT_TIMEOUT': RQ_DEFAULT_TIMEOUT,
+})
 
 RQ_QUEUES = {
     'high': RQ_PARAMS,

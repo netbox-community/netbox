@@ -72,7 +72,7 @@ class CustomFieldsDataField(Field):
 
         # Serialize object and multi-object values
         for cf in self._get_custom_fields():
-            if cf.name in data and cf.type in (
+            if cf.name in data and data[cf.name] not in (None, []) and cf.type in (
                     CustomFieldTypeChoices.TYPE_OBJECT,
                     CustomFieldTypeChoices.TYPE_MULTIOBJECT
             ):

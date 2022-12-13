@@ -149,6 +149,9 @@ LOGIN_REQUIRED = False
 # re-authenticate. (Default: 1209600 [14 days])
 LOGIN_TIMEOUT = None
 
+# The view name or URL to which users are redirected after logging out.
+LOGOUT_REDIRECT_URL = 'home'
+
 # The file path where uploaded media such as image attachments are stored. A trailing slash is not needed. Note that
 # the default value of this setting is derived from the installed location.
 # MEDIA_ROOT = '/opt/netbox/netbox/media'

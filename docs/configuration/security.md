@@ -129,6 +129,14 @@ The lifetime (in seconds) of the authentication cookie issued to a NetBox user u
 
 ---
 
+## LOGOUT_REDIRECT_URL
+
+Default: `'home'`
+
+The view name or URL to which a user is redirected after logging out.
+
+---
+
 ## SESSION_COOKIE_NAME
 
 Default: `sessionid`

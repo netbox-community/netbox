@@ -1501,6 +1501,10 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'name': ['L2VPN 1', 'L2VPN 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_slug(self):
+        params = {'slug': ['l2vpn-1', 'l2vpn-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_identifier(self):
         params = {'identifier': ['65001', '65002']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
