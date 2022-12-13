@@ -476,7 +476,7 @@ Custom field UI visibility has no impact on API operation.
     * The `cluster` field is now optional. A virtual machine must have a site and/or cluster assigned.
     * Added the optional `device` field
     * Added the `l2vpn_termination` read-only field
-wireless.WirelessLAN
+* wireless.WirelessLAN
     * Added `tenant` field
-wireless.WirelessLink
+* wireless.WirelessLink
     * Added `tenant` field
