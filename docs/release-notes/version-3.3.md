@@ -4,7 +4,9 @@
 
 ### Enhancements
 
+* [#9361](https://github.com/netbox-community/netbox/issues/9361) - Add replication controls for module bulk import
 * [#10255](https://github.com/netbox-community/netbox/issues/10255) - Introduce `LOGOUT_REDIRECT_URL` config parameter to control redirection of user after logout
+* [#10447](https://github.com/netbox-community/netbox/issues/10447) - Enable reassigning an inventory item from one device to another
 * [#10516](https://github.com/netbox-community/netbox/issues/10516) - Add vertical frame & cabinet rack types
 * [#10748](https://github.com/netbox-community/netbox/issues/10748) - Add provider selection field for provider networks to circuit termination edit view
 * [#11089](https://github.com/netbox-community/netbox/issues/11089) - Permit whitespace in MAC addresses
@@ -13,6 +15,7 @@
 ### Bug Fixes
 
 * [#11041](https://github.com/netbox-community/netbox/issues/11041) - Correct power utilization percentage precision
+* [#11077](https://github.com/netbox-community/netbox/issues/11077) - Honor configured date format when displaying date custom field values in tables
 * [#11087](https://github.com/netbox-community/netbox/issues/11087) - Fix background color of bottom banner content
 * [#11101](https://github.com/netbox-community/netbox/issues/11101) - Correct circuits count under site view
 * [#11128](https://github.com/netbox-community/netbox/issues/11128) - Disable ordering changelog table by object to avoid exception
