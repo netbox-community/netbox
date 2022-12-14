@@ -7,8 +7,8 @@ import yaml
 from django import forms
 from django.utils.translation import gettext as _
 
+from utilities.choices import ImportFormatChoices
 from utilities.forms.utils import parse_csv
-from .choices import ImportFormatChoices
 from .widgets import APISelect, APISelectMultiple, ClearableFileInput, StaticSelect
 
 __all__ = (

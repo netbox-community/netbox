@@ -9,7 +9,7 @@ from django.urls import reverse
 from extras.choices import ObjectChangeActionChoices
 from extras.models import ObjectChange
 from users.models import ObjectPermission
-from utilities.forms.choices import ImportFormatChoices
+from utilities.choices import ImportFormatChoices
 from .base import ModelTestCase
 from .utils import disable_warnings, post_data
 

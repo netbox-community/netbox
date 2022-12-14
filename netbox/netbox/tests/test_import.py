@@ -3,7 +3,7 @@ from django.test import override_settings
 
 from dcim.models import *
 from users.models import ObjectPermission
-from utilities.forms.choices import ImportFormatChoices
+from utilities.choices import ImportFormatChoices
 from utilities.testing import ModelViewTestCase, create_tags
 
 

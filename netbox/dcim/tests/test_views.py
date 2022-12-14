@@ -17,7 +17,7 @@ from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
 from tenancy.models import Tenant
-from utilities.forms.choices import ImportFormatChoices
+from utilities.choices import ImportFormatChoices
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
