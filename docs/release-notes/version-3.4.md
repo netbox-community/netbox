@@ -39,9 +39,9 @@ can be saved and applied to future queries as
 
 Saved filters can be kept private, or shared among NetBox users. They can be applied to both UI and REST API searches.
 
-### JSON/YAML Bulk Imports ([#4347](https://github.com/netbox-community/netbox/issues/4347))
+#### JSON/YAML Bulk Imports ([#4347](https://github.com/netbox-community/netbox/issues/4347))
 
-NetBox's bulk import feature, which was previously limited to CSV-formatted data for most types of objects, has been extended to accept data formatted in JSON or YAML as well. This enables users to directly import objects from a variety of sources without needing to first convert data to CSV.
+NetBox's bulk import feature, which was previously limited to CSV-formatted data for most types of objects, has been extended to accept data formatted in JSON or YAML as well. This enables users to directly import objects from a variety of sources without needing to first convert data to CSV. NetBox will attempt to automatically determine the format of import data if not specified by the user.
 
 #### Update Existing Objects via Bulk Import ([#7961](https://github.com/netbox-community/netbox/issues/7961))
 

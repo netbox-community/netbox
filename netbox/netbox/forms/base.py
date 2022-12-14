@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.translation import gettext as _
 

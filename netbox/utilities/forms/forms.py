@@ -163,10 +163,9 @@ class ImportForm(BootstrapMixin, forms.Form):
         label="Data file",
         required=False
     )
-    # TODO: Enable auto-detection of format
     format = forms.ChoiceField(
         choices=ImportFormatChoices,
-        initial=ImportFormatChoices.CSV,
+        initial=ImportFormatChoices.AUTO,
         widget=StaticSelect()
     )
 
@@ -174,7 +173,6 @@ class ImportForm(BootstrapMixin, forms.Form):
 
     def clean(self):
         super().clean()
-        format = self.cleaned_data['format']
 
         # Determine whether we're reading from form data or an uploaded file
         if self.cleaned_data['data'] and self.cleaned_data['data_file']:
@@ -186,6 +184,12 @@ class ImportForm(BootstrapMixin, forms.Form):
         else:
             data = self.cleaned_data['data']
 
+        # Determine the data format
+        if self.cleaned_data['format'] == ImportFormatChoices.AUTO:
+            format = self._detect_format(data)
+        else:
+            format = self.cleaned_data['format']
+
         # Process data according to the selected format
         if format == ImportFormatChoices.CSV:
             self.cleaned_data['data'] = self._clean_csv(data)
@@ -194,7 +198,28 @@ class ImportForm(BootstrapMixin, forms.Form):
         elif format == ImportFormatChoices.YAML:
             self.cleaned_data['data'] = self._clean_yaml(data)
 
+    def _detect_format(self, data):
+        """
+        Attempt to automatically detect the format (CSV, JSON, or YAML) of the given data, or raise
+        a ValidationError.
+        """
+        try:
+            if data[0] in ('{', '['):
+                return ImportFormatChoices.JSON
+            if data.startswith('---') or data.startswith('- '):
+                return ImportFormatChoices.YAML
+            if ',' in data.split('\n', 1)[0]:
+                return ImportFormatChoices.CSV
+        except IndexError:
+            pass
+        raise forms.ValidationError({
+            'format': _('Unable to detect data format. Please specify.')
+        })
+
     def _clean_csv(self, data):
+        """
+        Clean CSV-formatted data. The first row will be treated as column headers.
+        """
         stream = StringIO(data.strip())
         reader = csv.reader(stream)
         headers, records = parse_csv(reader)
@@ -205,6 +230,9 @@ class ImportForm(BootstrapMixin, forms.Form):
         return records
 
     def _clean_json(self, data):
+        """
+        Clean JSON-formatted data. If only a single object is defined, it will be encapsulated as a list.
+        """
         try:
             data = json.loads(data)
             # Accommodate for users entering single objects
@@ -217,30 +245,24 @@ class ImportForm(BootstrapMixin, forms.Form):
             })
 
     def _clean_yaml(self, data):
+        """
+        Clean YAML-formatted data. Data must be either
+          a) A single document comprising a list of dictionaries (each representing an object), or
+          b) Multiple documents, separated with the '---' token
+        """
         records = []
         try:
             for data in yaml.load_all(data, Loader=yaml.SafeLoader):
-                # checks here are to support both arrays and multiple documents in
-                # yaml data and return as a consistent list for processing (array):
-                #     - address: 10.0.1.0/24
-                #       status: active
-                #     - address: 10.0.1.1/24
-                #       status: active
-                # vs (multi-document):
-                #     - address: 10.0.1.0/24
-                #       status: active
-                #     ---
-                #     - address: 10.0.1.1/24
-                #       status: active
-                # device_type output uses multi-document format, but array format
-                # is more common output from other tools.
                 if type(data) == list:
                     records.extend(data)
                 elif type(data) == dict:
                     records.append(data)
                 else:
                     raise forms.ValidationError({
-                        self.data_field: "Invalid YAML data: data must be dictionaries or lists of dictionaries"
+                        self.data_field: _(
+                            "Invalid YAML data. Data must be in the form of multiple documents, or a single document "
+                            "comprising a list of dictionaries."
+                        )
                     })
         except yaml.error.YAMLError as err:
             raise forms.ValidationError({
