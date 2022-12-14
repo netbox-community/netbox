@@ -36,12 +36,6 @@ class ObjectField(graphene.Field):
         return partial(self.object_resolver, self._type)
 
 
-def maybe_queryset(value):
-    if isinstance(value, Manager):
-        value = value.get_queryset()
-    return value
-
-
 class ObjectListField(DjangoListField):
     """
     Retrieve a list of objects, optionally filtered by one or more FilterSet filters.
