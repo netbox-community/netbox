@@ -54,8 +54,7 @@ class ObjectListField(DjangoListField):
 
     @staticmethod
     def list_resolver(django_object_type, resolver, default_manager, root, info, **args):
-        # Get the QuerySet from the object type
-        queryset = django_object_type.get_queryset(default_manager, info)
+        queryset = super(ObjectListField, ObjectListField).list_resolver(django_object_type, resolver, default_manager, root, info, **args)
 
         # Instantiate and apply the FilterSet, if defined
         filterset_class = django_object_type._meta.filterset_class
