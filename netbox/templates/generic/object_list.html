@@ -67,6 +67,9 @@ Context:
         {% applied_filters filter_form request.GET %}
       {% endif %}
 
+      {# Object table controls #}
+      {% include 'inc/table_controls_htmx.html' with table_modal="ObjectTable_config" %}
+
       <form method="post" class="form form-horizontal">
         {% csrf_token %}
         {# "Select all" form #}
@@ -92,9 +95,6 @@ Context:
             </div>
           </div>
         {% endif %}
-
-        {# Object table controls #}
-        {% include 'inc/table_controls_htmx.html' with table_modal="ObjectTable_config" %}
 
         <div class="form form-horizontal">
           {% csrf_token %}
