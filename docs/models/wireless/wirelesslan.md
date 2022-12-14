@@ -12,6 +12,13 @@ The service set identifier (SSID) for the wireless network.
 
 The [wireless LAN group](./wirelesslangroup.md) to which this wireless LAN is assigned (if any).
 
+### Status
+
+The operational status of the wireless network.
+
+!!! tip
+    Additional statuses may be defined by setting `WirelessLAN.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
+
 ### VLAN
 
 Each wireless LAN can optionally be mapped to a [VLAN](../ipam/vlan.md), to model a bridge between wired and wireless segments.

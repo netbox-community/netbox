@@ -1,4 +1,4 @@
-from .models import *
+from .model_forms import *
 from .filtersets import *
 from .object_create import *
 from .object_import import *

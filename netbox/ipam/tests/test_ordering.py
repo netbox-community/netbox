@@ -9,12 +9,17 @@ import netaddr
 class OrderingTestBase(TestCase):
     vrfs = None
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         """
         Setup the VRFs for the class as a whole
         """
-        self.vrfs = (VRF(name="VRF A"), VRF(name="VRF B"), VRF(name="VRF C"))
-        VRF.objects.bulk_create(self.vrfs)
+        vrfs = (
+            VRF(name='VRF 1'),
+            VRF(name='VRF 2'),
+            VRF(name='VRF 3'),
+        )
+        VRF.objects.bulk_create(vrfs)
 
     def _compare(self, queryset, objectset):
         """
@@ -37,10 +42,7 @@ class PrefixOrderingTestCase(OrderingTestBase):
         """
         This is a very basic test, which tests both prefixes without VRFs and prefixes with VRFs
         """
-        # Setup VRFs
-        vrfa, vrfb, vrfc = self.vrfs
-
-        # Setup Prefixes
+        vrf1, vrf2, vrf3 = list(VRF.objects.all())
         prefixes = (
             Prefix(status=PrefixStatusChoices.STATUS_CONTAINER, vrf=None, prefix=netaddr.IPNetwork('192.168.0.0/16')),
             Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=None, prefix=netaddr.IPNetwork('192.168.0.0/24')),
@@ -50,37 +52,37 @@ class PrefixOrderingTestCase(OrderingTestBase):
             Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=None, prefix=netaddr.IPNetwork('192.168.4.0/24')),
             Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=None, prefix=netaddr.IPNetwork('192.168.5.0/24')),
 
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.0.0.0/8')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.0.0.0/16')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.0.0.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.0.1.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.0.2.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.0.3.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.0.4.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.1.0.0/16')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.1.1.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.1.2.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.1.3.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.1.4.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.2.0.0/16')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.2.1.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.2.2.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.2.3.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.2.4.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.0.0.0/8')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.0.0.0/16')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.0.0.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.0.1.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.0.2.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.0.3.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.0.4.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.1.0.0/16')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.1.1.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.1.2.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.1.3.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.1.4.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.2.0.0/16')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.2.1.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.2.2.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.2.3.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.2.4.0/24')),
 
-            Prefix(status=PrefixStatusChoices.STATUS_CONTAINER, vrf=vrfb, prefix=netaddr.IPNetwork('172.16.0.0/12')),
-            Prefix(status=PrefixStatusChoices.STATUS_CONTAINER, vrf=vrfb, prefix=netaddr.IPNetwork('172.16.0.0/16')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfb, prefix=netaddr.IPNetwork('172.16.0.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfb, prefix=netaddr.IPNetwork('172.16.1.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfb, prefix=netaddr.IPNetwork('172.16.2.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfb, prefix=netaddr.IPNetwork('172.16.3.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfb, prefix=netaddr.IPNetwork('172.16.4.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_CONTAINER, vrf=vrfb, prefix=netaddr.IPNetwork('172.17.0.0/16')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfb, prefix=netaddr.IPNetwork('172.17.0.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfb, prefix=netaddr.IPNetwork('172.17.1.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfb, prefix=netaddr.IPNetwork('172.17.2.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfb, prefix=netaddr.IPNetwork('172.17.3.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfb, prefix=netaddr.IPNetwork('172.17.4.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_CONTAINER, vrf=vrf2, prefix=netaddr.IPNetwork('172.16.0.0/12')),
+            Prefix(status=PrefixStatusChoices.STATUS_CONTAINER, vrf=vrf2, prefix=netaddr.IPNetwork('172.16.0.0/16')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf2, prefix=netaddr.IPNetwork('172.16.0.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf2, prefix=netaddr.IPNetwork('172.16.1.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf2, prefix=netaddr.IPNetwork('172.16.2.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf2, prefix=netaddr.IPNetwork('172.16.3.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf2, prefix=netaddr.IPNetwork('172.16.4.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_CONTAINER, vrf=vrf2, prefix=netaddr.IPNetwork('172.17.0.0/16')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf2, prefix=netaddr.IPNetwork('172.17.0.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf2, prefix=netaddr.IPNetwork('172.17.1.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf2, prefix=netaddr.IPNetwork('172.17.2.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf2, prefix=netaddr.IPNetwork('172.17.3.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf2, prefix=netaddr.IPNetwork('172.17.4.0/24')),
         )
 
         Prefix.objects.bulk_create(prefixes)
@@ -104,20 +106,17 @@ class PrefixOrderingTestCase(OrderingTestBase):
             VRF A:10.1.1.0/24
             None: 192.168.0.0/16
         """
-        # Setup VRFs
-        vrfa, vrfb, vrfc = self.vrfs
-
-        # Setup Prefixes
+        vrf1, vrf2, vrf3 = list(VRF.objects.all())
         prefixes = [
             Prefix(status=PrefixStatusChoices.STATUS_CONTAINER, vrf=None, prefix=netaddr.IPNetwork('10.0.0.0/8')),
             Prefix(status=PrefixStatusChoices.STATUS_CONTAINER, vrf=None, prefix=netaddr.IPNetwork('10.0.0.0/16')),
             Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=None, prefix=netaddr.IPNetwork('10.1.0.0/16')),
             Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=None, prefix=netaddr.IPNetwork('192.168.0.0/16')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.0.0.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.0.1.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.0.1.0/25')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.1.0.0/24')),
-            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrfa, prefix=netaddr.IPNetwork('10.1.1.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.0.0.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.0.1.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.0.1.0/25')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.1.0.0/24')),
+            Prefix(status=PrefixStatusChoices.STATUS_ACTIVE, vrf=vrf1, prefix=netaddr.IPNetwork('10.1.1.0/24')),
         ]
         Prefix.objects.bulk_create(prefixes)
 
@@ -131,37 +130,34 @@ class IPAddressOrderingTestCase(OrderingTestBase):
         """
         This function tests ordering with the inclusion of vrfs
         """
-        # Setup VRFs
-        vrfa, vrfb, vrfc = self.vrfs
-
-        # Setup Addresses
+        vrf1, vrf2, vrf3 = list(VRF.objects.all())
         addresses = (
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.0.0.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.0.1.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.0.2.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.0.3.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.0.4.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.1.0.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.1.1.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.1.2.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.1.3.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.1.4.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.2.0.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.2.1.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.2.2.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.2.3.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfa, address=netaddr.IPNetwork('10.2.4.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.0.0.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.0.1.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.0.2.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.0.3.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.0.4.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.1.0.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.1.1.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.1.2.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.1.3.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.1.4.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.2.0.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.2.1.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.2.2.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.2.3.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.2.4.1/24')),
 
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfb, address=netaddr.IPNetwork('172.16.0.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfb, address=netaddr.IPNetwork('172.16.1.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfb, address=netaddr.IPNetwork('172.16.2.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfb, address=netaddr.IPNetwork('172.16.3.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfb, address=netaddr.IPNetwork('172.16.4.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfb, address=netaddr.IPNetwork('172.17.0.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfb, address=netaddr.IPNetwork('172.17.1.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfb, address=netaddr.IPNetwork('172.17.2.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfb, address=netaddr.IPNetwork('172.17.3.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrfb, address=netaddr.IPNetwork('172.17.4.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.0.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.1.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.2.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.3.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.4.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.0.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.1.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.2.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.3.1/24')),
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.4.1/24')),
 
             IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.0.1/24')),
             IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.1.1/24')),

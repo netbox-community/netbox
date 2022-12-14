@@ -1,14 +1,13 @@
-from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from dcim.choices import *
-from dcim.constants import *
 from netbox.config import ConfigItem
-from netbox.models import NetBoxModel
+from netbox.models import PrimaryModel
 from utilities.validators import ExclusionValidator
 from .device_components import CabledObjectModel, PathEndpoint
 
@@ -22,7 +21,7 @@ __all__ = (
 # Power
 #
 
-class PowerPanel(NetBoxModel):
+class PowerPanel(PrimaryModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
     """
@@ -48,16 +47,21 @@ class PowerPanel(NetBoxModel):
         to='extras.ImageAttachment'
     )
 
+    prerequisite_models = (
+        'dcim.Site',
+    )
+
     class Meta:
         ordering = ['site', 'name']
-        unique_together = ['site', 'name']
+        constraints = (
+            models.UniqueConstraint(
+                fields=('site', 'name'),
+                name='%(app_label)s_%(class)s_unique_site_name'
+            ),
+        )
 
     def __str__(self):
         return self.name
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [apps.get_model('dcim.Site'), ]
 
     def get_absolute_url(self):
         return reverse('dcim:powerpanel', args=[self.pk])
@@ -72,7 +76,7 @@ class PowerPanel(NetBoxModel):
             )
 
 
-class PowerFeed(NetBoxModel, PathEndpoint, CabledObjectModel):
+class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
     """
     An electrical circuit delivered from a PowerPanel.
     """
@@ -121,31 +125,32 @@ class PowerFeed(NetBoxModel, PathEndpoint, CabledObjectModel):
     max_utilization = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
         default=ConfigItem('POWERFEED_DEFAULT_MAX_UTILIZATION'),
-        help_text="Maximum permissible draw (percentage)"
+        help_text=_("Maximum permissible draw (percentage)")
     )
     available_power = models.PositiveIntegerField(
         default=0,
         editable=False
-    )
-    comments = models.TextField(
-        blank=True
     )
 
     clone_fields = (
         'power_panel', 'rack', 'status', 'type', 'mark_connected', 'supply', 'phase', 'voltage', 'amperage',
         'max_utilization',
     )
+    prerequisite_models = (
+        'dcim.PowerPanel',
+    )
 
     class Meta:
         ordering = ['power_panel', 'name']
-        unique_together = ['power_panel', 'name']
+        constraints = (
+            models.UniqueConstraint(
+                fields=('power_panel', 'name'),
+                name='%(app_label)s_%(class)s_unique_power_panel_name'
+            ),
+        )
 
     def __str__(self):
         return self.name
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [PowerPanel, ]
 
     def get_absolute_url(self):
         return reverse('dcim:powerfeed', args=[self.pk])

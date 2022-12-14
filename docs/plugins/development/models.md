@@ -49,23 +49,11 @@ class MyModel(NetBoxModel):
     ...
 ```
 
-### The `clone()` Method
+### NetBoxModel Properties
 
-!!! info
-    This method was introduced in NetBox v3.3.
+#### `docs_url`
 
-The `NetBoxModel` class includes a `clone()` method to be used for gathering attributes which can be used to create a "cloned" instance. This is used primarily for form initialization, e.g. when using the "clone" button in the NetBox UI. By default, this method will replicate any fields listed in the model's `clone_fields` list, if defined.
-
-Plugin models can leverage this method by defining `clone_fields` as a list of field names to be replicated, or override this method to replace or extend its content:
-
-```python
-class MyModel(NetBoxModel):
-
-    def clone(self):
-        attrs = super().clone()
-        attrs['extra-value'] = 123
-        return attrs
-```
+This attribute specifies the URL at which the documentation for this model can be reached. By default, it will return `/static/docs/models/<app_label>/<model_name>/`. Plugin models can override this to return a custom URL. For example, you might direct the user to your plugin's documentation hosted on [ReadTheDocs](https://readthedocs.org/).
 
 ### Enabling Features Individually
 
@@ -115,6 +103,8 @@ For more information about database migrations, see the [Django documentation](h
     Please note that only the classes which appear in this documentation are currently supported. Although other classes may be present within the `features` module, they are not yet supported for use by plugins.
 
 ::: netbox.models.features.ChangeLoggingMixin
+
+::: netbox.models.features.CloningMixin
 
 ::: netbox.models.features.CustomLinksMixin
 

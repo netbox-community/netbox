@@ -23,6 +23,20 @@
               <td>{{ object.part_number|placeholder }}</td>
             </tr>
             <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+                <td>Weight</td>
+                <td>
+                {% if object.weight %}
+                  {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+                </td>
+            </tr>
+            <tr>
               <td>Instances</td>
               <td><a href="{% url 'dcim:module_list' %}?module_type_id={{ object.pk }}">{{ instance_count }}</a></td>
             </tr>

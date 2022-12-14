@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -30,6 +31,10 @@ class Tag(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel, TagBase):
 
     def get_absolute_url(self):
         return reverse('extras:tag', args=[self.pk])
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/tag/'
 
     def slugify(self, tag, i=None):
         # Allow Unicode in Tag slugs (avoids empty slugs for Tags with all-Unicode names)

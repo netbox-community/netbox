@@ -23,9 +23,9 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ASN.objects.bulk_create(asns)
 
         providers = (
-            Provider(name='Provider 1', slug='provider-1', asn=65001),
-            Provider(name='Provider 2', slug='provider-2', asn=65002),
-            Provider(name='Provider 3', slug='provider-3', asn=65003),
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
         )
         Provider.objects.bulk_create(providers)
         providers[0].asns.set([asns[0], asns[1]])
@@ -37,12 +37,8 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'name': 'Provider X',
             'slug': 'provider-x',
-            'asn': 65123,
             'asns': [asns[6].pk, asns[7].pk],
             'account': '1234',
-            'portal_url': 'http://example.com/portal',
-            'noc_contact': 'noc@example.com',
-            'admin_contact': 'admin@example.com',
             'comments': 'Another provider',
             'tags': [t.pk for t in tags],
         }
@@ -54,12 +50,15 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Provider 6,provider-6",
         )
 
+        cls.csv_update_data = (
+            "id,name,comments",
+            f"{providers[0].pk},Provider 7,New comment7",
+            f"{providers[1].pk},Provider 8,New comment8",
+            f"{providers[2].pk},Provider 9,New comment9",
+        )
+
         cls.bulk_edit_data = {
-            'asn': 65009,
             'account': '5678',
-            'portal_url': 'http://example.com/portal2',
-            'noc_contact': 'noc2@example.com',
-            'admin_contact': 'admin2@example.com',
             'comments': 'New comments',
         }
 
@@ -70,11 +69,13 @@ class CircuitTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        CircuitType.objects.bulk_create([
+        circuit_types = (
             CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
             CircuitType(name='Circuit Type 2', slug='circuit-type-2'),
             CircuitType(name='Circuit Type 3', slug='circuit-type-3'),
-        ])
+        )
+
+        CircuitType.objects.bulk_create(circuit_types)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -92,6 +93,13 @@ class CircuitTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Circuit Type 6,circuit-type-6",
         )
 
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{circuit_types[0].pk},Circuit Type 7,New description7",
+            f"{circuit_types[1].pk},Circuit Type 8,New description8",
+            f"{circuit_types[2].pk},Circuit Type 9,New description9",
+        )
+
         cls.bulk_edit_data = {
             'description': 'Foo',
         }
@@ -100,12 +108,19 @@ class CircuitTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Circuit
 
+    def setUp(self):
+        super().setUp()
+
+        self.add_permissions(
+            'circuits.add_circuittermination',
+        )
+
     @classmethod
     def setUpTestData(cls):
 
         providers = (
-            Provider(name='Provider 1', slug='provider-1', asn=65001),
-            Provider(name='Provider 2', slug='provider-2', asn=65002),
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
         )
         Provider.objects.bulk_create(providers)
 
@@ -115,11 +130,13 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         CircuitType.objects.bulk_create(circuittypes)
 
-        Circuit.objects.bulk_create([
+        circuits = (
             Circuit(cid='Circuit 1', provider=providers[0], type=circuittypes[0]),
             Circuit(cid='Circuit 2', provider=providers[0], type=circuittypes[0]),
             Circuit(cid='Circuit 3', provider=providers[0], type=circuittypes[0]),
-        ])
+        )
+
+        Circuit.objects.bulk_create(circuits)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -142,6 +159,13 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Circuit 4,Provider 1,Circuit Type 1,active",
             "Circuit 5,Provider 1,Circuit Type 1,active",
             "Circuit 6,Provider 1,Circuit Type 1,active",
+        )
+
+        cls.csv_update_data = (
+            f"id,cid,description,status",
+            f"{circuits[0].pk},Circuit 7,New description7,{CircuitStatusChoices.STATUS_DECOMMISSIONED}",
+            f"{circuits[1].pk},Circuit 8,New description8,{CircuitStatusChoices.STATUS_DECOMMISSIONED}",
+            f"{circuits[2].pk},Circuit 9,New description9,{CircuitStatusChoices.STATUS_DECOMMISSIONED}",
         )
 
         cls.bulk_edit_data = {
@@ -167,11 +191,13 @@ class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Provider.objects.bulk_create(providers)
 
-        ProviderNetwork.objects.bulk_create([
+        provider_networks = (
             ProviderNetwork(name='Provider Network 1', provider=providers[0]),
             ProviderNetwork(name='Provider Network 2', provider=providers[0]),
             ProviderNetwork(name='Provider Network 3', provider=providers[0]),
-        ])
+        )
+
+        ProviderNetwork.objects.bulk_create(provider_networks)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -188,6 +214,13 @@ class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Provider Network 4,Provider 1,Foo",
             "Provider Network 5,Provider 1,Bar",
             "Provider Network 6,Provider 1,Baz",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{provider_networks[0].pk},Provider Network 7,New description7",
+            f"{provider_networks[1].pk},Provider Network 8,New description8",
+            f"{provider_networks[2].pk},Provider Network 9,New description9",
         )
 
         cls.bulk_edit_data = {

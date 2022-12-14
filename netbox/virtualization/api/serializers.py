@@ -58,8 +58,8 @@ class ClusterSerializer(NetBoxModelSerializer):
     class Meta:
         model = Cluster
         fields = [
-            'id', 'url', 'display', 'name', 'type', 'group', 'status', 'tenant', 'site', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
+            'id', 'url', 'display', 'name', 'type', 'group', 'status', 'tenant', 'site', 'description', 'comments',
+            'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
 
 
@@ -84,8 +84,8 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
         model = VirtualMachine
         fields = [
             'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data',
-            'tags', 'custom_fields', 'created', 'last_updated',
+            'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments',
+            'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         validators = []
 

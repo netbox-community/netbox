@@ -1,35 +1,30 @@
 import hashlib
 import importlib
-import logging
+import importlib.util
 import os
 import platform
-import re
-import socket
 import sys
 import warnings
 from urllib.parse import urlsplit
 
+import django
 import sentry_sdk
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
+from django.utils.encoding import force_str
+from extras.plugins import PluginConfig
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from netbox.config import PARAMS
-
-# Monkey patch to fix Django 4.0 support for graphene-django (see
-# https://github.com/graphql-python/graphene-django/issues/1284)
-# TODO: Remove this when graphene-django 2.16 becomes available
-import django
-from django.utils.encoding import force_str
-django.utils.encoding.force_text = force_str
+from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 
 
 #
 # Environment setup
 #
 
-VERSION = '3.3.10'
+VERSION = '3.4-beta1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -77,6 +72,7 @@ DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
 
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
+ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', True)
 AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [])
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
@@ -107,6 +103,7 @@ MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media'
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
+QUEUE_MAPPINGS = getattr(configuration, 'QUEUE_MAPPINGS', {})
 RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
 REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_USER', False)
 REMOTE_AUTH_BACKEND = getattr(configuration, 'REMOTE_AUTH_BACKEND', 'netbox.authentication.RemoteUserBackend')
@@ -124,6 +121,7 @@ REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, 'REMOTE_AUTH_GROUP_SEPARATO
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
+SEARCH_BACKEND = getattr(configuration, 'SEARCH_BACKEND', 'netbox.search.backends.CachedValueSearchBackend')
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', DEFAULT_SENTRY_DSN)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
@@ -188,7 +186,7 @@ if STORAGE_BACKEND is not None:
     if STORAGE_BACKEND.startswith('storages.'):
 
         try:
-            import storages.utils
+            import storages.utils  # type: ignore
         except ModuleNotFoundError as e:
             if getattr(e, 'name') == 'storages':
                 raise ImproperlyConfigured(
@@ -389,10 +387,9 @@ AUTHENTICATION_BACKENDS = [
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
-USE_I18N = True
-USE_L10N = False
+
+# Time zones
 USE_TZ = True
-USE_DEPRECATED_PYTZ = True
 
 # WSGI
 WSGI_APPLICATION = 'netbox.wsgi.application'
@@ -645,10 +642,15 @@ RQ_PARAMS.update({
 })
 
 RQ_QUEUES = {
-    'high': RQ_PARAMS,
-    'default': RQ_PARAMS,
-    'low': RQ_PARAMS,
+    RQ_QUEUE_HIGH: RQ_PARAMS,
+    RQ_QUEUE_DEFAULT: RQ_PARAMS,
+    RQ_QUEUE_LOW: RQ_PARAMS,
 }
+
+# Add any queues defined in QUEUE_MAPPINGS
+RQ_QUEUES.update({
+    queue: RQ_PARAMS for queue in set(QUEUE_MAPPINGS.values()) if queue not in RQ_QUEUES
+})
 
 
 #
@@ -656,7 +658,6 @@ RQ_QUEUES = {
 #
 
 for plugin_name in PLUGINS:
-
     # Import plugin module
     try:
         plugin = importlib.import_module(plugin_name)
@@ -670,13 +671,41 @@ for plugin_name in PLUGINS:
 
     # Determine plugin config and add to INSTALLED_APPS.
     try:
-        plugin_config = plugin.config
-        INSTALLED_APPS.append("{}.{}".format(plugin_config.__module__, plugin_config.__name__))
+        plugin_config: PluginConfig = plugin.config
     except AttributeError:
         raise ImproperlyConfigured(
             "Plugin {} does not provide a 'config' variable. This should be defined in the plugin's __init__.py file "
             "and point to the PluginConfig subclass.".format(plugin_name)
         )
+
+    plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
+
+    # Gather additional apps to load alongside this plugin
+    django_apps = plugin_config.django_apps
+    if plugin_name in django_apps:
+        django_apps.pop(plugin_name)
+    if plugin_module not in django_apps:
+        django_apps.append(plugin_module)
+
+    # Test if we can import all modules (or its parent, for PluginConfigs and AppConfigs)
+    for app in django_apps:
+        if "." in app:
+            parts = app.split(".")
+            spec = importlib.util.find_spec(".".join(parts[:-1]))
+        else:
+            spec = importlib.util.find_spec(app)
+        if spec is None:
+            raise ImproperlyConfigured(
+                f"Failed to load django_apps specified by plugin {plugin_name}: {django_apps} "
+                f"The module {app} cannot be imported. Check that the necessary package has been "
+                "installed within the correct Python environment."
+            )
+
+    INSTALLED_APPS.extend(django_apps)
+
+    # Preserve uniqueness of the INSTALLED_APPS list, we keep the last occurence
+    sorted_apps = reversed(list(dict.fromkeys(reversed(INSTALLED_APPS))))
+    INSTALLED_APPS = list(sorted_apps)
 
     # Validate user-provided configuration settings and assign defaults
     if plugin_name not in PLUGINS_CONFIG:

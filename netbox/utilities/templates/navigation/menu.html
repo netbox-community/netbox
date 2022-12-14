@@ -4,12 +4,12 @@
   {% for menu, groups in nav_items %}
     <li class="nav-item">
       {# Menu heading #}
-      <a class="nav-link" href="#menu{{ menu.label }}" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="menu{{ menu.label }}">
+      <a class="nav-link" href="#menu{{ menu.name }}" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="menu{{ menu.name }}">
        <i class="{{ menu.icon_class }}"></i>
        <span class="nav-link-text">{{ menu.label }}</span>
       </a>
       {# Menu groups #}
-      <div class="collapse" id="menu{{ menu.label }}">
+      <div class="collapse" id="menu{{ menu.name }}">
         <ul class="nav nav-sm flex-column">
           {% for group, items in groups %}
             {# Group heading #}

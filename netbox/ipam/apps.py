@@ -6,4 +6,4 @@ class IPAMConfig(AppConfig):
     verbose_name = "IPAM"
 
     def ready(self):
-        import ipam.signals
+        from . import signals, search

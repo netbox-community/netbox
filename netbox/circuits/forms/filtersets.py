@@ -20,7 +20,7 @@ __all__ = (
 class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Provider
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter_id', 'tag')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('ASN', ('asn',)),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
@@ -59,7 +59,7 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
     model = ProviderNetwork
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter_id', 'tag')),
         ('Attributes', ('provider_id', 'service_id')),
     )
     provider_id = DynamicModelMultipleChoiceField(
@@ -82,7 +82,7 @@ class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
 class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Circuit
     fieldsets = (
-        (None, ('q', 'tag')),
+        (None, ('q', 'filter_id', 'tag')),
         ('Provider', ('provider_id', 'provider_network_id')),
         ('Attributes', ('type_id', 'status', 'install_date', 'termination_date', 'commit_rate')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),

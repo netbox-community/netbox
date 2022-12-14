@@ -20,17 +20,6 @@
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
-                      <th scope="row">ASN</th>
-                      <td>
-                        {% if object.asn %}
-                          <div class="float-end text-warning">
-                            <i class="mdi mdi-alert" title="This field will be removed in a future release. Please migrate this data to ASN objects."></i>
-                          </div>
-                        {% endif %}
-                        {{ object.asn|placeholder }}
-                      </td>
-                    </tr>
-                    <tr>
                       <th scope="row">ASNs</th>
                       <td>
                         {% for asn in object.asns.all %}
@@ -45,22 +34,8 @@
                         <td>{{ object.account|placeholder }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Customer Portal</th>
-                        <td>
-                            {% if object.portal_url %}
-                                <a href="{{ object.portal_url }}">{{ object.portal_url }}</a>
-                            {% else %}
-                                {{ ''|placeholder }}
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">NOC Contact</th>
-                        <td>{{ object.noc_contact|markdown|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Admin Contact</th>
-                        <td>{{ object.admin_contact|markdown|placeholder }}</td>
+                        <th scope="row">Description</th>
+                        <td>{{ object.description|placeholder }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Circuits</th>

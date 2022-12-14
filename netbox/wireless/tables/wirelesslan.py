@@ -21,6 +21,7 @@ class WirelessLANGroupTable(NetBoxTable):
         url_params={'group_id': 'pk'},
         verbose_name='Wireless LANs'
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='wireless:wirelesslangroup_list'
     )
@@ -28,7 +29,8 @@ class WirelessLANGroupTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = WirelessLANGroup
         fields = (
-            'pk', 'name', 'wirelesslan_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
+            'pk', 'name', 'wirelesslan_count', 'slug', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'actions',
         )
         default_columns = ('pk', 'name', 'wirelesslan_count', 'description')
 
@@ -40,9 +42,11 @@ class WirelessLANTable(TenancyColumnsMixin, NetBoxTable):
     group = tables.Column(
         linkify=True
     )
+    status = columns.ChoiceFieldColumn()
     interface_count = tables.Column(
         verbose_name='Interfaces'
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='wireless:wirelesslan_list'
     )
@@ -50,10 +54,10 @@ class WirelessLANTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = WirelessLAN
         fields = (
-            'pk', 'ssid', 'group', 'tenant', 'tenant_group', 'description', 'vlan', 'interface_count', 'auth_type',
-            'auth_cipher', 'auth_psk', 'tags', 'created', 'last_updated',
+            'pk', 'ssid', 'group', 'status', 'tenant', 'tenant_group', 'vlan', 'interface_count', 'auth_type',
+            'auth_cipher', 'auth_psk', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'ssid', 'group', 'description', 'vlan', 'auth_type', 'interface_count')
+        default_columns = ('pk', 'ssid', 'group', 'status', 'description', 'vlan', 'auth_type', 'interface_count')
 
 
 class WirelessLANInterfacesTable(NetBoxTable):

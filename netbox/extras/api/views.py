@@ -99,6 +99,17 @@ class ExportTemplateViewSet(NetBoxModelViewSet):
 
 
 #
+# Saved filters
+#
+
+class SavedFilterViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = SavedFilter.objects.all()
+    serializer_class = serializers.SavedFilterSerializer
+    filterset_class = filtersets.SavedFilterFilterSet
+
+
+#
 # Tags
 #
 
@@ -231,19 +242,24 @@ class ReportViewSet(ViewSet):
 
         # Retrieve and run the Report. This will create a new JobResult.
         report = self._retrieve_report(pk)
-        report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        job_result = JobResult.enqueue_job(
-            run_report,
-            report.full_name,
-            report_content_type,
-            request.user,
-            job_timeout=report.job_timeout
-        )
-        report.result = job_result
+        input_serializer = serializers.ReportInputSerializer(data=request.data)
 
-        serializer = serializers.ReportDetailSerializer(report, context={'request': request})
+        if input_serializer.is_valid():
+            job_result = JobResult.enqueue_job(
+                run_report,
+                name=report.full_name,
+                obj_type=ContentType.objects.get_for_model(Report),
+                user=request.user,
+                job_timeout=report.job_timeout,
+                schedule_at=input_serializer.validated_data.get('schedule_at'),
+                interval=input_serializer.validated_data.get('interval')
+            )
+            report.result = job_result
 
-        return Response(serializer.data)
+            serializer = serializers.ReportDetailSerializer(report, context={'request': request})
+
+            return Response(serializer.data)
+        return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 #
@@ -310,19 +326,17 @@ class ScriptViewSet(ViewSet):
             raise RQWorkerNotRunningException()
 
         if input_serializer.is_valid():
-            data = input_serializer.data['data']
-            commit = input_serializer.data['commit']
-
-            script_content_type = ContentType.objects.get(app_label='extras', model='script')
             job_result = JobResult.enqueue_job(
                 run_script,
-                script.full_name,
-                script_content_type,
-                request.user,
-                data=data,
+                name=script.full_name,
+                obj_type=ContentType.objects.get_for_model(Script),
+                user=request.user,
+                data=input_serializer.data['data'],
                 request=copy_safe_request(request),
-                commit=commit,
+                commit=input_serializer.data['commit'],
                 job_timeout=script.job_timeout,
+                schedule_at=input_serializer.validated_data.get('schedule_at'),
+                interval=input_serializer.validated_data.get('interval')
             )
             script.result = job_result
             serializer = serializers.ScriptDetailSerializer(script, context={'request': request})

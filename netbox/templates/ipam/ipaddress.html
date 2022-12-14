@@ -108,6 +108,7 @@
       </div>
       {% include 'inc/panels/tags.html' %}
       {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/comments.html' %}
       {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-8">
@@ -137,24 +138,7 @@
     <div class="my-3">
       {% include 'inc/panel_table.html' with table=related_ips_table heading='Related IP Addresses' %}
     </div>
-    <div class="card">
-        <h5 class="card-header">
-            Services
-        </h5>
-        <div class="card-body">
-        {% if services %}
-            <table class="table table-hover">
-                {% for service in services %}
-                    {% include 'ipam/inc/service.html' %}
-                {% endfor %}
-            </table>
-        {% else %}
-            <div class="text-muted">
-                None
-            </div>
-        {% endif %}
-        </div>
-    </div>
+    {% include 'inc/panels/services.html' %}
     {% plugin_right_page object %}
 	</div>
 </div>

@@ -1,20 +1,21 @@
 import collections
-import inspect
-from packaging import version
 
 from django.apps import AppConfig
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.template.loader import get_template
+from django.utils.module_loading import import_string
+from packaging import version
 
-from extras.registry import registry
-from utilities.choices import ButtonColorChoices
-
-from extras.plugins.utils import import_object
-
+from netbox.registry import registry
+from netbox.search import register_search
+from .navigation import *
+from .registration import *
+from .templates import *
 
 # Initialize plugin registry
 registry['plugins'] = {
     'graphql_schemas': [],
+    'menus': [],
     'menu_items': {},
     'preferences': {},
     'template_extensions': collections.defaultdict(list),
@@ -54,9 +55,14 @@ class PluginConfig(AppConfig):
     # Django-rq queues dedicated to the plugin
     queues = []
 
+    # Django apps to append to INSTALLED_APPS when plugin requires them.
+    django_apps = []
+
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.
+    search_indexes = 'search.indexes'
     graphql_schema = 'graphql.schema'
+    menu = 'navigation.menu'
     menu_items = 'navigation.menu_items'
     template_extensions = 'template_content.template_extensions'
     user_preferences = 'preferences.preferences'
@@ -64,25 +70,46 @@ class PluginConfig(AppConfig):
     def ready(self):
         plugin_name = self.name.rsplit('.', 1)[-1]
 
-        # Register template content (if defined)
-        template_extensions = import_object(f"{self.__module__}.{self.template_extensions}")
-        if template_extensions is not None:
-            register_template_extensions(template_extensions)
+        # Register search extensions (if defined)
+        try:
+            search_indexes = import_string(f"{self.__module__}.{self.search_indexes}")
+            for idx in search_indexes:
+                register_search(idx)
+        except ImportError:
+            pass
 
-        # Register navigation menu items (if defined)
-        menu_items = import_object(f"{self.__module__}.{self.menu_items}")
-        if menu_items is not None:
+        # Register template content (if defined)
+        try:
+            template_extensions = import_string(f"{self.__module__}.{self.template_extensions}")
+            register_template_extensions(template_extensions)
+        except ImportError:
+            pass
+
+        # Register navigation menu and/or menu items (if defined)
+        try:
+            menu = import_string(f"{self.__module__}.{self.menu}")
+            register_menu(menu)
+        except ImportError:
+            pass
+        try:
+            menu_items = import_string(f"{self.__module__}.{self.menu_items}")
             register_menu_items(self.verbose_name, menu_items)
+        except ImportError:
+            pass
 
         # Register GraphQL schema (if defined)
-        graphql_schema = import_object(f"{self.__module__}.{self.graphql_schema}")
-        if graphql_schema is not None:
+        try:
+            graphql_schema = import_string(f"{self.__module__}.{self.graphql_schema}")
             register_graphql_schema(graphql_schema)
+        except ImportError:
+            pass
 
         # Register user preferences (if defined)
-        user_preferences = import_object(f"{self.__module__}.{self.user_preferences}")
-        if user_preferences is not None:
+        try:
+            user_preferences = import_string(f"{self.__module__}.{self.user_preferences}")
             register_user_preferences(plugin_name, user_preferences)
+        except ImportError:
+            pass
 
     @classmethod
     def validate(cls, user_config, netbox_version):
@@ -117,167 +144,20 @@ class PluginConfig(AppConfig):
 
 
 #
-# Template content injection
+# Utilities
 #
 
-class PluginTemplateExtension:
+def get_plugin_config(plugin_name, parameter, default=None):
     """
-    This class is used to register plugin content to be injected into core NetBox templates. It contains methods
-    that are overridden by plugin authors to return template content.
+    Return the value of the specified plugin configuration parameter.
 
-    The `model` attribute on the class defines the which model detail page this class renders content for. It
-    should be set as a string in the form '<app_label>.<model_name>'. render() provides the following context data:
-
-    * object - The object being viewed
-    * request - The current request
-    * settings - Global NetBox settings
-    * config - Plugin-specific configuration parameters
+    Args:
+        plugin_name: The name of the plugin
+        parameter: The name of the configuration parameter
+        default: The value to return if the parameter is not defined (default: None)
     """
-    model = None
-
-    def __init__(self, context):
-        self.context = context
-
-    def render(self, template_name, extra_context=None):
-        """
-        Convenience method for rendering the specified Django template using the default context data. An additional
-        context dictionary may be passed as `extra_context`.
-        """
-        if extra_context is None:
-            extra_context = {}
-        elif not isinstance(extra_context, dict):
-            raise TypeError("extra_context must be a dictionary")
-
-        return get_template(template_name).render({**self.context, **extra_context})
-
-    def left_page(self):
-        """
-        Content that will be rendered on the left of the detail page view. Content should be returned as an
-        HTML string. Note that content does not need to be marked as safe because this is automatically handled.
-        """
-        raise NotImplementedError
-
-    def right_page(self):
-        """
-        Content that will be rendered on the right of the detail page view. Content should be returned as an
-        HTML string. Note that content does not need to be marked as safe because this is automatically handled.
-        """
-        raise NotImplementedError
-
-    def full_width_page(self):
-        """
-        Content that will be rendered within the full width of the detail page view. Content should be returned as an
-        HTML string. Note that content does not need to be marked as safe because this is automatically handled.
-        """
-        raise NotImplementedError
-
-    def buttons(self):
-        """
-        Buttons that will be rendered and added to the existing list of buttons on the detail page view. Content
-        should be returned as an HTML string. Note that content does not need to be marked as safe because this is
-        automatically handled.
-        """
-        raise NotImplementedError
-
-
-def register_template_extensions(class_list):
-    """
-    Register a list of PluginTemplateExtension classes
-    """
-    # Validation
-    for template_extension in class_list:
-        if not inspect.isclass(template_extension):
-            raise TypeError(f"PluginTemplateExtension class {template_extension} was passed as an instance!")
-        if not issubclass(template_extension, PluginTemplateExtension):
-            raise TypeError(f"{template_extension} is not a subclass of extras.plugins.PluginTemplateExtension!")
-        if template_extension.model is None:
-            raise TypeError(f"PluginTemplateExtension class {template_extension} does not define a valid model!")
-
-        registry['plugins']['template_extensions'][template_extension.model].append(template_extension)
-
-
-#
-# Navigation menu links
-#
-
-class PluginMenuItem:
-    """
-    This class represents a navigation menu item. This constitutes primary link and its text, but also allows for
-    specifying additional link buttons that appear to the right of the item in the van menu.
-
-    Links are specified as Django reverse URL strings.
-    Buttons are each specified as a list of PluginMenuButton instances.
-    """
-    permissions = []
-    buttons = []
-
-    def __init__(self, link, link_text, permissions=None, buttons=None):
-        self.link = link
-        self.link_text = link_text
-        if permissions is not None:
-            if type(permissions) not in (list, tuple):
-                raise TypeError("Permissions must be passed as a tuple or list.")
-            self.permissions = permissions
-        if buttons is not None:
-            if type(buttons) not in (list, tuple):
-                raise TypeError("Buttons must be passed as a tuple or list.")
-            self.buttons = buttons
-
-
-class PluginMenuButton:
-    """
-    This class represents a button within a PluginMenuItem. Note that button colors should come from
-    ButtonColorChoices.
-    """
-    color = ButtonColorChoices.DEFAULT
-    permissions = []
-
-    def __init__(self, link, title, icon_class, color=None, permissions=None):
-        self.link = link
-        self.title = title
-        self.icon_class = icon_class
-        if permissions is not None:
-            if type(permissions) not in (list, tuple):
-                raise TypeError("Permissions must be passed as a tuple or list.")
-            self.permissions = permissions
-        if color is not None:
-            if color not in ButtonColorChoices.values():
-                raise ValueError("Button color must be a choice within ButtonColorChoices.")
-            self.color = color
-
-
-def register_menu_items(section_name, class_list):
-    """
-    Register a list of PluginMenuItem instances for a given menu section (e.g. plugin name)
-    """
-    # Validation
-    for menu_link in class_list:
-        if not isinstance(menu_link, PluginMenuItem):
-            raise TypeError(f"{menu_link} must be an instance of extras.plugins.PluginMenuItem")
-        for button in menu_link.buttons:
-            if not isinstance(button, PluginMenuButton):
-                raise TypeError(f"{button} must be an instance of extras.plugins.PluginMenuButton")
-
-    registry['plugins']['menu_items'][section_name] = class_list
-
-
-#
-# GraphQL schemas
-#
-
-def register_graphql_schema(graphql_schema):
-    """
-    Register a GraphQL schema class for inclusion in NetBox's GraphQL API.
-    """
-    registry['plugins']['graphql_schemas'].append(graphql_schema)
-
-
-#
-# User preferences
-#
-
-def register_user_preferences(plugin_name, preferences):
-    """
-    Register a list of user preferences defined by a plugin.
-    """
-    registry['plugins']['preferences'][plugin_name] = preferences
+    try:
+        plugin_config = settings.PLUGINS_CONFIG[plugin_name]
+        return plugin_config.get(parameter, default)
+    except KeyError:
+        raise ImproperlyConfigured(f"Plugin {plugin_name} is not registered.")

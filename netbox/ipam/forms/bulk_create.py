@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin, ExpandableIPAddressField
 
@@ -9,5 +10,5 @@ __all__ = (
 
 class IPAddressBulkCreateForm(BootstrapMixin, forms.Form):
     pattern = ExpandableIPAddressField(
-        label='Address pattern'
+        label=_('Address pattern')
     )

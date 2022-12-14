@@ -197,3 +197,21 @@ class ButtonColorChoices(ChoiceSet):
         (BLACK, 'Black'),
         (WHITE, 'White'),
     )
+
+
+#
+# Import Choices
+#
+
+class ImportFormatChoices(ChoiceSet):
+    AUTO = 'auto'
+    CSV = 'csv'
+    JSON = 'json'
+    YAML = 'yaml'
+
+    CHOICES = [
+        (AUTO, 'Auto-detect'),
+        (CSV, 'CSV'),
+        (JSON, 'JSON'),
+        (YAML, 'YAML'),
+    ]

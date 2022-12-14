@@ -3,7 +3,7 @@ from django.utils.deconstruct import deconstructible
 from taggit.managers import _TaggableManager
 
 from extras.constants import EXTRAS_FEATURES
-from extras.registry import registry
+from netbox.registry import registry
 
 
 def is_taggable(obj):

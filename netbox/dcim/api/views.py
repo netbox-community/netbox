@@ -538,6 +538,16 @@ class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
         return Response(response)
 
 
+class VirtualDeviceContextViewSet(NetBoxModelViewSet):
+    queryset = VirtualDeviceContext.objects.prefetch_related(
+        'device__device_type', 'device', 'tenant', 'tags',
+    ).annotate(
+        interface_count=count_related(Interface, 'vdcs'),
+    )
+    serializer_class = serializers.VirtualDeviceContextSerializer
+    filterset_class = filtersets.VirtualDeviceContextFilterSet
+
+
 class ModuleViewSet(NetBoxModelViewSet):
     queryset = Module.objects.prefetch_related(
         'device', 'module_bay', 'module_type__manufacturer', 'tags',

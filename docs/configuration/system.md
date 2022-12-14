@@ -157,6 +157,14 @@ The file path to the location where [custom scripts](../customization/custom-scr
 
 ---
 
+## SEARCH_BACKEND
+
+Default: `'netbox.search.backends.CachedValueSearchBackend'`
+
+The dotted path to the desired search backend class. `CachedValueSearchBackend` is currently the only search backend provided in NetBox, however this setting can be used to enable a custom backend. 
+
+---
+
 ## STORAGE_BACKEND
 
 Default: None (local storage)

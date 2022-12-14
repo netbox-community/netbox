@@ -71,13 +71,13 @@ To learn more about this feature, check out the [export template documentation](
 
 NetBox administrators can install custom Python scripts, known as _reports_, which run within NetBox and can be executed and analyzed within the NetBox UI. Reports are a great way to evaluate NetBox objects against a set of arbitrary rules. For example, you could write a report to check that every router has a loopback interface with an IP address assigned, or that every site has a minimum set of VLANs defined.
 
-When a report runs, its logs messages pertaining to the operations being performed, and will ultimately result in either a pass or fail. Reports can be executed via the UI, REST API, or CLI (as a management command).
+When a report runs, its logs messages pertaining to the operations being performed, and will ultimately result in either a pass or fail. Reports can be executed via the UI, REST API, or CLI (as a management command). They can be run immediately or scheduled to run at a future time.
 
 To learn more about this feature, check out the [documentation for reports](../customization/reports.md).
 
 ## Custom Scripts
 
-Custom scripts are similar to reports, but more powerful. A custom script can prompt the user for input via a form (or API data), and is built to do much more than just reporting. Custom scripts are generally used to automate tasks, such as the population of new objects in NetBox, or exchanging data with external systems.
+Custom scripts are similar to reports, but more powerful. A custom script can prompt the user for input via a form (or API data), and is built to do much more than just reporting. Custom scripts are generally used to automate tasks, such as the population of new objects in NetBox, or exchanging data with external systems. As with reports, they can be run via the UI, REST API, or CLI, and be scheduled to execute at a future time.
 
 The complete Python environment is available to a custom script, including all of NetBox's internal mechanisms: There are no artificial restrictions on what a script can do. As such, custom scripting is considered an advanced feature and requires sufficient familiarity with Python and NetBox's data model.
 

@@ -38,6 +38,7 @@ class VRFTable(TenancyColumnsMixin, NetBoxTable):
         template_code=VRF_TARGETS,
         orderable=False
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:vrf_list'
     )
@@ -45,8 +46,8 @@ class VRFTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VRF
         fields = (
-            'pk', 'id', 'name', 'rd', 'tenant', 'tenant_group', 'enforce_unique', 'description', 'import_targets', 'export_targets',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'rd', 'tenant', 'tenant_group', 'enforce_unique', 'import_targets', 'export_targets',
+            'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'rd', 'tenant', 'description')
 
@@ -59,11 +60,14 @@ class RouteTargetTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:vrf_list'
     )
 
     class Meta(NetBoxTable.Meta):
         model = RouteTarget
-        fields = ('pk', 'id', 'name', 'tenant', 'tenant_group', 'description', 'tags', 'created', 'last_updated',)
+        fields = (
+            'pk', 'id', 'name', 'tenant', 'tenant_group', 'description', 'comments', 'tags', 'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'tenant', 'description')

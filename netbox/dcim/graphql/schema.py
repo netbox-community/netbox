@@ -2,6 +2,7 @@ import graphene
 
 from netbox.graphql.fields import ObjectField, ObjectListField
 from .types import *
+from .types import VirtualDeviceContextType
 
 
 class DCIMQuery(graphene.ObjectType):
@@ -121,3 +122,6 @@ class DCIMQuery(graphene.ObjectType):
 
     virtual_chassis = ObjectField(VirtualChassisType)
     virtual_chassis_list = ObjectListField(VirtualChassisType)
+
+    virtual_device_context = ObjectField(VirtualDeviceContextType)
+    virtual_device_context_list = ObjectListField(VirtualDeviceContextType)

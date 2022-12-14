@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.translation import gettext as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
@@ -52,7 +53,7 @@ class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="Physical label"
+        help_text=_("Physical label")
     )
     description = models.CharField(
         max_length=200,
@@ -61,6 +62,13 @@ class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
 
     class Meta:
         abstract = True
+        ordering = ('device_type', '_name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device_type', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_type_name'
+            ),
+        )
 
     def __str__(self):
         if self.label:
@@ -100,6 +108,17 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
 
     class Meta:
         abstract = True
+        ordering = ('device_type', 'module_type', '_name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device_type', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_type_name'
+            ),
+            models.UniqueConstraint(
+                fields=('module_type', 'name'),
+                name='%(app_label)s_%(class)s_unique_module_type_name'
+            ),
+        )
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
@@ -145,13 +164,6 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
 
     component_model = ConsolePort
 
-    class Meta:
-        ordering = ('device_type', 'module_type', '_name')
-        unique_together = (
-            ('device_type', 'name'),
-            ('module_type', 'name'),
-        )
-
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
@@ -180,13 +192,6 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
     )
 
     component_model = ConsoleServerPort
-
-    class Meta:
-        ordering = ('device_type', 'module_type', '_name')
-        unique_together = (
-            ('device_type', 'name'),
-            ('module_type', 'name'),
-        )
 
     def instantiate(self, **kwargs):
         return self.component_model(
@@ -218,23 +223,16 @@ class PowerPortTemplate(ModularComponentTemplateModel):
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Maximum power draw (watts)"
+        help_text=_("Maximum power draw (watts)")
     )
     allocated_draw = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Allocated power draw (watts)"
+        help_text=_("Allocated power draw (watts)")
     )
 
     component_model = PowerPort
-
-    class Meta:
-        ordering = ('device_type', 'module_type', '_name')
-        unique_together = (
-            ('device_type', 'name'),
-            ('module_type', 'name'),
-        )
 
     def instantiate(self, **kwargs):
         return self.component_model(
@@ -286,17 +284,10 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         max_length=50,
         choices=PowerOutletFeedLegChoices,
         blank=True,
-        help_text="Phase (for three-phase feeds)"
+        help_text=_("Phase (for three-phase feeds)")
     )
 
     component_model = PowerOutlet
-
-    class Meta:
-        ordering = ('device_type', 'module_type', '_name')
-        unique_together = (
-            ('device_type', 'name'),
-            ('module_type', 'name'),
-        )
 
     def clean(self):
         super().clean()
@@ -372,13 +363,6 @@ class InterfaceTemplate(ModularComponentTemplateModel):
 
     component_model = Interface
 
-    class Meta:
-        ordering = ('device_type', 'module_type', '_name')
-        unique_together = (
-            ('device_type', 'name'),
-            ('module_type', 'name'),
-        )
-
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
@@ -428,12 +412,20 @@ class FrontPortTemplate(ModularComponentTemplateModel):
 
     component_model = FrontPort
 
-    class Meta:
-        ordering = ('device_type', 'module_type', '_name')
-        unique_together = (
-            ('device_type', 'name'),
-            ('module_type', 'name'),
-            ('rear_port', 'rear_port_position'),
+    class Meta(ModularComponentTemplateModel.Meta):
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device_type', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_type_name'
+            ),
+            models.UniqueConstraint(
+                fields=('module_type', 'name'),
+                name='%(app_label)s_%(class)s_unique_module_type_name'
+            ),
+            models.UniqueConstraint(
+                fields=('rear_port', 'rear_port_position'),
+                name='%(app_label)s_%(class)s_unique_rear_port_position'
+            ),
         )
 
     def clean(self):
@@ -507,13 +499,6 @@ class RearPortTemplate(ModularComponentTemplateModel):
 
     component_model = RearPort
 
-    class Meta:
-        ordering = ('device_type', 'module_type', '_name')
-        unique_together = (
-            ('device_type', 'name'),
-            ('module_type', 'name'),
-        )
-
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
@@ -542,14 +527,10 @@ class ModuleBayTemplate(ComponentTemplateModel):
     position = models.CharField(
         max_length=30,
         blank=True,
-        help_text='Identifier to reference when renaming installed components'
+        help_text=_('Identifier to reference when renaming installed components')
     )
 
     component_model = ModuleBay
-
-    class Meta:
-        ordering = ('device_type', '_name')
-        unique_together = ('device_type', 'name')
 
     def instantiate(self, device):
         return self.component_model(
@@ -573,10 +554,6 @@ class DeviceBayTemplate(ComponentTemplateModel):
     A template for a DeviceBay to be created for a new parent Device.
     """
     component_model = DeviceBay
-
-    class Meta:
-        ordering = ('device_type', '_name')
-        unique_together = ('device_type', 'name')
 
     def instantiate(self, device):
         return self.component_model(
@@ -645,7 +622,7 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
         max_length=50,
         verbose_name='Part ID',
         blank=True,
-        help_text='Manufacturer-assigned part identifier'
+        help_text=_('Manufacturer-assigned part identifier')
     )
 
     objects = TreeManager()
@@ -653,7 +630,12 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
 
     class Meta:
         ordering = ('device_type__id', 'parent__id', '_name')
-        unique_together = ('device_type', 'parent', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device_type', 'parent', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_type_parent_name'
+            ),
+        )
 
     def instantiate(self, **kwargs):
         parent = InventoryItem.objects.get(name=self.parent.name, **kwargs) if self.parent else None

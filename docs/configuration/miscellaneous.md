@@ -141,6 +141,22 @@ When determining the primary IP address for a device, IPv6 is preferred over IPv
 
 ---
 
+## QUEUE_MAPPINGS
+
+Allows changing which queues are used internally for background tasks.
+
+```python
+QUEUE_MAPPINGS = {
+    'webhook': 'low',
+    'report': 'high',
+    'script': 'high',
+}
+```
+
+If no queue is defined the queue named `default` will be used.
+
+---
+
 ## RELEASE_CHECK_URL
 
 Default: None (disabled)

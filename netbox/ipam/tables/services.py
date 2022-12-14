@@ -17,13 +17,16 @@ class ServiceTemplateTable(NetBoxTable):
         accessor=tables.A('port_list'),
         order_by=tables.A('ports'),
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:servicetemplate_list'
     )
 
     class Meta(NetBoxTable.Meta):
         model = ServiceTemplate
-        fields = ('pk', 'id', 'name', 'protocol', 'ports', 'description', 'tags')
+        fields = (
+            'pk', 'id', 'name', 'protocol', 'ports', 'description', 'comments', 'tags', 'created', 'last_updated',
+        )
         default_columns = ('pk', 'name', 'protocol', 'ports', 'description')
 
 
@@ -39,6 +42,7 @@ class ServiceTable(NetBoxTable):
         accessor=tables.A('port_list'),
         order_by=tables.A('ports'),
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:service_list'
     )
@@ -46,7 +50,7 @@ class ServiceTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Service
         fields = (
-            'pk', 'id', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'tags', 'created',
-            'last_updated',
+            'pk', 'id', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
+            'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'parent', 'protocol', 'ports', 'description')

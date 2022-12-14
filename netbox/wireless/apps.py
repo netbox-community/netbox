@@ -5,4 +5,4 @@ class WirelessConfig(AppConfig):
     name = 'wireless'
 
     def ready(self):
-        import wireless.signals
+        from . import signals, search

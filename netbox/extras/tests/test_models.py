@@ -21,32 +21,32 @@ class ConfigContextTest(TestCase):
 
     It also ensures the various config context querysets are consistent.
     """
-
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
 
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        self.devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
-        self.devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
-        self.region = Region.objects.create(name="Region")
-        self.sitegroup = SiteGroup.objects.create(name="Site Group")
-        self.site = Site.objects.create(name='Site 1', slug='site-1', region=self.region, group=self.sitegroup)
-        self.location = Location.objects.create(name='Location 1', slug='location-1', site=self.site)
-        self.platform = Platform.objects.create(name="Platform")
-        self.tenantgroup = TenantGroup.objects.create(name="Tenant Group")
-        self.tenant = Tenant.objects.create(name="Tenant", group=self.tenantgroup)
-        self.tag = Tag.objects.create(name="Tag", slug="tag")
-        self.tag2 = Tag.objects.create(name="Tag2", slug="tag2")
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        region = Region.objects.create(name='Region')
+        sitegroup = SiteGroup.objects.create(name='Site Group')
+        site = Site.objects.create(name='Site 1', slug='site-1', region=region, group=sitegroup)
+        location = Location.objects.create(name='Location 1', slug='location-1', site=site)
+        platform = Platform.objects.create(name='Platform')
+        tenantgroup = TenantGroup.objects.create(name='Tenant Group')
+        tenant = Tenant.objects.create(name='Tenant', group=tenantgroup)
+        tag1 = Tag.objects.create(name='Tag', slug='tag')
+        tag2 = Tag.objects.create(name='Tag2', slug='tag2')
 
-        self.device = Device.objects.create(
+        Device.objects.create(
             name='Device 1',
-            device_type=self.devicetype,
-            device_role=self.devicerole,
-            site=self.site,
-            location=self.location
+            device_type=devicetype,
+            device_role=devicerole,
+            site=site,
+            location=location
         )
 
     def test_higher_weight_wins(self):
-
+        device = Device.objects.first()
         context1 = ConfigContext(
             name="context 1",
             weight=101,
@@ -72,10 +72,10 @@ class ConfigContextTest(TestCase):
             "b": 456,
             "c": 777
         }
-        self.assertEqual(self.device.get_config_context(), expected_data)
+        self.assertEqual(device.get_config_context(), expected_data)
 
     def test_name_ordering_after_weight(self):
-
+        device = Device.objects.first()
         context1 = ConfigContext(
             name="context 1",
             weight=100,
@@ -101,13 +101,14 @@ class ConfigContextTest(TestCase):
             "b": 456,
             "c": 789
         }
-        self.assertEqual(self.device.get_config_context(), expected_data)
+        self.assertEqual(device.get_config_context(), expected_data)
 
     def test_annotation_same_as_get_for_object(self):
         """
-        This test incorperates features from all of the above tests cases to ensure
+        This test incorporates features from all of the above tests cases to ensure
         the annotate_config_context_data() and get_for_object() queryset methods are the same.
         """
+        device = Device.objects.first()
         context1 = ConfigContext(
             name="context 1",
             weight=101,
@@ -142,10 +143,19 @@ class ConfigContextTest(TestCase):
         )
         ConfigContext.objects.bulk_create([context1, context2, context3, context4])
 
-        annotated_queryset = Device.objects.filter(name=self.device.name).annotate_config_context_data()
-        self.assertEqual(self.device.get_config_context(), annotated_queryset[0].get_config_context())
+        annotated_queryset = Device.objects.filter(name=device.name).annotate_config_context_data()
+        self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
 
     def test_annotation_same_as_get_for_object_device_relations(self):
+        region = Region.objects.first()
+        sitegroup = SiteGroup.objects.first()
+        site = Site.objects.first()
+        location = Location.objects.first()
+        platform = Platform.objects.first()
+        tenantgroup = TenantGroup.objects.first()
+        tenant = Tenant.objects.first()
+        tag = Tag.objects.first()
+
         region_context = ConfigContext.objects.create(
             name="region",
             weight=100,
@@ -153,7 +163,8 @@ class ConfigContextTest(TestCase):
                 "region": 1
             }
         )
-        region_context.regions.add(self.region)
+        region_context.regions.add(region)
+
         sitegroup_context = ConfigContext.objects.create(
             name="sitegroup",
             weight=100,
@@ -161,7 +172,8 @@ class ConfigContextTest(TestCase):
                 "sitegroup": 1
             }
         )
-        sitegroup_context.site_groups.add(self.sitegroup)
+        sitegroup_context.site_groups.add(sitegroup)
+
         site_context = ConfigContext.objects.create(
             name="site",
             weight=100,
@@ -169,7 +181,8 @@ class ConfigContextTest(TestCase):
                 "site": 1
             }
         )
-        site_context.sites.add(self.site)
+        site_context.sites.add(site)
+
         location_context = ConfigContext.objects.create(
             name="location",
             weight=100,
@@ -177,7 +190,8 @@ class ConfigContextTest(TestCase):
                 "location": 1
             }
         )
-        location_context.locations.add(self.location)
+        location_context.locations.add(location)
+
         platform_context = ConfigContext.objects.create(
             name="platform",
             weight=100,
@@ -185,7 +199,8 @@ class ConfigContextTest(TestCase):
                 "platform": 1
             }
         )
-        platform_context.platforms.add(self.platform)
+        platform_context.platforms.add(platform)
+
         tenant_group_context = ConfigContext.objects.create(
             name="tenant group",
             weight=100,
@@ -193,7 +208,8 @@ class ConfigContextTest(TestCase):
                 "tenant_group": 1
             }
         )
-        tenant_group_context.tenant_groups.add(self.tenantgroup)
+        tenant_group_context.tenant_groups.add(tenantgroup)
+
         tenant_context = ConfigContext.objects.create(
             name="tenant",
             weight=100,
@@ -201,7 +217,8 @@ class ConfigContextTest(TestCase):
                 "tenant": 1
             }
         )
-        tenant_context.tenants.add(self.tenant)
+        tenant_context.tenants.add(tenant)
+
         tag_context = ConfigContext.objects.create(
             name="tag",
             weight=100,
@@ -209,23 +226,30 @@ class ConfigContextTest(TestCase):
                 "tag": 1
             }
         )
-        tag_context.tags.add(self.tag)
+        tag_context.tags.add(tag)
 
         device = Device.objects.create(
             name="Device 2",
-            site=self.site,
-            location=self.location,
-            tenant=self.tenant,
-            platform=self.platform,
-            device_role=self.devicerole,
-            device_type=self.devicetype
+            site=site,
+            location=location,
+            tenant=tenant,
+            platform=platform,
+            device_role=DeviceRole.objects.first(),
+            device_type=DeviceType.objects.first()
         )
-        device.tags.add(self.tag)
+        device.tags.add(tag)
 
         annotated_queryset = Device.objects.filter(name=device.name).annotate_config_context_data()
         self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
 
     def test_annotation_same_as_get_for_object_virtualmachine_relations(self):
+        region = Region.objects.first()
+        sitegroup = SiteGroup.objects.first()
+        site = Site.objects.first()
+        platform = Platform.objects.first()
+        tenantgroup = TenantGroup.objects.first()
+        tenant = Tenant.objects.first()
+        tag = Tag.objects.first()
         cluster_type = ClusterType.objects.create(name="Cluster Type")
         cluster_group = ClusterGroup.objects.create(name="Cluster Group")
         cluster = Cluster.objects.create(name="Cluster", group=cluster_group, type=cluster_type)
@@ -235,49 +259,49 @@ class ConfigContextTest(TestCase):
             weight=100,
             data={"region": 1}
         )
-        region_context.regions.add(self.region)
+        region_context.regions.add(region)
 
         sitegroup_context = ConfigContext.objects.create(
             name="sitegroup",
             weight=100,
             data={"sitegroup": 1}
         )
-        sitegroup_context.site_groups.add(self.sitegroup)
+        sitegroup_context.site_groups.add(sitegroup)
 
         site_context = ConfigContext.objects.create(
             name="site",
             weight=100,
             data={"site": 1}
         )
-        site_context.sites.add(self.site)
+        site_context.sites.add(site)
 
         platform_context = ConfigContext.objects.create(
             name="platform",
             weight=100,
             data={"platform": 1}
         )
-        platform_context.platforms.add(self.platform)
+        platform_context.platforms.add(platform)
 
         tenant_group_context = ConfigContext.objects.create(
             name="tenant group",
             weight=100,
             data={"tenant_group": 1}
         )
-        tenant_group_context.tenant_groups.add(self.tenantgroup)
+        tenant_group_context.tenant_groups.add(tenantgroup)
 
         tenant_context = ConfigContext.objects.create(
             name="tenant",
             weight=100,
             data={"tenant": 1}
         )
-        tenant_context.tenants.add(self.tenant)
+        tenant_context.tenants.add(tenant)
 
         tag_context = ConfigContext.objects.create(
             name="tag",
             weight=100,
             data={"tag": 1}
         )
-        tag_context.tags.add(self.tag)
+        tag_context.tags.add(tag)
 
         cluster_type_context = ConfigContext.objects.create(
             name="cluster type",
@@ -303,11 +327,11 @@ class ConfigContextTest(TestCase):
         virtual_machine = VirtualMachine.objects.create(
             name="VM 1",
             cluster=cluster,
-            tenant=self.tenant,
-            platform=self.platform,
-            role=self.devicerole
+            tenant=tenant,
+            platform=platform,
+            role=DeviceRole.objects.first()
         )
-        virtual_machine.tags.add(self.tag)
+        virtual_machine.tags.add(tag)
 
         annotated_queryset = VirtualMachine.objects.filter(name=virtual_machine.name).annotate_config_context_data()
         self.assertEqual(virtual_machine.get_config_context(), annotated_queryset[0].get_config_context())
@@ -315,12 +339,17 @@ class ConfigContextTest(TestCase):
     def test_multiple_tags_return_distinct_objects(self):
         """
         Tagged items use a generic relationship, which results in duplicate rows being returned when queried.
-        This is combatted by by appending distinct() to the config context querysets. This test creates a config
+        This is combated by appending distinct() to the config context querysets. This test creates a config
         context assigned to two tags and ensures objects related by those same two tags result in only a single
         config context record being returned.
 
         See https://github.com/netbox-community/netbox/issues/5314
         """
+        site = Site.objects.first()
+        platform = Platform.objects.first()
+        tenant = Tenant.objects.first()
+        tags = Tag.objects.all()
+
         tag_context = ConfigContext.objects.create(
             name="tag",
             weight=100,
@@ -328,19 +357,17 @@ class ConfigContextTest(TestCase):
                 "tag": 1
             }
         )
-        tag_context.tags.add(self.tag)
-        tag_context.tags.add(self.tag2)
+        tag_context.tags.set(tags)
 
         device = Device.objects.create(
             name="Device 3",
-            site=self.site,
-            tenant=self.tenant,
-            platform=self.platform,
-            device_role=self.devicerole,
-            device_type=self.devicetype
+            site=site,
+            tenant=tenant,
+            platform=platform,
+            device_role=DeviceRole.objects.first(),
+            device_type=DeviceType.objects.first()
         )
-        device.tags.add(self.tag)
-        device.tags.add(self.tag2)
+        device.tags.set(tags)
 
         annotated_queryset = Device.objects.filter(name=device.name).annotate_config_context_data()
         self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 1)
@@ -357,6 +384,11 @@ class ConfigContextTest(TestCase):
 
         See https://github.com/netbox-community/netbox/issues/5387
         """
+        site = Site.objects.first()
+        platform = Platform.objects.first()
+        tenant = Tenant.objects.first()
+        tag1, tag2 = list(Tag.objects.all())
+
         tag_context_1 = ConfigContext.objects.create(
             name="tag-1",
             weight=100,
@@ -364,7 +396,8 @@ class ConfigContextTest(TestCase):
                 "tag": 1
             }
         )
-        tag_context_1.tags.add(self.tag)
+        tag_context_1.tags.add(tag1)
+
         tag_context_2 = ConfigContext.objects.create(
             name="tag-2",
             weight=100,
@@ -372,18 +405,17 @@ class ConfigContextTest(TestCase):
                 "tag": 1
             }
         )
-        tag_context_2.tags.add(self.tag2)
+        tag_context_2.tags.add(tag2)
 
         device = Device.objects.create(
             name="Device 3",
-            site=self.site,
-            tenant=self.tenant,
-            platform=self.platform,
-            device_role=self.devicerole,
-            device_type=self.devicetype
+            site=site,
+            tenant=tenant,
+            platform=platform,
+            device_role=DeviceRole.objects.first(),
+            device_type=DeviceType.objects.first()
         )
-        device.tags.add(self.tag)
-        device.tags.add(self.tag2)
+        device.tags.set([tag1, tag2])
 
         annotated_queryset = Device.objects.filter(name=device.name).annotate_config_context_data()
         self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 2)

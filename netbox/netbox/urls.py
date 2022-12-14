@@ -14,7 +14,6 @@ from netbox.views import HomeView, StaticMediaFailureView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
 
-
 openapi_info = openapi.Info(
     title="NetBox API",
     default_version='v3',
@@ -100,5 +99,5 @@ urlpatterns = [
     path('{}'.format(settings.BASE_PATH), include(_patterns))
 ]
 
-handler404 = 'netbox.views.handler_404'
-handler500 = 'netbox.views.server_error'
+handler404 = 'netbox.views.errors.handler_404'
+handler500 = 'netbox.views.errors.handler_500'

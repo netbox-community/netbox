@@ -3,7 +3,7 @@ import logging
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from extras.registry import registry
+from netbox.registry import registry
 
 
 logger = logging.getLogger('netbox.denormalized')

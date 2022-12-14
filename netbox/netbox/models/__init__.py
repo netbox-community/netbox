@@ -1,16 +1,18 @@
+from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
+from netbox.models.features import *
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
-from netbox.models.features import *
 
 __all__ = (
     'ChangeLoggedModel',
     'NestedGroupModel',
-    'OrganizationalModel',
     'NetBoxModel',
+    'OrganizationalModel',
+    'PrimaryModel',
 )
 
 
@@ -20,19 +22,16 @@ class NetBoxFeatureSet(
     CustomLinksMixin,
     CustomValidationMixin,
     ExportTemplatesMixin,
+    JournalingMixin,
     TagsMixin,
     WebhooksMixin
 ):
     class Meta:
         abstract = True
 
-    @classmethod
-    def get_prerequisite_models(cls):
-        """
-        Return a list of model types that are required to create this model or empty list if none.  This is used for
-        showing prerequisite warnings in the UI on the list and detail views.
-        """
-        return []
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/'
 
 
 #
@@ -50,11 +49,27 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, models.Model)
         abstract = True
 
 
-class NetBoxModel(CloningMixin, JournalingMixin, NetBoxFeatureSet, models.Model):
+class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
+    """
+    Base model for most object types. Suitable for use by plugins.
+    """
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        abstract = True
+
+
+class PrimaryModel(NetBoxModel):
     """
     Primary models represent real objects within the infrastructure being modeled.
     """
-    objects = RestrictedQuerySet.as_manager()
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    comments = models.TextField(
+        blank=True
+    )
 
     class Meta:
         abstract = True
@@ -74,6 +89,9 @@ class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
         db_index=True
     )
     name = models.CharField(
+        max_length=100
+    )
+    slug = models.SlugField(
         max_length=100
     )
     description = models.CharField(
@@ -129,3 +147,6 @@ class OrganizationalModel(NetBoxFeatureSet, models.Model):
     class Meta:
         abstract = True
         ordering = ('name',)
+
+    def __str__(self):
+        return self.name

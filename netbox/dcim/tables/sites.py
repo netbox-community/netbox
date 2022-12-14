@@ -99,9 +99,9 @@ class SiteTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Site
         fields = (
-            'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'tenant_group', 'asns', 'asn_count',
-            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments',
-            'contacts', 'tags', 'created', 'last_updated', 'actions',
+            'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'tenant_group', 'asns',
+            'asn_count', 'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude',
+            'comments', 'contacts', 'tags', 'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'description')
 
