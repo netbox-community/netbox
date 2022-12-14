@@ -1,10 +1,11 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from dcim.choices import LinkStatusChoices
 from ipam.models import VLAN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import add_blank_choice, DynamicModelChoiceField
+from utilities.forms import add_blank_choice, CommentField, DynamicModelChoiceField, SmallTextarea
 from wireless.choices import *
 from wireless.constants import SSID_MAX_LENGTH
 from wireless.models import *
@@ -34,6 +35,10 @@ class WirelessLANGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
+    status = forms.ChoiceField(
+        choices=add_blank_choice(WirelessLANStatusChoices),
+        required=False
+    )
     group = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
@@ -41,18 +46,15 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='VLAN'
+        label=_('VLAN')
     )
     ssid = forms.CharField(
         max_length=SSID_MAX_LENGTH,
         required=False,
-        label='SSID'
+        label=_('SSID')
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
-        required=False
-    )
-    description = forms.CharField(
         required=False
     )
     auth_type = forms.ChoiceField(
@@ -65,16 +67,24 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
     )
     auth_psk = forms.CharField(
         required=False,
-        label='Pre-shared key'
+        label=_('Pre-shared key')
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = WirelessLAN
     fieldsets = (
-        (None, ('group', 'ssid', 'vlan', 'tenant', 'description')),
+        (None, ('group', 'ssid', 'status', 'vlan', 'tenant', 'description')),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
     )
     nullable_fields = (
-        'ssid', 'group', 'vlan', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
+        'ssid', 'group', 'vlan', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'comments',
     )
 
 
@@ -82,7 +92,7 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
     ssid = forms.CharField(
         max_length=SSID_MAX_LENGTH,
         required=False,
-        label='SSID'
+        label=_('SSID')
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(LinkStatusChoices),
@@ -92,9 +102,6 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    description = forms.CharField(
-        required=False
-    )
     auth_type = forms.ChoiceField(
         choices=add_blank_choice(WirelessAuthTypeChoices),
         required=False
@@ -105,7 +112,15 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
     )
     auth_psk = forms.CharField(
         required=False,
-        label='Pre-shared key'
+        label=_('Pre-shared key')
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     model = WirelessLink
@@ -114,5 +129,5 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk'))
     )
     nullable_fields = (
-        'ssid', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
+        'ssid', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'comments',
     )

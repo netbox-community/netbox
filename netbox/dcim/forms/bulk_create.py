@@ -1,6 +1,7 @@
 from django import forms
 
 from dcim.models import *
+from django.utils.translation import gettext as _
 from extras.forms import CustomFieldsMixin
 from extras.models import Tag
 from utilities.forms import BootstrapMixin, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model
@@ -105,9 +106,9 @@ class ModuleBayBulkCreateForm(DeviceBulkAddComponentForm):
     field_order = ('name', 'label', 'position_pattern', 'description', 'tags')
     replication_fields = ('name', 'label', 'position')
     position_pattern = ExpandableNameField(
-        label='Position',
+        label=_('Position'),
         required=False,
-        help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
+        help_text=_('Alphanumeric ranges are supported. (Must match the number of names being created.)')
     )
 
 

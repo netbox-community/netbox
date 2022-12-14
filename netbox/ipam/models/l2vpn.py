@@ -1,4 +1,3 @@
-from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -8,7 +7,7 @@ from django.utils.functional import cached_property
 
 from ipam.choices import L2VPNTypeChoices
 from ipam.constants import L2VPN_ASSIGNMENT_MODELS
-from netbox.models import NetBoxModel
+from netbox.models import NetBoxModel, PrimaryModel
 
 __all__ = (
     'L2VPN',
@@ -16,7 +15,7 @@ __all__ = (
 )
 
 
-class L2VPN(NetBoxModel):
+class L2VPN(PrimaryModel):
     name = models.CharField(
         max_length=100,
         unique=True
@@ -41,10 +40,6 @@ class L2VPN(NetBoxModel):
     export_targets = models.ManyToManyField(
         to='ipam.RouteTarget',
         related_name='exporting_l2vpns',
-        blank=True
-    )
-    description = models.CharField(
-        max_length=200,
         blank=True
     )
     tenant = models.ForeignKey(
@@ -99,6 +94,9 @@ class L2VPNTermination(NetBoxModel):
     )
 
     clone_fields = ('l2vpn',)
+    prerequisite_models = (
+        'ipam.L2VPN',
+    )
 
     class Meta:
         ordering = ('l2vpn',)
@@ -114,10 +112,6 @@ class L2VPNTermination(NetBoxModel):
         if self.pk is not None:
             return f'{self.assigned_object} <> {self.l2vpn}'
         return super().__str__()
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [apps.get_model('ipam.L2VPN'), ]
 
     def get_absolute_url(self):
         return reverse('ipam:l2vpntermination', args=[self.pk])

@@ -4,7 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 
-from netbox.models import ChangeLoggedModel, NetBoxModel
+from netbox.models import ChangeLoggedModel, PrimaryModel
 from netbox.models.features import WebhooksMixin
 from ipam.choices import *
 from ipam.constants import *
@@ -15,12 +15,16 @@ __all__ = (
 )
 
 
-class FHRPGroup(NetBoxModel):
+class FHRPGroup(PrimaryModel):
     """
     A grouping of next hope resolution protocol (FHRP) peers. (For instance, VRRP or HSRP.)
     """
     group_id = models.PositiveSmallIntegerField(
         verbose_name='Group ID'
+    )
+    name = models.CharField(
+        max_length=100,
+        blank=True
     )
     protocol = models.CharField(
         max_length=50,
@@ -37,10 +41,6 @@ class FHRPGroup(NetBoxModel):
         blank=True,
         verbose_name='Authentication key'
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',
         content_type_field='assigned_object_type',
@@ -55,7 +55,11 @@ class FHRPGroup(NetBoxModel):
         verbose_name = 'FHRP group'
 
     def __str__(self):
-        name = f'{self.get_protocol_display()}: {self.group_id}'
+        name = ''
+        if self.name:
+            name = f'{self.name} '
+
+        name += f'{self.get_protocol_display()}: {self.group_id}'
 
         # Append the first assigned IP addresses (if any) to serve as an additional identifier
         if self.pk:
@@ -94,7 +98,12 @@ class FHRPGroupAssignment(WebhooksMixin, ChangeLoggedModel):
 
     class Meta:
         ordering = ('-priority', 'pk')
-        unique_together = ('interface_type', 'interface_id', 'group')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('interface_type', 'interface_id', 'group'),
+                name='%(app_label)s_%(class)s_unique_interface_group'
+            ),
+        )
         verbose_name = 'FHRP group assignment'
 
     def __str__(self):

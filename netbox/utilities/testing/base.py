@@ -1,8 +1,10 @@
+import json
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import ManyToManyField
+from django.db.models import ManyToManyField, JSONField
 from django.forms.models import model_to_dict
 from django.test import Client, TestCase as _TestCase
 from netaddr import IPNetwork
@@ -131,6 +133,10 @@ class ModelTestCase(TestCase):
                 # Convert ArrayFields to CSV strings
                 if type(instance._meta.get_field(key)) is ArrayField:
                     model_dict[key] = ','.join([str(v) for v in value])
+
+                # JSON
+                if type(instance._meta.get_field(key)) is JSONField and value is not None:
+                    model_dict[key] = json.dumps(value)
 
         return model_dict
 

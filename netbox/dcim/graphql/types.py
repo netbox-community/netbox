@@ -2,7 +2,7 @@ import graphene
 
 from dcim import filtersets, models
 from extras.graphql.mixins import (
-    ChangelogMixin, ConfigContextMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin,
+    ChangelogMixin, ConfigContextMixin, ContactsMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin,
 )
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
@@ -87,6 +87,8 @@ class ComponentTemplateObjectType(
 #
 
 class CableType(NetBoxObjectType):
+    a_terminations = graphene.List('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
+    b_terminations = graphene.List('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
 
     class Meta:
         model = models.Cable
@@ -99,12 +101,19 @@ class CableType(NetBoxObjectType):
     def resolve_length_unit(self, info):
         return self.length_unit or None
 
+    def resolve_a_terminations(self, info):
+        return self.a_terminations
+
+    def resolve_b_terminations(self, info):
+        return self.b_terminations
+
 
 class CableTerminationType(NetBoxObjectType):
+    termination = graphene.Field('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
 
     class Meta:
         model = models.CableTermination
-        fields = '__all__'
+        exclude = ('termination_type', 'termination_id')
         filterset_class = filtersets.CableTerminationFilterSet
 
 
@@ -152,7 +161,7 @@ class ConsoleServerPortTemplateType(ComponentTemplateObjectType):
         return self.type or None
 
 
-class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, NetBoxObjectType):
+class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
 
     class Meta:
         model = models.Device
@@ -183,10 +192,11 @@ class DeviceBayTemplateType(ComponentTemplateObjectType):
 
 
 class InventoryItemTemplateType(ComponentTemplateObjectType):
+    component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemTemplateComponentType')
 
     class Meta:
         model = models.InventoryItemTemplate
-        fields = '__all__'
+        exclude = ('component_type', 'component_id')
         filterset_class = filtersets.InventoryItemTemplateFilterSet
 
 
@@ -210,6 +220,9 @@ class DeviceTypeType(NetBoxObjectType):
 
     def resolve_airflow(self, info):
         return self.airflow or None
+
+    def resolve_weight_unit(self, info):
+        return self.weight_unit or None
 
 
 class FrontPortType(ComponentObjectType, CabledObjectMixin):
@@ -266,10 +279,11 @@ class InterfaceTemplateType(ComponentTemplateObjectType):
 
 
 class InventoryItemType(ComponentObjectType):
+    component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemComponentType')
 
     class Meta:
         model = models.InventoryItem
-        fields = '__all__'
+        exclude = ('component_type', 'component_id')
         filterset_class = filtersets.InventoryItemFilterSet
 
 
@@ -281,7 +295,7 @@ class InventoryItemRoleType(OrganizationalObjectType):
         filterset_class = filtersets.InventoryItemRoleFilterSet
 
 
-class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, OrganizationalObjectType):
+class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, OrganizationalObjectType):
 
     class Meta:
         model = models.Location
@@ -289,7 +303,7 @@ class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, OrganizationalObjectT
         filterset_class = filtersets.LocationFilterSet
 
 
-class ManufacturerType(OrganizationalObjectType):
+class ManufacturerType(OrganizationalObjectType, ContactsMixin):
 
     class Meta:
         model = models.Manufacturer
@@ -327,6 +341,9 @@ class ModuleTypeType(NetBoxObjectType):
         model = models.ModuleType
         fields = '__all__'
         filterset_class = filtersets.ModuleTypeFilterSet
+
+    def resolve_weight_unit(self, info):
+        return self.weight_unit or None
 
 
 class PlatformType(OrganizationalObjectType):
@@ -373,7 +390,7 @@ class PowerOutletTemplateType(ComponentTemplateObjectType):
         return self.type or None
 
 
-class PowerPanelType(NetBoxObjectType):
+class PowerPanelType(NetBoxObjectType, ContactsMixin):
 
     class Meta:
         model = models.PowerPanel
@@ -403,7 +420,7 @@ class PowerPortTemplateType(ComponentTemplateObjectType):
         return self.type or None
 
 
-class RackType(VLANGroupsMixin, ImageAttachmentsMixin, NetBoxObjectType):
+class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
 
     class Meta:
         model = models.Rack
@@ -415,6 +432,9 @@ class RackType(VLANGroupsMixin, ImageAttachmentsMixin, NetBoxObjectType):
 
     def resolve_outer_unit(self, info):
         return self.outer_unit or None
+
+    def resolve_weight_unit(self, info):
+        return self.weight_unit or None
 
 
 class RackReservationType(NetBoxObjectType):
@@ -449,7 +469,7 @@ class RearPortTemplateType(ComponentTemplateObjectType):
         filterset_class = filtersets.RearPortTemplateFilterSet
 
 
-class RegionType(VLANGroupsMixin, OrganizationalObjectType):
+class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
 
     class Meta:
         model = models.Region
@@ -457,7 +477,7 @@ class RegionType(VLANGroupsMixin, OrganizationalObjectType):
         filterset_class = filtersets.RegionFilterSet
 
 
-class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, NetBoxObjectType):
+class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
     asn = graphene.Field(BigInt)
 
     class Meta:
@@ -466,7 +486,7 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, NetBoxObjectType):
         filterset_class = filtersets.SiteFilterSet
 
 
-class SiteGroupType(VLANGroupsMixin, OrganizationalObjectType):
+class SiteGroupType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
 
     class Meta:
         model = models.SiteGroup
@@ -480,3 +500,11 @@ class VirtualChassisType(NetBoxObjectType):
         model = models.VirtualChassis
         fields = '__all__'
         filterset_class = filtersets.VirtualChassisFilterSet
+
+
+class VirtualDeviceContextType(NetBoxObjectType):
+
+    class Meta:
+        model = models.VirtualDeviceContext
+        fields = '__all__'
+        filterset_class = filtersets.VirtualDeviceContextFilterSet

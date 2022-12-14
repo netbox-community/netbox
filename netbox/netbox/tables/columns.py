@@ -29,6 +29,7 @@ __all__ = (
     'ContentTypesColumn',
     'CustomFieldColumn',
     'CustomLinkColumn',
+    'DurationColumn',
     'LinkedCountColumn',
     'MarkdownColumn',
     'ManyToManyColumn',
@@ -80,6 +81,24 @@ class DateTimeColumn(tables.DateTimeColumn):
     def from_field(cls, field, **kwargs):
         if isinstance(field, DateTimeField):
             return cls(**kwargs)
+
+
+class DurationColumn(tables.Column):
+    """
+    Express a duration of time (in minutes) in a human-friendly format. Example: 437 minutes becomes "7h 17m"
+    """
+    def render(self, value):
+        ret = ''
+        if days := value // 1440:
+            ret += f'{days}d '
+        if hours := value % 1440 // 60:
+            ret += f'{hours}h '
+        if minutes := value % 60:
+            ret += f'{minutes}m'
+        return ret.strip()
+
+    def value(self, value):
+        return value
 
 
 class ManyToManyColumn(tables.ManyToManyColumn):
@@ -305,7 +324,7 @@ class ContentTypeColumn(tables.Column):
     def render(self, value):
         if value is None:
             return None
-        return content_type_name(value)
+        return content_type_name(value, include_app=False)
 
     def value(self, value):
         if value is None:
@@ -324,7 +343,7 @@ class ContentTypesColumn(tables.ManyToManyColumn):
         super().__init__(separator=separator, *args, **kwargs)
 
     def transform(self, obj):
-        return content_type_name(obj)
+        return content_type_name(obj, include_app=False)
 
     def value(self, value):
         return ','.join([

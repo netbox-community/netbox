@@ -13,6 +13,7 @@ __all__ = [
     'NestedImageAttachmentSerializer',
     'NestedJobResultSerializer',
     'NestedJournalEntrySerializer',
+    'NestedSavedFilterSerializer',
     'NestedTagSerializer',  # Defined in netbox.api.serializers
     'NestedWebhookSerializer',
 ]
@@ -56,6 +57,14 @@ class NestedExportTemplateSerializer(WritableNestedSerializer):
     class Meta:
         model = models.ExportTemplate
         fields = ['id', 'url', 'display', 'name']
+
+
+class NestedSavedFilterSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:savedfilter-detail')
+
+    class Meta:
+        model = models.SavedFilter
+        fields = ['id', 'url', 'display', 'name', 'slug']
 
 
 class NestedImageAttachmentSerializer(WritableNestedSerializer):

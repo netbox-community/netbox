@@ -63,6 +63,14 @@
             <td>{{ object.module_type|linkify }}</td>
           </tr>
           <tr>
+            <th scope="row">Status</th>
+            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
             <th scope="row">Serial Number</th>
             <td class="font-monospace">{{ object.serial|placeholder }}</td>
           </tr>

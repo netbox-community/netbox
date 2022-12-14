@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -115,6 +116,10 @@ class ConfigContext(WebhooksMixin, ChangeLoggedModel):
 
     def get_absolute_url(self):
         return reverse('extras:configcontext', kwargs={'pk': self.pk})
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/configcontext/'
 
     def clean(self):
         super().clean()

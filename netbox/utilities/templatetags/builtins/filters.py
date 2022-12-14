@@ -11,7 +11,7 @@ from markdown import markdown
 
 from netbox.config import get_config
 from utilities.markdown import StrikethroughExtension
-from utilities.utils import clean_html, foreground_color
+from utilities.utils import clean_html, foreground_color, title
 
 register = template.Library()
 
@@ -46,7 +46,7 @@ def bettertitle(value):
     Alternative to the builtin title(). Ensures that the first letter of each word is uppercase but retains the
     original case of all others.
     """
-    return ' '.join([w[0].upper() + w[1:] for w in value.split()])
+    return title(value)
 
 
 @register.filter()

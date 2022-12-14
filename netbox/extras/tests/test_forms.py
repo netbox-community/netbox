@@ -23,6 +23,9 @@ class CustomFieldModelFormTest(TestCase):
         cf_integer = CustomField.objects.create(name='integer', type=CustomFieldTypeChoices.TYPE_INTEGER)
         cf_integer.content_types.set([obj_type])
 
+        cf_integer = CustomField.objects.create(name='decimal', type=CustomFieldTypeChoices.TYPE_DECIMAL)
+        cf_integer.content_types.set([obj_type])
+
         cf_boolean = CustomField.objects.create(name='boolean', type=CustomFieldTypeChoices.TYPE_BOOLEAN)
         cf_boolean.content_types.set([obj_type])
 

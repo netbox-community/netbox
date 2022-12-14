@@ -1,5 +1,7 @@
 {% extends 'base/layout.html' %}
 {% load helpers %}
+{% load buttons %}
+{% load perms %}
 
 {% block title %}{{ script }}{% endblock %}
 
@@ -23,6 +25,16 @@
   {{ block.super }}
 {% endblock header %}
 
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% if request.user|can_delete:result %}
+        {% delete_button result %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock controls %}
+
 {% block content-wrapper %}
   <ul class="nav nav-tabs px-3" role="tablist">
     <li class="nav-item" role="presentation">
@@ -35,7 +47,7 @@
   <div class="tab-content mb-3">
     <div role="tabpanel" class="tab-pane active" id="log">
       <div class="row">
-        <div class="col col-md-12"{% if not result.completed %} hx-get="{% url 'extras:script_result' job_result_pk=result.pk %}" hx-trigger="every 3s"{% endif %}>
+        <div class="col col-md-12"{% if not result.completed %} hx-get="{% url 'extras:script_result' job_result_pk=result.pk %}" hx-trigger="every 5s"{% endif %}>
           {% include 'extras/htmx/script_result.html' %}
         </div>
       </div>
@@ -46,3 +58,7 @@
     </div>
   </div>
 {% endblock content-wrapper %}
+
+{% block modals %}
+  {% include 'inc/htmx_modal.html' %}
+{% endblock modals %}

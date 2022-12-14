@@ -1,5 +1,6 @@
 import django_filters
 from django.db.models import Q
+from django.utils.translation import gettext as _
 
 from dcim.filtersets import CabledObjectFilterSet
 from dcim.models import Region, Site, SiteGroup
@@ -24,48 +25,48 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         queryset=Region.objects.all(),
         field_name='circuits__terminations__site__region',
         lookup_expr='in',
-        label='Region (ID)',
+        label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='circuits__terminations__site__region',
         lookup_expr='in',
         to_field_name='slug',
-        label='Region (slug)',
+        label=_('Region (slug)'),
     )
     site_group_id = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='circuits__terminations__site__group',
         lookup_expr='in',
-        label='Site group (ID)',
+        label=_('Site group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='circuits__terminations__site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label='Site group (slug)',
+        label=_('Site group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='circuits__terminations__site',
         queryset=Site.objects.all(),
-        label='Site',
+        label=_('Site'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='circuits__terminations__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site (slug)',
+        label=_('Site (slug)'),
     )
     asn_id = django_filters.ModelMultipleChoiceFilter(
         field_name='asns',
         queryset=ASN.objects.all(),
-        label='ASN (ID)',
+        label=_('ASN (ID)'),
     )
 
     class Meta:
         model = Provider
-        fields = ['id', 'name', 'slug', 'asn', 'account']
+        fields = ['id', 'name', 'slug', 'account']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -73,8 +74,6 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         return queryset.filter(
             Q(name__icontains=value) |
             Q(account__icontains=value) |
-            Q(noc_contact__icontains=value) |
-            Q(admin_contact__icontains=value) |
             Q(comments__icontains=value)
         )
 
@@ -82,13 +81,13 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
 class ProviderNetworkFilterSet(NetBoxModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
-        label='Provider (ID)',
+        label=_('Provider (ID)'),
     )
     provider = django_filters.ModelMultipleChoiceFilter(
         field_name='provider__slug',
         queryset=Provider.objects.all(),
         to_field_name='slug',
-        label='Provider (slug)',
+        label=_('Provider (slug)'),
     )
 
     class Meta:
@@ -116,28 +115,28 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
 class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
-        label='Provider (ID)',
+        label=_('Provider (ID)'),
     )
     provider = django_filters.ModelMultipleChoiceFilter(
         field_name='provider__slug',
         queryset=Provider.objects.all(),
         to_field_name='slug',
-        label='Provider (slug)',
+        label=_('Provider (slug)'),
     )
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         field_name='terminations__provider_network',
         queryset=ProviderNetwork.objects.all(),
-        label='ProviderNetwork (ID)',
+        label=_('ProviderNetwork (ID)'),
     )
     type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CircuitType.objects.all(),
-        label='Circuit type (ID)',
+        label=_('Circuit type (ID)'),
     )
     type = django_filters.ModelMultipleChoiceFilter(
         field_name='type__slug',
         queryset=CircuitType.objects.all(),
         to_field_name='slug',
-        label='Circuit type (slug)',
+        label=_('Circuit type (slug)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=CircuitStatusChoices,
@@ -147,38 +146,38 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
         queryset=Region.objects.all(),
         field_name='terminations__site__region',
         lookup_expr='in',
-        label='Region (ID)',
+        label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='terminations__site__region',
         lookup_expr='in',
         to_field_name='slug',
-        label='Region (slug)',
+        label=_('Region (slug)'),
     )
     site_group_id = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='terminations__site__group',
         lookup_expr='in',
-        label='Site group (ID)',
+        label=_('Site group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='terminations__site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label='Site group (slug)',
+        label=_('Site group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='terminations__site',
         queryset=Site.objects.all(),
-        label='Site (ID)',
+        label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='terminations__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site (slug)',
+        label=_('Site (slug)'),
     )
 
     class Meta:
@@ -201,25 +200,25 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
 class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     circuit_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Circuit.objects.all(),
-        label='Circuit',
+        label=_('Circuit'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
-        label='Site (ID)',
+        label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site (slug)',
+        label=_('Site (slug)'),
     )
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ProviderNetwork.objects.all(),
-        label='ProviderNetwork (ID)',
+        label=_('ProviderNetwork (ID)'),
     )
 
     class Meta:

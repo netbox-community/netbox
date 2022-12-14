@@ -4,7 +4,7 @@ bleach
 
 # The Python web framework on which NetBox is built
 # https://github.com/django/django
-Django<4.1
+Django<4.2
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/OttoYiu/django-cors-headers
@@ -68,7 +68,7 @@ drf-yasg[validation]
 
 # Django wrapper for Graphene (GraphQL support)
 # https://github.com/graphql-python/graphene-django
-graphene_django<3.0
+graphene_django
 
 # WSGI HTTP server
 # https://gunicorn.org/

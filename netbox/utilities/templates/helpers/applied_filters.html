@@ -10,5 +10,10 @@
         <i class="mdi mdi-tag-off"></i> Clear all
       </a>
     {% endif %}
+    {% if save_link %}
+      <a href="{{ save_link }}" class="badge rounded-pill bg-success text-decoration-none me-1">
+        <i class="mdi mdi-content-save"></i> Save
+      </a>
+    {% endif %}
   </div>
 {% endif %}

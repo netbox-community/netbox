@@ -64,9 +64,18 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         groups = (
-            WirelessLANGroup(name='Wireless LAN Group 1', slug='wireless-lan-group-1'),
-            WirelessLANGroup(name='Wireless LAN Group 2', slug='wireless-lan-group-2'),
-            WirelessLANGroup(name='Wireless LAN Group 3', slug='wireless-lan-group-3'),
+            WirelessLANGroup(
+                name='Wireless LAN Group 1',
+                slug='wireless-lan-group-1'
+            ),
+            WirelessLANGroup(
+                name='Wireless LAN Group 2',
+                slug='wireless-lan-group-2'
+            ),
+            WirelessLANGroup(
+                name='Wireless LAN Group 3',
+                slug='wireless-lan-group-3'
+            ),
         )
         for group in groups:
             group.save()
@@ -86,9 +95,36 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         wireless_lans = (
-            WirelessLAN(ssid='WLAN1', group=groups[0], vlan=vlans[0], tenant=tenants[0], auth_type=WirelessAuthTypeChoices.TYPE_OPEN, auth_cipher=WirelessAuthCipherChoices.CIPHER_AUTO, auth_psk='PSK1'),
-            WirelessLAN(ssid='WLAN2', group=groups[1], vlan=vlans[1], tenant=tenants[1], auth_type=WirelessAuthTypeChoices.TYPE_WEP, auth_cipher=WirelessAuthCipherChoices.CIPHER_TKIP, auth_psk='PSK2'),
-            WirelessLAN(ssid='WLAN3', group=groups[2], vlan=vlans[2], tenant=tenants[2], auth_type=WirelessAuthTypeChoices.TYPE_WPA_PERSONAL, auth_cipher=WirelessAuthCipherChoices.CIPHER_AES, auth_psk='PSK3'),
+            WirelessLAN(
+                ssid='WLAN1',
+                group=groups[0],
+                status=WirelessLANStatusChoices.STATUS_ACTIVE,
+                vlan=vlans[0],
+                tenant=tenants[0],
+                auth_type=WirelessAuthTypeChoices.TYPE_OPEN,
+                auth_cipher=WirelessAuthCipherChoices.CIPHER_AUTO,
+                auth_psk='PSK1'
+            ),
+            WirelessLAN(
+                ssid='WLAN2',
+                group=groups[1],
+                status=WirelessLANStatusChoices.STATUS_DISABLED,
+                vlan=vlans[1],
+                tenant=tenants[1],
+                auth_type=WirelessAuthTypeChoices.TYPE_WEP,
+                auth_cipher=WirelessAuthCipherChoices.CIPHER_TKIP,
+                auth_psk='PSK2'
+            ),
+            WirelessLAN(
+                ssid='WLAN3',
+                group=groups[2],
+                status=WirelessLANStatusChoices.STATUS_RESERVED,
+                vlan=vlans[2],
+                tenant=tenants[2],
+                auth_type=WirelessAuthTypeChoices.TYPE_WPA_PERSONAL,
+                auth_cipher=WirelessAuthCipherChoices.CIPHER_AES,
+                auth_psk='PSK3'
+            ),
         )
         WirelessLAN.objects.bulk_create(wireless_lans)
 
@@ -101,6 +137,10 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'group_id': [groups[0].pk, groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'group': [groups[0].slug, groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_status(self):
+        params = {'status': [WirelessLANStatusChoices.STATUS_ACTIVE, WirelessLANStatusChoices.STATUS_DISABLED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_vlan(self):

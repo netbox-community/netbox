@@ -1,72 +1,80 @@
+from django.utils.translation import gettext as _
 from dcim.choices import LinkStatusChoices
 from dcim.models import Interface
 from ipam.models import VLAN
-from netbox.forms import NetBoxModelCSVForm
+from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVModelChoiceField, SlugField
 from wireless.choices import *
 from wireless.models import *
 
 __all__ = (
-    'WirelessLANCSVForm',
-    'WirelessLANGroupCSVForm',
-    'WirelessLinkCSVForm',
+    'WirelessLANImportForm',
+    'WirelessLANGroupImportForm',
+    'WirelessLinkImportForm',
 )
 
 
-class WirelessLANGroupCSVForm(NetBoxModelCSVForm):
+class WirelessLANGroupImportForm(NetBoxModelImportForm):
     parent = CSVModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent group'
+        help_text=_('Parent group')
     )
     slug = SlugField()
 
     class Meta:
         model = WirelessLANGroup
-        fields = ('name', 'slug', 'parent', 'description')
+        fields = ('name', 'slug', 'parent', 'description', 'tags')
 
 
-class WirelessLANCSVForm(NetBoxModelCSVForm):
+class WirelessLANImportForm(NetBoxModelImportForm):
     group = CSVModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned group'
+        help_text=_('Assigned group')
+    )
+    status = CSVChoiceField(
+        choices=WirelessLANStatusChoices,
+        help_text='Operational status'
     )
     vlan = CSVModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Bridged VLAN'
+        help_text=_('Bridged VLAN')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     auth_type = CSVChoiceField(
         choices=WirelessAuthTypeChoices,
         required=False,
-        help_text='Authentication type'
+        help_text=_('Authentication type')
     )
     auth_cipher = CSVChoiceField(
         choices=WirelessAuthCipherChoices,
         required=False,
-        help_text='Authentication cipher'
+        help_text=_('Authentication cipher')
     )
 
     class Meta:
         model = WirelessLAN
-        fields = ('ssid', 'group', 'vlan', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk')
+        fields = (
+            'ssid', 'group', 'status', 'vlan', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description',
+            'comments', 'tags',
+        )
 
 
-class WirelessLinkCSVForm(NetBoxModelCSVForm):
+class WirelessLinkImportForm(NetBoxModelImportForm):
     status = CSVChoiceField(
         choices=LinkStatusChoices,
-        help_text='Connection status'
+        help_text=_('Connection status')
     )
     interface_a = CSVModelChoiceField(
         queryset=Interface.objects.all()
@@ -78,21 +86,22 @@ class WirelessLinkCSVForm(NetBoxModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     auth_type = CSVChoiceField(
         choices=WirelessAuthTypeChoices,
         required=False,
-        help_text='Authentication type'
+        help_text=_('Authentication type')
     )
     auth_cipher = CSVChoiceField(
         choices=WirelessAuthCipherChoices,
         required=False,
-        help_text='Authentication cipher'
+        help_text=_('Authentication cipher')
     )
 
     class Meta:
         model = WirelessLink
         fields = (
-            'interface_a', 'interface_b', 'ssid', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk',
+            'interface_a', 'interface_b', 'ssid', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description',
+            'comments', 'tags',
         )

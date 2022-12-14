@@ -1,0 +1,76 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'dcim:virtualdevicecontext_list' %}">Virtual Device Contexts</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        Virtual Device Context
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Device</th>
+            <td>{{ object.device|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Identifier</th>
+            <td>{{ object.identifier|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Primary IPv4</th>
+            <td>
+              {{ object.primary_ip4|linkify|placeholder }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Primary IPv6</th>
+            <td>
+              {{ object.primary_ip6|linkify|placeholder }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Tenant</th>
+            <td>
+              {% if object.tenant.group %}
+                {{ object.tenant.group|linkify }} /
+              {% endif %}
+              {{ object.tenant|linkify|placeholder }}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% plugin_left_page object %}
+  </div>
+  <div class="col col-md-6">
+    {% include 'inc/panels/comments.html' %}
+    {% include 'inc/panels/tags.html' %}
+    {% include 'inc/panels/custom_fields.html' %}
+    {% plugin_right_page object %}
+  </div>
+</div>
+<div class="row mb-3">
+  <div class="col col-md-12">
+    <div class="card">
+      <h5 class="card-header">Interfaces</h5>
+      <div class="card-body table-responsive">
+        {% render_table interfaces_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=interfaces_table.paginator page=interfaces_table.page %}
+      </div>
+    </div>
+    {% plugin_full_width_page object %}
+  </div>
+</div>
+{% endblock %}

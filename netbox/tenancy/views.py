@@ -1,12 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
-from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 
 from circuits.models import Circuit
-from dcim.models import Cable, Device, Location, Rack, RackReservation, Site
-from ipam.models import Aggregate, IPAddress, IPRange, L2VPN, Prefix, VLAN, VRF, ASN
+from dcim.models import Cable, Device, Location, Rack, RackReservation, Site, VirtualDeviceContext
+from ipam.models import Aggregate, ASN, IPAddress, IPRange, L2VPN, Prefix, VLAN, VRF
 from netbox.views import generic
 from utilities.utils import count_related
+from utilities.views import register_model_view
 from virtualization.models import VirtualMachine, Cluster
 from wireless.models import WirelessLAN, WirelessLink
 from . import filtersets, forms, tables
@@ -30,6 +30,7 @@ class TenantGroupListView(generic.ObjectListView):
     table = tables.TenantGroupTable
 
 
+@register_model_view(TenantGroup)
 class TenantGroupView(generic.ObjectView):
     queryset = TenantGroup.objects.all()
 
@@ -45,18 +46,20 @@ class TenantGroupView(generic.ObjectView):
         }
 
 
+@register_model_view(TenantGroup, 'edit')
 class TenantGroupEditView(generic.ObjectEditView):
     queryset = TenantGroup.objects.all()
     form = forms.TenantGroupForm
 
 
+@register_model_view(TenantGroup, 'delete')
 class TenantGroupDeleteView(generic.ObjectDeleteView):
     queryset = TenantGroup.objects.all()
 
 
 class TenantGroupBulkImportView(generic.BulkImportView):
     queryset = TenantGroup.objects.all()
-    model_form = forms.TenantGroupCSVForm
+    model_form = forms.TenantGroupImportForm
     table = tables.TenantGroupTable
 
 
@@ -95,6 +98,7 @@ class TenantListView(generic.ObjectListView):
     table = tables.TenantTable
 
 
+@register_model_view(Tenant)
 class TenantView(generic.ObjectView):
     queryset = Tenant.objects.all()
 
@@ -105,6 +109,7 @@ class TenantView(generic.ObjectView):
             'rackreservation_count': RackReservation.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'location_count': Location.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'vdc_count': VirtualDeviceContext.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'aggregate_count': Aggregate.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
@@ -126,18 +131,20 @@ class TenantView(generic.ObjectView):
         }
 
 
+@register_model_view(Tenant, 'edit')
 class TenantEditView(generic.ObjectEditView):
     queryset = Tenant.objects.all()
     form = forms.TenantForm
 
 
+@register_model_view(Tenant, 'delete')
 class TenantDeleteView(generic.ObjectDeleteView):
     queryset = Tenant.objects.all()
 
 
 class TenantBulkImportView(generic.BulkImportView):
     queryset = Tenant.objects.all()
-    model_form = forms.TenantCSVForm
+    model_form = forms.TenantImportForm
     table = tables.TenantTable
 
 
@@ -171,6 +178,7 @@ class ContactGroupListView(generic.ObjectListView):
     table = tables.ContactGroupTable
 
 
+@register_model_view(ContactGroup)
 class ContactGroupView(generic.ObjectView):
     queryset = ContactGroup.objects.all()
 
@@ -201,18 +209,20 @@ class ContactGroupView(generic.ObjectView):
         }
 
 
+@register_model_view(ContactGroup, 'edit')
 class ContactGroupEditView(generic.ObjectEditView):
     queryset = ContactGroup.objects.all()
     form = forms.ContactGroupForm
 
 
+@register_model_view(ContactGroup, 'delete')
 class ContactGroupDeleteView(generic.ObjectDeleteView):
     queryset = ContactGroup.objects.all()
 
 
 class ContactGroupBulkImportView(generic.BulkImportView):
     queryset = ContactGroup.objects.all()
-    model_form = forms.ContactGroupCSVForm
+    model_form = forms.ContactGroupImportForm
     table = tables.ContactGroupTable
 
 
@@ -251,6 +261,7 @@ class ContactRoleListView(generic.ObjectListView):
     table = tables.ContactRoleTable
 
 
+@register_model_view(ContactRole)
 class ContactRoleView(generic.ObjectView):
     queryset = ContactRole.objects.all()
 
@@ -268,18 +279,20 @@ class ContactRoleView(generic.ObjectView):
         }
 
 
+@register_model_view(ContactRole, 'edit')
 class ContactRoleEditView(generic.ObjectEditView):
     queryset = ContactRole.objects.all()
     form = forms.ContactRoleForm
 
 
+@register_model_view(ContactRole, 'delete')
 class ContactRoleDeleteView(generic.ObjectDeleteView):
     queryset = ContactRole.objects.all()
 
 
 class ContactRoleBulkImportView(generic.BulkImportView):
     queryset = ContactRole.objects.all()
-    model_form = forms.ContactRoleCSVForm
+    model_form = forms.ContactRoleImportForm
     table = tables.ContactRoleTable
 
 
@@ -308,6 +321,7 @@ class ContactListView(generic.ObjectListView):
     table = tables.ContactTable
 
 
+@register_model_view(Contact)
 class ContactView(generic.ObjectView):
     queryset = Contact.objects.all()
 
@@ -325,18 +339,20 @@ class ContactView(generic.ObjectView):
         }
 
 
+@register_model_view(Contact, 'edit')
 class ContactEditView(generic.ObjectEditView):
     queryset = Contact.objects.all()
     form = forms.ContactForm
 
 
+@register_model_view(Contact, 'delete')
 class ContactDeleteView(generic.ObjectDeleteView):
     queryset = Contact.objects.all()
 
 
 class ContactBulkImportView(generic.BulkImportView):
     queryset = Contact.objects.all()
-    model_form = forms.ContactCSVForm
+    model_form = forms.ContactImportForm
     table = tables.ContactTable
 
 
@@ -361,6 +377,7 @@ class ContactBulkDeleteView(generic.BulkDeleteView):
 # Contact assignments
 #
 
+@register_model_view(ContactAssignment, 'edit')
 class ContactAssignmentEditView(generic.ObjectEditView):
     queryset = ContactAssignment.objects.all()
     form = forms.ContactAssignmentForm
@@ -380,5 +397,6 @@ class ContactAssignmentEditView(generic.ObjectEditView):
         }
 
 
+@register_model_view(ContactAssignment, 'delete')
 class ContactAssignmentDeleteView(generic.ObjectDeleteView):
     queryset = ContactAssignment.objects.all()

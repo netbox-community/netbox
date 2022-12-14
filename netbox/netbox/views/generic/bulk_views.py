@@ -4,23 +4,22 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
 from django.db.models.fields.reverse_related import ManyToManyRel
-from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
+from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django_tables2.export import TableExport
 from django.utils.safestring import mark_safe
+from django_tables2.export import TableExport
 
 from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
+from utilities.choices import ImportFormatChoices
 from utilities.error_handlers import handle_protectederror
-from utilities.exceptions import AbortRequest, PermissionsViolation
-from utilities.forms import (
-    BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, CSVFileField, restrict_form_fields,
-)
+from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
+from utilities.forms import BulkRenameForm, ConfirmationForm, ImportForm, restrict_form_fields
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.views import GetReturnURLMixin
@@ -126,7 +125,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         content_type = ContentType.objects.get_for_model(model)
 
         if self.filterset:
-            self.queryset = self.filterset(request.GET, self.queryset).qs
+            self.queryset = self.filterset(request.GET, self.queryset, request=request).qs
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user)
@@ -142,7 +141,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Render an ExportTemplate
             elif request.GET['export']:
-                template = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
+                template = get_object_or_404(ExportTemplate, content_types=content_type, name=request.GET['export'])
                 return self.export_template(template, request)
 
             # Check for YAML export support on the model
@@ -295,71 +294,135 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     """
     template_name = 'generic/bulk_import.html'
     model_form = None
-
-    def _import_form(self, *args, **kwargs):
-
-        class ImportForm(BootstrapMixin, Form):
-            csv = CSVDataField(
-                from_form=self.model_form
-            )
-            csv_file = CSVFileField(
-                label="CSV file",
-                from_form=self.model_form,
-                required=False
-            )
-
-            def clean(self):
-                csv_rows = self.cleaned_data['csv'][1] if 'csv' in self.cleaned_data else None
-                csv_file = self.files.get('csv_file')
-
-                # Check that the user has not submitted both text data and a file
-                if csv_rows and csv_file:
-                    raise ValidationError(
-                        "Cannot process CSV text and file attachment simultaneously. Please choose only one import "
-                        "method."
-                    )
-
-        return ImportForm(*args, **kwargs)
-
-    def _create_objects(self, form, request):
-        new_objs = []
-        if request.FILES:
-            headers, records = form.cleaned_data['csv_file']
-        else:
-            headers, records = form.cleaned_data['csv']
-
-        for row, data in enumerate(records, start=1):
-            obj_form = self.model_form(data, headers=headers)
-            restrict_form_fields(obj_form, request.user)
-
-            if obj_form.is_valid():
-                obj = self._save_obj(obj_form, request)
-                new_objs.append(obj)
-            else:
-                for field, err in obj_form.errors.items():
-                    form.add_error('csv', f'Row {row} {field}: {err[0]}')
-                raise ValidationError("")
-
-        return new_objs
-
-    def _save_obj(self, obj_form, request):
-        """
-        Provide a hook to modify the object immediately before saving it (e.g. to encrypt secret data).
-        """
-        return obj_form.save()
+    related_object_forms = dict()
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
+
+    def prep_related_object_data(self, parent, data):
+        """
+        Hook to modify the data for related objects before it's passed to the related object form (for example, to
+        assign a parent object).
+        """
+        return data
+
+    def _save_object(self, model_form, request):
+
+        # Save the primary object
+        obj = self.save_object(model_form, request)
+
+        # Enforce object-level permissions
+        if not self.queryset.filter(pk=obj.pk).first():
+            raise PermissionsViolation()
+
+        # Iterate through the related object forms (if any), validating and saving each instance.
+        for field_name, related_object_form in self.related_object_forms.items():
+
+            related_obj_pks = []
+            for i, rel_obj_data in enumerate(model_form.data.get(field_name, list())):
+                rel_obj_data = self.prep_related_object_data(obj, rel_obj_data)
+                f = related_object_form(rel_obj_data)
+
+                for subfield_name, field in f.fields.items():
+                    if subfield_name not in rel_obj_data and hasattr(field, 'initial'):
+                        f.data[subfield_name] = field.initial
+
+                if f.is_valid():
+                    related_obj = f.save()
+                    related_obj_pks.append(related_obj.pk)
+                else:
+                    # Replicate errors on the related object form to the primary form for display
+                    for subfield_name, errors in f.errors.items():
+                        for err in errors:
+                            err_msg = "{}[{}] {}: {}".format(field_name, i, subfield_name, err)
+                            model_form.add_error(None, err_msg)
+                    raise AbortTransaction()
+
+            # Enforce object-level permissions on related objects
+            model = related_object_form.Meta.model
+            if model.objects.filter(pk__in=related_obj_pks).count() != len(related_obj_pks):
+                raise ObjectDoesNotExist
+
+        return obj
+
+    def save_object(self, object_form, request):
+        """
+        Provide a hook to modify the object immediately before saving it (e.g. to encrypt secret data).
+
+        Args:
+            object_form: The model form instance
+            request: The current request
+        """
+        return object_form.save()
+
+    def create_and_update_objects(self, form, request):
+        saved_objects = []
+
+        records = list(form.cleaned_data['data'])
+
+        # Prefetch objects to be updated, if any
+        prefetch_ids = [int(record['id']) for record in records if record.get('id')]
+        prefetched_objects = {
+            obj.pk: obj
+            for obj in self.queryset.model.objects.filter(id__in=prefetch_ids)
+        } if prefetch_ids else {}
+
+        for i, record in enumerate(records, start=1):
+            instance = None
+            object_id = int(record.pop('id')) if record.get('id') else None
+
+            # Determine whether this object is being created or updated
+            if object_id:
+                try:
+                    instance = prefetched_objects[object_id]
+                except KeyError:
+                    form.add_error('data', f"Row {i}: Object with ID {object_id} does not exist")
+                    raise ValidationError('')
+
+            # Instantiate the model form for the object
+            model_form_kwargs = {
+                'data': record,
+                'instance': instance,
+            }
+            if form.cleaned_data['format'] == ImportFormatChoices.CSV:
+                model_form_kwargs['headers'] = form._csv_headers
+            model_form = self.model_form(**model_form_kwargs)
+
+            # When updating, omit all form fields other than those specified in the record. (No
+            # fields are required when modifying an existing object.)
+            if object_id:
+                unused_fields = [f for f in model_form.fields if f not in record]
+                for field_name in unused_fields:
+                    del model_form.fields[field_name]
+
+            restrict_form_fields(model_form, request.user)
+
+            if model_form.is_valid():
+                obj = self._save_object(model_form, request)
+                saved_objects.append(obj)
+            else:
+                # Replicate model form errors for display
+                for field, errors in model_form.errors.items():
+                    for err in errors:
+                        if field == '__all__':
+                            form.add_error(None, f'Record {i}: {err}')
+                        else:
+                            form.add_error(None, f'Record {i} {field}: {err}')
+
+                raise ValidationError("")
+
+        return saved_objects
 
     #
     # Request handlers
     #
 
     def get(self, request):
+        form = ImportForm()
 
         return render(request, self.template_name, {
             'model': self.model_form._meta.model,
-            'form': self._import_form(),
+            'form': form,
             'fields': self.model_form().fields,
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
@@ -367,15 +430,16 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkImportView')
-        form = self._import_form(request.POST, request.FILES)
+
+        form = ImportForm(request.POST, request.FILES)
 
         if form.is_valid():
-            logger.debug("Form validation was successful")
+            logger.debug("Import form validation was successful")
 
             try:
-                # Iterate through CSV data and bind each row to a new model form instance.
+                # Iterate through data and bind each record to a new model form instance.
                 with transaction.atomic():
-                    new_objs = self._create_objects(form, request)
+                    new_objs = self.create_and_update_objects(form, request)
 
                     # Enforce object-level permissions
                     if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
@@ -394,7 +458,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                         'return_url': self.get_return_url(request),
                     })
 
-            except ValidationError:
+            except (AbortTransaction, ValidationError):
                 clear_webhooks.send(sender=self)
 
             except (AbortRequest, PermissionsViolation) as e:
@@ -501,7 +565,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 
         # If we are editing *all* objects in the queryset, replace the PK list with all matched objects.
         if request.POST.get('_all') and self.filterset is not None:
-            pk_list = self.filterset(request.GET, self.queryset.values_list('pk', flat=True)).qs
+            pk_list = self.filterset(request.GET, self.queryset.values_list('pk', flat=True), request=request).qs
         else:
             pk_list = request.POST.getlist('pk')
 
@@ -698,7 +762,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         if request.POST.get('_all'):
             qs = model.objects.all()
             if self.filterset is not None:
-                qs = self.filterset(request.GET, qs).qs
+                qs = self.filterset(request.GET, qs, request=request).qs
             pk_list = qs.only('pk').values_list('pk', flat=True)
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
@@ -785,7 +849,8 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
         # Are we editing *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all') and self.filterset is not None:
-            pk_list = [obj.pk for obj in self.filterset(request.GET, self.parent_model.objects.only('pk')).qs]
+            queryset = self.filterset(request.GET, self.parent_model.objects.only('pk'), request=request).qs
+            pk_list = [obj.pk for obj in queryset]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 

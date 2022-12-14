@@ -20,6 +20,7 @@ from extras.tables import ObjectChangeTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from utilities.forms import ConfirmationForm
+from utilities.views import register_model_view
 from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
 from .models import Token, UserConfig
 from .tables import TokenTable
@@ -246,6 +247,7 @@ class TokenListView(LoginRequiredMixin, View):
         })
 
 
+@register_model_view(Token, 'edit')
 class TokenEditView(LoginRequiredMixin, View):
 
     def get(self, request, pk=None):
@@ -273,6 +275,7 @@ class TokenEditView(LoginRequiredMixin, View):
             form = TokenForm(request.POST)
 
         if form.is_valid():
+
             token = form.save(commit=False)
             token.user = request.user
             token.save()
@@ -280,7 +283,13 @@ class TokenEditView(LoginRequiredMixin, View):
             msg = f"Modified token {token}" if pk else f"Created token {token}"
             messages.success(request, msg)
 
-            if '_addanother' in request.POST:
+            if not pk and not settings.ALLOW_TOKEN_RETRIEVAL:
+                return render(request, 'users/api_token.html', {
+                    'object': token,
+                    'key': token.key,
+                    'return_url': reverse('users:token_list'),
+                })
+            elif '_addanother' in request.POST:
                 return redirect(request.path)
             else:
                 return redirect('users:token_list')
@@ -289,9 +298,11 @@ class TokenEditView(LoginRequiredMixin, View):
             'object': token,
             'form': form,
             'return_url': reverse('users:token_list'),
+            'disable_addanother': not settings.ALLOW_TOKEN_RETRIEVAL
         })
 
 
+@register_model_view(Token, 'delete')
 class TokenDeleteView(LoginRequiredMixin, View):
 
     def get(self, request, pk):

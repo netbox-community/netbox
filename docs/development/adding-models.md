@@ -60,7 +60,7 @@ Create the HTML template for the object view. (The other views each typically em
 
 ## 10. Add the model to the navigation menu
 
-Add the relevant navigation menu items in `netbox/netbox/navigation_menu.py`.
+Add the relevant navigation menu items in `netbox/netbox/navigation/menu.py`.
 
 ## 11. REST API components
 

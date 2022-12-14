@@ -2,7 +2,7 @@ from django import forms
 
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import *
-from utilities.forms import DynamicModelChoiceField
+from utilities.forms import CommentField, DynamicModelChoiceField, SmallTextarea
 
 __all__ = (
     'ContactBulkEditForm',
@@ -101,9 +101,17 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
     link = forms.URLField(
         required=False
     )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
+    )
 
     model = Contact
     fieldsets = (
-        (None, ('group', 'title', 'phone', 'email', 'address', 'link')),
+        (None, ('group', 'title', 'phone', 'email', 'address', 'link', 'description')),
     )
-    nullable_fields = ('group', 'title', 'phone', 'email', 'address', 'link', 'comments')
+    nullable_fields = ('group', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments')

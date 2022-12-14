@@ -1,6 +1,7 @@
 import re
 
 from django import forms
+from django.utils.translation import gettext as _
 
 from utilities.forms.constants import *
 from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
@@ -42,8 +43,8 @@ class ExpandableIPAddressField(forms.CharField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
-            self.help_text = 'Specify a numeric range to create multiple IPs.<br />'\
-                             'Example: <code>192.0.2.[1,5,100-254]/24</code>'
+            self.help_text = _('Specify a numeric range to create multiple IPs.<br />'
+                               'Example: <code>192.0.2.[1,5,100-254]/24</code>')
 
     def to_python(self, value):
         # Hackish address family detection but it's all we have to work with

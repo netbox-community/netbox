@@ -85,8 +85,8 @@ class ContactSerializer(NetBoxModelSerializer):
     class Meta:
         model = Contact
         fields = [
-            'id', 'url', 'display', 'group', 'name', 'title', 'phone', 'email', 'address', 'link', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'group', 'name', 'title', 'phone', 'email', 'address', 'link', 'description',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 

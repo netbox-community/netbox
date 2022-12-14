@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from dcim.choices import *
 from dcim.constants import *
@@ -13,13 +14,13 @@ class InterfaceCommonForm(forms.Form):
     mac_address = forms.CharField(
         empty_value=None,
         required=False,
-        label='MAC address'
+        label=_('MAC address')
     )
     mtu = forms.IntegerField(
         required=False,
         min_value=INTERFACE_MTU_MIN,
         max_value=INTERFACE_MTU_MAX,
-        label='MTU'
+        label=_('MTU')
     )
 
     def clean(self):
@@ -51,14 +52,15 @@ class InterfaceCommonForm(forms.Form):
 
 
 class ModuleCommonForm(forms.Form):
+
     def clean(self):
         super().clean()
 
         replicate_components = self.cleaned_data.get("replicate_components")
         adopt_components = self.cleaned_data.get("adopt_components")
-        device = self.cleaned_data['device']
-        module_type = self.cleaned_data['module_type']
-        module_bay = self.cleaned_data['module_bay']
+        device = self.cleaned_data.get('device')
+        module_type = self.cleaned_data.get('module_type')
+        module_bay = self.cleaned_data.get('module_bay')
 
         if adopt_components:
             self.instance._adopt_components = True

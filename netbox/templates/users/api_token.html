@@ -1,0 +1,60 @@
+{% extends 'generic/object.html' %}
+{% load form_helpers %}
+{% load helpers %}
+{% load plugins %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-12">
+      {% if not settings.ALLOW_TOKEN_RETRIEVAL %}
+        <div class="alert alert-danger" role="alert">
+          <i class="mdi mdi-alert"></i> Tokens cannot be retrieved at a later time. You must <a href="#" class="copy-token" data-clipboard-target="#token_id" title="Copy to clipboard">copy the token value</a> below and store it securely.
+        </div>
+      {% endif %}
+      <div class="card">
+        <h5 class="card-header">Token</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Key</th>
+              <td>
+                <div class="float-end">
+                  <a class="btn btn-sm btn-success copy-token" data-clipboard-target="#token_id" title="Copy to clipboard">
+                    <i class="mdi mdi-content-copy"></i>
+                  </a>
+                </div>
+                <div id="token_id">{{ key }}</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">User</th>
+              <td>{{ object.user }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Created</th>
+              <td>{{ object.created|annotated_date }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Expires</th>
+              <td>
+                {% if object.expires %}
+                  {{ object.expires|annotated_date }}
+                {% else %}
+                  <span>Never</span>
+                {% endif %}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="col col-md-12 text-center">
+        <a href="{% url 'users:token_add' %}" class="btn btn-outline-primary">Add Another</a>
+        <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

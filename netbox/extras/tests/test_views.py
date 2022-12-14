@@ -32,6 +32,7 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'label': 'Field X',
             'type': 'text',
             'content_types': [site_ct.pk],
+            'search_weight': 2000,
             'filter_logic': CustomFieldFilterLogicChoices.FILTER_EXACT,
             'default': None,
             'weight': 200,
@@ -40,11 +41,18 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            'name,label,type,content_types,object_type,weight,filter_logic,choices,validation_minimum,validation_maximum,validation_regex,ui_visibility',
-            'field4,Field 4,text,dcim.site,,100,exact,,,,[a-z]{3},read-write',
-            'field5,Field 5,integer,dcim.site,,100,exact,,1,100,,read-write',
-            'field6,Field 6,select,dcim.site,,100,exact,"A,B,C",,,,read-write',
-            'field7,Field 7,object,dcim.site,dcim.region,100,exact,,,,,read-write',
+            'name,label,type,content_types,object_type,weight,search_weight,filter_logic,choices,validation_minimum,validation_maximum,validation_regex,ui_visibility',
+            'field4,Field 4,text,dcim.site,,100,1000,exact,,,,[a-z]{3},read-write',
+            'field5,Field 5,integer,dcim.site,,100,2000,exact,,1,100,,read-write',
+            'field6,Field 6,select,dcim.site,,100,3000,exact,"A,B,C",,,,read-write',
+            'field7,Field 7,object,dcim.site,dcim.region,100,4000,exact,,,,,read-write',
+        )
+
+        cls.csv_update_data = (
+            'id,label',
+            f'{custom_fields[0].pk},New label 1',
+            f'{custom_fields[1].pk},New label 2',
+            f'{custom_fields[2].pk},New label 3',
         )
 
         cls.bulk_edit_data = {
@@ -58,17 +66,19 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         site_ct = ContentType.objects.get_for_model(Site)
-        CustomLink.objects.bulk_create((
-            CustomLink(name='Custom Link 1', content_type=site_ct, enabled=True, link_text='Link 1', link_url='http://example.com/?1'),
-            CustomLink(name='Custom Link 2', content_type=site_ct, enabled=True, link_text='Link 2', link_url='http://example.com/?2'),
-            CustomLink(name='Custom Link 3', content_type=site_ct, enabled=False, link_text='Link 3', link_url='http://example.com/?3'),
-        ))
+        custom_links = (
+            CustomLink(name='Custom Link 1', enabled=True, link_text='Link 1', link_url='http://example.com/?1'),
+            CustomLink(name='Custom Link 2', enabled=True, link_text='Link 2', link_url='http://example.com/?2'),
+            CustomLink(name='Custom Link 3', enabled=False, link_text='Link 3', link_url='http://example.com/?3'),
+        )
+        CustomLink.objects.bulk_create(custom_links)
+        for i, custom_link in enumerate(custom_links):
+            custom_link.content_types.set([site_ct])
 
         cls.form_data = {
             'name': 'Custom Link X',
-            'content_type': site_ct.pk,
+            'content_types': [site_ct.pk],
             'enabled': False,
             'weight': 100,
             'button_class': CustomLinkButtonClassChoices.DEFAULT,
@@ -77,10 +87,17 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,content_type,enabled,weight,button_class,link_text,link_url",
+            "name,content_types,enabled,weight,button_class,link_text,link_url",
             "Custom Link 4,dcim.site,True,100,blue,Link 4,http://exmaple.com/?4",
             "Custom Link 5,dcim.site,True,100,blue,Link 5,http://exmaple.com/?5",
             "Custom Link 6,dcim.site,False,100,blue,Link 6,http://exmaple.com/?6",
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{custom_links[0].pk},Custom Link 7",
+            f"{custom_links[1].pk},Custom Link 8",
+            f"{custom_links[2].pk},Custom Link 9",
         )
 
         cls.bulk_edit_data = {
@@ -90,31 +107,112 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = SavedFilter
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        saved_filters = (
+            SavedFilter(
+                name='Saved Filter 1',
+                slug='saved-filter-1',
+                user=users[0],
+                weight=100,
+                parameters={'status': ['active']}
+            ),
+            SavedFilter(
+                name='Saved Filter 2',
+                slug='saved-filter-2',
+                user=users[1],
+                weight=200,
+                parameters={'status': ['planned']}
+            ),
+            SavedFilter(
+                name='Saved Filter 3',
+                slug='saved-filter-3',
+                user=users[2],
+                weight=300,
+                parameters={'status': ['retired']}
+            ),
+        )
+        SavedFilter.objects.bulk_create(saved_filters)
+        for i, savedfilter in enumerate(saved_filters):
+            savedfilter.content_types.set([site_ct])
+
+        cls.form_data = {
+            'name': 'Saved Filter X',
+            'slug': 'saved-filter-x',
+            'content_types': [site_ct.pk],
+            'description': 'Foo',
+            'weight': 1000,
+            'enabled': True,
+            'shared': True,
+            'parameters': '{"foo": 123}',
+        }
+
+        cls.csv_data = (
+            'name,slug,content_types,weight,enabled,shared,parameters',
+            'Saved Filter 4,saved-filter-4,dcim.device,400,True,True,{"foo": "a"}',
+            'Saved Filter 5,saved-filter-5,dcim.device,500,True,True,{"foo": "b"}',
+            'Saved Filter 6,saved-filter-6,dcim.device,600,True,True,{"foo": "c"}',
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{saved_filters[0].pk},Saved Filter 7",
+            f"{saved_filters[1].pk},Saved Filter 8",
+            f"{saved_filters[2].pk},Saved Filter 9",
+        )
+
+        cls.bulk_edit_data = {
+            'weight': 999,
+        }
+
+
 class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ExportTemplate
 
     @classmethod
     def setUpTestData(cls):
-
         site_ct = ContentType.objects.get_for_model(Site)
         TEMPLATE_CODE = """{% for object in queryset %}{{ object }}{% endfor %}"""
-        ExportTemplate.objects.bulk_create((
-            ExportTemplate(name='Export Template 1', content_type=site_ct, template_code=TEMPLATE_CODE),
-            ExportTemplate(name='Export Template 2', content_type=site_ct, template_code=TEMPLATE_CODE),
-            ExportTemplate(name='Export Template 3', content_type=site_ct, template_code=TEMPLATE_CODE),
-        ))
+
+        export_templates = (
+            ExportTemplate(name='Export Template 1', template_code=TEMPLATE_CODE),
+            ExportTemplate(name='Export Template 2', template_code=TEMPLATE_CODE),
+            ExportTemplate(name='Export Template 3', template_code=TEMPLATE_CODE),
+        )
+        ExportTemplate.objects.bulk_create(export_templates)
+        for et in export_templates:
+            et.content_types.set([site_ct])
 
         cls.form_data = {
             'name': 'Export Template X',
-            'content_type': site_ct.pk,
+            'content_types': [site_ct.pk],
             'template_code': TEMPLATE_CODE,
         }
 
         cls.csv_data = (
-            "name,content_type,template_code",
+            "name,content_types,template_code",
             f"Export Template 4,dcim.site,{TEMPLATE_CODE}",
             f"Export Template 5,dcim.site,{TEMPLATE_CODE}",
             f"Export Template 6,dcim.site,{TEMPLATE_CODE}",
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{export_templates[0].pk},Export Template 7",
+            f"{export_templates[1].pk},Export Template 8",
+            f"{export_templates[2].pk},Export Template 9",
         )
 
         cls.bulk_edit_data = {
@@ -159,6 +257,13 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Webhook 6,dcim.site,True,http://example.com/?6,GET,application/json",
         )
 
+        cls.csv_update_data = (
+            "id,name",
+            f"{webhooks[0].pk},Webhook 7",
+            f"{webhooks[1].pk},Webhook 8",
+            f"{webhooks[2].pk},Webhook 9",
+        )
+
         cls.bulk_edit_data = {
             'enabled': False,
             'type_create': False,
@@ -174,11 +279,12 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        Tag.objects.bulk_create((
+        tags = (
             Tag(name='Tag 1', slug='tag-1'),
             Tag(name='Tag 2', slug='tag-2'),
             Tag(name='Tag 3', slug='tag-3'),
-        ))
+        )
+        Tag.objects.bulk_create(tags)
 
         cls.form_data = {
             'name': 'Tag X',
@@ -192,6 +298,13 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Tag 4,tag-4,ff0000,Fourth tag",
             "Tag 5,tag-5,00ff00,Fifth tag",
             "Tag 6,tag-6,0000ff,Sixth tag",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{tags[0].pk},Tag 7,Fourth tag7",
+            f"{tags[1].pk},Tag 8,Fifth tag8",
+            f"{tags[2].pk},Tag 9,Sixth tag9",
         )
 
         cls.bulk_edit_data = {
@@ -326,13 +439,13 @@ class CustomLinkTest(TestCase):
 
     def test_view_object_with_custom_link(self):
         customlink = CustomLink(
-            content_type=ContentType.objects.get_for_model(Site),
             name='Test',
             link_text='FOO {{ obj.name }} BAR',
             link_url='http://example.com/?site={{ obj.slug }}',
             new_window=False
         )
         customlink.save()
+        customlink.content_types.set([ContentType.objects.get_for_model(Site)])
 
         site = Site(name='Test Site', slug='test-site')
         site.save()

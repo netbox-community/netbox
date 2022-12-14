@@ -1,25 +1,29 @@
 import decimal
-
 import yaml
 
-from django.apps import apps
+from functools import cached_property
+
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, ProtectedError
+from django.db.models.functions import Lower
+from django.db.models.signals import post_save
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from dcim.choices import *
 from dcim.constants import *
 from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import ConfigItem
-from netbox.models import OrganizationalModel, NetBoxModel
+from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from .device_components import *
+from .mixins import WeightMixin
 
 
 __all__ = (
@@ -31,6 +35,7 @@ __all__ = (
     'ModuleType',
     'Platform',
     'VirtualChassis',
+    'VirtualDeviceContext',
 )
 
 
@@ -42,35 +47,16 @@ class Manufacturer(OrganizationalModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
     # Generic relations
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
     )
 
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
         return reverse('dcim:manufacturer', args=[self.pk])
 
 
-class DeviceType(NetBoxModel):
+class DeviceType(PrimaryModel, WeightMixin):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
@@ -99,7 +85,7 @@ class DeviceType(NetBoxModel):
     part_number = models.CharField(
         max_length=50,
         blank=True,
-        help_text='Discrete part number (optional)'
+        help_text=_('Discrete part number (optional)')
     )
     u_height = models.DecimalField(
         max_digits=4,
@@ -110,15 +96,15 @@ class DeviceType(NetBoxModel):
     is_full_depth = models.BooleanField(
         default=True,
         verbose_name='Is full depth',
-        help_text='Device consumes both front and rear rack faces'
+        help_text=_('Device consumes both front and rear rack faces')
     )
     subdevice_role = models.CharField(
         max_length=50,
         choices=SubdeviceRoleChoices,
         blank=True,
         verbose_name='Parent/child status',
-        help_text='Parent devices house child devices in device bays. Leave blank '
-                  'if this device type is neither a parent nor a child.'
+        help_text=_('Parent devices house child devices in device bays. Leave blank '
+                    'if this device type is neither a parent nor a child.')
     )
     airflow = models.CharField(
         max_length=50,
@@ -133,20 +119,26 @@ class DeviceType(NetBoxModel):
         upload_to='devicetype-images',
         blank=True
     )
-    comments = models.TextField(
-        blank=True
-    )
 
     clone_fields = (
-        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
+        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
+    )
+    prerequisite_models = (
+        'dcim.Manufacturer',
     )
 
     class Meta:
         ordering = ['manufacturer', 'model']
-        unique_together = [
-            ['manufacturer', 'model'],
-            ['manufacturer', 'slug'],
-        ]
+        constraints = (
+            models.UniqueConstraint(
+                fields=('manufacturer', 'model'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_model'
+            ),
+            models.UniqueConstraint(
+                fields=('manufacturer', 'slug'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_slug'
+            ),
+        )
 
     def __str__(self):
         return self.model
@@ -160,10 +152,6 @@ class DeviceType(NetBoxModel):
         # Save references to the original front/rear images
         self._original_front_image = self.front_image
         self._original_rear_image = self.rear_image
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [Manufacturer, ]
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
@@ -268,7 +256,7 @@ class DeviceType(NetBoxModel):
 
         if (
                 self.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT
-        ) and self.devicebaytemplates.count():
+        ) and self.pk and self.devicebaytemplates.count():
             raise ValidationError({
                 'subdevice_role': "Must delete all device bay templates associated with this device before "
                                   "declassifying it as a parent device."
@@ -308,7 +296,7 @@ class DeviceType(NetBoxModel):
         return self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD
 
 
-class ModuleType(NetBoxModel):
+class ModuleType(PrimaryModel, WeightMixin):
     """
     A ModuleType represents a hardware element that can be installed within a device and which houses additional
     components; for example, a line card within a chassis-based switch such as the Cisco Catalyst 6500. Like a
@@ -326,10 +314,7 @@ class ModuleType(NetBoxModel):
     part_number = models.CharField(
         max_length=50,
         blank=True,
-        help_text='Discrete part number (optional)'
-    )
-    comments = models.TextField(
-        blank=True
+        help_text=_('Discrete part number (optional)')
     )
 
     # Generic relations
@@ -337,20 +322,22 @@ class ModuleType(NetBoxModel):
         to='extras.ImageAttachment'
     )
 
-    clone_fields = ('manufacturer',)
+    clone_fields = ('manufacturer', 'weight', 'weight_unit',)
+    prerequisite_models = (
+        'dcim.Manufacturer',
+    )
 
     class Meta:
         ordering = ('manufacturer', 'model')
-        unique_together = (
-            ('manufacturer', 'model'),
+        constraints = (
+            models.UniqueConstraint(
+                fields=('manufacturer', 'model'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_model'
+            ),
         )
 
     def __str__(self):
         return self.model
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [Manufacturer, ]
 
     def get_absolute_url(self):
         return reverse('dcim:moduletype', args=[self.pk])
@@ -406,32 +393,14 @@ class DeviceRole(OrganizationalModel):
     color to be used when displaying rack elevations. The vm_role field determines whether the role is applicable to
     virtual machines as well.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
     color = ColorField(
         default=ColorChoices.COLOR_GREY
     )
     vm_role = models.BooleanField(
         default=True,
         verbose_name='VM Role',
-        help_text='Virtual machines may be assigned to this role'
+        help_text=_('Virtual machines may be assigned to this role')
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True,
-    )
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:devicerole', args=[self.pk])
@@ -443,50 +412,32 @@ class Platform(OrganizationalModel):
     NetBox uses Platforms to determine how to interact with devices when pulling inventory data or other information by
     specifying a NAPALM driver.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
         on_delete=models.PROTECT,
         related_name='platforms',
         blank=True,
         null=True,
-        help_text='Optionally limit this platform to devices of a certain manufacturer'
+        help_text=_('Optionally limit this platform to devices of a certain manufacturer')
     )
     napalm_driver = models.CharField(
         max_length=50,
         blank=True,
         verbose_name='NAPALM driver',
-        help_text='The name of the NAPALM driver to use when interacting with devices'
+        help_text=_('The name of the NAPALM driver to use when interacting with devices')
     )
     napalm_args = models.JSONField(
         blank=True,
         null=True,
         verbose_name='NAPALM arguments',
-        help_text='Additional arguments to pass when initiating the NAPALM driver (JSON format)'
+        help_text=_('Additional arguments to pass when initiating the NAPALM driver (JSON format)')
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:platform', args=[self.pk])
 
 
-class Device(NetBoxModel, ConfigContextModel):
+class Device(PrimaryModel, ConfigContextModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
@@ -544,7 +495,7 @@ class Device(NetBoxModel, ConfigContextModel):
         null=True,
         unique=True,
         verbose_name='Asset tag',
-        help_text='A unique tag used to identify this device'
+        help_text=_('A unique tag used to identify this device')
     )
     site = models.ForeignKey(
         to='dcim.Site',
@@ -572,7 +523,7 @@ class Device(NetBoxModel, ConfigContextModel):
         null=True,
         validators=[MinValueValidator(1), MaxValueValidator(99.5)],
         verbose_name='Position (U)',
-        help_text='The lowest-numbered unit occupied by the device'
+        help_text=_('The lowest-numbered unit occupied by the device')
     )
     face = models.CharField(
         max_length=50,
@@ -630,9 +581,6 @@ class Device(NetBoxModel, ConfigContextModel):
         null=True,
         validators=[MaxValueValidator(255)]
     )
-    comments = models.TextField(
-        blank=True
-    )
 
     # Generic relations
     contacts = GenericRelation(
@@ -648,13 +596,33 @@ class Device(NetBoxModel, ConfigContextModel):
         'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'face', 'status', 'airflow',
         'cluster', 'virtual_chassis',
     )
+    prerequisite_models = (
+        'dcim.Site',
+        'dcim.DeviceRole',
+        'dcim.DeviceType',
+    )
 
     class Meta:
         ordering = ('_name', 'pk')  # Name may be null
-        unique_together = (
-            ('site', 'tenant', 'name'),  # See validate_unique below
-            ('rack', 'position', 'face'),
-            ('virtual_chassis', 'vc_position'),
+        constraints = (
+            models.UniqueConstraint(
+                Lower('name'), 'site', 'tenant',
+                name='%(app_label)s_%(class)s_unique_name_site_tenant'
+            ),
+            models.UniqueConstraint(
+                Lower('name'), 'site',
+                name='%(app_label)s_%(class)s_unique_name_site',
+                condition=Q(tenant__isnull=True),
+                violation_error_message="Device name must be unique per site."
+            ),
+            models.UniqueConstraint(
+                fields=('rack', 'position', 'face'),
+                name='%(app_label)s_%(class)s_unique_rack_position_face'
+            ),
+            models.UniqueConstraint(
+                fields=('virtual_chassis', 'vc_position'),
+                name='%(app_label)s_%(class)s_unique_virtual_chassis_vc_position'
+            ),
         )
 
     def __str__(self):
@@ -672,29 +640,8 @@ class Device(NetBoxModel, ConfigContextModel):
             return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
         return super().__str__()
 
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [apps.get_model('dcim.Site'), DeviceRole, DeviceType, ]
-
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
-
-    def validate_unique(self, exclude=None):
-
-        # Check for a duplicate name on a device assigned to the same Site and no Tenant. This is necessary
-        # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
-        # of the uniqueness constraint without manual intervention.
-        if self.name and hasattr(self, 'site') and self.tenant is None:
-            if Device.objects.exclude(pk=self.pk).filter(
-                    name=self.name,
-                    site=self.site,
-                    tenant__isnull=True
-            ):
-                raise ValidationError({
-                    'name': 'A device with this name already exists.'
-                })
-
-        super().validate_unique(exclude)
 
     def clean(self):
         super().clean()
@@ -821,6 +768,32 @@ class Device(NetBoxModel, ConfigContextModel):
                 'vc_position': "A device assigned to a virtual chassis must have its position defined."
             })
 
+    def _instantiate_components(self, queryset, bulk_create=True):
+        """
+        Instantiate components for the device from the specified component templates.
+
+        Args:
+            bulk_create: If True, bulk_create() will be called to create all components in a single query
+                         (default). Otherwise, save() will be called on each instance individually.
+        """
+        components = [obj.instantiate(device=self) for obj in queryset]
+        if components and bulk_create:
+            model = components[0]._meta.model
+            model.objects.bulk_create(components)
+            # Manually send the post_save signal for each of the newly created components
+            for component in components:
+                post_save.send(
+                    sender=model,
+                    instance=component,
+                    created=True,
+                    raw=False,
+                    using='default',
+                    update_fields=None
+                )
+        elif components:
+            for component in components:
+                component.save()
+
     def save(self, *args, **kwargs):
         is_new = not bool(self.pk)
 
@@ -830,38 +803,19 @@ class Device(NetBoxModel, ConfigContextModel):
 
         super().save(*args, **kwargs)
 
-        # If this is a new Device, instantiate all of the related components per the DeviceType definition
+        # If this is a new Device, instantiate all the related components per the DeviceType definition
         if is_new:
-            ConsolePort.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.consoleporttemplates.all()]
-            )
-            ConsoleServerPort.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.consoleserverporttemplates.all()]
-            )
-            PowerPort.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.powerporttemplates.all()]
-            )
-            PowerOutlet.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.poweroutlettemplates.all()]
-            )
-            Interface.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.interfacetemplates.all()]
-            )
-            RearPort.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.rearporttemplates.all()]
-            )
-            FrontPort.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.frontporttemplates.all()]
-            )
-            ModuleBay.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.modulebaytemplates.all()]
-            )
-            DeviceBay.objects.bulk_create(
-                [x.instantiate(device=self) for x in self.device_type.devicebaytemplates.all()]
-            )
-            # Avoid bulk_create to handle MPTT
-            for x in self.device_type.inventoryitemtemplates.all():
-                x.instantiate(device=self).save()
+            self._instantiate_components(self.device_type.consoleporttemplates.all())
+            self._instantiate_components(self.device_type.consoleserverporttemplates.all())
+            self._instantiate_components(self.device_type.powerporttemplates.all())
+            self._instantiate_components(self.device_type.poweroutlettemplates.all())
+            self._instantiate_components(self.device_type.interfacetemplates.all())
+            self._instantiate_components(self.device_type.rearporttemplates.all())
+            self._instantiate_components(self.device_type.frontporttemplates.all())
+            self._instantiate_components(self.device_type.modulebaytemplates.all())
+            self._instantiate_components(self.device_type.devicebaytemplates.all())
+            # Disable bulk_create to accommodate MPTT
+            self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
 
         # Update Site and Rack assignment for any child Devices
         devices = Device.objects.filter(parent_bay__device=self)
@@ -938,8 +892,20 @@ class Device(NetBoxModel, ConfigContextModel):
     def get_status_color(self):
         return DeviceStatusChoices.colors.get(self.status)
 
+    @cached_property
+    def total_weight(self):
+        total_weight = sum(
+            module.module_type._abs_weight
+            for module in Module.objects.filter(device=self)
+            .exclude(module_type___abs_weight__isnull=True)
+            .prefetch_related('module_type')
+        )
+        if self.device_type._abs_weight:
+            total_weight += self.device_type._abs_weight
+        return round(total_weight / 1000, 2)
 
-class Module(NetBoxModel, ConfigContextModel):
+
+class Module(PrimaryModel, ConfigContextModel):
     """
     A Module represents a field-installable component within a Device which may itself hold multiple device components
     (for example, a line card within a chassis switch). Modules are instantiated from ModuleTypes.
@@ -959,6 +925,11 @@ class Module(NetBoxModel, ConfigContextModel):
         on_delete=models.PROTECT,
         related_name='instances'
     )
+    status = models.CharField(
+        max_length=50,
+        choices=ModuleStatusChoices,
+        default=ModuleStatusChoices.STATUS_ACTIVE
+    )
     serial = models.CharField(
         max_length=50,
         blank=True,
@@ -970,13 +941,10 @@ class Module(NetBoxModel, ConfigContextModel):
         null=True,
         unique=True,
         verbose_name='Asset tag',
-        help_text='A unique tag used to identify this device'
-    )
-    comments = models.TextField(
-        blank=True
+        help_text=_('A unique tag used to identify this device')
     )
 
-    clone_fields = ('device', 'module_type')
+    clone_fields = ('device', 'module_type', 'status')
 
     class Meta:
         ordering = ('module_bay',)
@@ -986,6 +954,9 @@ class Module(NetBoxModel, ConfigContextModel):
 
     def get_absolute_url(self):
         return reverse('dcim:module', args=[self.pk])
+
+    def get_status_color(self):
+        return ModuleStatusChoices.colors.get(self.status)
 
     def clean(self):
         super().clean()
@@ -1023,7 +994,8 @@ class Module(NetBoxModel, ConfigContextModel):
 
             # Prefetch installed components
             installed_components = {
-                component.name: component for component in getattr(self.device, component_attribute).filter(module__isnull=True)
+                component.name: component
+                for component in getattr(self.device, component_attribute).filter(module__isnull=True)
             }
 
             # Get the template for the module type.
@@ -1045,14 +1017,36 @@ class Module(NetBoxModel, ConfigContextModel):
                     create_instances.append(template_instance)
 
             component_model.objects.bulk_create(create_instances)
-            component_model.objects.bulk_update(update_instances, ['module'])
+            # Emit the post_save signal for each newly created object
+            for component in create_instances:
+                post_save.send(
+                    sender=component_model,
+                    instance=component,
+                    created=True,
+                    raw=False,
+                    using='default',
+                    update_fields=None
+                )
+
+            update_fields = ['module']
+            component_model.objects.bulk_update(update_instances, update_fields)
+            # Emit the post_save signal for each updated object
+            for component in update_instances:
+                post_save.send(
+                    sender=component_model,
+                    instance=component,
+                    created=False,
+                    raw=False,
+                    using='default',
+                    update_fields=update_fields
+                )
 
 
 #
 # Virtual chassis
 #
 
-class VirtualChassis(NetBoxModel):
+class VirtualChassis(PrimaryModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
     """
@@ -1107,3 +1101,101 @@ class VirtualChassis(NetBoxModel):
             )
 
         return super().delete(*args, **kwargs)
+
+
+class VirtualDeviceContext(PrimaryModel):
+    device = models.ForeignKey(
+        to='Device',
+        on_delete=models.PROTECT,
+        related_name='vdcs',
+        blank=True,
+        null=True
+    )
+    name = models.CharField(
+        max_length=64
+    )
+    status = models.CharField(
+        max_length=50,
+        choices=VirtualDeviceContextStatusChoices,
+    )
+    identifier = models.PositiveSmallIntegerField(
+        help_text='Numeric identifier unique to the parent device',
+        blank=True,
+        null=True,
+    )
+    primary_ip4 = models.OneToOneField(
+        to='ipam.IPAddress',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name='Primary IPv4'
+    )
+    primary_ip6 = models.OneToOneField(
+        to='ipam.IPAddress',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name='Primary IPv6'
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='vdcs',
+        blank=True,
+        null=True
+    )
+    comments = models.TextField(
+        blank=True
+    )
+
+    class Meta:
+        ordering = ['name']
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'identifier',),
+                name='%(app_label)s_%(class)s_device_identifier'
+            ),
+            models.UniqueConstraint(
+                fields=('device', 'name',),
+                name='%(app_label)s_%(class)s_device_name'
+            ),
+        )
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:virtualdevicecontext', kwargs={'pk': self.pk})
+
+    def get_status_color(self):
+        return VirtualDeviceContextStatusChoices.colors.get(self.status)
+
+    @property
+    def primary_ip(self):
+        if ConfigItem('PREFER_IPV4')() and self.primary_ip4:
+            return self.primary_ip4
+        elif self.primary_ip6:
+            return self.primary_ip6
+        elif self.primary_ip4:
+            return self.primary_ip4
+        else:
+            return None
+
+    def clean(self):
+        super().clean()
+
+        # Validate primary IPv4/v6 assignment
+        for primary_ip, family in ((self.primary_ip4, 4), (self.primary_ip6, 6)):
+            if not primary_ip:
+                continue
+            if primary_ip.family != family:
+                raise ValidationError({
+                    f'primary_ip{family}': f"{primary_ip} is not an IPv{family} address."
+                })
+            device_interfaces = self.device.vc_interfaces(if_master=False)
+            if primary_ip.assigned_object not in device_interfaces:
+                raise ValidationError({
+                    f'primary_ip{family}': _('Primary IP address must belong to an interface on the assigned device.')
+                })

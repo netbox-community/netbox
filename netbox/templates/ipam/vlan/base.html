@@ -13,27 +13,3 @@
     <li class="breadcrumb-item"><a href="{% url 'ipam:vlan_list' %}?group_id={{ object.group.pk }}">{{ object.group }}</a></li>
   {% endif %}
 {% endblock %}
-
-{% block tabs %}
-  <ul class="nav nav-tabs px-3">
-    <li class="nav-item" role="presentation">
-      <a class="nav-link{% if not active_tab %} active{% endif %}" href="{% url 'ipam:vlan' pk=object.pk %}">VLAN</a>
-    </li>
-    <li class="nav-item" role="presentation">
-      <a class="nav-link{% if active_tab == 'interfaces' %} active{% endif %}" href="{% url 'ipam:vlan_interfaces' pk=object.pk %}">Device Interfaces {% badge object.get_interfaces.count %}</a>
-    </li>
-    <li class="nav-item" role="presentation">
-      <a class="nav-link{% if active_tab == 'vminterfaces' %} active{% endif %}" href="{% url 'ipam:vlan_vminterfaces' pk=object.pk %}">VM Interfaces {% badge object.get_vminterfaces.count %}</a>
-    </li>
-    {% if perms.extras.view_journalentry %}
-      <li class="nav-item" role="presentation">
-        <a class="nav-link{% if active_tab == 'journal' %} active{% endif %}" href="{% url 'ipam:vlan_journal' pk=object.pk %}">Journal</a>
-      </li>
-    {% endif %}
-    {% if perms.extras.view_objectchange %}
-      <li class="nav-item" role="presentation">
-        <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'ipam:vlan_changelog' pk=object.pk %}">Change Log</a>
-      </li>
-    {% endif %}
-  </ul>
-{% endblock %}

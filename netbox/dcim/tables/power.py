@@ -31,6 +31,7 @@ class PowerPanelTable(ContactsColumnMixin, NetBoxTable):
         url_params={'power_panel_id': 'pk'},
         verbose_name='Feeds'
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='dcim:powerpanel_list'
     )
@@ -38,7 +39,8 @@ class PowerPanelTable(ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = PowerPanel
         fields = (
-            'pk', 'id', 'name', 'site', 'location', 'powerfeed_count', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'site', 'location', 'powerfeed_count', 'contacts', 'description', 'comments', 'tags',
+            'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'site', 'location', 'powerfeed_count')
 
@@ -77,7 +79,7 @@ class PowerFeedTable(CableTerminationTable):
         fields = (
             'pk', 'id', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
             'max_utilization', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'available_power',
-            'comments', 'tags', 'created', 'last_updated',
+            'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase', 'cable',

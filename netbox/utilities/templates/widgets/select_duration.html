@@ -1,0 +1,11 @@
+<div class="input-group">
+  {% include 'django/forms/widgets/number.html' %}
+  <button type="button" class="btn btn-outline-dark border-input dropdown-toggle" data-bs-toggle="dropdown"></button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><a href="#" target="id_{{ widget.name }}" data="60" class="set_speed dropdown-item">Hourly</a></li>
+    <li><a href="#" target="id_{{ widget.name }}" data="720" class="set_speed dropdown-item">12 hours</a></li>
+    <li><a href="#" target="id_{{ widget.name }}" data="1440" class="set_speed dropdown-item">Daily</a></li>
+    <li><a href="#" target="id_{{ widget.name }}" data="10080" class="set_speed dropdown-item">Weekly</a></li>
+    <li><a href="#" target="id_{{ widget.name }}" data="43200" class="set_speed dropdown-item">30 days</a></li>
+  </ul>
+</div>

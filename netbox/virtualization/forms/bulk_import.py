@@ -1,93 +1,94 @@
 from dcim.choices import InterfaceModeChoices
 from dcim.models import Device, DeviceRole, Platform, Site
+from django.utils.translation import gettext as _
 from ipam.models import VRF
-from netbox.forms import NetBoxModelCSVForm
+from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVModelChoiceField, SlugField
 from virtualization.choices import *
 from virtualization.models import *
 
 __all__ = (
-    'ClusterCSVForm',
-    'ClusterGroupCSVForm',
-    'ClusterTypeCSVForm',
-    'VirtualMachineCSVForm',
-    'VMInterfaceCSVForm',
+    'ClusterImportForm',
+    'ClusterGroupImportForm',
+    'ClusterTypeImportForm',
+    'VirtualMachineImportForm',
+    'VMInterfaceImportForm',
 )
 
 
-class ClusterTypeCSVForm(NetBoxModelCSVForm):
+class ClusterTypeImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
         model = ClusterType
-        fields = ('name', 'slug', 'description')
+        fields = ('name', 'slug', 'description', 'tags')
 
 
-class ClusterGroupCSVForm(NetBoxModelCSVForm):
+class ClusterGroupImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
         model = ClusterGroup
-        fields = ('name', 'slug', 'description')
+        fields = ('name', 'slug', 'description', 'tags')
 
 
-class ClusterCSVForm(NetBoxModelCSVForm):
+class ClusterImportForm(NetBoxModelImportForm):
     type = CSVModelChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='name',
-        help_text='Type of cluster'
+        help_text=_('Type of cluster')
     )
     group = CSVModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned cluster group'
+        help_text=_('Assigned cluster group')
     )
     status = CSVChoiceField(
         choices=ClusterStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned site'
+        help_text=_('Assigned site')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
 
     class Meta:
         model = Cluster
-        fields = ('name', 'type', 'group', 'status', 'site', 'comments')
+        fields = ('name', 'type', 'group', 'status', 'site', 'description', 'comments', 'tags')
 
 
-class VirtualMachineCSVForm(NetBoxModelCSVForm):
+class VirtualMachineImportForm(NetBoxModelImportForm):
     status = CSVChoiceField(
         choices=VirtualMachineStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned site'
+        help_text=_('Assigned site')
     )
     cluster = CSVModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned cluster'
+        help_text=_('Assigned cluster')
     )
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned device within cluster'
+        help_text=_('Assigned device within cluster')
     )
     role = CSVModelChoiceField(
         queryset=DeviceRole.objects.filter(
@@ -95,30 +96,30 @@ class VirtualMachineCSVForm(NetBoxModelCSVForm):
         ),
         required=False,
         to_field_name='name',
-        help_text='Functional role'
+        help_text=_('Functional role')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     platform = CSVModelChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned platform'
+        help_text=_('Assigned platform')
     )
 
     class Meta:
         model = VirtualMachine
         fields = (
             'name', 'status', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'comments',
+            'description', 'comments', 'tags',
         )
 
 
-class VMInterfaceCSVForm(NetBoxModelCSVForm):
+class VMInterfaceImportForm(NetBoxModelImportForm):
     virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         to_field_name='name'
@@ -127,31 +128,31 @@ class VMInterfaceCSVForm(NetBoxModelCSVForm):
         queryset=VMInterface.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent interface'
+        help_text=_('Parent interface')
     )
     bridge = CSVModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Bridged interface'
+        help_text=_('Bridged interface')
     )
     mode = CSVChoiceField(
         choices=InterfaceModeChoices,
         required=False,
-        help_text='IEEE 802.1Q operational mode (for L2 interfaces)'
+        help_text=_('IEEE 802.1Q operational mode (for L2 interfaces)')
     )
     vrf = CSVModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
         to_field_name='rd',
-        help_text='Assigned VRF'
+        help_text=_('Assigned VRF')
     )
 
     class Meta:
         model = VMInterface
         fields = (
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
-            'vrf',
+            'vrf', 'tags'
         )
 
     def __init__(self, data=None, *args, **kwargs):

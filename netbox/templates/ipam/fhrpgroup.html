@@ -27,6 +27,10 @@
               <td>{{ object.group_id }}</td>
             </tr>
             <tr>
+              <td>Name</td>
+              <td>{{ object.name|placeholder }}</td>
+            </tr>
+            <tr>
               <td>Description</td>
               <td>{{ object.description|placeholder }}</td>
             </tr>
@@ -38,6 +42,7 @@
         </div>
       </div>
       {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
       {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">

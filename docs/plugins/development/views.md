@@ -82,23 +82,25 @@ class ThingEditView(ObjectEditView):
 Below are the class definitions for NetBox's object views. These views handle CRUD actions for individual objects. The view, add/edit, and delete views each inherit from `BaseObjectView`, which is not intended to be used directly.
 
 ::: netbox.views.generic.base.BaseObjectView
+    options:
+      members:
+        - get_queryset
+        - get_object
+        - get_extra_context
 
 ::: netbox.views.generic.ObjectView
     options:
       members:
-        - get_object
         - get_template_name
 
 ::: netbox.views.generic.ObjectEditView
     options:
       members:
-        - get_object
         - alter_object
 
 ::: netbox.views.generic.ObjectDeleteView
     options:
-      members:
-        - get_object
+      members: false
 
 ::: netbox.views.generic.ObjectChildrenView
     options:
@@ -111,6 +113,10 @@ Below are the class definitions for NetBox's object views. These views handle CR
 Below are the class definitions for NetBox's multi-object views. These views handle simultaneous actions for sets objects. The list, import, edit, and delete views each inherit from `BaseMultiObjectView`, which is not intended to be used directly.
 
 ::: netbox.views.generic.base.BaseMultiObjectView
+    options:
+      members:
+        - get_queryset
+        - get_extra_context
 
 ::: netbox.views.generic.ObjectListView
     options:
@@ -121,7 +127,8 @@ Below are the class definitions for NetBox's multi-object views. These views han
 
 ::: netbox.views.generic.BulkImportView
     options:
-      members: false
+      members:
+        - save_object
 
 ::: netbox.views.generic.BulkEditView
     options:
@@ -148,18 +155,51 @@ These views are provided to enable or enhance certain NetBox model features, suc
 
 ## Extending Core Views
 
-Plugins can inject custom content into certain areas of the detail views of applicable models. This is accomplished by subclassing `PluginTemplateExtension`, designating a particular NetBox model, and defining the desired methods to render custom content. Four methods are available:
+### Additional Tabs
 
-* `left_page()` - Inject content on the left side of the page
-* `right_page()` - Inject content on the right side of the page
-* `full_width_page()` - Inject content across the entire bottom of the page
-* `buttons()` - Add buttons to the top of the page
+!!! note
+    This feature was introduced in NetBox v3.4.
+
+Plugins can "attach" a custom view to a core NetBox model by registering it with `register_model_view()`. To include a tab for this view within the NetBox UI, declare a TabView instance named `tab`:
+
+```python
+from dcim.models import Site
+from myplugin.models import Stuff
+from netbox.views import generic
+from utilities.views import ViewTab, register_model_view
+
+@register_model_view(Site, name='myview', path='some-other-stuff')
+class MyView(generic.ObjectView):
+    ...
+    tab = ViewTab(
+        label='Other Stuff',
+        badge=lambda obj: Stuff.objects.filter(site=obj).count(),
+        permission='myplugin.view_stuff'
+    )
+```
+
+::: utilities.views.register_model_view
+
+::: utilities.views.ViewTab
+
+### Extra Template Content
+
+Plugins can inject custom content into certain areas of core NetBox views. This is accomplished by subclassing `PluginTemplateExtension`, designating a particular NetBox model, and defining the desired method(s) to render custom content. Five methods are available:
+
+| Method              | View        | Description                                         |
+|---------------------|-------------|-----------------------------------------------------|
+| `left_page()`       | Object view | Inject content on the left side of the page         |
+| `right_page()`      | Object view | Inject content on the right side of the page        |
+| `full_width_page()` | Object view | Inject content across the entire bottom of the page |
+| `buttons()`         | Object view | Add buttons to the top of the page                  |
+| `list_buttons()`    | List view   | Add buttons to the top of the page                  |
 
 Additionally, a `render()` method is available for convenience. This method accepts the name of a template to render, and any additional context data you want to pass. Its use is optional, however.
 
 When a PluginTemplateExtension is instantiated, context data is assigned to `self.context`. Available data include:
 
-* `object` - The object being viewed
+* `object` - The object being viewed (object views only)
+* `model` - The model of the list view (list views only)
 * `request` - The current request
 * `settings` - Global NetBox settings
 * `config` - Plugin-specific configuration parameters

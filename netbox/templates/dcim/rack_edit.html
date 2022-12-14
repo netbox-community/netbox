@@ -13,6 +13,7 @@
         {% render_field form.name %}
         {% render_field form.status %}
         {% render_field form.role %}
+        {% render_field form.description %}
         {% render_field form.tags %}
     </div>
 
@@ -55,6 +56,22 @@
                 <div class="form-text">Unit</div>
             </div>
         </div>
+        <div class="row mb-3">
+            <label class="col col-md-3 col-form-label text-lg-end">Weight</label>
+            <div class="col col-md-3 mb-1">
+                {{ form.weight }}
+                <div class="form-text">Weight</div>
+            </div>
+            <div class="col col-md-3 mb-1">
+                {{ form.max_weight }}
+                <div class="form-text">Maximum Weight</div>
+            </div>
+            <div class="col col-md-3 mb-1">
+                {{ form.weight_unit }}
+                <div class="form-text">Unit</div>
+            </div>
+        </div>
+        {% render_field form.mounting_depth %}
         {% render_field form.desc_units %}
     </div>
 

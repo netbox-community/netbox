@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from extras.choices import CustomFieldVisibilityChoices, CustomFieldTypeChoices
 from extras.models import *
@@ -9,83 +10,97 @@ from extras.utils import FeatureQuery
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelForm, CSVMultipleContentTypeField, SlugField
 
 __all__ = (
-    'CustomFieldCSVForm',
-    'CustomLinkCSVForm',
-    'ExportTemplateCSVForm',
-    'TagCSVForm',
-    'WebhookCSVForm',
+    'CustomFieldImportForm',
+    'CustomLinkImportForm',
+    'ExportTemplateImportForm',
+    'SavedFilterImportForm',
+    'TagImportForm',
+    'WebhookImportForm',
 )
 
 
-class CustomFieldCSVForm(CSVModelForm):
+class CustomFieldImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
-        help_text="One or more assigned object types"
+        help_text=_("One or more assigned object types")
     )
     type = CSVChoiceField(
         choices=CustomFieldTypeChoices,
-        help_text='Field data type (e.g. text, integer, etc.)'
+        help_text=_('Field data type (e.g. text, integer, etc.)')
     )
     object_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
         required=False,
-        help_text="Object type (for object or multi-object fields)"
+        help_text=_("Object type (for object or multi-object fields)")
     )
     choices = SimpleArrayField(
         base_field=forms.CharField(),
         required=False,
-        help_text='Comma-separated list of field choices'
+        help_text=_('Comma-separated list of field choices')
     )
     ui_visibility = CSVChoiceField(
         choices=CustomFieldVisibilityChoices,
-        help_text='How the custom field is displayed in the user interface'
+        help_text=_('How the custom field is displayed in the user interface')
     )
 
     class Meta:
         model = CustomField
         fields = (
-            'name', 'label', 'group_name', 'type', 'content_types', 'object_type', 'required', 'description', 'weight',
-            'filter_logic', 'default', 'choices', 'weight', 'validation_minimum', 'validation_maximum',
+            'name', 'label', 'group_name', 'type', 'content_types', 'object_type', 'required', 'description',
+            'search_weight', 'filter_logic', 'default', 'choices', 'weight', 'validation_minimum', 'validation_maximum',
             'validation_regex', 'ui_visibility',
         )
 
 
-class CustomLinkCSVForm(CSVModelForm):
-    content_type = CSVContentTypeField(
+class CustomLinkImportForm(CSVModelForm):
+    content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_links'),
-        help_text="Assigned object type"
+        help_text=_("One or more assigned object types")
     )
 
     class Meta:
         model = CustomLink
         fields = (
-            'name', 'content_type', 'enabled', 'weight', 'group_name', 'button_class', 'new_window', 'link_text',
+            'name', 'content_types', 'enabled', 'weight', 'group_name', 'button_class', 'new_window', 'link_text',
             'link_url',
         )
 
 
-class ExportTemplateCSVForm(CSVModelForm):
-    content_type = CSVContentTypeField(
+class ExportTemplateImportForm(CSVModelForm):
+    content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('export_templates'),
-        help_text="Assigned object type"
+        help_text=_("One or more assigned object types")
     )
 
     class Meta:
         model = ExportTemplate
         fields = (
-            'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment', 'template_code',
+            'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'template_code',
         )
 
 
-class WebhookCSVForm(CSVModelForm):
+class SavedFilterImportForm(CSVModelForm):
+    content_types = CSVMultipleContentTypeField(
+        queryset=ContentType.objects.all(),
+        help_text=_("One or more assigned object types")
+    )
+
+    class Meta:
+        model = SavedFilter
+        fields = (
+            'name', 'slug', 'content_types', 'description', 'weight', 'enabled', 'shared', 'parameters',
+        )
+
+
+class WebhookImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('webhooks'),
-        help_text="One or more assigned object types"
+        help_text=_("One or more assigned object types")
     )
 
     class Meta:
@@ -97,12 +112,12 @@ class WebhookCSVForm(CSVModelForm):
         )
 
 
-class TagCSVForm(CSVModelForm):
+class TagImportForm(CSVModelForm):
     slug = SlugField()
 
     class Meta:
         model = Tag
         fields = ('name', 'slug', 'color', 'description')
         help_texts = {
-            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
+            'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
         }

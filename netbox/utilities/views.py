@@ -3,7 +3,16 @@ from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
+from netbox.registry import registry
 from .permissions import resolve_permission
+
+__all__ = (
+    'ContentTypePermissionRequiredMixin',
+    'GetReturnURLMixin',
+    'ObjectPermissionRequiredMixin',
+    'ViewTab',
+    'register_model_view',
+)
 
 
 #
@@ -122,3 +131,81 @@ class GetReturnURLMixin:
 
         # If all else fails, return home. Ideally this should never happen.
         return reverse('home')
+
+
+class ViewTab:
+    """
+    ViewTabs are used for navigation among multiple object-specific views, such as the changelog or journal for
+    a particular object.
+
+    Args:
+        label: Human-friendly text
+        badge: A static value or callable to display alongside the label (optional). If a callable is used, it must
+            accept a single argument representing the object being viewed.
+        weight: Numeric weight to influence ordering among other tabs (default: 1000)
+        permission: The permission required to display the tab (optional).
+        hide_if_empty: If true, the tab will be displayed only if its badge has a meaningful value. (Tabs without a
+            badge are always displayed.)
+    """
+    def __init__(self, label, badge=None, weight=1000, permission=None, hide_if_empty=False):
+        self.label = label
+        self.badge = badge
+        self.weight = weight
+        self.permission = permission
+        self.hide_if_empty = hide_if_empty
+
+    def render(self, instance):
+        """Return the attributes needed to render a tab in HTML."""
+        badge_value = self._get_badge_value(instance)
+        if self.badge and self.hide_if_empty and not badge_value:
+            return None
+        return {
+            'label': self.label,
+            'badge': badge_value,
+            'weight': self.weight,
+        }
+
+    def _get_badge_value(self, instance):
+        if not self.badge:
+            return None
+        if callable(self.badge):
+            return self.badge(instance)
+        return self.badge
+
+
+def register_model_view(model, name='', path=None, kwargs=None):
+    """
+    This decorator can be used to "attach" a view to any model in NetBox. This is typically used to inject
+    additional tabs within a model's detail view. For example, to add a custom tab to NetBox's dcim.Site model:
+
+        @netbox_model_view(Site, 'myview', path='my-custom-view')
+        class MyView(ObjectView):
+            ...
+
+    This will automatically create a URL path for MyView at `/dcim/sites/<id>/my-custom-view/` which can be
+    resolved using the view name `dcim:site_myview'.
+
+    Args:
+        model: The Django model class with which this view will be associated.
+        name: The string used to form the view's name for URL resolution (e.g. via `reverse()`). This will be appended
+            to the name of the base view for the model using an underscore. If blank, the model name will be used.
+        path: The URL path by which the view can be reached (optional). If not provided, `name` will be used.
+        kwargs: A dictionary of keyword arguments for the view to include when registering its URL path (optional).
+    """
+    def _wrapper(cls):
+        app_label = model._meta.app_label
+        model_name = model._meta.model_name
+
+        if model_name not in registry['views'][app_label]:
+            registry['views'][app_label][model_name] = []
+
+        registry['views'][app_label][model_name].append({
+            'name': name,
+            'view': cls,
+            'path': path or name,
+            'kwargs': kwargs or {},
+        })
+
+        return cls
+
+    return _wrapper
