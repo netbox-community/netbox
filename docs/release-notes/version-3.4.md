@@ -1,6 +1,6 @@
 # NetBox v3.4
 
-## v3.4.0 (FUTURE)
+## v3.4.0 (2022-12-14)
 
 !!! warning "PostgreSQL 11 Required"
     NetBox v3.4 requires PostgreSQL 11 or later.
@@ -98,6 +98,7 @@ This release introduces a new programmatic API that enables plugins and custom s
 * [#11000](https://github.com/netbox-community/netbox/issues/11000) - Improve validation of YAML-formatted import data
 * [#11046](https://github.com/netbox-community/netbox/issues/11046) - Fix exception when caching very large field values for search
 * [#11154](https://github.com/netbox-community/netbox/issues/11154) - Index VM interface MAC address and MTU for global search
+* [#11171](https://github.com/netbox-community/netbox/issues/11171) - Fix querying of related objects under GraphQL API
 
 ### Plugins API
 

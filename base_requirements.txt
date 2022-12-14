@@ -68,7 +68,7 @@ drf-yasg[validation]
 
 # Django wrapper for Graphene (GraphQL support)
 # https://github.com/graphql-python/graphene-django
-graphene_django<3.0
+graphene_django
 
 # WSGI HTTP server
 # https://gunicorn.org/

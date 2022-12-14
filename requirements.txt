@@ -1,5 +1,5 @@
 bleach==5.0.1
-Django==4.1.2
+Django==4.1.4
 django-cors-headers==3.13.0
 django-debug-toolbar==3.8.1
 django-filter==22.1
@@ -20,7 +20,7 @@ gunicorn==20.1.0
 Jinja2==3.1.2
 Markdown==3.3.7
 mkdocs-material==8.5.11
-mkdocstrings[python-legacy]==0.19.0
+mkdocstrings[python-legacy]==0.19.1
 netaddr==0.8.0
 Pillow==9.3.0
 psycopg2-binary==2.9.5
