@@ -2,6 +2,10 @@
 
 ## v3.4.1 (FUTURE)
 
+### Enhancements
+
+* [#9971](https://github.com/netbox-community/netbox/issues/9971) - Enable ordering of nested group models by name
+
 ### Bug Fixes
 
 * [#11175](https://github.com/netbox-community/netbox/issues/11175) - Fix cloning of fields containing special characters
