@@ -75,7 +75,7 @@ class PrimaryModel(NetBoxModel):
         abstract = True
 
 
-class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
+class NestedGroupModel(CloningMixin, NetBoxFeatureSet, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.

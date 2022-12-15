@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#11185](https://github.com/netbox-community/netbox/issues/11185) - Fix TemplateSyntaxError when viewing custom script results
+* [#11205](https://github.com/netbox-community/netbox/issues/11205) - Correct cloning behavior for recursively-nested models
 
 ---
 
