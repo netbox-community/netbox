@@ -2,6 +2,10 @@
 
 ## v3.4.1 (FUTURE)
 
+### Bug Fixes
+
+* [#11185](https://github.com/netbox-community/netbox/issues/11185) - Fix TemplateSyntaxError when viewing custom script results
+
 ---
 
 ## v3.4.0 (2022-12-14)
