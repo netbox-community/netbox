@@ -382,4 +382,4 @@ def user_default_groups_handler(backend, user, response, *args, **kwargs):
         if group_list:
             user.groups.add(*group_list)
         else:
-            logger.debug(f"No valid group assignments for {user}")
+            logger.info(f"No valid group assignments for {user} - REMOTE_AUTH_DEFAULT_GROUPS may be incorrectly set?")
