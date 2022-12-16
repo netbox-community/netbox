@@ -11,6 +11,7 @@
 * [#11175](https://github.com/netbox-community/netbox/issues/11175) - Fix cloning of fields containing special characters
 * [#11178](https://github.com/netbox-community/netbox/issues/11178) - Pressing enter in quick search box should not trigger bulk operations
 * [#11185](https://github.com/netbox-community/netbox/issues/11185) - Fix TemplateSyntaxError when viewing custom script results
+* [#11189](https://github.com/netbox-community/netbox/issues/11189) - Fix localization of dates & numbers
 * [#11205](https://github.com/netbox-community/netbox/issues/11205) - Correct cloning behavior for recursively-nested models
 
 ---
