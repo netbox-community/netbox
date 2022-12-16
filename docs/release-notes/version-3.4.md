@@ -1,5 +1,24 @@
 # NetBox v3.4
 
+## v3.4.1 (2022-12-16)
+
+### Enhancements
+
+* [#9971](https://github.com/netbox-community/netbox/issues/9971) - Enable ordering of nested group models by name
+* [#11214](https://github.com/netbox-community/netbox/issues/11214) - Introduce the `DEFAULT_LANGUAGE` configuration parameter
+
+### Bug Fixes
+
+* [#11175](https://github.com/netbox-community/netbox/issues/11175) - Fix cloning of fields containing special characters
+* [#11178](https://github.com/netbox-community/netbox/issues/11178) - Pressing enter in quick search box should not trigger bulk operations
+* [#11184](https://github.com/netbox-community/netbox/issues/11184) - Correct visualization of cable path which splits across multiple circuit terminations
+* [#11185](https://github.com/netbox-community/netbox/issues/11185) - Fix TemplateSyntaxError when viewing custom script results
+* [#11189](https://github.com/netbox-community/netbox/issues/11189) - Fix localization of dates & numbers
+* [#11205](https://github.com/netbox-community/netbox/issues/11205) - Correct cloning behavior for recursively-nested models
+* [#11206](https://github.com/netbox-community/netbox/issues/11206) - Avoid clearing assigned groups if `REMOTE_AUTH_DEFAULT_GROUPS` is invalid
+
+---
+
 ## v3.4.0 (2022-12-14)
 
 !!! warning "PostgreSQL 11 Required"

@@ -24,7 +24,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.4.0'
+VERSION = '3.4.1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -94,6 +94,7 @@ FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
+LANGUAGE_CODE = getattr(configuration, 'DEFAULT_LANGUAGE', 'en-us')
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
@@ -339,6 +340,7 @@ MIDDLEWARE = [
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -384,9 +386,6 @@ AUTHENTICATION_BACKENDS = [
     REMOTE_AUTH_BACKEND,
     'netbox.authentication.ObjectPermissionBackend',
 ]
-
-# Internationalization
-LANGUAGE_CODE = 'en-us'
 
 # Time zones
 USE_TZ = True
