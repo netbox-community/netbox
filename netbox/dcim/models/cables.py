@@ -567,11 +567,12 @@ class CablePath(models.Model):
 
             elif isinstance(remote_terminations[0], CircuitTermination):
                 # Follow a CircuitTermination to its corresponding CircuitTermination (A to Z or vice versa)
-                term_side = remote_terminations[0].term_side
-                assert all(ct.term_side == term_side for ct in remote_terminations[1:])
+                if len(remote_terminations) > 1:
+                    is_split = True
+                    break
                 circuit_termination = CircuitTermination.objects.filter(
                     circuit=remote_terminations[0].circuit,
-                    term_side='Z' if term_side == 'A' else 'A'
+                    term_side='Z' if remote_terminations[0].term_side == 'A' else 'A'
                 ).first()
                 if circuit_termination is None:
                     break
@@ -685,6 +686,7 @@ class CablePath(models.Model):
         """
         Return all available next segments in a split cable path.
         """
+        from circuits.models import CircuitTermination
         nodes = self.path_objects[-1]
 
         # RearPort splitting to multiple FrontPorts with no stack position
@@ -694,3 +696,8 @@ class CablePath(models.Model):
         # RearPorts connected to different cables
         elif type(nodes[0]) is FrontPort:
             return RearPort.objects.filter(pk__in=[fp.rear_port_id for fp in nodes])
+        # Cable terminating to multiple CircuitTerminations
+        elif type(nodes[0]) is CircuitTermination:
+            return [
+                ct.get_peer_termination() for ct in nodes
+            ]
