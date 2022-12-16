@@ -1,6 +1,6 @@
 # NetBox v3.4
 
-## v3.4.1 (FUTURE)
+## v3.4.1 (2022-12-16)
 
 ### Enhancements
 
@@ -15,6 +15,7 @@
 * [#11185](https://github.com/netbox-community/netbox/issues/11185) - Fix TemplateSyntaxError when viewing custom script results
 * [#11189](https://github.com/netbox-community/netbox/issues/11189) - Fix localization of dates & numbers
 * [#11205](https://github.com/netbox-community/netbox/issues/11205) - Correct cloning behavior for recursively-nested models
+* [#11206](https://github.com/netbox-community/netbox/issues/11206) - Avoid clearing assigned groups if `REMOTE_AUTH_DEFAULT_GROUPS` is invalid
 
 ---
 
