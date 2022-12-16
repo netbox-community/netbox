@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#9971](https://github.com/netbox-community/netbox/issues/9971) - Enable ordering of nested group models by name
+* [#11214](https://github.com/netbox-community/netbox/issues/11214) - Introduce the `DEFAULT_LANGUAGE` configuration parameter
 
 ### Bug Fixes
 
