@@ -25,6 +25,7 @@ __all__ = (
     'ConsolePortTemplateForm',
     'ConsoleServerPortForm',
     'ConsoleServerPortTemplateForm',
+    'DeviceAssignForm',
     'DeviceBayForm',
     'DeviceBayTemplateForm',
     'DeviceForm',
@@ -40,9 +41,9 @@ __all__ = (
     'InventoryItemTemplateForm',
     'LocationForm',
     'ManufacturerForm',
-    'ModuleForm',
     'ModuleBayForm',
     'ModuleBayTemplateForm',
+    'ModuleForm',
     'ModuleTypeForm',
     'PlatformForm',
     'PopulateDeviceBayForm',
@@ -472,6 +473,18 @@ class PlatformForm(NetBoxModelForm):
         widgets = {
             'napalm_args': SmallTextarea(),
         }
+
+
+class DeviceAssignForm(BootstrapMixin, forms.Form):
+    q = forms.CharField(
+        required=False,
+        label=_('Search'),
+    )
+    show_racked_devices = forms.BooleanField(
+        required=False,
+        initial=False,
+        label=_('Show Racked Devices?'),
+    )
 
 
 class DeviceForm(TenancyForm, NetBoxModelForm):

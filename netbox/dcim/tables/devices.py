@@ -12,6 +12,7 @@ __all__ = (
     'CableTerminationTable',
     'ConsolePortTable',
     'ConsoleServerPortTable',
+    'DeviceAssignTable',
     'DeviceBayTable',
     'DeviceConsolePortTable',
     'DeviceConsoleServerPortTable',
@@ -21,8 +22,8 @@ __all__ = (
     'DeviceInterfaceTable',
     'DeviceInventoryItemTable',
     'DeviceModuleBayTable',
-    'DevicePowerPortTable',
     'DevicePowerOutletTable',
+    'DevicePowerPortTable',
     'DeviceRearPortTable',
     'DeviceRoleTable',
     'DeviceTable',
@@ -217,6 +218,20 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',
             'primary_ip',
         )
+
+
+class DeviceAssignTable(NetBoxTable):
+    device = tables.TemplateColumn(
+        template_code=DEVICE_ASSIGN_LINK,
+        verbose_name='Device'
+    )
+    status = columns.ChoiceFieldColumn()
+
+    class Meta(NetBoxTable.Meta):
+        model = models.Device
+        fields = ('device', 'status', 'device_role', 'site', 'location', 'rack', 'position')
+        exclude = ('id',)
+        orderable = False
 
 
 class DeviceImportTable(TenancyColumnsMixin, NetBoxTable):

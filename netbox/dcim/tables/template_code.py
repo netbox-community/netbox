@@ -24,6 +24,10 @@ DEVICE_LINK = """
 {{ value|default:'<span class="badge bg-info">Unnamed device</span>' }}
 """
 
+DEVICE_ASSIGN_LINK = """
+<a href="{% url 'dcim:device_edit' pk=record.pk %}?{% if request.GET.rack %}rack={{ request.GET.rack }}&face={{ request.GET.face }}&position={{ request.GET.position }}{% endif %}&return_url={{ request.GET.return_url }}">{{ record }}</a>
+"""
+
 DEVICEBAY_STATUS = """
 {% if record.installed_device_id %}
     <span class="badge bg-{{ record.installed_device.get_status_color }}">

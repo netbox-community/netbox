@@ -1880,6 +1880,49 @@ class DeviceDeleteView(generic.ObjectDeleteView):
     queryset = Device.objects.all()
 
 
+class DeviceAssignView(generic.ObjectView):
+    """
+    Search for Devices to be assigned to a rack.
+    """
+    queryset = Device.objects.all()
+
+    def dispatch(self, request, *args, **kwargs):
+
+        # Redirect user if a rack has not been provided
+        if 'rack' not in request.GET:
+            return redirect('dcim:device_add')
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        form = forms.DeviceAssignForm()
+
+        return render(request, 'dcim/device_assign.html', {
+            'form': form,
+            'return_url': request.GET.get('return_url', ''),
+        })
+
+    def post(self, request):
+        form = forms.DeviceAssignForm(request.POST)
+        table = None
+
+        if form.is_valid():
+            rack = Rack.objects.get(pk=request.GET['rack'])
+            # Only get devices belonging to the same site as rack
+            devices = self.queryset.filter(site=rack.site)
+            if not form.cleaned_data['show_racked_devices']:
+                devices = devices.exclude(rack__isnull=False)
+            # Limit to 100 results
+            devices = filtersets.DeviceFilterSet(request.POST, devices).qs[:100]
+            table = tables.DeviceAssignTable(devices)
+
+        return render(request, 'dcim/device_assign.html', {
+            'form': form,
+            'table': table,
+            'return_url': request.GET.get('return_url'),
+        })
+
+
 @register_model_view(Device, 'consoleports', path='console-ports')
 class DeviceConsolePortsView(DeviceComponentsView):
     child_model = ConsolePort

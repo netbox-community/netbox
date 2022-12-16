@@ -1,9 +1,13 @@
 {% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
 
+{% block tabs %}
+  {% include 'dcim/inc/device_edit_header.html' with active_tab='add' %}
+{% endblock %}
+
 {% block form %}
     {% render_errors form %}
-    
+
     <div class="field-group my-5">
       <div class="row mb-2">
         <h5 class="offset-sm-3">Device</h5>
@@ -13,7 +17,7 @@
       {% render_field form.description %}
       {% render_field form.tags %}
     </div>
-    
+
     <div class="field-group my-5">
       <div class="row mb-2">
         <h5 class="offset-sm-3">Hardware</h5>
@@ -24,7 +28,7 @@
       {% render_field form.serial %}
       {% render_field form.asset_tag %}
     </div>
-    
+
     <div class="field-group my-5">
       <div class="row mb-2">
         <h5 class="offset-sm-3">Location</h5>
@@ -58,7 +62,7 @@
         {% render_field form.position %}
       {% endif %}
     </div>
-    
+
     <div class="field-group my-5">
       <div class="row mb-2">
         <h5 class="offset-sm-3">Management</h5>
@@ -70,7 +74,7 @@
         {% render_field form.primary_ip6 %}
       {% endif %}
     </div>
-    
+
     <div class="field-group my-5">
       <div class="row mb-2">
         <h5 class="offset-sm-3">Virtualization</h5>
@@ -78,7 +82,7 @@
       {% render_field form.cluster_group %}
       {% render_field form.cluster %}
     </div>
-    
+
     <div class="field-group my-5">
       <div class="row mb-2">
         <h5 class="offset-sm-3">Tenancy</h5>
