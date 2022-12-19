@@ -55,6 +55,37 @@
     {% plugin_left_page object %}
   </div>
   <div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">Allocated Resources</h5>
+      <div class="card-body">
+          <table class="table table-hover attr-table">
+              <tr>
+                  <th scope="row"><i class="mdi mdi-gauge"></i> Virtual CPUs</th>
+                  <td>{{ vcpus_sum|placeholder }}</td>
+              </tr>
+              <tr>
+                  <th scope="row"><i class="mdi mdi-chip"></i> Memory</th>
+                  <td>
+                      {% if memory_sum %}
+                          {{ memory_sum|humanize_megabytes }}
+                      {% else %}
+                          {{ ''|placeholder }}
+                      {% endif %}
+                  </td>
+              </tr>
+              <tr>
+                  <th scope="row"><i class="mdi mdi-harddisk"></i> Disk Space</th>
+                  <td>
+                      {% if disk_sum %}
+                          {{ disk_sum }} GB
+                      {% else %}
+                          {{ ''|placeholder }}
+                      {% endif %}
+                  </td>
+              </tr>
+          </table>
+      </div>
+  </div>
     {% include 'inc/panels/custom_fields.html' %}
     {% include 'inc/panels/tags.html' %}
     {% include 'inc/panels/contacts.html' %}
