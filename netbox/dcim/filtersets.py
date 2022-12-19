@@ -1098,6 +1098,7 @@ class ModuleFilterSet(NetBoxModelFilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
+            Q(device__name__icontains=value.strip()) |
             Q(serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
             Q(comments__icontains=value)
