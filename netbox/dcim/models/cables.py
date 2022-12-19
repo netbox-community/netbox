@@ -112,6 +112,10 @@ class Cable(PrimaryModel):
     def a_terminations(self):
         if hasattr(self, '_a_terminations'):
             return self._a_terminations
+
+        if not self.pk:
+            return []
+
         # Query self.terminations.all() to leverage cached results
         return [
             ct.termination for ct in self.terminations.all() if ct.cable_end == CableEndChoices.SIDE_A
@@ -127,6 +131,10 @@ class Cable(PrimaryModel):
     def b_terminations(self):
         if hasattr(self, '_b_terminations'):
             return self._b_terminations
+
+        if not self.pk:
+            return []
+
         # Query self.terminations.all() to leverage cached results
         return [
             ct.termination for ct in self.terminations.all() if ct.cable_end == CableEndChoices.SIDE_B
