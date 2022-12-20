@@ -1623,30 +1623,23 @@ class InventoryItemForm(DeviceComponentForm):
         initial = kwargs.get('initial', {}).copy()
         component_type = initial.get('component_type')
         component_id = initial.get('component_id')
+        
+        # Used for picking the default active tab for component selection
+        self.no_component = True
 
         if instance:
-            if type(instance.component) is ConsolePort:
-                initial['consoleport'] = instance.component
-            elif type(instance.component) is ConsoleServerPort:
-                initial['consoleserverport'] = instance.component
-            elif type(instance.component) is FrontPort:
-                initial['frontport'] = instance.component
-            elif type(instance.component) is Interface:
-                initial['interface'] = instance.component
-            elif type(instance.component) is PowerPort:
-                initial['powerport'] = instance.component
-            elif type(instance.component) is RearPort:
-                initial['rearport'] = instance.component
-            else:
-                self.no_component = True
+            # When editing set the initial value for component selectin
+            for component_model in ContentType.objects.filter(MODULAR_COMPONENT_MODELS):
+                if type(instance.component) is component_model.model_class():
+                    initial[component_model.model] = instance.component
+                    self.no_component = False
+                    break
         elif component_type and component_id:
-            self.no_component = True
+            # When adding the InventoryItem from a component page
             if content_type := ContentType.objects.filter(MODULAR_COMPONENT_MODELS).filter(pk=component_type).first():
                 if component := content_type.model_class().objects.filter(pk=component_id).first():
                     initial[content_type.model] = component
                     self.no_component = False
-        else:
-            self.no_component = True
 
         kwargs['initial'] = initial
 
