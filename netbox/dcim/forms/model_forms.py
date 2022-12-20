@@ -1623,7 +1623,7 @@ class InventoryItemForm(DeviceComponentForm):
         initial = kwargs.get('initial', {}).copy()
         component_type = initial.get('component_type')
         component_id = initial.get('component_id')
-        
+
         # Used for picking the default active tab for component selection
         self.no_component = True
 
