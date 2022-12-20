@@ -2913,23 +2913,14 @@ class InventoryItemView(generic.ObjectView):
 class InventoryItemEditView(generic.ObjectEditView):
     queryset = InventoryItem.objects.all()
     form = forms.InventoryItemForm
+    template_name = 'dcim/inventoryitem_edit.html'
 
 
 class InventoryItemCreateView(generic.ComponentCreateView):
     queryset = InventoryItem.objects.all()
     form = forms.InventoryItemCreateForm
     model_form = forms.InventoryItemForm
-
-    def alter_object(self, instance, request):
-        # Set component (if any)
-        component_type = request.GET.get('component_type')
-        component_id = request.GET.get('component_id')
-
-        if component_type and component_id:
-            content_type = get_object_or_404(ContentType, pk=component_type)
-            instance.component = get_object_or_404(content_type.model_class(), pk=component_id)
-
-        return instance
+    template_name = 'dcim/inventoryitem_edit.html'
 
 
 @register_model_view(InventoryItem, 'delete')
