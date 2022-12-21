@@ -31,8 +31,7 @@ class CircuitType(OrganizationalModel):
 class Circuit(PrimaryModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
-    circuits. Each circuit is also assigned a CircuitType and a Site.  Circuit port speed and commit rate are measured
-    in Kbps.
+    circuits. Each circuit is also assigned a CircuitType and a Site.
     """
     cid = models.CharField(
         max_length=100,
@@ -73,7 +72,7 @@ class Circuit(PrimaryModel):
     commit_rate = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name='Commit rate (Kbps)')
+        verbose_name='Commit rate')
 
     # Generic relations
     contacts = GenericRelation(
@@ -161,14 +160,14 @@ class CircuitTermination(
         null=True
     )
     port_speed = models.PositiveIntegerField(
-        verbose_name='Port speed (Kbps)',
+        verbose_name='Port speed',
         blank=True,
         null=True
     )
     upstream_speed = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name='Upstream speed (Kbps)',
+        verbose_name='Upstream speed',
         help_text=_('Upstream speed, if different from port speed')
     )
     xconnect_id = models.CharField(
