@@ -33,6 +33,10 @@ class FHRPGroupTable(NetBoxTable):
         url_name='ipam:fhrpgroup_list'
     )
 
+    def value_ip_addresses(self, value):
+        return ",".join([str(obj.address) for obj in value.all()])
+
+
     class Meta(NetBoxTable.Meta):
         model = FHRPGroup
         fields = (
