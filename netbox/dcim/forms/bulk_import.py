@@ -885,12 +885,22 @@ class InventoryItemImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Parent inventory item')
     )
+    component_type = CSVContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=MODULAR_COMPONENT_MODELS,
+        required=False,
+        help_text=_('Component Type')
+    )
+    component_name = forms.CharField(
+        required=False,
+        help_text=_('Component Name')
+    )
 
     class Meta:
         model = InventoryItem
         fields = (
             'device', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered',
-            'description', 'tags'
+            'description', 'tags', 'component_type', 'component_name',
         )
 
     def __init__(self, *args, **kwargs):
@@ -907,6 +917,24 @@ class InventoryItemImportForm(NetBoxModelImportForm):
             self.fields['parent'].queryset = InventoryItem.objects.filter(device=device)
         else:
             self.fields['parent'].queryset = InventoryItem.objects.none()
+
+    def clean_component_name(self):
+        content_type = self.cleaned_data.get('component_type')
+        component_name = self.cleaned_data.get('component_name')
+        device = self.cleaned_data.get("device")
+
+        if not device and hasattr(self, 'instance'):
+            device = self.instance.device
+
+        if not all([device, content_type, component_name]):
+            return None
+
+        model = content_type.model_class()
+        try:
+            component = model.objects.get(device=device, name=component_name)
+            self.instance.component = component
+        except ObjectDoesNotExist:
+            raise forms.ValidationError(f"Component not found: {device} - {component_name}")
 
 
 #
