@@ -31,6 +31,7 @@ social-auth-core[openidconnect]==4.3.0
 svgwrite==1.4.3
 tablib==3.3.0
 tzdata==2022.7
+pytz==2022.7
 
 # Workaround for #7401
 jsonschema==3.2.0
