@@ -2,6 +2,10 @@
 
 ## v3.4.2 (FUTURE)
 
+### Bug Fixes
+
+* [#11232](https://github.com/netbox-community/netbox/issues/11232) - Enable partial & regular expression matching for non-string types in global search
+
 ---
 
 ## v3.4.1 (2022-12-16)
