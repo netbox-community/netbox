@@ -651,7 +651,12 @@ class JobResult(models.Model):
         if not self.completed:
             return None
 
-        duration = self.completed - self.created
+        start_time = self.started or self.created
+
+        if not start_time:
+            return None
+
+        duration = self.completed - start_time
         minutes, seconds = divmod(duration.total_seconds(), 60)
 
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
