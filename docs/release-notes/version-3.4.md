@@ -2,8 +2,14 @@
 
 ## v3.4.2 (FUTURE)
 
+### Enhancements
+
+* [#9285](https://github.com/netbox-community/netbox/issues/9285) - Enable specifying assigned component during bulk import of inventory items
+* [#10700](https://github.com/netbox-community/netbox/issues/10700) - Match device name when using modules quick search
+
 ### Bug Fixes
 
+* [#11290](https://github.com/netbox-community/netbox/issues/11290) - Correct reporting of scheduled job duration
 * [#11232](https://github.com/netbox-community/netbox/issues/11232) - Enable partial & regular expression matching for non-string types in global search
 
 ---
