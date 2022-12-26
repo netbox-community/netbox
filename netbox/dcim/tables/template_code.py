@@ -15,10 +15,13 @@ CABLE_LENGTH = """
 {% if record.length %}{{ record.length|simplify_decimal }} {{ record.length_unit }}{% endif %}
 """
 
+WEIGHT = """
+{% load helpers %}
+{% if value %}{{ value|simplify_decimal }} {{ record.weight_unit }}{% endif %}
+"""
+
 DEVICE_LINK = """
-<a href="{% url 'dcim:device' pk=record.pk %}">
-    {{ record.name|default:'<span class="badge bg-info">Unnamed device</span>' }}
-</a>
+{{ value|default:'<span class="badge bg-info">Unnamed device</span>' }}
 """
 
 DEVICEBAY_STATUS = """

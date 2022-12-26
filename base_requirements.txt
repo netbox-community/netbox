@@ -4,7 +4,7 @@ bleach
 
 # The Python web framework on which NetBox is built
 # https://github.com/django/django
-Django<4.1
+Django<4.2
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/OttoYiu/django-cors-headers
@@ -80,7 +80,8 @@ Jinja2
 
 # Simple markup language for rendering HTML
 # https://github.com/Python-Markdown/markdown
-Markdown
+# mkdocs currently requires Markdown v3.3
+Markdown<3.4
 
 # File inclusion plugin for Python-Markdown
 # https://github.com/cmacmackin/markdown-include

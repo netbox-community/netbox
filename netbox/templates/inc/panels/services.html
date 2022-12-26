@@ -1,0 +1,50 @@
+<div class="card">
+  <h5 class="card-header">Services</h5>
+  <div class="card-body">
+    {% if services %}
+      <table class="table table-hover">
+        {% for service in services %}
+          <tr>
+            <td>{{ service|linkify:"name" }}</td>
+            <td>{{ service.get_protocol_display }}</td>
+            <td>{{ service.port_list }}</td>
+            <td>
+              {% for ip in service.ipaddresses.all %}
+                <a href="{{ ip.get_absolute_url }}">{{ ip.address.ip }}</a><br />
+              {% empty %}
+                <span class="text-muted">All IPs</span>
+              {% endfor %}
+            </td>
+            <td>{{ service.description }}</td>
+            <td class="text-end noprint">
+              <a href="{% url 'ipam:service_changelog' pk=service.pk %}" class="btn btn-sm btn-outline-secondary" title="Change Log">
+                <i class="mdi mdi-history"></i>
+              </a>
+              {% if perms.ipam.change_service %}
+                <a href="{% url 'ipam:service_edit' pk=service.pk %}?return_url={{ service.parent.get_absolute_url }}" class="btn btn-warning btn-sm" title="Edit Service">
+                  <i class="mdi mdi-pencil"></i>
+                </a>
+              {% endif %}
+              {% if perms.ipam.delete_service %}
+                <a href="{% url 'ipam:service_delete' pk=service.pk %}?return_url={{ service.parent.get_absolute_url }}" class="btn btn-danger btn-sm">
+                  <i class="mdi mdi-trash-can-outline" title="Delete Service"></i>
+                </a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <div class="text-muted">None</div>
+    {% endif %}
+  </div>
+  {% if perms.ipam.add_service %}
+    {% with object|meta:"model_name" as object_type %}
+      <div class="card-footer text-end noprint">
+        <a href="{% url 'ipam:service_add' %}{% if object_type == "device" %}?device={{ object.pk }}{% elif object_type == "virtualmachine" %}?virtual_machine={{ object.pk }}{% endif %}" class="btn btn-sm btn-primary">
+          <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Service
+        </a>
+      </div>
+    {% endwith %}
+  {% endif %}
+</div>

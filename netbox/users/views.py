@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme, urlencode
@@ -20,6 +20,7 @@ from extras.tables import ObjectChangeTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from utilities.forms import ConfirmationForm
+from utilities.views import register_model_view
 from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
 from .models import Token, UserConfig
 from .tables import TokenTable
@@ -106,7 +107,7 @@ class LoginView(View):
             return self.redirect_to_next(request, logger)
 
         else:
-            logger.debug("Login form validation failed")
+            logger.debug(f"Login form validation failed for username: {form['username'].value()}")
 
         return render(request, self.template_name, {
             'form': form,
@@ -142,7 +143,7 @@ class LogoutView(View):
         messages.info(request, "You have logged out.")
 
         # Delete session key cookie (if set) upon logout
-        response = HttpResponseRedirect(reverse('home'))
+        response = HttpResponseRedirect(resolve_url(settings.LOGOUT_REDIRECT_URL))
         response.delete_cookie('session_key')
 
         return response
@@ -246,6 +247,7 @@ class TokenListView(LoginRequiredMixin, View):
         })
 
 
+@register_model_view(Token, 'edit')
 class TokenEditView(LoginRequiredMixin, View):
 
     def get(self, request, pk=None):
@@ -273,6 +275,7 @@ class TokenEditView(LoginRequiredMixin, View):
             form = TokenForm(request.POST)
 
         if form.is_valid():
+
             token = form.save(commit=False)
             token.user = request.user
             token.save()
@@ -280,7 +283,13 @@ class TokenEditView(LoginRequiredMixin, View):
             msg = f"Modified token {token}" if pk else f"Created token {token}"
             messages.success(request, msg)
 
-            if '_addanother' in request.POST:
+            if not pk and not settings.ALLOW_TOKEN_RETRIEVAL:
+                return render(request, 'users/api_token.html', {
+                    'object': token,
+                    'key': token.key,
+                    'return_url': reverse('users:token_list'),
+                })
+            elif '_addanother' in request.POST:
                 return redirect(request.path)
             else:
                 return redirect('users:token_list')
@@ -289,9 +298,11 @@ class TokenEditView(LoginRequiredMixin, View):
             'object': token,
             'form': form,
             'return_url': reverse('users:token_list'),
+            'disable_addanother': not settings.ALLOW_TOKEN_RETRIEVAL
         })
 
 
+@register_model_view(Token, 'delete')
 class TokenDeleteView(LoginRequiredMixin, View):
 
     def get(self, request, pk):

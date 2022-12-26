@@ -2,9 +2,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
-from mptt.models import TreeForeignKey
 
-from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, NetBoxModel
+from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import WebhooksMixin
 from tenancy.choices import *
 
@@ -20,29 +19,13 @@ class ContactGroup(NestedGroupModel):
     """
     An arbitrary collection of Contacts.
     """
-    name = models.CharField(
-        max_length=100
-    )
-    slug = models.SlugField(
-        max_length=100
-    )
-    parent = TreeForeignKey(
-        to='self',
-        on_delete=models.CASCADE,
-        related_name='children',
-        blank=True,
-        null=True,
-        db_index=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
     class Meta:
         ordering = ['name']
-        unique_together = (
-            ('parent', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('parent', 'name'),
+                name='%(app_label)s_%(class)s_unique_parent_name'
+            ),
         )
 
     def get_absolute_url(self):
@@ -53,30 +36,11 @@ class ContactRole(OrganizationalModel):
     """
     Functional role for a Contact assigned to an object.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True,
-    )
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
         return reverse('tenancy:contactrole', args=[self.pk])
 
 
-class Contact(NetBoxModel):
+class Contact(PrimaryModel):
     """
     Contact information for a particular object(s) in NetBox.
     """
@@ -108,9 +72,6 @@ class Contact(NetBoxModel):
     link = models.URLField(
         blank=True
     )
-    comments = models.TextField(
-        blank=True
-    )
 
     clone_fields = (
         'group', 'name', 'title', 'phone', 'email', 'address', 'link',
@@ -118,8 +79,11 @@ class Contact(NetBoxModel):
 
     class Meta:
         ordering = ['name']
-        unique_together = (
-            ('group', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('group', 'name'),
+                name='%(app_label)s_%(class)s_unique_group_name'
+            ),
         )
 
     def __str__(self):
@@ -159,12 +123,17 @@ class ContactAssignment(WebhooksMixin, ChangeLoggedModel):
 
     class Meta:
         ordering = ('priority', 'contact')
-        unique_together = ('content_type', 'object_id', 'contact', 'role', 'priority')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('content_type', 'object_id', 'contact', 'role'),
+                name='%(app_label)s_%(class)s_unique_object_contact_role'
+            ),
+        )
 
     def __str__(self):
         if self.priority:
-            return f"{self.contact} ({self.get_priority_display()})"
-        return str(self.contact)
+            return f"{self.contact} ({self.get_priority_display()}) -> {self.object}"
+        return str(f"{self.contact} -> {self.object}")
 
     def get_absolute_url(self):
         return reverse('tenancy:contact', args=[self.contact.pk])

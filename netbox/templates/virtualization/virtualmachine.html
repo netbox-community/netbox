@@ -30,6 +30,10 @@
                         <td>{{ object.platform|linkify|placeholder }}</td>
                     </tr>
                     <tr>
+                      <th scope="row">Description</th>
+                      <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Tenant</th>
                         <td>
                             {% if object.tenant.group %}
@@ -46,7 +50,7 @@
                             {% if object.primary_ip4.nat_inside %}
                               (NAT for <a href="{{ object.primary_ip4.nat_inside.get_absolute_url }}">{{ object.primary_ip4.nat_inside.address.ip }}</a>)
                             {% elif object.primary_ip4.nat_outside.exists %}
-                              (NAT for {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                              (NAT: {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                             {% endif %}
                           {% else %}
                             {{ ''|placeholder }}
@@ -61,7 +65,7 @@
                             {% if object.primary_ip6.nat_inside %}
                               (NAT for <a href="{{ object.primary_ip6.nat_inside.get_absolute_url }}">{{ object.primary_ip6.nat_inside.address.ip }}</a>)
                             {% elif object.primary_ip6.nat_outside.exists %}
-                              (NAT for {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                              (NAT: {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                             {% endif %}
                           {% else %}
                             {{ ''|placeholder }}
@@ -140,29 +144,7 @@
                 </table>
             </div>
         </div>
-        <div class="card">
-            <h5 class="card-header">
-                Services
-            </h5>
-            <div class="card-body">
-            {% if services %}
-                <table class="table table-hover">
-                    {% for service in services %}
-                        {% include 'ipam/inc/service.html' %}
-                    {% endfor %}
-                </table>
-            {% else %}
-                <span class="text-muted">None</span>
-            {% endif %}
-            </div>
-            {% if perms.ipam.add_service %}
-                <div class="card-footer text-end noprint">
-                    <a href="{% url 'ipam:service_add' %}?virtual_machine={{ object.pk }}" class="btn btn-sm btn-primary">
-                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Service
-                    </a>
-                </div>
-            {% endif %}
-        </div>
+        {% include 'inc/panels/services.html' %}
         {% include 'inc/panels/contacts.html' %}
         {% plugin_right_page object %}
     </div>

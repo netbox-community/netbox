@@ -31,8 +31,8 @@ class ASNSerializer(NetBoxModelSerializer):
     class Meta:
         model = ASN
         fields = [
-            'id', 'url', 'display', 'asn', 'rir', 'tenant', 'description', 'site_count', 'provider_count', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'asn', 'rir', 'tenant', 'description', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated', 'site_count', 'provider_count',
         ]
 
 
@@ -61,8 +61,9 @@ class VRFSerializer(NetBoxModelSerializer):
     class Meta:
         model = VRF
         fields = [
-            'id', 'url', 'display', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets',
-            'export_targets', 'tags', 'custom_fields', 'created', 'last_updated', 'ipaddress_count', 'prefix_count',
+            'id', 'url', 'display', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'comments',
+            'import_targets', 'export_targets', 'tags', 'custom_fields', 'created', 'last_updated', 'ipaddress_count',
+            'prefix_count',
         ]
 
 
@@ -77,7 +78,8 @@ class RouteTargetSerializer(NetBoxModelSerializer):
     class Meta:
         model = RouteTarget
         fields = [
-            'id', 'url', 'display', 'name', 'tenant', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'tenant', 'description', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated',
         ]
 
 
@@ -106,8 +108,8 @@ class AggregateSerializer(NetBoxModelSerializer):
     class Meta:
         model = Aggregate
         fields = [
-            'id', 'url', 'display', 'family', 'prefix', 'rir', 'tenant', 'date_added', 'description', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'family', 'prefix', 'rir', 'tenant', 'date_added', 'description', 'comments',
+            'tags', 'custom_fields', 'created', 'last_updated',
         ]
         read_only_fields = ['family']
 
@@ -123,8 +125,8 @@ class FHRPGroupSerializer(NetBoxModelSerializer):
     class Meta:
         model = FHRPGroup
         fields = [
-            'id', 'url', 'display', 'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'ip_addresses',
-            'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'name', 'url', 'display', 'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'comments',
+            'tags', 'custom_fields', 'created', 'last_updated', 'ip_addresses',
         ]
 
 
@@ -175,6 +177,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
         queryset=ContentType.objects.filter(
             model__in=VLANGROUP_SCOPE_TYPES
         ),
+        allow_null=True,
         required=False,
         default=None
     )
@@ -214,7 +217,7 @@ class VLANSerializer(NetBoxModelSerializer):
         model = VLAN
         fields = [
             'id', 'url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description',
-            'l2vpn_termination', 'tags', 'custom_fields', 'created', 'last_updated', 'prefix_count',
+            'comments', 'l2vpn_termination', 'tags', 'custom_fields', 'created', 'last_updated', 'prefix_count',
         ]
 
 
@@ -272,7 +275,8 @@ class PrefixSerializer(NetBoxModelSerializer):
         model = Prefix
         fields = [
             'id', 'url', 'display', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool',
-            'mark_utilized', 'description', 'tags', 'custom_fields', 'created', 'last_updated', 'children', '_depth',
+            'mark_utilized', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'children',
+            '_depth',
         ]
         read_only_fields = ['family']
 
@@ -341,7 +345,7 @@ class IPRangeSerializer(NetBoxModelSerializer):
         model = IPRange
         fields = [
             'id', 'url', 'display', 'family', 'start_address', 'end_address', 'size', 'vrf', 'tenant', 'status', 'role',
-            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'children',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'children',
         ]
         read_only_fields = ['family']
 
@@ -370,8 +374,8 @@ class IPAddressSerializer(NetBoxModelSerializer):
         model = IPAddress
         fields = [
             'id', 'url', 'display', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'assigned_object_type',
-            'assigned_object_id', 'assigned_object', 'nat_inside', 'nat_outside', 'dns_name', 'description', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'assigned_object_id', 'assigned_object', 'nat_inside', 'nat_outside', 'dns_name', 'description', 'comments',
+            'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.JSONField)
@@ -414,8 +418,8 @@ class ServiceTemplateSerializer(NetBoxModelSerializer):
     class Meta:
         model = ServiceTemplate
         fields = [
-            'id', 'url', 'display', 'name', 'ports', 'protocol', 'description', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'name', 'ports', 'protocol', 'description', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
 
 
@@ -435,7 +439,7 @@ class ServiceSerializer(NetBoxModelSerializer):
         model = Service
         fields = [
             'id', 'url', 'display', 'device', 'virtual_machine', 'name', 'ports', 'protocol', 'ipaddresses',
-            'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 #
@@ -464,7 +468,7 @@ class L2VPNSerializer(NetBoxModelSerializer):
         model = L2VPN
         fields = [
             'id', 'url', 'display', 'identifier', 'name', 'slug', 'type', 'import_targets', 'export_targets',
-            'description', 'tenant', 'tags', 'custom_fields', 'created', 'last_updated'
+            'description', 'comments', 'tenant', 'tags', 'custom_fields', 'created', 'last_updated'
         ]
 
 

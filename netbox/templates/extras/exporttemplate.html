@@ -19,10 +19,6 @@
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Content Type</th>
-            <td>{{ object.content_type }}</td>
-          </tr>
-          <tr>
             <th scope="row">Name</th>
             <td>{{ object.name }}</td>
           </tr>
@@ -42,6 +38,18 @@
             <th scope="row">Attachment</th>
             <td>{% checkmark object.as_attachment %}</td>
           </tr>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h5 class="card-header">Assigned Models</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          {% for ct in object.content_types.all %}
+            <tr>
+              <td>{{ ct }}</td>
+            </tr>
+          {% endfor %}
         </table>
       </div>
     </div>

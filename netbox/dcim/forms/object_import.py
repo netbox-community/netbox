@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from dcim.choices import InterfacePoEModeChoices, InterfacePoETypeChoices, InterfaceTypeChoices, PortTypeChoices
 from dcim.models import *
@@ -8,41 +9,14 @@ __all__ = (
     'ConsolePortTemplateImportForm',
     'ConsoleServerPortTemplateImportForm',
     'DeviceBayTemplateImportForm',
-    'DeviceTypeImportForm',
     'FrontPortTemplateImportForm',
     'InterfaceTemplateImportForm',
     'InventoryItemTemplateImportForm',
     'ModuleBayTemplateImportForm',
-    'ModuleTypeImportForm',
     'PowerOutletTemplateImportForm',
     'PowerPortTemplateImportForm',
     'RearPortTemplateImportForm',
 )
-
-
-class DeviceTypeImportForm(BootstrapMixin, forms.ModelForm):
-    manufacturer = forms.ModelChoiceField(
-        queryset=Manufacturer.objects.all(),
-        to_field_name='name'
-    )
-
-    class Meta:
-        model = DeviceType
-        fields = [
-            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
-            'comments',
-        ]
-
-
-class ModuleTypeImportForm(BootstrapMixin, forms.ModelForm):
-    manufacturer = forms.ModelChoiceField(
-        queryset=Manufacturer.objects.all(),
-        to_field_name='name'
-    )
-
-    class Meta:
-        model = ModuleType
-        fields = ['manufacturer', 'model', 'part_number', 'comments']
 
 
 #
@@ -115,12 +89,12 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     poe_mode = forms.ChoiceField(
         choices=InterfacePoEModeChoices,
         required=False,
-        label='PoE mode'
+        label=_('PoE mode')
     )
     poe_type = forms.ChoiceField(
         choices=InterfacePoETypeChoices,
         required=False,
-        label='PoE type'
+        label=_('PoE type')
     )
 
     class Meta:

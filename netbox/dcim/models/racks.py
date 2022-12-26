@@ -1,25 +1,26 @@
 import decimal
+from functools import cached_property
 
-from django.apps import apps
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count, Sum
+from django.db.models import Count
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.svg import RackElevationSVG
-from netbox.models import OrganizationalModel, NetBoxModel
+from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.utils import array_to_string, drange
-from .device_components import PowerOutlet, PowerPort
-from .devices import Device
+from utilities.utils import array_to_string, drange, to_grams
+from .device_components import PowerPort
+from .devices import Device, Module
+from .mixins import WeightMixin
 from .power import PowerFeed
 
 __all__ = (
@@ -37,33 +38,15 @@ class RackRole(OrganizationalModel):
     """
     Racks can be organized by functional role, similar to Devices.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
     color = ColorField(
         default=ColorChoices.COLOR_GREY
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True,
-    )
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:rackrole', args=[self.pk])
 
 
-class Rack(NetBoxModel):
+class Rack(PrimaryModel, WeightMixin):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
@@ -81,7 +64,7 @@ class Rack(NetBoxModel):
         blank=True,
         null=True,
         verbose_name='Facility ID',
-        help_text='Locally-assigned identifier'
+        help_text=_('Locally-assigned identifier')
     )
     site = models.ForeignKey(
         to='dcim.Site',
@@ -113,7 +96,7 @@ class Rack(NetBoxModel):
         related_name='racks',
         blank=True,
         null=True,
-        help_text='Functional role'
+        help_text=_('Functional role')
     )
     serial = models.CharField(
         max_length=50,
@@ -126,7 +109,7 @@ class Rack(NetBoxModel):
         null=True,
         unique=True,
         verbose_name='Asset tag',
-        help_text='A unique tag used to identify this rack'
+        help_text=_('A unique tag used to identify this rack')
     )
     type = models.CharField(
         choices=RackTypeChoices,
@@ -138,36 +121,51 @@ class Rack(NetBoxModel):
         choices=RackWidthChoices,
         default=RackWidthChoices.WIDTH_19IN,
         verbose_name='Width',
-        help_text='Rail-to-rail width'
+        help_text=_('Rail-to-rail width')
     )
     u_height = models.PositiveSmallIntegerField(
         default=RACK_U_HEIGHT_DEFAULT,
         verbose_name='Height (U)',
         validators=[MinValueValidator(1), MaxValueValidator(100)],
-        help_text='Height in rack units'
+        help_text=_('Height in rack units')
     )
     desc_units = models.BooleanField(
         default=False,
         verbose_name='Descending units',
-        help_text='Units are numbered top-to-bottom'
+        help_text=_('Units are numbered top-to-bottom')
     )
     outer_width = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
-        help_text='Outer dimension of rack (width)'
+        help_text=_('Outer dimension of rack (width)')
     )
     outer_depth = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
-        help_text='Outer dimension of rack (depth)'
+        help_text=_('Outer dimension of rack (depth)')
     )
     outer_unit = models.CharField(
         max_length=50,
         choices=RackDimensionUnitChoices,
         blank=True,
     )
-    comments = models.TextField(
-        blank=True
+    max_weight = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text=_('Maximum load capacity for the rack')
+    )
+    # Stores the normalized max weight (in grams) for database ordering
+    _abs_max_weight = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    mounting_depth = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        help_text=(
+            _('Maximum depth of a mounted device, in millimeters. For four-post racks, this is the '
+              'distance between the front and rear rails.')
+        )
     )
 
     # Generic relations
@@ -186,25 +184,30 @@ class Rack(NetBoxModel):
 
     clone_fields = (
         'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
-        'outer_depth', 'outer_unit',
+        'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
+    )
+    prerequisite_models = (
+        'dcim.Site',
     )
 
     class Meta:
         ordering = ('site', 'location', '_name', 'pk')  # (site, location, name) may be non-unique
-        unique_together = (
+        constraints = (
             # Name and facility_id must be unique *only* within a Location
-            ('location', 'name'),
-            ('location', 'facility_id'),
+            models.UniqueConstraint(
+                fields=('location', 'name'),
+                name='%(app_label)s_%(class)s_unique_location_name'
+            ),
+            models.UniqueConstraint(
+                fields=('location', 'facility_id'),
+                name='%(app_label)s_%(class)s_unique_location_facility_id'
+            ),
         )
 
     def __str__(self):
         if self.facility_id:
             return f'{self.name} ({self.facility_id})'
         return self.name
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [apps.get_model('dcim.Site'), ]
 
     def get_absolute_url(self):
         return reverse('dcim:rack', args=[self.pk])
@@ -221,6 +224,10 @@ class Rack(NetBoxModel):
             raise ValidationError("Must specify a unit when setting an outer width/depth")
         elif self.outer_width is None and self.outer_depth is None:
             self.outer_unit = ''
+
+        # Validate max_weight and weight_unit
+        if self.max_weight and not self.weight_unit:
+            raise ValidationError("Must specify a unit when setting a maximum weight")
 
         if self.pk:
             # Validate that Rack is tall enough to house the installed Devices
@@ -243,6 +250,16 @@ class Rack(NetBoxModel):
                     raise ValidationError({
                         'location': f"Location must be from the same site, {self.site}."
                     })
+
+    def save(self, *args, **kwargs):
+
+        # Store the given max weight (if any) in grams for use in database ordering
+        if self.max_weight and self.weight_unit:
+            self._abs_max_weight = to_grams(self.max_weight, self.weight_unit)
+        else:
+            self._abs_max_weight = None
+
+        super().save(*args, **kwargs)
 
     @property
     def units(self):
@@ -449,8 +466,24 @@ class Rack(NetBoxModel):
 
         return int(allocated_draw / available_power_total * 100)
 
+    @cached_property
+    def total_weight(self):
+        total_weight = sum(
+            device.device_type._abs_weight
+            for device in self.devices.exclude(device_type___abs_weight__isnull=True).prefetch_related('device_type')
+        )
+        total_weight += sum(
+            module.module_type._abs_weight
+            for module in Module.objects.filter(device__rack=self)
+            .exclude(module_type___abs_weight__isnull=True)
+            .prefetch_related('module_type')
+        )
+        if self._abs_weight:
+            total_weight += self._abs_weight
+        return round(total_weight / 1000, 2)
 
-class RackReservation(NetBoxModel):
+
+class RackReservation(PrimaryModel):
     """
     One or more reserved units within a Rack.
     """
@@ -477,15 +510,16 @@ class RackReservation(NetBoxModel):
         max_length=200
     )
 
+    clone_fields = ('rack', 'user', 'tenant')
+    prerequisite_models = (
+        'dcim.Rack',
+    )
+
     class Meta:
         ordering = ['created', 'pk']
 
     def __str__(self):
         return "Reservation for rack {}".format(self.rack)
-
-    @classmethod
-    def get_prerequisite_models(cls):
-        return [apps.get_model('dcim.Site'), Rack, ]
 
     def get_absolute_url(self):
         return reverse('dcim:rackreservation', args=[self.pk])

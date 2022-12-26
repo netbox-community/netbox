@@ -1,8 +1,9 @@
 import django_tables2 as tables
-
 from dcim.models import Location, Region, Site, SiteGroup
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
+
 from .template_code import LOCATION_BUTTONS
 
 __all__ = (
@@ -17,7 +18,7 @@ __all__ = (
 # Regions
 #
 
-class RegionTable(NetBoxTable):
+class RegionTable(ContactsColumnMixin, NetBoxTable):
     name = columns.MPTTColumn(
         linkify=True
     )
@@ -25,9 +26,6 @@ class RegionTable(NetBoxTable):
         viewname='dcim:site_list',
         url_params={'region_id': 'pk'},
         verbose_name='Sites'
-    )
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
     )
     tags = columns.TagColumn(
         url_name='dcim:region_list'
@@ -46,7 +44,7 @@ class RegionTable(NetBoxTable):
 # Site groups
 #
 
-class SiteGroupTable(NetBoxTable):
+class SiteGroupTable(ContactsColumnMixin, NetBoxTable):
     name = columns.MPTTColumn(
         linkify=True
     )
@@ -54,9 +52,6 @@ class SiteGroupTable(NetBoxTable):
         viewname='dcim:site_list',
         url_params={'group_id': 'pk'},
         verbose_name='Sites'
-    )
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
     )
     tags = columns.TagColumn(
         url_name='dcim:sitegroup_list'
@@ -75,7 +70,7 @@ class SiteGroupTable(NetBoxTable):
 # Sites
 #
 
-class SiteTable(TenancyColumnsMixin, NetBoxTable):
+class SiteTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -97,9 +92,6 @@ class SiteTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name='ASN Count'
     )
     comments = columns.MarkdownColumn()
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
-    )
     tags = columns.TagColumn(
         url_name='dcim:site_list'
     )
@@ -107,9 +99,9 @@ class SiteTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Site
         fields = (
-            'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'tenant_group', 'asns', 'asn_count',
-            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments',
-            'contacts', 'tags', 'created', 'last_updated', 'actions',
+            'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'tenant_group', 'asns',
+            'asn_count', 'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude',
+            'comments', 'contacts', 'tags', 'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'description')
 
@@ -118,7 +110,7 @@ class SiteTable(TenancyColumnsMixin, NetBoxTable):
 # Locations
 #
 
-class LocationTable(TenancyColumnsMixin, NetBoxTable):
+class LocationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = columns.MPTTColumn(
         linkify=True
     )
@@ -135,9 +127,6 @@ class LocationTable(TenancyColumnsMixin, NetBoxTable):
         viewname='dcim:device_list',
         url_params={'location_id': 'pk'},
         verbose_name='Devices'
-    )
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
     )
     tags = columns.TagColumn(
         url_name='dcim:location_list'

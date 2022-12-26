@@ -1,12 +1,13 @@
+from django.apps import apps
+
+
 def get_prerequisite_model(queryset):
-    model = queryset.model
-
+    """
+    Return any prerequisite model that must be created prior to creating
+    an instance of the current model.
+    """
     if not queryset.exists():
-        if hasattr(model, 'get_prerequisite_models'):
-            prerequisites = model.get_prerequisite_models()
-            if prerequisites:
-                for prereq in prerequisites:
-                    if not prereq.objects.exists():
-                        return prereq
-
-    return None
+        for prereq in getattr(queryset.model, 'prerequisite_models', []):
+            model = apps.get_model(prereq)
+            if not model.objects.exists():
+                return model

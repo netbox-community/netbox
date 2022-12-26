@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from ipam.choices import *
 from ipam.constants import *
-from netbox.models import NetBoxModel
+from netbox.models import PrimaryModel
 from utilities.utils import array_to_string
 
 
@@ -30,10 +30,6 @@ class ServiceBase(models.Model):
         ),
         verbose_name='Port numbers'
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
 
     class Meta:
         abstract = True
@@ -46,7 +42,7 @@ class ServiceBase(models.Model):
         return array_to_string(self.ports)
 
 
-class ServiceTemplate(ServiceBase, NetBoxModel):
+class ServiceTemplate(ServiceBase, PrimaryModel):
     """
     A template for a Service to be applied to a device or virtual machine.
     """
@@ -62,7 +58,7 @@ class ServiceTemplate(ServiceBase, NetBoxModel):
         return reverse('ipam:servicetemplate', args=[self.pk])
 
 
-class Service(ServiceBase, NetBoxModel):
+class Service(ServiceBase, PrimaryModel):
     """
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may
     optionally be tied to one or more specific IPAddresses belonging to its parent.
@@ -91,6 +87,8 @@ class Service(ServiceBase, NetBoxModel):
         blank=True,
         verbose_name='IP addresses'
     )
+
+    clone_fields = ['protocol', 'ports', 'description', 'device', 'virtual_machine', 'ipaddresses', ]
 
     class Meta:
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique

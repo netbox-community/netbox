@@ -932,7 +932,7 @@ class FHRPGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         fhrp_groups = (
             FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key='foo123'),
-            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='bar456'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='bar456', name='bar123'),
             FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP, group_id=30),
         )
         FHRPGroup.objects.bulk_create(fhrp_groups)
@@ -955,6 +955,10 @@ class FHRPGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_auth_key(self):
         params = {'auth_key': ['foo123', 'bar456']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['bar123', ]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_related_ip(self):
         # Create some regular IPs to query for related IPs
@@ -1499,6 +1503,10 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_name(self):
         params = {'name': ['L2VPN 1', 'L2VPN 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['l2vpn-1', 'l2vpn-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_identifier(self):

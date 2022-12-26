@@ -37,6 +37,7 @@ router.register('inventory-item-templates', views.InventoryItemTemplateViewSet)
 router.register('device-roles', views.DeviceRoleViewSet)
 router.register('platforms', views.PlatformViewSet)
 router.register('devices', views.DeviceViewSet)
+router.register('virtual-device-contexts', views.VirtualDeviceContextViewSet)
 router.register('modules', views.ModuleViewSet)
 
 # Device components

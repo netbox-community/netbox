@@ -1,7 +1,6 @@
 {# Base layout for the core NetBox UI w/navbar and page content #}
 {% extends 'base/base.html' %}
 {% load helpers %}
-{% load search %}
 {% load static %}
 
 {% comment %}
@@ -41,7 +40,7 @@ Blocks:
                 </button>
               </div>
               <div class="d-flex my-1 flex-grow-1 justify-content-center w-100">
-                {% search_options request %}
+                {% include 'inc/searchbar.html' %}
               </div>
             </div>
 
@@ -53,7 +52,7 @@ Blocks:
 
               {# Search bar #}
               <div class="col-6 d-flex flex-grow-1 justify-content-center">
-                {% search_options request %}
+                {% include 'inc/searchbar.html' %}
               </div>
 
               {# Proflie/login button #}
@@ -103,13 +102,13 @@ Blocks:
               {% block content %}{% endblock %}
             </div>
           {% endblock %}
+          {# Bottom banner #}
+          {% if config.BANNER_BOTTOM %}
+            <div class="text-center mx-3">
+              {{ config.BANNER_BOTTOM|safe }}
+            </div>
+          {% endif %}
         </div>
-
-        {% if config.BANNER_BOTTOM %}
-          <div class="text-center mx-3">
-            {{ config.BANNER_BOTTOM|safe }}
-          </div>
-        {% endif %}
 
         {# BS5 pop-up modals #}
         {% block modals %}{% endblock %}

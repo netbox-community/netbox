@@ -1,10 +1,12 @@
+from decimal import Decimal
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from rest_framework import status
 
 from dcim.filtersets import SiteFilterSet
-from dcim.forms import SiteCSVForm
+from dcim.forms import SiteImportForm
 from dcim.models import Manufacturer, Rack, Site
 from extras.choices import *
 from extras.models import CustomField
@@ -89,6 +91,32 @@ class CustomFieldTest(TestCase):
         self.assertIsNone(instance.custom_field_data[cf.name])
 
         for value in (123456, 0, -123456):
+
+            # Assign a value and check that it is saved
+            instance.custom_field_data[cf.name] = value
+            instance.save()
+            instance.refresh_from_db()
+            self.assertEqual(instance.custom_field_data[cf.name], value)
+
+            # Delete the stored value and check that it is now null
+            instance.custom_field_data.pop(cf.name)
+            instance.save()
+            instance.refresh_from_db()
+            self.assertIsNone(instance.custom_field_data.get(cf.name))
+
+    def test_decimal_field(self):
+
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='decimal_field',
+            type=CustomFieldTypeChoices.TYPE_DECIMAL,
+            required=False
+        )
+        cf.content_types.set([self.object_type])
+        instance = Site.objects.first()
+        self.assertIsNone(instance.custom_field_data[cf.name])
+
+        for value in (123456.54, 0, -123456.78):
 
             # Assign a value and check that it is saved
             instance.custom_field_data[cf.name] = value
@@ -264,6 +292,7 @@ class CustomFieldTest(TestCase):
         cf = CustomField.objects.create(
             name='object_field',
             type=CustomFieldTypeChoices.TYPE_OBJECT,
+            object_type=ContentType.objects.get_for_model(VLAN),
             required=False
         )
         cf.content_types.set([self.object_type])
@@ -295,6 +324,7 @@ class CustomFieldTest(TestCase):
         cf = CustomField.objects.create(
             name='object_field',
             type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
+            object_type=ContentType.objects.get_for_model(VLAN),
             required=False
         )
         cf.content_types.set([self.object_type])
@@ -343,7 +373,8 @@ class CustomFieldTest(TestCase):
 
 class CustomFieldManagerTest(TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         content_type = ContentType.objects.get_for_model(Site)
         custom_field = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo')
         custom_field.save()
@@ -373,7 +404,8 @@ class CustomFieldAPITest(APITestCase):
         custom_fields = (
             CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo'),
             CustomField(type=CustomFieldTypeChoices.TYPE_LONGTEXT, name='longtext_field', default='ABC'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='number_field', default=123),
+            CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='integer_field', default=123),
+            CustomField(type=CustomFieldTypeChoices.TYPE_DECIMAL, name='decimal_field', default=123.45),
             CustomField(type=CustomFieldTypeChoices.TYPE_BOOLEAN, name='boolean_field', default=False),
             CustomField(type=CustomFieldTypeChoices.TYPE_DATE, name='date_field', default='2020-01-01'),
             CustomField(type=CustomFieldTypeChoices.TYPE_URL, name='url_field', default='http://example.com/1'),
@@ -424,14 +456,15 @@ class CustomFieldAPITest(APITestCase):
             custom_fields[0].name: 'bar',
             custom_fields[1].name: 'DEF',
             custom_fields[2].name: 456,
-            custom_fields[3].name: True,
-            custom_fields[4].name: '2020-01-02',
-            custom_fields[5].name: 'http://example.com/2',
-            custom_fields[6].name: '{"foo": 1, "bar": 2}',
-            custom_fields[7].name: 'Bar',
-            custom_fields[8].name: ['Bar', 'Baz'],
-            custom_fields[9].name: vlans[1].pk,
-            custom_fields[10].name: [vlans[2].pk, vlans[3].pk],
+            custom_fields[3].name: Decimal('456.78'),
+            custom_fields[4].name: True,
+            custom_fields[5].name: '2020-01-02',
+            custom_fields[6].name: 'http://example.com/2',
+            custom_fields[7].name: '{"foo": 1, "bar": 2}',
+            custom_fields[8].name: 'Bar',
+            custom_fields[9].name: ['Bar', 'Baz'],
+            custom_fields[10].name: vlans[1].pk,
+            custom_fields[11].name: [vlans[2].pk, vlans[3].pk],
         }
         sites[1].save()
 
@@ -440,6 +473,7 @@ class CustomFieldAPITest(APITestCase):
             CustomFieldTypeChoices.TYPE_TEXT: 'string',
             CustomFieldTypeChoices.TYPE_LONGTEXT: 'string',
             CustomFieldTypeChoices.TYPE_INTEGER: 'integer',
+            CustomFieldTypeChoices.TYPE_DECIMAL: 'decimal',
             CustomFieldTypeChoices.TYPE_BOOLEAN: 'boolean',
             CustomFieldTypeChoices.TYPE_DATE: 'string',
             CustomFieldTypeChoices.TYPE_URL: 'string',
@@ -473,7 +507,8 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response.data['custom_fields'], {
             'text_field': None,
             'longtext_field': None,
-            'number_field': None,
+            'integer_field': None,
+            'decimal_field': None,
             'boolean_field': None,
             'date_field': None,
             'url_field': None,
@@ -489,7 +524,7 @@ class CustomFieldAPITest(APITestCase):
         Validate that custom fields are present and correctly set for an object with values defined.
         """
         site2 = Site.objects.get(name='Site 2')
-        site2_cfvs = site2.custom_field_data
+        site2_cfvs = site2.cf
         url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
         self.add_permissions('dcim.view_site')
 
@@ -497,17 +532,18 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response.data['name'], site2.name)
         self.assertEqual(response.data['custom_fields']['text_field'], site2_cfvs['text_field'])
         self.assertEqual(response.data['custom_fields']['longtext_field'], site2_cfvs['longtext_field'])
-        self.assertEqual(response.data['custom_fields']['number_field'], site2_cfvs['number_field'])
+        self.assertEqual(response.data['custom_fields']['integer_field'], site2_cfvs['integer_field'])
+        self.assertEqual(response.data['custom_fields']['decimal_field'], site2_cfvs['decimal_field'])
         self.assertEqual(response.data['custom_fields']['boolean_field'], site2_cfvs['boolean_field'])
         self.assertEqual(response.data['custom_fields']['date_field'], site2_cfvs['date_field'])
         self.assertEqual(response.data['custom_fields']['url_field'], site2_cfvs['url_field'])
         self.assertEqual(response.data['custom_fields']['json_field'], site2_cfvs['json_field'])
         self.assertEqual(response.data['custom_fields']['select_field'], site2_cfvs['select_field'])
         self.assertEqual(response.data['custom_fields']['multiselect_field'], site2_cfvs['multiselect_field'])
-        self.assertEqual(response.data['custom_fields']['object_field']['id'], site2_cfvs['object_field'])
+        self.assertEqual(response.data['custom_fields']['object_field']['id'], site2_cfvs['object_field'].pk)
         self.assertEqual(
             [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
-            site2_cfvs['multiobject_field']
+            [obj.pk for obj in site2_cfvs['multiobject_field']]
         )
 
     def test_create_single_object_with_defaults(self):
@@ -531,9 +567,10 @@ class CustomFieldAPITest(APITestCase):
         response_cf = response.data['custom_fields']
         self.assertEqual(response_cf['text_field'], cf_defaults['text_field'])
         self.assertEqual(response_cf['longtext_field'], cf_defaults['longtext_field'])
-        self.assertEqual(response_cf['number_field'], cf_defaults['number_field'])
+        self.assertEqual(response_cf['integer_field'], cf_defaults['integer_field'])
+        self.assertEqual(response_cf['decimal_field'], cf_defaults['decimal_field'])
         self.assertEqual(response_cf['boolean_field'], cf_defaults['boolean_field'])
-        self.assertEqual(response_cf['date_field'], cf_defaults['date_field'])
+        self.assertEqual(response_cf['date_field'].isoformat(), cf_defaults['date_field'])
         self.assertEqual(response_cf['url_field'], cf_defaults['url_field'])
         self.assertEqual(response_cf['json_field'], cf_defaults['json_field'])
         self.assertEqual(response_cf['select_field'], cf_defaults['select_field'])
@@ -548,7 +585,8 @@ class CustomFieldAPITest(APITestCase):
         site = Site.objects.get(pk=response.data['id'])
         self.assertEqual(site.custom_field_data['text_field'], cf_defaults['text_field'])
         self.assertEqual(site.custom_field_data['longtext_field'], cf_defaults['longtext_field'])
-        self.assertEqual(site.custom_field_data['number_field'], cf_defaults['number_field'])
+        self.assertEqual(site.custom_field_data['integer_field'], cf_defaults['integer_field'])
+        self.assertEqual(site.custom_field_data['decimal_field'], cf_defaults['decimal_field'])
         self.assertEqual(site.custom_field_data['boolean_field'], cf_defaults['boolean_field'])
         self.assertEqual(str(site.custom_field_data['date_field']), cf_defaults['date_field'])
         self.assertEqual(site.custom_field_data['url_field'], cf_defaults['url_field'])
@@ -568,7 +606,8 @@ class CustomFieldAPITest(APITestCase):
             'custom_fields': {
                 'text_field': 'bar',
                 'longtext_field': 'blah blah blah',
-                'number_field': 456,
+                'integer_field': 456,
+                'decimal_field': 456.78,
                 'boolean_field': True,
                 'date_field': '2020-01-02',
                 'url_field': 'http://example.com/2',
@@ -590,9 +629,10 @@ class CustomFieldAPITest(APITestCase):
         data_cf = data['custom_fields']
         self.assertEqual(response_cf['text_field'], data_cf['text_field'])
         self.assertEqual(response_cf['longtext_field'], data_cf['longtext_field'])
-        self.assertEqual(response_cf['number_field'], data_cf['number_field'])
+        self.assertEqual(response_cf['integer_field'], data_cf['integer_field'])
+        self.assertEqual(response_cf['decimal_field'], data_cf['decimal_field'])
         self.assertEqual(response_cf['boolean_field'], data_cf['boolean_field'])
-        self.assertEqual(response_cf['date_field'], data_cf['date_field'])
+        self.assertEqual(response_cf['date_field'].isoformat(), data_cf['date_field'])
         self.assertEqual(response_cf['url_field'], data_cf['url_field'])
         self.assertEqual(response_cf['json_field'], data_cf['json_field'])
         self.assertEqual(response_cf['select_field'], data_cf['select_field'])
@@ -607,7 +647,8 @@ class CustomFieldAPITest(APITestCase):
         site = Site.objects.get(pk=response.data['id'])
         self.assertEqual(site.custom_field_data['text_field'], data_cf['text_field'])
         self.assertEqual(site.custom_field_data['longtext_field'], data_cf['longtext_field'])
-        self.assertEqual(site.custom_field_data['number_field'], data_cf['number_field'])
+        self.assertEqual(site.custom_field_data['integer_field'], data_cf['integer_field'])
+        self.assertEqual(site.custom_field_data['decimal_field'], data_cf['decimal_field'])
         self.assertEqual(site.custom_field_data['boolean_field'], data_cf['boolean_field'])
         self.assertEqual(str(site.custom_field_data['date_field']), data_cf['date_field'])
         self.assertEqual(site.custom_field_data['url_field'], data_cf['url_field'])
@@ -652,9 +693,10 @@ class CustomFieldAPITest(APITestCase):
             response_cf = response.data[i]['custom_fields']
             self.assertEqual(response_cf['text_field'], cf_defaults['text_field'])
             self.assertEqual(response_cf['longtext_field'], cf_defaults['longtext_field'])
-            self.assertEqual(response_cf['number_field'], cf_defaults['number_field'])
+            self.assertEqual(response_cf['integer_field'], cf_defaults['integer_field'])
+            self.assertEqual(response_cf['decimal_field'], cf_defaults['decimal_field'])
             self.assertEqual(response_cf['boolean_field'], cf_defaults['boolean_field'])
-            self.assertEqual(response_cf['date_field'], cf_defaults['date_field'])
+            self.assertEqual(response_cf['date_field'].isoformat(), cf_defaults['date_field'])
             self.assertEqual(response_cf['url_field'], cf_defaults['url_field'])
             self.assertEqual(response_cf['json_field'], cf_defaults['json_field'])
             self.assertEqual(response_cf['select_field'], cf_defaults['select_field'])
@@ -669,7 +711,8 @@ class CustomFieldAPITest(APITestCase):
             site = Site.objects.get(pk=response.data[i]['id'])
             self.assertEqual(site.custom_field_data['text_field'], cf_defaults['text_field'])
             self.assertEqual(site.custom_field_data['longtext_field'], cf_defaults['longtext_field'])
-            self.assertEqual(site.custom_field_data['number_field'], cf_defaults['number_field'])
+            self.assertEqual(site.custom_field_data['integer_field'], cf_defaults['integer_field'])
+            self.assertEqual(site.custom_field_data['decimal_field'], cf_defaults['decimal_field'])
             self.assertEqual(site.custom_field_data['boolean_field'], cf_defaults['boolean_field'])
             self.assertEqual(str(site.custom_field_data['date_field']), cf_defaults['date_field'])
             self.assertEqual(site.custom_field_data['url_field'], cf_defaults['url_field'])
@@ -686,7 +729,8 @@ class CustomFieldAPITest(APITestCase):
         custom_field_data = {
             'text_field': 'bar',
             'longtext_field': 'abcdefghij',
-            'number_field': 456,
+            'integer_field': 456,
+            'decimal_field': 456.78,
             'boolean_field': True,
             'date_field': '2020-01-02',
             'url_field': 'http://example.com/2',
@@ -726,9 +770,10 @@ class CustomFieldAPITest(APITestCase):
             response_cf = response.data[i]['custom_fields']
             self.assertEqual(response_cf['text_field'], custom_field_data['text_field'])
             self.assertEqual(response_cf['longtext_field'], custom_field_data['longtext_field'])
-            self.assertEqual(response_cf['number_field'], custom_field_data['number_field'])
+            self.assertEqual(response_cf['integer_field'], custom_field_data['integer_field'])
+            self.assertEqual(response_cf['decimal_field'], custom_field_data['decimal_field'])
             self.assertEqual(response_cf['boolean_field'], custom_field_data['boolean_field'])
-            self.assertEqual(response_cf['date_field'], custom_field_data['date_field'])
+            self.assertEqual(response_cf['date_field'].isoformat(), custom_field_data['date_field'])
             self.assertEqual(response_cf['url_field'], custom_field_data['url_field'])
             self.assertEqual(response_cf['json_field'], custom_field_data['json_field'])
             self.assertEqual(response_cf['select_field'], custom_field_data['select_field'])
@@ -743,7 +788,8 @@ class CustomFieldAPITest(APITestCase):
             site = Site.objects.get(pk=response.data[i]['id'])
             self.assertEqual(site.custom_field_data['text_field'], custom_field_data['text_field'])
             self.assertEqual(site.custom_field_data['longtext_field'], custom_field_data['longtext_field'])
-            self.assertEqual(site.custom_field_data['number_field'], custom_field_data['number_field'])
+            self.assertEqual(site.custom_field_data['integer_field'], custom_field_data['integer_field'])
+            self.assertEqual(site.custom_field_data['decimal_field'], custom_field_data['decimal_field'])
             self.assertEqual(site.custom_field_data['boolean_field'], custom_field_data['boolean_field'])
             self.assertEqual(str(site.custom_field_data['date_field']), custom_field_data['date_field'])
             self.assertEqual(site.custom_field_data['url_field'], custom_field_data['url_field'])
@@ -759,11 +805,11 @@ class CustomFieldAPITest(APITestCase):
         modified.
         """
         site2 = Site.objects.get(name='Site 2')
-        original_cfvs = {**site2.custom_field_data}
+        original_cfvs = {**site2.cf}
         data = {
             'custom_fields': {
                 'text_field': 'ABCD',
-                'number_field': 1234,
+                'integer_field': 1234,
             },
         }
         url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
@@ -775,53 +821,121 @@ class CustomFieldAPITest(APITestCase):
         # Validate response data
         response_cf = response.data['custom_fields']
         self.assertEqual(response_cf['text_field'], data['custom_fields']['text_field'])
-        self.assertEqual(response_cf['number_field'], data['custom_fields']['number_field'])
         self.assertEqual(response_cf['longtext_field'], original_cfvs['longtext_field'])
+        self.assertEqual(response_cf['integer_field'], data['custom_fields']['integer_field'])
+        self.assertEqual(response_cf['decimal_field'], original_cfvs['decimal_field'])
         self.assertEqual(response_cf['boolean_field'], original_cfvs['boolean_field'])
         self.assertEqual(response_cf['date_field'], original_cfvs['date_field'])
         self.assertEqual(response_cf['url_field'], original_cfvs['url_field'])
         self.assertEqual(response_cf['json_field'], original_cfvs['json_field'])
         self.assertEqual(response_cf['select_field'], original_cfvs['select_field'])
         self.assertEqual(response_cf['multiselect_field'], original_cfvs['multiselect_field'])
-        self.assertEqual(response_cf['object_field']['id'], original_cfvs['object_field'])
-        self.assertEqual(
+        self.assertEqual(response_cf['object_field']['id'], original_cfvs['object_field'].pk)
+        self.assertListEqual(
             [obj['id'] for obj in response_cf['multiobject_field']],
-            original_cfvs['multiobject_field']
+            [obj.pk for obj in original_cfvs['multiobject_field']]
         )
 
         # Validate database data
-        site2.refresh_from_db()
-        self.assertEqual(site2.custom_field_data['text_field'], data['custom_fields']['text_field'])
-        self.assertEqual(site2.custom_field_data['number_field'], data['custom_fields']['number_field'])
-        self.assertEqual(site2.custom_field_data['longtext_field'], original_cfvs['longtext_field'])
-        self.assertEqual(site2.custom_field_data['boolean_field'], original_cfvs['boolean_field'])
-        self.assertEqual(site2.custom_field_data['date_field'], original_cfvs['date_field'])
-        self.assertEqual(site2.custom_field_data['url_field'], original_cfvs['url_field'])
-        self.assertEqual(site2.custom_field_data['json_field'], original_cfvs['json_field'])
-        self.assertEqual(site2.custom_field_data['select_field'], original_cfvs['select_field'])
-        self.assertEqual(site2.custom_field_data['multiselect_field'], original_cfvs['multiselect_field'])
-        self.assertEqual(site2.custom_field_data['object_field'], original_cfvs['object_field'])
-        self.assertEqual(site2.custom_field_data['multiobject_field'], original_cfvs['multiobject_field'])
+        site2 = Site.objects.get(pk=site2.pk)
+        self.assertEqual(site2.cf['text_field'], data['custom_fields']['text_field'])
+        self.assertEqual(site2.cf['longtext_field'], original_cfvs['longtext_field'])
+        self.assertEqual(site2.cf['integer_field'], data['custom_fields']['integer_field'])
+        self.assertEqual(site2.cf['decimal_field'], original_cfvs['decimal_field'])
+        self.assertEqual(site2.cf['boolean_field'], original_cfvs['boolean_field'])
+        self.assertEqual(site2.cf['date_field'], original_cfvs['date_field'])
+        self.assertEqual(site2.cf['url_field'], original_cfvs['url_field'])
+        self.assertEqual(site2.cf['json_field'], original_cfvs['json_field'])
+        self.assertEqual(site2.cf['select_field'], original_cfvs['select_field'])
+        self.assertEqual(site2.cf['multiselect_field'], original_cfvs['multiselect_field'])
+        self.assertEqual(site2.cf['object_field'], original_cfvs['object_field'])
+        self.assertListEqual(
+            list(site2.cf['multiobject_field']),
+            list(original_cfvs['multiobject_field'])
+        )
+
+    def test_specify_related_object_by_attr(self):
+        site1 = Site.objects.get(name='Site 1')
+        vlans = VLAN.objects.all()[:3]
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site1.pk})
+        self.add_permissions('dcim.change_site')
+
+        # Set related objects by PK
+        data = {
+            'custom_fields': {
+                'object_field': vlans[0].pk,
+                'multiobject_field': [vlans[1].pk, vlans[2].pk],
+            },
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data['custom_fields']['object_field']['id'],
+            vlans[0].pk
+        )
+        self.assertListEqual(
+            [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
+            [vlans[1].pk, vlans[2].pk]
+        )
+
+        # Set related objects by name
+        data = {
+            'custom_fields': {
+                'object_field': {
+                    'name': vlans[0].name,
+                },
+                'multiobject_field': [
+                    {
+                        'name': vlans[1].name
+                    },
+                    {
+                        'name': vlans[2].name
+                    },
+                ],
+            },
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data['custom_fields']['object_field']['id'],
+            vlans[0].pk
+        )
+        self.assertListEqual(
+            [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
+            [vlans[1].pk, vlans[2].pk]
+        )
+
+        # Clear related objects
+        data = {
+            'custom_fields': {
+                'object_field': None,
+                'multiobject_field': [],
+            },
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['custom_fields']['object_field'])
+        self.assertListEqual(response.data['custom_fields']['multiobject_field'], [])
 
     def test_minimum_maximum_values_validation(self):
         site2 = Site.objects.get(name='Site 2')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
         self.add_permissions('dcim.change_site')
 
-        cf_integer = CustomField.objects.get(name='number_field')
+        cf_integer = CustomField.objects.get(name='integer_field')
         cf_integer.validation_minimum = 10
         cf_integer.validation_maximum = 20
         cf_integer.save()
 
-        data = {'custom_fields': {'number_field': 9}}
+        data = {'custom_fields': {'integer_field': 9}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
-        data = {'custom_fields': {'number_field': 21}}
+        data = {'custom_fields': {'integer_field': 21}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
-        data = {'custom_fields': {'number_field': 15}}
+        data = {'custom_fields': {'integer_field': 15}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
@@ -860,6 +974,7 @@ class CustomFieldImportTest(TestCase):
             CustomField(name='text', type=CustomFieldTypeChoices.TYPE_TEXT),
             CustomField(name='longtext', type=CustomFieldTypeChoices.TYPE_LONGTEXT),
             CustomField(name='integer', type=CustomFieldTypeChoices.TYPE_INTEGER),
+            CustomField(name='decimal', type=CustomFieldTypeChoices.TYPE_DECIMAL),
             CustomField(name='boolean', type=CustomFieldTypeChoices.TYPE_BOOLEAN),
             CustomField(name='date', type=CustomFieldTypeChoices.TYPE_DATE),
             CustomField(name='url', type=CustomFieldTypeChoices.TYPE_URL),
@@ -880,23 +995,24 @@ class CustomFieldImportTest(TestCase):
         Import a Site in CSV format, including a value for each CustomField.
         """
         data = (
-            ('name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_boolean', 'cf_date', 'cf_url', 'cf_json', 'cf_select', 'cf_multiselect'),
-            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', 'True', '2020-01-01', 'http://example.com/1', '{"foo": 123}', 'Choice A', '"Choice A,Choice B"'),
-            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', 'False', '2020-01-02', 'http://example.com/2', '{"bar": 456}', 'Choice B', '"Choice B,Choice C"'),
-            ('Site 3', 'site-3', 'active', '', '', '', '', '', '', '', '', ''),
+            ('name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_decimal', 'cf_boolean', 'cf_date', 'cf_url', 'cf_json', 'cf_select', 'cf_multiselect'),
+            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', '123.45', 'True', '2020-01-01', 'http://example.com/1', '{"foo": 123}', 'Choice A', '"Choice A,Choice B"'),
+            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', '456.78', 'False', '2020-01-02', 'http://example.com/2', '{"bar": 456}', 'Choice B', '"Choice B,Choice C"'),
+            ('Site 3', 'site-3', 'active', '', '', '', '', '', '', '', '', '', ''),
         )
         csv_data = '\n'.join(','.join(row) for row in data)
 
-        response = self.client.post(reverse('dcim:site_import'), {'csv': csv_data})
+        response = self.client.post(reverse('dcim:site_import'), {'data': csv_data, 'format': 'csv'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Site.objects.count(), 3)
 
         # Validate data for site 1
         site1 = Site.objects.get(name='Site 1')
-        self.assertEqual(len(site1.custom_field_data), 9)
+        self.assertEqual(len(site1.custom_field_data), 10)
         self.assertEqual(site1.custom_field_data['text'], 'ABC')
         self.assertEqual(site1.custom_field_data['longtext'], 'Foo')
         self.assertEqual(site1.custom_field_data['integer'], 123)
+        self.assertEqual(site1.custom_field_data['decimal'], 123.45)
         self.assertEqual(site1.custom_field_data['boolean'], True)
         self.assertEqual(site1.custom_field_data['date'], '2020-01-01')
         self.assertEqual(site1.custom_field_data['url'], 'http://example.com/1')
@@ -906,10 +1022,11 @@ class CustomFieldImportTest(TestCase):
 
         # Validate data for site 2
         site2 = Site.objects.get(name='Site 2')
-        self.assertEqual(len(site2.custom_field_data), 9)
+        self.assertEqual(len(site2.custom_field_data), 10)
         self.assertEqual(site2.custom_field_data['text'], 'DEF')
         self.assertEqual(site2.custom_field_data['longtext'], 'Bar')
         self.assertEqual(site2.custom_field_data['integer'], 456)
+        self.assertEqual(site2.custom_field_data['decimal'], 456.78)
         self.assertEqual(site2.custom_field_data['boolean'], False)
         self.assertEqual(site2.custom_field_data['date'], '2020-01-02')
         self.assertEqual(site2.custom_field_data['url'], 'http://example.com/2')
@@ -933,7 +1050,7 @@ class CustomFieldImportTest(TestCase):
             'slug': 'site-1',
         }
 
-        form = SiteCSVForm(data=form_data)
+        form = SiteImportForm(data=form_data)
         self.assertFalse(form.is_valid())
         self.assertIn('cf_text', form.errors)
 
@@ -947,7 +1064,7 @@ class CustomFieldImportTest(TestCase):
             'cf_select': 'Choice X'
         }
 
-        form = SiteCSVForm(data=form_data)
+        form = SiteImportForm(data=form_data)
         self.assertFalse(form.is_valid())
         self.assertIn('cf_select', form.errors)
 
@@ -972,7 +1089,7 @@ class CustomFieldModelTest(TestCase):
         site = Site(name='Test Site', slug='test-site')
 
         # Check custom field data on new instance
-        site.cf['foo'] = 'abc'
+        site.custom_field_data['foo'] = 'abc'
         self.assertEqual(site.cf['foo'], 'abc')
 
         # Check custom field data from database
@@ -987,12 +1104,12 @@ class CustomFieldModelTest(TestCase):
         site = Site(name='Test Site', slug='test-site')
 
         # Set custom field data
-        site.cf['foo'] = 'abc'
-        site.cf['bar'] = 'def'
+        site.custom_field_data['foo'] = 'abc'
+        site.custom_field_data['bar'] = 'def'
         with self.assertRaises(ValidationError):
             site.clean()
 
-        del site.cf['bar']
+        del site.custom_field_data['bar']
         site.clean()
 
     def test_missing_required_field(self):
@@ -1006,11 +1123,11 @@ class CustomFieldModelTest(TestCase):
         site = Site(name='Test Site', slug='test-site')
 
         # Set custom field data with a required field omitted
-        site.cf['foo'] = 'abc'
+        site.custom_field_data['foo'] = 'abc'
         with self.assertRaises(ValidationError):
             site.clean()
 
-        site.cf['baz'] = 'def'
+        site.custom_field_data['baz'] = 'def'
         site.clean()
 
 
@@ -1034,53 +1151,78 @@ class CustomFieldModelFilterTest(TestCase):
         cf.save()
         cf.content_types.set([obj_type])
 
+        # Decimal filtering
+        cf = CustomField(name='cf2', type=CustomFieldTypeChoices.TYPE_DECIMAL)
+        cf.save()
+        cf.content_types.set([obj_type])
+
         # Boolean filtering
-        cf = CustomField(name='cf2', type=CustomFieldTypeChoices.TYPE_BOOLEAN)
+        cf = CustomField(name='cf3', type=CustomFieldTypeChoices.TYPE_BOOLEAN)
         cf.save()
         cf.content_types.set([obj_type])
 
         # Exact text filtering
-        cf = CustomField(name='cf3', type=CustomFieldTypeChoices.TYPE_TEXT,
-                         filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT)
+        cf = CustomField(
+            name='cf4',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT
+        )
         cf.save()
         cf.content_types.set([obj_type])
 
         # Loose text filtering
-        cf = CustomField(name='cf4', type=CustomFieldTypeChoices.TYPE_TEXT,
-                         filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE)
+        cf = CustomField(
+            name='cf5',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE
+        )
         cf.save()
         cf.content_types.set([obj_type])
 
         # Date filtering
-        cf = CustomField(name='cf5', type=CustomFieldTypeChoices.TYPE_DATE)
+        cf = CustomField(name='cf6', type=CustomFieldTypeChoices.TYPE_DATE)
         cf.save()
         cf.content_types.set([obj_type])
 
         # Exact URL filtering
-        cf = CustomField(name='cf6', type=CustomFieldTypeChoices.TYPE_URL,
-                         filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT)
+        cf = CustomField(
+            name='cf7',
+            type=CustomFieldTypeChoices.TYPE_URL,
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT
+        )
         cf.save()
         cf.content_types.set([obj_type])
 
         # Loose URL filtering
-        cf = CustomField(name='cf7', type=CustomFieldTypeChoices.TYPE_URL,
-                         filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE)
+        cf = CustomField(
+            name='cf8',
+            type=CustomFieldTypeChoices.TYPE_URL,
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE
+        )
         cf.save()
         cf.content_types.set([obj_type])
 
         # Selection filtering
-        cf = CustomField(name='cf8', type=CustomFieldTypeChoices.TYPE_SELECT, choices=['Foo', 'Bar', 'Baz'])
+        cf = CustomField(
+            name='cf9',
+            type=CustomFieldTypeChoices.TYPE_SELECT,
+            choices=['Foo', 'Bar', 'Baz']
+        )
         cf.save()
         cf.content_types.set([obj_type])
 
         # Multiselect filtering
-        cf = CustomField(name='cf9', type=CustomFieldTypeChoices.TYPE_MULTISELECT, choices=['A', 'B', 'C', 'X'])
+        cf = CustomField(
+            name='cf10',
+            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+            choices=['A', 'B', 'C', 'X']
+        )
         cf.save()
         cf.content_types.set([obj_type])
 
         # Object filtering
         cf = CustomField(
-            name='cf10',
+            name='cf11',
             type=CustomFieldTypeChoices.TYPE_OBJECT,
             object_type=ContentType.objects.get_for_model(Manufacturer)
         )
@@ -1089,7 +1231,7 @@ class CustomFieldModelFilterTest(TestCase):
 
         # Multi-object filtering
         cf = CustomField(
-            name='cf11',
+            name='cf12',
             type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
             object_type=ContentType.objects.get_for_model(Manufacturer)
         )
@@ -1099,42 +1241,45 @@ class CustomFieldModelFilterTest(TestCase):
         Site.objects.bulk_create([
             Site(name='Site 1', slug='site-1', custom_field_data={
                 'cf1': 100,
-                'cf2': True,
-                'cf3': 'foo',
+                'cf2': 100.1,
+                'cf3': True,
                 'cf4': 'foo',
-                'cf5': '2016-06-26',
-                'cf6': 'http://a.example.com',
+                'cf5': 'foo',
+                'cf6': '2016-06-26',
                 'cf7': 'http://a.example.com',
-                'cf8': 'Foo',
-                'cf9': ['A', 'X'],
-                'cf10': manufacturers[0].pk,
-                'cf11': [manufacturers[0].pk, manufacturers[3].pk],
+                'cf8': 'http://a.example.com',
+                'cf9': 'Foo',
+                'cf10': ['A', 'X'],
+                'cf11': manufacturers[0].pk,
+                'cf12': [manufacturers[0].pk, manufacturers[3].pk],
             }),
             Site(name='Site 2', slug='site-2', custom_field_data={
                 'cf1': 200,
-                'cf2': True,
-                'cf3': 'foobar',
+                'cf2': 200.2,
+                'cf3': True,
                 'cf4': 'foobar',
-                'cf5': '2016-06-27',
-                'cf6': 'http://b.example.com',
+                'cf5': 'foobar',
+                'cf6': '2016-06-27',
                 'cf7': 'http://b.example.com',
-                'cf8': 'Bar',
-                'cf9': ['B', 'X'],
-                'cf10': manufacturers[1].pk,
-                'cf11': [manufacturers[1].pk, manufacturers[3].pk],
+                'cf8': 'http://b.example.com',
+                'cf9': 'Bar',
+                'cf10': ['B', 'X'],
+                'cf11': manufacturers[1].pk,
+                'cf12': [manufacturers[1].pk, manufacturers[3].pk],
             }),
             Site(name='Site 3', slug='site-3', custom_field_data={
                 'cf1': 300,
-                'cf2': False,
-                'cf3': 'bar',
+                'cf2': 300.3,
+                'cf3': False,
                 'cf4': 'bar',
-                'cf5': '2016-06-28',
-                'cf6': 'http://c.example.com',
+                'cf5': 'bar',
+                'cf6': '2016-06-28',
                 'cf7': 'http://c.example.com',
-                'cf8': 'Baz',
-                'cf9': ['C', 'X'],
-                'cf10': manufacturers[2].pk,
-                'cf11': [manufacturers[2].pk, manufacturers[3].pk],
+                'cf8': 'http://c.example.com',
+                'cf9': 'Baz',
+                'cf10': ['C', 'X'],
+                'cf11': manufacturers[2].pk,
+                'cf12': [manufacturers[2].pk, manufacturers[3].pk],
             }),
         ])
 
@@ -1146,60 +1291,68 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf1__lt': [200]}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf1__lte': [200]}, self.queryset).qs.count(), 2)
 
+    def test_filter_decimal(self):
+        self.assertEqual(self.filterset({'cf_cf2': [100.1, 200.2]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf2__n': [200.2]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf2__gt': [200.2]}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf2__gte': [200.2]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf2__lt': [200.2]}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf2__lte': [200.2]}, self.queryset).qs.count(), 2)
+
     def test_filter_boolean(self):
-        self.assertEqual(self.filterset({'cf_cf2': True}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf2': False}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf3': True}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf3': False}, self.queryset).qs.count(), 1)
 
     def test_filter_text_strict(self):
-        self.assertEqual(self.filterset({'cf_cf3': ['foo']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf3__n': ['foo']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf3__ic': ['foo']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf3__nic': ['foo']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf3__isw': ['foo']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf3__nisw': ['foo']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf3__iew': ['bar']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf3__niew': ['bar']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf3__ie': ['FOO']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf3__nie': ['FOO']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf4': ['foo']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf4__n': ['foo']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf4__ic': ['foo']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf4__nic': ['foo']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf4__isw': ['foo']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf4__nisw': ['foo']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf4__iew': ['bar']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf4__niew': ['bar']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf4__ie': ['FOO']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf4__nie': ['FOO']}, self.queryset).qs.count(), 2)
 
     def test_filter_text_loose(self):
-        self.assertEqual(self.filterset({'cf_cf4': ['foo']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf5': ['foo']}, self.queryset).qs.count(), 2)
 
     def test_filter_date(self):
-        self.assertEqual(self.filterset({'cf_cf5': ['2016-06-26', '2016-06-27']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf5__n': ['2016-06-27']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf5__gt': ['2016-06-27']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf5__gte': ['2016-06-27']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf5__lt': ['2016-06-27']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf5__lte': ['2016-06-27']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf6': ['2016-06-26', '2016-06-27']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf6__n': ['2016-06-27']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf6__gt': ['2016-06-27']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf6__gte': ['2016-06-27']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf6__lt': ['2016-06-27']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf6__lte': ['2016-06-27']}, self.queryset).qs.count(), 2)
 
     def test_filter_url_strict(self):
-        self.assertEqual(self.filterset({'cf_cf6': ['http://a.example.com', 'http://b.example.com']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf6__n': ['http://b.example.com']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf6__ic': ['b']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf6__nic': ['b']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf6__isw': ['http://']}, self.queryset).qs.count(), 3)
-        self.assertEqual(self.filterset({'cf_cf6__nisw': ['http://']}, self.queryset).qs.count(), 0)
-        self.assertEqual(self.filterset({'cf_cf6__iew': ['.com']}, self.queryset).qs.count(), 3)
-        self.assertEqual(self.filterset({'cf_cf6__niew': ['.com']}, self.queryset).qs.count(), 0)
-        self.assertEqual(self.filterset({'cf_cf6__ie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf6__nie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf7': ['http://a.example.com', 'http://b.example.com']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf7__n': ['http://b.example.com']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf7__ic': ['b']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf7__nic': ['b']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf7__isw': ['http://']}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf7__nisw': ['http://']}, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset({'cf_cf7__iew': ['.com']}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf7__niew': ['.com']}, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset({'cf_cf7__ie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf7__nie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 2)
 
     def test_filter_url_loose(self):
-        self.assertEqual(self.filterset({'cf_cf7': ['example.com']}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf8': ['example.com']}, self.queryset).qs.count(), 3)
 
     def test_filter_select(self):
-        self.assertEqual(self.filterset({'cf_cf8': ['Foo', 'Bar']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf9': ['Foo', 'Bar']}, self.queryset).qs.count(), 2)
 
     def test_filter_multiselect(self):
-        self.assertEqual(self.filterset({'cf_cf9': ['A', 'B']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf9': ['X']}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf10': ['A', 'B']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf10': ['X']}, self.queryset).qs.count(), 3)
 
     def test_filter_object(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
-        self.assertEqual(self.filterset({'cf_cf10': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf11': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(), 2)
 
     def test_filter_multiobject(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
-        self.assertEqual(self.filterset({'cf_cf11': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf11': [manufacturer_ids[3]]}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf12': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf12': [manufacturer_ids[3]]}, self.queryset).qs.count(), 3)

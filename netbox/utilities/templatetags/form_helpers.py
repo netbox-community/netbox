@@ -40,7 +40,7 @@ def render_field(field, bulk_nullable=False, label=None):
     """
     return {
         'field': field,
-        'label': label,
+        'label': label or field.label,
         'bulk_nullable': bulk_nullable,
     }
 

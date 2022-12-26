@@ -1,17 +1,19 @@
 import json
 import uuid
 
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.core.validators import ValidationError
+from django.core.validators import MinValueValidator, ValidationError
 from django.db import models
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
+from django.utils.translation import gettext as _
 from rest_framework.utils.encoders import JSONEncoder
 import django_rq
 
@@ -19,6 +21,8 @@ from extras.choices import *
 from extras.constants import *
 from extras.conditions import ConditionSet
 from extras.utils import FeatureQuery, image_upload
+from netbox.config import get_config
+from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, TagsMixin, WebhooksMixin,
@@ -34,6 +38,7 @@ __all__ = (
     'JobResult',
     'JournalEntry',
     'Report',
+    'SavedFilter',
     'Script',
     'Webhook',
 )
@@ -50,7 +55,7 @@ class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         related_name='webhooks',
         verbose_name='Object types',
         limit_choices_to=FeatureQuery('webhooks'),
-        help_text="The object(s) to which this Webhook applies."
+        help_text=_("The object(s) to which this Webhook applies.")
     )
     name = models.CharField(
         max_length=150,
@@ -58,21 +63,21 @@ class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     )
     type_create = models.BooleanField(
         default=False,
-        help_text="Call this webhook when a matching object is created."
+        help_text=_("Call this webhook when a matching object is created.")
     )
     type_update = models.BooleanField(
         default=False,
-        help_text="Call this webhook when a matching object is updated."
+        help_text=_("Call this webhook when a matching object is updated.")
     )
     type_delete = models.BooleanField(
         default=False,
-        help_text="Call this webhook when a matching object is deleted."
+        help_text=_("Call this webhook when a matching object is deleted.")
     )
     payload_url = models.CharField(
         max_length=500,
         verbose_name='URL',
-        help_text='This URL will be called using the HTTP method defined when the webhook is called. '
-                  'Jinja2 template processing is supported with the same context as the request body.'
+        help_text=_('This URL will be called using the HTTP method defined when the webhook is called. '
+                    'Jinja2 template processing is supported with the same context as the request body.')
     )
     enabled = models.BooleanField(
         default=True
@@ -87,57 +92,66 @@ class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         max_length=100,
         default=HTTP_CONTENT_TYPE_JSON,
         verbose_name='HTTP content type',
-        help_text='The complete list of official content types is available '
-                  '<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">here</a>.'
+        help_text=_('The complete list of official content types is available '
+                    '<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">here</a>.')
     )
     additional_headers = models.TextField(
         blank=True,
-        help_text="User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. "
-                  "Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is "
-                  "supported with the same context as the request body (below)."
+        help_text=_("User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. "
+                    "Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is "
+                    "supported with the same context as the request body (below).")
     )
     body_template = models.TextField(
         blank=True,
-        help_text='Jinja2 template for a custom request body. If blank, a JSON object representing the change will be '
-                  'included. Available context data includes: <code>event</code>, <code>model</code>, '
-                  '<code>timestamp</code>, <code>username</code>, <code>request_id</code>, and <code>data</code>.'
+        help_text=_('Jinja2 template for a custom request body. If blank, a JSON object representing the change will be '
+                    'included. Available context data includes: <code>event</code>, <code>model</code>, '
+                    '<code>timestamp</code>, <code>username</code>, <code>request_id</code>, and <code>data</code>.')
     )
     secret = models.CharField(
         max_length=255,
         blank=True,
-        help_text="When provided, the request will include a 'X-Hook-Signature' "
-                  "header containing a HMAC hex digest of the payload body using "
-                  "the secret as the key. The secret is not transmitted in "
-                  "the request."
+        help_text=_("When provided, the request will include a 'X-Hook-Signature' "
+                    "header containing a HMAC hex digest of the payload body using "
+                    "the secret as the key. The secret is not transmitted in "
+                    "the request.")
     )
     conditions = models.JSONField(
         blank=True,
         null=True,
-        help_text="A set of conditions which determine whether the webhook will be generated."
+        help_text=_("A set of conditions which determine whether the webhook will be generated.")
     )
     ssl_verification = models.BooleanField(
         default=True,
         verbose_name='SSL verification',
-        help_text="Enable SSL certificate verification. Disable with caution!"
+        help_text=_("Enable SSL certificate verification. Disable with caution!")
     )
     ca_file_path = models.CharField(
         max_length=4096,
         null=True,
         blank=True,
         verbose_name='CA File Path',
-        help_text='The specific CA certificate file to use for SSL verification. '
-                  'Leave blank to use the system defaults.'
+        help_text=_('The specific CA certificate file to use for SSL verification. '
+                    'Leave blank to use the system defaults.')
     )
 
     class Meta:
         ordering = ('name',)
-        unique_together = ('payload_url', 'type_create', 'type_update', 'type_delete',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('payload_url', 'type_create', 'type_update', 'type_delete'),
+                name='%(app_label)s_%(class)s_unique_payload_url_types'
+            ),
+        )
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
         return reverse('extras:webhook', args=[self.pk])
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/webhook/'
 
     def clean(self):
         super().clean()
@@ -192,10 +206,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
     """
-    content_type = models.ForeignKey(
+    content_types = models.ManyToManyField(
         to=ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=FeatureQuery('custom_links')
+        related_name='custom_links',
+        help_text=_('The object type(s) to which this link applies.')
     )
     name = models.CharField(
         max_length=100,
@@ -205,11 +219,11 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
         default=True
     )
     link_text = models.TextField(
-        help_text="Jinja2 template code for link text"
+        help_text=_("Jinja2 template code for link text")
     )
     link_url = models.TextField(
         verbose_name='Link URL',
-        help_text="Jinja2 template code for link URL"
+        help_text=_("Jinja2 template code for link URL")
     )
     weight = models.PositiveSmallIntegerField(
         default=100
@@ -217,21 +231,21 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
     group_name = models.CharField(
         max_length=50,
         blank=True,
-        help_text="Links with the same group will appear as a dropdown menu"
+        help_text=_("Links with the same group will appear as a dropdown menu")
     )
     button_class = models.CharField(
         max_length=30,
         choices=CustomLinkButtonClassChoices,
         default=CustomLinkButtonClassChoices.DEFAULT,
-        help_text="The class of the first link in a group will be used for the dropdown button"
+        help_text=_("The class of the first link in a group will be used for the dropdown button")
     )
     new_window = models.BooleanField(
         default=False,
-        help_text="Force link to open in a new window"
+        help_text=_("Force link to open in a new window")
     )
 
     clone_fields = (
-        'content_type', 'enabled', 'weight', 'group_name', 'button_class', 'new_window',
+        'enabled', 'weight', 'group_name', 'button_class', 'new_window',
     )
 
     class Meta:
@@ -242,6 +256,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
 
     def get_absolute_url(self):
         return reverse('extras:customlink', args=[self.pk])
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/customlink/'
 
     def render(self, context):
         """
@@ -263,10 +281,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
 
 
 class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
-    content_type = models.ForeignKey(
+    content_types = models.ManyToManyField(
         to=ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=FeatureQuery('export_templates')
+        related_name='export_templates',
+        help_text=_('The object type(s) to which this template applies.')
     )
     name = models.CharField(
         max_length=100
@@ -276,36 +294,37 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         blank=True
     )
     template_code = models.TextField(
-        help_text='Jinja2 template code. The list of objects being exported is passed as a context variable named '
-                  '<code>queryset</code>.'
+        help_text=_('Jinja2 template code. The list of objects being exported is passed as a context variable named '
+                    '<code>queryset</code>.')
     )
     mime_type = models.CharField(
         max_length=50,
         blank=True,
         verbose_name='MIME type',
-        help_text='Defaults to <code>text/plain</code>'
+        help_text=_('Defaults to <code>text/plain</code>')
     )
     file_extension = models.CharField(
         max_length=15,
         blank=True,
-        help_text='Extension to append to the rendered filename'
+        help_text=_('Extension to append to the rendered filename')
     )
     as_attachment = models.BooleanField(
         default=True,
-        help_text="Download file as attachment"
+        help_text=_("Download file as attachment")
     )
 
     class Meta:
-        ordering = ['content_type', 'name']
-        unique_together = [
-            ['content_type', 'name']
-        ]
+        ordering = ('name',)
 
     def __str__(self):
-        return f"{self.content_type}: {self.name}"
+        return self.name
 
     def get_absolute_url(self):
         return reverse('extras:exporttemplate', args=[self.pk])
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/exporttemplate/'
 
     def clean(self):
         super().clean()
@@ -346,6 +365,77 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
         return response
+
+
+class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+    """
+    A set of predefined keyword parameters that can be reused to filter for specific objects.
+    """
+    content_types = models.ManyToManyField(
+        to=ContentType,
+        related_name='saved_filters',
+        help_text=_('The object type(s) to which this filter applies.')
+    )
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=100
+    )
+    enabled = models.BooleanField(
+        default=True
+    )
+    shared = models.BooleanField(
+        default=True
+    )
+    parameters = models.JSONField()
+
+    clone_fields = (
+        'enabled', 'weight',
+    )
+
+    class Meta:
+        ordering = ('weight', 'name')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:savedfilter', args=[self.pk])
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/savedfilter/'
+
+    def clean(self):
+        super().clean()
+
+        # Verify that `parameters` is a JSON object
+        if type(self.parameters) is not dict:
+            raise ValidationError(
+                {'parameters': 'Filter parameters must be stored as a dictionary of keyword arguments.'}
+            )
+
+    @property
+    def url_params(self):
+        qd = QueryDict(mutable=True)
+        qd.update(self.parameters)
+        return qd.urlencode()
 
 
 class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
@@ -463,6 +553,14 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin
     def get_absolute_url(self):
         return reverse('extras:journalentry', args=[self.pk])
 
+    def clean(self):
+        super().clean()
+
+        # Prevent the creation of journal entries on unsupported models
+        permitted_types = ContentType.objects.filter(FeatureQuery('journaling').get_query())
+        if self.assigned_object_type not in permitted_types:
+            raise ValidationError(f"Journaling is not supported for this object type ({self.assigned_object_type}).")
+
     def get_kind_color(self):
         return JournalEntryKindChoices.colors.get(self.kind)
 
@@ -479,11 +577,27 @@ class JobResult(models.Model):
         related_name='job_results',
         verbose_name='Object types',
         limit_choices_to=FeatureQuery('job_results'),
-        help_text="The object type to which this job result applies",
+        help_text=_("The object type to which this job result applies"),
         on_delete=models.CASCADE,
     )
     created = models.DateTimeField(
         auto_now_add=True
+    )
+    scheduled = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+    interval = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=(
+            MinValueValidator(1),
+        ),
+        help_text=_("Recurrence interval (in minutes)")
+    )
+    started = models.DateTimeField(
+        null=True,
+        blank=True
     )
     completed = models.DateTimeField(
         null=True,
@@ -509,25 +623,56 @@ class JobResult(models.Model):
         unique=True
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
-        ordering = ['obj_type', 'name', '-created']
+        ordering = ['-created']
 
     def __str__(self):
         return str(self.job_id)
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+
+        queue = django_rq.get_queue("default")
+        job = queue.fetch_job(str(self.job_id))
+
+        if job:
+            job.cancel()
+
+    def get_absolute_url(self):
+        return reverse(f'extras:{self.obj_type.name}_result', args=[self.pk])
+
+    def get_status_color(self):
+        return JobResultStatusChoices.colors.get(self.status)
 
     @property
     def duration(self):
         if not self.completed:
             return None
 
-        duration = self.completed - self.created
+        start_time = self.started or self.created
+
+        if not start_time:
+            return None
+
+        duration = self.completed - start_time
         minutes, seconds = divmod(duration.total_seconds(), 60)
 
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
 
+    def start(self):
+        """
+        Record the job's start time and update its status to "running."
+        """
+        if self.started is None:
+            self.started = timezone.now()
+            self.status = JobResultStatusChoices.STATUS_RUNNING
+            JobResult.objects.filter(pk=self.pk).update(started=self.started, status=self.status)
+
     def set_status(self, status):
         """
-        Helper method to change the status of the job result. If the target status is terminal, the  completion
+        Helper method to change the status of the job result. If the target status is terminal, the completion
         time is also set.
         """
         self.status = status
@@ -535,26 +680,35 @@ class JobResult(models.Model):
             self.completed = timezone.now()
 
     @classmethod
-    def enqueue_job(cls, func, name, obj_type, user, *args, **kwargs):
+    def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, interval=None, *args, **kwargs):
         """
         Create a JobResult instance and enqueue a job using the given callable
 
-        func: The callable object to be enqueued for execution
-        name: Name for the JobResult instance
-        obj_type: ContentType to link to the JobResult instance obj_type
-        user: User object to link to the JobResult instance
-        args: additional args passed to the callable
-        kwargs: additional kargs passed to the callable
+        Args:
+            func: The callable object to be enqueued for execution
+            name: Name for the JobResult instance
+            obj_type: ContentType to link to the JobResult instance obj_type
+            user: User object to link to the JobResult instance
+            schedule_at: Schedule the job to be executed at the passed date and time
+            interval: Recurrence interval (in minutes)
         """
-        job_result = cls.objects.create(
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get(obj_type.name, RQ_QUEUE_DEFAULT)
+        queue = django_rq.get_queue(rq_queue_name)
+        status = JobResultStatusChoices.STATUS_SCHEDULED if schedule_at else JobResultStatusChoices.STATUS_PENDING
+        job_result: JobResult = JobResult.objects.create(
             name=name,
+            status=status,
             obj_type=obj_type,
+            scheduled=schedule_at,
+            interval=interval,
             user=user,
             job_id=uuid.uuid4()
         )
 
-        queue = django_rq.get_queue("default")
-        queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
+        if schedule_at:
+            queue.enqueue_at(schedule_at, func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
+        else:
+            queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
 
         return job_result
 

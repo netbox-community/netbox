@@ -1,8 +1,7 @@
-from django.urls import path
+from django.urls import include, path
 
-from netbox.views.generic import ObjectChangeLogView, ObjectJournalView
+from utilities.urls import get_model_urls
 from . import views
-from .models import *
 
 app_name = 'tenancy'
 urlpatterns = [
@@ -13,10 +12,7 @@ urlpatterns = [
     path('tenant-groups/import/', views.TenantGroupBulkImportView.as_view(), name='tenantgroup_import'),
     path('tenant-groups/edit/', views.TenantGroupBulkEditView.as_view(), name='tenantgroup_bulk_edit'),
     path('tenant-groups/delete/', views.TenantGroupBulkDeleteView.as_view(), name='tenantgroup_bulk_delete'),
-    path('tenant-groups/<int:pk>/', views.TenantGroupView.as_view(), name='tenantgroup'),
-    path('tenant-groups/<int:pk>/edit/', views.TenantGroupEditView.as_view(), name='tenantgroup_edit'),
-    path('tenant-groups/<int:pk>/delete/', views.TenantGroupDeleteView.as_view(), name='tenantgroup_delete'),
-    path('tenant-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='tenantgroup_changelog', kwargs={'model': TenantGroup}),
+    path('tenant-groups/<int:pk>/', include(get_model_urls('tenancy', 'tenantgroup'))),
 
     # Tenants
     path('tenants/', views.TenantListView.as_view(), name='tenant_list'),
@@ -24,11 +20,7 @@ urlpatterns = [
     path('tenants/import/', views.TenantBulkImportView.as_view(), name='tenant_import'),
     path('tenants/edit/', views.TenantBulkEditView.as_view(), name='tenant_bulk_edit'),
     path('tenants/delete/', views.TenantBulkDeleteView.as_view(), name='tenant_bulk_delete'),
-    path('tenants/<int:pk>/', views.TenantView.as_view(), name='tenant'),
-    path('tenants/<int:pk>/edit/', views.TenantEditView.as_view(), name='tenant_edit'),
-    path('tenants/<int:pk>/delete/', views.TenantDeleteView.as_view(), name='tenant_delete'),
-    path('tenants/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='tenant_changelog', kwargs={'model': Tenant}),
-    path('tenants/<int:pk>/journal/', ObjectJournalView.as_view(), name='tenant_journal', kwargs={'model': Tenant}),
+    path('tenants/<int:pk>/', include(get_model_urls('tenancy', 'tenant'))),
 
     # Contact groups
     path('contact-groups/', views.ContactGroupListView.as_view(), name='contactgroup_list'),
@@ -36,10 +28,7 @@ urlpatterns = [
     path('contact-groups/import/', views.ContactGroupBulkImportView.as_view(), name='contactgroup_import'),
     path('contact-groups/edit/', views.ContactGroupBulkEditView.as_view(), name='contactgroup_bulk_edit'),
     path('contact-groups/delete/', views.ContactGroupBulkDeleteView.as_view(), name='contactgroup_bulk_delete'),
-    path('contact-groups/<int:pk>/', views.ContactGroupView.as_view(), name='contactgroup'),
-    path('contact-groups/<int:pk>/edit/', views.ContactGroupEditView.as_view(), name='contactgroup_edit'),
-    path('contact-groups/<int:pk>/delete/', views.ContactGroupDeleteView.as_view(), name='contactgroup_delete'),
-    path('contact-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='contactgroup_changelog', kwargs={'model': ContactGroup}),
+    path('contact-groups/<int:pk>/', include(get_model_urls('tenancy', 'contactgroup'))),
 
     # Contact roles
     path('contact-roles/', views.ContactRoleListView.as_view(), name='contactrole_list'),
@@ -47,10 +36,7 @@ urlpatterns = [
     path('contact-roles/import/', views.ContactRoleBulkImportView.as_view(), name='contactrole_import'),
     path('contact-roles/edit/', views.ContactRoleBulkEditView.as_view(), name='contactrole_bulk_edit'),
     path('contact-roles/delete/', views.ContactRoleBulkDeleteView.as_view(), name='contactrole_bulk_delete'),
-    path('contact-roles/<int:pk>/', views.ContactRoleView.as_view(), name='contactrole'),
-    path('contact-roles/<int:pk>/edit/', views.ContactRoleEditView.as_view(), name='contactrole_edit'),
-    path('contact-roles/<int:pk>/delete/', views.ContactRoleDeleteView.as_view(), name='contactrole_delete'),
-    path('contact-roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='contactrole_changelog', kwargs={'model': ContactRole}),
+    path('contact-roles/<int:pk>/', include(get_model_urls('tenancy', 'contactrole'))),
 
     # Contacts
     path('contacts/', views.ContactListView.as_view(), name='contact_list'),
@@ -58,15 +44,10 @@ urlpatterns = [
     path('contacts/import/', views.ContactBulkImportView.as_view(), name='contact_import'),
     path('contacts/edit/', views.ContactBulkEditView.as_view(), name='contact_bulk_edit'),
     path('contacts/delete/', views.ContactBulkDeleteView.as_view(), name='contact_bulk_delete'),
-    path('contacts/<int:pk>/', views.ContactView.as_view(), name='contact'),
-    path('contacts/<int:pk>/edit/', views.ContactEditView.as_view(), name='contact_edit'),
-    path('contacts/<int:pk>/delete/', views.ContactDeleteView.as_view(), name='contact_delete'),
-    path('contacts/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='contact_changelog', kwargs={'model': Contact}),
-    path('contacts/<int:pk>/journal/', ObjectJournalView.as_view(), name='contact_journal', kwargs={'model': Contact}),
+    path('contacts/<int:pk>/', include(get_model_urls('tenancy', 'contact'))),
 
     # Contact assignments
     path('contact-assignments/add/', views.ContactAssignmentEditView.as_view(), name='contactassignment_add'),
-    path('contact-assignments/<int:pk>/edit/', views.ContactAssignmentEditView.as_view(), name='contactassignment_edit'),
-    path('contact-assignments/<int:pk>/delete/', views.ContactAssignmentDeleteView.as_view(), name='contactassignment_delete'),
+    path('contact-assignments/<int:pk>/', include(get_model_urls('tenancy', 'contactassignment'))),
 
 ]

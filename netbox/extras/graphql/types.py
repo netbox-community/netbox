@@ -10,6 +10,7 @@ __all__ = (
     'ImageAttachmentType',
     'JournalEntryType',
     'ObjectChangeType',
+    'SavedFilterType',
     'TagType',
     'WebhookType',
 )
@@ -27,7 +28,7 @@ class CustomFieldType(ObjectType):
 
     class Meta:
         model = models.CustomField
-        fields = '__all__'
+        exclude = ('content_types', )
         filterset_class = filtersets.CustomFieldFilterSet
 
 
@@ -35,7 +36,7 @@ class CustomLinkType(ObjectType):
 
     class Meta:
         model = models.CustomLink
-        fields = '__all__'
+        exclude = ('content_types', )
         filterset_class = filtersets.CustomLinkFilterSet
 
 
@@ -43,7 +44,7 @@ class ExportTemplateType(ObjectType):
 
     class Meta:
         model = models.ExportTemplate
-        fields = '__all__'
+        exclude = ('content_types', )
         filterset_class = filtersets.ExportTemplateFilterSet
 
 
@@ -71,6 +72,14 @@ class ObjectChangeType(BaseObjectType):
         filterset_class = filtersets.ObjectChangeFilterSet
 
 
+class SavedFilterType(ObjectType):
+
+    class Meta:
+        model = models.SavedFilter
+        exclude = ('content_types', )
+        filterset_class = filtersets.SavedFilterFilterSet
+
+
 class TagType(ObjectType):
 
     class Meta:
@@ -83,5 +92,5 @@ class WebhookType(ObjectType):
 
     class Meta:
         model = models.Webhook
-        fields = '__all__'
+        exclude = ('content_types', )
         filterset_class = filtersets.WebhookFilterSet

@@ -1,6 +1,6 @@
 import { initForms } from './forms';
 import { initBootstrap } from './bs';
-import { initSearch } from './search';
+import { initQuickSearch } from './search';
 import { initSelect } from './select';
 import { initButtons } from './buttons';
 import { initColorMode } from './colorMode';
@@ -20,7 +20,7 @@ function initDocument(): void {
     initColorMode,
     initMessages,
     initForms,
-    initSearch,
+    initQuickSearch,
     initSelect,
     initDateSelector,
     initButtons,
@@ -37,6 +37,18 @@ function initDocument(): void {
 }
 
 function initWindow(): void {
+  const documentForms = document.forms;
+  for (const documentForm of documentForms) {
+    if (documentForm.method.toUpperCase() == 'GET') {
+      documentForm.addEventListener('formdata', function (event: FormDataEvent) {
+        const formData: FormData = event.formData;
+        for (const [name, value] of Array.from(formData.entries())) {
+          if (value === '') formData.delete(name);
+        }
+      });
+    }
+  }
+
   const contentContainer = document.querySelector<HTMLElement>('.content-container');
   if (contentContainer !== null) {
     // Focus the content container for accessible navigation.

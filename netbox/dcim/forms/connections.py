@@ -1,9 +1,10 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from circuits.models import Circuit, CircuitTermination, Provider
 from dcim.models import *
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from .models import CableForm
+from .model_forms import CableForm
 
 
 def get_cable_form(a_type, b_type):
@@ -16,7 +17,7 @@ def get_cable_form(a_type, b_type):
 
                 attrs[f'termination_{cable_end}_region'] = DynamicModelChoiceField(
                     queryset=Region.objects.all(),
-                    label='Region',
+                    label=_('Region'),
                     required=False,
                     initial_params={
                         'sites': f'$termination_{cable_end}_site'
@@ -24,7 +25,7 @@ def get_cable_form(a_type, b_type):
                 )
                 attrs[f'termination_{cable_end}_sitegroup'] = DynamicModelChoiceField(
                     queryset=SiteGroup.objects.all(),
-                    label='Site group',
+                    label=_('Site group'),
                     required=False,
                     initial_params={
                         'sites': f'$termination_{cable_end}_site'
@@ -32,7 +33,7 @@ def get_cable_form(a_type, b_type):
                 )
                 attrs[f'termination_{cable_end}_site'] = DynamicModelChoiceField(
                     queryset=Site.objects.all(),
-                    label='Site',
+                    label=_('Site'),
                     required=False,
                     query_params={
                         'region_id': f'$termination_{cable_end}_region',
@@ -41,7 +42,7 @@ def get_cable_form(a_type, b_type):
                 )
                 attrs[f'termination_{cable_end}_location'] = DynamicModelChoiceField(
                     queryset=Location.objects.all(),
-                    label='Location',
+                    label=_('Location'),
                     required=False,
                     null_option='None',
                     query_params={
@@ -54,7 +55,7 @@ def get_cable_form(a_type, b_type):
 
                     attrs[f'termination_{cable_end}_rack'] = DynamicModelChoiceField(
                         queryset=Rack.objects.all(),
-                        label='Rack',
+                        label=_('Rack'),
                         required=False,
                         null_option='None',
                         initial_params={
@@ -67,7 +68,7 @@ def get_cable_form(a_type, b_type):
                     )
                     attrs[f'termination_{cable_end}_device'] = DynamicModelChoiceField(
                         queryset=Device.objects.all(),
-                        label='Device',
+                        label=_('Device'),
                         required=False,
                         initial_params={
                             f'{term_cls._meta.model_name}s__in': f'${cable_end}_terminations'
@@ -93,7 +94,7 @@ def get_cable_form(a_type, b_type):
 
                     attrs[f'termination_{cable_end}_powerpanel'] = DynamicModelChoiceField(
                         queryset=PowerPanel.objects.all(),
-                        label='Power Panel',
+                        label=_('Power Panel'),
                         required=False,
                         initial_params={
                             'powerfeeds__in': f'${cable_end}_terminations'
@@ -105,10 +106,10 @@ def get_cable_form(a_type, b_type):
                     )
                     attrs[f'{cable_end}_terminations'] = DynamicModelMultipleChoiceField(
                         queryset=term_cls.objects.all(),
-                        label='Power Feed',
+                        label=_('Power Feed'),
                         disabled_indicator='_occupied',
                         query_params={
-                            'powerpanel_id': f'$termination_{cable_end}_powerpanel',
+                            'power_panel_id': f'$termination_{cable_end}_powerpanel',
                         }
                     )
 
@@ -117,7 +118,7 @@ def get_cable_form(a_type, b_type):
 
                     attrs[f'termination_{cable_end}_provider'] = DynamicModelChoiceField(
                         queryset=Provider.objects.all(),
-                        label='Provider',
+                        label=_('Provider'),
                         initial_params={
                             'circuits': f'$termination_{cable_end}_circuit'
                         },
@@ -125,7 +126,7 @@ def get_cable_form(a_type, b_type):
                     )
                     attrs[f'termination_{cable_end}_circuit'] = DynamicModelChoiceField(
                         queryset=Circuit.objects.all(),
-                        label='Circuit',
+                        label=_('Circuit'),
                         initial_params={
                             'terminations__in': f'${cable_end}_terminations'
                         },
@@ -136,7 +137,7 @@ def get_cable_form(a_type, b_type):
                     )
                     attrs[f'{cable_end}_terminations'] = DynamicModelMultipleChoiceField(
                         queryset=term_cls.objects.all(),
-                        label='Side',
+                        label=_('Side'),
                         disabled_indicator='_occupied',
                         query_params={
                             'circuit_id': f'$termination_{cable_end}_circuit',

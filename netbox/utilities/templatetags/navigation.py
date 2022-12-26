@@ -2,7 +2,7 @@ from typing import Dict
 from django import template
 from django.template import Context
 
-from netbox.navigation_menu import MENUS
+from netbox.navigation.menu import MENUS
 
 
 register = template.Library()

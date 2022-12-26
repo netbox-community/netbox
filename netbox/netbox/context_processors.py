@@ -1,7 +1,7 @@
 from django.conf import settings as django_settings
 
-from extras.registry import registry
 from netbox.config import get_config
+from netbox.registry import registry
 
 
 def settings_and_registry(request):

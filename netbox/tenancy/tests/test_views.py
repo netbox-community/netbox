@@ -32,6 +32,13 @@ class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Tenant Group 6,tenant-group-6,Sixth tenant group",
         )
 
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{tenant_groups[0].pk},Tenant Group 7,Fourth tenant group7",
+            f"{tenant_groups[1].pk},Tenant Group 8,Fifth tenant group8",
+            f"{tenant_groups[2].pk},Tenant Group 0,Sixth tenant group9",
+        )
+
         cls.bulk_edit_data = {
             'description': 'New description',
         }
@@ -50,11 +57,12 @@ class TenantTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for tenanantgroup in tenant_groups:
             tenanantgroup.save()
 
-        Tenant.objects.bulk_create([
+        tenants = (
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
             Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[0]),
             Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[0]),
-        ])
+        )
+        Tenant.objects.bulk_create(tenants)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -72,6 +80,13 @@ class TenantTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Tenant 4,tenant-4",
             "Tenant 5,tenant-5",
             "Tenant 6,tenant-6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{tenants[0].pk},Tenant 7,New description 7",
+            f"{tenants[1].pk},Tenant 8,New description 8",
+            f"{tenants[2].pk},Tenant 9,New description 9",
         )
 
         cls.bulk_edit_data = {
@@ -109,6 +124,13 @@ class ContactGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Contact Group 6,contact-group-6,Sixth contact group",
         )
 
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{contact_groups[0].pk},Contact Group 7,Fourth contact group7",
+            f"{contact_groups[1].pk},Contact Group 8,Fifth contact group8",
+            f"{contact_groups[2].pk},Contact Group 0,Sixth contact group9",
+        )
+
         cls.bulk_edit_data = {
             'description': 'New description',
         }
@@ -120,11 +142,12 @@ class ContactRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        ContactRole.objects.bulk_create([
+        contact_roles = (
             ContactRole(name='Contact Role 1', slug='contact-role-1'),
             ContactRole(name='Contact Role 2', slug='contact-role-2'),
             ContactRole(name='Contact Role 3', slug='contact-role-3'),
-        ])
+        )
+        ContactRole.objects.bulk_create(contact_roles)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -140,6 +163,13 @@ class ContactRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Contact Role 4,contact-role-4",
             "Contact Role 5,contact-role-5",
             "Contact Role 6,contact-role-6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{contact_roles[0].pk},Contact Role 7,New description 7",
+            f"{contact_roles[1].pk},Contact Role 8,New description 8",
+            f"{contact_roles[2].pk},Contact Role 9,New description 9",
         )
 
         cls.bulk_edit_data = {
@@ -160,11 +190,12 @@ class ContactTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for contactgroup in contact_groups:
             contactgroup.save()
 
-        Contact.objects.bulk_create([
+        contacts = (
             Contact(name='Contact 1', group=contact_groups[0]),
             Contact(name='Contact 2', group=contact_groups[0]),
             Contact(name='Contact 3', group=contact_groups[0]),
-        ])
+        )
+        Contact.objects.bulk_create(contacts)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -180,6 +211,13 @@ class ContactTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Contact Group 1,Contact 4",
             "Contact Group 1,Contact 5",
             "Contact Group 1,Contact 6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,comments",
+            f"{contacts[0].pk},Contact Group 7,New comments 7",
+            f"{contacts[1].pk},Contact Group 8,New comments 8",
+            f"{contacts[2].pk},Contact Group 9,New comments 9",
         )
 
         cls.bulk_edit_data = {

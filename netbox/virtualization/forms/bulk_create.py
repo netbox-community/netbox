@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin, ExpandableNameField, form_from_model
 from virtualization.models import VMInterface, VirtualMachine
@@ -14,7 +15,7 @@ class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
         widget=forms.MultipleHiddenInput()
     )
     name = ExpandableNameField(
-        label='Name'
+        label=_('Name')
     )
 
     def clean_tags(self):

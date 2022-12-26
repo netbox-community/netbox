@@ -120,6 +120,7 @@ class ASNTable(TenancyColumnsMixin, NetBoxTable):
         linkify_item=True,
         verbose_name='Sites'
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:asn_list'
     )
@@ -127,8 +128,8 @@ class ASNTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ASN
         fields = (
-            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'provider_count', 'tenant', 'tenant_group', 'description', 'sites', 'tags',
-            'created', 'last_updated', 'actions',
+            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'provider_count', 'tenant', 'tenant_group', 'description',
+            'comments', 'sites', 'tags', 'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'asn', 'rir', 'site_count', 'provider_count', 'sites', 'description', 'tenant')
 
@@ -153,6 +154,7 @@ class AggregateTable(TenancyColumnsMixin, NetBoxTable):
         accessor='get_utilization',
         orderable=False
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:aggregate_list'
     )
@@ -160,8 +162,8 @@ class AggregateTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Aggregate
         fields = (
-            'pk', 'id', 'prefix', 'rir', 'tenant', 'tenant_group', 'child_count', 'utilization', 'date_added', 'description', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'prefix', 'rir', 'tenant', 'tenant_group', 'child_count', 'utilization', 'date_added',
+            'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description')
 
@@ -278,6 +280,7 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
         accessor='get_utilization',
         orderable=False
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:prefix_list'
     )
@@ -285,8 +288,9 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'tenant_group', 'site',
-            'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'tenant_group',
+            'site', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'comments', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',
@@ -317,6 +321,7 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
         accessor='utilization',
         orderable=False
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:iprange_list'
     )
@@ -324,8 +329,8 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = IPRange
         fields = (
-            'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'tenant_group', 'description',
-            'utilization', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'tenant_group',
+            'utilization', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
@@ -375,9 +380,10 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
     )
     assigned = columns.BooleanColumn(
         accessor='assigned_object_id',
-        linkify=True,
+        linkify=lambda record: record.assigned_object.get_absolute_url(),
         verbose_name='Assigned'
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:ipaddress_list'
     )
@@ -385,8 +391,8 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = IPAddress
         fields = (
-            'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'tenant_group', 'nat_inside', 'nat_outside', 'assigned', 'dns_name', 'description',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'tenant_group', 'nat_inside', 'nat_outside',
+            'assigned', 'dns_name', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',

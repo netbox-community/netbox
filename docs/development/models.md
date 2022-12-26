@@ -40,6 +40,7 @@ The Django [content types](https://docs.djangoproject.com/en/stable/ref/contrib/
 * [dcim.RackReservation](../models/dcim/rackreservation.md)
 * [dcim.Site](../models/dcim/site.md)
 * [dcim.VirtualChassis](../models/dcim/virtualchassis.md)
+* [dcim.VirtualDeviceContext](../models/dcim/virtualdevicecontext.md)
 * [ipam.Aggregate](../models/ipam/aggregate.md)
 * [ipam.ASN](../models/ipam/asn.md)
 * [ipam.FHRPGroup](../models/ipam/fhrpgroup.md)

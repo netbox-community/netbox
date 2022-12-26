@@ -5,6 +5,7 @@ from rest_framework.serializers import ValidationError
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from netbox.constants import NESTED_SERIALIZER_PREFIX
+from utilities.api import get_serializer_for_model
 
 
 #
@@ -68,6 +69,23 @@ class CustomFieldsDataField(Field):
                 "Invalid data format. Custom field data must be passed as a dictionary mapping field names to their "
                 "values."
             )
+
+        # Serialize object and multi-object values
+        for cf in self._get_custom_fields():
+            if cf.name in data and data[cf.name] not in (None, []) and cf.type in (
+                    CustomFieldTypeChoices.TYPE_OBJECT,
+                    CustomFieldTypeChoices.TYPE_MULTIOBJECT
+            ):
+                serializer_class = get_serializer_for_model(
+                    model=cf.object_type.model_class(),
+                    prefix=NESTED_SERIALIZER_PREFIX
+                )
+                many = cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT
+                serializer = serializer_class(data=data[cf.name], many=many, context=self.parent.context)
+                if serializer.is_valid():
+                    data[cf.name] = [obj['id'] for obj in serializer.data] if many else serializer.data['id']
+                else:
+                    raise ValidationError(f"Unknown related object(s): {data[cf.name]}")
 
         # If updating an existing instance, start with existing custom_field_data
         if self.parent.instance:

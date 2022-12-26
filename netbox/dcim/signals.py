@@ -4,7 +4,9 @@ from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
 from .choices import CableEndChoices, LinkStatusChoices
-from .models import Cable, CablePath, CableTermination, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
+from .models import (
+    Cable, CablePath, CableTermination, Device, FrontPort, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis,
+)
 from .models.cables import trace_paths
 from .utils import create_cablepath, rebuild_paths
 
@@ -123,3 +125,14 @@ def nullify_connected_endpoints(instance, **kwargs):
 
     for cablepath in CablePath.objects.filter(_nodes__contains=instance.cable):
         cablepath.retrace()
+
+
+@receiver(post_save, sender=FrontPort)
+def extend_rearport_cable_paths(instance, created, raw, **kwargs):
+    """
+    When a new FrontPort is created, add it to any CablePaths which end at its corresponding RearPort.
+    """
+    if created and not raw:
+        rearport = instance.rear_port
+        for cablepath in CablePath.objects.filter(_nodes__contains=rearport):
+            cablepath.retrace()

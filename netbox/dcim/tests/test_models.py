@@ -73,7 +73,8 @@ class LocationTestCase(TestCase):
 
 class RackTestCase(TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
 
         sites = (
             Site(name='Site 1', slug='site-1'),
@@ -240,30 +241,31 @@ class RackTestCase(TestCase):
 
 class DeviceTestCase(TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
 
-        self.site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
-        self.device_type = DeviceType.objects.create(
+        device_type = DeviceType.objects.create(
             manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
         )
-        self.device_role = DeviceRole.objects.create(
+        device_role = DeviceRole.objects.create(
             name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
         )
 
         # Create DeviceType components
         ConsolePortTemplate(
-            device_type=self.device_type,
+            device_type=device_type,
             name='Console Port 1'
         ).save()
 
         ConsoleServerPortTemplate(
-            device_type=self.device_type,
+            device_type=device_type,
             name='Console Server Port 1'
         ).save()
 
         ppt = PowerPortTemplate(
-            device_type=self.device_type,
+            device_type=device_type,
             name='Power Port 1',
             maximum_draw=1000,
             allocated_draw=500
@@ -271,21 +273,21 @@ class DeviceTestCase(TestCase):
         ppt.save()
 
         PowerOutletTemplate(
-            device_type=self.device_type,
+            device_type=device_type,
             name='Power Outlet 1',
             power_port=ppt,
             feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A
         ).save()
 
         InterfaceTemplate(
-            device_type=self.device_type,
+            device_type=device_type,
             name='Interface 1',
             type=InterfaceTypeChoices.TYPE_1GE_FIXED,
             mgmt_only=True
         ).save()
 
         rpt = RearPortTemplate(
-            device_type=self.device_type,
+            device_type=device_type,
             name='Rear Port 1',
             type=PortTypeChoices.TYPE_8P8C,
             positions=8
@@ -293,7 +295,7 @@ class DeviceTestCase(TestCase):
         rpt.save()
 
         FrontPortTemplate(
-            device_type=self.device_type,
+            device_type=device_type,
             name='Front Port 1',
             type=PortTypeChoices.TYPE_8P8C,
             rear_port=rpt,
@@ -301,12 +303,12 @@ class DeviceTestCase(TestCase):
         ).save()
 
         ModuleBayTemplate(
-            device_type=self.device_type,
+            device_type=device_type,
             name='Module Bay 1'
         ).save()
 
         DeviceBayTemplate(
-            device_type=self.device_type,
+            device_type=device_type,
             name='Device Bay 1'
         ).save()
 
@@ -315,9 +317,9 @@ class DeviceTestCase(TestCase):
         Ensure that all Device components are copied automatically from the DeviceType.
         """
         d = Device(
-            site=self.site,
-            device_type=self.device_type,
-            device_role=self.device_role,
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
             name='Test Device 1'
         )
         d.save()
@@ -381,10 +383,10 @@ class DeviceTestCase(TestCase):
     def test_multiple_unnamed_devices(self):
 
         device1 = Device(
-            site=self.site,
-            device_type=self.device_type,
-            device_role=self.device_role,
-            name=''
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name=None
         )
         device1.save()
 
@@ -392,19 +394,40 @@ class DeviceTestCase(TestCase):
             site=device1.site,
             device_type=device1.device_type,
             device_role=device1.device_role,
-            name=''
+            name=None
         )
         device2.full_clean()
         device2.save()
 
-        self.assertEqual(Device.objects.filter(name='').count(), 2)
+        self.assertEqual(Device.objects.filter(name__isnull=True).count(), 2)
+
+    def test_device_name_case_sensitivity(self):
+
+        device1 = Device(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='device 1'
+        )
+        device1.save()
+
+        device2 = Device(
+            site=device1.site,
+            device_type=device1.device_type,
+            device_role=device1.device_role,
+            name='DEVICE 1'
+        )
+
+        # Uniqueness validation for name should ignore case
+        with self.assertRaises(ValidationError):
+            device2.full_clean()
 
     def test_device_duplicate_names(self):
 
         device1 = Device(
-            site=self.site,
-            device_type=self.device_type,
-            device_role=self.device_role,
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
             name='Test Device 1'
         )
         device1.save()
@@ -438,7 +461,8 @@ class DeviceTestCase(TestCase):
 
 class CableTestCase(TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -448,72 +472,76 @@ class CableTestCase(TestCase):
         devicerole = DeviceRole.objects.create(
             name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
         )
-        self.device1 = Device.objects.create(
+        device1 = Device.objects.create(
             device_type=devicetype, device_role=devicerole, name='TestDevice1', site=site
         )
-        self.device2 = Device.objects.create(
+        device2 = Device.objects.create(
             device_type=devicetype, device_role=devicerole, name='TestDevice2', site=site
         )
-        self.interface1 = Interface.objects.create(device=self.device1, name='eth0')
-        self.interface2 = Interface.objects.create(device=self.device2, name='eth0')
-        self.interface3 = Interface.objects.create(device=self.device2, name='eth1')
-        self.cable = Cable(a_terminations=[self.interface1], b_terminations=[self.interface2])
-        self.cable.save()
+        interface1 = Interface.objects.create(device=device1, name='eth0')
+        interface2 = Interface.objects.create(device=device2, name='eth0')
+        interface3 = Interface.objects.create(device=device2, name='eth1')
+        Cable(a_terminations=[interface1], b_terminations=[interface2]).save()
 
-        self.power_port1 = PowerPort.objects.create(device=self.device2, name='psu1')
-        self.patch_pannel = Device.objects.create(
-            device_type=devicetype, device_role=devicerole, name='TestPatchPannel', site=site
+        power_port1 = PowerPort.objects.create(device=device2, name='psu1')
+        patch_pannel = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='TestPatchPanel', site=site
         )
-        self.rear_port1 = RearPort.objects.create(device=self.patch_pannel, name='RP1', type='8p8c')
-        self.front_port1 = FrontPort.objects.create(
-            device=self.patch_pannel, name='FP1', type='8p8c', rear_port=self.rear_port1, rear_port_position=1
+        rear_port1 = RearPort.objects.create(device=patch_pannel, name='RP1', type='8p8c')
+        front_port1 = FrontPort.objects.create(
+            device=patch_pannel, name='FP1', type='8p8c', rear_port=rear_port1, rear_port_position=1
         )
-        self.rear_port2 = RearPort.objects.create(device=self.patch_pannel, name='RP2', type='8p8c', positions=2)
-        self.front_port2 = FrontPort.objects.create(
-            device=self.patch_pannel, name='FP2', type='8p8c', rear_port=self.rear_port2, rear_port_position=1
+        rear_port2 = RearPort.objects.create(device=patch_pannel, name='RP2', type='8p8c', positions=2)
+        front_port2 = FrontPort.objects.create(
+            device=patch_pannel, name='FP2', type='8p8c', rear_port=rear_port2, rear_port_position=1
         )
-        self.rear_port3 = RearPort.objects.create(device=self.patch_pannel, name='RP3', type='8p8c', positions=3)
-        self.front_port3 = FrontPort.objects.create(
-            device=self.patch_pannel, name='FP3', type='8p8c', rear_port=self.rear_port3, rear_port_position=1
+        rear_port3 = RearPort.objects.create(device=patch_pannel, name='RP3', type='8p8c', positions=3)
+        front_port3 = FrontPort.objects.create(
+            device=patch_pannel, name='FP3', type='8p8c', rear_port=rear_port3, rear_port_position=1
         )
-        self.rear_port4 = RearPort.objects.create(device=self.patch_pannel, name='RP4', type='8p8c', positions=3)
-        self.front_port4 = FrontPort.objects.create(
-            device=self.patch_pannel, name='FP4', type='8p8c', rear_port=self.rear_port4, rear_port_position=1
+        rear_port4 = RearPort.objects.create(device=patch_pannel, name='RP4', type='8p8c', positions=3)
+        front_port4 = FrontPort.objects.create(
+            device=patch_pannel, name='FP4', type='8p8c', rear_port=rear_port4, rear_port_position=1
         )
-        self.provider = Provider.objects.create(name='Provider 1', slug='provider-1')
-        provider_network = ProviderNetwork.objects.create(name='Provider Network 1', provider=self.provider)
-        self.circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
-        self.circuit1 = Circuit.objects.create(provider=self.provider, type=self.circuittype, cid='1')
-        self.circuit2 = Circuit.objects.create(provider=self.provider, type=self.circuittype, cid='2')
-        self.circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit1, site=site, term_side='A')
-        self.circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit1, site=site, term_side='Z')
-        self.circuittermination3 = CircuitTermination.objects.create(circuit=self.circuit2, provider_network=provider_network, term_side='A')
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        provider_network = ProviderNetwork.objects.create(name='Provider Network 1', provider=provider)
+        circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        circuit1 = Circuit.objects.create(provider=provider, type=circuittype, cid='1')
+        circuit2 = Circuit.objects.create(provider=provider, type=circuittype, cid='2')
+        circuittermination1 = CircuitTermination.objects.create(circuit=circuit1, site=site, term_side='A')
+        circuittermination2 = CircuitTermination.objects.create(circuit=circuit1, site=site, term_side='Z')
+        circuittermination3 = CircuitTermination.objects.create(circuit=circuit2, provider_network=provider_network, term_side='A')
 
     def test_cable_creation(self):
         """
         When a new Cable is created, it must be cached on either termination point.
         """
-        self.interface1.refresh_from_db()
-        self.interface2.refresh_from_db()
-        self.assertEqual(self.interface1.cable, self.cable)
-        self.assertEqual(self.interface2.cable, self.cable)
-        self.assertEqual(self.interface1.cable_end, 'A')
-        self.assertEqual(self.interface2.cable_end, 'B')
-        self.assertEqual(self.interface1.link_peers, [self.interface2])
-        self.assertEqual(self.interface2.link_peers, [self.interface1])
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+        cable = Cable.objects.first()
+        self.assertEqual(interface1.cable, cable)
+        self.assertEqual(interface2.cable, cable)
+        self.assertEqual(interface1.cable_end, 'A')
+        self.assertEqual(interface2.cable_end, 'B')
+        self.assertEqual(interface1.link_peers, [interface2])
+        self.assertEqual(interface2.link_peers, [interface1])
 
     def test_cable_deletion(self):
         """
         When a Cable is deleted, the `cable` field on its termination points must be nullified. The str() method
         should still return the PK of the string even after being nullified.
         """
-        self.cable.delete()
-        self.assertIsNone(self.cable.pk)
-        self.assertNotEqual(str(self.cable), '#None')
-        interface1 = Interface.objects.get(pk=self.interface1.pk)
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+        cable = Cable.objects.first()
+
+        cable.delete()
+        self.assertIsNone(cable.pk)
+        self.assertNotEqual(str(cable), '#None')
+        interface1 = Interface.objects.get(pk=interface1.pk)
         self.assertIsNone(interface1.cable)
         self.assertListEqual(interface1.link_peers, [])
-        interface2 = Interface.objects.get(pk=self.interface2.pk)
+        interface2 = Interface.objects.get(pk=interface2.pk)
         self.assertIsNone(interface2.cable)
         self.assertListEqual(interface2.link_peers, [])
 
@@ -521,7 +549,10 @@ class CableTestCase(TestCase):
         """
         The clean method should ensure that all terminations at either end of a Cable belong to the same parent object.
         """
-        cable = Cable(a_terminations=[self.interface1], b_terminations=[self.power_port1])
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        powerport1 = PowerPort.objects.get(device__name='TestDevice2', name='psu1')
+
+        cable = Cable(a_terminations=[interface1], b_terminations=[powerport1])
         with self.assertRaises(ValidationError):
             cable.clean()
 
@@ -529,7 +560,11 @@ class CableTestCase(TestCase):
         """
         The clean method should ensure that all terminations at either end of a Cable are of the same type.
         """
-        cable = Cable(a_terminations=[self.front_port1, self.rear_port1], b_terminations=[self.interface1])
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        frontport1 = FrontPort.objects.get(device__name='TestPatchPanel', name='FP1')
+        rearport1 = RearPort.objects.get(device__name='TestPatchPanel', name='RP1')
+
+        cable = Cable(a_terminations=[frontport1, rearport1], b_terminations=[interface1])
         with self.assertRaises(ValidationError):
             cable.clean()
 
@@ -537,8 +572,11 @@ class CableTestCase(TestCase):
         """
         The clean method should have a check to ensure only compatible port types can be connected by a cable
         """
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        powerport1 = PowerPort.objects.get(device__name='TestDevice2', name='psu1')
+
         # An interface cannot be connected to a power port, for example
-        cable = Cable(a_terminations=[self.interface1], b_terminations=[self.power_port1])
+        cable = Cable(a_terminations=[interface1], b_terminations=[powerport1])
         with self.assertRaises(ValidationError):
             cable.clean()
 
@@ -546,7 +584,10 @@ class CableTestCase(TestCase):
         """
         Neither side of a cable can be terminated to a CircuitTermination which is attached to a ProviderNetwork
         """
-        cable = Cable(a_terminations=[self.interface3], b_terminations=[self.circuittermination3])
+        interface3 = Interface.objects.get(device__name='TestDevice2', name='eth1')
+        circuittermination3 = CircuitTermination.objects.get(circuit__cid='2', term_side='A')
+
+        cable = Cable(a_terminations=[interface3], b_terminations=[circuittermination3])
         with self.assertRaises(ValidationError):
             cable.clean()
 
@@ -554,8 +595,11 @@ class CableTestCase(TestCase):
         """
         A cable cannot terminate to a virtual interface
         """
-        virtual_interface = Interface(device=self.device1, name="V1", type=InterfaceTypeChoices.TYPE_VIRTUAL)
-        cable = Cable(a_terminations=[self.interface2], b_terminations=[virtual_interface])
+        device1 = Device.objects.get(name='TestDevice1')
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+
+        virtual_interface = Interface(device=device1, name="V1", type=InterfaceTypeChoices.TYPE_VIRTUAL)
+        cable = Cable(a_terminations=[interface2], b_terminations=[virtual_interface])
         with self.assertRaises(ValidationError):
             cable.clean()
 
@@ -563,7 +607,63 @@ class CableTestCase(TestCase):
         """
         A cable cannot terminate to a wireless interface
         """
-        wireless_interface = Interface(device=self.device1, name="W1", type=InterfaceTypeChoices.TYPE_80211A)
-        cable = Cable(a_terminations=[self.interface2], b_terminations=[wireless_interface])
+        device1 = Device.objects.get(name='TestDevice1')
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+
+        wireless_interface = Interface(device=device1, name="W1", type=InterfaceTypeChoices.TYPE_80211A)
+        cable = Cable(a_terminations=[interface2], b_terminations=[wireless_interface])
         with self.assertRaises(ValidationError):
             cable.clean()
+
+
+class VirtualDeviceContextTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='TestDevice1', site=site
+        )
+
+    def test_vdc_and_interface_creation(self):
+        device = Device.objects.first()
+
+        vdc = VirtualDeviceContext(device=device, name="VDC 1", identifier=1, status='active')
+        vdc.full_clean()
+        vdc.save()
+
+        interface = Interface(device=device, name='Eth1/1', type='10gbase-t')
+        interface.full_clean()
+        interface.save()
+
+        interface.vdcs.set([vdc])
+
+    def test_vdc_duplicate_name(self):
+        device = Device.objects.first()
+
+        vdc1 = VirtualDeviceContext(device=device, name="VDC 1", identifier=1, status='active')
+        vdc1.full_clean()
+        vdc1.save()
+
+        vdc2 = VirtualDeviceContext(device=device, name="VDC 1", identifier=2, status='active')
+        with self.assertRaises(ValidationError):
+            vdc2.full_clean()
+
+    def test_vdc_duplicate_identifier(self):
+        device = Device.objects.first()
+
+        vdc1 = VirtualDeviceContext(device=device, name="VDC 1", identifier=1, status='active')
+        vdc1.full_clean()
+        vdc1.save()
+
+        vdc2 = VirtualDeviceContext(device=device, name="VDC 2", identifier=1, status='active')
+        with self.assertRaises(ValidationError):
+            vdc2.full_clean()

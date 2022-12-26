@@ -4,11 +4,11 @@
 
 NetBox provides several base form classes for use by plugins.
 
-| Form Class                | Purpose                              |
-|---------------------------|--------------------------------------|
-| `NetBoxModelForm`         | Create/edit individual objects       |
-| `NetBoxModelCSVForm`      | Bulk import objects from CSV data    |
-| `NetBoxModelBulkEditForm` | Edit multiple objects simultaneously |
+| Form Class                 | Purpose                              |
+|----------------------------|--------------------------------------|
+| `NetBoxModelForm`          | Create/edit individual objects       |
+| `NetBoxModelImportForm`    | Bulk import objects from CSV data    |
+| `NetBoxModelBulkEditForm`  | Edit multiple objects simultaneously |
 | `NetBoxModelFilterSetForm` | Filter objects within a list view   |
 
 ### `NetBoxModelForm`
@@ -45,19 +45,20 @@ class MyModelForm(NetBoxModelForm):
 !!! tip "Comment fields"
     If your form has a `comments` field, there's no need to list it; this will always appear last on the page.
 
-### `NetBoxModelCSVForm`
+### `NetBoxModelImportForm`
 
-This form facilitates the bulk import of new objects from CSV data. As with model forms, you'll need to declare a `Meta` subclass specifying the associated `model` and `fields`. NetBox also provides several form fields suitable for import various types of CSV data, listed below.
+This form facilitates the bulk import of new objects from CSV, JSON, or YAML data. As with model forms, you'll need to declare a `Meta` subclass specifying the associated `model` and `fields`. NetBox also provides several form fields suitable for import various types of CSV data, listed below.
 
 **Example**
 
 ```python
 from dcim.models import Site
-from netbox.forms import NetBoxModelCSVForm
+from netbox.forms import NetBoxModelImportForm
 from utilities.forms import CSVModelChoiceField
 from .models import MyModel
 
-class MyModelCSVForm(NetBoxModelCSVForm):
+
+class MyModelImportForm(NetBoxModelImportForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -68,6 +69,9 @@ class MyModelCSVForm(NetBoxModelCSVForm):
         model = MyModel
         fields = ('name', 'status', 'site', 'comments')
 ```
+
+!!! note "Previously NetBoxModelCSVForm"
+    This form class was previously named `NetBoxModelCSVForm`. It was renamed in NetBox v3.4 to convey support for JSON and YAML formats in addition to CSV. The `NetBoxModelCSVForm` class has been retained for backward compatibility and functions exactly the same as `NetBoxModelImportForm`. However, plugin authors should be aware that this backward compatability will be removed in NetBox v3.5.
 
 ### `NetBoxModelBulkEditForm`
 
@@ -84,11 +88,12 @@ This form facilitates editing multiple objects in bulk. Unlike a model form, thi
 ```python
 from django import forms
 from dcim.models import Site
-from netbox.forms import NetBoxModelCSVForm
+from netbox.forms import NetBoxModelImportForm
 from utilities.forms import CommentField, DynamicModelChoiceField
 from .models import MyModel, MyModelStatusChoices
 
-class MyModelEditForm(NetBoxModelCSVForm):
+
+class MyModelEditForm(NetBoxModelImportForm):
     name = forms.CharField(
         required=False
     )
@@ -144,73 +149,73 @@ class MyModelFilterForm(NetBoxModelFilterSetForm):
 In addition to the [form fields provided by Django](https://docs.djangoproject.com/en/stable/ref/forms/fields/), NetBox provides several field classes for use within forms to handle specific types of data. These can be imported from `utilities.forms.fields` and are documented below.
 
 ::: utilities.forms.ColorField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.CommentField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.JSONField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.MACAddressField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.SlugField
-    selection:
+    options:
       members: false
 
 ## Choice Fields
 
 ::: utilities.forms.ChoiceField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.MultipleChoiceField
-    selection:
+    options:
       members: false
 
 ## Dynamic Object Fields
 
 ::: utilities.forms.DynamicModelChoiceField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.DynamicModelMultipleChoiceField
-    selection:
+    options:
       members: false
 
 ## Content Type Fields
 
 ::: utilities.forms.ContentTypeChoiceField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.ContentTypeMultipleChoiceField
-    selection:
+    options:
       members: false
 
 ## CSV Import Fields
 
 ::: utilities.forms.CSVChoiceField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.CSVMultipleChoiceField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.CSVModelChoiceField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.CSVContentTypeField
-    selection:
+    options:
       members: false
 
 ::: utilities.forms.CSVMultipleContentTypeField
-    selection:
+    options:
       members: false

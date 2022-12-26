@@ -68,9 +68,9 @@ class WirelessLANTest(APIViewTestCases.APIViewTestCase):
             group.save()
 
         wireless_lans = (
-            WirelessLAN(ssid='WLAN1'),
-            WirelessLAN(ssid='WLAN2'),
-            WirelessLAN(ssid='WLAN3'),
+            WirelessLAN(ssid='WLAN1', status=WirelessLANStatusChoices.STATUS_ACTIVE),
+            WirelessLAN(ssid='WLAN2', status=WirelessLANStatusChoices.STATUS_ACTIVE),
+            WirelessLAN(ssid='WLAN3', status=WirelessLANStatusChoices.STATUS_ACTIVE),
         )
         WirelessLAN.objects.bulk_create(wireless_lans)
 
@@ -78,23 +78,27 @@ class WirelessLANTest(APIViewTestCases.APIViewTestCase):
             {
                 'ssid': 'WLAN4',
                 'group': groups[0].pk,
+                'status': WirelessLANStatusChoices.STATUS_DISABLED,
                 'tenant': tenants[0].pk,
                 'auth_type': WirelessAuthTypeChoices.TYPE_OPEN,
             },
             {
                 'ssid': 'WLAN5',
                 'group': groups[1].pk,
+                'status': WirelessLANStatusChoices.STATUS_DISABLED,
                 'tenant': tenants[0].pk,
                 'auth_type': WirelessAuthTypeChoices.TYPE_WPA_PERSONAL,
             },
             {
                 'ssid': 'WLAN6',
+                'status': WirelessLANStatusChoices.STATUS_DISABLED,
                 'tenant': tenants[0].pk,
                 'auth_type': WirelessAuthTypeChoices.TYPE_WPA_ENTERPRISE,
             },
         ]
 
         cls.bulk_update_data = {
+            'status': WirelessLANStatusChoices.STATUS_DEPRECATED,
             'group': groups[2].pk,
             'tenant': tenants[1].pk,
             'description': 'New description',

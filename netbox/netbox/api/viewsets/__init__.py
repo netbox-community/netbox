@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.db.models import ProtectedError
-from django.shortcuts import get_object_or_404
+from django.http import Http404
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -137,12 +137,12 @@ class NetBoxModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ObjectVali
             )
 
     def list(self, request, *args, **kwargs):
-        """
-        Overrides ListModelMixin to allow processing ExportTemplates.
-        """
+        # Overrides ListModelMixin to allow processing ExportTemplates.
         if 'export' in request.GET:
             content_type = ContentType.objects.get_for_model(self.get_serializer_class().Meta.model)
-            et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
+            et = ExportTemplate.objects.filter(content_types=content_type, name=request.GET['export']).first()
+            if et is None:
+                raise Http404
             queryset = self.filter_queryset(self.get_queryset())
             return et.render_to_response(queryset)
 

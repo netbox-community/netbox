@@ -1,6 +1,7 @@
 {% extends 'base/layout.html' %}
 {% load buttons %}
 {% load helpers %}
+{% load plugins %}
 {% load render_table from django_tables2 %}
 {% load static %}
 
@@ -24,6 +25,8 @@ Context:
 {% block controls %}
   <div class="controls">
     <div class="control-group">
+      {% plugin_list_buttons model %}
+
       {% block extra_controls %}{% endblock %}
       {% if 'add' in actions %}
           {% add_button model %}
@@ -64,32 +67,7 @@ Context:
 
       {# Applied filters #}
       {% if filter_form %}
-        {% applied_filters filter_form request.GET %}
-      {% endif %}
-
-      {# "Select all" form #}
-      {% if table.paginator.num_pages > 1 %}
-        <div id="select-all-box" class="d-none card noprint">
-          <form method="post" class="form col-md-12">
-            {% csrf_token %}
-            <div class="card-body">
-              <div class="float-end">
-                {% if 'bulk_edit' in actions %}
-                  {% bulk_edit_button model query_params=request.GET %}
-                {% endif %}
-                {% if 'bulk_delete' in actions %}
-                  {% bulk_delete_button model query_params=request.GET %}
-                {% endif %}
-              </div>
-              <div class="form-check">
-                <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
-                <label for="select-all" class="form-check-label">
-                  Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query
-                </label>
-              </div>
-            </div>
-          </form>
-        </div>
+        {% applied_filters model filter_form request.GET %}
       {% endif %}
 
       {# Object table controls #}
@@ -97,34 +75,60 @@ Context:
 
       <form method="post" class="form form-horizontal">
         {% csrf_token %}
-        <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
+        {# "Select all" form #}
+        {% if table.paginator.num_pages > 1 %}
+          <div id="select-all-box" class="d-none card noprint">
+            <div class="form col-md-12">
+              <div class="card-body">
+                <div class="float-end">
+                  {% if 'bulk_edit' in actions %}
+                    {% bulk_edit_button model query_params=request.GET %}
+                  {% endif %}
+                  {% if 'bulk_delete' in actions %}
+                    {% bulk_delete_button model query_params=request.GET %}
+                  {% endif %}
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
+                  <label for="select-all" class="form-check-label">
+                    Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
 
-        {# Object table #}
+        <div class="form form-horizontal">
+          {% csrf_token %}
+          <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
 
-            {% if prerequisite_model %}
-              {% include 'inc/missing_prerequisites.html' %}
-            {% endif %}
+          {# Object table #}
 
-        <div class="card">
-          <div class="card-body" id="object_list">
-            {% include 'htmx/table.html' %}
+              {% if prerequisite_model %}
+                {% include 'inc/missing_prerequisites.html' %}
+              {% endif %}
+
+          <div class="card">
+            <div class="card-body" id="object_list">
+              {% include 'htmx/table.html' %}
+            </div>
+          </div>
+
+          {# Form buttons #}
+          <div class="noprint bulk-buttons">
+            <div class="bulk-button-group">
+              {% block bulk_buttons %}
+                {% if 'bulk_edit' in actions %}
+                  {% bulk_edit_button model query_params=request.GET %}
+                {% endif %}
+                {% if 'bulk_delete' in actions %}
+                  {% bulk_delete_button model query_params=request.GET %}
+                {% endif %}
+              {% endblock %}
+            </div>
           </div>
         </div>
-
-        {# Form buttons #}
-        <div class="noprint bulk-buttons">
-          <div class="bulk-button-group">
-            {% block bulk_buttons %}
-              {% if 'bulk_edit' in actions %}
-                {% bulk_edit_button model query_params=request.GET %}
-              {% endif %}
-              {% if 'bulk_delete' in actions %}
-                {% bulk_delete_button model query_params=request.GET %}
-              {% endif %}
-            {% endblock %}
-          </div>
-        </div>
-
       </form>
 
     </div>

@@ -1,8 +1,10 @@
 import re
 from datetime import datetime, date
+import decimal
 
 import django_filters
 from django import forms
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
@@ -10,11 +12,13 @@ from django.db import models
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from extras.choices import *
 from extras.utils import FeatureQuery
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin, WebhooksMixin
+from netbox.search import FieldTypes
 from utilities import filters
 from utilities.forms import (
     CSVChoiceField, CSVMultipleChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
@@ -28,6 +32,15 @@ __all__ = (
     'CustomField',
     'CustomFieldManager',
 )
+
+SEARCH_TYPES = {
+    CustomFieldTypeChoices.TYPE_TEXT: FieldTypes.STRING,
+    CustomFieldTypeChoices.TYPE_LONGTEXT: FieldTypes.STRING,
+    CustomFieldTypeChoices.TYPE_INTEGER: FieldTypes.INTEGER,
+    CustomFieldTypeChoices.TYPE_DECIMAL: FieldTypes.FLOAT,
+    CustomFieldTypeChoices.TYPE_DATE: FieldTypes.STRING,
+    CustomFieldTypeChoices.TYPE_URL: FieldTypes.STRING,
+}
 
 
 class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
@@ -46,25 +59,25 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         to=ContentType,
         related_name='custom_fields',
         limit_choices_to=FeatureQuery('custom_fields'),
-        help_text='The object(s) to which this field applies.'
+        help_text=_('The object(s) to which this field applies.')
     )
     type = models.CharField(
         max_length=50,
         choices=CustomFieldTypeChoices,
         default=CustomFieldTypeChoices.TYPE_TEXT,
-        help_text='The type of data this custom field holds'
+        help_text=_('The type of data this custom field holds')
     )
     object_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.PROTECT,
         blank=True,
         null=True,
-        help_text='The type of NetBox object this field maps to (for object fields)'
+        help_text=_('The type of NetBox object this field maps to (for object fields)')
     )
     name = models.CharField(
         max_length=50,
         unique=True,
-        help_text='Internal field name',
+        help_text=_('Internal field name'),
         validators=(
             RegexValidator(
                 regex=r'^[a-z0-9_]+$',
@@ -76,13 +89,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
     label = models.CharField(
         max_length=50,
         blank=True,
-        help_text='Name of the field as displayed to users (if not provided, '
-                  'the field\'s name will be used)'
+        help_text=_('Name of the field as displayed to users (if not provided, '
+                    'the field\'s name will be used)')
     )
     group_name = models.CharField(
         max_length=50,
         blank=True,
-        help_text="Custom fields within the same group will be displayed together"
+        help_text=_("Custom fields within the same group will be displayed together")
     )
     description = models.CharField(
         max_length=200,
@@ -90,65 +103,72 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
     )
     required = models.BooleanField(
         default=False,
-        help_text='If true, this field is required when creating new objects '
-                  'or editing an existing object.'
+        help_text=_('If true, this field is required when creating new objects '
+                    'or editing an existing object.')
+    )
+    search_weight = models.PositiveSmallIntegerField(
+        default=1000,
+        help_text=_('Weighting for search. Lower values are considered more important. '
+                    'Fields with a search weight of zero will be ignored.')
     )
     filter_logic = models.CharField(
         max_length=50,
         choices=CustomFieldFilterLogicChoices,
         default=CustomFieldFilterLogicChoices.FILTER_LOOSE,
-        help_text='Loose matches any instance of a given string; exact '
-                  'matches the entire field.'
+        help_text=_('Loose matches any instance of a given string; exact '
+                    'matches the entire field.')
     )
     default = models.JSONField(
         blank=True,
         null=True,
-        help_text='Default value for the field (must be a JSON value). Encapsulate '
-                  'strings with double quotes (e.g. "Foo").'
+        help_text=_('Default value for the field (must be a JSON value). Encapsulate '
+                    'strings with double quotes (e.g. "Foo").')
     )
     weight = models.PositiveSmallIntegerField(
         default=100,
-        help_text='Fields with higher weights appear lower in a form.'
+        verbose_name='Display weight',
+        help_text=_('Fields with higher weights appear lower in a form.')
     )
     validation_minimum = models.IntegerField(
         blank=True,
         null=True,
         verbose_name='Minimum value',
-        help_text='Minimum allowed value (for numeric fields)'
+        help_text=_('Minimum allowed value (for numeric fields)')
     )
     validation_maximum = models.IntegerField(
         blank=True,
         null=True,
         verbose_name='Maximum value',
-        help_text='Maximum allowed value (for numeric fields)'
+        help_text=_('Maximum allowed value (for numeric fields)')
     )
     validation_regex = models.CharField(
         blank=True,
         validators=[validate_regex],
         max_length=500,
         verbose_name='Validation regex',
-        help_text='Regular expression to enforce on text field values. Use ^ and $ to force matching of entire string. '
-                  'For example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
+        help_text=_('Regular expression to enforce on text field values. Use ^ and $ to force matching of entire string. '
+                    'For example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.')
     )
     choices = ArrayField(
         base_field=models.CharField(max_length=100),
         blank=True,
         null=True,
-        help_text='Comma-separated list of available choices (for selection fields)'
+        help_text=_('Comma-separated list of available choices (for selection fields)')
     )
     ui_visibility = models.CharField(
         max_length=50,
         choices=CustomFieldVisibilityChoices,
         default=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE,
         verbose_name='UI visibility',
-        help_text='Specifies the visibility of custom field in the UI'
+        help_text=_('Specifies the visibility of custom field in the UI')
     )
 
     objects = CustomFieldManager()
 
     clone_fields = (
-        'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'filter_logic', 'default',
-        'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'ui_visibility',
+        'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
+        'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices',
+        'ui_visibility',
     )
 
     class Meta:
@@ -160,11 +180,19 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
     def get_absolute_url(self):
         return reverse('extras:customfield', args=[self.pk])
 
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/customfield/'
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Cache instance's original name so we can check later whether it has changed
         self._name = self.name
+
+    @property
+    def search_type(self):
+        return SEARCH_TYPES.get(self.type)
 
     def populate_initial_data(self, content_types):
         """
@@ -219,14 +247,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                 })
 
         # Minimum/maximum values can be set only for numeric fields
-        if self.validation_minimum is not None and self.type != CustomFieldTypeChoices.TYPE_INTEGER:
-            raise ValidationError({
-                'validation_minimum': "A minimum value may be set only for numeric fields"
-            })
-        if self.validation_maximum is not None and self.type != CustomFieldTypeChoices.TYPE_INTEGER:
-            raise ValidationError({
-                'validation_maximum': "A maximum value may be set only for numeric fields"
-            })
+        if self.type not in (CustomFieldTypeChoices.TYPE_INTEGER, CustomFieldTypeChoices.TYPE_DECIMAL):
+            if self.validation_minimum:
+                raise ValidationError({'validation_minimum': "A minimum value may be set only for numeric fields"})
+            if self.validation_maximum:
+                raise ValidationError({'validation_maximum': "A maximum value may be set only for numeric fields"})
 
         # Regex validation can be set only for text fields
         regex_types = (
@@ -277,6 +302,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         """
         if value is None:
             return value
+        if self.type == CustomFieldTypeChoices.TYPE_DATE and type(value) is date:
+            return value.isoformat()
         if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             return value.pk
         if self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
@@ -289,6 +316,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         """
         if value is None:
             return value
+        if self.type == CustomFieldTypeChoices.TYPE_DATE:
+            try:
+                return date.fromisoformat(value)
+            except ValueError:
+                return value
         if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             model = self.object_type.model_class()
             return model.objects.filter(pk=value).first()
@@ -314,6 +346,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
             field = forms.IntegerField(
                 required=required,
                 initial=initial,
+                min_value=self.validation_minimum,
+                max_value=self.validation_maximum
+            )
+
+        # Decimal
+        elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
+            field = forms.DecimalField(
+                required=required,
+                initial=initial,
+                max_digits=12,
+                decimal_places=4,
                 min_value=self.validation_minimum,
                 max_value=self.validation_maximum
             )
@@ -433,6 +476,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         elif self.type == CustomFieldTypeChoices.TYPE_INTEGER:
             filter_class = filters.MultiValueNumberFilter
 
+        # Decimal
+        elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
+            filter_class = filters.MultiValueDecimalFilter
+
         # Boolean
         elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             filter_class = django_filters.BooleanFilter
@@ -482,7 +529,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                     raise ValidationError(f"Value must match regex '{self.validation_regex}'")
 
             # Validate integer
-            if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
+            elif self.type == CustomFieldTypeChoices.TYPE_INTEGER:
                 if type(value) is not int:
                     raise ValidationError("Value must be an integer.")
                 if self.validation_minimum is not None and value < self.validation_minimum:
@@ -490,12 +537,23 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                 if self.validation_maximum is not None and value > self.validation_maximum:
                     raise ValidationError(f"Value must not exceed {self.validation_maximum}")
 
+            # Validate decimal
+            elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
+                try:
+                    decimal.Decimal(value)
+                except decimal.InvalidOperation:
+                    raise ValidationError("Value must be a decimal.")
+                if self.validation_minimum is not None and value < self.validation_minimum:
+                    raise ValidationError(f"Value must be at least {self.validation_minimum}")
+                if self.validation_maximum is not None and value > self.validation_maximum:
+                    raise ValidationError(f"Value must not exceed {self.validation_maximum}")
+
             # Validate boolean
-            if self.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value not in [True, False, 1, 0]:
+            elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value not in [True, False, 1, 0]:
                 raise ValidationError("Value must be true or false.")
 
             # Validate date
-            if self.type == CustomFieldTypeChoices.TYPE_DATE:
+            elif self.type == CustomFieldTypeChoices.TYPE_DATE:
                 if type(value) is not date:
                     try:
                         datetime.strptime(value, '%Y-%m-%d')
@@ -503,14 +561,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                         raise ValidationError("Date values must be in the format YYYY-MM-DD.")
 
             # Validate selected choice
-            if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+            elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
                 if value not in self.choices:
                     raise ValidationError(
                         f"Invalid choice ({value}). Available choices are: {', '.join(self.choices)}"
                     )
 
             # Validate all selected choices
-            if self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
                 if not set(value).issubset(self.choices):
                     raise ValidationError(
                         f"Invalid choice(s) ({', '.join(value)}). Available choices are: {', '.join(self.choices)}"

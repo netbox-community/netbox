@@ -31,7 +31,7 @@ class TenantGroupFilterForm(NetBoxModelFilterSetForm):
 class TenantFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Tenant
     fieldsets = (
-        (None, ('q', 'tag', 'group_id')),
+        (None, ('q', 'filter_id', 'tag', 'group_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group'))
     )
     group_id = DynamicModelMultipleChoiceField(

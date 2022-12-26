@@ -1,5 +1,13 @@
 # Security & Authentication Parameters
 
+## ALLOW_TOKEN_RETRIEVAL
+
+Default: True
+
+If disabled, the values of API tokens will not be displayed after each token's initial creation. A user **must** record the value of a token immediately upon its creation, or it will be lost. Note that this affects _all_ users, regardless of assigned permissions.
+
+---
+
 ## ALLOWED_URL_SCHEMES
 
 !!! tip "Dynamic Configuration Parameter"
@@ -126,6 +134,14 @@ Setting this to True will permit only authenticated users to access any part of 
 Default: 1209600 seconds (14 days)
 
 The lifetime (in seconds) of the authentication cookie issued to a NetBox user upon login.
+
+---
+
+## LOGOUT_REDIRECT_URL
+
+Default: `'home'`
+
+The view name or URL to which a user is redirected after logging out.
 
 ---
 

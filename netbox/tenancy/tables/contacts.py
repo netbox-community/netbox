@@ -37,10 +37,13 @@ class ContactRoleTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
+    tags = columns.TagColumn(
+        url_name='tenancy:contactrole_list'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ContactRole
-        fields = ('pk', 'name', 'description', 'slug', 'created', 'last_updated', 'actions')
+        fields = ('pk', 'name', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions')
         default_columns = ('pk', 'name', 'description')
 
 
@@ -65,8 +68,8 @@ class ContactTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Contact
         fields = (
-            'pk', 'name', 'group', 'title', 'phone', 'email', 'address', 'link', 'comments', 'assignment_count', 'tags',
-            'created', 'last_updated',
+            'pk', 'name', 'group', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments',
+            'assignment_count', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'group', 'assignment_count', 'title', 'phone', 'email')
 

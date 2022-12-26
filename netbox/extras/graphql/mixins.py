@@ -59,3 +59,10 @@ class TagsMixin:
 
     def resolve_tags(self, info):
         return self.tags.all()
+
+
+class ContactsMixin:
+    contacts = graphene.List('tenancy.graphql.types.ContactAssignmentType')
+
+    def resolve_contacts(self, info):
+        return list(self.contacts.all())

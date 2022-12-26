@@ -56,11 +56,15 @@ If the new field should be filterable, add it to the `FilterSet` for the model. 
 
 If the new field will be included in the object list view, add a column to the model's table. For simple fields, adding the field name to `Meta.fields` will be sufficient. More complex fields may require declaring a custom column. Also add the field name to `default_columns` if the column should be present in the table by default.
 
-## 8. Update the UI templates
+## 8. Update the SearchIndex
+
+Where applicable, add the new field to the model's SearchIndex for inclusion in global search.
+
+## 9. Update the UI templates
 
 Edit the object's view template to display the new field. There may also be a custom add/edit form template that needs to be updated.
 
-## 9. Create/extend test cases
+## 10. Create/extend test cases
 
 Create or extend the relevant test cases to verify that the new field and any accompanying validation logic perform as expected. This is especially important for relational fields. NetBox incorporates various test suites, including:
 
@@ -72,6 +76,6 @@ Create or extend the relevant test cases to verify that the new field and any ac
 
 Be diligent to ensure all of the relevant test suites are adapted or extended as necessary to test any new functionality.
 
-## 10. Update the model's documentation
+## 11. Update the model's documentation
 
 Each model has a dedicated page in the documentation, at `models/<app>/<model>.md`. Update this file to include any relevant information about the new field.

@@ -3,7 +3,6 @@ from unittest import skipIf
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from django_rq.queues import get_connection
@@ -16,7 +15,6 @@ from extras.models import *
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
-
 
 rq_worker_running = Worker.count(get_connection('default'))
 
@@ -137,21 +135,21 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_type': 'dcim.site',
+            'content_types': ['dcim.site'],
             'name': 'Custom Link 4',
             'enabled': True,
             'link_text': 'Link 4',
             'link_url': 'http://example.com/?4',
         },
         {
-            'content_type': 'dcim.site',
+            'content_types': ['dcim.site'],
             'name': 'Custom Link 5',
             'enabled': True,
             'link_text': 'Link 5',
             'link_url': 'http://example.com/?5',
         },
         {
-            'content_type': 'dcim.site',
+            'content_types': ['dcim.site'],
             'name': 'Custom Link 6',
             'enabled': False,
             'link_text': 'Link 6',
@@ -169,21 +167,18 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
 
         custom_links = (
             CustomLink(
-                content_type=site_ct,
                 name='Custom Link 1',
                 enabled=True,
                 link_text='Link 1',
                 link_url='http://example.com/?1',
             ),
             CustomLink(
-                content_type=site_ct,
                 name='Custom Link 2',
                 enabled=True,
                 link_text='Link 2',
                 link_url='http://example.com/?2',
             ),
             CustomLink(
-                content_type=site_ct,
                 name='Custom Link 3',
                 enabled=False,
                 link_text='Link 3',
@@ -191,6 +186,81 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
             ),
         )
         CustomLink.objects.bulk_create(custom_links)
+        for i, custom_link in enumerate(custom_links):
+            custom_link.content_types.set([site_ct])
+
+
+class SavedFilterTest(APIViewTestCases.APIViewTestCase):
+    model = SavedFilter
+    brief_fields = ['display', 'id', 'name', 'slug', 'url']
+    create_data = [
+        {
+            'content_types': ['dcim.site'],
+            'name': 'Saved Filter 4',
+            'slug': 'saved-filter-4',
+            'weight': 100,
+            'enabled': True,
+            'shared': True,
+            'parameters': {'status': ['active']},
+        },
+        {
+            'content_types': ['dcim.site'],
+            'name': 'Saved Filter 5',
+            'slug': 'saved-filter-5',
+            'weight': 200,
+            'enabled': True,
+            'shared': True,
+            'parameters': {'status': ['planned']},
+        },
+        {
+            'content_types': ['dcim.site'],
+            'name': 'Saved Filter 6',
+            'slug': 'saved-filter-6',
+            'weight': 300,
+            'enabled': True,
+            'shared': True,
+            'parameters': {'status': ['retired']},
+        },
+    ]
+    bulk_update_data = {
+        'weight': 1000,
+        'enabled': False,
+        'shared': False,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+
+        saved_filters = (
+            SavedFilter(
+                name='Saved Filter 1',
+                slug='saved-filter-1',
+                weight=100,
+                enabled=True,
+                shared=True,
+                parameters={'status': ['active']}
+            ),
+            SavedFilter(
+                name='Saved Filter 2',
+                slug='saved-filter-2',
+                weight=200,
+                enabled=True,
+                shared=True,
+                parameters={'status': ['planned']}
+            ),
+            SavedFilter(
+                name='Saved Filter 3',
+                slug='saved-filter-3',
+                weight=300,
+                enabled=True,
+                shared=True,
+                parameters={'status': ['retired']}
+            ),
+        )
+        SavedFilter.objects.bulk_create(saved_filters)
+        for i, savedfilter in enumerate(saved_filters):
+            savedfilter.content_types.set([site_ct])
 
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
@@ -198,17 +268,17 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_type': 'dcim.device',
+            'content_types': ['dcim.device'],
             'name': 'Test Export Template 4',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
         {
-            'content_type': 'dcim.device',
+            'content_types': ['dcim.device'],
             'name': 'Test Export Template 5',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
         {
-            'content_type': 'dcim.device',
+            'content_types': ['dcim.device'],
             'name': 'Test Export Template 6',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
@@ -219,26 +289,23 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        ct = ContentType.objects.get_for_model(Device)
-
         export_templates = (
             ExportTemplate(
-                content_type=ct,
                 name='Export Template 1',
                 template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
             ),
             ExportTemplate(
-                content_type=ct,
                 name='Export Template 2',
                 template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
             ),
             ExportTemplate(
-                content_type=ct,
                 name='Export Template 3',
                 template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
             ),
         )
         ExportTemplate.objects.bulk_create(export_templates)
+        for et in export_templates:
+            et.content_types.set([ContentType.objects.get_for_model(Device)])
 
 
 class TagTest(APIViewTestCases.APIViewTestCase):
@@ -544,73 +611,76 @@ class ScriptTest(APITestCase):
 
 class CreatedUpdatedFilterTest(APITestCase):
 
-    def setUp(self):
-
-        super().setUp()
-
-        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
-        self.location1 = Location.objects.create(site=self.site1, name='Test Location 1', slug='test-location-1')
-        self.rackrole1 = RackRole.objects.create(name='Test Rack Role 1', slug='test-rack-role-1', color='ff0000')
-        self.rack1 = Rack.objects.create(
-            site=self.site1, location=self.location1, role=self.rackrole1, name='Test Rack 1', u_height=42,
+    @classmethod
+    def setUpTestData(cls):
+        site1 = Site.objects.create(name='Site 1', slug='site-1')
+        location1 = Location.objects.create(site=site1, name='Location 1', slug='location-1')
+        rackrole1 = RackRole.objects.create(name='Rack Role 1', slug='rack-role-1', color='ff0000')
+        racks = (
+            Rack(site=site1, location=location1, role=rackrole1, name='Rack 1', u_height=42),
+            Rack(site=site1, location=location1, role=rackrole1, name='Rack 2', u_height=42)
         )
-        self.rack2 = Rack.objects.create(
-            site=self.site1, location=self.location1, role=self.rackrole1, name='Test Rack 2', u_height=42,
-        )
+        Rack.objects.bulk_create(racks)
 
-        # change the created and last_updated of one
-        Rack.objects.filter(pk=self.rack2.pk).update(
+        # Change the created and last_updated of the second rack
+        Rack.objects.filter(pk=racks[1].pk).update(
             last_updated=make_aware(datetime.datetime(2001, 2, 3, 1, 2, 3, 4)),
             created=make_aware(datetime.datetime(2001, 2, 3))
         )
 
     def test_get_rack_created(self):
+        rack2 = Rack.objects.get(name='Rack 2')
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?created=2001-02-03'.format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
+        self.assertEqual(response.data['results'][0]['id'], rack2.pk)
 
     def test_get_rack_created_gte(self):
+        rack1 = Rack.objects.get(name='Rack 1')
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?created__gte=2001-02-04'.format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['id'], self.rack1.pk)
+        self.assertEqual(response.data['results'][0]['id'], rack1.pk)
 
     def test_get_rack_created_lte(self):
+        rack2 = Rack.objects.get(name='Rack 2')
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?created__lte=2001-02-04'.format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
+        self.assertEqual(response.data['results'][0]['id'], rack2.pk)
 
     def test_get_rack_last_updated(self):
+        rack2 = Rack.objects.get(name='Rack 2')
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?last_updated=2001-02-03%2001:02:03.000004'.format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
+        self.assertEqual(response.data['results'][0]['id'], rack2.pk)
 
     def test_get_rack_last_updated_gte(self):
+        rack1 = Rack.objects.get(name='Rack 1')
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?last_updated__gte=2001-02-04%2001:02:03.000004'.format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['id'], self.rack1.pk)
+        self.assertEqual(response.data['results'][0]['id'], rack1.pk)
 
     def test_get_rack_last_updated_lte(self):
+        rack2 = Rack.objects.get(name='Rack 2')
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?last_updated__lte=2001-02-04%2001:02:03.000004'.format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
+        self.assertEqual(response.data['results'][0]['id'], rack2.pk)
 
 
 class ContentTypeTest(APITestCase):

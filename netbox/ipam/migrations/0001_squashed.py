@@ -1,5 +1,5 @@
 import django.contrib.postgres.fields
-import django.core.serializers.json
+from utilities.json import CustomFieldJSONEncoder
 import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('prefix', ipam.fields.IPNetworkField()),
                 ('date_added', models.DateField(blank=True, null=True)),
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('address', ipam.fields.IPAddressField()),
                 ('status', models.CharField(default='active', max_length=50)),
@@ -64,7 +64,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('prefix', ipam.fields.IPNetworkField()),
                 ('status', models.CharField(default='active', max_length=50)),
@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('slug', models.SlugField(max_length=100, unique=True)),
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'RIR',
                 'verbose_name_plural': 'RIRs',
-                'ordering': ['name'],
+                'ordering': ('name',),
             },
         ),
         migrations.CreateModel(
@@ -99,7 +99,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('slug', models.SlugField(max_length=100, unique=True)),
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(blank=True, max_length=200)),
             ],
             options={
-                'ordering': ['weight', 'name'],
+                'ordering': ('weight', 'name'),
             },
         ),
         migrations.CreateModel(
@@ -115,7 +115,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=21, unique=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
@@ -129,7 +129,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100)),
                 ('rd', models.CharField(blank=True, max_length=21, null=True, unique=True)),
@@ -151,7 +151,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100)),
                 ('slug', models.SlugField(max_length=100)),
@@ -170,7 +170,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('vid', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(4094)])),
                 ('name', models.CharField(max_length=64)),
@@ -193,7 +193,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100)),
                 ('protocol', models.CharField(max_length=50)),

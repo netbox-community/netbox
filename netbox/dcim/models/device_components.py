@@ -7,6 +7,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
@@ -60,7 +61,7 @@ class ComponentModel(NetBoxModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="Physical label"
+        help_text=_("Physical label")
     )
     description = models.CharField(
         max_length=200,
@@ -69,6 +70,13 @@ class ComponentModel(NetBoxModel):
 
     class Meta:
         abstract = True
+        ordering = ('device', '_name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_name'
+            ),
+        )
 
     def __str__(self):
         if self.label:
@@ -99,7 +107,7 @@ class ModularComponentModel(ComponentModel):
         object_id_field='component_id'
     )
 
-    class Meta:
+    class Meta(ComponentModel.Meta):
         abstract = True
 
 
@@ -122,7 +130,7 @@ class CabledObjectModel(models.Model):
     )
     mark_connected = models.BooleanField(
         default=False,
-        help_text="Treat as if a cable is connected"
+        help_text=_("Treat as if a cable is connected")
     )
 
     cable_terminations = GenericRelation(
@@ -189,7 +197,7 @@ class PathEndpoint(models.Model):
     dcim.signals in response to changes in the cable path, and complements the `origin` GenericForeignKey field on the
     CablePath model. `_path` should not be accessed directly; rather, use the `path` property.
 
-    `connected_endpoint()` is a convenience method for returning the destination of the associated CablePath, if any.
+    `connected_endpoints()` is a convenience method for returning the destination of the associated CablePath, if any.
     """
     _path = models.ForeignKey(
         to='dcim.CablePath',
@@ -254,20 +262,16 @@ class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint):
         max_length=50,
         choices=ConsolePortTypeChoices,
         blank=True,
-        help_text='Physical port type'
+        help_text=_('Physical port type')
     )
     speed = models.PositiveIntegerField(
         choices=ConsolePortSpeedChoices,
         blank=True,
         null=True,
-        help_text='Port speed in bits per second'
+        help_text=_('Port speed in bits per second')
     )
 
     clone_fields = ('device', 'module', 'type', 'speed')
-
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
 
     def get_absolute_url(self):
         return reverse('dcim:consoleport', kwargs={'pk': self.pk})
@@ -281,20 +285,16 @@ class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
         max_length=50,
         choices=ConsolePortTypeChoices,
         blank=True,
-        help_text='Physical port type'
+        help_text=_('Physical port type')
     )
     speed = models.PositiveIntegerField(
         choices=ConsolePortSpeedChoices,
         blank=True,
         null=True,
-        help_text='Port speed in bits per second'
+        help_text=_('Port speed in bits per second')
     )
 
     clone_fields = ('device', 'module', 'type', 'speed')
-
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
 
     def get_absolute_url(self):
         return reverse('dcim:consoleserverport', kwargs={'pk': self.pk})
@@ -312,26 +312,22 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
         max_length=50,
         choices=PowerPortTypeChoices,
         blank=True,
-        help_text='Physical port type'
+        help_text=_('Physical port type')
     )
     maximum_draw = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Maximum power draw (watts)"
+        help_text=_("Maximum power draw (watts)")
     )
     allocated_draw = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Allocated power draw (watts)"
+        help_text=_("Allocated power draw (watts)")
     )
 
     clone_fields = ('device', 'module', 'maximum_draw', 'allocated_draw')
-
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
 
     def get_absolute_url(self):
         return reverse('dcim:powerport', kwargs={'pk': self.pk})
@@ -425,7 +421,7 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint):
         max_length=50,
         choices=PowerOutletTypeChoices,
         blank=True,
-        help_text='Physical port type'
+        help_text=_('Physical port type')
     )
     power_port = models.ForeignKey(
         to='dcim.PowerPort',
@@ -438,14 +434,10 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint):
         max_length=50,
         choices=PowerOutletFeedLegChoices,
         blank=True,
-        help_text="Phase (for three-phase feeds)"
+        help_text=_("Phase (for three-phase feeds)")
     )
 
     clone_fields = ('device', 'module', 'type', 'power_port', 'feed_leg')
-
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
 
     def get_absolute_url(self):
         return reverse('dcim:poweroutlet', kwargs={'pk': self.pk})
@@ -540,6 +532,10 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         max_length=100,
         blank=True
     )
+    vdcs = models.ManyToManyField(
+        to='dcim.VirtualDeviceContext',
+        related_name='interfaces'
+    )
     lag = models.ForeignKey(
         to='self',
         on_delete=models.SET_NULL,
@@ -555,7 +551,7 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
     mgmt_only = models.BooleanField(
         default=False,
         verbose_name='Management only',
-        help_text='This interface is used only for out-of-band management'
+        help_text=_('This interface is used only for out-of-band management')
     )
     speed = models.PositiveIntegerField(
         blank=True,
@@ -572,7 +568,7 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         null=True,
         blank=True,
         verbose_name='WWN',
-        help_text='64-bit World Wide Name'
+        help_text=_('64-bit World Wide Name')
     )
     rf_role = models.CharField(
         max_length=30,
@@ -677,9 +673,8 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'poe_mode', 'poe_type', 'vrf',
     )
 
-    class Meta:
+    class Meta(ModularComponentModel.Meta):
         ordering = ('device', CollateAsChar('_name'))
-        unique_together = ('device', 'name')
 
     def get_absolute_url(self):
         return reverse('dcim:interface', kwargs={'pk': self.pk})
@@ -895,11 +890,16 @@ class FrontPort(ModularComponentModel, CabledObjectModel):
 
     clone_fields = ('device', 'type', 'color')
 
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = (
-            ('device', 'name'),
-            ('rear_port', 'rear_port_position'),
+    class Meta(ModularComponentModel.Meta):
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_name'
+            ),
+            models.UniqueConstraint(
+                fields=('rear_port', 'rear_port_position'),
+                name='%(app_label)s_%(class)s_unique_rear_port_position'
+            ),
         )
 
     def get_absolute_url(self):
@@ -944,10 +944,6 @@ class RearPort(ModularComponentModel, CabledObjectModel):
     )
     clone_fields = ('device', 'type', 'color', 'positions')
 
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
-
     def get_absolute_url(self):
         return reverse('dcim:rearport', kwargs={'pk': self.pk})
 
@@ -955,12 +951,13 @@ class RearPort(ModularComponentModel, CabledObjectModel):
         super().clean()
 
         # Check that positions count is greater than or equal to the number of associated FrontPorts
-        frontport_count = self.frontports.count()
-        if self.positions < frontport_count:
-            raise ValidationError({
-                "positions": f"The number of positions cannot be less than the number of mapped front ports "
-                             f"({frontport_count})"
-            })
+        if self.pk:
+            frontport_count = self.frontports.count()
+            if self.positions < frontport_count:
+                raise ValidationError({
+                    "positions": f"The number of positions cannot be less than the number of mapped front ports "
+                                 f"({frontport_count})"
+                })
 
 
 #
@@ -974,14 +971,10 @@ class ModuleBay(ComponentModel):
     position = models.CharField(
         max_length=30,
         blank=True,
-        help_text='Identifier to reference when renaming installed components'
+        help_text=_('Identifier to reference when renaming installed components')
     )
 
     clone_fields = ('device',)
-
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
 
     def get_absolute_url(self):
         return reverse('dcim:modulebay', kwargs={'pk': self.pk})
@@ -1000,10 +993,6 @@ class DeviceBay(ComponentModel):
     )
 
     clone_fields = ('device',)
-
-    class Meta:
-        ordering = ('device', '_name')
-        unique_together = ('device', 'name')
 
     def get_absolute_url(self):
         return reverse('dcim:devicebay', kwargs={'pk': self.pk})
@@ -1041,27 +1030,9 @@ class InventoryItemRole(OrganizationalModel):
     """
     Inventory items may optionally be assigned a functional role.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
     color = ColorField(
         default=ColorChoices.COLOR_GREY
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True,
-    )
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:inventoryitemrole', args=[self.pk])
@@ -1114,7 +1085,7 @@ class InventoryItem(MPTTModel, ComponentModel):
         max_length=50,
         verbose_name='Part ID',
         blank=True,
-        help_text='Manufacturer-assigned part identifier'
+        help_text=_('Manufacturer-assigned part identifier')
     )
     serial = models.CharField(
         max_length=50,
@@ -1127,11 +1098,11 @@ class InventoryItem(MPTTModel, ComponentModel):
         blank=True,
         null=True,
         verbose_name='Asset tag',
-        help_text='A unique tag used to identify this item'
+        help_text=_('A unique tag used to identify this item')
     )
     discovered = models.BooleanField(
         default=False,
-        help_text='This item was automatically discovered'
+        help_text=_('This item was automatically discovered')
     )
 
     objects = TreeManager()
@@ -1140,7 +1111,12 @@ class InventoryItem(MPTTModel, ComponentModel):
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')
-        unique_together = ('device', 'parent', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'parent', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_parent_name'
+            ),
+        )
 
     def get_absolute_url(self):
         return reverse('dcim:inventoryitem', kwargs={'pk': self.pk})
@@ -1153,3 +1129,20 @@ class InventoryItem(MPTTModel, ComponentModel):
             raise ValidationError({
                 "parent": "Cannot assign self as parent."
             })
+
+        # Validation for moving InventoryItems
+        if self.pk:
+            # Cannot move an InventoryItem to another device if it has a parent
+            if self.parent and self.parent.device != self.device:
+                raise ValidationError({
+                    "parent": "Parent inventory item does not belong to the same device."
+                })
+
+            # Prevent moving InventoryItems with children
+            first_child = self.get_children().first()
+            if first_child and first_child.device != self.device:
+                raise ValidationError("Cannot move an inventory item with dependent children")
+
+            # When moving an InventoryItem to another device, remove any associated component
+            if self.component and self.component.device != self.device:
+                self.component = None

@@ -409,9 +409,9 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         racks = (
-            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], location=locations[0], tenant=tenants[0], status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
-            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], location=locations[1], tenant=tenants[1], status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_21IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
-            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], location=locations[2], tenant=tenants[2], status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH),
+            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], location=locations[0], tenant=tenants[0], status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER, weight=10, max_weight=1000, weight_unit=WeightUnitChoices.UNIT_POUND),
+            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], location=locations[1], tenant=tenants[1], status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_21IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER, weight=20, max_weight=2000, weight_unit=WeightUnitChoices.UNIT_POUND),
+            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], location=locations[2], tenant=tenants[2], status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH, weight=30, max_weight=3000, weight_unit=WeightUnitChoices.UNIT_KILOGRAM),
         )
         Rack.objects.bulk_create(racks)
 
@@ -515,6 +515,18 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight(self):
+        params = {'weight': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_max_weight(self):
+        params = {'max_weight': [1000, 2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight_unit(self):
+        params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -688,9 +700,9 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         Manufacturer.objects.bulk_create(manufacturers)
 
         device_types = (
-            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True, front_image='front.png', rear_image='rear.png'),
-            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR),
-            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD, airflow=DeviceAirflowChoices.AIRFLOW_REAR_TO_FRONT),
+            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True, front_image='front.png', rear_image='rear.png', weight=10, weight_unit=WeightUnitChoices.UNIT_POUND),
+            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR, weight=20, weight_unit=WeightUnitChoices.UNIT_POUND),
+            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD, airflow=DeviceAirflowChoices.AIRFLOW_REAR_TO_FRONT, weight=30, weight_unit=WeightUnitChoices.UNIT_KILOGRAM),
         )
         DeviceType.objects.bulk_create(device_types)
 
@@ -839,6 +851,14 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'inventory_items': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_weight(self):
+        params = {'weight': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight_unit(self):
+        params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ModuleType.objects.all()
@@ -855,9 +875,9 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         Manufacturer.objects.bulk_create(manufacturers)
 
         module_types = (
-            ModuleType(manufacturer=manufacturers[0], model='Model 1', part_number='Part Number 1'),
-            ModuleType(manufacturer=manufacturers[1], model='Model 2', part_number='Part Number 2'),
-            ModuleType(manufacturer=manufacturers[2], model='Model 3', part_number='Part Number 3'),
+            ModuleType(manufacturer=manufacturers[0], model='Model 1', part_number='Part Number 1', weight=10, weight_unit=WeightUnitChoices.UNIT_POUND),
+            ModuleType(manufacturer=manufacturers[1], model='Model 2', part_number='Part Number 2', weight=20, weight_unit=WeightUnitChoices.UNIT_POUND),
+            ModuleType(manufacturer=manufacturers[2], model='Model 3', part_number='Part Number 3', weight=30, weight_unit=WeightUnitChoices.UNIT_KILOGRAM),
         )
         ModuleType.objects.bulk_create(module_types)
 
@@ -942,6 +962,14 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'pass_through_ports': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_weight(self):
+        params = {'weight': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight_unit(self):
+        params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ConsolePortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -1611,6 +1639,9 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_name(self):
         params = {'name': ['Device 1', 'Device 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        # Test case insensitivity
+        params = {'name': ['DEVICE 1', 'DEVICE 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_asset_tag(self):
         params = {'asset_tag': ['1001', '1002']}
@@ -1642,6 +1673,8 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_devicetype(self):
         device_types = DeviceType.objects.all()[:2]
         params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'device_type': [device_types[0].slug, device_types[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicerole(self):
@@ -1847,15 +1880,15 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         ModuleBay.objects.bulk_create(module_bays)
 
         modules = (
-            Module(device=devices[0], module_bay=module_bays[0], module_type=module_types[0], serial='A', asset_tag='A'),
-            Module(device=devices[0], module_bay=module_bays[1], module_type=module_types[1], serial='B', asset_tag='B'),
-            Module(device=devices[0], module_bay=module_bays[2], module_type=module_types[2], serial='C', asset_tag='C'),
-            Module(device=devices[1], module_bay=module_bays[3], module_type=module_types[0], serial='D', asset_tag='D'),
-            Module(device=devices[1], module_bay=module_bays[4], module_type=module_types[1], serial='E', asset_tag='E'),
-            Module(device=devices[1], module_bay=module_bays[5], module_type=module_types[2], serial='F', asset_tag='F'),
-            Module(device=devices[2], module_bay=module_bays[6], module_type=module_types[0], serial='G', asset_tag='G'),
-            Module(device=devices[2], module_bay=module_bays[7], module_type=module_types[1], serial='H', asset_tag='H'),
-            Module(device=devices[2], module_bay=module_bays[8], module_type=module_types[2], serial='I', asset_tag='I'),
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_types[0], status=ModuleStatusChoices.STATUS_ACTIVE, serial='A', asset_tag='A'),
+            Module(device=devices[0], module_bay=module_bays[1], module_type=module_types[1], status=ModuleStatusChoices.STATUS_ACTIVE, serial='B', asset_tag='B'),
+            Module(device=devices[0], module_bay=module_bays[2], module_type=module_types[2], status=ModuleStatusChoices.STATUS_ACTIVE, serial='C', asset_tag='C'),
+            Module(device=devices[1], module_bay=module_bays[3], module_type=module_types[0], status=ModuleStatusChoices.STATUS_ACTIVE, serial='D', asset_tag='D'),
+            Module(device=devices[1], module_bay=module_bays[4], module_type=module_types[1], status=ModuleStatusChoices.STATUS_ACTIVE, serial='E', asset_tag='E'),
+            Module(device=devices[1], module_bay=module_bays[5], module_type=module_types[2], status=ModuleStatusChoices.STATUS_ACTIVE, serial='F', asset_tag='F'),
+            Module(device=devices[2], module_bay=module_bays[6], module_type=module_types[0], status=ModuleStatusChoices.STATUS_ACTIVE, serial='G', asset_tag='G'),
+            Module(device=devices[2], module_bay=module_bays[7], module_type=module_types[1], status=ModuleStatusChoices.STATUS_PLANNED, serial='H', asset_tag='H'),
+            Module(device=devices[2], module_bay=module_bays[8], module_type=module_types[2], status=ModuleStatusChoices.STATUS_FAILED, serial='I', asset_tag='I'),
         )
         Module.objects.bulk_create(modules)
 
@@ -1882,6 +1915,10 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_types = Device.objects.all()[:2]
         params = {'device_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_status(self):
+        params = {'status': [ModuleStatusChoices.STATUS_PLANNED, ModuleStatusChoices.STATUS_FAILED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_serial(self):
         params = {'serial': ['A', 'B']}
@@ -2652,6 +2689,13 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         VRF.objects.bulk_create(vrfs)
 
+        # Virtual Device Context Creation
+        vdcs = (
+            VirtualDeviceContext(device=devices[3], name='VDC 1', identifier=1, status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE),
+            VirtualDeviceContext(device=devices[3], name='VDC 2', identifier=2, status=VirtualDeviceContextStatusChoices.STATUS_PLANNED),
+        )
+        VirtualDeviceContext.objects.bulk_create(vdcs)
+
         # VirtualChassis assignment for filtering
         virtual_chassis = VirtualChassis.objects.create(master=devices[0])
         Device.objects.filter(pk=devices[0].pk).update(virtual_chassis=virtual_chassis, vc_position=1, vc_priority=1)
@@ -2763,6 +2807,12 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
             ),
         )
         Interface.objects.bulk_create(interfaces)
+
+        interfaces[3].vdcs.set([vdcs[0], vdcs[1]])
+        interfaces[4].vdcs.set([vdcs[0], vdcs[1]])
+        interfaces[5].vdcs.set([vdcs[0]])
+        interfaces[6].vdcs.set([vdcs[0]])
+        interfaces[7].vdcs.set([vdcs[1]])
 
         # Cables
         Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[3]]).save()
@@ -2967,6 +3017,21 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vrf': [vrfs[0].rd, vrfs[1].rd]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_vdc(self):
+        params = {'vdc': ['VDC 1']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+        devices = Device.objects.last()
+        vdc = VirtualDeviceContext.objects.filter(device=devices, name='VDC 2')
+        params = {'vdc_id': vdc.values_list('pk', flat=True)}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_vdc_identifier(self):
+        devices = Device.objects.last()
+        vdc = VirtualDeviceContext.objects.filter(device=devices, name='VDC 2')
+        params = {'vdc_identifier': vdc.values_list('identifier', flat=True)}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -4225,4 +4290,83 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-# TODO: Connection filters
+class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = VirtualDeviceContext.objects.all()
+    filterset = VirtualDeviceContextFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+        )
+        Device.objects.bulk_create(devices)
+
+        vdcs = (
+            VirtualDeviceContext(device=devices[0], name='VDC 1', identifier=1, status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE),
+            VirtualDeviceContext(device=devices[0], name='VDC 2', identifier=2, status=VirtualDeviceContextStatusChoices.STATUS_PLANNED),
+            VirtualDeviceContext(device=devices[1], name='VDC 1', status=VirtualDeviceContextStatusChoices.STATUS_OFFLINE),
+            VirtualDeviceContext(device=devices[1], name='VDC 2', status=VirtualDeviceContextStatusChoices.STATUS_PLANNED),
+            VirtualDeviceContext(device=devices[2], name='VDC 1', status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE),
+            VirtualDeviceContext(device=devices[2], name='VDC 2', status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE),
+        )
+        VirtualDeviceContext.objects.bulk_create(vdcs)
+
+        interfaces = (
+            Interface(device=devices[0], name='Interface 1', type='virtual'),
+            Interface(device=devices[0], name='Interface 2', type='virtual'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        interfaces[0].vdcs.set([vdcs[0]])
+        interfaces[1].vdcs.set([vdcs[1]])
+
+        addresses = (
+            IPAddress(assigned_object=interfaces[0], address='10.1.1.1/24'),
+            IPAddress(assigned_object=interfaces[1], address='10.1.1.2/24'),
+        )
+        IPAddress.objects.bulk_create(addresses)
+
+        vdcs[0].primary_ip4 = addresses[0]
+        vdcs[0].save()
+        vdcs[1].primary_ip4 = addresses[1]
+        vdcs[1].save()
+
+    def test_device(self):
+        params = {'device': ['Device 1', 'Device 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_status(self):
+        params = {'status': ['active']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_device_id(self):
+        devices = Device.objects.filter(name__in=['Device 1', 'Device 2'])
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_has_primary_ip(self):
+        params = {'has_primary_ip': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'has_primary_ip': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)

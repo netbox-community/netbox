@@ -18,7 +18,7 @@ The following sections detail how to set up a new instance of NetBox:
 | Dependency | Minimum Version |
 |------------|-----------------|
 | Python     | 3.8             |
-| PostgreSQL | 10              |
+| PostgreSQL | 11              |
 | Redis      | 4.0             |
 
 Below is a simplified overview of the NetBox application stack for reference:

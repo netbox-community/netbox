@@ -1,7 +1,9 @@
 from django import forms
 from django.test import TestCase
 
-from ipam.forms import IPAddressCSVForm
+from ipam.forms import IPAddressImportForm
+from utilities.choices import ImportFormatChoices
+from utilities.forms import ImportForm
 from utilities.forms.fields import CSVDataField
 from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 
@@ -288,7 +290,7 @@ class ExpandAlphanumeric(TestCase):
 class CSVDataFieldTest(TestCase):
 
     def setUp(self):
-        self.field = CSVDataField(from_form=IPAddressCSVForm)
+        self.field = CSVDataField(from_form=IPAddressImportForm)
 
     def test_clean(self):
         input = """
@@ -365,3 +367,50 @@ class CSVDataFieldTest(TestCase):
         """
         with self.assertRaises(forms.ValidationError):
             self.field.clean(input)
+
+
+class ImportFormTest(TestCase):
+
+    def test_format_detection(self):
+        form = ImportForm()
+
+        data = (
+            "a,b,c\n"
+            "1,2,3\n"
+            "4,5,6\n"
+        )
+        self.assertEqual(form._detect_format(data), ImportFormatChoices.CSV)
+
+        data = '{"a": 1, "b": 2, "c": 3"}'
+        self.assertEqual(form._detect_format(data), ImportFormatChoices.JSON)
+
+        data = '[{"a": 1, "b": 2, "c": 3"}, {"a": 4, "b": 5, "c": 6"}]'
+        self.assertEqual(form._detect_format(data), ImportFormatChoices.JSON)
+
+        data = (
+            "- a: 1\n"
+            "  b: 2\n"
+            "  c: 3\n"
+            "- a: 4\n"
+            "  b: 5\n"
+            "  c: 6\n"
+        )
+        self.assertEqual(form._detect_format(data), ImportFormatChoices.YAML)
+
+        data = (
+            "---\n"
+            "a: 1\n"
+            "b: 2\n"
+            "c: 3\n"
+            "---\n"
+            "a: 4\n"
+            "b: 5\n"
+            "c: 6\n"
+        )
+        self.assertEqual(form._detect_format(data), ImportFormatChoices.YAML)
+
+        # Invalid data
+        with self.assertRaises(forms.ValidationError):
+            form._detect_format('')
+        with self.assertRaises(forms.ValidationError):
+            form._detect_format('?')

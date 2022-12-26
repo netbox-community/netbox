@@ -1,3 +1,5 @@
+from django.utils.translation import gettext as _
+
 from utilities.choices import ChoiceSet
 
 
@@ -9,6 +11,22 @@ class WirelessRoleChoices(ChoiceSet):
         (ROLE_AP, 'Access point'),
         (ROLE_STATION, 'Station'),
     )
+
+
+class WirelessLANStatusChoices(ChoiceSet):
+    key = 'WirelessLAN.status'
+
+    STATUS_ACTIVE = 'active'
+    STATUS_RESERVED = 'reserved'
+    STATUS_DISABLED = 'disabled'
+    STATUS_DEPRECATED = 'deprecated'
+
+    CHOICES = [
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_RESERVED, _('Reserved'), 'cyan'),
+        (STATUS_DISABLED, _('Disabled'), 'orange'),
+        (STATUS_DEPRECATED, _('Deprecated'), 'red'),
+    ]
 
 
 class WirelessChannelChoices(ChoiceSet):

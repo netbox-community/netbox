@@ -121,6 +121,7 @@ class VLANTable(TenancyColumnsMixin, NetBoxTable):
         orderable=False,
         verbose_name='Prefixes'
     )
+    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:vlan_list'
     )
@@ -129,7 +130,7 @@ class VLANTable(TenancyColumnsMixin, NetBoxTable):
         model = VLAN
         fields = (
             'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'tenant_group', 'status', 'role',
-            'description', 'tags', 'l2vpn', 'created', 'last_updated',
+            'description', 'comments', 'tags', 'l2vpn', 'created', 'last_updated',
         )
         default_columns = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description')
         row_attrs = {

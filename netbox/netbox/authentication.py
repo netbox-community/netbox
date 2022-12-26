@@ -24,6 +24,7 @@ AUTH_BACKEND_ATTRS = {
     'azuread-oauth2': ('Microsoft Azure AD', 'microsoft'),
     'azuread-b2c-oauth2': ('Microsoft Azure AD', 'microsoft'),
     'azuread-tenant-oauth2': ('Microsoft Azure AD', 'microsoft'),
+    'azuread-v2-tenant-oauth2': ('Microsoft Azure AD', 'microsoft'),
     'bitbucket': ('BitBucket', 'bitbucket'),
     'bitbucket-oauth2': ('BitBucket', 'bitbucket'),
     'digitalocean': ('DigitalOcean', 'digital-ocean'),
@@ -351,6 +352,14 @@ class LDAPBackend:
         if getattr(ldap_config, 'LDAP_IGNORE_CERT_ERRORS', False):
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 
+        # Optionally set CA cert directory
+        if ca_cert_dir := getattr(ldap_config, 'LDAP_CA_CERT_DIR', None):
+            ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, ca_cert_dir)
+
+        # Optionally set CA cert file
+        if ca_cert_file := getattr(ldap_config, 'LDAP_CA_CERT_FILE', None):
+            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, ca_cert_file)
+
         return obj
 
 
@@ -373,5 +382,4 @@ def user_default_groups_handler(backend, user, response, *args, **kwargs):
         if group_list:
             user.groups.add(*group_list)
         else:
-            user.groups.clear()
-            logger.debug(f"Stripping user {user} from Groups")
+            logger.info(f"No valid group assignments for {user} - REMOTE_AUTH_DEFAULT_GROUPS may be incorrectly set?")

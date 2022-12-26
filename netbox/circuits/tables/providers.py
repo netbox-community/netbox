@@ -1,7 +1,8 @@
 import django_tables2 as tables
-from django_tables2.utils import Accessor
-
 from circuits.models import *
+from django_tables2.utils import Accessor
+from tenancy.tables import ContactsColumnMixin
+
 from netbox.tables import NetBoxTable, columns
 
 __all__ = (
@@ -10,7 +11,7 @@ __all__ = (
 )
 
 
-class ProviderTable(NetBoxTable):
+class ProviderTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
@@ -31,9 +32,6 @@ class ProviderTable(NetBoxTable):
         verbose_name='Circuits'
     )
     comments = columns.MarkdownColumn()
-    contacts = columns.ManyToManyColumn(
-        linkify_item=True
-    )
     tags = columns.TagColumn(
         url_name='circuits:provider_list'
     )
@@ -41,10 +39,10 @@ class ProviderTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Provider
         fields = (
-            'pk', 'id', 'name', 'asn', 'asns', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'asn_count',
-            'circuit_count', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'asns', 'account', 'asn_count', 'circuit_count', 'description', 'comments', 'contacts',
+            'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'asn', 'account', 'circuit_count')
+        default_columns = ('pk', 'name', 'account', 'circuit_count')
 
 
 class ProviderNetworkTable(NetBoxTable):

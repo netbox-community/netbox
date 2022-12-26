@@ -4,6 +4,7 @@ from django import forms
 from django.db.models import Count
 from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.templatetags.static import static
+from django.utils.translation import gettext as _
 from netaddr import AddrFormatError, EUI
 
 from utilities.forms import widgets
@@ -45,7 +46,7 @@ class SlugField(forms.SlugField):
         slug_source: Name of the form field from which the slug value will be derived
     """
     widget = widgets.SlugWidget
-    help_text = "URL-friendly unique shorthand"
+    help_text = _("URL-friendly unique shorthand")
 
     def __init__(self, *, slug_source='name', help_text=help_text, **kwargs):
         super().__init__(help_text=help_text, **kwargs)
@@ -97,7 +98,7 @@ class JSONField(_JSONField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
-            self.help_text = 'Enter context data in <a href="https://json.org/">JSON</a> format.'
+            self.help_text = _('Enter context data in <a href="https://json.org/">JSON</a> format.')
             self.widget.attrs['placeholder'] = ''
             self.widget.attrs['class'] = 'font-monospace'
 

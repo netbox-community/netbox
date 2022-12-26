@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
+from django.utils.dateparse import parse_date
 from django.utils.encoding import escape_uri_path
 from django.utils.html import escape
 from django.utils.formats import date_format
@@ -28,6 +29,7 @@ __all__ = (
     'ContentTypesColumn',
     'CustomFieldColumn',
     'CustomLinkColumn',
+    'DurationColumn',
     'LinkedCountColumn',
     'MarkdownColumn',
     'ManyToManyColumn',
@@ -50,6 +52,10 @@ class DateColumn(tables.DateColumn):
     tables and null when exporting data. It is registered in the tables library to use this class instead of the
     default, making this behavior consistent in all fields of type DateField.
     """
+    def render(self, value):
+        if value:
+            return date_format(value, format="SHORT_DATE_FORMAT")
+
     def value(self, value):
         return value
 
@@ -75,6 +81,24 @@ class DateTimeColumn(tables.DateTimeColumn):
     def from_field(cls, field, **kwargs):
         if isinstance(field, DateTimeField):
             return cls(**kwargs)
+
+
+class DurationColumn(tables.Column):
+    """
+    Express a duration of time (in minutes) in a human-friendly format. Example: 437 minutes becomes "7h 17m"
+    """
+    def render(self, value):
+        ret = ''
+        if days := value // 1440:
+            ret += f'{days}d '
+        if hours := value % 1440 // 60:
+            ret += f'{hours}h '
+        if minutes := value % 60:
+            ret += f'{minutes}m'
+        return ret.strip()
+
+    def value(self, value):
+        return value
 
 
 class ManyToManyColumn(tables.ManyToManyColumn):
@@ -300,7 +324,7 @@ class ContentTypeColumn(tables.Column):
     def render(self, value):
         if value is None:
             return None
-        return content_type_name(value)
+        return content_type_name(value, include_app=False)
 
     def value(self, value):
         if value is None:
@@ -319,7 +343,7 @@ class ContentTypesColumn(tables.ManyToManyColumn):
         super().__init__(separator=separator, *args, **kwargs)
 
     def transform(self, obj):
-        return content_type_name(obj)
+        return content_type_name(obj, include_app=False)
 
     def value(self, value):
         return ','.join([
@@ -425,6 +449,12 @@ class CustomFieldColumn(tables.Column):
         kwargs['accessor'] = Accessor(f'custom_field_data__{customfield.name}')
         if 'verbose_name' not in kwargs:
             kwargs['verbose_name'] = customfield.label or customfield.name
+        # We can't logically sort on FK values
+        if customfield.type in (
+            CustomFieldTypeChoices.TYPE_OBJECT,
+            CustomFieldTypeChoices.TYPE_MULTIOBJECT
+        ):
+            kwargs['orderable'] = False
 
         super().__init__(*args, **kwargs)
 
@@ -449,6 +479,8 @@ class CustomFieldColumn(tables.Column):
             ))
         if self.customfield.type == CustomFieldTypeChoices.TYPE_LONGTEXT and value:
             return render_markdown(value)
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_DATE and value:
+            return date_format(parse_date(value), format="SHORT_DATE_FORMAT")
         if value is not None:
             obj = self.customfield.deserialize(value)
             return mark_safe(self._linkify_item(obj))
@@ -505,14 +537,15 @@ class MPTTColumn(tables.TemplateColumn):
     """
     template_code = """
         {% load helpers %}
-        {% for i in record.level|as_range %}<i class="mdi mdi-circle-small"></i>{% endfor %}
+        {% if not table.order_by %}
+          {% for i in record.level|as_range %}<i class="mdi mdi-circle-small"></i>{% endfor %}
+        {% endif %}
         <a href="{{ record.get_absolute_url }}">{{ record.name }}</a>
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(
             template_code=self.template_code,
-            orderable=False,
             attrs={'td': {'class': 'text-nowrap'}},
             *args,
             **kwargs

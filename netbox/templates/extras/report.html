@@ -1,5 +1,6 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
+{% load form_helpers %}
 
 {% block title %}{{ report.name }}{% endblock %}
 
@@ -33,27 +34,32 @@
 {% block content %}
   <div role="tabpanel" class="tab-pane active" id="report">
     {% if perms.extras.run_report %}
-      <div class="float-end noprint">
-          <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
-              {% csrf_token %}
+      <div class="row">
+        <div class="col">
+          <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post" class="form-object-edit">
+            {% csrf_token %}
+            {% render_form form %}
+            <div class="float-end">
               <button type="submit" name="_run" class="btn btn-primary">
-                  {% if report.result %}
-                      <i class="mdi mdi-replay"></i> Run Again
-                  {% else %}
-                      <i class="mdi mdi-play"></i> Run Report
-                  {% endif %}
+                {% if report.result %}
+                  <i class="mdi mdi-replay"></i> Run Again
+                {% else %}
+                  <i class="mdi mdi-play"></i> Run Report
+                {% endif %}
               </button>
+            </div>
           </form>
+        </div>
       </div>
     {% endif %}
     <div class="row">
-        <div class="col col-md-12">
-            {% if report.result %}
-                Last run: <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">
-                    <strong>{{ report.result.created|annotated_date }}</strong>
-                </a>
-            {% endif %}
-        </div>
+      <div class="col col-md-12">
+        {% if report.result %}
+          Last run: <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">
+            <strong>{{ report.result.created|annotated_date }}</strong>
+          </a>
+        {% endif %}
+      </div>
     </div>
   </div>
 {% endblock content %}

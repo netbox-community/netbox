@@ -12,6 +12,17 @@ BASE_PATH = 'netbox/'
 
 ---
 
+## DEFAULT_LANGUAGE
+
+Default: `en-us` (US English)
+
+Defines the default preferred language/locale for requests that do not specify one. This is used to alter e.g. the display of dates and numbers to fit the user's locale. See [this list](http://www.i18nguy.com/unicode/language-identifiers.html) of standard language codes. (This parameter maps to Django's [`LANGUAGE_CODE`](https://docs.djangoproject.com/en/stable/ref/settings/#language-code) internal setting.)
+
+!!! note
+    Altering this parameter will *not* change the language used in NetBox. We hope to provide translation support in a future NetBox release.
+
+---
+
 ## DOCS_ROOT
 
 Default: `$INSTALL_ROOT/docs/`
@@ -154,6 +165,14 @@ The file path to the location where [custom reports](../customization/reports.md
 Default: `$INSTALL_ROOT/netbox/scripts/`
 
 The file path to the location where [custom scripts](../customization/custom-scripts.md) will be kept. By default, this is the `netbox/scripts/` directory within the base NetBox installation path.
+
+---
+
+## SEARCH_BACKEND
+
+Default: `'netbox.search.backends.CachedValueSearchBackend'`
+
+The dotted path to the desired search backend class. `CachedValueSearchBackend` is currently the only search backend provided in NetBox, however this setting can be used to enable a custom backend. 
 
 ---
 

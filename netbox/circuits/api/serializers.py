@@ -31,8 +31,8 @@ class ProviderSerializer(NetBoxModelSerializer):
     class Meta:
         model = Provider
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact',
-            'comments', 'asns', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count',
+            'id', 'url', 'display', 'name', 'slug', 'account', 'description', 'comments', 'asns', 'tags',
+            'custom_fields', 'created', 'last_updated', 'circuit_count',
         ]
 
 

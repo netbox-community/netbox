@@ -32,11 +32,11 @@ schema = MyQuery
 NetBox provides two object type classes for use by plugins.
 
 ::: netbox.graphql.types.BaseObjectType
-    selection:
+    options:
       members: false
 
 ::: netbox.graphql.types.NetBoxObjectType
-    selection:
+    options:
       members: false
 
 ## GraphQL Fields
@@ -44,9 +44,9 @@ NetBox provides two object type classes for use by plugins.
 NetBox provides two field classes for use by plugins.
 
 ::: netbox.graphql.fields.ObjectField
-    selection:
+    options:
       members: false
 
 ::: netbox.graphql.fields.ObjectListField
-    selection:
+    options:
       members: false

@@ -6,4 +6,4 @@ class CircuitsConfig(AppConfig):
     verbose_name = "Circuits"
 
     def ready(self):
-        import circuits.signals
+        from . import signals, search

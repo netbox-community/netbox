@@ -1,9 +1,11 @@
 import datetime
 import decimal
+from urllib.parse import quote
 from typing import Dict, Any
 
 from django import template
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import date
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
@@ -138,15 +140,8 @@ def percentage(x, y):
     """
     if x is None or y is None:
         return None
-    return round(x / y * 100)
 
-
-@register.filter()
-def get_docs_url(model):
-    """
-    Return the documentation URL for the specified model.
-    """
-    return f'{settings.STATIC_URL}docs/models/{model._meta.app_label}/{model._meta.model_name}/'
+    return round(x / y * 100, 1)
 
 
 @register.filter()
@@ -175,6 +170,14 @@ def meters_to_feet(n):
     Convert a length from meters to feet.
     """
     return float(n) * 3.28084
+
+
+@register.filter()
+def kg_to_pounds(n):
+    """
+    Convert a weight from kilograms to pounds.
+    """
+    return float(n) * 2.204623
 
 
 @register.filter("startswith")
@@ -215,6 +218,7 @@ def status_from_tag(tag: str = "info") -> str:
         'warning': 'warning',
         'success': 'success',
         'error': 'danger',
+        'danger': 'danger',
         'debug': 'info',
         'info': 'info',
     }
@@ -286,12 +290,13 @@ def table_config_form(table, table_name=None):
     }
 
 
-@register.inclusion_tag('helpers/applied_filters.html')
-def applied_filters(form, query_params):
+@register.inclusion_tag('helpers/applied_filters.html', takes_context=True)
+def applied_filters(context, model, form, query_params):
     """
     Display the active filters for a given filter form.
     """
-    form.is_valid()
+    user = context['request'].user
+    form.is_valid()  # Ensure cleaned_data has been set
 
     applied_filters = []
     for filter_name in form.changed_data:
@@ -313,6 +318,14 @@ def applied_filters(form, query_params):
             'link_text': f'{bound_field.label}: {display_value}',
         })
 
+    save_link = None
+    if user.has_perm('extras.add_savedfilter') and 'filter_id' not in context['request'].GET:
+        content_type = ContentType.objects.get_for_model(model).pk
+        parameters = context['request'].GET.urlencode()
+        url = reverse('extras:savedfilter_add')
+        save_link = f"{url}?content_types={content_type}&parameters={quote(parameters)}"
+
     return {
         'applied_filters': applied_filters,
+        'save_link': save_link,
     }

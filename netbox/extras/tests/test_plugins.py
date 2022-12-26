@@ -5,9 +5,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from extras.registry import registry
+from extras.plugins import PluginMenu, get_plugin_config
 from extras.tests.dummy_plugin import config as dummy_config
 from netbox.graphql.schema import Query
+from netbox.registry import registry
 
 
 @skipIf('extras.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
@@ -58,9 +59,28 @@ class PluginTest(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_registered_views(self):
+
+        # Test URL resolution
+        url = reverse('dcim:site_extra', kwargs={'pk': 1})
+        self.assertEqual(url, '/dcim/sites/1/other-stuff/')
+
+        # Test GET request
+        client = Client()
+        response = client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_menu(self):
+        """
+        Check menu registration.
+        """
+        menu = registry['plugins']['menus'][0]
+        self.assertIsInstance(menu, PluginMenu)
+        self.assertEqual(menu.label, 'Dummy Plugin')
+
     def test_menu_items(self):
         """
-        Check that plugin MenuItems and MenuButtons are registered.
+        Check menu_items registration.
         """
         self.assertIn('Dummy plugin', registry['plugins']['menu_items'])
         menu_items = registry['plugins']['menu_items']['Dummy plugin']
@@ -153,3 +173,13 @@ class PluginTest(TestCase):
 
         self.assertIn(DummyQuery, registry['plugins']['graphql_schemas'])
         self.assertTrue(issubclass(Query, DummyQuery))
+
+    @override_settings(PLUGINS_CONFIG={'extras.tests.dummy_plugin': {'foo': 123}})
+    def test_get_plugin_config(self):
+        """
+        Validate that get_plugin_config() returns config parameters correctly.
+        """
+        plugin = 'extras.tests.dummy_plugin'
+        self.assertEqual(get_plugin_config(plugin, 'foo'), 123)
+        self.assertEqual(get_plugin_config(plugin, 'bar'), None)
+        self.assertEqual(get_plugin_config(plugin, 'bar', default=456), 456)

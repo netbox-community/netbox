@@ -7,7 +7,7 @@ This section of the documentation discusses installing and configuring the NetBo
 Begin by installing all system packages required by NetBox and its dependencies.
 
 !!! warning "Python 3.8 or later required"
-    NetBox requires Python 3.8, 3.9, or 3.10.
+    NetBox requires Python 3.8, 3.9, 3.10 or 3.11.
 
 === "Ubuntu"
 
@@ -36,7 +36,7 @@ This documentation provides two options for installing NetBox: from a downloadab
 Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox` as the NetBox root.
 
 ```no-highlight
-sudo wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
+sudo wget https://github.com/netbox-community/netbox/archive/refs/tags/vX.Y.Z.tar.gz
 sudo tar -xzf vX.Y.Z.tar.gz -C /opt
 sudo ln -s /opt/netbox-X.Y.Z/ /opt/netbox
 ```
@@ -224,6 +224,9 @@ Once NetBox has been configured, we're ready to proceed with the actual installa
 * Run database schema migrations
 * Builds the documentation locally (for offline use)
 * Aggregate static resource files on disk
+
+!!! warning
+    If you still have a Python virtual environment active from a previous installation step, disable it now by running the `deactivate` command. This will avoid errors on systems where `sudo` has been configured to preserve the user's current environment.
 
 ```no-highlight
 sudo /opt/netbox/upgrade.sh

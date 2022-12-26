@@ -72,6 +72,9 @@ ADMINS = [
     # ('John Doe', 'jdoe@example.com'),
 ]
 
+# Permit the retrieval of API tokens after their creation.
+ALLOW_TOKEN_RETRIEVAL = False
+
 # Enable any desired validators for local account passwords below. For a list of included validators, please see the
 # Django documentation at https://docs.djangoproject.com/en/stable/topics/auth/passwords/#password-validation.
 AUTH_PASSWORD_VALIDATORS = [
@@ -102,6 +105,9 @@ CORS_ORIGIN_REGEX_WHITELIST = [
 # sensitive information about your installation. Only enable debugging while performing testing. Never enable debugging
 # on a production system.
 DEBUG = False
+
+# Set the default preferred language/locale
+DEFAULT_LANGUAGE = 'en-us'
 
 # Email settings
 EMAIL = {
@@ -148,6 +154,9 @@ LOGIN_REQUIRED = False
 # The length of time (in seconds) for which a user will remain logged into the web UI before being prompted to
 # re-authenticate. (Default: 1209600 [14 days])
 LOGIN_TIMEOUT = None
+
+# The view name or URL to which users are redirected after logging out.
+LOGOUT_REDIRECT_URL = 'home'
 
 # The file path where uploaded media such as image attachments are stored. A trailing slash is not needed. Note that
 # the default value of this setting is derived from the installed location.

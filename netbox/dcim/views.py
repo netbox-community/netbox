@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
@@ -19,7 +20,7 @@ from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.utils import count_related
-from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
+from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
 from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices
@@ -45,11 +46,6 @@ class DeviceComponentsView(generic.ObjectChildrenView):
     def get_children(self, request, parent):
         return self.child_model.objects.restrict(request.user, 'view').filter(device=parent)
 
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': f"{self.child_model._meta.verbose_name_plural.replace(' ', '-')}",
-        }
-
 
 class DeviceTypeComponentsView(DeviceComponentsView):
     queryset = DeviceType.objects.all()
@@ -60,10 +56,9 @@ class DeviceTypeComponentsView(DeviceComponentsView):
         return self.child_model.objects.restrict(request.user, 'view').filter(device_type=parent)
 
     def get_extra_context(self, request, instance):
-        context = super().get_extra_context(request, instance)
-        context['return_url'] = reverse(self.viewname, kwargs={'pk': instance.pk})
-
-        return context
+        return {
+            'return_url': reverse(self.viewname, kwargs={'pk': instance.pk}),
+        }
 
 
 class ModuleTypeComponentsView(DeviceComponentsView):
@@ -75,10 +70,9 @@ class ModuleTypeComponentsView(DeviceComponentsView):
         return self.child_model.objects.restrict(request.user, 'view').filter(module_type=parent)
 
     def get_extra_context(self, request, instance):
-        context = super().get_extra_context(request, instance)
-        context['return_url'] = reverse(self.viewname, kwargs={'pk': instance.pk})
-
-        return context
+        return {
+            'return_url': reverse(self.viewname, kwargs={'pk': instance.pk}),
+        }
 
 
 class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
@@ -140,6 +134,61 @@ class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View)
         })
 
 
+class PathTraceView(generic.ObjectView):
+    """
+    Trace a cable path beginning from the given path endpoint (origin).
+    """
+    additional_permissions = ['dcim.view_cable']
+    template_name = 'dcim/cable_trace.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        model = kwargs.pop('model')
+        self.queryset = model.objects.all()
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_extra_context(self, request, instance):
+        related_paths = []
+
+        # If tracing a PathEndpoint, locate the CablePath (if one exists) by its origin
+        if isinstance(instance, PathEndpoint):
+            path = instance._path
+
+        # Otherwise, find all CablePaths which traverse the specified object
+        else:
+            related_paths = CablePath.objects.filter(_nodes__contains=instance)
+            # Check for specification of a particular path (when tracing pass-through ports)
+            try:
+                path_id = int(request.GET.get('cablepath_id'))
+            except TypeError:
+                path_id = None
+            if path_id in list(related_paths.values_list('pk', flat=True)):
+                path = CablePath.objects.get(pk=path_id)
+            else:
+                path = related_paths.first()
+
+        # No paths found
+        if path is None:
+            return {
+                'path': None
+            }
+
+        # Get the total length of the cable and whether the length is definitive (fully defined)
+        total_length, is_definitive = path.get_total_length() if path else (None, False)
+
+        # Determine the path to the SVG trace image
+        api_viewname = f"{path.origin_type.app_label}-api:{path.origin_type.model}-trace"
+        svg_url = f"{reverse(api_viewname, kwargs={'pk': path.origins[0].pk})}?render=svg"
+
+        return {
+            'path': path,
+            'related_paths': related_paths,
+            'total_length': total_length,
+            'is_definitive': is_definitive,
+            'svg_url': svg_url,
+        }
+
+
 #
 # Regions
 #
@@ -157,6 +206,7 @@ class RegionListView(generic.ObjectListView):
     table = tables.RegionTable
 
 
+@register_model_view(Region)
 class RegionView(generic.ObjectView):
     queryset = Region.objects.all()
 
@@ -185,18 +235,20 @@ class RegionView(generic.ObjectView):
         }
 
 
+@register_model_view(Region, 'edit')
 class RegionEditView(generic.ObjectEditView):
     queryset = Region.objects.all()
     form = forms.RegionForm
 
 
+@register_model_view(Region, 'delete')
 class RegionDeleteView(generic.ObjectDeleteView):
     queryset = Region.objects.all()
 
 
 class RegionBulkImportView(generic.BulkImportView):
     queryset = Region.objects.all()
-    model_form = forms.RegionCSVForm
+    model_form = forms.RegionImportForm
     table = tables.RegionTable
 
 
@@ -242,6 +294,7 @@ class SiteGroupListView(generic.ObjectListView):
     table = tables.SiteGroupTable
 
 
+@register_model_view(SiteGroup)
 class SiteGroupView(generic.ObjectView):
     queryset = SiteGroup.objects.all()
 
@@ -270,18 +323,20 @@ class SiteGroupView(generic.ObjectView):
         }
 
 
+@register_model_view(SiteGroup, 'edit')
 class SiteGroupEditView(generic.ObjectEditView):
     queryset = SiteGroup.objects.all()
     form = forms.SiteGroupForm
 
 
+@register_model_view(SiteGroup, 'delete')
 class SiteGroupDeleteView(generic.ObjectDeleteView):
     queryset = SiteGroup.objects.all()
 
 
 class SiteGroupBulkImportView(generic.BulkImportView):
     queryset = SiteGroup.objects.all()
-    model_form = forms.SiteGroupCSVForm
+    model_form = forms.SiteGroupImportForm
     table = tables.SiteGroupTable
 
 
@@ -321,6 +376,7 @@ class SiteListView(generic.ObjectListView):
     table = tables.SiteTable
 
 
+@register_model_view(Site)
 class SiteView(generic.ObjectView):
     queryset = Site.objects.prefetch_related('tenant__group')
 
@@ -335,7 +391,7 @@ class SiteView(generic.ObjectView):
                 scope_id=instance.pk
             ).count(),
             'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(site=instance).count(),
-            'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).count(),
+            'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct().count(),
             'vm_count': VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=instance).count(),
         }
         locations = Location.objects.add_related_count(
@@ -373,18 +429,20 @@ class SiteView(generic.ObjectView):
         }
 
 
+@register_model_view(Site, 'edit')
 class SiteEditView(generic.ObjectEditView):
     queryset = Site.objects.all()
     form = forms.SiteForm
 
 
+@register_model_view(Site, 'delete')
 class SiteDeleteView(generic.ObjectDeleteView):
     queryset = Site.objects.all()
 
 
 class SiteBulkImportView(generic.BulkImportView):
     queryset = Site.objects.all()
-    model_form = forms.SiteCSVForm
+    model_form = forms.SiteImportForm
     table = tables.SiteTable
 
 
@@ -424,6 +482,7 @@ class LocationListView(generic.ObjectListView):
     table = tables.LocationTable
 
 
+@register_model_view(Location)
 class LocationView(generic.ObjectView):
     queryset = Location.objects.all()
 
@@ -463,18 +522,20 @@ class LocationView(generic.ObjectView):
         }
 
 
+@register_model_view(Location, 'edit')
 class LocationEditView(generic.ObjectEditView):
     queryset = Location.objects.all()
     form = forms.LocationForm
 
 
+@register_model_view(Location, 'delete')
 class LocationDeleteView(generic.ObjectDeleteView):
     queryset = Location.objects.all()
 
 
 class LocationBulkImportView(generic.BulkImportView):
     queryset = Location.objects.all()
-    model_form = forms.LocationCSVForm
+    model_form = forms.LocationImportForm
     table = tables.LocationTable
 
 
@@ -516,6 +577,7 @@ class RackRoleListView(generic.ObjectListView):
     table = tables.RackRoleTable
 
 
+@register_model_view(RackRole)
 class RackRoleView(generic.ObjectView):
     queryset = RackRole.objects.all()
 
@@ -534,18 +596,20 @@ class RackRoleView(generic.ObjectView):
         }
 
 
+@register_model_view(RackRole, 'edit')
 class RackRoleEditView(generic.ObjectEditView):
     queryset = RackRole.objects.all()
     form = forms.RackRoleForm
 
 
+@register_model_view(RackRole, 'delete')
 class RackRoleDeleteView(generic.ObjectDeleteView):
     queryset = RackRole.objects.all()
 
 
 class RackRoleBulkImportView(generic.BulkImportView):
     queryset = RackRole.objects.all()
-    model_form = forms.RackRoleCSVForm
+    model_form = forms.RackRoleImportForm
     table = tables.RackRoleTable
 
 
@@ -589,17 +653,18 @@ class RackElevationListView(generic.ObjectListView):
         racks = filtersets.RackFilterSet(request.GET, self.queryset).qs
         total_count = racks.count()
 
+        # Ordering
         ORDERING_CHOICES = {
             'name': 'Name (A-Z)',
             '-name': 'Name (Z-A)',
             'facility_id': 'Facility ID (A-Z)',
             '-facility_id': 'Facility ID (Z-A)',
         }
-        sort = request.GET.get('sort', "name")
+        sort = request.GET.get('sort', 'name')
         if sort not in ORDERING_CHOICES:
             sort = 'name'
-
-        racks = racks.order_by(sort)
+        sort_field = sort.replace("name", "_name")  # Use natural ordering
+        racks = racks.order_by(sort_field)
 
         # Pagination
         per_page = get_paginate_count(request)
@@ -629,6 +694,7 @@ class RackElevationListView(generic.ObjectListView):
         })
 
 
+@register_model_view(Rack)
 class RackView(generic.ObjectView):
     queryset = Rack.objects.prefetch_related('site__region', 'tenant__group', 'location', 'role')
 
@@ -672,19 +738,21 @@ class RackView(generic.ObjectView):
         }
 
 
+@register_model_view(Rack, 'edit')
 class RackEditView(generic.ObjectEditView):
     queryset = Rack.objects.all()
     form = forms.RackForm
     template_name = 'dcim/rack_edit.html'
 
 
+@register_model_view(Rack, 'delete')
 class RackDeleteView(generic.ObjectDeleteView):
     queryset = Rack.objects.all()
 
 
 class RackBulkImportView(generic.BulkImportView):
     queryset = Rack.objects.all()
-    model_form = forms.RackCSVForm
+    model_form = forms.RackImportForm
     table = tables.RackTable
 
 
@@ -712,10 +780,12 @@ class RackReservationListView(generic.ObjectListView):
     table = tables.RackReservationTable
 
 
+@register_model_view(RackReservation)
 class RackReservationView(generic.ObjectView):
     queryset = RackReservation.objects.all()
 
 
+@register_model_view(RackReservation, 'edit')
 class RackReservationEditView(generic.ObjectEditView):
     queryset = RackReservation.objects.all()
     form = forms.RackReservationForm
@@ -728,20 +798,21 @@ class RackReservationEditView(generic.ObjectEditView):
         return obj
 
 
+@register_model_view(RackReservation, 'delete')
 class RackReservationDeleteView(generic.ObjectDeleteView):
     queryset = RackReservation.objects.all()
 
 
 class RackReservationImportView(generic.BulkImportView):
     queryset = RackReservation.objects.all()
-    model_form = forms.RackReservationCSVForm
+    model_form = forms.RackReservationImportForm
     table = tables.RackReservationTable
 
-    def _save_obj(self, obj_form, request):
+    def save_object(self, object_form, request):
         """
         Assign the currently authenticated user to the RackReservation.
         """
-        instance = obj_form.save(commit=False)
+        instance = object_form.save(commit=False)
         instance.user = request.user
         instance.save()
 
@@ -776,6 +847,7 @@ class ManufacturerListView(generic.ObjectListView):
     table = tables.ManufacturerTable
 
 
+@register_model_view(Manufacturer)
 class ManufacturerView(generic.ObjectView):
     queryset = Manufacturer.objects.all()
 
@@ -802,18 +874,20 @@ class ManufacturerView(generic.ObjectView):
         }
 
 
+@register_model_view(Manufacturer, 'edit')
 class ManufacturerEditView(generic.ObjectEditView):
     queryset = Manufacturer.objects.all()
     form = forms.ManufacturerForm
 
 
+@register_model_view(Manufacturer, 'delete')
 class ManufacturerDeleteView(generic.ObjectDeleteView):
     queryset = Manufacturer.objects.all()
 
 
 class ManufacturerBulkImportView(generic.BulkImportView):
     queryset = Manufacturer.objects.all()
-    model_form = forms.ManufacturerCSVForm
+    model_form = forms.ManufacturerImportForm
     table = tables.ManufacturerTable
 
 
@@ -846,6 +920,7 @@ class DeviceTypeListView(generic.ObjectListView):
     table = tables.DeviceTypeTable
 
 
+@register_model_view(DeviceType)
 class DeviceTypeView(generic.ObjectView):
     queryset = DeviceType.objects.all()
 
@@ -857,86 +932,168 @@ class DeviceTypeView(generic.ObjectView):
         }
 
 
-class DeviceTypeConsolePortsView(DeviceTypeComponentsView):
-    child_model = ConsolePortTemplate
-    table = tables.ConsolePortTemplateTable
-    filterset = filtersets.ConsolePortTemplateFilterSet
-    viewname = 'dcim:devicetype_consoleports'
-
-
-class DeviceTypeConsoleServerPortsView(DeviceTypeComponentsView):
-    child_model = ConsoleServerPortTemplate
-    table = tables.ConsoleServerPortTemplateTable
-    filterset = filtersets.ConsoleServerPortTemplateFilterSet
-    viewname = 'dcim:devicetype_consoleserverports'
-
-
-class DeviceTypePowerPortsView(DeviceTypeComponentsView):
-    child_model = PowerPortTemplate
-    table = tables.PowerPortTemplateTable
-    filterset = filtersets.PowerPortTemplateFilterSet
-    viewname = 'dcim:devicetype_powerports'
-
-
-class DeviceTypePowerOutletsView(DeviceTypeComponentsView):
-    child_model = PowerOutletTemplate
-    table = tables.PowerOutletTemplateTable
-    filterset = filtersets.PowerOutletTemplateFilterSet
-    viewname = 'dcim:devicetype_poweroutlets'
-
-
-class DeviceTypeInterfacesView(DeviceTypeComponentsView):
-    child_model = InterfaceTemplate
-    table = tables.InterfaceTemplateTable
-    filterset = filtersets.InterfaceTemplateFilterSet
-    viewname = 'dcim:devicetype_interfaces'
-
-
-class DeviceTypeFrontPortsView(DeviceTypeComponentsView):
-    child_model = FrontPortTemplate
-    table = tables.FrontPortTemplateTable
-    filterset = filtersets.FrontPortTemplateFilterSet
-    viewname = 'dcim:devicetype_frontports'
-
-
-class DeviceTypeRearPortsView(DeviceTypeComponentsView):
-    child_model = RearPortTemplate
-    table = tables.RearPortTemplateTable
-    filterset = filtersets.RearPortTemplateFilterSet
-    viewname = 'dcim:devicetype_rearports'
-
-
-class DeviceTypeModuleBaysView(DeviceTypeComponentsView):
-    child_model = ModuleBayTemplate
-    table = tables.ModuleBayTemplateTable
-    filterset = filtersets.ModuleBayTemplateFilterSet
-    viewname = 'dcim:devicetype_modulebays'
-
-
-class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
-    child_model = DeviceBayTemplate
-    table = tables.DeviceBayTemplateTable
-    filterset = filtersets.DeviceBayTemplateFilterSet
-    viewname = 'dcim:devicetype_devicebays'
-
-
-class DeviceTypeInventoryItemsView(DeviceTypeComponentsView):
-    child_model = InventoryItemTemplate
-    table = tables.InventoryItemTemplateTable
-    filterset = filtersets.InventoryItemTemplateFilterSet
-    viewname = 'dcim:devicetype_inventoryitems'
-
-
+@register_model_view(DeviceType, 'edit')
 class DeviceTypeEditView(generic.ObjectEditView):
     queryset = DeviceType.objects.all()
     form = forms.DeviceTypeForm
 
 
+@register_model_view(DeviceType, 'delete')
 class DeviceTypeDeleteView(generic.ObjectDeleteView):
     queryset = DeviceType.objects.all()
 
 
-class DeviceTypeImportView(generic.ObjectImportView):
+@register_model_view(DeviceType, 'consoleports', path='console-ports')
+class DeviceTypeConsolePortsView(DeviceTypeComponentsView):
+    child_model = ConsolePortTemplate
+    table = tables.ConsolePortTemplateTable
+    filterset = filtersets.ConsolePortTemplateFilterSet
+    viewname = 'dcim:devicetype_consoleports'
+    tab = ViewTab(
+        label=_('Console Ports'),
+        badge=lambda obj: obj.consoleporttemplates.count(),
+        permission='dcim.view_consoleporttemplate',
+        weight=550,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(DeviceType, 'consoleserverports', path='console-server-ports')
+class DeviceTypeConsoleServerPortsView(DeviceTypeComponentsView):
+    child_model = ConsoleServerPortTemplate
+    table = tables.ConsoleServerPortTemplateTable
+    filterset = filtersets.ConsoleServerPortTemplateFilterSet
+    viewname = 'dcim:devicetype_consoleserverports'
+    tab = ViewTab(
+        label=_('Console Server Ports'),
+        badge=lambda obj: obj.consoleserverporttemplates.count(),
+        permission='dcim.view_consoleserverporttemplate',
+        weight=560,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(DeviceType, 'powerports', path='power-ports')
+class DeviceTypePowerPortsView(DeviceTypeComponentsView):
+    child_model = PowerPortTemplate
+    table = tables.PowerPortTemplateTable
+    filterset = filtersets.PowerPortTemplateFilterSet
+    viewname = 'dcim:devicetype_powerports'
+    tab = ViewTab(
+        label=_('Power Ports'),
+        badge=lambda obj: obj.powerporttemplates.count(),
+        permission='dcim.view_powerporttemplate',
+        weight=570,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(DeviceType, 'poweroutlets', path='power-outlets')
+class DeviceTypePowerOutletsView(DeviceTypeComponentsView):
+    child_model = PowerOutletTemplate
+    table = tables.PowerOutletTemplateTable
+    filterset = filtersets.PowerOutletTemplateFilterSet
+    viewname = 'dcim:devicetype_poweroutlets'
+    tab = ViewTab(
+        label=_('Power Outlets'),
+        badge=lambda obj: obj.poweroutlettemplates.count(),
+        permission='dcim.view_poweroutlettemplate',
+        weight=580,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(DeviceType, 'interfaces')
+class DeviceTypeInterfacesView(DeviceTypeComponentsView):
+    child_model = InterfaceTemplate
+    table = tables.InterfaceTemplateTable
+    filterset = filtersets.InterfaceTemplateFilterSet
+    viewname = 'dcim:devicetype_interfaces'
+    tab = ViewTab(
+        label=_('Interfaces'),
+        badge=lambda obj: obj.interfacetemplates.count(),
+        permission='dcim.view_interfacetemplate',
+        weight=520,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(DeviceType, 'frontports', path='front-ports')
+class DeviceTypeFrontPortsView(DeviceTypeComponentsView):
+    child_model = FrontPortTemplate
+    table = tables.FrontPortTemplateTable
+    filterset = filtersets.FrontPortTemplateFilterSet
+    viewname = 'dcim:devicetype_frontports'
+    tab = ViewTab(
+        label=_('Front Ports'),
+        badge=lambda obj: obj.frontporttemplates.count(),
+        permission='dcim.view_frontporttemplate',
+        weight=530,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(DeviceType, 'rearports', path='rear-ports')
+class DeviceTypeRearPortsView(DeviceTypeComponentsView):
+    child_model = RearPortTemplate
+    table = tables.RearPortTemplateTable
+    filterset = filtersets.RearPortTemplateFilterSet
+    viewname = 'dcim:devicetype_rearports'
+    tab = ViewTab(
+        label=_('Rear Ports'),
+        badge=lambda obj: obj.rearporttemplates.count(),
+        permission='dcim.view_rearporttemplate',
+        weight=540,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(DeviceType, 'modulebays', path='module-bays')
+class DeviceTypeModuleBaysView(DeviceTypeComponentsView):
+    child_model = ModuleBayTemplate
+    table = tables.ModuleBayTemplateTable
+    filterset = filtersets.ModuleBayTemplateFilterSet
+    viewname = 'dcim:devicetype_modulebays'
+    tab = ViewTab(
+        label=_('Module Bays'),
+        badge=lambda obj: obj.modulebaytemplates.count(),
+        permission='dcim.view_modulebaytemplate',
+        weight=510,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(DeviceType, 'devicebays', path='device-bays')
+class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
+    child_model = DeviceBayTemplate
+    table = tables.DeviceBayTemplateTable
+    filterset = filtersets.DeviceBayTemplateFilterSet
+    viewname = 'dcim:devicetype_devicebays'
+    tab = ViewTab(
+        label=_('Device Bays'),
+        badge=lambda obj: obj.devicebaytemplates.count(),
+        permission='dcim.view_devicebaytemplate',
+        weight=500,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(DeviceType, 'inventoryitems', path='inventory-items')
+class DeviceTypeInventoryItemsView(DeviceTypeComponentsView):
+    child_model = InventoryItemTemplate
+    table = tables.InventoryItemTemplateTable
+    filterset = filtersets.InventoryItemTemplateFilterSet
+    viewname = 'dcim:devicetype_inventoryitems'
+    tab = ViewTab(
+        label=_('Inventory Items'),
+        badge=lambda obj: obj.inventoryitemtemplates.count(),
+        permission='dcim.view_invenotryitemtemplate',
+        weight=590,
+        hide_if_empty=True
+    )
+
+
+class DeviceTypeImportView(generic.BulkImportView):
     additional_permissions = [
         'dcim.add_devicetype',
         'dcim.add_consoleporttemplate',
@@ -952,6 +1109,7 @@ class DeviceTypeImportView(generic.ObjectImportView):
     ]
     queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeImportForm
+    table = tables.DeviceTypeTable
     related_object_forms = {
         'console-ports': forms.ConsolePortTemplateImportForm,
         'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
@@ -1000,6 +1158,7 @@ class ModuleTypeListView(generic.ObjectListView):
     table = tables.ModuleTypeTable
 
 
+@register_model_view(ModuleType)
 class ModuleTypeView(generic.ObjectView):
     queryset = ModuleType.objects.all()
 
@@ -1011,65 +1170,123 @@ class ModuleTypeView(generic.ObjectView):
         }
 
 
-class ModuleTypeConsolePortsView(ModuleTypeComponentsView):
-    child_model = ConsolePortTemplate
-    table = tables.ConsolePortTemplateTable
-    filterset = filtersets.ConsolePortTemplateFilterSet
-    viewname = 'dcim:moduletype_consoleports'
-
-
-class ModuleTypeConsoleServerPortsView(ModuleTypeComponentsView):
-    child_model = ConsoleServerPortTemplate
-    table = tables.ConsoleServerPortTemplateTable
-    filterset = filtersets.ConsoleServerPortTemplateFilterSet
-    viewname = 'dcim:moduletype_consoleserverports'
-
-
-class ModuleTypePowerPortsView(ModuleTypeComponentsView):
-    child_model = PowerPortTemplate
-    table = tables.PowerPortTemplateTable
-    filterset = filtersets.PowerPortTemplateFilterSet
-    viewname = 'dcim:moduletype_powerports'
-
-
-class ModuleTypePowerOutletsView(ModuleTypeComponentsView):
-    child_model = PowerOutletTemplate
-    table = tables.PowerOutletTemplateTable
-    filterset = filtersets.PowerOutletTemplateFilterSet
-    viewname = 'dcim:moduletype_poweroutlets'
-
-
-class ModuleTypeInterfacesView(ModuleTypeComponentsView):
-    child_model = InterfaceTemplate
-    table = tables.InterfaceTemplateTable
-    filterset = filtersets.InterfaceTemplateFilterSet
-    viewname = 'dcim:moduletype_interfaces'
-
-
-class ModuleTypeFrontPortsView(ModuleTypeComponentsView):
-    child_model = FrontPortTemplate
-    table = tables.FrontPortTemplateTable
-    filterset = filtersets.FrontPortTemplateFilterSet
-    viewname = 'dcim:moduletype_frontports'
-
-
-class ModuleTypeRearPortsView(ModuleTypeComponentsView):
-    child_model = RearPortTemplate
-    table = tables.RearPortTemplateTable
-    filterset = filtersets.RearPortTemplateFilterSet
-    viewname = 'dcim:moduletype_rearports'
-
-
+@register_model_view(ModuleType, 'edit')
 class ModuleTypeEditView(generic.ObjectEditView):
     queryset = ModuleType.objects.all()
     form = forms.ModuleTypeForm
 
 
+@register_model_view(ModuleType, 'delete')
 class ModuleTypeDeleteView(generic.ObjectDeleteView):
     queryset = ModuleType.objects.all()
 
 
-class ModuleTypeImportView(generic.ObjectImportView):
+@register_model_view(ModuleType, 'consoleports', path='console-ports')
+class ModuleTypeConsolePortsView(ModuleTypeComponentsView):
+    child_model = ConsolePortTemplate
+    table = tables.ConsolePortTemplateTable
+    filterset = filtersets.ConsolePortTemplateFilterSet
+    viewname = 'dcim:moduletype_consoleports'
+    tab = ViewTab(
+        label=_('Console Ports'),
+        badge=lambda obj: obj.consoleporttemplates.count(),
+        permission='dcim.view_consoleporttemplate',
+        weight=530,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(ModuleType, 'consoleserverports', path='console-server-ports')
+class ModuleTypeConsoleServerPortsView(ModuleTypeComponentsView):
+    child_model = ConsoleServerPortTemplate
+    table = tables.ConsoleServerPortTemplateTable
+    filterset = filtersets.ConsoleServerPortTemplateFilterSet
+    viewname = 'dcim:moduletype_consoleserverports'
+    tab = ViewTab(
+        label=_('Console Server Ports'),
+        badge=lambda obj: obj.consoleserverporttemplates.count(),
+        permission='dcim.view_consoleserverporttemplate',
+        weight=540,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(ModuleType, 'powerports', path='power-ports')
+class ModuleTypePowerPortsView(ModuleTypeComponentsView):
+    child_model = PowerPortTemplate
+    table = tables.PowerPortTemplateTable
+    filterset = filtersets.PowerPortTemplateFilterSet
+    viewname = 'dcim:moduletype_powerports'
+    tab = ViewTab(
+        label=_('Power Ports'),
+        badge=lambda obj: obj.powerporttemplates.count(),
+        permission='dcim.view_powerporttemplate',
+        weight=550,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(ModuleType, 'poweroutlets', path='power-outlets')
+class ModuleTypePowerOutletsView(ModuleTypeComponentsView):
+    child_model = PowerOutletTemplate
+    table = tables.PowerOutletTemplateTable
+    filterset = filtersets.PowerOutletTemplateFilterSet
+    viewname = 'dcim:moduletype_poweroutlets'
+    tab = ViewTab(
+        label=_('Power Outlets'),
+        badge=lambda obj: obj.poweroutlettemplates.count(),
+        permission='dcim.view_poweroutlettemplate',
+        weight=560,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(ModuleType, 'interfaces')
+class ModuleTypeInterfacesView(ModuleTypeComponentsView):
+    child_model = InterfaceTemplate
+    table = tables.InterfaceTemplateTable
+    filterset = filtersets.InterfaceTemplateFilterSet
+    viewname = 'dcim:moduletype_interfaces'
+    tab = ViewTab(
+        label=_('Interfaces'),
+        badge=lambda obj: obj.interfacetemplates.count(),
+        permission='dcim.view_interfacetemplate',
+        weight=500,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(ModuleType, 'frontports', path='front-ports')
+class ModuleTypeFrontPortsView(ModuleTypeComponentsView):
+    child_model = FrontPortTemplate
+    table = tables.FrontPortTemplateTable
+    filterset = filtersets.FrontPortTemplateFilterSet
+    viewname = 'dcim:moduletype_frontports'
+    tab = ViewTab(
+        label=_('Front Ports'),
+        badge=lambda obj: obj.frontporttemplates.count(),
+        permission='dcim.view_frontporttemplate',
+        weight=510,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(ModuleType, 'rearports', path='rear-ports')
+class ModuleTypeRearPortsView(ModuleTypeComponentsView):
+    child_model = RearPortTemplate
+    table = tables.RearPortTemplateTable
+    filterset = filtersets.RearPortTemplateFilterSet
+    viewname = 'dcim:moduletype_rearports'
+    tab = ViewTab(
+        label=_('Rear Ports'),
+        badge=lambda obj: obj.rearporttemplates.count(),
+        permission='dcim.view_rearporttemplate',
+        weight=520,
+        hide_if_empty=True
+    )
+
+
+class ModuleTypeImportView(generic.BulkImportView):
     additional_permissions = [
         'dcim.add_moduletype',
         'dcim.add_consoleporttemplate',
@@ -1082,6 +1299,7 @@ class ModuleTypeImportView(generic.ObjectImportView):
     ]
     queryset = ModuleType.objects.all()
     model_form = forms.ModuleTypeImportForm
+    table = tables.ModuleTypeTable
     related_object_forms = {
         'console-ports': forms.ConsolePortTemplateImportForm,
         'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
@@ -1124,11 +1342,13 @@ class ConsolePortTemplateCreateView(generic.ComponentCreateView):
     model_form = forms.ConsolePortTemplateForm
 
 
+@register_model_view(ConsolePortTemplate, 'edit')
 class ConsolePortTemplateEditView(generic.ObjectEditView):
     queryset = ConsolePortTemplate.objects.all()
     form = forms.ConsolePortTemplateForm
 
 
+@register_model_view(ConsolePortTemplate, 'delete')
 class ConsolePortTemplateDeleteView(generic.ObjectDeleteView):
     queryset = ConsolePortTemplate.objects.all()
 
@@ -1158,11 +1378,13 @@ class ConsoleServerPortTemplateCreateView(generic.ComponentCreateView):
     model_form = forms.ConsoleServerPortTemplateForm
 
 
+@register_model_view(ConsoleServerPortTemplate, 'edit')
 class ConsoleServerPortTemplateEditView(generic.ObjectEditView):
     queryset = ConsoleServerPortTemplate.objects.all()
     form = forms.ConsoleServerPortTemplateForm
 
 
+@register_model_view(ConsoleServerPortTemplate, 'delete')
 class ConsoleServerPortTemplateDeleteView(generic.ObjectDeleteView):
     queryset = ConsoleServerPortTemplate.objects.all()
 
@@ -1192,11 +1414,13 @@ class PowerPortTemplateCreateView(generic.ComponentCreateView):
     model_form = forms.PowerPortTemplateForm
 
 
+@register_model_view(PowerPortTemplate, 'edit')
 class PowerPortTemplateEditView(generic.ObjectEditView):
     queryset = PowerPortTemplate.objects.all()
     form = forms.PowerPortTemplateForm
 
 
+@register_model_view(PowerPortTemplate, 'delete')
 class PowerPortTemplateDeleteView(generic.ObjectDeleteView):
     queryset = PowerPortTemplate.objects.all()
 
@@ -1226,11 +1450,13 @@ class PowerOutletTemplateCreateView(generic.ComponentCreateView):
     model_form = forms.PowerOutletTemplateForm
 
 
+@register_model_view(PowerOutletTemplate, 'edit')
 class PowerOutletTemplateEditView(generic.ObjectEditView):
     queryset = PowerOutletTemplate.objects.all()
     form = forms.PowerOutletTemplateForm
 
 
+@register_model_view(PowerOutletTemplate, 'delete')
 class PowerOutletTemplateDeleteView(generic.ObjectDeleteView):
     queryset = PowerOutletTemplate.objects.all()
 
@@ -1260,11 +1486,13 @@ class InterfaceTemplateCreateView(generic.ComponentCreateView):
     model_form = forms.InterfaceTemplateForm
 
 
+@register_model_view(InterfaceTemplate, 'edit')
 class InterfaceTemplateEditView(generic.ObjectEditView):
     queryset = InterfaceTemplate.objects.all()
     form = forms.InterfaceTemplateForm
 
 
+@register_model_view(InterfaceTemplate, 'delete')
 class InterfaceTemplateDeleteView(generic.ObjectDeleteView):
     queryset = InterfaceTemplate.objects.all()
 
@@ -1294,11 +1522,13 @@ class FrontPortTemplateCreateView(generic.ComponentCreateView):
     model_form = forms.FrontPortTemplateForm
 
 
+@register_model_view(FrontPortTemplate, 'edit')
 class FrontPortTemplateEditView(generic.ObjectEditView):
     queryset = FrontPortTemplate.objects.all()
     form = forms.FrontPortTemplateForm
 
 
+@register_model_view(FrontPortTemplate, 'delete')
 class FrontPortTemplateDeleteView(generic.ObjectDeleteView):
     queryset = FrontPortTemplate.objects.all()
 
@@ -1328,11 +1558,13 @@ class RearPortTemplateCreateView(generic.ComponentCreateView):
     model_form = forms.RearPortTemplateForm
 
 
+@register_model_view(RearPortTemplate, 'edit')
 class RearPortTemplateEditView(generic.ObjectEditView):
     queryset = RearPortTemplate.objects.all()
     form = forms.RearPortTemplateForm
 
 
+@register_model_view(RearPortTemplate, 'delete')
 class RearPortTemplateDeleteView(generic.ObjectDeleteView):
     queryset = RearPortTemplate.objects.all()
 
@@ -1362,11 +1594,13 @@ class ModuleBayTemplateCreateView(generic.ComponentCreateView):
     model_form = forms.ModuleBayTemplateForm
 
 
+@register_model_view(ModuleBayTemplate, 'edit')
 class ModuleBayTemplateEditView(generic.ObjectEditView):
     queryset = ModuleBayTemplate.objects.all()
     form = forms.ModuleBayTemplateForm
 
 
+@register_model_view(ModuleBayTemplate, 'delete')
 class ModuleBayTemplateDeleteView(generic.ObjectDeleteView):
     queryset = ModuleBayTemplate.objects.all()
 
@@ -1396,11 +1630,13 @@ class DeviceBayTemplateCreateView(generic.ComponentCreateView):
     model_form = forms.DeviceBayTemplateForm
 
 
+@register_model_view(DeviceBayTemplate, 'edit')
 class DeviceBayTemplateEditView(generic.ObjectEditView):
     queryset = DeviceBayTemplate.objects.all()
     form = forms.DeviceBayTemplateForm
 
 
+@register_model_view(DeviceBayTemplate, 'delete')
 class DeviceBayTemplateDeleteView(generic.ObjectDeleteView):
     queryset = DeviceBayTemplate.objects.all()
 
@@ -1441,11 +1677,13 @@ class InventoryItemTemplateCreateView(generic.ComponentCreateView):
         return instance
 
 
+@register_model_view(InventoryItemTemplate, 'edit')
 class InventoryItemTemplateEditView(generic.ObjectEditView):
     queryset = InventoryItemTemplate.objects.all()
     form = forms.InventoryItemTemplateForm
 
 
+@register_model_view(InventoryItemTemplate, 'delete')
 class InventoryItemTemplateDeleteView(generic.ObjectDeleteView):
     queryset = InventoryItemTemplate.objects.all()
 
@@ -1479,6 +1717,7 @@ class DeviceRoleListView(generic.ObjectListView):
     table = tables.DeviceRoleTable
 
 
+@register_model_view(DeviceRole)
 class DeviceRoleView(generic.ObjectView):
     queryset = DeviceRole.objects.all()
 
@@ -1496,18 +1735,20 @@ class DeviceRoleView(generic.ObjectView):
         }
 
 
+@register_model_view(DeviceRole, 'edit')
 class DeviceRoleEditView(generic.ObjectEditView):
     queryset = DeviceRole.objects.all()
     form = forms.DeviceRoleForm
 
 
+@register_model_view(DeviceRole, 'delete')
 class DeviceRoleDeleteView(generic.ObjectDeleteView):
     queryset = DeviceRole.objects.all()
 
 
 class DeviceRoleBulkImportView(generic.BulkImportView):
     queryset = DeviceRole.objects.all()
-    model_form = forms.DeviceRoleCSVForm
+    model_form = forms.DeviceRoleImportForm
     table = tables.DeviceRoleTable
 
 
@@ -1543,6 +1784,7 @@ class PlatformListView(generic.ObjectListView):
     filterset_form = forms.PlatformFilterForm
 
 
+@register_model_view(Platform)
 class PlatformView(generic.ObjectView):
     queryset = Platform.objects.all()
 
@@ -1559,18 +1801,20 @@ class PlatformView(generic.ObjectView):
         }
 
 
+@register_model_view(Platform, 'edit')
 class PlatformEditView(generic.ObjectEditView):
     queryset = Platform.objects.all()
     form = forms.PlatformForm
 
 
+@register_model_view(Platform, 'delete')
 class PlatformDeleteView(generic.ObjectDeleteView):
     queryset = Platform.objects.all()
 
 
 class PlatformBulkImportView(generic.BulkImportView):
     queryset = Platform.objects.all()
-    model_form = forms.PlatformCSVForm
+    model_form = forms.PlatformImportForm
     table = tables.PlatformTable
 
 
@@ -1598,6 +1842,7 @@ class DeviceListView(generic.ObjectListView):
     template_name = 'dcim/device_list.html'
 
 
+@register_model_view(Device)
 class DeviceView(generic.ObjectView):
     queryset = Device.objects.all()
 
@@ -1610,48 +1855,104 @@ class DeviceView(generic.ObjectView):
         else:
             vc_members = []
 
-        # Services
         services = Service.objects.restrict(request.user, 'view').filter(device=instance)
+        vdcs = VirtualDeviceContext.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
+            'tenant'
+        )
 
         return {
             'services': services,
+            'vdcs': vdcs,
             'vc_members': vc_members,
+            'svg_extra': f'highlight=id:{instance.pk}'
         }
 
 
+@register_model_view(Device, 'edit')
+class DeviceEditView(generic.ObjectEditView):
+    queryset = Device.objects.all()
+    form = forms.DeviceForm
+    template_name = 'dcim/device_edit.html'
+
+
+@register_model_view(Device, 'delete')
+class DeviceDeleteView(generic.ObjectDeleteView):
+    queryset = Device.objects.all()
+
+
+@register_model_view(Device, 'consoleports', path='console-ports')
 class DeviceConsolePortsView(DeviceComponentsView):
     child_model = ConsolePort
     table = tables.DeviceConsolePortTable
     filterset = filtersets.ConsolePortFilterSet
-    template_name = 'dcim/device/consoleports.html'
+    template_name = 'dcim/device/consoleports.html',
+    tab = ViewTab(
+        label=_('Console Ports'),
+        badge=lambda obj: obj.consoleports.count(),
+        permission='dcim.view_consoleport',
+        weight=550,
+        hide_if_empty=True
+    )
 
 
+@register_model_view(Device, 'consoleserverports', path='console-server-ports')
 class DeviceConsoleServerPortsView(DeviceComponentsView):
     child_model = ConsoleServerPort
     table = tables.DeviceConsoleServerPortTable
     filterset = filtersets.ConsoleServerPortFilterSet
     template_name = 'dcim/device/consoleserverports.html'
+    tab = ViewTab(
+        label=_('Console Server Ports'),
+        badge=lambda obj: obj.consoleserverports.count(),
+        permission='dcim.view_consoleserverport',
+        weight=560,
+        hide_if_empty=True
+    )
 
 
+@register_model_view(Device, 'powerports', path='power-ports')
 class DevicePowerPortsView(DeviceComponentsView):
     child_model = PowerPort
     table = tables.DevicePowerPortTable
     filterset = filtersets.PowerPortFilterSet
     template_name = 'dcim/device/powerports.html'
+    tab = ViewTab(
+        label=_('Power Ports'),
+        badge=lambda obj: obj.powerports.count(),
+        permission='dcim.view_powerport',
+        weight=570,
+        hide_if_empty=True
+    )
 
 
+@register_model_view(Device, 'poweroutlets', path='power-outlets')
 class DevicePowerOutletsView(DeviceComponentsView):
     child_model = PowerOutlet
     table = tables.DevicePowerOutletTable
     filterset = filtersets.PowerOutletFilterSet
     template_name = 'dcim/device/poweroutlets.html'
+    tab = ViewTab(
+        label=_('Power Outlets'),
+        badge=lambda obj: obj.poweroutlets.count(),
+        permission='dcim.view_poweroutlet',
+        weight=580,
+        hide_if_empty=True
+    )
 
 
+@register_model_view(Device, 'interfaces')
 class DeviceInterfacesView(DeviceComponentsView):
     child_model = Interface
     table = tables.DeviceInterfaceTable
     filterset = filtersets.InterfaceFilterSet
     template_name = 'dcim/device/interfaces.html'
+    tab = ViewTab(
+        label=_('Interfaces'),
+        badge=lambda obj: obj.interfaces.count(),
+        permission='dcim.view_interface',
+        weight=520,
+        hide_if_empty=True
+    )
 
     def get_children(self, request, parent):
         return parent.vc_interfaces().restrict(request.user, 'view').prefetch_related(
@@ -1660,112 +1961,107 @@ class DeviceInterfacesView(DeviceComponentsView):
         )
 
 
+@register_model_view(Device, 'frontports', path='front-ports')
 class DeviceFrontPortsView(DeviceComponentsView):
     child_model = FrontPort
     table = tables.DeviceFrontPortTable
     filterset = filtersets.FrontPortFilterSet
     template_name = 'dcim/device/frontports.html'
+    tab = ViewTab(
+        label=_('Front Ports'),
+        badge=lambda obj: obj.frontports.count(),
+        permission='dcim.view_frontport',
+        weight=530,
+        hide_if_empty=True
+    )
 
 
+@register_model_view(Device, 'rearports', path='rear-ports')
 class DeviceRearPortsView(DeviceComponentsView):
     child_model = RearPort
     table = tables.DeviceRearPortTable
     filterset = filtersets.RearPortFilterSet
     template_name = 'dcim/device/rearports.html'
+    tab = ViewTab(
+        label=_('Rear Ports'),
+        badge=lambda obj: obj.rearports.count(),
+        permission='dcim.view_rearport',
+        weight=540,
+        hide_if_empty=True
+    )
 
 
+@register_model_view(Device, 'modulebays', path='module-bays')
 class DeviceModuleBaysView(DeviceComponentsView):
     child_model = ModuleBay
     table = tables.DeviceModuleBayTable
     filterset = filtersets.ModuleBayFilterSet
     template_name = 'dcim/device/modulebays.html'
+    tab = ViewTab(
+        label=_('Module Bays'),
+        badge=lambda obj: obj.modulebays.count(),
+        permission='dcim.view_modulebay',
+        weight=510,
+        hide_if_empty=True
+    )
 
 
+@register_model_view(Device, 'devicebays', path='device-bays')
 class DeviceDeviceBaysView(DeviceComponentsView):
     child_model = DeviceBay
     table = tables.DeviceDeviceBayTable
     filterset = filtersets.DeviceBayFilterSet
     template_name = 'dcim/device/devicebays.html'
+    tab = ViewTab(
+        label=_('Device Bays'),
+        badge=lambda obj: obj.devicebays.count(),
+        permission='dcim.view_devicebay',
+        weight=500,
+        hide_if_empty=True
+    )
 
 
+@register_model_view(Device, 'inventory')
 class DeviceInventoryView(DeviceComponentsView):
     child_model = InventoryItem
     table = tables.DeviceInventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
     template_name = 'dcim/device/inventory.html'
+    tab = ViewTab(
+        label=_('Inventory Items'),
+        badge=lambda obj: obj.inventoryitems.count(),
+        permission='dcim.view_inventoryitem',
+        weight=590,
+        hide_if_empty=True
+    )
 
 
-class DeviceStatusView(generic.ObjectView):
-    additional_permissions = ['dcim.napalm_read_device']
-    queryset = Device.objects.all()
-    template_name = 'dcim/device/status.html'
-
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'status',
-        }
-
-
-class DeviceLLDPNeighborsView(generic.ObjectView):
-    additional_permissions = ['dcim.napalm_read_device']
-    queryset = Device.objects.all()
-    template_name = 'dcim/device/lldp_neighbors.html'
-
-    def get_extra_context(self, request, instance):
-        interfaces = instance.vc_interfaces().restrict(request.user, 'view').prefetch_related(
-            '_path'
-        ).exclude(
-            type__in=NONCONNECTABLE_IFACE_TYPES
-        )
-
-        return {
-            'interfaces': interfaces,
-            'active_tab': 'lldp-neighbors',
-        }
-
-
-class DeviceConfigView(generic.ObjectView):
-    additional_permissions = ['dcim.napalm_read_device']
-    queryset = Device.objects.all()
-    template_name = 'dcim/device/config.html'
-
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'config',
-        }
-
-
+@register_model_view(Device, 'configcontext', path='config-context')
 class DeviceConfigContextView(ObjectConfigContextView):
     queryset = Device.objects.annotate_config_context_data()
     base_template = 'dcim/device/base.html'
-
-
-class DeviceEditView(generic.ObjectEditView):
-    queryset = Device.objects.all()
-    form = forms.DeviceForm
-    template_name = 'dcim/device_edit.html'
-
-
-class DeviceDeleteView(generic.ObjectDeleteView):
-    queryset = Device.objects.all()
+    tab = ViewTab(
+        label=_('Config Context'),
+        permission='extras.view_configcontext',
+        weight=2000
+    )
 
 
 class DeviceBulkImportView(generic.BulkImportView):
     queryset = Device.objects.all()
-    model_form = forms.DeviceCSVForm
+    model_form = forms.DeviceImportForm
     table = tables.DeviceImportTable
     template_name = 'dcim/device_import.html'
 
 
 class ChildDeviceBulkImportView(generic.BulkImportView):
     queryset = Device.objects.all()
-    model_form = forms.ChildDeviceCSVForm
+    model_form = forms.ChildDeviceImportForm
     table = tables.DeviceImportTable
     template_name = 'dcim/device_import_child.html'
 
-    def _save_obj(self, obj_form, request):
-
-        obj = obj_form.save()
+    def save_object(self, object_form, request):
+        obj = object_form.save()
 
         # Save the reverse relation to the parent device bay
         device_bay = obj.parent_bay
@@ -1795,7 +2091,72 @@ class DeviceBulkRenameView(generic.BulkRenameView):
 
 
 #
-# Devices
+# Device NAPALM views
+#
+
+class NAPALMViewTab(ViewTab):
+
+    def render(self, instance):
+        # Display NAPALM tabs only for devices which meet certain requirements
+        if not (
+            instance.status == 'active' and
+            instance.primary_ip and
+            instance.platform and
+            instance.platform.napalm_driver
+        ):
+            return None
+        return super().render(instance)
+
+
+@register_model_view(Device, 'status')
+class DeviceStatusView(generic.ObjectView):
+    additional_permissions = ['dcim.napalm_read_device']
+    queryset = Device.objects.all()
+    template_name = 'dcim/device/status.html'
+    tab = NAPALMViewTab(
+        label=_('Status'),
+        permission='dcim.napalm_read_device',
+        weight=3000
+    )
+
+
+@register_model_view(Device, 'lldp_neighbors', path='lldp-neighbors')
+class DeviceLLDPNeighborsView(generic.ObjectView):
+    additional_permissions = ['dcim.napalm_read_device']
+    queryset = Device.objects.all()
+    template_name = 'dcim/device/lldp_neighbors.html'
+    tab = NAPALMViewTab(
+        label=_('LLDP Neighbors'),
+        permission='dcim.napalm_read_device',
+        weight=3100
+    )
+
+    def get_extra_context(self, request, instance):
+        interfaces = instance.vc_interfaces().restrict(request.user, 'view').prefetch_related(
+            '_path'
+        ).exclude(
+            type__in=NONCONNECTABLE_IFACE_TYPES
+        )
+
+        return {
+            'interfaces': interfaces,
+        }
+
+
+@register_model_view(Device, 'config')
+class DeviceConfigView(generic.ObjectView):
+    additional_permissions = ['dcim.napalm_read_device']
+    queryset = Device.objects.all()
+    template_name = 'dcim/device/config.html'
+    tab = NAPALMViewTab(
+        label=_('Config'),
+        permission='dcim.napalm_read_device',
+        weight=3200
+    )
+
+
+#
+# Modules
 #
 
 class ModuleListView(generic.ObjectListView):
@@ -1805,22 +2166,25 @@ class ModuleListView(generic.ObjectListView):
     table = tables.ModuleTable
 
 
+@register_model_view(Module)
 class ModuleView(generic.ObjectView):
     queryset = Module.objects.all()
 
 
+@register_model_view(Module, 'edit')
 class ModuleEditView(generic.ObjectEditView):
     queryset = Module.objects.all()
     form = forms.ModuleForm
 
 
+@register_model_view(Module, 'delete')
 class ModuleDeleteView(generic.ObjectDeleteView):
     queryset = Module.objects.all()
 
 
 class ModuleBulkImportView(generic.BulkImportView):
     queryset = Module.objects.all()
-    model_form = forms.ModuleCSVForm
+    model_form = forms.ModuleImportForm
     table = tables.ModuleTable
 
 
@@ -1849,6 +2213,7 @@ class ConsolePortListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(ConsolePort)
 class ConsolePortView(generic.ObjectView):
     queryset = ConsolePort.objects.all()
 
@@ -1859,18 +2224,20 @@ class ConsolePortCreateView(generic.ComponentCreateView):
     model_form = forms.ConsolePortForm
 
 
+@register_model_view(ConsolePort, 'edit')
 class ConsolePortEditView(generic.ObjectEditView):
     queryset = ConsolePort.objects.all()
     form = forms.ConsolePortForm
 
 
+@register_model_view(ConsolePort, 'delete')
 class ConsolePortDeleteView(generic.ObjectDeleteView):
     queryset = ConsolePort.objects.all()
 
 
 class ConsolePortBulkImportView(generic.BulkImportView):
     queryset = ConsolePort.objects.all()
-    model_form = forms.ConsolePortCSVForm
+    model_form = forms.ConsolePortImportForm
     table = tables.ConsolePortTable
 
 
@@ -1895,6 +2262,10 @@ class ConsolePortBulkDeleteView(generic.BulkDeleteView):
     table = tables.ConsolePortTable
 
 
+# Trace view
+register_model_view(ConsolePort, 'trace', kwargs={'model': ConsolePort})(PathTraceView)
+
+
 #
 # Console server ports
 #
@@ -1907,6 +2278,7 @@ class ConsoleServerPortListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(ConsoleServerPort)
 class ConsoleServerPortView(generic.ObjectView):
     queryset = ConsoleServerPort.objects.all()
 
@@ -1917,18 +2289,20 @@ class ConsoleServerPortCreateView(generic.ComponentCreateView):
     model_form = forms.ConsoleServerPortForm
 
 
+@register_model_view(ConsoleServerPort, 'edit')
 class ConsoleServerPortEditView(generic.ObjectEditView):
     queryset = ConsoleServerPort.objects.all()
     form = forms.ConsoleServerPortForm
 
 
+@register_model_view(ConsoleServerPort, 'delete')
 class ConsoleServerPortDeleteView(generic.ObjectDeleteView):
     queryset = ConsoleServerPort.objects.all()
 
 
 class ConsoleServerPortBulkImportView(generic.BulkImportView):
     queryset = ConsoleServerPort.objects.all()
-    model_form = forms.ConsoleServerPortCSVForm
+    model_form = forms.ConsoleServerPortImportForm
     table = tables.ConsoleServerPortTable
 
 
@@ -1953,6 +2327,10 @@ class ConsoleServerPortBulkDeleteView(generic.BulkDeleteView):
     table = tables.ConsoleServerPortTable
 
 
+# Trace view
+register_model_view(ConsoleServerPort, 'trace', kwargs={'model': ConsoleServerPort})(PathTraceView)
+
+
 #
 # Power ports
 #
@@ -1965,6 +2343,7 @@ class PowerPortListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(PowerPort)
 class PowerPortView(generic.ObjectView):
     queryset = PowerPort.objects.all()
 
@@ -1975,18 +2354,20 @@ class PowerPortCreateView(generic.ComponentCreateView):
     model_form = forms.PowerPortForm
 
 
+@register_model_view(PowerPort, 'edit')
 class PowerPortEditView(generic.ObjectEditView):
     queryset = PowerPort.objects.all()
     form = forms.PowerPortForm
 
 
+@register_model_view(PowerPort, 'delete')
 class PowerPortDeleteView(generic.ObjectDeleteView):
     queryset = PowerPort.objects.all()
 
 
 class PowerPortBulkImportView(generic.BulkImportView):
     queryset = PowerPort.objects.all()
-    model_form = forms.PowerPortCSVForm
+    model_form = forms.PowerPortImportForm
     table = tables.PowerPortTable
 
 
@@ -2011,6 +2392,10 @@ class PowerPortBulkDeleteView(generic.BulkDeleteView):
     table = tables.PowerPortTable
 
 
+# Trace view
+register_model_view(PowerPort, 'trace', kwargs={'model': PowerPort})(PathTraceView)
+
+
 #
 # Power outlets
 #
@@ -2023,6 +2408,7 @@ class PowerOutletListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(PowerOutlet)
 class PowerOutletView(generic.ObjectView):
     queryset = PowerOutlet.objects.all()
 
@@ -2033,18 +2419,20 @@ class PowerOutletCreateView(generic.ComponentCreateView):
     model_form = forms.PowerOutletForm
 
 
+@register_model_view(PowerOutlet, 'edit')
 class PowerOutletEditView(generic.ObjectEditView):
     queryset = PowerOutlet.objects.all()
     form = forms.PowerOutletForm
 
 
+@register_model_view(PowerOutlet, 'delete')
 class PowerOutletDeleteView(generic.ObjectDeleteView):
     queryset = PowerOutlet.objects.all()
 
 
 class PowerOutletBulkImportView(generic.BulkImportView):
     queryset = PowerOutlet.objects.all()
-    model_form = forms.PowerOutletCSVForm
+    model_form = forms.PowerOutletImportForm
     table = tables.PowerOutletTable
 
 
@@ -2069,6 +2457,10 @@ class PowerOutletBulkDeleteView(generic.BulkDeleteView):
     table = tables.PowerOutletTable
 
 
+# Trace view
+register_model_view(PowerOutlet, 'trace', kwargs={'model': PowerOutlet})(PathTraceView)
+
+
 #
 # Interfaces
 #
@@ -2081,10 +2473,19 @@ class InterfaceListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(Interface)
 class InterfaceView(generic.ObjectView):
     queryset = Interface.objects.all()
 
     def get_extra_context(self, request, instance):
+        # Get assigned VDC's
+        vdc_table = tables.VirtualDeviceContextTable(
+            data=instance.vdcs.restrict(request.user, 'view').prefetch_related('device'),
+            exclude=('tenant', 'tenant_group', 'primary_ip', 'primary_ip4', 'primary_ip6', 'comments', 'tags',
+                     'created', 'last_updated', 'actions', ),
+            orderable=False
+        )
+
         # Get assigned IP addresses
         ipaddress_table = AssignedIPAddressesTable(
             data=instance.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
@@ -2122,6 +2523,7 @@ class InterfaceView(generic.ObjectView):
         )
 
         return {
+            'vdc_table': vdc_table,
             'ipaddress_table': ipaddress_table,
             'bridge_interfaces_table': bridge_interfaces_tables,
             'child_interfaces_table': child_interfaces_tables,
@@ -2135,18 +2537,20 @@ class InterfaceCreateView(generic.ComponentCreateView):
     model_form = forms.InterfaceForm
 
 
+@register_model_view(Interface, 'edit')
 class InterfaceEditView(generic.ObjectEditView):
     queryset = Interface.objects.all()
     form = forms.InterfaceForm
 
 
+@register_model_view(Interface, 'delete')
 class InterfaceDeleteView(generic.ObjectDeleteView):
     queryset = Interface.objects.all()
 
 
 class InterfaceBulkImportView(generic.BulkImportView):
     queryset = Interface.objects.all()
-    model_form = forms.InterfaceCSVForm
+    model_form = forms.InterfaceImportForm
     table = tables.InterfaceTable
 
 
@@ -2171,6 +2575,10 @@ class InterfaceBulkDeleteView(generic.BulkDeleteView):
     table = tables.InterfaceTable
 
 
+# Trace view
+register_model_view(Interface, 'trace', kwargs={'model': Interface})(PathTraceView)
+
+
 #
 # Front ports
 #
@@ -2183,6 +2591,7 @@ class FrontPortListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(FrontPort)
 class FrontPortView(generic.ObjectView):
     queryset = FrontPort.objects.all()
 
@@ -2193,18 +2602,20 @@ class FrontPortCreateView(generic.ComponentCreateView):
     model_form = forms.FrontPortForm
 
 
+@register_model_view(FrontPort, 'edit')
 class FrontPortEditView(generic.ObjectEditView):
     queryset = FrontPort.objects.all()
     form = forms.FrontPortForm
 
 
+@register_model_view(FrontPort, 'delete')
 class FrontPortDeleteView(generic.ObjectDeleteView):
     queryset = FrontPort.objects.all()
 
 
 class FrontPortBulkImportView(generic.BulkImportView):
     queryset = FrontPort.objects.all()
-    model_form = forms.FrontPortCSVForm
+    model_form = forms.FrontPortImportForm
     table = tables.FrontPortTable
 
 
@@ -2229,6 +2640,10 @@ class FrontPortBulkDeleteView(generic.BulkDeleteView):
     table = tables.FrontPortTable
 
 
+# Trace view
+register_model_view(FrontPort, 'trace', kwargs={'model': FrontPort})(PathTraceView)
+
+
 #
 # Rear ports
 #
@@ -2241,6 +2656,7 @@ class RearPortListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(RearPort)
 class RearPortView(generic.ObjectView):
     queryset = RearPort.objects.all()
 
@@ -2251,18 +2667,20 @@ class RearPortCreateView(generic.ComponentCreateView):
     model_form = forms.RearPortForm
 
 
+@register_model_view(RearPort, 'edit')
 class RearPortEditView(generic.ObjectEditView):
     queryset = RearPort.objects.all()
     form = forms.RearPortForm
 
 
+@register_model_view(RearPort, 'delete')
 class RearPortDeleteView(generic.ObjectDeleteView):
     queryset = RearPort.objects.all()
 
 
 class RearPortBulkImportView(generic.BulkImportView):
     queryset = RearPort.objects.all()
-    model_form = forms.RearPortCSVForm
+    model_form = forms.RearPortImportForm
     table = tables.RearPortTable
 
 
@@ -2287,6 +2705,10 @@ class RearPortBulkDeleteView(generic.BulkDeleteView):
     table = tables.RearPortTable
 
 
+# Trace view
+register_model_view(RearPort, 'trace', kwargs={'model': RearPort})(PathTraceView)
+
+
 #
 # Module bays
 #
@@ -2299,6 +2721,7 @@ class ModuleBayListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(ModuleBay)
 class ModuleBayView(generic.ObjectView):
     queryset = ModuleBay.objects.all()
 
@@ -2309,18 +2732,20 @@ class ModuleBayCreateView(generic.ComponentCreateView):
     model_form = forms.ModuleBayForm
 
 
+@register_model_view(ModuleBay, 'edit')
 class ModuleBayEditView(generic.ObjectEditView):
     queryset = ModuleBay.objects.all()
     form = forms.ModuleBayForm
 
 
+@register_model_view(ModuleBay, 'delete')
 class ModuleBayDeleteView(generic.ObjectDeleteView):
     queryset = ModuleBay.objects.all()
 
 
 class ModuleBayBulkImportView(generic.BulkImportView):
     queryset = ModuleBay.objects.all()
-    model_form = forms.ModuleBayCSVForm
+    model_form = forms.ModuleBayImportForm
     table = tables.ModuleBayTable
 
 
@@ -2353,6 +2778,7 @@ class DeviceBayListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(DeviceBay)
 class DeviceBayView(generic.ObjectView):
     queryset = DeviceBay.objects.all()
 
@@ -2363,15 +2789,18 @@ class DeviceBayCreateView(generic.ComponentCreateView):
     model_form = forms.DeviceBayForm
 
 
+@register_model_view(DeviceBay, 'edit')
 class DeviceBayEditView(generic.ObjectEditView):
     queryset = DeviceBay.objects.all()
     form = forms.DeviceBayForm
 
 
+@register_model_view(DeviceBay, 'delete')
 class DeviceBayDeleteView(generic.ObjectDeleteView):
     queryset = DeviceBay.objects.all()
 
 
+@register_model_view(DeviceBay, 'populate')
 class DeviceBayPopulateView(generic.ObjectEditView):
     queryset = DeviceBay.objects.all()
 
@@ -2405,6 +2834,7 @@ class DeviceBayPopulateView(generic.ObjectEditView):
         })
 
 
+@register_model_view(DeviceBay, 'depopulate')
 class DeviceBayDepopulateView(generic.ObjectEditView):
     queryset = DeviceBay.objects.all()
 
@@ -2441,7 +2871,7 @@ class DeviceBayDepopulateView(generic.ObjectEditView):
 
 class DeviceBayBulkImportView(generic.BulkImportView):
     queryset = DeviceBay.objects.all()
-    model_form = forms.DeviceBayCSVForm
+    model_form = forms.DeviceBayImportForm
     table = tables.DeviceBayTable
 
 
@@ -2474,10 +2904,12 @@ class InventoryItemListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(InventoryItem)
 class InventoryItemView(generic.ObjectView):
     queryset = InventoryItem.objects.all()
 
 
+@register_model_view(InventoryItem, 'edit')
 class InventoryItemEditView(generic.ObjectEditView):
     queryset = InventoryItem.objects.all()
     form = forms.InventoryItemForm
@@ -2500,13 +2932,14 @@ class InventoryItemCreateView(generic.ComponentCreateView):
         return instance
 
 
+@register_model_view(InventoryItem, 'delete')
 class InventoryItemDeleteView(generic.ObjectDeleteView):
     queryset = InventoryItem.objects.all()
 
 
 class InventoryItemBulkImportView(generic.BulkImportView):
     queryset = InventoryItem.objects.all()
-    model_form = forms.InventoryItemCSVForm
+    model_form = forms.InventoryItemImportForm
     table = tables.InventoryItemTable
 
 
@@ -2540,6 +2973,7 @@ class InventoryItemRoleListView(generic.ObjectListView):
     table = tables.InventoryItemRoleTable
 
 
+@register_model_view(InventoryItemRole)
 class InventoryItemRoleView(generic.ObjectView):
     queryset = InventoryItemRole.objects.all()
 
@@ -2549,18 +2983,20 @@ class InventoryItemRoleView(generic.ObjectView):
         }
 
 
+@register_model_view(InventoryItemRole, 'edit')
 class InventoryItemRoleEditView(generic.ObjectEditView):
     queryset = InventoryItemRole.objects.all()
     form = forms.InventoryItemRoleForm
 
 
+@register_model_view(InventoryItemRole, 'delete')
 class InventoryItemRoleDeleteView(generic.ObjectDeleteView):
     queryset = InventoryItemRole.objects.all()
 
 
 class InventoryItemRoleBulkImportView(generic.BulkImportView):
     queryset = InventoryItemRole.objects.all()
-    model_form = forms.InventoryItemRoleCSVForm
+    model_form = forms.InventoryItemRoleImportForm
     table = tables.InventoryItemRoleTable
 
 
@@ -2709,65 +3145,12 @@ class CableListView(generic.ObjectListView):
     actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
+@register_model_view(Cable)
 class CableView(generic.ObjectView):
     queryset = Cable.objects.all()
 
 
-class PathTraceView(generic.ObjectView):
-    """
-    Trace a cable path beginning from the given path endpoint (origin).
-    """
-    additional_permissions = ['dcim.view_cable']
-    template_name = 'dcim/cable_trace.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        model = kwargs.pop('model')
-        self.queryset = model.objects.all()
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_extra_context(self, request, instance):
-        related_paths = []
-
-        # If tracing a PathEndpoint, locate the CablePath (if one exists) by its origin
-        if isinstance(instance, PathEndpoint):
-            path = instance._path
-
-        # Otherwise, find all CablePaths which traverse the specified object
-        else:
-            related_paths = CablePath.objects.filter(_nodes__contains=instance)
-            # Check for specification of a particular path (when tracing pass-through ports)
-            try:
-                path_id = int(request.GET.get('cablepath_id'))
-            except TypeError:
-                path_id = None
-            if path_id in list(related_paths.values_list('pk', flat=True)):
-                path = CablePath.objects.get(pk=path_id)
-            else:
-                path = related_paths.first()
-
-        # No paths found
-        if path is None:
-            return {
-                'path': None
-            }
-
-        # Get the total length of the cable and whether the length is definitive (fully defined)
-        total_length, is_definitive = path.get_total_length() if path else (None, False)
-
-        # Determine the path to the SVG trace image
-        api_viewname = f"{path.origin_type.app_label}-api:{path.origin_type.model}-trace"
-        svg_url = f"{reverse(api_viewname, kwargs={'pk': path.origins[0].pk})}?render=svg"
-
-        return {
-            'path': path,
-            'related_paths': related_paths,
-            'total_length': total_length,
-            'is_definitive': is_definitive,
-            'svg_url': svg_url,
-        }
-
-
+@register_model_view(Cable, 'edit')
 class CableEditView(generic.ObjectEditView):
     queryset = Cable.objects.all()
     template_name = 'dcim/cable_edit.html'
@@ -2801,13 +3184,14 @@ class CableEditView(generic.ObjectEditView):
         return obj
 
 
+@register_model_view(Cable, 'delete')
 class CableDeleteView(generic.ObjectDeleteView):
     queryset = Cable.objects.all()
 
 
 class CableBulkImportView(generic.BulkImportView):
     queryset = Cable.objects.all()
-    model_form = forms.CableCSVForm
+    model_form = forms.CableImportForm
     table = tables.CableTable
 
 
@@ -2889,6 +3273,7 @@ class VirtualChassisListView(generic.ObjectListView):
     filterset_form = forms.VirtualChassisFilterForm
 
 
+@register_model_view(VirtualChassis)
 class VirtualChassisView(generic.ObjectView):
     queryset = VirtualChassis.objects.all()
 
@@ -2906,6 +3291,7 @@ class VirtualChassisCreateView(generic.ObjectEditView):
     template_name = 'dcim/virtualchassis_add.html'
 
 
+@register_model_view(VirtualChassis, 'edit')
 class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, View):
     queryset = VirtualChassis.objects.all()
 
@@ -2974,10 +3360,12 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
         })
 
 
+@register_model_view(VirtualChassis, 'delete')
 class VirtualChassisDeleteView(generic.ObjectDeleteView):
     queryset = VirtualChassis.objects.all()
 
 
+@register_model_view(VirtualChassis, 'add_member', path='add-member')
 class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMixin, View):
     queryset = VirtualChassis.objects.all()
 
@@ -3086,7 +3474,7 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
 
 class VirtualChassisBulkImportView(generic.BulkImportView):
     queryset = VirtualChassis.objects.all()
-    model_form = forms.VirtualChassisCSVForm
+    model_form = forms.VirtualChassisImportForm
     table = tables.VirtualChassisTable
 
 
@@ -3116,6 +3504,7 @@ class PowerPanelListView(generic.ObjectListView):
     table = tables.PowerPanelTable
 
 
+@register_model_view(PowerPanel)
 class PowerPanelView(generic.ObjectView):
     queryset = PowerPanel.objects.all()
 
@@ -3134,18 +3523,20 @@ class PowerPanelView(generic.ObjectView):
         }
 
 
+@register_model_view(PowerPanel, 'edit')
 class PowerPanelEditView(generic.ObjectEditView):
     queryset = PowerPanel.objects.all()
     form = forms.PowerPanelForm
 
 
+@register_model_view(PowerPanel, 'delete')
 class PowerPanelDeleteView(generic.ObjectDeleteView):
     queryset = PowerPanel.objects.all()
 
 
 class PowerPanelBulkImportView(generic.BulkImportView):
     queryset = PowerPanel.objects.all()
-    model_form = forms.PowerPanelCSVForm
+    model_form = forms.PowerPanelImportForm
     table = tables.PowerPanelTable
 
 
@@ -3175,22 +3566,25 @@ class PowerFeedListView(generic.ObjectListView):
     table = tables.PowerFeedTable
 
 
+@register_model_view(PowerFeed)
 class PowerFeedView(generic.ObjectView):
     queryset = PowerFeed.objects.all()
 
 
+@register_model_view(PowerFeed, 'edit')
 class PowerFeedEditView(generic.ObjectEditView):
     queryset = PowerFeed.objects.all()
     form = forms.PowerFeedForm
 
 
+@register_model_view(PowerFeed, 'delete')
 class PowerFeedDeleteView(generic.ObjectDeleteView):
     queryset = PowerFeed.objects.all()
 
 
 class PowerFeedBulkImportView(generic.BulkImportView):
     queryset = PowerFeed.objects.all()
-    model_form = forms.PowerFeedCSVForm
+    model_form = forms.PowerFeedImportForm
     table = tables.PowerFeedTable
 
 
@@ -3209,3 +3603,62 @@ class PowerFeedBulkDeleteView(generic.BulkDeleteView):
     queryset = PowerFeed.objects.all()
     filterset = filtersets.PowerFeedFilterSet
     table = tables.PowerFeedTable
+
+
+# Trace view
+register_model_view(PowerFeed, 'trace', kwargs={'model': PowerFeed})(PathTraceView)
+
+
+# VDC
+class VirtualDeviceContextListView(generic.ObjectListView):
+    queryset = VirtualDeviceContext.objects.annotate(
+        interface_count=count_related(Interface, 'vdcs'),
+    )
+    filterset = filtersets.VirtualDeviceContextFilterSet
+    filterset_form = forms.VirtualDeviceContextFilterForm
+    table = tables.VirtualDeviceContextTable
+
+
+@register_model_view(VirtualDeviceContext)
+class VirtualDeviceContextView(generic.ObjectView):
+    queryset = VirtualDeviceContext.objects.all()
+
+    def get_extra_context(self, request, instance):
+        interfaces_table = tables.InterfaceTable(instance.interfaces, user=request.user)
+        interfaces_table.configure(request)
+        interfaces_table.columns.hide('device')
+
+        return {
+            'interfaces_table': interfaces_table,
+            'interface_count': instance.interfaces.count(),
+        }
+
+
+@register_model_view(VirtualDeviceContext, 'edit')
+class VirtualDeviceContextEditView(generic.ObjectEditView):
+    queryset = VirtualDeviceContext.objects.all()
+    form = forms.VirtualDeviceContextForm
+
+
+@register_model_view(VirtualDeviceContext, 'delete')
+class VirtualDeviceContextDeleteView(generic.ObjectDeleteView):
+    queryset = VirtualDeviceContext.objects.all()
+
+
+class VirtualDeviceContextBulkImportView(generic.BulkImportView):
+    queryset = VirtualDeviceContext.objects.all()
+    model_form = forms.VirtualDeviceContextImportForm
+    table = tables.VirtualDeviceContextTable
+
+
+class VirtualDeviceContextBulkEditView(generic.BulkEditView):
+    queryset = VirtualDeviceContext.objects.all()
+    filterset = filtersets.VirtualDeviceContextFilterSet
+    table = tables.VirtualDeviceContextTable
+    form = forms.VirtualDeviceContextBulkEditForm
+
+
+class VirtualDeviceContextBulkDeleteView(generic.BulkDeleteView):
+    queryset = VirtualDeviceContext.objects.all()
+    filterset = filtersets.VirtualDeviceContextFilterSet
+    table = tables.VirtualDeviceContextTable

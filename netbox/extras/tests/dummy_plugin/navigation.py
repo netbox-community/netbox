@@ -1,7 +1,8 @@
-from extras.plugins import PluginMenuButton, PluginMenuItem
+from django.utils.translation import gettext as _
+from extras.plugins import PluginMenu, PluginMenuButton, PluginMenuItem
 
 
-menu_items = (
+items = (
     PluginMenuItem(
         link='plugins:dummy_plugin:dummy_models',
         link_text='Item 1',
@@ -23,3 +24,9 @@ menu_items = (
         link_text='Item 2',
     ),
 )
+
+menu = PluginMenu(
+    label=_('Dummy Plugin'),
+    groups=(('Group 1', items),),
+)
+menu_items = items

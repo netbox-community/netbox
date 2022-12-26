@@ -3,7 +3,7 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 
 from extras.plugins import PluginTemplateExtension
-from extras.registry import registry
+from netbox.registry import registry
 
 register = template_.Library()
 
@@ -73,3 +73,11 @@ def plugin_full_width_page(context, obj):
     Render all full width page content registered by plugins
     """
     return _get_registered_content(obj, 'full_width_page', context)
+
+
+@register.simple_tag(takes_context=True)
+def plugin_list_buttons(context, model):
+    """
+    Render all list buttons registered by plugins
+    """
+    return _get_registered_content(model, 'list_buttons', context)

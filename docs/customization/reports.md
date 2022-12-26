@@ -45,7 +45,7 @@ class DeviceConnectionsReport(Report):
         # Check that every console port for every active device has a connection defined.
         active = DeviceStatusChoices.STATUS_ACTIVE
         for console_port in ConsolePort.objects.prefetch_related('device').filter(device__status=active):
-            if console_port.connected_endpoint is None:
+            if not console_port.connected_endpoints:
                 self.log_failure(
                     console_port.device,
                     "No console connection defined for {}".format(console_port.name)
@@ -64,7 +64,7 @@ class DeviceConnectionsReport(Report):
         for device in Device.objects.filter(status=DeviceStatusChoices.STATUS_ACTIVE):
             connected_ports = 0
             for power_port in PowerPort.objects.filter(device=device):
-                if power_port.connected_endpoint is not None:
+                if power_port.connected_endpoints:
                     connected_ports += 1
                     if not power_port.path.is_active:
                         self.log_warning(
@@ -136,7 +136,7 @@ Once you have created a report, it will appear in the reports list. Initially, r
 
 ### Via the Web UI
 
-Reports can be run via the web UI by navigating to the report and clicking the "run report" button at top right. Once a report has been run, its associated results will be included in the report view.
+Reports can be run via the web UI by navigating to the report and clicking the "run report" button at top right. Once a report has been run, its associated results will be included in the report view. It is possible to schedule a report to be executed at specified time in the future. A scheduled report can be canceled by deleting the associated job result object.
 
 ### Via the API
 
@@ -151,6 +151,8 @@ Our example report above would be called as:
 ```
     POST /api/extras/reports/devices.DeviceConnectionsReport/run/
 ```
+
+Optionally `schedule_at` can be passed in the form data with a datetime string to schedule a script at the specified date and time.
 
 ### Via the CLI
 

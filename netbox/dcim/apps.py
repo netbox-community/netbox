@@ -8,7 +8,7 @@ class DCIMConfig(AppConfig):
     verbose_name = "DCIM"
 
     def ready(self):
-        import dcim.signals
+        from . import signals, search
         from .models import CableTermination
 
         # Register denormalized fields

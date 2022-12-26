@@ -220,7 +220,11 @@ def validate_csv(headers, fields, required_fields):
     if parsed csv data contains invalid headers or does not contain required headers.
     """
     # Validate provided column headers
+    is_update = False
     for field, to_field in headers.items():
+        if field == "id":
+            is_update = True
+            continue
         if field not in fields:
             raise forms.ValidationError(f'Unexpected column header "{field}" found.')
         if to_field and not hasattr(fields[field], 'to_field_name'):
@@ -228,7 +232,8 @@ def validate_csv(headers, fields, required_fields):
         if to_field and not hasattr(fields[field].queryset.model, to_field):
             raise forms.ValidationError(f'Invalid related object attribute for column "{field}": {to_field}')
 
-    # Validate required fields
-    for f in required_fields:
-        if f not in headers:
-            raise forms.ValidationError(f'Required column header "{f}" not found.')
+    # Validate required fields (if not an update)
+    if not is_update:
+        for f in required_fields:
+            if f not in headers:
+                raise forms.ValidationError(f'Required column header "{f}" not found.')

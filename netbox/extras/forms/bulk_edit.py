@@ -1,11 +1,10 @@
 from django import forms
-from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 
 from extras.choices import *
 from extras.models import *
-from extras.utils import FeatureQuery
 from utilities.forms import (
-    add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, ContentTypeChoiceField, StaticSelect,
+    add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, StaticSelect,
 )
 
 __all__ = (
@@ -14,6 +13,7 @@ __all__ = (
     'CustomLinkBulkEditForm',
     'ExportTemplateBulkEditForm',
     'JournalEntryBulkEditForm',
+    'SavedFilterBulkEditForm',
     'TagBulkEditForm',
     'WebhookBulkEditForm',
 )
@@ -38,7 +38,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
         required=False
     )
     ui_visibility = forms.ChoiceField(
-        label="UI visibility",
+        label=_("UI visibility"),
         choices=add_blank_choice(CustomFieldVisibilityChoices),
         required=False,
         initial='',
@@ -52,11 +52,6 @@ class CustomLinkBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CustomLink.objects.all(),
         widget=forms.MultipleHiddenInput
-    )
-    content_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_links'),
-        required=False
     )
     enabled = forms.NullBooleanField(
         required=False,
@@ -81,11 +76,6 @@ class ExportTemplateBulkEditForm(BulkEditForm):
         queryset=ExportTemplate.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    content_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('export_templates'),
-        required=False
-    )
     description = forms.CharField(
         max_length=200,
         required=False
@@ -104,6 +94,30 @@ class ExportTemplateBulkEditForm(BulkEditForm):
     )
 
     nullable_fields = ('description', 'mime_type', 'file_extension')
+
+
+class SavedFilterBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=SavedFilter.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    shared = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+
+    nullable_fields = ('description',)
 
 
 class WebhookBulkEditForm(BulkEditForm):
@@ -130,23 +144,23 @@ class WebhookBulkEditForm(BulkEditForm):
     http_method = forms.ChoiceField(
         choices=add_blank_choice(WebhookHttpMethodChoices),
         required=False,
-        label='HTTP method'
+        label=_('HTTP method')
     )
     payload_url = forms.CharField(
         required=False,
-        label='Payload URL'
+        label=_('Payload URL')
     )
     ssl_verification = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),
-        label='SSL verification'
+        label=_('SSL verification')
     )
     secret = forms.CharField(
         required=False
     )
     ca_file_path = forms.CharField(
         required=False,
-        label='CA file path'
+        label=_('CA file path')
     )
 
     nullable_fields = ('secret', 'conditions', 'ca_file_path')

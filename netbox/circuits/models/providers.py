@@ -2,8 +2,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 
-from dcim.fields import ASNField
-from netbox.models import NetBoxModel
+from netbox.models import PrimaryModel
 
 __all__ = (
     'ProviderNetwork',
@@ -11,7 +10,7 @@ __all__ = (
 )
 
 
-class Provider(NetBoxModel):
+class Provider(PrimaryModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
     stores information pertinent to the user's relationship with the Provider.
@@ -24,12 +23,6 @@ class Provider(NetBoxModel):
         max_length=100,
         unique=True
     )
-    asn = ASNField(
-        blank=True,
-        null=True,
-        verbose_name='ASN',
-        help_text='32-bit autonomous system number'
-    )
     asns = models.ManyToManyField(
         to='ipam.ASN',
         related_name='providers',
@@ -40,21 +33,6 @@ class Provider(NetBoxModel):
         blank=True,
         verbose_name='Account number'
     )
-    portal_url = models.URLField(
-        blank=True,
-        verbose_name='Portal URL'
-    )
-    noc_contact = models.TextField(
-        blank=True,
-        verbose_name='NOC contact'
-    )
-    admin_contact = models.TextField(
-        blank=True,
-        verbose_name='Admin contact'
-    )
-    comments = models.TextField(
-        blank=True
-    )
 
     # Generic relations
     contacts = GenericRelation(
@@ -62,7 +40,7 @@ class Provider(NetBoxModel):
     )
 
     clone_fields = (
-        'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact',
+        'account',
     )
 
     class Meta:
@@ -75,7 +53,7 @@ class Provider(NetBoxModel):
         return reverse('circuits:provider', args=[self.pk])
 
 
-class ProviderNetwork(NetBoxModel):
+class ProviderNetwork(PrimaryModel):
     """
     This represents a provider network which exists outside of NetBox, the details of which are unknown or
     unimportant to the user.
@@ -93,23 +71,15 @@ class ProviderNetwork(NetBoxModel):
         blank=True,
         verbose_name='Service ID'
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-    comments = models.TextField(
-        blank=True
-    )
 
     class Meta:
         ordering = ('provider', 'name')
         constraints = (
             models.UniqueConstraint(
                 fields=('provider', 'name'),
-                name='circuits_providernetwork_provider_name'
+                name='%(app_label)s_%(class)s_unique_provider_name'
             ),
         )
-        unique_together = ('provider', 'name')
 
     def __str__(self):
         return self.name
