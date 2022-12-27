@@ -341,14 +341,7 @@ MIDDLEWARE = [
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-]
-
-if ENABLE_LOCALIZATION:
-    MIDDLEWARE.extend([
-        'django.middleware.locale.LocaleMiddleware',
-    ])
-
-MIDDLEWARE.extend([
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -362,7 +355,10 @@ MIDDLEWARE.extend([
     'netbox.middleware.APIVersionMiddleware',
     'netbox.middleware.ObjectChangeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
-])
+]
+
+if not ENABLE_LOCALIZATION:
+    MIDDLEWARE.remove("django.middleware.locale.LocaleMiddleware")
 
 ROOT_URLCONF = 'netbox.urls'
 
