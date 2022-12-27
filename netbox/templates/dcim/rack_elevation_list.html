@@ -35,6 +35,10 @@
 {% block content-wrapper %}
   <div class="tab-content">
 
+    {% if filter_form %}
+      {% applied_filters model filter_form request.GET %}
+    {% endif %}
+    
     {# Rack elevations #}
     <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
       {% if page %}
