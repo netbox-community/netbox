@@ -6,9 +6,11 @@
 
 * [#9285](https://github.com/netbox-community/netbox/issues/9285) - Enable specifying assigned component during bulk import of inventory items
 * [#10700](https://github.com/netbox-community/netbox/issues/10700) - Match device name when using modules quick search
+* [#11121](https://github.com/netbox-community/netbox/issues/11121) - Add VM resource totals to cluster view
 
 ### Bug Fixes
 
+* [#11280](https://github.com/netbox-community/netbox/issues/11280) - Fix errant newlines when exporting interfaces with multiple IP addresses assigned
 * [#11290](https://github.com/netbox-community/netbox/issues/11290) - Correct reporting of scheduled job duration
 * [#11232](https://github.com/netbox-community/netbox/issues/11232) - Enable partial & regular expression matching for non-string types in global search
 
