@@ -222,6 +222,9 @@ SESSION_COOKIE_NAME = 'sessionid'
 # database access.) Note that the user as which NetBox runs must have read and write permissions to this path.
 SESSION_FILE_PATH = None
 
+# Localization
+ENABLE_LOCALIZATION = False
+
 # Time zone (default: UTC)
 TIME_ZONE = 'UTC'
 
