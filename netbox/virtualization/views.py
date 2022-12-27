@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -168,6 +168,9 @@ class ClusterListView(generic.ObjectListView):
 @register_model_view(Cluster)
 class ClusterView(generic.ObjectView):
     queryset = Cluster.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return instance.virtual_machines.aggregate(vcpus_sum=Sum('vcpus'), memory_sum=Sum('memory'), disk_sum=Sum('disk'))
 
 
 @register_model_view(Cluster, 'virtualmachines', path='virtual-machines')

@@ -506,6 +506,9 @@ class BaseInterfaceTable(NetBoxTable):
         verbose_name='Tagged VLANs'
     )
 
+    def value_ip_addresses(self, value):
+        return ",".join([str(obj.address) for obj in value.all()])
+
 
 class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpointTable):
     device = tables.Column(
