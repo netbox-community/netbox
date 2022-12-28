@@ -691,6 +691,7 @@ class RackElevationListView(generic.ObjectListView):
             'sort_choices': ORDERING_CHOICES,
             'rack_face': rack_face,
             'filter_form': forms.RackElevationFilterForm(request.GET),
+            'model': self.queryset.model,
         })
 
 
