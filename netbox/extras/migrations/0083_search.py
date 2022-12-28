@@ -10,7 +10,16 @@ from django.db import migrations, models
 def reindex(apps, schema_editor):
     # Build the search index (except during tests)
     if 'test' not in sys.argv:
-        management.call_command('reindex')
+        management.call_command(
+            'reindex',
+            'circuits',
+            'dcim',
+            'extras',
+            'ipam',
+            'tenancy',
+            'virtualization',
+            'wireless',
+        )
 
 
 class Migration(migrations.Migration):
