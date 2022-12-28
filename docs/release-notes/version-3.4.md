@@ -7,6 +7,9 @@
 * [#9285](https://github.com/netbox-community/netbox/issues/9285) - Enable specifying assigned component during bulk import of inventory items
 * [#10700](https://github.com/netbox-community/netbox/issues/10700) - Match device name when using modules quick search
 * [#11121](https://github.com/netbox-community/netbox/issues/11121) - Add VM resource totals to cluster view
+* [#11223](https://github.com/netbox-community/netbox/issues/11223) - `reindex` management command should accept app label without model name
+* [#11244](https://github.com/netbox-community/netbox/issues/11244) - Add controls for saved filters to rack elevations list
+* [#11248](https://github.com/netbox-community/netbox/issues/11248) - Fix database migration when plugin with search indexer is enabled
 
 ### Bug Fixes
 
