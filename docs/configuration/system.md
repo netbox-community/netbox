@@ -69,7 +69,7 @@ Email is sent from NetBox only for critical events or if configured for [logging
 
 Default: False
 
-Determines if localization features are enabled or not.  This should only be enabled for development or testing purposes as the product is not fully localized and there can be issues in certain locales with turning this on (mostly in locales where commas are used as numeric separators instead of periods). Turning this on will localize numeric and date formats (overriding what is set for DATE_FORMAT) based on the browser settings as well as translate some strings within the product.
+Determines if localization features are enabled or not. This should only be enabled for development or testing purposes as netbox is not yet fully localized. Turning this on will localize numeric and date formats (overriding what is set for DATE_FORMAT) based on the browser locale as well as translate certain strings from third party modules.
 
 ---
 
