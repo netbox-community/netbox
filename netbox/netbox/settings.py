@@ -137,6 +137,7 @@ STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+ENABLE_LOCALIZATION = getattr(configuration, 'ENABLE_LOCALIZATION', False)
 
 # Check for hard-coded dynamic config parameters
 for param in PARAMS:
@@ -355,6 +356,9 @@ MIDDLEWARE = [
     'netbox.middleware.ObjectChangeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
+
+if not ENABLE_LOCALIZATION:
+    MIDDLEWARE.remove("django.middleware.locale.LocaleMiddleware")
 
 ROOT_URLCONF = 'netbox.urls'
 
@@ -651,6 +655,13 @@ RQ_QUEUES.update({
     queue: RQ_PARAMS for queue in set(QUEUE_MAPPINGS.values()) if queue not in RQ_QUEUES
 })
 
+#
+# Localization
+#
+
+if not ENABLE_LOCALIZATION:
+    USE_I18N = False
+    USE_L10N = False
 
 #
 # Plugins
