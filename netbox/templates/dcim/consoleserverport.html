@@ -60,7 +60,7 @@
               {% if object.mark_connected %}
                 <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as connected
               {% elif object.cable %}
-                {% include 'dcim/inc/connection_endpoints.html' %}
+                {% include 'dcim/inc/connection_endpoints.html' with trace_url='dcim:consoleserverport_trace' %}
               {% else %}
                 <div class="text-muted">
                   Not Connected
