@@ -1146,3 +1146,8 @@ class InventoryItem(MPTTModel, ComponentModel):
             # When moving an InventoryItem to another device, remove any associated component
             if self.component and self.component.device != self.device:
                 self.component = None
+        else:
+            if self.component and self.component.device != self.device:
+                raise ValidationError({
+                    "device": "Cannot assign inventory item to component on another device"
+                })
