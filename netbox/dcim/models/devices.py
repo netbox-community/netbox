@@ -961,7 +961,7 @@ class Module(PrimaryModel, ConfigContextModel):
     def clean(self):
         super().clean()
 
-        if self.module_bay.device != self.device:
+        if hasattr(self, "module_bay") and (self.module_bay.device != self.device):
             raise ValidationError(
                 f"Module must be installed within a module bay belonging to the assigned device ({self.device})."
             )
