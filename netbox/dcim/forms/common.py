@@ -54,23 +54,20 @@ class InterfaceCommonForm(forms.Form):
 class ModuleCommonForm(forms.Form):
 
     def clean(self):
-        cleaned_data = super().clean()
+        super().clean()
 
-        # Skip form validation if field validation already found errors.
-        if self.errors:
-            return cleaned_data
-
-        replicate_components = cleaned_data.get("replicate_components")
-        adopt_components = cleaned_data.get("adopt_components")
-        device = cleaned_data.get('device')
-        module_type = cleaned_data.get('module_type')
-        module_bay = cleaned_data.get('module_bay')
+        replicate_components = self.cleaned_data.get('replicate_components')
+        adopt_components = self.cleaned_data.get('adopt_components')
+        device = self.cleaned_data.get('device')
+        module_type = self.cleaned_data.get('module_type')
+        module_bay = self.cleaned_data.get('module_bay')
 
         if adopt_components:
             self.instance._adopt_components = True
 
-        # Bail out if we are not installing a new module or if we are not replicating components
-        if self.instance.pk or not replicate_components:
+        # Bail out if we are not installing a new module or if we are not replicating components (or if
+        # validation has already failed)
+        if self.errors or self.instance.pk or not replicate_components:
             self.instance._disable_replication = True
             return
 
