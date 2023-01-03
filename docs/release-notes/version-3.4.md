@@ -7,15 +7,19 @@
 * [#9285](https://github.com/netbox-community/netbox/issues/9285) - Enable specifying assigned component during bulk import of inventory items
 * [#10700](https://github.com/netbox-community/netbox/issues/10700) - Match device name when using modules quick search
 * [#11121](https://github.com/netbox-community/netbox/issues/11121) - Add VM resource totals to cluster view
+* [#11156](https://github.com/netbox-community/netbox/issues/11156) - Enable selecting assigned component when editing inventory item in UI
 * [#11223](https://github.com/netbox-community/netbox/issues/11223) - `reindex` management command should accept app label without model name
 * [#11244](https://github.com/netbox-community/netbox/issues/11244) - Add controls for saved filters to rack elevations list
 * [#11248](https://github.com/netbox-community/netbox/issues/11248) - Fix database migration when plugin with search indexer is enabled
+* [#11259](https://github.com/netbox-community/netbox/issues/11259) - Add support for Redis username configuration
 
 ### Bug Fixes
 
 * [#11280](https://github.com/netbox-community/netbox/issues/11280) - Fix errant newlines when exporting interfaces with multiple IP addresses assigned
 * [#11290](https://github.com/netbox-community/netbox/issues/11290) - Correct reporting of scheduled job duration
 * [#11232](https://github.com/netbox-community/netbox/issues/11232) - Enable partial & regular expression matching for non-string types in global search
+* [#11342](https://github.com/netbox-community/netbox/issues/11342) - Correct cable trace URL under "connection" tab for device components
+* [#11345](https://github.com/netbox-community/netbox/issues/11345) - Fix form validation for bulk import of modules
 
 ---
 
