@@ -31,6 +31,7 @@ REDIS = {
         # Comment out `HOST` and `PORT` lines and uncomment the following if using Redis Sentinel
         # 'SENTINELS': [('mysentinel.redis.example.com', 6379)],
         # 'SENTINEL_SERVICE': 'netbox',
+        'USERNAME': '',
         'PASSWORD': '',
         'DATABASE': 0,
         'SSL': False,
@@ -44,6 +45,7 @@ REDIS = {
         # Comment out `HOST` and `PORT` lines and uncomment the following if using Redis Sentinel
         # 'SENTINELS': [('mysentinel.redis.example.com', 6379)],
         # 'SENTINEL_SERVICE': 'netbox',
+        'USERNAME': '',
         'PASSWORD': '',
         'DATABASE': 1,
         'SSL': False,
@@ -221,6 +223,9 @@ SESSION_COOKIE_NAME = 'sessionid'
 # local file storage instead. (This can be useful for enabling authentication on a standby instance with read-only
 # database access.) Note that the user as which NetBox runs must have read and write permissions to this path.
 SESSION_FILE_PATH = None
+
+# Localization
+ENABLE_LOCALIZATION = False
 
 # Time zone (default: UTC)
 TIME_ZONE = 'UTC'

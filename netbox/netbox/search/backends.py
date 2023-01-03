@@ -99,8 +99,8 @@ class CachedValueSearchBackend(SearchBackend):
         params = {
             f'value__{lookup}': value
         }
-        if lookup != LookupTypes.EXACT:
-            # Partial matches are valid only on string values
+        if lookup in (LookupTypes.STARTSWITH, LookupTypes.ENDSWITH):
+            # Partial string matches are valid only on string values
             params['type'] = FieldTypes.STRING
         if object_types:
             params['object_type__in'] = object_types

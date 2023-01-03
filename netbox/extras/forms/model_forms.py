@@ -32,7 +32,6 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
-        label=_('Model(s)')
     )
     object_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),

@@ -27,17 +27,28 @@ class Command(BaseCommand):
         # Return only indexers for the specified models
         else:
             for label in model_names:
-                try:
-                    app_label, model_name = label.lower().split('.')
-                except ValueError:
+                labels = label.lower().split('.')
+
+                # Label specifies an exact model
+                if len(labels) == 2:
+                    app_label, model_name = labels
+                    try:
+                        idx = registry['search'][f'{app_label}.{model_name}']
+                        indexers[idx.model] = idx
+                    except KeyError:
+                        raise CommandError(f"No indexer registered for {label}")
+
+                # Label specifies all the models of an app
+                elif len(labels) == 1:
+                    app_label = labels[0] + '.'
+                    for indexer_label, idx in registry['search'].items():
+                        if indexer_label.startswith(app_label):
+                            indexers[idx.model] = idx
+
+                else:
                     raise CommandError(
-                        f"Invalid model: {label}. Model names must be in the format <app_label>.<model_name>."
+                        f"Invalid model: {label}. Model names must be in the format <app_label> or <app_label>.<model_name>."
                     )
-                try:
-                    idx = registry['search'][f'{app_label}.{model_name}']
-                    indexers[idx.model] = idx
-                except KeyError:
-                    raise CommandError(f"No indexer registered for {label}")
 
         return indexers
 

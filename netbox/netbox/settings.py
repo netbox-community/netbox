@@ -24,7 +24,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.4.1'
+VERSION = '3.4.2'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -137,6 +137,7 @@ STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+ENABLE_LOCALIZATION = getattr(configuration, 'ENABLE_LOCALIZATION', False)
 
 # Check for hard-coded dynamic config parameters
 for param in PARAMS:
@@ -229,6 +230,7 @@ TASKS_REDIS_USING_SENTINEL = all([
 ])
 TASKS_REDIS_SENTINEL_SERVICE = TASKS_REDIS.get('SENTINEL_SERVICE', 'default')
 TASKS_REDIS_SENTINEL_TIMEOUT = TASKS_REDIS.get('SENTINEL_TIMEOUT', 10)
+TASKS_REDIS_USERNAME = TASKS_REDIS.get('USERNAME', '')
 TASKS_REDIS_PASSWORD = TASKS_REDIS.get('PASSWORD', '')
 TASKS_REDIS_DATABASE = TASKS_REDIS.get('DATABASE', 0)
 TASKS_REDIS_SSL = TASKS_REDIS.get('SSL', False)
@@ -242,6 +244,8 @@ if 'caching' not in REDIS:
 CACHING_REDIS_HOST = REDIS['caching'].get('HOST', 'localhost')
 CACHING_REDIS_PORT = REDIS['caching'].get('PORT', 6379)
 CACHING_REDIS_DATABASE = REDIS['caching'].get('DATABASE', 0)
+CACHING_REDIS_USERNAME = REDIS['caching'].get('USERNAME', '')
+CACHING_REDIS_USERNAME_HOST = '@'.join(filter(None, [CACHING_REDIS_USERNAME, CACHING_REDIS_HOST]))
 CACHING_REDIS_PASSWORD = REDIS['caching'].get('PASSWORD', '')
 CACHING_REDIS_SENTINELS = REDIS['caching'].get('SENTINELS', [])
 CACHING_REDIS_SENTINEL_SERVICE = REDIS['caching'].get('SENTINEL_SERVICE', 'default')
@@ -251,7 +255,7 @@ CACHING_REDIS_SKIP_TLS_VERIFY = REDIS['caching'].get('INSECURE_SKIP_TLS_VERIFY',
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}',
+        'LOCATION': f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'PASSWORD': CACHING_REDIS_PASSWORD,
@@ -355,6 +359,9 @@ MIDDLEWARE = [
     'netbox.middleware.ObjectChangeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
+
+if not ENABLE_LOCALIZATION:
+    MIDDLEWARE.remove("django.middleware.locale.LocaleMiddleware")
 
 ROOT_URLCONF = 'netbox.urls'
 
@@ -636,6 +643,7 @@ else:
     }
 RQ_PARAMS.update({
     'DB': TASKS_REDIS_DATABASE,
+    'USERNAME': TASKS_REDIS_USERNAME,
     'PASSWORD': TASKS_REDIS_PASSWORD,
     'DEFAULT_TIMEOUT': RQ_DEFAULT_TIMEOUT,
 })
@@ -651,6 +659,13 @@ RQ_QUEUES.update({
     queue: RQ_PARAMS for queue in set(QUEUE_MAPPINGS.values()) if queue not in RQ_QUEUES
 })
 
+#
+# Localization
+#
+
+if not ENABLE_LOCALIZATION:
+    USE_I18N = False
+    USE_L10N = False
 
 #
 # Plugins

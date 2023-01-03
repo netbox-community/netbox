@@ -1549,15 +1549,63 @@ class InventoryItemForm(DeviceComponentForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
-    component_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=MODULAR_COMPONENT_MODELS,
+
+    # Assigned component selectors
+    consoleport = DynamicModelChoiceField(
+        queryset=ConsolePort.objects.all(),
         required=False,
-        widget=forms.HiddenInput
+        query_params={
+            'device_id': '$device'
+        },
+        label=_('Console port')
     )
-    component_id = forms.IntegerField(
+    consoleserverport = DynamicModelChoiceField(
+        queryset=ConsoleServerPort.objects.all(),
         required=False,
-        widget=forms.HiddenInput
+        query_params={
+            'device_id': '$device'
+        },
+        label=_('Console server port')
+    )
+    frontport = DynamicModelChoiceField(
+        queryset=FrontPort.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device'
+        },
+        label=_('Front port')
+    )
+    interface = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device'
+        },
+        label=_('Interface')
+    )
+    poweroutlet = DynamicModelChoiceField(
+        queryset=PowerOutlet.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device'
+        },
+        label=_('Power outlet')
+    )
+    powerport = DynamicModelChoiceField(
+        queryset=PowerPort.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device'
+        },
+        label=_('Power port')
+    )
+    rearport = DynamicModelChoiceField(
+        queryset=RearPort.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device'
+        },
+        label=_('Rear port')
     )
 
     fieldsets = (
@@ -1565,22 +1613,61 @@ class InventoryItemForm(DeviceComponentForm):
         ('Hardware', ('manufacturer', 'part_id', 'serial', 'asset_tag')),
     )
 
+    class Meta:
+        model = InventoryItem
+        fields = [
+            'device', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
+            'description', 'tags',
+        ]
+
     def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {}).copy()
+        component_type = initial.get('component_type')
+        component_id = initial.get('component_id')
+
+        # Used for picking the default active tab for component selection
+        self.no_component = True
+
+        if instance:
+            # When editing set the initial value for component selectin
+            for component_model in ContentType.objects.filter(MODULAR_COMPONENT_MODELS):
+                if type(instance.component) is component_model.model_class():
+                    initial[component_model.model] = instance.component
+                    self.no_component = False
+                    break
+        elif component_type and component_id:
+            # When adding the InventoryItem from a component page
+            if content_type := ContentType.objects.filter(MODULAR_COMPONENT_MODELS).filter(pk=component_type).first():
+                if component := content_type.model_class().objects.filter(pk=component_id).first():
+                    initial[content_type.model] = component
+                    self.no_component = False
+
+        kwargs['initial'] = initial
+
         super().__init__(*args, **kwargs)
 
         # Specifically allow editing the device of IntentoryItems
         if self.instance.pk:
             self.fields['device'].disabled = False
 
-    class Meta:
-        model = InventoryItem
-        fields = [
-            'device', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
-            'description', 'component_type', 'component_id', 'tags',
+    def clean(self):
+        super().clean()
+
+        # Handle object assignment
+        selected_objects = [
+            field for field in (
+                'consoleport', 'consoleserverport', 'frontport', 'interface', 'poweroutlet', 'powerport', 'rearport'
+            ) if self.cleaned_data[field]
         ]
+        if len(selected_objects) > 1:
+            raise forms.ValidationError("An InventoryItem can only be assigned to a single component.")
+        elif selected_objects:
+            self.instance.component = self.cleaned_data[selected_objects[0]]
+        else:
+            self.instance.component = None
 
 
-#
 # Device component roles
 #
 
