@@ -785,6 +785,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_LAG = 'lag'
 
     # Ethernet
+    TYPE_100ME_FX = '100base-fx'
     TYPE_100ME_FIXED = '100base-tx'
     TYPE_1GE_FIXED = '1000base-t'
     TYPE_1GE_GBIC = '1000base-x-gbic'
@@ -929,6 +930,7 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             'Ethernet (modular)',
             (
+                (TYPE_100ME_FX, '100BASE-FX (10/100ME FIBER)'),
                 (TYPE_1GE_GBIC, 'GBIC (1GE)'),
                 (TYPE_1GE_SFP, 'SFP (1GE)'),
                 (TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
