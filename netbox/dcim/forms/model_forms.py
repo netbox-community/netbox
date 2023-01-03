@@ -1550,60 +1550,62 @@ class InventoryItemForm(DeviceComponentForm):
         required=False
     )
 
+    # Assigned component selectors
     consoleport = DynamicModelChoiceField(
         queryset=ConsolePort.objects.all(),
         required=False,
         query_params={
             'device_id': '$device'
-        }
+        },
+        label=_('Console port')
     )
-
     consoleserverport = DynamicModelChoiceField(
         queryset=ConsoleServerPort.objects.all(),
         required=False,
         query_params={
             'device_id': '$device'
-        }
+        },
+        label=_('Console server port')
     )
-
     frontport = DynamicModelChoiceField(
         queryset=FrontPort.objects.all(),
         required=False,
         query_params={
             'device_id': '$device'
-        }
+        },
+        label=_('Front port')
     )
-
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
         query_params={
             'device_id': '$device'
-        }
+        },
+        label=_('Interface')
     )
-
     poweroutlet = DynamicModelChoiceField(
         queryset=PowerOutlet.objects.all(),
         required=False,
         query_params={
             'device_id': '$device'
-        }
+        },
+        label=_('Power outlet')
     )
-
     powerport = DynamicModelChoiceField(
         queryset=PowerPort.objects.all(),
         required=False,
         query_params={
             'device_id': '$device'
-        }
+        },
+        label=_('Power port')
     )
-
     rearport = DynamicModelChoiceField(
         queryset=RearPort.objects.all(),
         required=False,
         query_params={
             'device_id': '$device'
-        }
+        },
+        label=_('Rear port')
     )
 
     fieldsets = (
