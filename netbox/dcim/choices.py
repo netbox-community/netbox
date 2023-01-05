@@ -921,6 +921,8 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             'Ethernet (fixed)',
             (
+                (TYPE_100ME_FX, '100BASE-FX (10/100ME FIBER)'),
+                (TYPE_100ME_LFX, '100BASE-LFX (10/100ME FIBER)'),
                 (TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'),
                 (TYPE_100ME_T1, '100BASE-T1 (10/100ME Single Pair)'),
                 (TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
@@ -933,9 +935,7 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             'Ethernet (modular)',
             (
-                (TYPE_100ME_FX, '100BASE-FX (10/100ME FIBER)'),
-                (TYPE_100ME_LFX, '100BASE-LFX (10/100ME FIBER)'),
-                (TYPE_1GE_GBIC, 'GBIC (1GE)'),
+                (TYPE_1GE_GBIC, 'GBIC (1GE)')
                 (TYPE_1GE_SFP, 'SFP (1GE)'),
                 (TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
                 (TYPE_10GE_XFP, 'XFP (10GE)'),
