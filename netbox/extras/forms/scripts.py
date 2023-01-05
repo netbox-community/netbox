@@ -48,9 +48,7 @@ class ScriptForm(BootstrapMixin, forms.Form):
     def clean__schedule_at(self):
         scheduled_time = self.cleaned_data['_schedule_at']
         if scheduled_time and scheduled_time < timezone.now():
-            raise forms.ValidationError({
-                '_schedule_at': _('Scheduled time must be in the future.')
-            })
+            raise forms.ValidationError(_('Scheduled time must be in the future.'))
 
         return scheduled_time
 
