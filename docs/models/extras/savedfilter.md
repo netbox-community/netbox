@@ -40,8 +40,8 @@ is represented in JSON as
 
 ```json
 {
-  'tag': ['alpha', 'bravo'],
-  'status': 'active',
-  'region_id': 51
+  "tag": ["alpha", "bravo"],
+  "status": "active",
+  "region_id": 51
 }
 ```
