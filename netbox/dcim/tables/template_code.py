@@ -113,28 +113,28 @@ CONSOLEPORT_BUTTONS = """
   </a>
 {% endif %}
 {% if record.cable %}
+    <a href="{% url 'dcim:consoleport_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
-    {% if perms.dcim.delete_cable %}
+    {% if perms.dcim.change_cable or perms.dcim.delete_cable %}
         <span class="dropdown">
             <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'dcim:consoleport_trace' pk=record.pk %}">
-                    <i class="mdi mdi-transit-connection-variant"></i>
-                    Trace
-                    </a>
-                </li>
+            {% if perms.dcim.change_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_consoleports' pk=object.pk %}">
                     <i class="mdi mdi-pencil-outline"></i>
                     Edit cable
                     </a>
                 </li>
+            {% endif %}
+            {% if perms.dcim.delete_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_consoleports' pk=object.pk %}">
                     <i class="mdi mdi-trash-can-outline"></i>
                     Delete cable
                     </a>
                 </li>
+            {% endif %}
             </ul>
         </span>
     {% endif %}
@@ -162,28 +162,28 @@ CONSOLESERVERPORT_BUTTONS = """
   </a>
 {% endif %}
 {% if record.cable %}
+    <a href="{% url 'dcim:consoleserverport_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
-    {% if perms.dcim.delete_cable %}
+    {% if perms.dcim.change_cable or perms.dcim.delete_cable %}
         <span class="dropdown">
             <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'dcim:consoleserverport_trace' pk=record.pk %}">
-                    <i class="mdi mdi-transit-connection-variant"></i>
-                    Trace
-                    </a>
-                </li>
+            {% if perms.dcim.change_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}">
                     <i class="mdi mdi-pencil-outline"></i>
                     Edit cable
                     </a>
                 </li>
+            {% endif %}
+            {% if perms.dcim.delete_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}">
                     <i class="mdi mdi-trash-can-outline"></i>
                     Delete cable
                     </a>
                 </li>
+            {% endif %}
             </ul>
         </span>
     {% endif %}
@@ -211,28 +211,28 @@ POWERPORT_BUTTONS = """
   </a>
 {% endif %}
 {% if record.cable %}
+    <a href="{% url 'dcim:powerport_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
-    {% if perms.dcim.delete_cable %}
+    {% if perms.dcim.change_cable or perms.dcim.delete_cable %}
         <span class="dropdown">
             <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'dcim:powerport_trace' pk=record.pk %}">
-                    <i class="mdi mdi-transit-connection-variant"></i>
-                    Trace
-                    </a>
-                </li>
+            {% if perms.dcim.change_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_powerports' pk=object.pk %}">
                     <i class="mdi mdi-pencil-outline"></i>
                     Edit cable
                     </a>
                 </li>
+            {% endif %}
+            {% if perms.dcim.delete_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_powerports' pk=object.pk %}">
                     <i class="mdi mdi-trash-can-outline"></i>
                     Delete cable
                     </a>
                 </li>
+            {% endif %}
             </ul>
         </span>
     {% endif %}
@@ -259,28 +259,28 @@ POWEROUTLET_BUTTONS = """
   </a>
 {% endif %}
 {% if record.cable %}
+    <a href="{% url 'dcim:poweroutlet_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
-    {% if perms.dcim.delete_cable %}
+    {% if perms.dcim.change_cable or perms.dcim.delete_cable %}
         <span class="dropdown">
             <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'dcim:poweroutlet_trace' pk=record.pk %}">
-                    <i class="mdi mdi-transit-connection-variant"></i>
-                    Trace
-                    </a>
-                </li>
+            {% if perms.dcim.change_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}">
                     <i class="mdi mdi-pencil-outline"></i>
                     Edit cable
                     </a>
                 </li>
+            {% endif %}
+            {% if perms.dcim.delete_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}">
                     <i class="mdi mdi-trash-can-outline"></i>
                     Delete cable
                     </a>
                 </li>
+            {% endif %}
             </ul>
         </span>
     {% endif %}
@@ -321,31 +321,31 @@ INTERFACE_BUTTONS = """
     </ul>
   </span>
 {% endif %}
+{% if record.link %}
+    <a href="{% url 'dcim:interface_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
+{% endif %}
 {% if record.cable %}
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
-    {% if perms.dcim.delete_cable %}
+    {% if perms.dcim.change_cable or perms.dcim.delete_cable %}
         <span class="dropdown">
             <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                {% if record.link %}
-                <li><a class="dropdown-item" href="{% url 'dcim:interface_trace' pk=record.pk %}">
-                    <i class="mdi mdi-transit-connection-variant"></i>
-                    Trace
-                    </a>
-                </li>
-                {% endif %}
+            {% if perms.dcim.change_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}">
                     <i class="mdi mdi-pencil-outline"></i>
                     Edit cable
                     </a>
                 </li>
+            {% endif %}
+            {% if perms.dcim.delete_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}">
                     <i class="mdi mdi-trash-can-outline"></i>
                     Delete cable
                     </a>
                 </li>
+            {% endif %}
             </ul>
         </span>
     {% endif %}
@@ -386,28 +386,28 @@ FRONTPORT_BUTTONS = """
   </a>
 {% endif %}
 {% if record.cable %}
+    <a href="{% url 'dcim:frontport_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
-    {% if perms.dcim.delete_cable %}
+    {% if perms.dcim.change_cable or perms.dcim.delete_cable %}
         <span class="dropdown">
             <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'dcim:frontport_trace' pk=record.pk %}">
-                    <i class="mdi mdi-transit-connection-variant"></i>
-                    Trace
-                    </a>
-                </li>
+            {% if perms.dcim.change_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}">
                     <i class="mdi mdi-pencil-outline"></i>
                     Edit cable
                     </a>
                 </li>
+            {% endif %}
+            {% if perms.dcim.delete_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}">
                     <i class="mdi mdi-trash-can-outline"></i>
                     Delete cable
                     </a>
                 </li>
+            {% endif %}
             </ul>
         </span>
     {% endif %}
@@ -440,28 +440,28 @@ REARPORT_BUTTONS = """
   </a>
 {% endif %}
 {% if record.cable %}
+    <a href="{% url 'dcim:rearport_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
-    {% if perms.dcim.delete_cable %}
+    {% if perms.dcim.change_cable or perms.dcim.delete_cable %}
         <span class="dropdown">
             <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'dcim:rearport_trace' pk=record.pk %}">
-                    <i class="mdi mdi-transit-connection-variant"></i>
-                    Trace
-                    </a>
-                </li>
+            {% if perms.dcim.change_cable %}
                 <li><a class="dropdown-item" href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}">
                     <i class="mdi mdi-pencil-outline"></i>
                     Edit cable
                     </a>
                 </li>
-                <li><a class="dropdown-item" href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}">
+            {% endif %}
+            {% if perms.dcim.delete_cable %}
+                <li><a class="dropdown-item" href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}">
                     <i class="mdi mdi-trash-can-outline"></i>
                     Delete cable
                     </a>
                 </li>
+            {% endif %}
             </ul>
         </span>
     {% endif %}
