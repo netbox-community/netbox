@@ -2,6 +2,17 @@
 
 ## v3.4.3 (FUTURE)
 
+### Enhancements
+
+* [#9996](https://github.com/netbox-community/netbox/issues/9996) - Introduce `CA_CERT_PATH` parameter to define SSL CA path for Redis servers
+* [#11150](https://github.com/netbox-community/netbox/issues/11150) - Add primary IPv4/v6 address filters for devices
+* [#11245](https://github.com/netbox-community/netbox/issues/11245) - Enable export templates for journal entries
+* [#11371](https://github.com/netbox-community/netbox/issues/11371) - Introduce additional 100M Ethernet interface types
+
+### Bug Fixes
+
+* [#11403](https://github.com/netbox-community/netbox/issues/11403) - Fix exception when scheduling a job in the past
+
 ---
 
 ## v3.4.2 (2023-01-03)
