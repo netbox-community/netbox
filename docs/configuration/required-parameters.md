@@ -63,6 +63,7 @@ Redis is configured using a configuration setting similar to `DATABASE` and thes
 
 * `HOST` - Name or IP address of the Redis server (use `localhost` if running locally)
 * `PORT` - TCP port of the Redis service; leave blank for default port (6379)
+* `USERNAME` - Redis username (if set)
 * `PASSWORD` - Redis password (if set)
 * `DATABASE` - Numeric database ID
 * `SSL` - Use SSL connection to Redis
@@ -75,6 +76,7 @@ REDIS = {
     'tasks': {
         'HOST': 'redis.example.com',
         'PORT': 1234,
+        'USERNAME': 'netbox'
         'PASSWORD': 'foobar',
         'DATABASE': 0,
         'SSL': False,
@@ -82,6 +84,7 @@ REDIS = {
     'caching': {
         'HOST': 'localhost',
         'PORT': 6379,
+        'USERNAME': ''
         'PASSWORD': '',
         'DATABASE': 1,
         'SSL': False,

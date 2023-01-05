@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 
 from extras.filtersets import LocalConfigContextFilterSet
-from ipam.models import ASN, VRF
+from ipam.models import ASN, IPAddress, VRF
 from netbox.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet,
 )
@@ -957,6 +957,16 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
     device_bays = django_filters.BooleanFilter(
         method='_device_bays',
         label=_('Has device bays'),
+    )
+    primary_ip4_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_ip4',
+        queryset=IPAddress.objects.all(),
+        label=_('Primary IPv4 (ID)'),
+    )
+    primary_ip6_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_ip6',
+        queryset=IPAddress.objects.all(),
+        label=_('Primary IPv6 (ID)'),
     )
 
     class Meta:
