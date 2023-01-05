@@ -514,7 +514,7 @@ class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
         return objectchange
 
 
-class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin, ChangeLoggedModel):
+class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A historical remark concerning an object; collectively, these form an object's journal. The journal is used to
     preserve historical context around an object, and complements NetBox's built-in change logging. For example, you
