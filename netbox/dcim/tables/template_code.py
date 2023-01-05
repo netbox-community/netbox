@@ -139,6 +139,7 @@ CONSOLEPORT_BUTTONS = """
         </span>
     {% endif %}
 {% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -188,6 +189,7 @@ CONSOLESERVERPORT_BUTTONS = """
         </span>
     {% endif %}
 {% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -237,6 +239,7 @@ POWERPORT_BUTTONS = """
         </span>
     {% endif %}
 {% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -285,6 +288,7 @@ POWEROUTLET_BUTTONS = """
         </span>
     {% endif %}
 {% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     {% if not record.mark_connected %}
         <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.poweroutlet&a_terminations={{ record.pk }}&b_terminations_type=dcim.powerport&termination_b_site={{ object.site.pk }}&termination_b_rack={{ object.rack.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" title="Connect" class="btn btn-success btn-sm">
@@ -356,6 +360,7 @@ INTERFACE_BUTTONS = """
         </a>
     {% endif %}
 {% elif record.is_wired and perms.dcim.add_cable %}
+    <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     {% if not record.mark_connected %}
     <span class="dropdown">
@@ -412,6 +417,7 @@ FRONTPORT_BUTTONS = """
         </span>
     {% endif %}
 {% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     {% if not record.mark_connected %}
         <span class="dropdown">
@@ -466,6 +472,7 @@ REARPORT_BUTTONS = """
         </span>
     {% endif %}
 {% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     {% if not record.mark_connected %}
         <span class="dropdown">
