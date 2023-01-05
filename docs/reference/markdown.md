@@ -168,7 +168,7 @@ Some text to show that the reference links can follow later.
 ## Images
 
 ```
-Here's the Netbox logo (hover to see the title text):
+Here's the NetBox logo (hover to see the title text):
 
 Inline-style: 
 ![alt text](/static/netbox_logo.png "Logo Title Text 1")
@@ -179,7 +179,7 @@ Reference-style:
 [logo]: /static/netbox_logo.png "Logo Title Text 2"
 ```
 
-Here's the Netbox logo (hover to see the title text):
+Here's the NetBox logo (hover to see the title text):
 
 Inline-style: 
 ![alt text](/static/netbox_logo.png "Logo Title Text 1")

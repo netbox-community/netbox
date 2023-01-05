@@ -20,7 +20,7 @@ from utilities.utils import NetBoxFakeRequest
 
 
 class Command(BaseCommand):
-    help = "Run a script in Netbox"
+    help = "Run a script in NetBox"
 
     def add_arguments(self, parser):
         parser.add_argument(
