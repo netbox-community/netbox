@@ -935,7 +935,7 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             'Ethernet (modular)',
             (
-                (TYPE_1GE_GBIC, 'GBIC (1GE)')
+                (TYPE_1GE_GBIC, 'GBIC (1GE)'),
                 (TYPE_1GE_SFP, 'SFP (1GE)'),
                 (TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
                 (TYPE_10GE_XFP, 'XFP (10GE)'),
