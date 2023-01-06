@@ -494,7 +494,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         return get_permission_for_model(self.queryset.model, 'change')
 
     def _update_objects(self, form, request):
-        custom_fields = getattr(form, 'custom_fields', [])
+        custom_fields = getattr(form, 'custom_fields', {})
         standard_fields = [
             field for field in form.fields if field not in list(custom_fields) + ['pk']
         ]
@@ -532,13 +532,13 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                     setattr(obj, name, form.cleaned_data[name])
 
             # Update custom fields
-            for name in custom_fields:
+            for name, customfield in custom_fields.items():
                 assert name.startswith('cf_')
                 cf_name = name[3:]  # Strip cf_ prefix
                 if name in form.nullable_fields and name in nullified_fields:
                     obj.custom_field_data[cf_name] = None
                 elif name in form.changed_data:
-                    obj.custom_field_data[cf_name] = form.fields[name].prepare_value(form.cleaned_data[name])
+                    obj.custom_field_data[cf_name] = customfield.serialize(form.cleaned_data[name])
 
             obj.full_clean()
             obj.save()
