@@ -5,12 +5,16 @@
 ### Enhancements
 
 * [#9996](https://github.com/netbox-community/netbox/issues/9996) - Introduce `CA_CERT_PATH` parameter to define SSL CA path for Redis servers
+* [#10486](https://github.com/netbox-community/netbox/issues/10486) - Add a cable edit button for connected components in component lists
 * [#11150](https://github.com/netbox-community/netbox/issues/11150) - Add primary IPv4/v6 address filters for devices
 * [#11245](https://github.com/netbox-community/netbox/issues/11245) - Enable export templates for journal entries
 * [#11371](https://github.com/netbox-community/netbox/issues/11371) - Introduce additional 100M Ethernet interface types
 
 ### Bug Fixes
 
+* [#11210](https://github.com/netbox-community/netbox/issues/11210) - Fix ValueError exception when attempting to bulk import cables attached to occupied terminations
+* [#11340](https://github.com/netbox-community/netbox/issues/11340) - Avoid flagging cable termination changes erroneously
+* [#11379](https://github.com/netbox-community/netbox/issues/11379) - Fix TypeError exception when bulk editing custom date fields
 * [#11384](https://github.com/netbox-community/netbox/issues/11384) - Correct current time display on script & report forms
 * [#11403](https://github.com/netbox-community/netbox/issues/11403) - Fix exception when scheduling a job in the past
 
