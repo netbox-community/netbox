@@ -537,7 +537,7 @@ class CablePath(models.Model):
 
             # Step 5: Record the far-end termination object(s)
             path.append([
-                object_to_path_node(t) for t in remote_terminations
+                object_to_path_node(t) for t in remote_terminations if t is not None
             ])
 
             # Step 6: Determine the "next hop" terminations, if applicable
