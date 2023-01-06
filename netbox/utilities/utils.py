@@ -12,6 +12,8 @@ from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.http import QueryDict
 from django.utils.html import escape
+from django.utils import timezone
+from django.utils.timezone import localtime
 from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
@@ -527,3 +529,10 @@ def highlight_string(value, highlight, trim_pre=None, trim_post=None, trim_place
         post = post[:trim_post] + trim_placeholder
 
     return f'{escape(pre)}<mark>{escape(match)}</mark>{escape(post)}'
+
+
+def local_now():
+    """
+    Return the current date & time in the system timezone.
+    """
+    return localtime(timezone.now())

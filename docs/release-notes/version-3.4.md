@@ -11,6 +11,7 @@
 
 ### Bug Fixes
 
+* [#11384](https://github.com/netbox-community/netbox/issues/11384) - Correct current time display on script & report forms
 * [#11403](https://github.com/netbox-community/netbox/issues/11403) - Fix exception when scheduling a job in the past
 
 ---
