@@ -344,6 +344,9 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         max_length=50,
         choices=InterfaceTypeChoices
     )
+    enabled = models.BooleanField(
+        default=True
+    )
     mgmt_only = models.BooleanField(
         default=False,
         verbose_name='Management only'
@@ -368,6 +371,7 @@ class InterfaceTemplate(ModularComponentTemplateModel):
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
+            enabled=self.enabled,
             mgmt_only=self.mgmt_only,
             poe_mode=self.poe_mode,
             poe_type=self.poe_type,
@@ -378,6 +382,7 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         return {
             'name': self.name,
             'type': self.type,
+            'enabled': self.enabled,
             'mgmt_only': self.mgmt_only,
             'label': self.label,
             'description': self.description,

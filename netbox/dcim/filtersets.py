@@ -683,7 +683,7 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['id', 'name', 'type', 'mgmt_only']
+        fields = ['id', 'name', 'type', 'enabled', 'mgmt_only']
 
 
 class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):

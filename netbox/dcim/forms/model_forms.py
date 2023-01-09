@@ -1088,14 +1088,14 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
 
 class InterfaceTemplateForm(ModularComponentTemplateForm):
     fieldsets = (
-        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description')),
+        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description')),
         ('PoE', ('poe_mode', 'poe_type'))
     )
 
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description', 'poe_mode', 'poe_type',
+            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode', 'poe_type',
         ]
         widgets = {
             'type': StaticSelect(),

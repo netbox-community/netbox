@@ -718,6 +718,7 @@ interfaces:
     mgmt_only: true
   - name: Interface 2
     type: 1000base-t
+    enabled: false
   - name: Interface 3
     type: 1000base-t
 rear-ports:
@@ -811,6 +812,10 @@ inventory-items:
         self.assertEqual(iface1.name, 'Interface 1')
         self.assertEqual(iface1.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
         self.assertTrue(iface1.mgmt_only)
+        self.assertTrue(iface1.enabled)
+
+        iface2 = InterfaceTemplate.objects.filter(name="Interface 2").first()
+        self.assertFalse(iface2.enabled)
 
         self.assertEqual(device_type.rearporttemplates.count(), 3)
         rp1 = RearPortTemplate.objects.first()

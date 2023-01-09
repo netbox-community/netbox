@@ -164,6 +164,7 @@ class PowerOutletTemplateTable(ComponentTemplateTable):
 
 
 class InterfaceTemplateTable(ComponentTemplateTable):
+    enabled = columns.BooleanColumn()
     mgmt_only = columns.BooleanColumn(
         verbose_name='Management Only'
     )
@@ -174,7 +175,7 @@ class InterfaceTemplateTable(ComponentTemplateTable):
 
     class Meta(ComponentTemplateTable.Meta):
         model = models.InterfaceTemplate
-        fields = ('pk', 'name', 'label', 'mgmt_only', 'type', 'description', 'poe_mode', 'poe_type', 'actions')
+        fields = ('pk', 'name', 'label', 'enabled', 'mgmt_only', 'type', 'description', 'poe_mode', 'poe_type', 'actions')
         empty_text = "None"
 
 
