@@ -16,6 +16,7 @@
 * [#11340](https://github.com/netbox-community/netbox/issues/11340) - Avoid flagging cable termination changes erroneously
 * [#11379](https://github.com/netbox-community/netbox/issues/11379) - Fix TypeError exception when bulk editing custom date fields
 * [#11384](https://github.com/netbox-community/netbox/issues/11384) - Correct current time display on script & report forms
+* [#11402](https://github.com/netbox-community/netbox/issues/11402) - Avoid LookupError exception when running scripts with commit disabled
 * [#11403](https://github.com/netbox-community/netbox/issues/11403) - Fix exception when scheduling a job in the past
 
 ---
