@@ -2820,7 +2820,7 @@ class DeviceBayPopulateView(generic.ObjectEditView):
         form = forms.PopulateDeviceBayForm(device_bay, request.POST)
 
         if form.is_valid():
-
+            device_bay.snapshot()
             device_bay.installed_device = form.cleaned_data['installed_device']
             device_bay.save()
             messages.success(request, "Added {} to {}.".format(device_bay.installed_device, device_bay))
@@ -2854,7 +2854,7 @@ class DeviceBayDepopulateView(generic.ObjectEditView):
         form = ConfirmationForm(request.POST)
 
         if form.is_valid():
-
+            device_bay.snapshot()
             removed_device = device_bay.installed_device
             device_bay.installed_device = None
             device_bay.save()
