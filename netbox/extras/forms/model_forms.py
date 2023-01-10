@@ -63,6 +63,13 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
             'ui_visibility': StaticSelect(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Disable changing the type of a CustomField as it almost universally causes errors if custom field data is already present.
+        if self.instance.pk:
+            self.fields['type'].disabled = True
+
 
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
