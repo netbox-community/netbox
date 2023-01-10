@@ -33,6 +33,7 @@ Some general tips for engaging here on GitHub:
   * Error messages and screenshots are especially helpful.
   * Don't prepend your issue title with a label like `[Bug]`; the proper label will be assigned automatically.
   * Ensure that your reproduction instructions don't reference data in our [demo instance](https://demo.netbox.dev/), which gets rebuilt nightly.
+  * Verify that you have GitHub notifications enabled and are subscribed to your issue after submitting.
   * We appreciate your patience as bugs are prioritized by their severity, impact, and difficulty to resolve.
 
 * For more information on how bug reports are handled, please see our [issue
@@ -49,6 +50,7 @@ intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Poli
 * Some other tips to keep in mind:
   * Don't prepend your issue title with a label like `[Feature]`; the proper label will be assigned automatically.
   * Try to anticipate any likely questions about your proposal and provide that information proactively.
+  * Verify that you have GitHub notifications enabled and are subscribed to your issue after submitting.
   * You're welcome to volunteer to implement your FR, but don't submit a pull request until it has been approved.
 
 * For more information on how feature requests are handled, please see our [issue intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Policy).
@@ -88,9 +90,10 @@ Check out our [plugin development tutorial](https://github.com/netbox-community/
 
 ## :rescue_worker_helmet: Become a Maintainer
 
-We're always looking for motivated individuals to join the maintainers team and help drvie NetBox's long-term development. Some of our most sought-after skills include:
+We're always looking for motivated individuals to join the maintainers team and help drive NetBox's long-term development. Some of our most sought-after skills include:
 
 * Python development with a strong focus on the [Django](https://www.djangoproject.com/) framework
+* Expertise working with PostgreSQL databases
 * Javascript & TypeScript proficiency
 * A knack for web application design (HTML & CSS)
 * Familiarity with git and software development best practices
