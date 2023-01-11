@@ -12,6 +12,7 @@
 
 ### Bug Fixes
 
+* [#10201](https://github.com/netbox-community/netbox/issues/10201) - Fix AssertionError exception when removing some terminations from an existing cable
 * [#11210](https://github.com/netbox-community/netbox/issues/11210) - Fix ValueError exception when attempting to bulk import cables attached to occupied terminations
 * [#11340](https://github.com/netbox-community/netbox/issues/11340) - Avoid flagging cable termination changes erroneously
 * [#11379](https://github.com/netbox-community/netbox/issues/11379) - Fix TypeError exception when bulk editing custom date fields
