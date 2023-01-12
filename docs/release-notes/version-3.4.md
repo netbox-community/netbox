@@ -19,6 +19,7 @@
 * [#11384](https://github.com/netbox-community/netbox/issues/11384) - Correct current time display on script & report forms
 * [#11402](https://github.com/netbox-community/netbox/issues/11402) - Avoid LookupError exception when running scripts with commit disabled
 * [#11403](https://github.com/netbox-community/netbox/issues/11403) - Fix exception when scheduling a job in the past
+* [#11416](https://github.com/netbox-community/netbox/issues/11416) - Avoid AttributeError exception when deleting a cabled circuit termination
 * [#11438](https://github.com/netbox-community/netbox/issues/11438) - Fix deletion of scheduled job using non-default queues
 * [#11444](https://github.com/netbox-community/netbox/issues/11444) - Adding/removing a device from a device bay should record a pre-change snapshot on the device bay
 * [#11467](https://github.com/netbox-community/netbox/issues/11467) - Correct count on interfaces tab when viewing a VC master device
