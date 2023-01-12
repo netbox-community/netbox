@@ -174,6 +174,7 @@ span.profile-button .dropdown-menu {
   margin-top: 0.5rem;
   box-shadow: $box-shadow;
   transition: opacity 0.2s ease-in-out;
+  z-index: 1005;
 
   &:not(.show) {
     pointer-events: none;
@@ -1039,3 +1040,38 @@ html {
     }
   }
 }
+
+
+.sticky-bottom-content-p0 {
+  background-color: $tab-content-bg;
+  bottom: 0.05em;
+  z-index: 900;
+}
+.sticky-bottom-content-p1 {
+  background-color: $tab-content-bg;
+  bottom: 1.8em;
+  z-index: 900;
+}
+
+.sticky-bottom-table-p0 {
+  background-color: var(--nbx-select-content-bg);
+  bottom: 0.05em;
+  z-index: 900;
+}
+.sticky-bottom-table-p1 {
+  background-color: var(--nbx-select-content-bg);
+  bottom: 1.8em;
+  z-index: 900;
+}
+
+.sticky-top-table-p0 {
+  background-color: var(--nbx-select-content-bg);
+  top: 3.5em;
+  z-index: 900;
+}
+.sticky-top-table-p1 {
+  background-color: var(--nbx-select-content-bg);
+  top: 5.3em;
+  z-index: 900;
+}
+
