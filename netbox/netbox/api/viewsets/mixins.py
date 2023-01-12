@@ -1,5 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -30,6 +32,9 @@ class BulkUpdateModelMixin:
         }
     ]
     """
+    @method_decorator(decorator=swagger_auto_schema(
+        request_body=BulkOperationSerializer(many=True),
+    ))
     def bulk_update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         serializer = BulkOperationSerializer(data=request.data, many=True)
@@ -61,6 +66,9 @@ class BulkUpdateModelMixin:
 
             return data_list
 
+    @method_decorator(decorator=swagger_auto_schema(
+        request_body=BulkOperationSerializer(many=True),
+    ))
     def bulk_partial_update(self, request, *args, **kwargs):
         kwargs['partial'] = True
         return self.bulk_update(request, *args, **kwargs)
@@ -77,6 +85,10 @@ class BulkDestroyModelMixin:
         {"id": 456}
     ]
     """
+
+    @method_decorator(decorator=swagger_auto_schema(
+        request_body=BulkOperationSerializer(many=True),
+    ))
     def bulk_destroy(self, request, *args, **kwargs):
         serializer = BulkOperationSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
