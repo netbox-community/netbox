@@ -27,7 +27,7 @@ class NetBoxSwaggerAutoSchema(SwaggerAutoSchema):
     def get_request_serializer(self):
         serializer = super().get_request_serializer()
 
-        if serializer is not None and self.method in self.implicit_body_methods:
+        if serializer is not None and not isinstance(serializer, openapi.Schema) and self.method in self.implicit_body_methods:
             if writable_class := self.get_writable_class(serializer):
                 if hasattr(serializer, 'child'):
                     child_serializer = self.get_writable_class(serializer.child)
