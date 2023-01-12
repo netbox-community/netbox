@@ -21,6 +21,7 @@
 * [#11403](https://github.com/netbox-community/netbox/issues/11403) - Fix exception when scheduling a job in the past
 * [#11438](https://github.com/netbox-community/netbox/issues/11438) - Fix deletion of scheduled job using non-default queues
 * [#11444](https://github.com/netbox-community/netbox/issues/11444) - Adding/removing a device from a device bay should record a pre-change snapshot on the device bay
+* [#11467](https://github.com/netbox-community/netbox/issues/11467) - Correct count on interfaces tab when viewing a VC master device
 
 ---
 

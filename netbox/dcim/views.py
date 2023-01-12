@@ -1949,7 +1949,7 @@ class DeviceInterfacesView(DeviceComponentsView):
     template_name = 'dcim/device/interfaces.html'
     tab = ViewTab(
         label=_('Interfaces'),
-        badge=lambda obj: obj.interfaces.count(),
+        badge=lambda obj: obj.vc_interfaces().count(),
         permission='dcim.view_interface',
         weight=520,
         hide_if_empty=True
