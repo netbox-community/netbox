@@ -8,7 +8,7 @@
         {% if page.has_previous %}
           <a href="#"
              hx-get="{% querystring request page=page.previous_page_number %}"
-             hx-target="#object_list"
+             hx-target="closest .htmx-container"
              hx-push-url="true"
              class="btn btn-outline-secondary"
           >
@@ -19,7 +19,7 @@
           {% if p %}
             <a href="#"
                hx-get="{% querystring request page=p %}"
-               hx-target="#object_list"
+               hx-target="closest .htmx-container"
                hx-push-url="true"
                class="btn btn-outline-secondary{% if page.number == p %} active{% endif %}"
             >
@@ -34,7 +34,7 @@
         {% if page.has_next %}
           <a href="#"
              hx-get="{% querystring request page=page.next_page_number %}"
-             hx-target="#object_list"
+             hx-target="closest .htmx-container"
              hx-push-url="true"
              class="btn btn-outline-secondary"
           >
@@ -56,7 +56,7 @@
             <li>
               <a href="#"
                  hx-get="{% querystring request per_page=n %}"
-                 hx-target="#object_list"
+                 hx-target="closest .htmx-container"
                  hx-push-url="true"
                  class="dropdown-item"
               >{{ n }}</a>
