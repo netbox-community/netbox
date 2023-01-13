@@ -358,12 +358,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'netbox.middleware.ExceptionHandlingMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
-    'netbox.middleware.LoginRequiredMiddleware',
-    'netbox.middleware.DynamicConfigMiddleware',
-    'netbox.middleware.APIVersionMiddleware',
-    'netbox.middleware.ObjectChangeMiddleware',
+    'netbox.middleware.CoreMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
@@ -448,7 +444,7 @@ EXEMPT_EXCLUDE_MODELS = (
 )
 
 # All URLs starting with a string listed here are exempt from login enforcement
-EXEMPT_PATHS = (
+AUTH_EXEMPT_PATHS = (
     f'/{BASE_PATH}api/',
     f'/{BASE_PATH}graphql/',
     f'/{BASE_PATH}login/',
