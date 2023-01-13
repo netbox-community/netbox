@@ -586,7 +586,6 @@ Additionally, a token can be set to expire at a specific time. This can be usefu
 
 Each API token can optionally be restricted by client IP address. If one or more allowed IP prefixes/addresses is defined for a token, authentication will fail for any client connecting from an IP address outside the defined range(s). This enables restricting the use a token to a specific client. (By default, any client IP address is permitted.)
 
-
 ### Authenticating to the API
 
 An authentication token is attached to a request by setting the `Authorization` header to the string `Token` followed by a space and the user's token:
@@ -654,3 +653,22 @@ Note that we are _not_ passing an existing REST API token with this request. If 
     "description": ""
 }
 ```
+
+## HTTP Headers
+
+### `API-Version`
+
+This header specifies the API version in use. This will always match the version of NetBox installed. For example, NetBox v3.4.2 will report an API version of `3.4`.
+
+### `X-Request-ID`
+
+!!! info "This feature was introduced in NetBox v3.5."
+
+This header specifies the unique ID assigned to the received API request. It can be very handy for correlating a request with change records. For example, after creating several new objects, you can filter against the object changes API endpoint to retrieve the resulting change records:
+
+```
+GET /api/extras/object-changes/?request_id=e39c84bc-f169-4d5f-bc1c-94487a1b18b5
+```
+
+!!! note
+    This header is included with _all_ NetBox responses, although it is most practical when working with an API.
