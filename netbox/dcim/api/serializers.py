@@ -687,7 +687,7 @@ class VirtualDeviceContextSerializer(NetBoxModelSerializer):
         model = VirtualDeviceContext
         fields = [
             'id', 'url', 'display', 'name', 'device', 'identifier', 'tenant', 'primary_ip', 'primary_ip4',
-            'primary_ip6', 'status', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'interface_count',
+            'primary_ip6', 'status', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'interface_count', 'description',
         ]
 
 
@@ -714,7 +714,7 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
             'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments',
-            'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+            'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated', 'description',
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.JSONField)
@@ -935,7 +935,7 @@ class FrontPortRearPortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = RearPort
-        fields = ['id', 'url', 'display', 'name', 'label']
+        fields = ['id', 'url', 'display', 'name', 'label', 'description']
 
 
 class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
@@ -1059,7 +1059,7 @@ class TracedCableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cable
         fields = [
-            'id', 'url', 'type', 'status', 'label', 'color', 'length', 'length_unit',
+            'id', 'url', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'description',
         ]
 
 
