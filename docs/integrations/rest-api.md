@@ -584,9 +584,6 @@ Additionally, a token can be set to expire at a specific time. This can be usefu
 
 #### Client IP Restriction
 
-!!! note
-    This feature was introduced in NetBox v3.3.
-
 Each API token can optionally be restricted by client IP address. If one or more allowed IP prefixes/addresses is defined for a token, authentication will fail for any client connecting from an IP address outside the defined range(s). This enables restricting the use a token to a specific client. (By default, any client IP address is permitted.)
 
 

@@ -35,17 +35,11 @@ The filter logic controls how values are matched when filtering objects by the c
 
 ### Grouping
 
-!!! note
-    This feature was introduced in NetBox v3.3.
-
 Related custom fields can be grouped together within the UI by assigning each the same group name. When at least one custom field for an object type has a group defined, it will appear under the group heading within the custom fields panel under the object view. All custom fields with the same group name will appear under that heading. (Note that the group names must match exactly, or each will appear as a separate heading.)
 
 This parameter has no effect on the API representation of custom field data.
 
 ### Visibility
-
-!!! note
-    This feature was introduced in NetBox v3.3.
 
 When creating a custom field, there are three options for UI visibility. These control how and whether the custom field is displayed within the NetBox UI.
 

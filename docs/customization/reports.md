@@ -95,8 +95,6 @@ A human-friendly description of what your report does.
 
 Set the maximum allowed runtime for the report. If not set, `RQ_DEFAULT_TIMEOUT` will be used.
 
-!!! info "This feature was introduced in v3.2.1"
-
 ## Logging
 
 The following methods are available to log results within a report:

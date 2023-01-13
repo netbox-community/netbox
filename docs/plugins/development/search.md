@@ -1,8 +1,5 @@
 # Search
 
-!!! note
-    This feature was introduced in NetBox v3.4.
-
 Plugins can define and register their own models to extend NetBox's core search functionality. Typically, a plugin will include a file named `search.py`, which holds all search indexes for its models (see the example below).
 
 ```python
