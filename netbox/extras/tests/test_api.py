@@ -590,6 +590,7 @@ class ScriptTest(APITestCase):
 
     @skipIf(not rq_worker_running, "RQ worker not running")
     def test_run_script(self):
+        self.add_permissions('extras.run_script')
 
         script_data = {
             'var1': 'FooBar',

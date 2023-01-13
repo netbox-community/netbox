@@ -318,6 +318,10 @@ class ScriptViewSet(ViewSet):
         """
         Run a Script identified as "<module>.<script>" and return the pending JobResult as the result
         """
+
+        if not request.user.has_perm('extras.run_script'):
+            raise PermissionDenied("This user does not have permission to run scripts.")
+
         script = self._get_script(pk)()
         input_serializer = serializers.ScriptInputSerializer(data=request.data)
 
