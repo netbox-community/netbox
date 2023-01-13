@@ -34,17 +34,6 @@ class TenantGroupListView(generic.ObjectListView):
 class TenantGroupView(generic.ObjectView):
     queryset = TenantGroup.objects.all()
 
-    def get_extra_context(self, request, instance):
-        tenants = Tenant.objects.restrict(request.user, 'view').filter(
-            group=instance
-        )
-        tenants_table = tables.TenantTable(tenants, user=request.user, exclude=('group',))
-        tenants_table.configure(request)
-
-        return {
-            'tenants_table': tenants_table,
-        }
-
 
 @register_model_view(TenantGroup, 'edit')
 class TenantGroupEditView(generic.ObjectEditView):
@@ -195,17 +184,8 @@ class ContactGroupView(generic.ObjectView):
         child_groups_table = tables.ContactGroupTable(child_groups)
         child_groups_table.columns.hide('actions')
 
-        contacts = Contact.objects.restrict(request.user, 'view').filter(
-            group=instance
-        ).annotate(
-            assignment_count=count_related(ContactAssignment, 'contact')
-        )
-        contacts_table = tables.ContactTable(contacts, user=request.user, exclude=('group',))
-        contacts_table.configure(request)
-
         return {
             'child_groups_table': child_groups_table,
-            'contacts_table': contacts_table,
         }
 
 

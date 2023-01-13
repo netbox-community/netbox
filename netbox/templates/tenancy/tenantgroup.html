@@ -42,7 +42,7 @@
           <tr>
             <th scope="row">Tenants</th>
             <td>
-              <a href="{% url 'tenancy:tenant_list' %}?group_id={{ object.pk }}">{{ tenants_table.rows|length }}</a>
+              <a href="{% url 'tenancy:tenant_list' %}?group_id={{ object.pk }}">{{ object.tenants.count }}</a>
             </td>
           </tr>
         </table>
@@ -60,10 +60,10 @@
 	<div class="col col-md-12">
     <div class="card">
       <h5 class="card-header">Tenants</h5>
-      <div class="card-body table-responsive">
-        {% render_table tenants_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=tenants_table.paginator page=tenants_table.page %}
-      </div>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'tenancy:tenant_list' %}?group_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
     </div>
     {% plugin_full_width_page object %}
   </div>

@@ -581,20 +581,6 @@ class RackRoleListView(generic.ObjectListView):
 class RackRoleView(generic.ObjectView):
     queryset = RackRole.objects.all()
 
-    def get_extra_context(self, request, instance):
-        racks = Rack.objects.restrict(request.user, 'view').filter(role=instance).annotate(
-            device_count=count_related(Device, 'rack')
-        )
-
-        racks_table = tables.RackTable(racks, user=request.user, exclude=(
-            'role', 'get_utilization', 'get_power_utilization',
-        ))
-        racks_table.configure(request)
-
-        return {
-            'racks_table': racks_table,
-        }
-
 
 @register_model_view(RackRole, 'edit')
 class RackRoleEditView(generic.ObjectEditView):
@@ -855,8 +841,6 @@ class ManufacturerView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         device_types = DeviceType.objects.restrict(request.user, 'view').filter(
             manufacturer=instance
-        ).annotate(
-            instance_count=count_related(Device, 'device_type')
         )
         module_types = ModuleType.objects.restrict(request.user, 'view').filter(
             manufacturer=instance
@@ -865,13 +849,10 @@ class ManufacturerView(generic.ObjectView):
             manufacturer=instance
         )
 
-        devicetypes_table = tables.DeviceTypeTable(device_types, user=request.user, exclude=('manufacturer',))
-        devicetypes_table.configure(request)
-
         return {
-            'devicetypes_table': devicetypes_table,
-            'inventory_item_count': inventory_items.count(),
-            'module_type_count': module_types.count(),
+            'devicetype_count': device_types.count(),
+            'inventoryitem_count': inventory_items.count(),
+            'moduletype_count': module_types.count(),
         }
 
 
@@ -1722,19 +1703,6 @@ class DeviceRoleListView(generic.ObjectListView):
 class DeviceRoleView(generic.ObjectView):
     queryset = DeviceRole.objects.all()
 
-    def get_extra_context(self, request, instance):
-        devices = Device.objects.restrict(request.user, 'view').filter(
-            device_role=instance
-        )
-        devices_table = tables.DeviceTable(devices, user=request.user, exclude=('device_role',))
-        devices_table.configure(request)
-
-        return {
-            'devices_table': devices_table,
-            'device_count': Device.objects.filter(device_role=instance).count(),
-            'virtualmachine_count': VirtualMachine.objects.filter(role=instance).count(),
-        }
-
 
 @register_model_view(DeviceRole, 'edit')
 class DeviceRoleEditView(generic.ObjectEditView):
@@ -1793,12 +1761,13 @@ class PlatformView(generic.ObjectView):
         devices = Device.objects.restrict(request.user, 'view').filter(
             platform=instance
         )
-        devices_table = tables.DeviceTable(devices, user=request.user, exclude=('platform',))
-        devices_table.configure(request)
+        virtual_machines = VirtualMachine.objects.restrict(request.user, 'view').filter(
+            platform=instance
+        )
 
         return {
-            'devices_table': devices_table,
-            'virtualmachine_count': VirtualMachine.objects.filter(platform=instance).count()
+            'device_count': devices.count(),
+            'virtualmachine_count': virtual_machines.count()
         }
 
 
@@ -3614,16 +3583,6 @@ class VirtualDeviceContextListView(generic.ObjectListView):
 @register_model_view(VirtualDeviceContext)
 class VirtualDeviceContextView(generic.ObjectView):
     queryset = VirtualDeviceContext.objects.all()
-
-    def get_extra_context(self, request, instance):
-        interfaces_table = tables.InterfaceTable(instance.interfaces, user=request.user)
-        interfaces_table.configure(request)
-        interfaces_table.columns.hide('device')
-
-        return {
-            'interfaces_table': interfaces_table,
-            'interface_count': instance.interfaces.count(),
-        }
 
 
 @register_model_view(VirtualDeviceContext, 'edit')
