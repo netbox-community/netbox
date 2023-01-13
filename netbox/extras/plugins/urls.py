@@ -1,3 +1,5 @@
+import logging
+
 from django.apps import apps
 from django.conf import settings
 from django.conf.urls import include
@@ -6,6 +8,8 @@ from django.urls import path
 from django.utils.module_loading import import_string
 
 from . import views
+
+logger = logging.getLogger('netbox.extras.plugins')
 
 # Initialize URL base, API, and admin URL patterns for plugins
 plugin_patterns = []
@@ -30,7 +34,7 @@ for plugin_path in settings.PLUGINS:
             path(f"{base_url}/", include((urlpatterns, app.label)))
         )
     except ImportError:
-        pass
+        logger.error(f"Plugin {plugin_name} does not define any base URLs")
 
     # Check if the plugin specifies any API URLs
     try:
@@ -39,4 +43,4 @@ for plugin_path in settings.PLUGINS:
             path(f"{base_url}/", include((urlpatterns, f"{app.label}-api")))
         )
     except ImportError:
-        pass
+        logger.error(f"Plugin {plugin_name} does not define any API URLs")
