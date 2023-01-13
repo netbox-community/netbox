@@ -21,7 +21,9 @@ from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.utils import count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
+from virtualization.filtersets import VirtualMachineFilterSet
 from virtualization.models import VirtualMachine
+from virtualization.tables import VirtualMachineTable
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices
 from .constants import NONCONNECTABLE_IFACE_TYPES
@@ -1735,6 +1737,22 @@ class DeviceRoleView(generic.ObjectView):
             'virtualmachine_count': VirtualMachine.objects.filter(role=instance).count(),
         }
 
+@register_model_view(DeviceRole, 'virtual_machines', path='virtual-machines')
+class DeviceRoleVirtualMachinesView(generic.ObjectChildrenView):
+    queryset = DeviceRole.objects.all()
+    child_model = VirtualMachine
+    table = VirtualMachineTable
+    filterset = VirtualMachineFilterSet
+    template_name = 'virtualization/cluster/virtual_machines.html'
+    tab = ViewTab(
+        label=_('Virtual machines'),
+        badge=lambda obj: obj.virtual_machines.count(),
+        permission='virtualization.view_virtualmachine',
+        weight=500
+    )
+
+    def get_children(self, request, parent):
+        return VirtualMachine.objects.restrict(request.user, 'view').filter(role=parent)
 
 @register_model_view(DeviceRole, 'edit')
 class DeviceRoleEditView(generic.ObjectEditView):
