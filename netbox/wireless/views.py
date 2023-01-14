@@ -27,17 +27,6 @@ class WirelessLANGroupListView(generic.ObjectListView):
 class WirelessLANGroupView(generic.ObjectView):
     queryset = WirelessLANGroup.objects.all()
 
-    def get_extra_context(self, request, instance):
-        wirelesslans = WirelessLAN.objects.restrict(request.user, 'view').filter(
-            group=instance
-        )
-        wirelesslans_table = tables.WirelessLANTable(wirelesslans, user=request.user, exclude=('group',))
-        wirelesslans_table.configure(request)
-
-        return {
-            'wirelesslans_table': wirelesslans_table,
-        }
-
 
 @register_model_view(WirelessLANGroup, 'edit')
 class WirelessLANGroupEditView(generic.ObjectEditView):

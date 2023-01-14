@@ -5,11 +5,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from circuits.models import Provider, Circuit
-from circuits.tables import ProviderTable
+from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site, Device
-from dcim.tables import SiteTable
 from netbox.views import generic
 from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
@@ -167,17 +165,6 @@ class RIRListView(generic.ObjectListView):
 class RIRView(generic.ObjectView):
     queryset = RIR.objects.all()
 
-    def get_extra_context(self, request, instance):
-        aggregates = Aggregate.objects.restrict(request.user, 'view').filter(rir=instance).annotate(
-            child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
-        )
-        aggregates_table = tables.AggregateTable(aggregates, user=request.user, exclude=('rir', 'utilization'))
-        aggregates_table.configure(request)
-
-        return {
-            'aggregates_table': aggregates_table,
-        }
-
 
 @register_model_view(RIR, 'edit')
 class RIREditView(generic.ObjectEditView):
@@ -232,22 +219,11 @@ class ASNView(generic.ObjectView):
     queryset = ASN.objects.all()
 
     def get_extra_context(self, request, instance):
-        # Gather assigned Sites
         sites = instance.sites.restrict(request.user, 'view')
-        sites_table = SiteTable(sites, user=request.user)
-        sites_table.configure(request)
-
-        # Gather assigned Providers
-        providers = instance.providers.restrict(request.user, 'view').annotate(
-            count_circuits=count_related(Circuit, 'provider')
-        )
-        providers_table = ProviderTable(providers, user=request.user)
-        providers_table.configure(request)
+        providers = instance.providers.restrict(request.user, 'view')
 
         return {
-            'sites_table': sites_table,
             'sites_count': sites.count(),
-            'providers_table': providers_table,
             'providers_count': providers.count(),
         }
 
@@ -391,18 +367,6 @@ class RoleListView(generic.ObjectListView):
 @register_model_view(Role)
 class RoleView(generic.ObjectView):
     queryset = Role.objects.all()
-
-    def get_extra_context(self, request, instance):
-        prefixes = Prefix.objects.restrict(request.user, 'view').filter(
-            role=instance
-        )
-
-        prefixes_table = tables.PrefixTable(prefixes, user=request.user, exclude=('role', 'utilization'))
-        prefixes_table.configure(request)
-
-        return {
-            'prefixes_table': prefixes_table,
-        }
 
 
 @register_model_view(Role, 'edit')
@@ -888,17 +852,9 @@ class VLANGroupView(generic.ObjectView):
             vlans_table.columns.show('pk')
         vlans_table.configure(request)
 
-        # Compile permissions list for rendering the object table
-        permissions = {
-            'add': request.user.has_perm('ipam.add_vlan'),
-            'change': request.user.has_perm('ipam.change_vlan'),
-            'delete': request.user.has_perm('ipam.delete_vlan'),
-        }
-
         return {
             'vlans_count': vlans_count,
             'vlans_table': vlans_table,
-            'permissions': permissions,
         }
 
 
@@ -954,11 +910,6 @@ class FHRPGroupView(generic.ObjectView):
     queryset = FHRPGroup.objects.all()
 
     def get_extra_context(self, request, instance):
-        # Get assigned IP addresses
-        ipaddress_table = tables.AssignedIPAddressesTable(
-            data=instance.ip_addresses.restrict(request.user, 'view'),
-            orderable=False
-        )
 
         # Get assigned interfaces
         members_table = tables.FHRPGroupAssignmentTable(
@@ -968,7 +919,6 @@ class FHRPGroupView(generic.ObjectView):
         members_table.columns.hide('group')
 
         return {
-            'ipaddress_table': ipaddress_table,
             'members_table': members_table,
             'member_count': FHRPGroupAssignment.objects.filter(group=instance).count(),
         }

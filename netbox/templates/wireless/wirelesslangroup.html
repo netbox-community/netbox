@@ -40,16 +40,16 @@
           <tr>
             <th scope="row">Wireless LANs</th>
             <td>
-              <a href="{% url 'wireless:wirelesslan_list' %}?group_id={{ object.pk }}">{{ wirelesslans_table.rows|length }}</a>
+              <a href="{% url 'wireless:wirelesslan_list' %}?group_id={{ object.pk }}">{{ object.wirelesslans.count }}</a>
             </td>
           </tr>
         </table>
       </div>
     </div>
-    {% include 'inc/panels/tags.html' %}
     {% plugin_left_page object %}
   </div>
 	<div class="col col-md-6">
+    {% include 'inc/panels/tags.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
 	</div>
@@ -57,11 +57,11 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <div class="card-header">Wireless LANs</div>
-      <div class="card-body table-responsive">
-        {% render_table wirelesslans_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=wirelesslans_table.paginator page=wirelesslans_table.page %}
-      </div>
+      <h5 class="card-header">Wireless LANs</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'wireless:wirelesslan_list' %}?group_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
     </div>
     {% plugin_full_width_page object %}
   </div>

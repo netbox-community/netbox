@@ -223,15 +223,8 @@ class RegionView(generic.ObjectView):
         child_regions_table = tables.RegionTable(child_regions)
         child_regions_table.columns.hide('actions')
 
-        sites = Site.objects.restrict(request.user, 'view').filter(
-            region=instance
-        )
-        sites_table = tables.SiteTable(sites, user=request.user, exclude=('region',))
-        sites_table.configure(request)
-
         return {
             'child_regions_table': child_regions_table,
-            'sites_table': sites_table,
         }
 
 
@@ -311,15 +304,8 @@ class SiteGroupView(generic.ObjectView):
         child_groups_table = tables.SiteGroupTable(child_groups)
         child_groups_table.columns.hide('actions')
 
-        sites = Site.objects.restrict(request.user, 'view').filter(
-            group=instance
-        )
-        sites_table = tables.SiteTable(sites, user=request.user, exclude=('group',))
-        sites_table.configure(request)
-
         return {
             'child_groups_table': child_groups_table,
-            'sites_table': sites_table,
         }
 
 
@@ -2456,12 +2442,6 @@ class InterfaceView(generic.ObjectView):
             orderable=False
         )
 
-        # Get assigned IP addresses
-        ipaddress_table = AssignedIPAddressesTable(
-            data=instance.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
-            orderable=False
-        )
-
         # Get bridge interfaces
         bridge_interfaces = Interface.objects.restrict(request.user, 'view').filter(bridge=instance)
         bridge_interfaces_tables = tables.InterfaceTable(
@@ -2494,7 +2474,6 @@ class InterfaceView(generic.ObjectView):
 
         return {
             'vdc_table': vdc_table,
-            'ipaddress_table': ipaddress_table,
             'bridge_interfaces_table': bridge_interfaces_tables,
             'child_interfaces_table': child_interfaces_tables,
             'vlan_table': vlan_table,

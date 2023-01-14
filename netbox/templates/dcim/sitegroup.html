@@ -42,7 +42,7 @@
           <tr>
             <th scope="row">Sites</th>
             <td>
-              <a href="{% url 'dcim:site_list' %}?group_id={{ object.pk }}">{{ sites_table.rows|length }}</a>
+              <a href="{% url 'dcim:site_list' %}?group_id={{ object.pk }}">{{ object.groups.count }}</a>
             </td>
           </tr>
         </table>
@@ -76,10 +76,10 @@
 	<div class="col col-md-12">
     <div class="card">
       <h5 class="card-header">Sites</h5>
-      <div class="card-body table-responsive">
-        {% render_table sites_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=sites_table.paginator page=sites_table.page %}
-      </div>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'dcim:site_list' %}?group_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
     </div>
     {% plugin_full_width_page object %}
   </div>
