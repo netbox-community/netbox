@@ -1737,6 +1737,7 @@ class DeviceRoleView(generic.ObjectView):
             'virtualmachine_count': VirtualMachine.objects.filter(role=instance).count(),
         }
 
+
 @register_model_view(DeviceRole, 'virtual_machines', path='virtual-machines')
 class DeviceRoleVirtualMachinesView(generic.ObjectChildrenView):
     queryset = DeviceRole.objects.all()
@@ -1753,6 +1754,7 @@ class DeviceRoleVirtualMachinesView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return VirtualMachine.objects.restrict(request.user, 'view').filter(role=parent)
+
 
 @register_model_view(DeviceRole, 'edit')
 class DeviceRoleEditView(generic.ObjectEditView):
