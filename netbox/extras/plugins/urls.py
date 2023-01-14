@@ -35,7 +35,7 @@ for plugin_path in settings.PLUGINS:
         )
     except ImportError as e:
         logger.warning(f"Plugin {plugin_name} does not define any base URLs at {plugin_path}.urls.urlpatterns")
-        logger.debug(e)
+        logger.debug(e, exc_info=True)
 
     # Check if the plugin specifies any API URLs
     try:
@@ -45,4 +45,4 @@ for plugin_path in settings.PLUGINS:
         )
     except ImportError as e:
         logger.warning(f"Plugin {plugin_name} does not define any API URLs at {plugin_path}.api.urls.urlpatterns")
-        logger.debug(e)
+        logger.debug(e, exc_info=True)
