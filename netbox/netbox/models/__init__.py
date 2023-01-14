@@ -67,6 +67,15 @@ class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
 
         for field in self._meta.get_fields():
             if isinstance(field, GenericForeignKey):
+                if getattr(self, field.ct_field) is None and getattr(self, field.fk_field) is not None:
+                    raise ValidationError({
+                        field.ct_field: "This field cannot be null.",
+                    })
+                if getattr(self, field.fk_field) is None and getattr(self, field.ct_field) is not None:
+                    raise ValidationError({
+                        field.fk_field: "This field cannot be null.",
+                    })
+
                 if getattr(self, field.ct_field) and getattr(self, field.fk_field):
                     klass = getattr(self, field.ct_field).model_class()
                     try:
