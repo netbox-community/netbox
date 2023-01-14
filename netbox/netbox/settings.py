@@ -357,6 +357,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'netbox.middleware.DatabaseReadOnlyMiddleware',
     'netbox.middleware.ExceptionHandlingMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.LoginRequiredMiddleware',
@@ -751,3 +752,10 @@ for plugin_name in PLUGINS:
     RQ_QUEUES.update({
         f"{plugin_name}.{queue}": RQ_PARAMS for queue in plugin_config.queues
     })
+
+# Monkey patch CursorWrapper and CursorDebugWrapper to enable read-only mode
+if getattr(configuration, 'MAINTENANCE_MODE', False):
+    from django.db.backends import utils
+    from netbox.cursor import CursorWrapper, CursorDebugWrapper
+    utils.CursorWrapper = CursorWrapper
+    utils.CursorDebugWrapper = CursorDebugWrapper

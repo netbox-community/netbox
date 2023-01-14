@@ -3,16 +3,19 @@ import uuid
 from urllib import parse
 
 from django.conf import settings
-from django.contrib import auth
+from django.contrib import auth, messages
 from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
 from django.db import ProgrammingError
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.utils.deprecation import MiddlewareMixin
+from django.utils.encoding import iri_to_uri
 
 from extras.context_managers import change_logging
 from netbox.config import clear_config
+from netbox.exceptions import DatabaseWriteDenied
 from netbox.views import handler_500
-from utilities.api import is_api_request, rest_api_server_error
+from utilities.api import is_api_request
 
 
 class LoginRequiredMiddleware:
@@ -202,3 +205,44 @@ class ExceptionHandlingMiddleware:
         # Return a custom error message, or fall back to Django's default 500 error handling
         if custom_template:
             return handler_500(request, template_name=custom_template)
+
+
+class HttpResponseReload(HttpResponse):
+    """
+    Reload page and stay on the same page from where request was made.
+    """
+    status_code = 302
+
+    def __init__(self, request, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        referrer = request.META.get('HTTP_REFERER', '/')
+        self['Location'] = iri_to_uri(referrer)
+
+
+class DatabaseReadOnlyMiddleware(MiddlewareMixin):
+    """
+    Process exceptions raised by the database when a write operation is attempted while the database is in read-only
+    """
+
+    def process_exception(self, request, exception):
+        # Only process DatabaseWriteDenied exceptions
+        if not isinstance(exception, DatabaseWriteDenied):
+            return None
+
+        not_allowed_methods = ['POST', 'PUT', 'PATCH', 'DELETE']
+        error_message = 'The database is currently in read-only mode. Please try again later.'
+        status_code = 503
+
+        # If the request is an API request, return a 503 Service Unavailable response
+        if is_api_request(request) and request.method in not_allowed_methods:
+            return JsonResponse({'detail': error_message, }, status=status_code)
+        else:
+            # Handle exceptions
+            if request.method in not_allowed_methods:
+                # Display a message to the user
+                messages.error(request, error_message)
+
+                # Redirect back to the referring page
+                return HttpResponseReload(request)
+            else:
+                return HttpResponse(error_message, status=status_code)
