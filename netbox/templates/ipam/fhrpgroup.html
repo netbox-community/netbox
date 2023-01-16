@@ -69,13 +69,10 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">Virtual IP Addresses</h5>
-        <div class="card-body table-responsive">
-          {% if ipaddress_table.rows %}
-            {% render_table ipaddress_table 'inc/table.html' %}
-          {% else %}
-            <div class="text-muted">None</div>
-          {% endif %}
-        </div>
+        <div class="card-body htmx-container table-responsive"
+          hx-get="{% url 'ipam:ipaddress_list' %}?fhrpgroup_id={{ object.pk }}"
+          hx-trigger="load"
+        ></div>
         {% if perms.ipam.add_ipaddress %}
           <div class="card-footer text-end">
             <a href="{% url 'ipam:ipaddress_add' %}?fhrpgroup={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
@@ -84,16 +81,7 @@
           </div>
         {% endif %}
       </div>
-      <div class="card">
-        <h5 class="card-header">Members</h5>
-        <div class="card-body table-responsive">
-          {% if members_table.rows %}
-            {% render_table members_table 'inc/table.html' %}
-          {% else %}
-            <div class="text-muted">None</div>
-          {% endif %}
-        </div>
-      </div>
+      {% include 'inc/panel_table.html' with table=members_table heading='Members' %}
       {% plugin_full_width_page object %}
     </div>
   </div>

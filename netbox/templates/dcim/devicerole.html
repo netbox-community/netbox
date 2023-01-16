@@ -45,14 +45,14 @@
           <tr>
             <th scope="row">Devices</th>
             <td>
-              <a href="{% url 'dcim:device_list' %}?role_id={{ object.pk }}">{{ device_count }}</a>
+              <a href="{% url 'dcim:device_list' %}?role_id={{ object.pk }}">{{ object.devices.count }}</a>
             </td>
           </tr>
           <tr>
             <th>Virtual Machines</th>
             <td>
               {% if object.vm_role %}
-                <a href="{% url 'virtualization:virtualmachine_list' %}?role_id={{ object.pk }}">{{ virtualmachine_count }}</a>
+                <a href="{% url 'virtualization:virtualmachine_list' %}?role_id={{ object.pk }}">{{ object.virtual_machines.count }}</a>
               {% else %}
                 {{ ''|placeholder }}
               {% endif %}

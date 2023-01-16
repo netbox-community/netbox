@@ -29,20 +29,6 @@ class ProviderListView(generic.ObjectListView):
 class ProviderView(generic.ObjectView):
     queryset = Provider.objects.all()
 
-    def get_extra_context(self, request, instance):
-        circuits = Circuit.objects.restrict(request.user, 'view').filter(
-            provider=instance
-        ).prefetch_related(
-            'tenant__group', 'termination_a__site', 'termination_z__site',
-            'termination_a__provider_network', 'termination_z__provider_network',
-        )
-        circuits_table = tables.CircuitTable(circuits, user=request.user, exclude=('provider',))
-        circuits_table.configure(request)
-
-        return {
-            'circuits_table': circuits_table,
-        }
-
 
 @register_model_view(Provider, 'edit')
 class ProviderEditView(generic.ObjectEditView):
@@ -93,21 +79,6 @@ class ProviderNetworkListView(generic.ObjectListView):
 class ProviderNetworkView(generic.ObjectView):
     queryset = ProviderNetwork.objects.all()
 
-    def get_extra_context(self, request, instance):
-        circuits = Circuit.objects.restrict(request.user, 'view').filter(
-            Q(termination_a__provider_network=instance.pk) |
-            Q(termination_z__provider_network=instance.pk)
-        ).prefetch_related(
-            'tenant__group', 'termination_a__site', 'termination_z__site',
-            'termination_a__provider_network', 'termination_z__provider_network',
-        )
-        circuits_table = tables.CircuitTable(circuits, user=request.user)
-        circuits_table.configure(request)
-
-        return {
-            'circuits_table': circuits_table,
-        }
-
 
 @register_model_view(ProviderNetwork, 'edit')
 class ProviderNetworkEditView(generic.ObjectEditView):
@@ -155,15 +126,6 @@ class CircuitTypeListView(generic.ObjectListView):
 @register_model_view(CircuitType)
 class CircuitTypeView(generic.ObjectView):
     queryset = CircuitType.objects.all()
-
-    def get_extra_context(self, request, instance):
-        circuits = Circuit.objects.restrict(request.user, 'view').filter(type=instance)
-        circuits_table = tables.CircuitTable(circuits, user=request.user, exclude=('type',))
-        circuits_table.configure(request)
-
-        return {
-            'circuits_table': circuits_table,
-        }
 
 
 @register_model_view(CircuitType, 'edit')

@@ -100,20 +100,6 @@ class ClusterGroupListView(generic.ObjectListView):
 class ClusterGroupView(generic.ObjectView):
     queryset = ClusterGroup.objects.all()
 
-    def get_extra_context(self, request, instance):
-        clusters = Cluster.objects.restrict(request.user, 'view').filter(
-            group=instance
-        ).annotate(
-            device_count=count_related(Device, 'cluster'),
-            vm_count=count_related(VirtualMachine, 'cluster')
-        )
-        clusters_table = tables.ClusterTable(clusters, user=request.user, exclude=('group',))
-        clusters_table.configure(request)
-
-        return {
-            'clusters_table': clusters_table,
-        }
-
 
 @register_model_view(ClusterGroup, 'edit')
 class ClusterGroupEditView(generic.ObjectEditView):
@@ -444,11 +430,6 @@ class VMInterfaceView(generic.ObjectView):
     queryset = VMInterface.objects.all()
 
     def get_extra_context(self, request, instance):
-        # Get assigned IP addresses
-        ipaddress_table = AssignedIPAddressesTable(
-            data=instance.ip_addresses.restrict(request.user, 'view'),
-            orderable=False
-        )
 
         # Get child interfaces
         child_interfaces = VMInterface.objects.restrict(request.user, 'view').filter(parent=instance)
@@ -473,7 +454,6 @@ class VMInterfaceView(generic.ObjectView):
         )
 
         return {
-            'ipaddress_table': ipaddress_table,
             'child_interfaces_table': child_interfaces_tables,
             'vlan_table': vlan_table,
         }
