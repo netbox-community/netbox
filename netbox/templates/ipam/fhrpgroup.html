@@ -81,16 +81,7 @@
           </div>
         {% endif %}
       </div>
-      <div class="card">
-        <h5 class="card-header">Members</h5>
-        <div class="card-body table-responsive">
-          {% if members_table.rows %}
-            {% render_table members_table 'inc/table.html' %}
-          {% else %}
-            <div class="text-muted">None</div>
-          {% endif %}
-        </div>
-      </div>
+      {% include 'inc/panel_table.html' with table=members_table heading='Members' %}
       {% plugin_full_width_page object %}
     </div>
   </div>

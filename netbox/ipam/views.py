@@ -714,7 +714,6 @@ class IPAddressView(generic.ObjectView):
         return {
             'parent_prefixes_table': parent_prefixes_table,
             'duplicate_ips_table': duplicate_ips_table,
-            'more_duplicate_ips': duplicate_ips.count() > 10,
             'related_ips_table': related_ips_table,
             'services': services,
         }
