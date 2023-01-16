@@ -1200,10 +1200,6 @@ class L2VPNView(generic.ObjectView):
     queryset = L2VPN.objects.all()
 
     def get_extra_context(self, request, instance):
-        terminations = L2VPNTermination.objects.restrict(request.user, 'view').filter(l2vpn=instance)
-        terminations_table = tables.L2VPNTerminationTable(terminations, user=request.user, exclude=('l2vpn', ))
-        terminations_table.configure(request)
-
         import_targets_table = tables.RouteTargetTable(
             instance.import_targets.prefetch_related('tenant'),
             orderable=False
@@ -1214,7 +1210,6 @@ class L2VPNView(generic.ObjectView):
         )
 
         return {
-            'terminations_table': terminations_table,
             'import_targets_table': import_targets_table,
             'export_targets_table': export_targets_table,
         }

@@ -55,9 +55,10 @@
 	<div class="col col-md-12">
     <div class="card">
       <h5 class="card-header">Terminations</h5>
-      <div class="card-body">
-        {% render_table terminations_table 'inc/table.html' %}
-      </div>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'ipam:l2vpntermination_list' %}?l2vpn_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
       {% if perms.ipam.add_l2vpntermination %}
         <div class="card-footer text-end noprint">
           <a href="{% url 'ipam:l2vpntermination_add' %}?l2vpn={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm{% if not object.can_add_termination %} disabled" aria-disabled="true{% endif %}">

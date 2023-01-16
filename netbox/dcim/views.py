@@ -3397,20 +3397,6 @@ class PowerPanelListView(generic.ObjectListView):
 class PowerPanelView(generic.ObjectView):
     queryset = PowerPanel.objects.all()
 
-    def get_extra_context(self, request, instance):
-        power_feeds = PowerFeed.objects.restrict(request.user).filter(power_panel=instance)
-        powerfeed_table = tables.PowerFeedTable(
-            data=power_feeds,
-            orderable=False
-        )
-        if request.user.has_perm('dcim.delete_cable'):
-            powerfeed_table.columns.show('pk')
-        powerfeed_table.exclude = ['power_panel']
-
-        return {
-            'powerfeed_table': powerfeed_table,
-        }
-
 
 @register_model_view(PowerPanel, 'edit')
 class PowerPanelEditView(generic.ObjectEditView):
