@@ -1,7 +1,6 @@
 import logging
 import time
 
-from django.conf import settings
 from django.db.backends.utils import CursorWrapper as _CursorWrapper
 
 from netbox.exceptions import DatabaseWriteDenied
@@ -10,11 +9,8 @@ logger = logging.getLogger('netbox.db')
 
 class ReadOnlyCursorWrapper:
     """
-    A read-only wrapper around a database cursor.
-
     This wrapper prevents write operations from being performed on the database. It is used to prevent changes to the
-    database during a read-only request. It is not intended to be used directly; rather, it is applied automatically by
-    the ReadOnlyMiddleware. See the documentation for that class for more information.
+    database during a read-only request.
     """
 
     SQL_BLACKLIST = (
@@ -35,20 +31,19 @@ class ReadOnlyCursorWrapper:
     def __init__(self, cursor, db, *args, **kwargs):
         self.cursor = cursor
         self.db = db
-        self.read_only = settings.MAINTENANCE_MODE
+
+    def __check_sql(self, sql):
+        if self._write_sql(sql):
+            raise DatabaseWriteDenied
 
     def execute(self, sql, params=()):
         # Check the SQL
-        if self.read_only and self._write_sql(sql):
-            raise DatabaseWriteDenied
-
+        self.__check_sql(sql)
         return self.cursor.execute(sql, params)
 
     def executemany(self, sql, param_list):
         # Check the SQL
-        if self.read_only and self._write_sql(sql):
-            raise DatabaseWriteDenied
-
+        self.__check_sql(sql)
         return self.cursor.executemany(sql, param_list)
 
     def __getattr__(self, item):

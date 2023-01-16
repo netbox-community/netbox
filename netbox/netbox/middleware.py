@@ -229,20 +229,13 @@ class DatabaseReadOnlyMiddleware(MiddlewareMixin):
         if not isinstance(exception, DatabaseWriteDenied):
             return None
 
-        not_allowed_methods = ['POST', 'PUT', 'PATCH', 'DELETE']
         error_message = 'The database is currently in read-only mode. Please try again later.'
         status_code = 503
 
-        # If the request is an API request, return a 503 Service Unavailable response
-        if is_api_request(request) and request.method in not_allowed_methods:
-            return JsonResponse({'detail': error_message, }, status=status_code)
+        if is_api_request(request):
+            return JsonResponse({'detail': error_message}, status=status_code)
         else:
-            # Handle exceptions
-            if request.method in not_allowed_methods:
-                # Display a message to the user
-                messages.error(request, error_message)
-
-                # Redirect back to the referring page
-                return HttpResponseReload(request)
-            else:
-                return HttpResponse(error_message, status=status_code)
+            # Display a message to the user
+            messages.error(request, error_message)
+            # Redirect back to the referring page
+            return HttpResponseReload(request)
