@@ -201,11 +201,15 @@ class NetBoxTable(BaseTable):
 
     @property
     def htmx_url(self):
-        viewname = get_viewname(self._meta.model, action='list')
-        try:
-            return reverse(viewname)
-        except NoReverseMatch:
-            pass
+        """
+        Return the base HTML request URL for embedded tables.
+        """
+        if getattr(self, 'embedded', False):
+            viewname = get_viewname(self._meta.model, action='list')
+            try:
+                return reverse(viewname)
+            except NoReverseMatch:
+                pass
         return ''
 
 
