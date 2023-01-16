@@ -230,10 +230,9 @@ class DatabaseReadOnlyMiddleware(MiddlewareMixin):
             return None
 
         error_message = 'The database is currently in read-only mode. Please try again later.'
-        status_code = 503
 
         if is_api_request(request):
-            return JsonResponse({'detail': error_message}, status=status_code)
+            return JsonResponse({'detail': error_message}, status=503)
         else:
             # Display a message to the user
             messages.error(request, error_message)
