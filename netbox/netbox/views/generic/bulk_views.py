@@ -161,7 +161,11 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # If this is an HTMX request, return only the rendered table HTML
         if is_htmx(request):
-            table.embedded = is_embedded(request)
+            if is_embedded(request):
+                table.embedded = True
+                # Hide selection checkboxes
+                if 'pk' in table.base_columns:
+                    table.columns.hide('pk')
             return render(request, 'htmx/table.html', {
                 'table': table,
             })
