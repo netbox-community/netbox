@@ -14,7 +14,7 @@ from django.views.generic import View
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
-from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
+from ipam.tables import InterfaceVLANTable
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -210,23 +210,6 @@ class RegionListView(generic.ObjectListView):
 class RegionView(generic.ObjectView):
     queryset = Region.objects.all()
 
-    def get_extra_context(self, request, instance):
-        child_regions = Region.objects.add_related_count(
-            Region.objects.all(),
-            Site,
-            'region',
-            'site_count',
-            cumulative=True
-        ).restrict(request.user, 'view').filter(
-            parent__in=instance.get_descendants(include_self=True)
-        )
-        child_regions_table = tables.RegionTable(child_regions)
-        child_regions_table.columns.hide('actions')
-
-        return {
-            'child_regions_table': child_regions_table,
-        }
-
 
 @register_model_view(Region, 'edit')
 class RegionEditView(generic.ObjectEditView):
@@ -290,23 +273,6 @@ class SiteGroupListView(generic.ObjectListView):
 @register_model_view(SiteGroup)
 class SiteGroupView(generic.ObjectView):
     queryset = SiteGroup.objects.all()
-
-    def get_extra_context(self, request, instance):
-        child_groups = SiteGroup.objects.add_related_count(
-            SiteGroup.objects.all(),
-            Site,
-            'group',
-            'site_count',
-            cumulative=True
-        ).restrict(request.user, 'view').filter(
-            parent__in=instance.get_descendants(include_self=True)
-        )
-        child_groups_table = tables.SiteGroupTable(child_groups)
-        child_groups_table.columns.hide('actions')
-
-        return {
-            'child_groups_table': child_groups_table,
-        }
 
 
 @register_model_view(SiteGroup, 'edit')
@@ -477,22 +443,6 @@ class LocationView(generic.ObjectView):
         rack_count = Rack.objects.filter(location__in=location_ids).count()
         device_count = Device.objects.filter(location__in=location_ids).count()
 
-        child_locations = Location.objects.add_related_count(
-            Location.objects.add_related_count(
-                Location.objects.all(),
-                Device,
-                'location',
-                'device_count',
-                cumulative=True
-            ),
-            Rack,
-            'location',
-            'rack_count',
-            cumulative=True
-        ).filter(pk__in=location_ids).exclude(pk=instance.pk)
-        child_locations_table = tables.LocationTable(child_locations, user=request.user)
-        child_locations_table.configure(request)
-
         nonracked_devices = Device.objects.filter(
             location=instance,
             rack__isnull=True,
@@ -502,7 +452,6 @@ class LocationView(generic.ObjectView):
         return {
             'rack_count': rack_count,
             'device_count': device_count,
-            'child_locations_table': child_locations_table,
             'nonracked_devices': nonracked_devices.order_by('-pk')[:10],
             'total_nonracked_devices_count': nonracked_devices.count(),
         }

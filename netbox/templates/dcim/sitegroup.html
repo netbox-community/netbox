@@ -22,9 +22,7 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">
-        Site Group
-      </h5>
+      <h5 class="card-header">Site Group</h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
@@ -42,7 +40,7 @@
           <tr>
             <th scope="row">Sites</th>
             <td>
-              <a href="{% url 'dcim:site_list' %}?group_id={{ object.pk }}">{{ object.groups.count }}</a>
+              <a href="{% url 'dcim:site_list' %}?group_id={{ object.pk }}">{{ object.sites.count }}</a>
             </td>
           </tr>
         </table>
@@ -55,12 +53,11 @@
   </div>
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">
-        Child Groups
-      </h5>
-      <div class="card-body table-responsive">
-        {% render_table child_groups_table 'inc/table.html' %}
-      </div>
+      <h5 class="card-header">Child Groups</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'dcim:sitegroup_list' %}?parent_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
       {% if perms.dcim.add_sitegroup %}
         <div class="card-footer text-end noprint">
           <a href="{% url 'dcim:sitegroup_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">

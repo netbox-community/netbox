@@ -92,11 +92,11 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">Locations</h5>
-      <div class="card-body table-responsive">
-        {% render_table child_locations_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=child_locations_table.paginator page=child_locations_table.page %}
-      </div>
+      <h5 class="card-header">Child Locations</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'dcim:location_list' %}?parent_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
     </div>
     {% plugin_full_width_page object %}
   </div>

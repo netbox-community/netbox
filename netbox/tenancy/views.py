@@ -171,23 +171,6 @@ class ContactGroupListView(generic.ObjectListView):
 class ContactGroupView(generic.ObjectView):
     queryset = ContactGroup.objects.all()
 
-    def get_extra_context(self, request, instance):
-        child_groups = ContactGroup.objects.add_related_count(
-            ContactGroup.objects.all(),
-            Contact,
-            'group',
-            'contact_count',
-            cumulative=True
-        ).restrict(request.user, 'view').filter(
-            parent__in=instance.get_descendants(include_self=True)
-        )
-        child_groups_table = tables.ContactGroupTable(child_groups)
-        child_groups_table.columns.hide('actions')
-
-        return {
-            'child_groups_table': child_groups_table,
-        }
-
 
 @register_model_view(ContactGroup, 'edit')
 class ContactGroupEditView(generic.ObjectEditView):
