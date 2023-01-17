@@ -24,6 +24,8 @@
 * [#11444](https://github.com/netbox-community/netbox/issues/11444) - Adding/removing a device from a device bay should record a pre-change snapshot on the device bay
 * [#11467](https://github.com/netbox-community/netbox/issues/11467) - Correct count on interfaces tab when viewing a VC master device
 * [#11483](https://github.com/netbox-community/netbox/issues/11483) - Apply configured formatting to custom date fields
+* [#11488](https://github.com/netbox-community/netbox/issues/11488) - Add missing `description` fields to several REST API serializers
+* [#11497](https://github.com/netbox-community/netbox/issues/11497) - Enforce `run_script` permission when executing scripts via REST API
 
 ---
 
