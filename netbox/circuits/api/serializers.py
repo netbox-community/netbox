@@ -76,7 +76,8 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
     class Meta:
         model = CircuitTermination
         fields = [
-            'id', 'url', 'display', 'site', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id', 'description',
+            'id', 'url', 'display', 'site', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
+            'description',
         ]
 
 
