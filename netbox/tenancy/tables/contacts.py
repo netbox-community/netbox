@@ -62,7 +62,7 @@ class ContactTable(NetBoxTable):
         verbose_name='Assignments'
     )
     tags = columns.TagColumn(
-        url_name='tenancy:tenant_list'
+        url_name='tenancy:contact_list'
     )
 
     class Meta(NetBoxTable.Meta):
