@@ -517,7 +517,7 @@ def highlight_string(value, highlight, trim_pre=None, trim_post=None, trim_place
     """
     # Split value on highlight string
     try:
-        pre, match, post = re.split(fr'({highlight})', value, maxsplit=1, flags=re.IGNORECASE)
+        pre, match, post = re.split(fr'({re.escape(highlight)})', value, maxsplit=1, flags=re.IGNORECASE)
     except ValueError:
         # Match not found
         return escape(value)
