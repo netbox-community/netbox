@@ -20,12 +20,14 @@
 * [#11402](https://github.com/netbox-community/netbox/issues/11402) - Avoid LookupError exception when running scripts with commit disabled
 * [#11403](https://github.com/netbox-community/netbox/issues/11403) - Fix exception when scheduling a job in the past
 * [#11416](https://github.com/netbox-community/netbox/issues/11416) - Avoid AttributeError exception when deleting a cabled circuit termination
+* [#11433](https://github.com/netbox-community/netbox/issues/11433) - Avoid AttributeError exception when generating API schema for views with custom schema
 * [#11438](https://github.com/netbox-community/netbox/issues/11438) - Fix deletion of scheduled job using non-default queues
 * [#11444](https://github.com/netbox-community/netbox/issues/11444) - Adding/removing a device from a device bay should record a pre-change snapshot on the device bay
 * [#11467](https://github.com/netbox-community/netbox/issues/11467) - Correct count on interfaces tab when viewing a VC master device
 * [#11483](https://github.com/netbox-community/netbox/issues/11483) - Apply configured formatting to custom date fields
 * [#11488](https://github.com/netbox-community/netbox/issues/11488) - Add missing `description` fields to several REST API serializers
 * [#11497](https://github.com/netbox-community/netbox/issues/11497) - Enforce `run_script` permission when executing scripts via REST API
+* [#11516](https://github.com/netbox-community/netbox/issues/11516) - Prevent text highlight utility from interpreting match as regex
 * [#11522](https://github.com/netbox-community/netbox/issues/11522) - Correct tag links under contact & tenant list views
 
 ---
