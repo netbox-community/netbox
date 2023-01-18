@@ -1755,6 +1755,7 @@ class DeviceRoleDevicesView(generic.ObjectChildrenView):
     def get_children(self, request, parent):
         return Device.objects.restrict(request.user, 'view').filter(device_role=parent)
 
+
 @register_model_view(DeviceRole, 'virtual_machines', path='virtual-machines')
 class DeviceRoleVirtualMachinesView(generic.ObjectChildrenView):
     queryset = DeviceRole.objects.all()
