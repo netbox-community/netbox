@@ -1738,13 +1738,30 @@ class DeviceRoleView(generic.ObjectView):
         }
 
 
+@register_model_view(DeviceRole, 'devices', path='devices')
+class DeviceRoleDevicesView(generic.ObjectChildrenView):
+    queryset = DeviceRole.objects.all()
+    child_model = Device
+    table = tables.DeviceTable
+    filterset = filtersets.DeviceFilterSet
+    template_name = 'dcim/devicerole/devices.html'
+    tab = ViewTab(
+        label=_('Devices'),
+        badge=lambda obj: obj.devices.count(),
+        permission='dcim.view_device',
+        weight=400
+    )
+
+    def get_children(self, request, parent):
+        return Device.objects.restrict(request.user, 'view').filter(device_role=parent)
+
 @register_model_view(DeviceRole, 'virtual_machines', path='virtual-machines')
 class DeviceRoleVirtualMachinesView(generic.ObjectChildrenView):
     queryset = DeviceRole.objects.all()
     child_model = VirtualMachine
     table = VirtualMachineTable
     filterset = VirtualMachineFilterSet
-    template_name = 'virtualization/cluster/virtual_machines.html'
+    template_name = 'dcim/devicerole/virtual_machines.html'
     tab = ViewTab(
         label=_('Virtual machines'),
         badge=lambda obj: obj.virtual_machines.count(),
