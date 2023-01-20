@@ -813,6 +813,8 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_200GE_QSFP56 = '200gbase-x-qsfp56'
     TYPE_400GE_QSFP_DD = '400gbase-x-qsfpdd'
     TYPE_400GE_OSFP = '400gbase-x-osfp'
+    TYPE_800GE_QSFP_DD = '800gbase-x-qsfpdd'
+    TYPE_800GE_OSFP = '800gbase-x-osfp'
 
     # Ethernet Backplane
     TYPE_1GE_KX = '1000base-kx'
@@ -954,6 +956,8 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_200GE_QSFP56, 'QSFP56 (200GE)'),
                 (TYPE_400GE_QSFP_DD, 'QSFP-DD (400GE)'),
                 (TYPE_400GE_OSFP, 'OSFP (400GE)'),
+                (TYPE_800GE_QSFP_DD, 'QSFP-DD (800GE)'),
+                (TYPE_800GE_OSFP, 'OSFP (800GE)'),
             )
         ),
         (
