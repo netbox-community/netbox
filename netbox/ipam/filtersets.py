@@ -852,10 +852,15 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         queryset=VirtualMachine.objects.all(),
         method='get_for_virtualmachine'
     )
+    l2vpn = django_filters.ModelMultipleChoiceFilter(
+        field_name='l2vpn_terminations__l2vpn',
+        queryset=L2VPN.objects.all(),
+        label=_('L2VPN (ID)'),
+    )
 
     class Meta:
         model = VLAN
-        fields = ['id', 'vid', 'name', 'description']
+        fields = ['id', 'vid', 'name', 'description', 'l2vpn']
 
     def search(self, queryset, name, value):
         if not value.strip():
