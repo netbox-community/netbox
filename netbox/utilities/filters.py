@@ -1,6 +1,7 @@
 import django_filters
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django_filters.constants import EMPTY_VALUES
 
 
@@ -66,6 +67,12 @@ class MACAddressFilter(django_filters.CharFilter):
 
 class MultiValueMACAddressFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(forms.CharField)
+
+    def filter(self, qs, value):
+        try:
+            return super().filter(qs, value)
+        except ValidationError:
+            return qs.none()
 
 
 class MultiValueWWNFilter(django_filters.MultipleChoiceFilter):
