@@ -71,13 +71,6 @@
 </div>
 <div class="row mb-3">
 	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">Devices</h5>
-      <div class="card-body table-responsive">
-        {% render_table devices_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=devices_table.paginator page=devices_table.page %}
-      </div>
-    </div>
     {% plugin_full_width_page object %}
   </div>
 </div>

@@ -1,0 +1,20 @@
+{% extends 'dcim/devicerole.html' %}
+{% load helpers %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+    {% include 'inc/table_controls_htmx.html' with table_modal='VirtualMachineTable_config' %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-body" id="object_list">
+                {% include 'htmx/table.html' %}
+            </div>
+        </div>
+    </form>
+{% endblock content %}
+
+{% block modals %}
+    {{ block.super }}
+    {% table_config_form table %}
+{% endblock modals %}
