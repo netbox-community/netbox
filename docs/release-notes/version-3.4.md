@@ -1,5 +1,41 @@
 # NetBox v3.4
 
+## v3.4.3 (2023-01-20)
+
+### Enhancements
+
+* [#9996](https://github.com/netbox-community/netbox/issues/9996) - Introduce `CA_CERT_PATH` parameter to define SSL CA path for Redis servers
+* [#10486](https://github.com/netbox-community/netbox/issues/10486) - Add a cable edit button for connected components in component lists
+* [#11118](https://github.com/netbox-community/netbox/issues/11118) - Add L2VPN filters for VLANs and interfaces
+* [#11150](https://github.com/netbox-community/netbox/issues/11150) - Add primary IPv4/v6 address filters for devices
+* [#11227](https://github.com/netbox-community/netbox/issues/11227) - Add 800GE interface types
+* [#11228](https://github.com/netbox-community/netbox/issues/11228) - List both devices & VMs under device role view
+* [#11245](https://github.com/netbox-community/netbox/issues/11245) - Enable export templates for journal entries
+* [#11371](https://github.com/netbox-community/netbox/issues/11371) - Introduce additional 100M Ethernet interface types
+
+### Bug Fixes
+
+* [#10201](https://github.com/netbox-community/netbox/issues/10201) - Fix AssertionError exception when removing some terminations from an existing cable
+* [#11210](https://github.com/netbox-community/netbox/issues/11210) - Fix ValueError exception when attempting to bulk import cables attached to occupied terminations
+* [#11340](https://github.com/netbox-community/netbox/issues/11340) - Avoid flagging cable termination changes erroneously
+* [#11379](https://github.com/netbox-community/netbox/issues/11379) - Fix TypeError exception when bulk editing custom date fields
+* [#11384](https://github.com/netbox-community/netbox/issues/11384) - Correct current time display on script & report forms
+* [#11402](https://github.com/netbox-community/netbox/issues/11402) - Avoid LookupError exception when running scripts with commit disabled
+* [#11403](https://github.com/netbox-community/netbox/issues/11403) - Fix exception when scheduling a job in the past
+* [#11416](https://github.com/netbox-community/netbox/issues/11416) - Avoid AttributeError exception when deleting a cabled circuit termination
+* [#11433](https://github.com/netbox-community/netbox/issues/11433) - Avoid AttributeError exception when generating API schema for views with custom schema
+* [#11438](https://github.com/netbox-community/netbox/issues/11438) - Fix deletion of scheduled job using non-default queues
+* [#11444](https://github.com/netbox-community/netbox/issues/11444) - Adding/removing a device from a device bay should record a pre-change snapshot on the device bay
+* [#11467](https://github.com/netbox-community/netbox/issues/11467) - Correct count on interfaces tab when viewing a VC master device
+* [#11483](https://github.com/netbox-community/netbox/issues/11483) - Apply configured formatting to custom date fields
+* [#11488](https://github.com/netbox-community/netbox/issues/11488) - Add missing `description` fields to several REST API serializers
+* [#11497](https://github.com/netbox-community/netbox/issues/11497) - Enforce `run_script` permission when executing scripts via REST API
+* [#11516](https://github.com/netbox-community/netbox/issues/11516) - Prevent text highlight utility from interpreting match as regex
+* [#11522](https://github.com/netbox-community/netbox/issues/11522) - Correct tag links under contact & tenant list views
+* [#11544](https://github.com/netbox-community/netbox/issues/11544) - Catch ValidationError exception when filtering by invalid MAC address
+
+---
+
 ## v3.4.2 (2023-01-03)
 
 ### Enhancements

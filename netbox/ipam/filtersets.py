@@ -852,6 +852,17 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         queryset=VirtualMachine.objects.all(),
         method='get_for_virtualmachine'
     )
+    l2vpn_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='l2vpn_terminations__l2vpn',
+        queryset=L2VPN.objects.all(),
+        label=_('L2VPN (ID)'),
+    )
+    l2vpn = django_filters.ModelMultipleChoiceFilter(
+        field_name='l2vpn_terminations__l2vpn__identifier',
+        queryset=L2VPN.objects.all(),
+        to_field_name='identifier',
+        label=_('L2VPN'),
+    )
 
     class Meta:
         model = VLAN

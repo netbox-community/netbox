@@ -1,3 +1,4 @@
+import re
 from collections import namedtuple
 
 from django.conf import settings
@@ -160,7 +161,13 @@ class SearchView(View):
                 lookup=lookup
             )
 
-            if form.cleaned_data['lookup'] != LookupTypes.EXACT:
+            # If performing a regex search, pass the highlight value as a compiled pattern
+            if form.cleaned_data['lookup'] == LookupTypes.REGEX:
+                try:
+                    highlight = re.compile(f"({form.cleaned_data['q']})", flags=re.IGNORECASE)
+                except re.error:
+                    pass
+            elif form.cleaned_data['lookup'] != LookupTypes.EXACT:
                 highlight = form.cleaned_data['q']
 
         table = SearchTable(results, highlight=highlight)

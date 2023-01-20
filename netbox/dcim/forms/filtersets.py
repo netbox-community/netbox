@@ -6,7 +6,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.forms import LocalConfigContextFilterForm
-from ipam.models import ASN, VRF
+from ipam.models import ASN, L2VPN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import (
@@ -1112,7 +1112,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
         ('Attributes', ('name', 'label', 'kind', 'type', 'speed', 'duplex', 'enabled', 'mgmt_only')),
-        ('Addressing', ('vrf_id', 'mac_address', 'wwn')),
+        ('Addressing', ('vrf_id', 'l2vpn_id', 'mac_address', 'wwn')),
         ('PoE', ('poe_mode', 'poe_type')),
         ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power')),
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id',
@@ -1202,6 +1202,11 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         queryset=VRF.objects.all(),
         required=False,
         label='VRF'
+    )
+    l2vpn_id = DynamicModelMultipleChoiceField(
+        queryset=L2VPN.objects.all(),
+        required=False,
+        label=_('L2VPN')
     )
     tag = TagFilterField(model)
 

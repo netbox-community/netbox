@@ -23,7 +23,7 @@ The IPv4 or IPv6 address and mask, in CIDR notation (e.g. `192.0.2.0/24`).
 The operational status of the IP address.
 
 !!! tip
-    Additional statuses may be defined by setting `IPAddress.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
+    Additional statuses may be defined by setting `ipam.IPAddress.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
 
 ### Role
 

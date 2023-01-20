@@ -1,188 +1,115 @@
-## Getting Help
+**Looking for help?** NetBox has a vast, active community of fellow users that may be able to provide assistance. Just [start a discussion](https://github.com/netbox-community/netbox/discussions/new) right here on GitHub! Or if you'd prefer to chat, join us live in the `#netbox` channel on the [NetDev Community Slack](https://netdev.chat/)!
 
-If you encounter any issues installing or using NetBox, try one of the
-following resources to get assistance. Please **do not** open a GitHub issue
-except to report bugs or request features.
+<div align="center">
+  <h3>
+    :bug: <a href="#bug-reporting-bugs">Report a bug</a> &middot;
+    :bulb: <a href="#bulb-feature-requests">Suggest a feature</a> &middot;
+    :arrow_heading_up: <a href="#arrow_heading_up-submitting-pull-requests">Submit a pull request</a>
+  </h3>
+  <h3>
+    :jigsaw: <a href="#jigsaw-creating-plugins">Create a plugin</a> &middot;
+    :rescue_worker_helmet: <a href="#rescue_worker_helmet-become-a-maintainer">Become a maintainer</a> &middot;
+    :heart: <a href="#heart-other-ways-to-contribute">Other ideas</a>
+  </h3>
+</div>
+<h3></h3>
 
-### GitHub Discussions
+Some general tips for engaging here on GitHub:
 
-GitHub's discussions are the best place to get help or propose rough ideas for
-new functionality. Their integration with GitHub allows for easily cross-
-referencing and converting posts to issues as needed. There are several
-categories for discussions:
+* Register for a free [GitHub account](https://github.com/signup) if you haven't already.
+* You can use [GitHub Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) for formatting text and adding images.
+* To help mitigate notification spam, please avoid "bumping" issues with no activity. (To vote an issue up or down, use a :thumbsup: or :thumbsdown: reaction.)
+* Please avoid pinging members with `@` unless they've previously expressed interest or involvement with that particular issue.
 
-* **General** - General community discussion
-* **Ideas** - Ideas for new functionality that isn't yet ready for a formal
-  feature request
-* **Q&A** - Request help with installing or using NetBox
+## :bug: Reporting Bugs
 
-### Slack
+* First, ensure that you're running the [latest stable version](https://github.com/netbox-community/netbox/releases) of NetBox. If you're running an older version, it's likely that the bug has already been fixed.
 
-For real-time chat, you can join the **#netbox** Slack channel on [NetDev Community](https://netdev.chat/).
-Unfortunately, the Slack channel does not provide long-term retention of chat
-history, so try to avoid it for any discussions would benefit from being
-preserved for future reference.
+* Next, search our [issues list](https://github.com/netbox-community/netbox/issues?q=is%3Aissue) to see if the bug you've found has already been reported. If you come across a bug report that seems to match, please click "add a reaction" in the top right corner of the issue and add a thumbs up (:thumbsup:). This will help draw more attention to it. Any comments you can add to provide additional information or context would also be much appreciated.
 
-## Reporting Bugs
+* If you can't find any existing issues (open or closed) that seem to match yours, you're welcome to [submit a new bug report](https://github.com/netbox-community/netbox/issues/new?label=type%3A+bug&template=bug_report.yaml). Be sure to complete the entire report template, including detailed steps that someone triaging your issue can follow to confirm the reported behavior. (If we're not able to replicate the bug based on the information provided, we'll ask for additional detail.)
 
-* First, ensure that you're running the [latest stable version](https://github.com/netbox-community/netbox/releases)
-of NetBox. If you're running an older version, it's possible that the bug has
-already been fixed.
-
-* Next, check the GitHub [issues list](https://github.com/netbox-community/netbox/issues)
-to see if the bug you've found has already been reported. If you think you may
-be experiencing a reported issue that hasn't already been resolved, please
-click "add a reaction" in the top right corner of the issue and add a thumbs
-up (+1). You might also want to add a comment describing how it's affecting your
-installation. This will allow us to prioritize bugs based on how many users are
-affected.
-
-* When submitting an issue, please be as descriptive as possible. Be sure to
-provide all information request in the issue template, including:
-
-    * The environment in which NetBox is running
-    * The exact steps that can be taken to reproduce the issue
-    * Expected and observed behavior
-    * Any error messages generated
-    * Screenshots (if applicable)
-
-* Please avoid prepending any sort of tag (e.g. "[Bug]") to the issue title.
-The issue will be reviewed by a maintainer after submission and the appropriate
-labels will be applied for categorization.
-
-* Keep in mind that we prioritize bugs based on their severity and how much
-work is required to resolve them. It may take some time for someone to address
-your issue.
+* Some other tips to keep in mind:
+  * Error messages and screenshots are especially helpful.
+  * Don't prepend your issue title with a label like `[Bug]`; the proper label will be assigned automatically.
+  * Ensure that your reproduction instructions don't reference data in our [demo instance](https://demo.netbox.dev/), which gets rebuilt nightly.
+  * Verify that you have GitHub notifications enabled and are subscribed to your issue after submitting.
+  * We appreciate your patience as bugs are prioritized by their severity, impact, and difficulty to resolve.
 
 * For more information on how bug reports are handled, please see our [issue
 intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Policy).
 
-## Feature Requests
+## :bulb: Feature Requests
 
-* First, check the GitHub [issues list](https://github.com/netbox-community/netbox/issues)
-to see if the feature you're requesting is already listed. (Be sure to search
-closed issues as well, since some feature requests have been rejected.) If the
-feature you'd like to see has already been requested and is open, click "add a
-reaction" in the top right corner of the issue and add a thumbs up (+1). This
-ensures that the issue has a better chance of receiving attention. Also feel
-free to add a comment with any additional justification for the feature.
-(However, note that comments with no substance other than a "+1" will be
-deleted. Please use GitHub's reactions feature to indicate your support.)
+* First, check the GitHub [issues list](https://github.com/netbox-community/netbox/issues?q=is%3Aissue) to see if the feature you have in mind has already been proposed. If you happen to find an open feature request that matches your idea, click "add a reaction" in the top right corner of the issue and add a thumbs up (:thumbsup:). This ensures that the issue has a better chance of receiving attention. Also feel free to add a comment with any additional justification for the feature.
 
-* Before filing a new feature request, consider raising your idea in a
-[GitHub discussion](https://github.com/netbox-community/netbox/discussions)
-first. Feedback you receive there will help validate and shape the proposed
-feature before filing a formal issue.
+* If you have a rough idea that's not quite ready for formal submission yet, start a [GitHub discussion](https://github.com/netbox-community/netbox/discussions) instead. This is a great way to test the viability and narrow down the scope of a new feature prior to submitting a formal proposal, and can serve to generate interest in your idea from other community members.
 
-* Good feature requests are very narrowly defined. Be sure to thoroughly
-describe the functionality and data model(s) being proposed. The more effort
-you put into writing a feature request, the better its chance is of being
-implemented. Overly broad feature requests will be closed.
+* Once you're ready, submit a feature request [using this template](https://github.com/netbox-community/netbox/issues/new?label=type%3A+feature&template=feature_request.yaml). Be sure to provide sufficient context and detail to convey exactly what you're proposing and why. The stronger your use case, the better chance your proposal has of being accepted.
 
-* When submitting a feature request on GitHub, be sure to include all
-information requested by the issue template, including:
+* Some other tips to keep in mind:
+  * Don't prepend your issue title with a label like `[Feature]`; the proper label will be assigned automatically.
+  * Try to anticipate any likely questions about your proposal and provide that information proactively.
+  * Verify that you have GitHub notifications enabled and are subscribed to your issue after submitting.
+  * You're welcome to volunteer to implement your FR, but don't submit a pull request until it has been approved.
 
-    * A detailed description of the proposed functionality
-    * A use case for the feature; who would use it and what value it would add
-      to NetBox
-    * A rough description of changes necessary to the database schema (if
-      applicable)
-    * Any third-party libraries or other resources which would be involved
+* For more information on how feature requests are handled, please see our [issue intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Policy).
 
-* Please avoid prepending any sort of tag (e.g. "[Feature]") to the issue
-title. The issue will be reviewed by a moderator after submission and the
-appropriate labels will be applied for categorization.
+## :arrow_heading_up: Submitting Pull Requests
 
-* For more information on how feature requests are handled, please see our
-[issue intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Policy).
+* [Pull requests](https://docs.github.com/en/pull-requests) (a feature of GitHub) are used to propose changes to NetBox's code base. Our process generally goes like this:
+  * A user opens a new issue (bug report or feature request)
+  * A maintainer triages the issue and may mark it as needing an owner
+  * The issue's author can volunteer to own it, or someone else can
+  * A maintainer assigns the issue to whomever volunteers
+  * The issue owner submits a pull request that will resolve the issue
+  * A maintainer reviews and merges the pull request, closing the issue
 
-## Submitting Pull Requests
+* It's very important that you not submit a pull request until a relevant issue has been opened **and** assigned to you. Otherwise, you risk wasting time on work that may ultimately not be needed.
 
-* If you're interested in contributing to NetBox, be sure to check out our
-[getting started](https://docs.netbox.dev/en/stable/development/getting-started/)
-documentation for tips on setting up your development environment.
+* New pull requests should generally be based off of the `develop` branch, rather than `master`. The `develop` branch is used for ongoing development, while `master` is used for tracking stable releases. (If you're developing for an upcoming minor release, use `feature` instead.)
 
-* Be sure to open an issue and wait for it to be assigned to you **before**
-starting work on a pull request, and discuss your idea with the NetBox
-maintainers before beginning work. This will help prevent wasting time on
-proposed changes that we might not be able to accept. When suggesting a new
-feature, also make sure it won't conflict with any work that's already in
-progress.
+* In most cases, it is not necessary to add a changelog entry: A maintainer will take care of this when the PR is merged. (This helps avoid merge conflicts resulting from multiple PRs being submitted simultaneously.)
 
-* Once you've opened or identified an issue you'd like to work on, ask that it
-be assigned to you so that others are aware it's being worked on. If it meets
-the acceptance criteria, a maintainer will then mark the issue as "accepted"
-and assign it to you. (Note that GitHub requires that a user first comment on
-an issue before it can be assigned to that user.)
-
-* Any pull request which does not relate to an **assigned** issue will be
-closed.
-
-* All new functionality must include relevant tests where applicable.
-
-* When submitting a pull request, please be sure to work off of the `develop`
-branch, rather than `master`. The `develop` branch is used for ongoing
-development, while `master` is used for tagging stable releases. (If you're
-developing for the next minor release, use `feature` instead.)
-
-* In most cases, it is not necessary to add a changelog entry: A maintainer will
-take care of this when the PR is merged. (This helps avoid merge conflicts
-resulting from multiple PRs being submitted simultaneously.)
-
-* All code submissions should meet the following criteria (CI will enforce
-these checks):
-
-    * Python syntax is valid
-    * All tests pass when run with `./manage.py test`
-    * PEP 8 compliance is enforced, with the exception that lines may be
+* All code submissions should meet the following criteria (CI will enforce these checks):
+  * Python syntax is valid
+  * All tests pass when run with `./manage.py test`
+  * PEP 8 compliance is enforced, with the exception that lines may be
       greater than 80 characters in length
 
-## Commenting
+* Some other tips to keep in mind:
+  * If you'd like to volunteer for someone else's issue, please post a comment on that issue letting us know. (This will allow the maintainers to assign it to you.)
+  * Check out our [developer docs](https://docs.netbox.dev/en/stable/development/getting-started/) for tips on setting up your development environment.
+  * All new functionality must include relevant tests where applicable.
 
-Only comment on an issue if you are sharing a relevant idea or constructive
-feedback. **Do not** comment on an issue just to show your support (give the
-top post a :+1: instead) or to ask for an update. Doing so generates
-unnecessary noise in the discussion, and is especially annoying for people who
-have subscribed to updates for the issue. Any comments without substance
-relevant to the discussion will be deleted.
+## :jigsaw: Creating Plugins
 
-## Issue Lifecycle
+Do you have an idea for something you'd like to build in NetBox, but might not be right for the core project? NetBox includes a powerful and extensive [plugins framework](https://docs.netbox.dev/en/stable/plugins/) that enables users to develop their own custom data models and integrations.
 
-New issues are handled according to our [issue intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Policy).
-Maintainers will assign label(s) and/or close new issues as the policy
-dictates. This helps ensure a productive development environment and avoid
-accumulating a large backlog of work.
+Check out our [plugin development tutorial](https://github.com/netbox-community/netbox-plugin-tutorial) to get started!
 
-The core maintainers group has chosen to make use of GitHub's [Stale bot](https://github.com/apps/stale)
-to aid in issue management.
+## :rescue_worker_helmet: Become a Maintainer
 
-* Issues will be marked as stale after 60 days of no activity.
-* If the stable label is not removed in the following 30 days, the issue will
-  be closed automatically.
-* Any issue bearing one of the following labels will be exempt from all Stale
-  bot actions:
-  * `status: accepted`
-  * `status: blocked`
-  * `status: needs milestone`
+We're always looking for motivated individuals to join the maintainers team and help drive NetBox's long-term development. Some of our most sought-after skills include:
 
-It is natural that some new issues get more attention than others. The stale
-bot helps bring renewed attention to potentially valuable issues that may have
-been overlooked. **Do not** comment on a stale issue merely to "bump" it in an
-effort to circumvent the bot: This will result in the immediate closure of the
-issue, and you may be barred from participating in future discussions.
+* Python development with a strong focus on the [Django](https://www.djangoproject.com/) framework
+* Expertise working with PostgreSQL databases
+* Javascript & TypeScript proficiency
+* A knack for web application design (HTML & CSS)
+* Familiarity with git and software development best practices
+* Excellent attention to detail
+* Working experience in the field of network operations & engineering
 
-## Maintainer Guidance
+We generally ask that maintainers dedicate around four hours of work to the project each week on average, which includes both hands-on development and project management tasks such as issue triage. Maintainers are also encouraged (but not required) to attend our bi-weekly Zoom call to catch up on recent items.
 
-* Maintainers are expected to contribute at least four hours per week to the
-  project on average. This can be employer-sponsored or individual time, with
-  the understanding that all contributions are submitted under the Apache 2.0
-  license and that your employer may not make claim to any contributions.
-  Contributions include code work, issue management, and community support. All
-  development must be in accordance with our [development guidance](https://docs.netbox.dev/en/stable/development/).
+Many maintainers petition their employer to grant some of their paid time to work on NetBox. In doing so, your employer becomes eligible to be featured as a [NetBox sponsor](https://github.com/netbox-community/netbox/wiki/Sponsorship).
 
-* Maintainers are expected to attend (where feasible) our biweekly ~30-minute
-  sync to review agenda items. This meeting provides opportunity to present and
-  discuss pressing topics. Meetings are held as virtual audio/video conferences.
+Interested? You can contact our lead maintainer, Jeremy Stretch, at jeremy@netbox.dev or on the [NetDev Community Slack](https://netdev.chat/). We'd love to have you on the team!
 
-* Maintainers with no substantial recorded activity in a 60-day period will be
-  removed from the project.
+## :heart: Other Ways to Contribute
+
+You don't have to be a developer to contribute to NetBox: There are plenty of other ways you can add value to the community! Below are just a few examples:
+
+* Help answer questions and provide feedback in our [GitHub discussions](https://github.com/netbox-community/netbox/discussions) and on [Slack](https://netdev.chat/).
+* Write a blog article or record a YouTube video demonstrating how NetBox is used at your organization.
+* Help grow our [library of device & module type definitions](https://github.com/netbox-community/devicetype-library).

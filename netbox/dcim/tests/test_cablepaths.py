@@ -1804,3 +1804,44 @@ class CablePathTestCase(TestCase):
             is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_303_remove_termination_from_existing_cable(self):
+        """
+        [IF1] --C1-- [IF2]
+                     [IF3]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+
+        # Create cables 1
+        cable1 = Cable(
+            a_terminations=[interface1],
+            b_terminations=[interface2, interface3]
+        )
+        cable1.save()
+        self.assertPathExists(
+            (interface1, cable1, [interface2, interface3]),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            ([interface2, interface3], cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )
+
+        # Remove the termination to interface 3
+        cable1 = Cable.objects.first()
+        cable1.b_terminations = [interface2]
+        cable1.save()
+        self.assertPathExists(
+            (interface1, cable1, interface2),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (interface2, cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )

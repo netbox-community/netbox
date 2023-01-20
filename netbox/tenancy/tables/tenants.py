@@ -40,7 +40,7 @@ class TenantTable(ContactsColumnMixin, NetBoxTable):
     )
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
-        url_name='tenancy:contact_list'
+        url_name='tenancy:tenant_list'
     )
 
     class Meta(NetBoxTable.Meta):

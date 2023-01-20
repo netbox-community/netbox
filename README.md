@@ -19,7 +19,7 @@ employed by thousands of organizations around the world.
 
 ## About NetBox
 
-![Screenshot of Netbox UI](docs/media/screenshots/netbox-ui.png "NetBox UI")
+![Screenshot of NetBox UI](docs/media/screenshots/netbox-ui.png "NetBox UI")
 
 Myriad infrastructure components can be modeled in NetBox, including:
 

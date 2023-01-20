@@ -514,7 +514,7 @@ class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
         return objectchange
 
 
-class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin, ChangeLoggedModel):
+class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A historical remark concerning an object; collectively, these form an object's journal. The journal is used to
     preserve historical context around an object, and complements NetBox's built-in change logging. For example, you
@@ -634,7 +634,8 @@ class JobResult(models.Model):
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
 
-        queue = django_rq.get_queue("default")
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.obj_type.name, RQ_QUEUE_DEFAULT)
+        queue = django_rq.get_queue(rq_queue_name)
         job = queue.fetch_job(str(self.job_id))
 
         if job:

@@ -124,6 +124,9 @@ def nullify_connected_endpoints(instance, **kwargs):
     model.objects.filter(pk=instance.termination_id).update(cable=None, cable_end='')
 
     for cablepath in CablePath.objects.filter(_nodes__contains=instance.cable):
+        # Remove the deleted CableTermination if it's one of the path's originating nodes
+        if instance.termination in cablepath.origins:
+            cablepath.origins.remove(instance.termination)
         cablepath.retrace()
 
 

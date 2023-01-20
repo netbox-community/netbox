@@ -12,6 +12,8 @@ from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.http import QueryDict
 from django.utils.html import escape
+from django.utils import timezone
+from django.utils.timezone import localtime
 from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
@@ -512,11 +514,21 @@ def clean_html(html, schemes):
 def highlight_string(value, highlight, trim_pre=None, trim_post=None, trim_placeholder='...'):
     """
     Highlight a string within a string and optionally trim the pre/post portions of the original string.
+
+    Args:
+        value: The body of text being searched against
+        highlight: The string of compiled regex pattern to highlight in `value`
+        trim_pre: Maximum length of pre-highlight text to include
+        trim_post: Maximum length of post-highlight text to include
+        trim_placeholder: String value to swap in for trimmed pre/post text
     """
     # Split value on highlight string
     try:
-        pre, match, post = re.split(fr'({highlight})', value, maxsplit=1, flags=re.IGNORECASE)
-    except ValueError:
+        if type(highlight) is re.Pattern:
+            pre, match, post = highlight.split(value, maxsplit=1)
+        else:
+            pre, match, post = re.split(fr'({highlight})', value, maxsplit=1, flags=re.IGNORECASE)
+    except ValueError as e:
         # Match not found
         return escape(value)
 
@@ -527,3 +539,10 @@ def highlight_string(value, highlight, trim_pre=None, trim_post=None, trim_place
         post = post[:trim_post] + trim_placeholder
 
     return f'{escape(pre)}<mark>{escape(match)}</mark>{escape(post)}'
+
+
+def local_now():
+    """
+    Return the current date & time in the system timezone.
+    """
+    return localtime(timezone.now())

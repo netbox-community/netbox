@@ -413,7 +413,7 @@ class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
-        ('Attributes', ('group_id', 'status', 'role_id', 'vid')),
+        ('Attributes', ('group_id', 'status', 'role_id', 'vid', 'l2vpn_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
     )
     region_id = DynamicModelMultipleChoiceField(
@@ -457,6 +457,11 @@ class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     vid = forms.IntegerField(
         required=False,
         label='VLAN ID'
+    )
+    l2vpn_id = DynamicModelMultipleChoiceField(
+        queryset=L2VPN.objects.all(),
+        required=False,
+        label=_('L2VPN')
     )
     tag = TagFilterField(model)
 

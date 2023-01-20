@@ -7,4 +7,4 @@ __all__ = (
 
 
 current_request = ContextVar('current_request', default=None)
-webhooks_queue = ContextVar('webhooks_queue')
+webhooks_queue = ContextVar('webhooks_queue', default=[])

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 
 from extras.filtersets import LocalConfigContextFilterSet
-from ipam.models import ASN, VRF
+from ipam.models import ASN, L2VPN, IPAddress, VRF
 from netbox.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet,
 )
@@ -958,6 +958,16 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         method='_device_bays',
         label=_('Has device bays'),
     )
+    primary_ip4_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_ip4',
+        queryset=IPAddress.objects.all(),
+        label=_('Primary IPv4 (ID)'),
+    )
+    primary_ip6_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_ip6',
+        queryset=IPAddress.objects.all(),
+        label=_('Primary IPv6 (ID)'),
+    )
 
     class Meta:
         model = Device
@@ -1403,6 +1413,17 @@ class InterfaceFilterSet(
         queryset=VirtualDeviceContext.objects.all(),
         to_field_name='name',
         label='Virtual Device Context',
+    )
+    l2vpn_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='l2vpn_terminations__l2vpn',
+        queryset=L2VPN.objects.all(),
+        label=_('L2VPN (ID)'),
+    )
+    l2vpn = django_filters.ModelMultipleChoiceFilter(
+        field_name='l2vpn_terminations__l2vpn__identifier',
+        queryset=L2VPN.objects.all(),
+        to_field_name='identifier',
+        label=_('L2VPN'),
     )
 
     class Meta:

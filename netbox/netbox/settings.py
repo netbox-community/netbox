@@ -24,7 +24,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.4.2'
+VERSION = '3.4.3'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -235,6 +235,7 @@ TASKS_REDIS_PASSWORD = TASKS_REDIS.get('PASSWORD', '')
 TASKS_REDIS_DATABASE = TASKS_REDIS.get('DATABASE', 0)
 TASKS_REDIS_SSL = TASKS_REDIS.get('SSL', False)
 TASKS_REDIS_SKIP_TLS_VERIFY = TASKS_REDIS.get('INSECURE_SKIP_TLS_VERIFY', False)
+TASKS_REDIS_CA_CERT_PATH = TASKS_REDIS.get('CA_CERT_PATH', False)
 
 # Caching
 if 'caching' not in REDIS:
@@ -251,6 +252,7 @@ CACHING_REDIS_SENTINELS = REDIS['caching'].get('SENTINELS', [])
 CACHING_REDIS_SENTINEL_SERVICE = REDIS['caching'].get('SENTINEL_SERVICE', 'default')
 CACHING_REDIS_PROTO = 'rediss' if REDIS['caching'].get('SSL', False) else 'redis'
 CACHING_REDIS_SKIP_TLS_VERIFY = REDIS['caching'].get('INSECURE_SKIP_TLS_VERIFY', False)
+CACHING_REDIS_CA_CERT_PATH = REDIS['caching'].get('CA_CERT_PATH', False)
 
 CACHES = {
     'default': {
@@ -262,6 +264,8 @@ CACHES = {
         }
     }
 }
+
+
 if CACHING_REDIS_SENTINELS:
     DJANGO_REDIS_CONNECTION_FACTORY = 'django_redis.pool.SentinelConnectionFactory'
     CACHES['default']['LOCATION'] = f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_SENTINEL_SERVICE}/{CACHING_REDIS_DATABASE}'
@@ -270,7 +274,9 @@ if CACHING_REDIS_SENTINELS:
 if CACHING_REDIS_SKIP_TLS_VERIFY:
     CACHES['default']['OPTIONS'].setdefault('CONNECTION_POOL_KWARGS', {})
     CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS']['ssl_cert_reqs'] = False
-
+if CACHING_REDIS_CA_CERT_PATH:
+    CACHES['default']['OPTIONS'].setdefault('CONNECTION_POOL_KWARGS', {})
+    CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS']['ssl_ca_certs'] = CACHING_REDIS_CA_CERT_PATH
 
 #
 # Sessions
@@ -647,6 +653,10 @@ RQ_PARAMS.update({
     'PASSWORD': TASKS_REDIS_PASSWORD,
     'DEFAULT_TIMEOUT': RQ_DEFAULT_TIMEOUT,
 })
+
+if TASKS_REDIS_CA_CERT_PATH:
+    RQ_PARAMS.setdefault('REDIS_CLIENT_KWARGS', {})
+    RQ_PARAMS['REDIS_CLIENT_KWARGS']['ssl_ca_certs'] = TASKS_REDIS_CA_CERT_PATH
 
 RQ_QUEUES = {
     RQ_QUEUE_HIGH: RQ_PARAMS,

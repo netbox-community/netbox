@@ -672,6 +672,22 @@ class DeviceSerializer(NetBoxModelSerializer):
         return data
 
 
+class DeviceWithConfigContextSerializer(DeviceSerializer):
+    config_context = serializers.SerializerMethodField()
+
+    class Meta(DeviceSerializer.Meta):
+        fields = [
+            'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
+            'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
+            'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
+            'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+        ]
+
+    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    def get_config_context(self, obj):
+        return obj.get_config_context()
+
+
 class VirtualDeviceContextSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
     device = NestedDeviceSerializer()
@@ -687,7 +703,8 @@ class VirtualDeviceContextSerializer(NetBoxModelSerializer):
         model = VirtualDeviceContext
         fields = [
             'id', 'url', 'display', 'name', 'device', 'identifier', 'tenant', 'primary_ip', 'primary_ip4',
-            'primary_ip6', 'status', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'interface_count',
+            'primary_ip6', 'status', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'interface_count',
         ]
 
 
@@ -704,22 +721,6 @@ class ModuleSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'device', 'module_bay', 'module_type', 'status', 'serial', 'asset_tag',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-
-
-class DeviceWithConfigContextSerializer(DeviceSerializer):
-    config_context = serializers.SerializerMethodField()
-
-    class Meta(DeviceSerializer.Meta):
-        fields = [
-            'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
-            'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
-            'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments',
-            'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
-        ]
-
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
-    def get_config_context(self, obj):
-        return obj.get_config_context()
 
 
 class DeviceNAPALMSerializer(serializers.Serializer):
@@ -935,7 +936,7 @@ class FrontPortRearPortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = RearPort
-        fields = ['id', 'url', 'display', 'name', 'label']
+        fields = ['id', 'url', 'display', 'name', 'label', 'description']
 
 
 class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
@@ -1059,7 +1060,7 @@ class TracedCableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cable
         fields = [
-            'id', 'url', 'type', 'status', 'label', 'color', 'length', 'length_unit',
+            'id', 'url', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'description',
         ]
 
 

@@ -21,7 +21,9 @@ from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.utils import count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
+from virtualization.filtersets import VirtualMachineFilterSet
 from virtualization.models import VirtualMachine
+from virtualization.tables import VirtualMachineTable
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices
 from .constants import NONCONNECTABLE_IFACE_TYPES
@@ -1736,6 +1738,42 @@ class DeviceRoleView(generic.ObjectView):
         }
 
 
+@register_model_view(DeviceRole, 'devices', path='devices')
+class DeviceRoleDevicesView(generic.ObjectChildrenView):
+    queryset = DeviceRole.objects.all()
+    child_model = Device
+    table = tables.DeviceTable
+    filterset = filtersets.DeviceFilterSet
+    template_name = 'dcim/devicerole/devices.html'
+    tab = ViewTab(
+        label=_('Devices'),
+        badge=lambda obj: obj.devices.count(),
+        permission='dcim.view_device',
+        weight=400
+    )
+
+    def get_children(self, request, parent):
+        return Device.objects.restrict(request.user, 'view').filter(device_role=parent)
+
+
+@register_model_view(DeviceRole, 'virtual_machines', path='virtual-machines')
+class DeviceRoleVirtualMachinesView(generic.ObjectChildrenView):
+    queryset = DeviceRole.objects.all()
+    child_model = VirtualMachine
+    table = VirtualMachineTable
+    filterset = VirtualMachineFilterSet
+    template_name = 'dcim/devicerole/virtual_machines.html'
+    tab = ViewTab(
+        label=_('Virtual machines'),
+        badge=lambda obj: obj.virtual_machines.count(),
+        permission='virtualization.view_virtualmachine',
+        weight=500
+    )
+
+    def get_children(self, request, parent):
+        return VirtualMachine.objects.restrict(request.user, 'view').filter(role=parent)
+
+
 @register_model_view(DeviceRole, 'edit')
 class DeviceRoleEditView(generic.ObjectEditView):
     queryset = DeviceRole.objects.all()
@@ -1949,7 +1987,7 @@ class DeviceInterfacesView(DeviceComponentsView):
     template_name = 'dcim/device/interfaces.html'
     tab = ViewTab(
         label=_('Interfaces'),
-        badge=lambda obj: obj.interfaces.count(),
+        badge=lambda obj: obj.vc_interfaces().count(),
         permission='dcim.view_interface',
         weight=520,
         hide_if_empty=True
@@ -2820,7 +2858,7 @@ class DeviceBayPopulateView(generic.ObjectEditView):
         form = forms.PopulateDeviceBayForm(device_bay, request.POST)
 
         if form.is_valid():
-
+            device_bay.snapshot()
             device_bay.installed_device = form.cleaned_data['installed_device']
             device_bay.save()
             messages.success(request, "Added {} to {}.".format(device_bay.installed_device, device_bay))
@@ -2854,7 +2892,7 @@ class DeviceBayDepopulateView(generic.ObjectEditView):
         form = ConfirmationForm(request.POST)
 
         if form.is_valid():
-
+            device_bay.snapshot()
             removed_device = device_bay.installed_device
             device_bay.installed_device = None
             device_bay.save()

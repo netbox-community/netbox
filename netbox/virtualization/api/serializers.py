@@ -96,8 +96,8 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
     class Meta(VirtualMachineSerializer.Meta):
         fields = [
             'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data',
-            'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+            'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments',
+            'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.JSONField)
