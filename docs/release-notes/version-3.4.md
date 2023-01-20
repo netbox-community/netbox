@@ -6,7 +6,10 @@
 
 * [#9996](https://github.com/netbox-community/netbox/issues/9996) - Introduce `CA_CERT_PATH` parameter to define SSL CA path for Redis servers
 * [#10486](https://github.com/netbox-community/netbox/issues/10486) - Add a cable edit button for connected components in component lists
+* [#11118](https://github.com/netbox-community/netbox/issues/11118) - Add L2VPN filters for VLANs and interfaces
 * [#11150](https://github.com/netbox-community/netbox/issues/11150) - Add primary IPv4/v6 address filters for devices
+* [#11227](https://github.com/netbox-community/netbox/issues/11227) - Add 800GE interface types
+* [#11228](https://github.com/netbox-community/netbox/issues/11228) - List both devices & VMs under device role view
 * [#11245](https://github.com/netbox-community/netbox/issues/11245) - Enable export templates for journal entries
 * [#11371](https://github.com/netbox-community/netbox/issues/11371) - Introduce additional 100M Ethernet interface types
 
