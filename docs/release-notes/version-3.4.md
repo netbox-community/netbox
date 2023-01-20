@@ -2,6 +2,10 @@
 
 ## v3.4.4 (FUTURE)
 
+### Bug Fixes
+
+* [#11555](https://github.com/netbox-community/netbox/issues/11555) - Avoid inadvertent interpretation of search query as regular expression under global search (previously [#11516](https://github.com/netbox-community/netbox/issues/11516))
+
 ---
 
 ## v3.4.3 (2023-01-20)
@@ -34,7 +38,7 @@
 * [#11483](https://github.com/netbox-community/netbox/issues/11483) - Apply configured formatting to custom date fields
 * [#11488](https://github.com/netbox-community/netbox/issues/11488) - Add missing `description` fields to several REST API serializers
 * [#11497](https://github.com/netbox-community/netbox/issues/11497) - Enforce `run_script` permission when executing scripts via REST API
-* [#11516](https://github.com/netbox-community/netbox/issues/11516) - Prevent text highlight utility from interpreting match as regex
+* ~[#11516](https://github.com/netbox-community/netbox/issues/11516) - Prevent text highlight utility from interpreting match as regex~
 * [#11522](https://github.com/netbox-community/netbox/issues/11522) - Correct tag links under contact & tenant list views
 * [#11544](https://github.com/netbox-community/netbox/issues/11544) - Catch ValidationError exception when filtering by invalid MAC address
 
