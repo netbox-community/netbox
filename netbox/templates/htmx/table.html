@@ -4,13 +4,13 @@
 
 {% with preferences|get_key:"pagination.placement" as paginator_placement %}
   {% if paginator_placement == 'top' or paginator_placement == 'both' %}
-    <div class="position-sticky sticky-top-table-p0">
+    <div class="position-sticky py-1 sticky-top-table-p0">
       {% include 'inc/paginator_htmx.html' with paginator=table.paginator page=table.page %}
     </div>
   {% endif %}
   {% render_table table 'inc/table_htmx.html' %}
   {% if paginator_placement != 'top' %}
-    <div class="position-sticky sticky-bottom-table-p1">
+    <div class="position-sticky py-1 sticky-bottom-table-p1">
       {% include 'inc/paginator_htmx.html' with paginator=table.paginator page=table.page %}
     </div>
   {% endif %}

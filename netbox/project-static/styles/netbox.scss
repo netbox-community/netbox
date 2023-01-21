@@ -1044,7 +1044,7 @@ html {
 
 .sticky-bottom-content-p0 {
   background-color: $tab-content-bg;
-  bottom: 0.05em;
+  bottom: 0.01em;
   z-index: 900;
 }
 .sticky-bottom-content-p1 {
@@ -1055,7 +1055,7 @@ html {
 
 .sticky-bottom-table-p0 {
   background-color: var(--nbx-select-content-bg);
-  bottom: 0.05em;
+  bottom: 0.01em;
   z-index: 900;
 }
 .sticky-bottom-table-p1 {
@@ -1066,12 +1066,12 @@ html {
 
 .sticky-top-table-p0 {
   background-color: var(--nbx-select-content-bg);
-  top: 3.5em;
+  top: 3.3em;
   z-index: 900;
 }
 .sticky-top-table-p1 {
   background-color: var(--nbx-select-content-bg);
-  top: 5.3em;
+  top: 5.1em;
   z-index: 900;
 }
 
