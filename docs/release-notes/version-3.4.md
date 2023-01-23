@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#11487](https://github.com/netbox-community/netbox/issues/11487) - Remove "set null" option from non-writable custom fields during bulk edit
 * [#11555](https://github.com/netbox-community/netbox/issues/11555) - Avoid inadvertent interpretation of search query as regular expression under global search (previously [#11516](https://github.com/netbox-community/netbox/issues/11516))
 
 ---
