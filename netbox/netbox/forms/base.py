@@ -131,7 +131,7 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
 
     def _extend_nullable_fields(self):
         nullable_custom_fields = [
-            name for name, customfield in self.custom_fields.items() if not customfield.required
+            name for name, customfield in self.custom_fields.items() if (not customfield.required and customfield.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE)
         ]
         self.nullable_fields = (*self.nullable_fields, *nullable_custom_fields)
 
