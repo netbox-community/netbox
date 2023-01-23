@@ -27,6 +27,12 @@ class SideNav {
    */
   private sections: Section[] = [];
 
+  /**
+   * Tracker if the mouse on the navbar or not
+   */
+  // private mouseOver: boolean = false;
+
+
   constructor(base: HTMLDivElement) {
     this.base = base;
     this.state = new StateManager<NavState>(
@@ -247,6 +253,18 @@ class SideNav {
    * Show the sidenav and expand any active sections.
    */
   private onEnter(): void {
+    // this.mouseOver = true;
+    // if (!this.bodyHas('pinned')) {
+    //   setTimeout(() => {  
+    //     if (this.mouseOver) {
+    //       this.bodyRemove('hide', 'hidden');
+    //       this.bodyAdd('show'); 
+    //       for (const link of this.getActiveLinks()) {
+    //         this.activateLink(link, 'expand');
+    //       }
+    //     }
+    //   }, 200); // add a 200ms delay before the sidenav opens
+    // }
     if (!this.bodyHas('pinned')) {
       this.bodyRemove('hide', 'hidden');
       this.bodyAdd('show');
@@ -254,12 +272,15 @@ class SideNav {
         this.activateLink(link, 'expand');
       }
     }
+
+  
   }
 
   /**
    * Hide the sidenav and collapse any active sections.
    */
   private onLeave(): void {
+    // this.mouseOver = false;
     if (!this.bodyHas('pinned')) {
       this.bodyRemove('show');
       this.bodyAdd('hide');

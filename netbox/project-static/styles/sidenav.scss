@@ -78,6 +78,7 @@
   background-color: var(--nbx-sidebar-bg);
   border-right: 1px solid $border-color;
   transition: $transition-100ms-ease-in-out;
+  transition-delay: 200ms;
 
   // Media fixes for mobile resolutions.
   @include media-breakpoint-down(lg) {
