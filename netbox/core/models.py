@@ -1,6 +1,7 @@
 import logging
 import os
 from functools import cached_property
+from fnmatch import fnmatchcase
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -9,7 +10,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from netbox.models import NetBoxModel, PrimaryModel
 from utilities.files import sha256_checksum
 from .choices import *
 
@@ -21,7 +21,7 @@ __all__ = (
 logger = logging.getLogger('netbox.core.data')
 
 
-class DataSource(PrimaryModel):
+class DataSource(models.Model):
     """
     A remote source from which DataFiles are synchronized.
     """
@@ -41,23 +41,23 @@ class DataSource(PrimaryModel):
         max_length=200,
         blank=True
     )
-    url = models.URLField(
-        verbose_name='URL'
+    url = models.CharField(
+        max_length=200,
+        verbose_name=_('URL')
+    )
+    ignore_rules = models.TextField(
+        blank=True,
+        help_text=_("Patterns (one per line) matching files to ignore when syncing")
     )
 
     class Meta:
         ordering = ('name',)
 
+    def __str__(self):
+        return self.name
+
     # def get_absolute_url(self):
     #     return reverse('core:datasource', args=[self.pk])
-
-    # @property
-    # def root_path(self):
-    #     if self.pk is None:
-    #         return None
-    #     if self.type == DataSourceTypeChoices.LOCAL:
-    #         return self.url.lstrip('file://')
-    #     return os.path.join(DATASOURCES_CACHE_PATH, str(self.pk))
 
     def sync(self):
         """
@@ -131,33 +131,50 @@ class DataSource(PrimaryModel):
             if path.startswith('.'):
                 continue
             for file_name in file_names:
-                # TODO: Apply include/exclude rules
-                if file_name.startswith('.'):
-                    continue
-                paths.add(os.path.join(path, file_name))
+                if not self._ignore(file_name):
+                    paths.add(os.path.join(path, file_name))
 
         logger.debug(f"Found {len(paths)} files")
         return paths
 
+    def _ignore(self, filename):
+        """
+        Returns a boolean indicating whether the file should be ignored per the DataSource's configured
+        ignore rules.
+        """
+        if filename.startswith('.'):
+            return True
+        for rule in self.ignore_rules.splitlines():
+            if fnmatchcase(filename, rule):
+                return True
+        return False
 
-class DataFile(NetBoxModel):
+
+class DataFile(models.Model):
     """
     A database object which represents a remote file fetched from a DataSource.
     """
     source = models.ForeignKey(
         to='core.DataSource',
         on_delete=models.CASCADE,
-        related_name='datafiles'
+        related_name='datafiles',
+        editable=False
     )
     path = models.CharField(
         max_length=1000,
-        unique=True
+        unique=True,
+        editable=False
     )
-    last_updated = models.DateTimeField()
-    size = models.PositiveIntegerField()
+    last_updated = models.DateTimeField(
+        editable=False
+    )
+    size = models.PositiveIntegerField(
+        editable=False
+    )
     # TODO: Create a proper SHA256 field
     checksum = models.CharField(
-        max_length=64
+        max_length=64,
+        editable=False
     )
     data = models.BinaryField()
 
@@ -169,6 +186,9 @@ class DataFile(NetBoxModel):
                 name='%(app_label)s_%(class)s_unique_source_path'
             ),
         )
+
+    def __str__(self):
+        return self.path
 
     # def get_absolute_url(self):
     #     return reverse('core:datafile', args=[self.pk])
@@ -182,7 +202,7 @@ class DataFile(NetBoxModel):
 
         # Get attributes from file on disk
         file_size = os.path.getsize(file_path)
-        file_checksum = sha256_checksum(file_path)
+        file_checksum = sha256_checksum(file_path).hexdigest()
 
         # Update instance file attributes & data
         has_changed = file_size != self.size or file_checksum != self.checksum
