@@ -335,19 +335,25 @@ class SiteView(generic.ObjectView):
     queryset = Site.objects.prefetch_related('tenant__group')
 
     def get_extra_context(self, request, instance):
-        stats = {
-            'location_count': Location.objects.restrict(request.user, 'view').filter(site=instance).count(),
-            'rack_count': Rack.objects.restrict(request.user, 'view').filter(site=instance).count(),
-            'device_count': Device.objects.restrict(request.user, 'view').filter(site=instance).count(),
-            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(site=instance).count(),
-            'vlangroup_count': VLANGroup.objects.restrict(request.user, 'view').filter(
+        related_models = [
+            # DCIM
+            Location.objects.restrict(request.user, 'view').filter(site=instance),
+            Rack.objects.restrict(request.user, 'view').filter(site=instance),
+            Device.objects.restrict(request.user, 'view').filter(site=instance),
+            # Virtualization
+            VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=instance),
+            # IPAM
+            Prefix.objects.restrict(request.user, 'view').filter(site=instance),
+            ASN.objects.restrict(request.user, 'view').filter(sites=instance),
+            VLANGroup.objects.restrict(request.user, 'view').filter(
                 scope_type=ContentType.objects.get_for_model(Site),
                 scope_id=instance.pk
-            ).count(),
-            'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(site=instance).count(),
-            'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct().count(),
-            'vm_count': VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=instance).count(),
-        }
+            ),
+            VLAN.objects.restrict(request.user, 'view').filter(site=instance),
+            # Circuits
+            Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(),
+        ]
+
         locations = Location.objects.add_related_count(
             Location.objects.all(),
             Rack,
@@ -369,15 +375,9 @@ class SiteView(generic.ObjectView):
             parent_bay__isnull=True
         ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
 
-        asns = ASN.objects.restrict(request.user, 'view').filter(sites=instance)
-        asn_count = asns.count()
-
-        stats.update({'asn_count': asn_count})
-
         return {
-            'stats': stats,
+            'related_models': related_models,
             'locations': locations,
-            'asns': asns,
             'nonracked_devices': nonracked_devices.order_by('-pk')[:10],
             'total_nonracked_devices_count': nonracked_devices.count(),
         }
