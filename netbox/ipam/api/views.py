@@ -310,7 +310,7 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
 
     @swagger_auto_schema(
         request_body=serializers.AvailableIPSerializer,
-        responses={201: serializers.IPAddressSerializer(many=True)}
+        responses={201: serializers.IPAddressSerializer(many=False)}
     )
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def post(self, request, pk):
