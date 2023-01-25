@@ -165,6 +165,15 @@ class RIRListView(generic.ObjectListView):
 class RIRView(generic.ObjectView):
     queryset = RIR.objects.all()
 
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (Aggregate.objects.restrict(request.user, 'view').filter(rir=instance), 'rir_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
+
 
 @register_model_view(RIR, 'edit')
 class RIREditView(generic.ObjectEditView):
@@ -367,6 +376,17 @@ class RoleListView(generic.ObjectListView):
 @register_model_view(Role)
 class RoleView(generic.ObjectView):
     queryset = Role.objects.all()
+
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (Prefix.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
+            (IPRange.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
+            (VLAN.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
 
 
 @register_model_view(Role, 'edit')
@@ -839,6 +859,11 @@ class VLANGroupView(generic.ObjectView):
     queryset = VLANGroup.objects.all()
 
     def get_extra_context(self, request, instance):
+        related_models = (
+            (VLAN.objects.restrict(request.user, 'view').filter(group=instance), 'group_id'),
+        )
+
+        # TODO: Replace with embedded table
         vlans = VLAN.objects.restrict(request.user, 'view').filter(group=instance).prefetch_related(
             Prefetch('prefixes', queryset=Prefix.objects.restrict(request.user)),
             'tenant', 'site', 'role',
@@ -852,7 +877,7 @@ class VLANGroupView(generic.ObjectView):
         vlans_table.configure(request)
 
         return {
-            'vlans_count': vlans_count,
+            'related_models': related_models,
             'vlans_table': vlans_table,
         }
 

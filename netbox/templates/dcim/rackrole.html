@@ -34,12 +34,6 @@
               <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
             </td>
           </tr>
-          <tr>
-            <th scope="row">Racks</th>
-            <td>
-              <a href="{% url 'dcim:rack_list' %}?role_id={{ object.pk }}">{{ object.racks.count }}</a>
-            </td>
-          </tr>
         </table>
       </div>
     </div>
@@ -47,19 +41,13 @@
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
   </div>
 </div>
 <div class="row mb-3">
 	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">Racks</h5>
-      <div class="card-body htmx-container table-responsive"
-        hx-get="{% url 'dcim:rack_list' %}?role_id={{ object.pk }}"
-        hx-trigger="load"
-      ></div>
-    </div>
     {% plugin_full_width_page object %}
   </div>
 </div>

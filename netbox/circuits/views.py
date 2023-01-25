@@ -127,6 +127,15 @@ class CircuitTypeListView(generic.ObjectListView):
 class CircuitTypeView(generic.ObjectView):
     queryset = CircuitType.objects.all()
 
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (Circuit.objects.restrict(request.user, 'view').filter(type=instance), 'type_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
+
 
 @register_model_view(CircuitType, 'edit')
 class CircuitTypeEditView(generic.ObjectEditView):
