@@ -273,10 +273,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                 'choices': "Choices may be set only for custom selection fields."
             })
 
-        # A selection field must have at least two choices defined
-        if self.type == CustomFieldTypeChoices.TYPE_SELECT and self.choices and len(self.choices) < 2:
+        # Selection fields must have at least one choice defined
+        if self.type in (
+                CustomFieldTypeChoices.TYPE_SELECT,
+                CustomFieldTypeChoices.TYPE_MULTISELECT
+        ) and not self.choices:
             raise ValidationError({
-                'choices': "Selection fields must specify at least two choices."
+                'choices': "Selection fields must specify at least one choice."
             })
 
         # A selection field's default (if any) must be present in its available choices

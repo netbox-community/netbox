@@ -2,6 +2,10 @@
 
 ## v3.4.4 (FUTURE)
 
+### Enhancements
+
+* [#10762](https://github.com/netbox-community/netbox/issues/10762) - Permit selection custom fields to have only one choice
+
 ### Bug Fixes
 
 * [#11487](https://github.com/netbox-community/netbox/issues/11487) - Remove "set null" option from non-writable custom fields during bulk edit
