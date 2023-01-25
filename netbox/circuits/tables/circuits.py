@@ -28,7 +28,9 @@ class CircuitTypeTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='circuits:circuittype_list'
     )
-    circuit_count = tables.Column(
+    circuit_count = columns.LinkedCountColumn(
+        viewname='circuits:circuit_list',
+        url_params={'type_id': 'pk'},
         verbose_name='Circuits'
     )
 

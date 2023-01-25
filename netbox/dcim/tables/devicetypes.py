@@ -49,7 +49,6 @@ class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
         url_params={'manufacturer_id': 'pk'},
         verbose_name='Platforms'
     )
-    slug = tables.Column()
     tags = columns.TagColumn(
         url_name='dcim:manufacturer_list'
     )

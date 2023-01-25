@@ -107,6 +107,9 @@ class PlatformTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
+    manufacturer = tables.Column(
+        linkify=True
+    )
     device_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'platform_id': 'pk'},
