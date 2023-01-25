@@ -543,6 +543,15 @@ class RackRoleListView(generic.ObjectListView):
 class RackRoleView(generic.ObjectView):
     queryset = RackRole.objects.all()
 
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (Rack.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
+
 
 @register_model_view(RackRole, 'edit')
 class RackRoleEditView(generic.ObjectEditView):
@@ -801,20 +810,15 @@ class ManufacturerView(generic.ObjectView):
     queryset = Manufacturer.objects.all()
 
     def get_extra_context(self, request, instance):
-        device_types = DeviceType.objects.restrict(request.user, 'view').filter(
-            manufacturer=instance
-        )
-        module_types = ModuleType.objects.restrict(request.user, 'view').filter(
-            manufacturer=instance
-        )
-        inventory_items = InventoryItem.objects.restrict(request.user, 'view').filter(
-            manufacturer=instance
+        related_models = (
+            (DeviceType.objects.restrict(request.user, 'view').filter(manufacturer=instance), 'manufacturer_id'),
+            (ModuleType.objects.restrict(request.user, 'view').filter(manufacturer=instance), 'manufacturer_id'),
+            (InventoryItem.objects.restrict(request.user, 'view').filter(manufacturer=instance), 'manufacturer_id'),
+            (Platform.objects.restrict(request.user, 'view').filter(manufacturer=instance), 'manufacturer_id'),
         )
 
         return {
-            'devicetype_count': device_types.count(),
-            'inventoryitem_count': inventory_items.count(),
-            'moduletype_count': module_types.count(),
+            'related_models': related_models,
         }
 
 
@@ -1665,41 +1669,15 @@ class DeviceRoleListView(generic.ObjectListView):
 class DeviceRoleView(generic.ObjectView):
     queryset = DeviceRole.objects.all()
 
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (Device.objects.restrict(request.user, 'view').filter(device_role=instance), 'role_id'),
+            (VirtualMachine.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
+        )
 
-@register_model_view(DeviceRole, 'devices', path='devices')
-class DeviceRoleDevicesView(generic.ObjectChildrenView):
-    queryset = DeviceRole.objects.all()
-    child_model = Device
-    table = tables.DeviceTable
-    filterset = filtersets.DeviceFilterSet
-    template_name = 'dcim/devicerole/devices.html'
-    tab = ViewTab(
-        label=_('Devices'),
-        badge=lambda obj: obj.devices.count(),
-        permission='dcim.view_device',
-        weight=400
-    )
-
-    def get_children(self, request, parent):
-        return Device.objects.restrict(request.user, 'view').filter(device_role=parent)
-
-
-@register_model_view(DeviceRole, 'virtual_machines', path='virtual-machines')
-class DeviceRoleVirtualMachinesView(generic.ObjectChildrenView):
-    queryset = DeviceRole.objects.all()
-    child_model = VirtualMachine
-    table = VirtualMachineTable
-    filterset = VirtualMachineFilterSet
-    template_name = 'dcim/devicerole/virtual_machines.html'
-    tab = ViewTab(
-        label=_('Virtual machines'),
-        badge=lambda obj: obj.virtual_machines.count(),
-        permission='virtualization.view_virtualmachine',
-        weight=500
-    )
-
-    def get_children(self, request, parent):
-        return VirtualMachine.objects.restrict(request.user, 'view').filter(role=parent)
+        return {
+            'related_models': related_models,
+        }
 
 
 @register_model_view(DeviceRole, 'edit')
@@ -1756,16 +1734,13 @@ class PlatformView(generic.ObjectView):
     queryset = Platform.objects.all()
 
     def get_extra_context(self, request, instance):
-        devices = Device.objects.restrict(request.user, 'view').filter(
-            platform=instance
-        )
-        virtual_machines = VirtualMachine.objects.restrict(request.user, 'view').filter(
-            platform=instance
+        related_models = (
+            (Device.objects.restrict(request.user, 'view').filter(platform=instance), 'platform_id'),
+            (VirtualMachine.objects.restrict(request.user, 'view').filter(platform=instance), 'platform_id'),
         )
 
         return {
-            'device_count': devices.count(),
-            'virtualmachine_count': virtual_machines.count()
+            'related_models': related_models,
         }
 
 

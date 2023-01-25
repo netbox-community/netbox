@@ -32,44 +32,20 @@
             <th scope="row">Weight</th>
             <td>{{ object.weight }}</td>
           </tr>
-          <tr>
-            <th scope="row">Prefixes</th>
-            <td>
-              <a href="{% url 'ipam:prefix_list' %}?role_id={{ object.pk }}">{{ object.prefixes.count }}</a>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">IP Ranges</th>
-            <td>
-              <a href="{% url 'ipam:iprange_list' %}?role_id={{ object.pk }}">{{ object.ip_ranges.count }}</a>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">VLANs</th>
-            <td>
-              <a href="{% url 'ipam:vlan_list' %}?role_id={{ object.pk }}">{{ object.vlans.count }}</a>
-            </td>
-          </tr>
         </table>
       </div>
     </div>
+    {% include 'inc/panels/tags.html' %}
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
-    {% include 'inc/panels/tags.html' %}
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
   </div>
 </div>
 <div class="row mb-3">
 	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">Prefixes</h5>
-      <div class="card-body htmx-container table-responsive"
-        hx-get="{% url 'ipam:prefix_list' %}?role_id={{ object.pk }}"
-        hx-trigger="load"
-      ></div>
-    </div>
     {% plugin_full_width_page object %}
   </div>
 </div>

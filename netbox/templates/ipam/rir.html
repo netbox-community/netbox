@@ -32,32 +32,20 @@
             <th scope="row">Private</th>
             <td>{% checkmark object.is_private %}</td>
           </tr>
-          <tr>
-            <th scope="row">Aggregates</th>
-            <td>
-              <a href="{% url 'ipam:aggregate_list' %}?rir_id={{ object.pk }}">{{ object.aggregates.count }}</a>
-            </td>
-          </tr>
         </table>
       </div>
     </div>
+    {% include 'inc/panels/tags.html' %}
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
-    {% include 'inc/panels/tags.html' %}
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
   </div>
 </div>
 <div class="row mb-3">
 	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">Aggregates</h5>
-      <div class="card-body htmx-container table-responsive"
-        hx-get="{% url 'ipam:aggregate_list' %}?rir_id={{ object.pk }}"
-        hx-trigger="load"
-      ></div>
-    </div>
     {% plugin_full_width_page object %}
   </div>
 </div>
