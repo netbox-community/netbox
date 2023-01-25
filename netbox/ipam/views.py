@@ -37,8 +37,10 @@ class VRFView(generic.ObjectView):
     queryset = VRF.objects.all()
 
     def get_extra_context(self, request, instance):
-        prefix_count = Prefix.objects.restrict(request.user, 'view').filter(vrf=instance).count()
-        ipaddress_count = IPAddress.objects.restrict(request.user, 'view').filter(vrf=instance).count()
+        related_models = (
+            (Prefix.objects.restrict(request.user, 'view').filter(vrf=instance), 'vrf_id'),
+            (IPAddress.objects.restrict(request.user, 'view').filter(vrf=instance), 'vrf_id'),
+        )
 
         import_targets_table = tables.RouteTargetTable(
             instance.import_targets.all(),
@@ -50,8 +52,7 @@ class VRFView(generic.ObjectView):
         )
 
         return {
-            'prefix_count': prefix_count,
-            'ipaddress_count': ipaddress_count,
+            'related_models': related_models,
             'import_targets_table': import_targets_table,
             'export_targets_table': export_targets_table,
         }
@@ -228,12 +229,13 @@ class ASNView(generic.ObjectView):
     queryset = ASN.objects.all()
 
     def get_extra_context(self, request, instance):
-        sites = instance.sites.restrict(request.user, 'view')
-        providers = instance.providers.restrict(request.user, 'view')
+        related_models = (
+            (Site.objects.restrict(request.user, 'view').filter(asns__in=[instance]), 'asn_id'),
+            (Provider.objects.restrict(request.user, 'view').filter(asns__in=[instance]), 'asn_id'),
+        )
 
         return {
-            'sites_count': sites.count(),
-            'providers_count': providers.count(),
+            'related_models': related_models,
         }
 
 
@@ -868,7 +870,6 @@ class VLANGroupView(generic.ObjectView):
             Prefetch('prefixes', queryset=Prefix.objects.restrict(request.user)),
             'tenant', 'site', 'role',
         ).order_by('vid')
-        vlans_count = vlans.count()
         vlans = add_available_vlans(vlans, vlan_group=instance)
 
         vlans_table = tables.VLANTable(vlans, user=request.user, exclude=('group',))

@@ -21,9 +21,7 @@ from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.utils import count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
-from virtualization.filtersets import VirtualMachineFilterSet
 from virtualization.models import VirtualMachine
-from virtualization.tables import VirtualMachineTable
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices
 from .constants import NONCONNECTABLE_IFACE_TYPES
@@ -359,24 +357,24 @@ class SiteView(generic.ObjectView):
     queryset = Site.objects.prefetch_related('tenant__group')
 
     def get_extra_context(self, request, instance):
-        related_models = [
+        related_models = (
             # DCIM
-            Location.objects.restrict(request.user, 'view').filter(site=instance),
-            Rack.objects.restrict(request.user, 'view').filter(site=instance),
-            Device.objects.restrict(request.user, 'view').filter(site=instance),
+            (Location.objects.restrict(request.user, 'view').filter(site=instance), 'site_id'),
+            (Rack.objects.restrict(request.user, 'view').filter(site=instance), 'site_id'),
+            (Device.objects.restrict(request.user, 'view').filter(site=instance), 'site_id'),
             # Virtualization
-            VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=instance),
+            (VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=instance), 'site_id'),
             # IPAM
-            Prefix.objects.restrict(request.user, 'view').filter(site=instance),
-            ASN.objects.restrict(request.user, 'view').filter(sites=instance),
-            VLANGroup.objects.restrict(request.user, 'view').filter(
+            (Prefix.objects.restrict(request.user, 'view').filter(site=instance), 'site_id'),
+            (ASN.objects.restrict(request.user, 'view').filter(sites=instance), 'site_id'),
+            (VLANGroup.objects.restrict(request.user, 'view').filter(
                 scope_type=ContentType.objects.get_for_model(Site),
                 scope_id=instance.pk
-            ),
-            VLAN.objects.restrict(request.user, 'view').filter(site=instance),
+            ), 'site_id'),
+            (VLAN.objects.restrict(request.user, 'view').filter(site=instance), 'site_id'),
             # Circuits
-            Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(),
-        ]
+            (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(), 'site_id'),
+        )
 
         locations = Location.objects.add_related_count(
             Location.objects.all(),
@@ -658,6 +656,11 @@ class RackView(generic.ObjectView):
     queryset = Rack.objects.prefetch_related('site__region', 'tenant__group', 'location', 'role')
 
     def get_extra_context(self, request, instance):
+        related_models = (
+            (Device.objects.restrict(request.user, 'view').filter(rack=instance), 'rack_id'),
+            (PowerFeed.objects.restrict(request.user).filter(rack=instance), 'rack_id'),
+        )
+
         # Get 0U devices located within the rack
         nonracked_devices = Device.objects.filter(
             rack=instance,
@@ -675,11 +678,6 @@ class RackView(generic.ObjectView):
         prev_rack = peer_racks.filter(_name__lt=instance._name).reverse().first()
 
         reservations = RackReservation.objects.restrict(request.user, 'view').filter(rack=instance)
-        power_feeds = PowerFeed.objects.restrict(request.user, 'view').filter(rack=instance).prefetch_related(
-            'power_panel'
-        )
-
-        device_count = Device.objects.restrict(request.user, 'view').filter(rack=instance).count()
 
         # Determine any additional parameters to pass when embedding the rack elevations
         svg_extra = '&'.join([
@@ -687,9 +685,8 @@ class RackView(generic.ObjectView):
         ])
 
         return {
-            'device_count': device_count,
+            'related_models': related_models,
             'reservations': reservations,
-            'power_feeds': power_feeds,
             'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
@@ -881,10 +878,12 @@ class DeviceTypeView(generic.ObjectView):
     queryset = DeviceType.objects.all()
 
     def get_extra_context(self, request, instance):
-        instance_count = Device.objects.restrict(request.user).filter(device_type=instance).count()
+        related_models = (
+            (Device.objects.restrict(request.user).filter(device_type=instance), 'device_type_id'),
+        )
 
         return {
-            'instance_count': instance_count,
+            'related_models': related_models,
         }
 
 
@@ -1119,10 +1118,12 @@ class ModuleTypeView(generic.ObjectView):
     queryset = ModuleType.objects.all()
 
     def get_extra_context(self, request, instance):
-        instance_count = Module.objects.restrict(request.user).filter(module_type=instance).count()
+        related_models = (
+            (Module.objects.restrict(request.user).filter(module_type=instance), 'module_type_id'),
+        )
 
         return {
-            'instance_count': instance_count,
+            'related_models': related_models,
         }
 
 
@@ -1807,13 +1808,9 @@ class DeviceView(generic.ObjectView):
             vc_members = []
 
         services = Service.objects.restrict(request.user, 'view').filter(device=instance)
-        vdcs = VirtualDeviceContext.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
-            'tenant'
-        )
 
         return {
             'services': services,
-            'vdcs': vdcs,
             'vc_members': vc_members,
             'svg_extra': f'highlight=id:{instance.pk}'
         }
@@ -2113,6 +2110,21 @@ class ModuleListView(generic.ObjectListView):
 @register_model_view(Module)
 class ModuleView(generic.ObjectView):
     queryset = Module.objects.all()
+
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (Interface.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
+            (ConsolePort.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
+            (ConsoleServerPort.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
+            (PowerPort.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
+            (PowerOutlet.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
+            (FrontPort.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
+            (RearPort.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
 
 
 @register_model_view(Module, 'edit')
@@ -3436,6 +3448,15 @@ class PowerPanelListView(generic.ObjectListView):
 class PowerPanelView(generic.ObjectView):
     queryset = PowerPanel.objects.all()
 
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (PowerFeed.objects.restrict(request.user).filter(power_panel=instance), 'power_panel_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
+
 
 @register_model_view(PowerPanel, 'edit')
 class PowerPanelEditView(generic.ObjectEditView):
@@ -3536,6 +3557,15 @@ class VirtualDeviceContextListView(generic.ObjectListView):
 @register_model_view(VirtualDeviceContext)
 class VirtualDeviceContextView(generic.ObjectView):
     queryset = VirtualDeviceContext.objects.all()
+
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (Interface.objects.restrict(request.user, 'view').filter(vdcs__in=[instance]), 'vdc_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
 
 
 @register_model_view(VirtualDeviceContext, 'edit')
