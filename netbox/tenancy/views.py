@@ -35,6 +35,16 @@ class TenantGroupListView(generic.ObjectListView):
 class TenantGroupView(generic.ObjectView):
     queryset = TenantGroup.objects.all()
 
+    def get_extra_context(self, request, instance):
+        groups = instance.get_descendants(include_self=True)
+        related_models = (
+            (Tenant.objects.restrict(request.user, 'view').filter(group__in=groups), 'group_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
+
 
 @register_model_view(TenantGroup, 'edit')
 class TenantGroupEditView(generic.ObjectEditView):
@@ -95,30 +105,30 @@ class TenantView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         related_models = [
             # DCIM
-            Site.objects.restrict(request.user, 'view').filter(tenant=instance),
-            Rack.objects.restrict(request.user, 'view').filter(tenant=instance),
-            RackReservation.objects.restrict(request.user, 'view').filter(tenant=instance),
-            Location.objects.restrict(request.user, 'view').filter(tenant=instance),
-            Device.objects.restrict(request.user, 'view').filter(tenant=instance),
-            VirtualDeviceContext.objects.restrict(request.user, 'view').filter(tenant=instance),
-            Cable.objects.restrict(request.user, 'view').filter(tenant=instance),
+            (Site.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (Rack.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (RackReservation.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (Location.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (Device.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (VirtualDeviceContext.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (Cable.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
             # IPAM
-            VRF.objects.restrict(request.user, 'view').filter(tenant=instance),
-            Aggregate.objects.restrict(request.user, 'view').filter(tenant=instance),
-            Prefix.objects.restrict(request.user, 'view').filter(tenant=instance),
-            IPRange.objects.restrict(request.user, 'view').filter(tenant=instance),
-            IPAddress.objects.restrict(request.user, 'view').filter(tenant=instance),
-            ASN.objects.restrict(request.user, 'view').filter(tenant=instance),
-            VLAN.objects.restrict(request.user, 'view').filter(tenant=instance),
-            L2VPN.objects.restrict(request.user, 'view').filter(tenant=instance),
+            (VRF.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (Aggregate.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (Prefix.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (IPRange.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (IPAddress.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (ASN.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (VLAN.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (L2VPN.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
             # Circuits
-            Circuit.objects.restrict(request.user, 'view').filter(tenant=instance),
+            (Circuit.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
             # Virtualization
-            VirtualMachine.objects.restrict(request.user, 'view').filter(tenant=instance),
-            Cluster.objects.restrict(request.user, 'view').filter(tenant=instance),
+            (VirtualMachine.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (Cluster.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
             # Wireless
-            WirelessLAN.objects.restrict(request.user, 'view').filter(tenant=instance),
-            WirelessLink.objects.restrict(request.user, 'view').filter(tenant=instance),
+            (WirelessLAN.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (WirelessLink.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
         ]
 
         return {
@@ -176,6 +186,16 @@ class ContactGroupListView(generic.ObjectListView):
 @register_model_view(ContactGroup)
 class ContactGroupView(generic.ObjectView):
     queryset = ContactGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        groups = instance.get_descendants(include_self=True)
+        related_models = (
+            (Contact.objects.restrict(request.user, 'view').filter(group__in=groups), 'group_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
 
 
 @register_model_view(ContactGroup, 'edit')

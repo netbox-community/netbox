@@ -31,12 +31,6 @@
               <th scope="row">Parent</th>
               <td>{{ object.parent|linkify|placeholder }}</td>
             </tr>
-            <tr>
-              <th scope="row">Contacts</th>
-              <td>
-                <a href="{% url 'tenancy:contact_list' %}?group_id={{ object.pk }}">{{ object.contacts.count }}</a>
-              </td>
-            </tr>
           </table>
         </div>
       </div>
@@ -44,31 +38,25 @@
       {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
+      {% include 'inc/panels/related_objects.html' %}
       {% include 'inc/panels/custom_fields.html' %}
-      <div class="card">
-        <h5 class="card-header">Child Groups</h5>
-        <div class="card-body htmx-container table-responsive"
-          hx-get="{% url 'tenancy:contactgroup_list' %}?parent_id={{ object.pk }}"
-          hx-trigger="load"
-        ></div>
-        {% if perms.tenancy.add_contactgroup %}
-          <div class="card-footer text-end noprint">
-            <a href="{% url 'tenancy:contactgroup_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">
-              <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Contact Group
-            </a>
-          </div>
-        {% endif %}
-      </div>
       {% plugin_right_page object %}
     </div>
   </div>
   <div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">Contacts</h5>
+      <h5 class="card-header">Child Groups</h5>
       <div class="card-body htmx-container table-responsive"
-        hx-get="{% url 'tenancy:contact_list' %}?group_id={{ object.pk }}"
+        hx-get="{% url 'tenancy:contactgroup_list' %}?parent_id={{ object.pk }}"
         hx-trigger="load"
       ></div>
+      {% if perms.tenancy.add_contactgroup %}
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'tenancy:contactgroup_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Contact Group
+          </a>
+        </div>
+      {% endif %}
     </div>
     {% plugin_full_width_page object %}
   </div>
