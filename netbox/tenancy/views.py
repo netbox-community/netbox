@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 
 from circuits.models import Circuit
 from dcim.models import Cable, Device, Location, Rack, RackReservation, Site, VirtualDeviceContext
@@ -92,31 +93,36 @@ class TenantView(generic.ObjectView):
     queryset = Tenant.objects.all()
 
     def get_extra_context(self, request, instance):
-        stats = {
-            'site_count': Site.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'rack_count': Rack.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'rackreservation_count': RackReservation.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'location_count': Location.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'vdc_count': VirtualDeviceContext.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'aggregate_count': Aggregate.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'iprange_count': IPRange.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'ipaddress_count': IPAddress.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'l2vpn_count': L2VPN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'virtualmachine_count': VirtualMachine.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'cluster_count': Cluster.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'cable_count': Cable.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'asn_count': ASN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'wirelesslan_count': WirelessLAN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-            'wirelesslink_count': WirelessLink.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
-        }
+        related_models = [
+            # DCIM
+            Site.objects.restrict(request.user, 'view').filter(tenant=instance),
+            Rack.objects.restrict(request.user, 'view').filter(tenant=instance),
+            RackReservation.objects.restrict(request.user, 'view').filter(tenant=instance),
+            Location.objects.restrict(request.user, 'view').filter(tenant=instance),
+            Device.objects.restrict(request.user, 'view').filter(tenant=instance),
+            VirtualDeviceContext.objects.restrict(request.user, 'view').filter(tenant=instance),
+            Cable.objects.restrict(request.user, 'view').filter(tenant=instance),
+            # IPAM
+            VRF.objects.restrict(request.user, 'view').filter(tenant=instance),
+            Aggregate.objects.restrict(request.user, 'view').filter(tenant=instance),
+            Prefix.objects.restrict(request.user, 'view').filter(tenant=instance),
+            IPRange.objects.restrict(request.user, 'view').filter(tenant=instance),
+            IPAddress.objects.restrict(request.user, 'view').filter(tenant=instance),
+            ASN.objects.restrict(request.user, 'view').filter(tenant=instance),
+            VLAN.objects.restrict(request.user, 'view').filter(tenant=instance),
+            L2VPN.objects.restrict(request.user, 'view').filter(tenant=instance),
+            # Circuits
+            Circuit.objects.restrict(request.user, 'view').filter(tenant=instance),
+            # Virtualization
+            VirtualMachine.objects.restrict(request.user, 'view').filter(tenant=instance),
+            Cluster.objects.restrict(request.user, 'view').filter(tenant=instance),
+            # Wireless
+            WirelessLAN.objects.restrict(request.user, 'view').filter(tenant=instance),
+            WirelessLink.objects.restrict(request.user, 'view').filter(tenant=instance),
+        ]
 
         return {
-            'stats': stats,
+            'related_models': related_models,
         }
 
 
