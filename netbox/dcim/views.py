@@ -212,6 +212,18 @@ class RegionListView(generic.ObjectListView):
 class RegionView(generic.ObjectView):
     queryset = Region.objects.all()
 
+    def get_extra_context(self, request, instance):
+        regions = instance.get_descendants(include_self=True)
+        related_models = (
+            (Site.objects.restrict(request.user, 'view').filter(region__in=regions), 'region_id'),
+            (Location.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
+            (Rack.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
+
 
 @register_model_view(Region, 'edit')
 class RegionEditView(generic.ObjectEditView):
@@ -275,6 +287,18 @@ class SiteGroupListView(generic.ObjectListView):
 @register_model_view(SiteGroup)
 class SiteGroupView(generic.ObjectView):
     queryset = SiteGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        groups = instance.get_descendants(include_self=True)
+        related_models = (
+            (Site.objects.restrict(request.user, 'view').filter(group__in=groups), 'group_id'),
+            (Location.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
+            (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
 
 
 @register_model_view(SiteGroup, 'edit')
@@ -441,9 +465,11 @@ class LocationView(generic.ObjectView):
     queryset = Location.objects.all()
 
     def get_extra_context(self, request, instance):
-        location_ids = instance.get_descendants(include_self=True).values_list('pk', flat=True)
-        rack_count = Rack.objects.filter(location__in=location_ids).count()
-        device_count = Device.objects.filter(location__in=location_ids).count()
+        locations = instance.get_descendants(include_self=True)
+        related_models = (
+            (Rack.objects.restrict(request.user, 'view').filter(location__in=locations), 'location_id'),
+            (Device.objects.restrict(request.user, 'view').filter(location__in=locations), 'location_id'),
+        )
 
         nonracked_devices = Device.objects.filter(
             location=instance,
@@ -452,8 +478,7 @@ class LocationView(generic.ObjectView):
         ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
 
         return {
-            'rack_count': rack_count,
-            'device_count': device_count,
+            'related_models': related_models,
             'nonracked_devices': nonracked_devices.order_by('-pk')[:10],
             'total_nonracked_devices_count': nonracked_devices.count(),
         }

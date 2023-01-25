@@ -27,6 +27,16 @@ class WirelessLANGroupListView(generic.ObjectListView):
 class WirelessLANGroupView(generic.ObjectView):
     queryset = WirelessLANGroup.objects.all()
 
+    def get_extra_context(self, request, instance):
+        groups = instance.get_descendants(include_self=True)
+        related_models = (
+            (WirelessLAN.objects.restrict(request.user, 'view').filter(group__in=groups), 'group_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
+
 
 @register_model_view(WirelessLANGroup, 'edit')
 class WirelessLANGroupEditView(generic.ObjectEditView):
