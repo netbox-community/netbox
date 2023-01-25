@@ -19,7 +19,11 @@ __all__ = (
 
 class RackRoleTable(NetBoxTable):
     name = tables.Column(linkify=True)
-    rack_count = tables.Column(verbose_name='Racks')
+    rack_count = columns.LinkedCountColumn(
+        viewname='dcim:rack_list',
+        url_params={'role_id': 'pk'},
+        verbose_name='Racks'
+    )
     color = columns.ColorColumn()
     tags = columns.TagColumn(
         url_name='dcim:rackrole_list'

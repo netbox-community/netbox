@@ -797,6 +797,7 @@ class RackReservationBulkDeleteView(generic.BulkDeleteView):
 class ManufacturerListView(generic.ObjectListView):
     queryset = Manufacturer.objects.annotate(
         devicetype_count=count_related(DeviceType, 'manufacturer'),
+        moduletype_count=count_related(ModuleType, 'manufacturer'),
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
         platform_count=count_related(Platform, 'manufacturer')
     )
@@ -841,7 +842,10 @@ class ManufacturerBulkImportView(generic.BulkImportView):
 
 class ManufacturerBulkEditView(generic.BulkEditView):
     queryset = Manufacturer.objects.annotate(
-        devicetype_count=count_related(DeviceType, 'manufacturer')
+        devicetype_count=count_related(DeviceType, 'manufacturer'),
+        moduletype_count=count_related(ModuleType, 'manufacturer'),
+        inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
+        platform_count=count_related(Platform, 'manufacturer')
     )
     filterset = filtersets.ManufacturerFilterSet
     table = tables.ManufacturerTable
@@ -850,7 +854,10 @@ class ManufacturerBulkEditView(generic.BulkEditView):
 
 class ManufacturerBulkDeleteView(generic.BulkDeleteView):
     queryset = Manufacturer.objects.annotate(
-        devicetype_count=count_related(DeviceType, 'manufacturer')
+        devicetype_count=count_related(DeviceType, 'manufacturer'),
+        moduletype_count=count_related(ModuleType, 'manufacturer'),
+        inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
+        platform_count=count_related(Platform, 'manufacturer')
     )
     table = tables.ManufacturerTable
 
