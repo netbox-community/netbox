@@ -19,6 +19,14 @@ COPY_BUTTON = """
 """
 
 
+class TokenActionsColumn(columns.ActionsColumn):
+    # Subclass ActionsColumn to disregard permissions for edit & delete buttons
+    actions = {
+        'edit': columns.ActionsItem('Edit', 'pencil', None, 'warning'),
+        'delete': columns.ActionsItem('Delete', 'trash-can-outline', None, 'danger'),
+    }
+
+
 class TokenTable(NetBoxTable):
     key = columns.TemplateColumn(
         template_code=TOKEN
@@ -32,7 +40,7 @@ class TokenTable(NetBoxTable):
     allowed_ips = columns.TemplateColumn(
         template_code=ALLOWED_IPS
     )
-    actions = columns.ActionsColumn(
+    actions = TokenActionsColumn(
         actions=('edit', 'delete'),
         extra_buttons=COPY_BUTTON
     )
