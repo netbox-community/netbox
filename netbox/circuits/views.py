@@ -29,6 +29,15 @@ class ProviderListView(generic.ObjectListView):
 class ProviderView(generic.ObjectView):
     queryset = Provider.objects.all()
 
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (Circuit.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
+
 
 @register_model_view(Provider, 'edit')
 class ProviderEditView(generic.ObjectEditView):
@@ -78,6 +87,18 @@ class ProviderNetworkListView(generic.ObjectListView):
 @register_model_view(ProviderNetwork)
 class ProviderNetworkView(generic.ObjectView):
     queryset = ProviderNetwork.objects.all()
+
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (
+                Circuit.objects.restrict(request.user, 'view').filter(terminations__provider_network=instance),
+                'providernetwork_id',
+            ),
+        )
+
+        return {
+            'related_models': related_models,
+        }
 
 
 @register_model_view(ProviderNetwork, 'edit')

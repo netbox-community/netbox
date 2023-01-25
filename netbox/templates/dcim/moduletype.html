@@ -36,19 +36,16 @@
                 {% endif %}
                 </td>
             </tr>
-            <tr>
-              <td>Instances</td>
-              <td><a href="{% url 'dcim:module_list' %}?module_type_id={{ object.pk }}">{{ instance_count }}</a></td>
-            </tr>
           </table>
         </div>
       </div>
-      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
       {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
-      {% include 'inc/panels/tags.html' %}
-      {% include 'inc/panels/comments.html' %}
+      {% include 'inc/panels/related_objects.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/image_attachments.html' %}
       {% plugin_right_page object %}
     </div>

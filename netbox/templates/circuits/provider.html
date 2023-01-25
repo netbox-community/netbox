@@ -37,21 +37,16 @@
                         <th scope="row">Description</th>
                         <td>{{ object.description|placeholder }}</td>
                     </tr>
-                    <tr>
-                        <th scope="row">Circuits</th>
-                        <td>
-                            <a href="{% url 'circuits:circuit_list' %}?provider={{ object.slug }}">{{ object.circuits.count }}</a>
-                        </td>
-                    </tr>
                 </table>
             </div>
         </div>
         {% include 'inc/panels/tags.html' %}
+        {% include 'inc/panels/comments.html' %}
         {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
+        {% include 'inc/panels/related_objects.html' %}
         {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/comments.html' %}
         {% include 'inc/panels/contacts.html' %}
         {% plugin_right_page object %}
     </div>

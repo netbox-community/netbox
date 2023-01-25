@@ -157,28 +157,10 @@
             {% include 'inc/panels/comments.html' %}
             <div class="card">
               <h5 class="card-header">Virtual Device Contexts</h5>
-              <div class="card-body">
-                {% if vdcs %}
-                  <table class="table table-hover">
-                    <tr>
-                      <th>Name</th>
-                      <th>Status</th>
-                      <th>Identifier</th>
-                      <th>Tenant</th>
-                    </tr>
-                    {% for vdc in vdcs %}
-                      <tr>
-                        <td>{{ vdc|linkify }}</td>
-                        <td>{% badge vdc.get_status_display bg_color=vdc.get_status_color %}</td>
-                        <td>{{ vdc.identifier|placeholder }}</td>
-                        <td>{{ vdc.tenant|linkify|placeholder }}</td>
-                      </tr>
-                    {% endfor %}
-                  </table>
-                {% else %}
-                  <div class="text-muted">None</div>
-                {% endif %}
-              </div>
+              <div class="card-body htmx-container table-responsive"
+                hx-get="{% url 'dcim:virtualdevicecontext_list' %}?device_id={{ object.pk }}"
+                hx-trigger="load"
+              ></div>
               {% if perms.dcim.add_virtualdevicecontext %}
                 <div class="card-footer text-end noprint">
                   <a href="{% url 'dcim:virtualdevicecontext_add' %}?device={{ object.pk }}" class="btn btn-sm btn-primary">
