@@ -1,8 +1,0 @@
-<ul class="nav nav-tabs px-3">
-    <li class="nav-item" role="presentation">
-        <a class ="nav-link{% if not active_tab %} active{% endif %}" href="{% url 'dcim:device_import' %}">Racked Devices</a>
-    </li>
-    <li class="nav-item" role="presentation">
-        <a class="nav-link{% if active_tab == 'child_import' %} active{% endif %}" href="{% url 'dcim:device_import_child' %}">Child Devices</a>
-    </li>
-</ul>
