@@ -255,16 +255,12 @@ class ContactRoleView(generic.ObjectView):
     queryset = ContactRole.objects.all()
 
     def get_extra_context(self, request, instance):
-        contact_assignments = ContactAssignment.objects.restrict(request.user, 'view').filter(
-            role=instance
+        related_models = (
+            (ContactAssignment.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
         )
-        contacts_table = tables.ContactAssignmentTable(contact_assignments, user=request.user)
-        contacts_table.columns.hide('role')
-        contacts_table.configure(request)
 
         return {
-            'contacts_table': contacts_table,
-            'assignment_count': ContactAssignment.objects.filter(role=instance).count(),
+            'related_models': related_models,
         }
 
 
@@ -313,19 +309,6 @@ class ContactListView(generic.ObjectListView):
 @register_model_view(Contact)
 class ContactView(generic.ObjectView):
     queryset = Contact.objects.all()
-
-    def get_extra_context(self, request, instance):
-        contact_assignments = ContactAssignment.objects.restrict(request.user, 'view').filter(
-            contact=instance
-        )
-        assignments_table = tables.ContactAssignmentTable(contact_assignments, user=request.user)
-        assignments_table.columns.hide('contact')
-        assignments_table.configure(request)
-
-        return {
-            'assignments_table': assignments_table,
-            'assignment_count': ContactAssignment.objects.filter(contact=instance).count(),
-        }
 
 
 @register_model_view(Contact, 'edit')
