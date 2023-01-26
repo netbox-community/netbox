@@ -676,8 +676,6 @@ class RackView(generic.ObjectView):
         next_rack = peer_racks.filter(_name__gt=instance._name).first()
         prev_rack = peer_racks.filter(_name__lt=instance._name).reverse().first()
 
-        reservations = RackReservation.objects.restrict(request.user, 'view').filter(rack=instance)
-
         # Determine any additional parameters to pass when embedding the rack elevations
         svg_extra = '&'.join([
             f'highlight=id:{pk}' for pk in request.GET.getlist('device')
@@ -685,12 +683,30 @@ class RackView(generic.ObjectView):
 
         return {
             'related_models': related_models,
-            'reservations': reservations,
             'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
             'svg_extra': svg_extra,
         }
+
+
+@register_model_view(Rack, 'reservations')
+class RackRackReservationsView(generic.ObjectChildrenView):
+    queryset = Rack.objects.all()
+    child_model = RackReservation
+    table = tables.RackReservationTable
+    filterset = filtersets.RackReservationFilterSet
+    template_name = 'dcim/rack/reservations.html'
+    tab = ViewTab(
+        label=_('Reservations'),
+        badge=lambda obj: obj.reservations.count(),
+        permission='dcim.view_rackreservation',
+        weight=510,
+        hide_if_empty=True
+    )
+
+    def get_children(self, request, parent):
+        return parent.reservations.restrict(request.user, 'view')
 
 
 @register_model_view(Rack, 'edit')
