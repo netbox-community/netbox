@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from utilities.files import sha256_checksum
+from utilities.files import sha256_hash
 from .choices import *
 
 __all__ = (
@@ -99,7 +99,7 @@ class DataSource(models.Model):
                 continue
 
         # Bulk update modified files
-        updated_count = DataFile.objects.bulk_update(updated_files, ['checksum'])
+        updated_count = DataFile.objects.bulk_update(updated_files, ['hash'])
         logger.debug(f"Updated {updated_count} data files")
 
         # Bulk delete deleted files
@@ -207,7 +207,7 @@ class DataFile(models.Model):
         editable=False
     )
     # TODO: Create a proper SHA256 field
-    checksum = models.CharField(
+    hash = models.CharField(
         max_length=64,
         editable=False
     )
@@ -237,14 +237,14 @@ class DataFile(models.Model):
 
         # Get attributes from file on disk
         file_size = os.path.getsize(file_path)
-        file_checksum = sha256_checksum(file_path).hexdigest()
+        file_hash = sha256_hash(file_path).hexdigest()
 
         # Update instance file attributes & data
-        has_changed = file_size != self.size or file_checksum != self.checksum
+        has_changed = file_size != self.size or file_hash != self.hash
         if has_changed:
             self.last_updated = timezone.now()
             self.size = file_size
-            self.checksum = file_checksum
+            self.hash = file_hash
             with open(file_path, 'rb') as f:
                 self.data = f.read()
 

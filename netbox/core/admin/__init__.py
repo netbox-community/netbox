@@ -15,4 +15,4 @@ class DataSourceAdmin(admin.ModelAdmin):
 @admin.register(DataFile)
 class DataFileAdmin(admin.ModelAdmin):
     list_display = ('path', 'size', 'last_updated')
-    readonly_fields = ('source', 'path', 'last_updated', 'size', 'checksum')
+    readonly_fields = ('source', 'path', 'last_updated', 'size', 'hash')
