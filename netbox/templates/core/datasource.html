@@ -1,0 +1,93 @@
+{% extends 'generic/object.html' %}
+{% load static %}
+{% load helpers %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Data Source</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Type</th>
+              <td>{{ object.get_type_display }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Enabled</th>
+              <td>{% checkmark object.enabled %}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">URL</th>
+              <td>
+                <a href="{{ object.url }}">{{ object.url }}</a>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Last synced</th>
+              <td>{{ object.last_synced|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Git branch</th>
+              <td>{{ object.git_branch|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Ignore rules</th>
+              <td>
+                {% if object.ignore_rules %}
+                  <pre>{{ object.ignore_rules }}</pre>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}</td>
+            </tr>
+            <tr>
+              <th scope="row">File count</th>
+              <td>{{ object.datafiles.count }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Authentication</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Username</th>
+              <td>{{ object.username|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Password</th>
+              <td>{% if object.password %}********{% else %}{{ ''|placeholder }}{% endif %}</td>
+            </tr>
+          </table>
+        </div>
+      {% include 'inc/panels/custom_fields.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Files</h5>
+        <div class="card-body htmx-container table-responsive"
+          hx-get="{% url 'core:datafile_list' %}?source_id={{ object.pk }}"
+          hx-trigger="load"
+        ></div>
+      </div>
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

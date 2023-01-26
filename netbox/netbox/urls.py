@@ -42,6 +42,7 @@ _patterns = [
 
     # Apps
     path('circuits/', include('circuits.urls')),
+    path('core/', include('core.urls')),
     path('dcim/', include('dcim.urls')),
     path('extras/', include('extras.urls')),
     path('ipam/', include('ipam.urls')),
@@ -53,6 +54,7 @@ _patterns = [
     # API
     path('api/', APIRootView.as_view(), name='api-root'),
     path('api/circuits/', include('circuits.api.urls')),
+    path('api/core/', include('core.api.urls')),
     path('api/dcim/', include('dcim.api.urls')),
     path('api/extras/', include('extras.api.urls')),
     path('api/ipam/', include('ipam.api.urls')),

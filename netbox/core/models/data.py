@@ -2,18 +2,18 @@ import logging
 import os
 import subprocess
 import tempfile
-from functools import cached_property
 from fnmatch import fnmatchcase
 from urllib.parse import quote, urlunparse, urlparse
 
-from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
+from netbox.models import ChangeLoggedModel
 from utilities.files import sha256_hash
-from .choices import *
+from utilities.querysets import RestrictedQuerySet
+from ..choices import *
 
 __all__ = (
     'DataSource',
@@ -23,7 +23,7 @@ __all__ = (
 logger = logging.getLogger('netbox.core.data')
 
 
-class DataSource(models.Model):
+class DataSource(ChangeLoggedModel):
     """
     A remote source from which DataFiles are synchronized.
     """
@@ -36,6 +36,10 @@ class DataSource(models.Model):
         choices=DataSourceTypeChoices,
         default=DataSourceTypeChoices.LOCAL
     )
+    url = models.CharField(
+        max_length=200,
+        verbose_name=_('URL')
+    )
     enabled = models.BooleanField(
         default=True
     )
@@ -43,9 +47,10 @@ class DataSource(models.Model):
         max_length=200,
         blank=True
     )
-    url = models.CharField(
-        max_length=200,
-        verbose_name=_('URL')
+    git_branch = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text=_("Branch to check out for git sources (if not using the default)")
     )
     ignore_rules = models.TextField(
         blank=True,
@@ -56,10 +61,6 @@ class DataSource(models.Model):
         blank=True
     )
     password = models.CharField(
-        max_length=100,
-        blank=True
-    )
-    git_branch = models.CharField(
         max_length=100,
         blank=True
     )
@@ -75,8 +76,8 @@ class DataSource(models.Model):
     def __str__(self):
         return f'{self.name}'
 
-    # def get_absolute_url(self):
-    #     return reverse('core:datasource', args=[self.pk])
+    def get_absolute_url(self):
+        return reverse('core:datasource', args=[self.pk])
 
     def sync(self):
         """
@@ -230,6 +231,8 @@ class DataFile(models.Model):
         editable=False
     )
     data = models.BinaryField()
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ('source', 'path')
