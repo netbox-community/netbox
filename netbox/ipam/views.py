@@ -716,28 +716,10 @@ class IPAddressView(generic.ObjectView):
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
         related_ips_table.configure(request)
 
-        # Find services belonging to the IP
-        service_filter = Q(ipaddresses=instance)
-
-        # Find services listening on all IPs on the assigned device/vm
-        try:
-            if instance.assigned_object and instance.assigned_object.parent_object:
-                parent_object = instance.assigned_object.parent_object
-
-                if isinstance(parent_object, VirtualMachine):
-                    service_filter |= (Q(virtual_machine=parent_object) & Q(ipaddresses=None))
-                elif isinstance(parent_object, Device):
-                    service_filter |= (Q(device=parent_object) & Q(ipaddresses=None))
-        except AttributeError:
-            pass
-
-        services = Service.objects.restrict(request.user, 'view').filter(service_filter)
-
         return {
             'parent_prefixes_table': parent_prefixes_table,
             'duplicate_ips_table': duplicate_ips_table,
             'related_ips_table': related_ips_table,
-            'services': services,
         }
 
 

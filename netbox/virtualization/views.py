@@ -327,32 +327,7 @@ class VirtualMachineListView(generic.ObjectListView):
 
 @register_model_view(VirtualMachine)
 class VirtualMachineView(generic.ObjectView):
-    queryset = VirtualMachine.objects.prefetch_related('tenant__group')
-
-    def get_extra_context(self, request, instance):
-        # Interfaces
-        vminterfaces = VMInterface.objects.restrict(request.user, 'view').filter(
-            virtual_machine=instance
-        ).prefetch_related(
-            Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user))
-        )
-        vminterface_table = tables.VirtualMachineVMInterfaceTable(vminterfaces, user=request.user, orderable=False)
-        if request.user.has_perm('virtualization.change_vminterface') or \
-                request.user.has_perm('virtualization.delete_vminterface'):
-            vminterface_table.columns.show('pk')
-
-        # Services
-        services = Service.objects.restrict(request.user, 'view').filter(
-            virtual_machine=instance
-        ).prefetch_related(
-            Prefetch('ipaddresses', queryset=IPAddress.objects.restrict(request.user)),
-            'virtual_machine'
-        )
-
-        return {
-            'vminterface_table': vminterface_table,
-            'services': services,
-        }
+    queryset = VirtualMachine.objects.all()
 
 
 @register_model_view(VirtualMachine, 'interfaces')

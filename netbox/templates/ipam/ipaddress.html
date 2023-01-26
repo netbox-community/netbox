@@ -117,14 +117,19 @@
       {% include 'inc/panel_table.html' with table=duplicate_ips_table heading='Duplicate IPs' panel_class='danger' %}
     {% endif %}
     {% include 'inc/panel_table.html' with table=related_ips_table heading='Related IPs' %}
-    {% include 'inc/panels/services.html' %}
+    <div class="card">
+      <h5 class="card-header">Services</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'ipam:service_list' %}?ipaddress_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
+    </div>
     {% plugin_right_page object %}
 	</div>
 </div>
-
 <div class="row">
-    <div class="col col-md-12">
-        {% plugin_full_width_page object %}
-    </div>
+  <div class="col col-md-12">
+    {% plugin_full_width_page object %}
+  </div>
 </div>
 {% endblock %}
