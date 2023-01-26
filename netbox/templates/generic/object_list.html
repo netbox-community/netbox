@@ -26,16 +26,15 @@ Context:
   <div class="controls">
     <div class="control-group">
       {% plugin_list_buttons model %}
-
       {% block extra_controls %}{% endblock %}
       {% if 'add' in actions %}
-          {% add_button model %}
+        {% add_button model %}
       {% endif %}
       {% if 'import' in actions %}
-          {% import_button model %}
+        {% import_button model %}
       {% endif %}
       {% if 'export' in actions %}
-          {% export_button model %}
+        {% export_button model %}
       {% endif %}
     </div>
   </div>

@@ -1,0 +1,9 @@
+{% extends 'generic/object_list.html' %}
+{% load helpers %}
+{% load static %}
+
+{% block extra_controls %}
+  <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request %}" class="btn btn-sm btn-primary">
+    <i class="mdi mdi-view-day-outline"></i> View Elevations
+  </a>
+{% endblock %}

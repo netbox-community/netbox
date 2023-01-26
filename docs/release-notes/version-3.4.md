@@ -7,6 +7,7 @@
 * [#10762](https://github.com/netbox-community/netbox/issues/10762) - Permit selection custom fields to have only one choice
 * [#11554](https://github.com/netbox-community/netbox/issues/11554) - Add module types count to manufacturers list
 * [#11585](https://github.com/netbox-community/netbox/issues/11585) - Add IP address filters for services
+* [#11598](https://github.com/netbox-community/netbox/issues/11598) - Add buttons to easily switch between rack list and elevations views
 
 ### Bug Fixes
 
