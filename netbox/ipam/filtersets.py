@@ -923,6 +923,18 @@ class ServiceFilterSet(NetBoxModelFilterSet):
         to_field_name='name',
         label=_('Virtual machine (name)'),
     )
+    ipaddress_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='ipaddresses',
+        queryset=IPAddress.objects.all(),
+        label=_('IP address (ID)'),
+    )
+    ipaddress = django_filters.ModelMultipleChoiceFilter(
+        field_name='ipaddresses__address',
+        queryset=IPAddress.objects.all(),
+        to_field_name='address',
+        label=_('IP address'),
+    )
+
     port = NumericArrayFilter(
         field_name='ports',
         lookup_expr='contains'

@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#10762](https://github.com/netbox-community/netbox/issues/10762) - Permit selection custom fields to have only one choice
+* [#11585](https://github.com/netbox-community/netbox/issues/11585) - Add IP address filters for services
 
 ### Bug Fixes
 
