@@ -5,7 +5,7 @@ from core.models import DataFile, DataSource
 
 @admin.register(DataSource)
 class DataSourceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'file_count')
+    list_display = ('name', 'file_count', 'last_synced')
 
     @staticmethod
     def file_count(obj):

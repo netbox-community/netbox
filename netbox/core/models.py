@@ -63,12 +63,17 @@ class DataSource(models.Model):
         max_length=100,
         blank=True
     )
+    last_synced = models.DateTimeField(
+        blank=True,
+        null=True,
+        editable=False
+    )
 
     class Meta:
         ordering = ('name',)
 
     def __str__(self):
-        return f'{self.name} ({self.get_type_display()})'
+        return f'{self.name}'
 
     # def get_absolute_url(self):
     #     return reverse('core:datasource', args=[self.pk])
@@ -81,9 +86,10 @@ class DataSource(models.Model):
         temp_dir = tempfile.TemporaryDirectory()
         self.fetch(path=temp_dir.name)
 
-        print(f'Syncing files from source root {temp_dir.name}')
+        logger.debug(f'Syncing files from source root {temp_dir.name}')
         data_files = self.datafiles.all()
         known_paths = {df.path for df in data_files}
+        logger.debug(f'Starting with {len(known_paths)} known files')
 
         # Check for any updated/deleted files
         updated_files = []
@@ -100,11 +106,11 @@ class DataSource(models.Model):
 
         # Bulk update modified files
         updated_count = DataFile.objects.bulk_update(updated_files, ['hash'])
-        logger.debug(f"Updated {updated_count} data files")
+        logger.debug(f"Updated {updated_count} files")
 
         # Bulk delete deleted files
         deleted_count, _ = DataFile.objects.filter(pk__in=deleted_file_ids).delete()
-        logger.debug(f"Deleted {updated_count} data files")
+        logger.debug(f"Deleted {updated_count} files")
 
         # Walk the local replication to find new files
         new_paths = self._walk(temp_dir.name) - known_paths
@@ -118,6 +124,10 @@ class DataSource(models.Model):
             # TODO: Record last_updated?
         created_count = len(DataFile.objects.bulk_create(new_datafiles, batch_size=100))
         logger.debug(f"Created {created_count} data files")
+
+        # Update last_synced time
+        self.last_synced = timezone.now()
+        self.save()
 
         temp_dir.cleanup()
 
@@ -153,16 +163,24 @@ class DataSource(models.Model):
         else:
             url = self.url
 
-        result = subprocess.run(['git', 'clone', '--depth', '1', url, path])
+        # Compile git arguments
+        args = ['git', 'clone', '--depth', '1']
+        if self.git_branch:
+            args.extend(['--branch', self.git_branch])
+        args.extend([url, path])
 
-    def _walk(self, root_path):
+        logger.debug(f"Cloning git repo: {''.join(args)}")
+        result = subprocess.run(args)
+
+    def _walk(self, root):
         """
         Return a set of all non-excluded files within the root path.
         """
+        logger.debug(f"Walking {root}...")
         paths = set()
 
-        for path, dir_names, file_names in os.walk(root_path):
-            path = path.split(root_path)[1].lstrip('/')  # Strip root path
+        for path, dir_names, file_names in os.walk(root):
+            path = path.split(root)[1].lstrip('/')  # Strip root path
             if path.startswith('.'):
                 continue
             for file_name in file_names:
