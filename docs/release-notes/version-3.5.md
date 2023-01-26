@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#11584](https://github.com/netbox-community/netbox/issues/11584) - Add a list view for contact assignments
 * [#11254](https://github.com/netbox-community/netbox/issues/11254) - Introduce the `X-Request-ID` HTTP header to annotate the unique ID of each request for change logging
 * [#11440](https://github.com/netbox-community/netbox/issues/11440) - Add an `enabled` field for device type interfaces
 

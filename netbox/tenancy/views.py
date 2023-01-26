@@ -366,6 +366,13 @@ class ContactBulkDeleteView(generic.BulkDeleteView):
 # Contact assignments
 #
 
+class ContactAssignmentListView(generic.ObjectListView):
+    queryset = ContactAssignment.objects.all()
+    filterset = filtersets.ContactAssignmentFilterSet
+    filterset_form = forms.ContactAssignmentFilterForm
+    table = tables.ContactAssignmentTable
+
+
 @register_model_view(ContactAssignment, 'edit')
 class ContactAssignmentEditView(generic.ObjectEditView):
     queryset = ContactAssignment.objects.all()
