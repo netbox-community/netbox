@@ -1,8 +1,10 @@
 import logging
 import os
+import subprocess
+import tempfile
 from functools import cached_property
 from fnmatch import fnmatchcase
-from urllib.parse import urlparse
+from urllib.parse import quote, urlunparse, urlparse
 
 from django.conf import settings
 from django.db import models
@@ -49,12 +51,24 @@ class DataSource(models.Model):
         blank=True,
         help_text=_("Patterns (one per line) matching files to ignore when syncing")
     )
+    username = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    password = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    git_branch = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     class Meta:
         ordering = ('name',)
 
     def __str__(self):
-        return self.name
+        return f'{self.name} ({self.get_type_display()})'
 
     # def get_absolute_url(self):
     #     return reverse('core:datasource', args=[self.pk])
@@ -64,9 +78,10 @@ class DataSource(models.Model):
         Create/update/delete child DataFiles as necessary to synchronize with the remote source.
         """
         # Replicate source data locally (if needed)
-        source_root = self.fetch()
-        logger.debug(f'Syncing files from source root {source_root}')
+        temp_dir = tempfile.TemporaryDirectory()
+        self.fetch(path=temp_dir.name)
 
+        print(f'Syncing files from source root {temp_dir.name}')
         data_files = self.datafiles.all()
         known_paths = {df.path for df in data_files}
 
@@ -76,7 +91,7 @@ class DataSource(models.Model):
         for datafile in data_files:
 
             try:
-                if datafile.refresh_from_disk(root_path=source_root):
+                if datafile.refresh_from_disk(source_root=temp_dir.name):
                     updated_files.append(datafile)
             except FileNotFoundError:
                 # File no longer exists
@@ -92,32 +107,53 @@ class DataSource(models.Model):
         logger.debug(f"Deleted {updated_count} data files")
 
         # Walk the local replication to find new files
-        new_paths = self._walk(source_root) - known_paths
+        new_paths = self._walk(temp_dir.name) - known_paths
 
         # Bulk create new files
         new_datafiles = []
         for path in new_paths:
             datafile = DataFile(source=self, path=path)
-            datafile.refresh_from_disk(root_path=source_root)
+            datafile.refresh_from_disk(source_root=temp_dir.name)
             new_datafiles.append(datafile)
             # TODO: Record last_updated?
         created_count = len(DataFile.objects.bulk_create(new_datafiles, batch_size=100))
         logger.debug(f"Created {created_count} data files")
 
-    def fetch(self):
+        temp_dir.cleanup()
+
+    def fetch(self, path):
         """
         Replicate the file structure from the remote data source and return the local path.
         """
-        logger.debug(f"Fetching source data for {self}")
+        logger.debug(f"Fetching source data for {self} ({self.get_type_display()})")
+        try:
+            fetch_method = getattr(self, f'fetch_{self.type}')
+        except AttributeError:
+            raise NotImplemented(f"fetch() not yet supported for {self.get_type_display()} data sources")
 
-        if self.type == DataSourceTypeChoices.LOCAL:
-            logger.debug(f"Data source type is local; skipping fetch")
-            # No replication is necessary for local sources
-            return urlparse(self.url).path
+        return fetch_method(path)
 
-        raise NotImplemented(f"fetch() not yet supported for {self.get_type_display()} data sources")
+    def fetch_local(self, path):
+        """
+        Skip fetching for local paths; return the source path directly.
+        """
+        logger.debug(f"Data source type is local; skipping fetch")
+        return urlparse(self.url).path
 
-        # TODO: Sync remote files to tempfile.TemporaryDirectory
+    def fetch_git(self, path):
+        """
+        Perform a shallow clone of the remote repository using the `git` executable.
+        """
+        # Add authentication credentials to URL (if specified)
+        if self.username and self.password:
+            url_components = list(urlparse(self.url))
+            # Prepend username & password to netloc
+            url_components[1] = quote(f'{self.username}@{self.password}:') + url_components[1]
+            url = urlunparse(url_components)
+        else:
+            url = self.url
+
+        result = subprocess.run(['git', 'clone', '--depth', '1', url, path])
 
     def _walk(self, root_path):
         """
@@ -126,8 +162,7 @@ class DataSource(models.Model):
         paths = set()
 
         for path, dir_names, file_names in os.walk(root_path):
-            path = path.split(root_path)[1]  # Strip root path
-            path.lstrip('/')
+            path = path.split(root_path)[1].lstrip('/')  # Strip root path
             if path.startswith('.'):
                 continue
             for file_name in file_names:
@@ -193,12 +228,12 @@ class DataFile(models.Model):
     # def get_absolute_url(self):
     #     return reverse('core:datafile', args=[self.pk])
 
-    def refresh_from_disk(self, root_path):
+    def refresh_from_disk(self, source_root):
         """
         Update instance attributes from the file on disk. Returns True if any attribute
         has changed.
         """
-        file_path = os.path.join(root_path, self.path)
+        file_path = os.path.join(source_root, self.path)
 
         # Get attributes from file on disk
         file_size = os.path.getsize(file_path)
