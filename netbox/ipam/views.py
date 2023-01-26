@@ -103,21 +103,6 @@ class RouteTargetListView(generic.ObjectListView):
 class RouteTargetView(generic.ObjectView):
     queryset = RouteTarget.objects.all()
 
-    def get_extra_context(self, request, instance):
-        importing_vrfs_table = tables.VRFTable(
-            instance.importing_vrfs.all(),
-            orderable=False
-        )
-        exporting_vrfs_table = tables.VRFTable(
-            instance.exporting_vrfs.all(),
-            orderable=False
-        )
-
-        return {
-            'importing_vrfs_table': importing_vrfs_table,
-            'exporting_vrfs_table': exporting_vrfs_table,
-        }
-
 
 @register_model_view(RouteTarget, 'edit')
 class RouteTargetEditView(generic.ObjectEditView):
