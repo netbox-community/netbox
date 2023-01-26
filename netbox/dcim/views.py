@@ -1806,10 +1806,7 @@ class DeviceView(generic.ObjectView):
         else:
             vc_members = []
 
-        services = Service.objects.restrict(request.user, 'view').filter(device=instance)
-
         return {
-            'services': services,
             'vc_members': vc_members,
             'svg_extra': f'highlight=id:{instance.pk}'
         }

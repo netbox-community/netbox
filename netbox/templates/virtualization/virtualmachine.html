@@ -144,7 +144,20 @@
                 </table>
             </div>
         </div>
-        {% include 'inc/panels/services.html' %}
+        <div class="card">
+          <h5 class="card-header">Services</h5>
+          <div class="card-body htmx-container table-responsive"
+            hx-get="{% url 'ipam:service_list' %}?virtual_machine_id={{ object.pk }}"
+            hx-trigger="load"
+          ></div>
+          {% if perms.ipam.add_service %}
+            <div class="card-footer text-end noprint">
+              <a href="{% url 'ipam:service_add' %}?virtual_machine={{ object.pk }}" class="btn btn-sm btn-primary">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add a service
+              </a>
+            </div>
+          {% endif %}
+        </div>
         {% include 'inc/panels/contacts.html' %}
         {% plugin_right_page object %}
     </div>
