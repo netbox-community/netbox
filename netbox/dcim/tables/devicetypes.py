@@ -34,10 +34,19 @@ class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
         url_params={'manufacturer_id': 'pk'},
         verbose_name='Device Types'
     )
-    inventoryitem_count = tables.Column(
+    moduletype_count = columns.LinkedCountColumn(
+        viewname='dcim:moduletype_list',
+        url_params={'manufacturer_id': 'pk'},
+        verbose_name='Module Types'
+    )
+    inventoryitem_count = columns.LinkedCountColumn(
+        viewname='dcim:inventoryitem_list',
+        url_params={'manufacturer_id': 'pk'},
         verbose_name='Inventory Items'
     )
-    platform_count = tables.Column(
+    platform_count = columns.LinkedCountColumn(
+        viewname='dcim:platform_list',
+        url_params={'manufacturer_id': 'pk'},
         verbose_name='Platforms'
     )
     slug = tables.Column()
@@ -48,11 +57,12 @@ class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.Manufacturer
         fields = (
-            'pk', 'id', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug',
-            'tags', 'contacts', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'devicetype_count', 'moduletype_count', 'inventoryitem_count', 'platform_count',
+            'description', 'slug', 'tags', 'contacts', 'actions', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug',
+            'pk', 'name', 'devicetype_count', 'moduletype_count', 'inventoryitem_count', 'platform_count',
+            'description', 'slug',
         )
 
 
