@@ -4,6 +4,23 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
+{% block extra_controls %}
+  {% if perms.core.sync_datasource %}
+    {% if object.enabled %}
+      <form action="{% url 'core:datasource_sync' pk=object.pk %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-primary">
+          <i class="mdi mdi-sync" aria-hidden="true"></i> Sync
+        </button>
+      </form>
+    {% else %}
+      <button class="btn btn-sm btn-primary" disabled>
+        <i class="mdi mdi-sync" aria-hidden="true"></i> Sync
+      </button>
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
 {% block content %}
   <div class="row mb-3">
     <div class="col col-md-6">
@@ -20,12 +37,16 @@
               <td>{{ object.get_type_display }}</td>
             </tr>
             <tr>
-              <th scope="row">Status</th>
-              <td>{{ object.get_status_display }}</td>
-            </tr>
-            <tr>
               <th scope="row">Enabled</th>
               <td>{% checkmark object.enabled %}</td>
+            </tr>
+            <tr>
+              <th scope="row">Status</th>
+              <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+            </tr>
+            <tr>
+              <th scope="row">Last synced</th>
+              <td>{{ object.last_synced|placeholder }}</td>
             </tr>
             <tr>
               <th scope="row">Description</th>
@@ -36,10 +57,6 @@
               <td>
                 <a href="{{ object.url }}">{{ object.url }}</a>
               </td>
-            </tr>
-            <tr>
-              <th scope="row">Last synced</th>
-              <td>{{ object.last_synced|placeholder }}</td>
             </tr>
             <tr>
               <th scope="row">Git branch</th>

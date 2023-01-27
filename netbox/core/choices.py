@@ -24,13 +24,15 @@ class DataSourceTypeChoices(ChoiceSet):
 class DataSourceStatusChoices(ChoiceSet):
 
     NEW = 'new'
+    QUEUED = 'queued'
     SYNCING = 'syncing'
     COMPLETED = 'completed'
     FAILED = 'failed'
 
     CHOICES = (
-        (NEW, _('New')),
-        (SYNCING, _('Syncing')),
-        (COMPLETED, _('Completed')),
-        (FAILED, _('Failed')),
+        (NEW, _('New'), 'blue'),
+        (QUEUED, _('Queued'), 'orange'),
+        (SYNCING, _('Syncing'), 'cyan'),
+        (COMPLETED, _('Completed'), 'green'),
+        (FAILED, _('Failed'), 'red'),
     )

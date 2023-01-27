@@ -85,10 +85,16 @@ class DataSource(ChangeLoggedModel):
     def get_absolute_url(self):
         return reverse('core:datasource', args=[self.pk])
 
+    def get_status_color(self):
+        return DataSourceStatusChoices.colors.get(self.status)
+
     def sync(self):
         """
         Create/update/delete child DataFiles as necessary to synchronize with the remote source.
         """
+        self.status = DataSourceStatusChoices.SYNCING
+        self.save()
+
         # Replicate source data locally (if needed)
         temp_dir = tempfile.TemporaryDirectory()
         self.fetch(path=temp_dir.name)
@@ -132,7 +138,8 @@ class DataSource(ChangeLoggedModel):
         created_count = len(DataFile.objects.bulk_create(new_datafiles, batch_size=100))
         logger.debug(f"Created {created_count} data files")
 
-        # Update last_synced time
+        # Update status & last_synced time
+        self.status = DataSourceStatusChoices.COMPLETED
         self.last_synced = timezone.now()
         self.save()
 
