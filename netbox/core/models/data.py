@@ -6,6 +6,7 @@ from fnmatch import fnmatchcase
 from urllib.parse import quote, urlunparse, urlparse
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
@@ -103,6 +104,15 @@ class DataSource(ChangeLoggedModel):
             DataSourceStatusChoices.QUEUED,
             DataSourceStatusChoices.SYNCING
         )
+
+    def clean(self):
+
+        # Ensure URL scheme matches selected type
+        url_scheme = urlparse(self.url)
+        if self.type == DataSourceTypeChoices.LOCAL and url_scheme not in ('file', ''):
+            raise ValidationError({
+                'url': f"URLs for local sources must start with file:// (or omit the scheme)"
+            })
 
     def enqueue_sync_job(self, request):
         """
