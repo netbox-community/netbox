@@ -5,11 +5,14 @@ import tempfile
 from fnmatch import fnmatchcase
 from urllib.parse import quote, urlunparse, urlparse
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
+from extras.models import JobResult
 from netbox.models import ChangeLoggedModel
 from utilities.files import sha256_hash
 from utilities.querysets import RestrictedQuerySet
@@ -87,6 +90,30 @@ class DataSource(ChangeLoggedModel):
 
     def get_status_color(self):
         return DataSourceStatusChoices.colors.get(self.status)
+
+    @property
+    def ready_for_sync(self):
+        return self.enabled and self.status not in (
+            DataSourceStatusChoices.QUEUED,
+            DataSourceStatusChoices.SYNCING
+        )
+
+    def enqueue_sync_job(self, request):
+        """
+        Enqueue a background job to synchronize the DataSource by calling sync().
+        """
+        # Set the status to "syncing"
+        self.status = DataSourceStatusChoices.QUEUED
+
+        # Enqueue a sync job
+        job_result = JobResult.enqueue_job(
+            import_string('core.jobs.sync_datasource'),
+            name=self.name,
+            obj_type=ContentType.objects.get_for_model(DataSource),
+            user=request.user,
+        )
+
+        return job_result
 
     def sync(self):
         """

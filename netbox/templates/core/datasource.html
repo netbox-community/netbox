@@ -6,7 +6,7 @@
 
 {% block extra_controls %}
   {% if perms.core.sync_datasource %}
-    {% if object.enabled %}
+    {% if object.ready_for_sync %}
       <form action="{% url 'core:datasource_sync' pk=object.pk %}" method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-sm btn-primary">

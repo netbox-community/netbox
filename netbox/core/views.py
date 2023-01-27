@@ -44,18 +44,7 @@ class DataSourceSyncView(BaseObjectView):
 
     def post(self, request, pk):
         datasource = get_object_or_404(self.queryset, pk=pk)
-
-        # Set the status to "syncing"
-        datasource.status = DataSourceStatusChoices.QUEUED
-        datasource.save()
-
-        # Enqueue a sync job
-        job_result = JobResult.enqueue_job(
-            jobs.sync_datasource,
-            name=datasource.name,
-            obj_type=ContentType.objects.get_for_model(DataSource),
-            user=request.user,
-        )
+        job_result = datasource.enqueue_sync_job(request)
 
         messages.success(request, f"Queued job #{job_result.pk} to sync {datasource}")
         return redirect(datasource.get_absolute_url())
