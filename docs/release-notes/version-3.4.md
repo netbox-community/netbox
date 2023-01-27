@@ -11,6 +11,7 @@
 
 ### Bug Fixes
 
+* [#11267](https://github.com/netbox-community/netbox/issues/11267) - Avoid catching ImportErrors when loading plugin resources
 * [#11487](https://github.com/netbox-community/netbox/issues/11487) - Remove "set null" option from non-writable custom fields during bulk edit
 * [#11491](https://github.com/netbox-community/netbox/issues/11491) - Show edit/delete buttons in user tokens table
 * [#11528](https://github.com/netbox-community/netbox/issues/11528) - Permit import of devices using uploaded file
