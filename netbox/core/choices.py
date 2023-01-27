@@ -9,15 +9,11 @@ from utilities.choices import ChoiceSet
 
 class DataSourceTypeChoices(ChoiceSet):
     LOCAL = 'local'
-    HTTP = 'http'
-    FTP = 'ftp'
     GIT = 'git'
 
     CHOICES = (
-        (LOCAL, _('Local')),
-        (HTTP, _('HTTP(S)')),
-        (FTP, _('FTP(S)')),
-        (GIT, _('Git')),
+        (LOCAL, _('Local'), 'gray'),
+        (GIT, _('Git'), 'blue'),
     )
 
 

@@ -91,6 +91,9 @@ class DataSource(ChangeLoggedModel):
     def get_absolute_url(self):
         return reverse('core:datasource', args=[self.pk])
 
+    def get_type_color(self):
+        return DataSourceTypeChoices.colors.get(self.type)
+
     def get_status_color(self):
         return DataSourceStatusChoices.colors.get(self.status)
 
