@@ -34,6 +34,7 @@ class DataSourceSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'type', 'url', 'enabled', 'status', 'description', 'git_branch',
             'ignore_rules', 'username', 'password', 'created', 'last_updated', 'file_count',
         ]
+        extra_kwargs = {'password': {'write_only': True}}
 
 
 class DataFileSerializer(NetBoxModelSerializer):

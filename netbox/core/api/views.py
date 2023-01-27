@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 
 from rest_framework.decorators import action
@@ -8,7 +7,6 @@ from rest_framework.routers import APIRootView
 
 from core import filtersets
 from core.models import *
-from extras.models import JobResult
 from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.utils import count_related
 from . import serializers
