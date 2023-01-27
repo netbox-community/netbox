@@ -1,7 +1,5 @@
 import logging
 
-from django_rq import job
-
 from extras.choices import JobResultStatusChoices
 from .choices import *
 from .models import DataSource
@@ -9,7 +7,6 @@ from .models import DataSource
 logger = logging.getLogger(__name__)
 
 
-@job('low')
 def sync_datasource(job_result, *args, **kwargs):
     """
     Call sync() on a DataSource.

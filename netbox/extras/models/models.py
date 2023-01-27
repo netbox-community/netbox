@@ -11,6 +11,7 @@ from django.core.validators import MinValueValidator, ValidationError
 from django.db import models
 from django.http import HttpResponse, QueryDict
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
@@ -634,7 +635,7 @@ class JobResult(models.Model):
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
 
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.obj_type.name, RQ_QUEUE_DEFAULT)
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.obj_type.model, RQ_QUEUE_DEFAULT)
         queue = django_rq.get_queue(rq_queue_name)
         job = queue.fetch_job(str(self.job_id))
 
@@ -642,7 +643,10 @@ class JobResult(models.Model):
             job.cancel()
 
     def get_absolute_url(self):
-        return reverse(f'extras:{self.obj_type.name}_result', args=[self.pk])
+        try:
+            return reverse(f'extras:{self.obj_type.model}_result', args=[self.pk])
+        except NoReverseMatch:
+            return None
 
     def get_status_color(self):
         return JobResultStatusChoices.colors.get(self.status)
@@ -693,7 +697,7 @@ class JobResult(models.Model):
             schedule_at: Schedule the job to be executed at the passed date and time
             interval: Recurrence interval (in minutes)
         """
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(obj_type.name, RQ_QUEUE_DEFAULT)
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get(obj_type.model, RQ_QUEUE_DEFAULT)
         queue = django_rq.get_queue(rq_queue_name)
         status = JobResultStatusChoices.STATUS_SCHEDULED if schedule_at else JobResultStatusChoices.STATUS_PENDING
         job_result: JobResult = JobResult.objects.create(
