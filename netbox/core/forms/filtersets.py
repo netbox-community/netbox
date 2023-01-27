@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from core.choices import *
 from core.models import *
@@ -38,11 +39,12 @@ class DataFileFilterForm(NetBoxModelFilterSetForm):
     model = DataFile
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('File', ('datasource_id',)),
+        ('File', ('source_id',)),
     )
-    datasource_id = DynamicModelMultipleChoiceField(
+    source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
-        required=False
+        required=False,
+        label=_('Data source')
     )
     type = MultipleChoiceField(
         choices=DataSourceTypeChoices,

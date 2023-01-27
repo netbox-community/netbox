@@ -33,6 +33,9 @@ class DataFileTable(NetBoxTable):
     source = tables.Column(
         linkify=True
     )
+    path = tables.Column(
+        linkify=True
+    )
     last_updated = columns.DateTimeColumn()
     actions = None
 

@@ -16,5 +16,6 @@ urlpatterns = (
 
     # Data files
     path('data-files/', views.DataFileListView.as_view(), name='datafile_list'),
+    path('data-files/<int:pk>/', include(get_model_urls('core', 'datafile'))),
 
 )

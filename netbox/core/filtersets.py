@@ -3,6 +3,7 @@ from django.utils.translation import gettext as _
 
 import django_filters
 
+from netbox.filtersets import ChangeLoggedModelFilterSet
 from .models import *
 
 __all__ = (
@@ -11,7 +12,7 @@ __all__ = (
 )
 
 
-class DataSourceFilterSet(django_filters.FilterSet):
+class DataSourceFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = DataSource
@@ -27,11 +28,14 @@ class DataSourceFilterSet(django_filters.FilterSet):
 
 
 class DataFileFilterSet(django_filters.FilterSet):
-    datasource_id = django_filters.ModelMultipleChoiceFilter(
+    q = django_filters.CharFilter(
+        method='search'
+    )
+    source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
         label=_('Data source (ID)'),
     )
-    datasource = django_filters.ModelMultipleChoiceFilter(
+    source = django_filters.ModelMultipleChoiceFilter(
         field_name='source__name',
         queryset=DataSource.objects.all(),
         to_field_name='name',

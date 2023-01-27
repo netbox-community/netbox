@@ -306,6 +306,16 @@ class DataFile(models.Model):
     def __str__(self):
         return self.path
 
+    def get_absolute_url(self):
+        return reverse('core:datafile', args=[self.pk])
+
+    @property
+    def data_as_string(self):
+        try:
+            return self.data.tobytes().decode('utf-8')
+        except UnicodeDecodeError:
+            return None
+
     def refresh_from_disk(self, source_root):
         """
         Update instance attributes from the file on disk. Returns True if any attribute
