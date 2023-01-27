@@ -7,7 +7,7 @@ from rest_framework.routers import APIRootView
 
 from core import filtersets
 from core.models import *
-from netbox.api.viewsets import NetBoxModelViewSet
+from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
 from utilities.utils import count_related
 from . import serializers
 
@@ -46,7 +46,7 @@ class DataSourceViewSet(NetBoxModelViewSet):
         return Response(serializer.data)
 
 
-class DataFileViewSet(NetBoxModelViewSet):
+class DataFileViewSet(NetBoxReadOnlyModelViewSet):
     queryset = DataFile.objects.defer('data').prefetch_related('source')
     serializer_class = serializers.DataFileSerializer
     filterset_class = filtersets.DataFileFilterSet
