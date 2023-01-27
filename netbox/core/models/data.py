@@ -5,6 +5,7 @@ import tempfile
 from fnmatch import fnmatchcase
 from urllib.parse import quote, urlunparse, urlparse
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -99,6 +100,10 @@ class DataSource(ChangeLoggedModel):
         return DataSourceStatusChoices.colors.get(self.status)
 
     @property
+    def url_scheme(self):
+        return urlparse(self.url).scheme.lower()
+
+    @property
     def ready_for_sync(self):
         return self.enabled and self.status not in (
             DataSourceStatusChoices.QUEUED,
@@ -108,8 +113,7 @@ class DataSource(ChangeLoggedModel):
     def clean(self):
 
         # Ensure URL scheme matches selected type
-        url_scheme = urlparse(self.url)
-        if self.type == DataSourceTypeChoices.LOCAL and url_scheme not in ('file', ''):
+        if self.type == DataSourceTypeChoices.LOCAL and self.url_scheme not in ('file', ''):
             raise ValidationError({
                 'url': f"URLs for local sources must start with file:// (or omit the scheme)"
             })
@@ -232,9 +236,14 @@ class DataSource(ChangeLoggedModel):
             args.extend(['--branch', self.git_branch])
         args.extend([url, local_path.name])
 
+        # Prep environment variables
+        env_vars = {}
+        if settings.HTTP_PROXIES and self.url_scheme in ('http', 'https'):
+            env_vars['http_proxy'] = settings.HTTP_PROXIES.get(self.url_scheme)
+
         logger.debug(f"Cloning git repo: {' '.join(args)}")
         try:
-            subprocess.run(args, check=True, capture_output=True)
+            subprocess.run(args, check=True, capture_output=True, env=env_vars)
         except subprocess.CalledProcessError as e:
             raise SyncError(
                 f"Fetching remote data failed: {e.stderr}"
