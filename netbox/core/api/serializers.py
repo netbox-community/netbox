@@ -12,23 +12,37 @@ __all__ = (
 
 
 class DataSourceSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='core-api:datasource-detail')
-    type = ChoiceField(choices=DataSourceTypeChoices, required=False)
+    url = serializers.HyperlinkedIdentityField(
+        view_name='core-api:datasource-detail'
+    )
+    type = ChoiceField(
+        choices=DataSourceTypeChoices
+    )
+    status = ChoiceField(
+        choices=DataSourceStatusChoices,
+        read_only=True
+    )
 
     # Related object counts
-    file_count = serializers.IntegerField(read_only=True)
+    file_count = serializers.IntegerField(
+        read_only=True
+    )
 
     class Meta:
         model = DataSource
         fields = [
-            'id', 'url', 'display', 'name', 'type', 'url', 'enabled', 'description', 'git_branch', 'ignore_rules',
-            'username', 'password', 'created', 'last_updated', 'file_count',
+            'id', 'url', 'display', 'name', 'type', 'url', 'enabled', 'status', 'description', 'git_branch',
+            'ignore_rules', 'username', 'password', 'created', 'last_updated', 'file_count',
         ]
 
 
 class DataFileSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='core-api:datafile-detail')
-    source = NestedDataSourceSerializer(read_only=True)
+    url = serializers.HyperlinkedIdentityField(
+        view_name='core-api:datafile-detail'
+    )
+    source = NestedDataSourceSerializer(
+        read_only=True
+    )
 
     class Meta:
         model = DataFile

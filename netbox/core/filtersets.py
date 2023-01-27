@@ -15,7 +15,7 @@ class DataSourceFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = DataSource
-        fields = ('id', 'name', 'type', 'git_branch', 'username')
+        fields = ('id', 'name', 'type', 'enabled', 'status', 'git_branch', 'username')
 
     def search(self, queryset, name, value):
         if not value.strip():

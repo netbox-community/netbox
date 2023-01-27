@@ -13,9 +13,24 @@ class DataSourceTypeChoices(ChoiceSet):
     FTP = 'ftp'
     GIT = 'git'
 
-    CHOICES = [
+    CHOICES = (
         (LOCAL, _('Local')),
         (HTTP, _('HTTP(S)')),
         (FTP, _('FTP(S)')),
         (GIT, _('Git')),
-    ]
+    )
+
+
+class DataSourceStatusChoices(ChoiceSet):
+
+    NEW = 'new'
+    SYNCING = 'syncing'
+    COMPLETED = 'completed'
+    FAILED = 'failed'
+
+    CHOICES = (
+        (NEW, _('New')),
+        (SYNCING, _('Syncing')),
+        (COMPLETED, _('Completed')),
+        (FAILED, _('Failed')),
+    )

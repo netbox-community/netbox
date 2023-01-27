@@ -3,7 +3,9 @@ from django import forms
 from core.choices import *
 from core.models import *
 from netbox.forms import NetBoxModelFilterSetForm
-from utilities.forms import DynamicModelMultipleChoiceField, MultipleChoiceField
+from utilities.forms import (
+    BOOLEAN_WITH_BLANK_CHOICES, DynamicModelMultipleChoiceField, MultipleChoiceField, StaticSelect,
+)
 
 __all__ = (
     'DataFileFilterForm',
@@ -44,6 +46,16 @@ class DataFileFilterForm(NetBoxModelFilterSetForm):
     )
     type = MultipleChoiceField(
         choices=DataSourceTypeChoices,
+        required=False
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    status = MultipleChoiceField(
+        choices=DataSourceStatusChoices,
         required=False
     )
     git_branch = forms.CharField(

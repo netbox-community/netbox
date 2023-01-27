@@ -40,6 +40,12 @@ class DataSource(ChangeLoggedModel):
         max_length=200,
         verbose_name=_('URL')
     )
+    status = models.CharField(
+        max_length=50,
+        choices=DataSourceStatusChoices,
+        default=DataSourceStatusChoices.NEW,
+        editable=False
+    )
     enabled = models.BooleanField(
         default=True
     )
