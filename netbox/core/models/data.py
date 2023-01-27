@@ -6,6 +6,7 @@ from fnmatch import fnmatchcase
 from urllib.parse import quote, urlunparse, urlparse
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -17,6 +18,8 @@ from netbox.models import ChangeLoggedModel
 from utilities.files import sha256_hash
 from utilities.querysets import RestrictedQuerySet
 from ..choices import *
+from ..exceptions import SyncError
+from ..utils import FakeTempDirectory
 
 __all__ = (
     'DataSource',
@@ -28,7 +31,7 @@ logger = logging.getLogger('netbox.core.data')
 
 class DataSource(ChangeLoggedModel):
     """
-    A remote source from which DataFiles are synchronized.
+    A remote source, such as a git repository, from which DataFiles are synchronized.
     """
     name = models.CharField(
         max_length=100,
@@ -119,14 +122,16 @@ class DataSource(ChangeLoggedModel):
         """
         Create/update/delete child DataFiles as necessary to synchronize with the remote source.
         """
+        if not self.ready_for_sync:
+            raise SyncError(f"Cannot initiate sync; data source not ready/enabled")
+
         self.status = DataSourceStatusChoices.SYNCING
-        self.save()
+        DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
         # Replicate source data locally (if needed)
-        temp_dir = tempfile.TemporaryDirectory()
-        self.fetch(path=temp_dir.name)
+        local_path = self.fetch()
 
-        logger.debug(f'Syncing files from source root {temp_dir.name}')
+        logger.debug(f'Syncing files from source root {local_path.name}')
         data_files = self.datafiles.all()
         known_paths = {df.path for df in data_files}
         logger.debug(f'Starting with {len(known_paths)} known files')
@@ -137,7 +142,7 @@ class DataSource(ChangeLoggedModel):
         for datafile in data_files:
 
             try:
-                if datafile.refresh_from_disk(source_root=temp_dir.name):
+                if datafile.refresh_from_disk(source_root=local_path.name):
                     updated_files.append(datafile)
             except FileNotFoundError:
                 # File no longer exists
@@ -153,26 +158,26 @@ class DataSource(ChangeLoggedModel):
         logger.debug(f"Deleted {updated_count} files")
 
         # Walk the local replication to find new files
-        new_paths = self._walk(temp_dir.name) - known_paths
+        new_paths = self._walk(local_path.name) - known_paths
 
         # Bulk create new files
         new_datafiles = []
         for path in new_paths:
             datafile = DataFile(source=self, path=path)
-            datafile.refresh_from_disk(source_root=temp_dir.name)
+            datafile.refresh_from_disk(source_root=local_path.name)
+            datafile.full_clean()
             new_datafiles.append(datafile)
-            # TODO: Record last_updated?
         created_count = len(DataFile.objects.bulk_create(new_datafiles, batch_size=100))
         logger.debug(f"Created {created_count} data files")
 
         # Update status & last_synced time
         self.status = DataSourceStatusChoices.COMPLETED
-        self.last_synced = timezone.now()
-        self.save()
+        self.last_updated = timezone.now()
+        DataSource.objects.filter(pk=self.pk).update(status=self.status, last_updated=self.last_updated)
 
-        temp_dir.cleanup()
+        local_path.cleanup()
 
-    def fetch(self, path):
+    def fetch(self):
         """
         Replicate the file structure from the remote data source and return the local path.
         """
@@ -182,19 +187,23 @@ class DataSource(ChangeLoggedModel):
         except AttributeError:
             raise NotImplemented(f"fetch() not yet supported for {self.get_type_display()} data sources")
 
-        return fetch_method(path)
+        return fetch_method()
 
     def fetch_local(self, path):
         """
         Skip fetching for local paths; return the source path directly.
         """
         logger.debug(f"Data source type is local; skipping fetch")
-        return urlparse(self.url).path
+        local_path = urlparse(self.url).path
 
-    def fetch_git(self, path):
+        return FakeTempDirectory(local_path)
+
+    def fetch_git(self):
         """
         Perform a shallow clone of the remote repository using the `git` executable.
         """
+        local_path = tempfile.TemporaryDirectory()
+
         # Add authentication credentials to URL (if specified)
         if self.username and self.password:
             url_components = list(urlparse(self.url))
@@ -208,10 +217,17 @@ class DataSource(ChangeLoggedModel):
         args = ['git', 'clone', '--depth', '1']
         if self.git_branch:
             args.extend(['--branch', self.git_branch])
-        args.extend([url, path])
+        args.extend([url, local_path.name])
 
-        logger.debug(f"Cloning git repo: {''.join(args)}")
-        result = subprocess.run(args)
+        logger.debug(f"Cloning git repo: {' '.join(args)}")
+        try:
+            subprocess.run(args, check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            raise SyncError(
+                f"Fetching remote data failed: {e.stderr}"
+            )
+
+        return local_path
 
     def _walk(self, root):
         """
@@ -246,7 +262,8 @@ class DataSource(ChangeLoggedModel):
 
 class DataFile(models.Model):
     """
-    A database object which represents a remote file fetched from a DataSource.
+    The database representation of a remote file fetched from a remote DataSource. DataFile instances should be created,
+    updated, or deleted only by calling DataSource.sync().
     """
     source = models.ForeignKey(
         to='core.DataSource',
@@ -256,8 +273,8 @@ class DataFile(models.Model):
     )
     path = models.CharField(
         max_length=1000,
-        unique=True,
-        editable=False
+        editable=False,
+        help_text=_("File path relative to the data source's root")
     )
     last_updated = models.DateTimeField(
         editable=False
@@ -265,10 +282,13 @@ class DataFile(models.Model):
     size = models.PositiveIntegerField(
         editable=False
     )
-    # TODO: Create a proper SHA256 field
     hash = models.CharField(
         max_length=64,
-        editable=False
+        editable=False,
+        validators=[
+            RegexValidator(regex='^[0-9a-f]{64}$', message=_("Length must be 64 hexadecimal characters."))
+        ],
+        help_text=_("SHA256 hash of the file data")
     )
     data = models.BinaryField()
 
@@ -286,27 +306,20 @@ class DataFile(models.Model):
     def __str__(self):
         return self.path
 
-    # def get_absolute_url(self):
-    #     return reverse('core:datafile', args=[self.pk])
-
     def refresh_from_disk(self, source_root):
         """
         Update instance attributes from the file on disk. Returns True if any attribute
         has changed.
         """
         file_path = os.path.join(source_root, self.path)
-
-        # Get attributes from file on disk
-        file_size = os.path.getsize(file_path)
         file_hash = sha256_hash(file_path).hexdigest()
 
         # Update instance file attributes & data
-        has_changed = file_size != self.size or file_hash != self.hash
-        if has_changed:
+        if is_modified := file_hash != self.hash:
             self.last_updated = timezone.now()
-            self.size = file_size
+            self.size = os.path.getsize(file_path)
             self.hash = file_hash
             with open(file_path, 'rb') as f:
                 self.data = f.read()
 
-        return has_changed
+        return is_modified

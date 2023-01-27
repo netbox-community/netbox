@@ -2,6 +2,7 @@ import logging
 
 from extras.choices import JobResultStatusChoices
 from .choices import *
+from .exceptions import SyncError
 from .models import DataSource
 
 logger = logging.getLogger(__name__)
@@ -16,9 +17,8 @@ def sync_datasource(job_result, *args, **kwargs):
     try:
         job_result.start()
         datasource.sync()
-    except Exception:
+    except SyncError as e:
         job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
         job_result.save()
-        datasource.status = DataSourceStatusChoices.FAILED
-        datasource.save()
-        logging.error(f"Error during syncing of data source {datasource}")
+        DataSource.objects.filter(pk=datasource.pk).update(status=DataSourceStatusChoices.FAILED)
+        logging.error(e)
