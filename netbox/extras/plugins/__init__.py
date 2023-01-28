@@ -1,5 +1,5 @@
 import collections
-from importlib.util import find_spec
+from importlib import import_module
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -80,12 +80,15 @@ class PluginConfig(AppConfig):
         # Import from the configured path, if defined.
         if getattr(self, name):
             return import_string(f"{self.__module__}.{self.name}")
+
         # Fall back to the resource's default path. Return None if the module has not been provided.
-        default_path = DEFAULT_RESOURCE_PATHS[name]
-        default_module = f'{self.__module__}.{default_path}'.rsplit('.', 1)[0]
-        if find_spec(default_module):
-            setattr(self, name, default_path)
-            return import_string(f"{self.__module__}.{default_path}")
+        default_path = f'{self.__module__}.{DEFAULT_RESOURCE_PATHS[name]}'
+        default_module, resource_name = default_path.rsplit('.', 1)
+        try:
+            module = import_module(default_module)
+            return getattr(module, resource_name, None)
+        except ModuleNotFoundError:
+            pass
 
     def ready(self):
         plugin_name = self.name.rsplit('.', 1)[-1]
