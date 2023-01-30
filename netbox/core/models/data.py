@@ -187,8 +187,8 @@ class DataSource(ChangeLoggedModel):
 
         # Update status & last_synced time
         self.status = DataSourceStatusChoices.COMPLETED
-        self.last_updated = timezone.now()
-        DataSource.objects.filter(pk=self.pk).update(status=self.status, last_updated=self.last_updated)
+        self.last_synced = timezone.now()
+        DataSource.objects.filter(pk=self.pk).update(status=self.status, last_synced=self.last_synced)
 
     def _walk(self, root):
         """
