@@ -23,7 +23,7 @@ class DataSourceTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = DataSource
         fields = (
-            'pk', 'id', 'name', 'type', 'status', 'enabled', 'url', 'description', 'git_branch', 'username', 'created',
+            'pk', 'id', 'name', 'type', 'status', 'enabled', 'url', 'description', 'parameters', 'created',
             'last_updated', 'file_count',
         )
         default_columns = ('pk', 'name', 'type', 'status', 'enabled', 'description', 'file_count')

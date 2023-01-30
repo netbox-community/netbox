@@ -59,19 +59,6 @@
               </td>
             </tr>
             <tr>
-              <th scope="row">Git branch</th>
-              <td>{{ object.git_branch|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Ignore rules</th>
-              <td>
-                {% if object.ignore_rules %}
-                  <pre>{{ object.ignore_rules }}</pre>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}</td>
-            </tr>
-            <tr>
               <th scope="row">File count</th>
               <td>{{ object.datafiles.count }}</td>
             </tr>
@@ -82,16 +69,26 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">Authentication</h5>
+        <h5 class="card-header">Backend</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Username</th>
-              <td>{{ object.username|placeholder }}</td>
+              <th scope="row">Parameters</th>
+              <td>
+                {% if object.parameters %}
+                  <pre>{{ object.parameters }}</pre>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}</td>
             </tr>
             <tr>
-              <th scope="row">Password</th>
-              <td>{% if object.password %}********{% else %}{{ ''|placeholder }}{% endif %}</td>
+              <th scope="row">Ignore rules</th>
+              <td>
+                {% if object.ignore_rules %}
+                  <pre>{{ object.ignore_rules }}</pre>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}</td>
             </tr>
           </table>
         </div>

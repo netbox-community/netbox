@@ -16,7 +16,7 @@ class DataSourceFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = DataSource
-        fields = ('id', 'name', 'type', 'enabled', 'status', 'git_branch', 'username')
+        fields = ('id', 'name', 'type', 'enabled', 'status')
 
     def search(self, queryset, name, value):
         if not value.strip():

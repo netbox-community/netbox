@@ -18,20 +18,21 @@ class DataSourceFilterForm(NetBoxModelFilterSetForm):
     model = DataSource
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Data Source', ('type', 'git_branch')),
-        ('Authentication', ('username',)),
+        ('Data Source', ('type', 'status')),
     )
     type = MultipleChoiceField(
         choices=DataSourceTypeChoices,
         required=False
     )
-    git_branch = forms.CharField(
-        max_length=100,
+    status = MultipleChoiceField(
+        choices=DataSourceStatusChoices,
         required=False
     )
-    username = forms.CharField(
-        max_length=100,
-        required=False
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
 
 
@@ -45,26 +46,4 @@ class DataFileFilterForm(NetBoxModelFilterSetForm):
         queryset=DataSource.objects.all(),
         required=False,
         label=_('Data source')
-    )
-    type = MultipleChoiceField(
-        choices=DataSourceTypeChoices,
-        required=False
-    )
-    enabled = forms.NullBooleanField(
-        required=False,
-        widget=StaticSelect(
-            choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
-    )
-    status = MultipleChoiceField(
-        choices=DataSourceStatusChoices,
-        required=False
-    )
-    git_branch = forms.CharField(
-        max_length=100,
-        required=False
-    )
-    username = forms.CharField(
-        max_length=100,
-        required=False
     )

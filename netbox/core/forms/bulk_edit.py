@@ -29,29 +29,18 @@ class DataSourceBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    git_branch = forms.CharField(
-        max_length=100,
+    parameters = forms.JSONField(
         required=False
     )
     ignore_rules = forms.CharField(
         required=False,
         widget=forms.Textarea()
     )
-    username = forms.CharField(
-        max_length=100,
-        required=False
-    )
-    password = forms.CharField(
-        max_length=100,
-        required=False,
-        widget=forms.PasswordInput()
-    )
 
     model = DataSource
     fieldsets = (
-        (None, ('type', 'enabled', 'description', 'git_branch', 'ignore_rules')),
-        ('Authentication', ('username', 'password')),
+        (None, ('type', 'enabled', 'description', 'parameters', 'ignore_rules')),
     )
     nullable_fields = (
-        'description', 'description', 'git_branch', 'ignore_rules', 'username', 'password',
+        'description', 'description', 'parameters', 'parameters', 'ignore_rules',
     )

@@ -58,22 +58,13 @@ class DataSource(ChangeLoggedModel):
         max_length=200,
         blank=True
     )
-    git_branch = models.CharField(
-        max_length=100,
-        blank=True,
-        help_text=_("Branch to check out for git sources (if not using the default)")
-    )
     ignore_rules = models.TextField(
         blank=True,
         help_text=_("Patterns (one per line) matching files to ignore when syncing")
     )
-    username = models.CharField(
-        max_length=100,
-        blank=True
-    )
-    password = models.CharField(
-        max_length=100,
-        blank=True
+    parameters = models.JSONField(
+        blank=True,
+        null=True
     )
     last_synced = models.DateTimeField(
         blank=True,
@@ -137,8 +128,9 @@ class DataSource(ChangeLoggedModel):
             DataSourceTypeChoices.LOCAL: LocalBakend,
             DataSourceTypeChoices.GIT: GitBackend,
         }.get(self.type)
+        backend_params = self.parameters or {}
 
-        return backend_cls(self.url)
+        return backend_cls(self.url, **backend_params)
 
     def sync(self):
         """
