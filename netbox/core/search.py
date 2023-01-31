@@ -1,0 +1,20 @@
+from netbox.search import SearchIndex, register_search
+from . import models
+
+
+@register_search
+class DataSourceIndex(SearchIndex):
+    model = models.DataSource
+    fields = (
+        ('name', 100),
+        ('url', 300),
+        ('description', 500),
+    )
+
+
+@register_search
+class DataFileIndex(SearchIndex):
+    model = models.DataFile
+    fields = (
+        ('path', 200),
+    )

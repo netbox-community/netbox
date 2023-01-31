@@ -1,6 +1,7 @@
 import logging
 
 from extras.choices import JobResultStatusChoices
+from netbox.search.backends import search_backend
 from .choices import *
 from .exceptions import SyncError
 from .models import DataSource
@@ -17,6 +18,10 @@ def sync_datasource(job_result, *args, **kwargs):
     try:
         job_result.start()
         datasource.sync()
+
+        # Update the search cache for DataFiles belonging to this source
+        search_backend.cache(datasource.datafiles.iterator())
+
     except SyncError as e:
         job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
         job_result.save()
