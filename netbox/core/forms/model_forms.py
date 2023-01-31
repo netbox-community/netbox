@@ -1,5 +1,8 @@
+import copy
+
 from core.models import *
 from netbox.forms import NetBoxModelForm, StaticSelect
+from ..models.data import BACKEND_CLASSES
 
 __all__ = (
     'DataSourceForm',
@@ -19,22 +22,28 @@ class DataSourceForm(NetBoxModelForm):
         ]
         widgets = {
             'type': StaticSelect(
-                # attrs={
-                #     'hx-get': '.',
-                #     'hx-include': '#form_fields input',
-                #     'hx-target': '#form_fields',
-                # }
+                attrs={
+                    'hx-get': '.',
+                    'hx-include': '#form_fields input',
+                    'hx-target': '#form_fields',
+                }
             ),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if self.instance:
-            backend = self.instance.get_backend()
-            for name, form_field in backend.parameters.items():
-                field_name = f'backend_{name}'
-                self.fields[field_name] = form_field
+        if self.is_bound and self.data.get('type') in BACKEND_CLASSES:
+            backend_type = self.data['type']
+        elif self.initial and self.initial.get('type') in BACKEND_CLASSES:
+            backend_type = self.initial['type']
+        else:
+            backend_type = self.fields['type'].initial
+        backend = BACKEND_CLASSES.get(backend_type)
+        for name, form_field in backend.parameters.items():
+            field_name = f'backend_{name}'
+            self.fields[field_name] = copy.copy(form_field)
+            if self.instance and self.instance.parameters:
                 self.fields[field_name].initial = self.instance.parameters.get(name)
 
     def save(self, *args, **kwargs):

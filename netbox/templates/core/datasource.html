@@ -67,10 +67,6 @@
                   {{ ''|placeholder }}
                 {% endif %}</td>
             </tr>
-            <tr>
-              <th scope="row">File count</th>
-              <td>{{ object.datafiles.count }}</td>
-            </tr>
           </table>
         </div>
       </div>
@@ -81,10 +77,10 @@
         <h5 class="card-header">Backend</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
-            {% for name, value in object.parameters.items %}
+            {% for name, field in object.get_backend.parameters.items %}
               <tr>
-                <th scope="row">{{ name }}</th>
-                <td>{{ value|placeholder }}</td>
+                <th scope="row">{{ field.label }}</th>
+                <td>{{ object.parameters|get_key:name|placeholder }}</td>
               </tr>
             {% empty %}
               <tr>

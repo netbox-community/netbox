@@ -6,6 +6,7 @@ from urllib.parse import quote, urlunparse, urlparse
 
 from django import forms
 from django.conf import settings
+from django.utils.translation import gettext as _
 
 from .exceptions import SyncError
 
@@ -46,13 +47,19 @@ class LocalBackend(DataBackend):
 class GitBackend(DataBackend):
     parameters = {
         'username': forms.CharField(
-            required=False
+            required=False,
+            label=_('Username'),
+            widget=forms.TextInput(attrs={'class': 'form-control'})
         ),
         'password': forms.CharField(
-            required=False
+            required=False,
+            label=_('Password'),
+            widget=forms.TextInput(attrs={'class': 'form-control'})
         ),
         'branch': forms.CharField(
-            required=False
+            required=False,
+            label=_('Branch'),
+            widget=forms.TextInput(attrs={'class': 'form-control'})
         )
     }
 

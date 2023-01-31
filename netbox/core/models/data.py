@@ -27,6 +27,11 @@ __all__ = (
 
 logger = logging.getLogger('netbox.core.data')
 
+BACKEND_CLASSES = {
+    DataSourceTypeChoices.LOCAL: LocalBackend,
+    DataSourceTypeChoices.GIT: GitBackend,
+}
+
 
 class DataSource(ChangeLoggedModel):
     """
@@ -124,10 +129,7 @@ class DataSource(ChangeLoggedModel):
         return job_result
 
     def get_backend(self):
-        backend_cls = {
-            DataSourceTypeChoices.LOCAL: LocalBackend,
-            DataSourceTypeChoices.GIT: GitBackend,
-        }.get(self.type)
+        backend_cls = BACKEND_CLASSES.get(self.type)
         backend_params = self.parameters or {}
 
         return backend_cls(self.url, **backend_params)
