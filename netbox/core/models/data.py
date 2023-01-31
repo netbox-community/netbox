@@ -17,7 +17,7 @@ from netbox.models import ChangeLoggedModel
 from utilities.files import sha256_hash
 from utilities.querysets import RestrictedQuerySet
 from ..choices import *
-from ..data_backends import GitBackend, LocalBakend
+from ..data_backends import GitBackend, LocalBackend
 from ..exceptions import SyncError
 
 __all__ = (
@@ -125,7 +125,7 @@ class DataSource(ChangeLoggedModel):
 
     def get_backend(self):
         backend_cls = {
-            DataSourceTypeChoices.LOCAL: LocalBakend,
+            DataSourceTypeChoices.LOCAL: LocalBackend,
             DataSourceTypeChoices.GIT: GitBackend,
         }.get(self.type)
         backend_params = self.parameters or {}

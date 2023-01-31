@@ -4,12 +4,13 @@ import tempfile
 from contextlib import contextmanager
 from urllib.parse import quote, urlunparse, urlparse
 
+from django import forms
 from django.conf import settings
 
 from .exceptions import SyncError
 
 __all__ = (
-    'LocalBakend',
+    'LocalBackend',
     'GitBackend',
 )
 
@@ -17,6 +18,7 @@ logger = logging.getLogger('netbox.data_backends')
 
 
 class DataBackend:
+    parameters = {}
 
     def __init__(self, url, **kwargs):
         self.url = url
@@ -31,7 +33,7 @@ class DataBackend:
         raise NotImplemented()
 
 
-class LocalBakend(DataBackend):
+class LocalBackend(DataBackend):
 
     @contextmanager
     def fetch(self):
@@ -42,6 +44,17 @@ class LocalBakend(DataBackend):
 
 
 class GitBackend(DataBackend):
+    parameters = {
+        'username': forms.CharField(
+            required=False
+        ),
+        'password': forms.CharField(
+            required=False
+        ),
+        'branch': forms.CharField(
+            required=False
+        )
+    }
 
     @contextmanager
     def fetch(self):
