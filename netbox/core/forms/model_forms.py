@@ -2,7 +2,7 @@ import copy
 
 from core.models import *
 from netbox.forms import NetBoxModelForm, StaticSelect
-from ..models.data import BACKEND_CLASSES
+from netbox.registry import registry
 
 __all__ = (
     'DataSourceForm',
@@ -33,13 +33,14 @@ class DataSourceForm(NetBoxModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if self.is_bound and self.data.get('type') in BACKEND_CLASSES:
-            backend_type = self.data['type']
-        elif self.initial and self.initial.get('type') in BACKEND_CLASSES:
-            backend_type = self.initial['type']
+        backend_classes = registry['data_backends']
+
+        if self.is_bound and self.data.get('type') in backend_classes:
+            backend = backend_classes.get(self.data['type'])
+        elif self.initial and self.initial.get('type') in backend_classes:
+            backend = backend_classes.get(self.initial['type'])
         else:
-            backend_type = self.fields['type'].initial
-        backend = BACKEND_CLASSES.get(backend_type)
+            backend = backend_classes.get(self.fields['type'].initial)
         for name, form_field in backend.parameters.items():
             field_name = f'backend_{name}'
             self.fields[field_name] = copy.copy(form_field)

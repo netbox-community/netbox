@@ -8,6 +8,8 @@ from django import forms
 from django.conf import settings
 from django.utils.translation import gettext as _
 
+from netbox.registry import registry
+from .choices import DataSourceTypeChoices
 from .exceptions import SyncError
 
 __all__ = (
@@ -16,6 +18,17 @@ __all__ = (
 )
 
 logger = logging.getLogger('netbox.data_backends')
+
+
+def register_backend(name):
+    """
+    Decorator for registering a DataBackend class.
+    """
+    def _wrapper(cls):
+        registry['data_backends'][name] = cls
+        return cls
+
+    return _wrapper
 
 
 class DataBackend:
@@ -34,6 +47,7 @@ class DataBackend:
         raise NotImplemented()
 
 
+@register_backend(DataSourceTypeChoices.LOCAL)
 class LocalBackend(DataBackend):
 
     @contextmanager
@@ -44,6 +58,7 @@ class LocalBackend(DataBackend):
         yield local_path
 
 
+@register_backend(DataSourceTypeChoices.GIT)
 class GitBackend(DataBackend):
     parameters = {
         'username': forms.CharField(

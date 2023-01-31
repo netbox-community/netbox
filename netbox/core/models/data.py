@@ -14,10 +14,10 @@ from django.utils.translation import gettext as _
 
 from extras.models import JobResult
 from netbox.models import ChangeLoggedModel
+from netbox.registry import registry
 from utilities.files import sha256_hash
 from utilities.querysets import RestrictedQuerySet
 from ..choices import *
-from ..data_backends import GitBackend, LocalBackend
 from ..exceptions import SyncError
 
 __all__ = (
@@ -26,11 +26,6 @@ __all__ = (
 )
 
 logger = logging.getLogger('netbox.core.data')
-
-BACKEND_CLASSES = {
-    DataSourceTypeChoices.LOCAL: LocalBackend,
-    DataSourceTypeChoices.GIT: GitBackend,
-}
 
 
 class DataSource(ChangeLoggedModel):
@@ -129,7 +124,7 @@ class DataSource(ChangeLoggedModel):
         return job_result
 
     def get_backend(self):
-        backend_cls = BACKEND_CLASSES.get(self.type)
+        backend_cls = registry['data_backends'].get(self.type)
         backend_params = self.parameters or {}
 
         return backend_cls(self.url, **backend_params)
