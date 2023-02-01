@@ -3,6 +3,7 @@ import os
 from fnmatch import fnmatchcase
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -80,6 +81,10 @@ class DataSource(ChangeLoggedModel):
 
     def get_absolute_url(self):
         return reverse('core:datasource', args=[self.pk])
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/'
 
     def get_type_color(self):
         return DataSourceTypeChoices.colors.get(self.type)
