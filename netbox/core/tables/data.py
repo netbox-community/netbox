@@ -37,7 +37,9 @@ class DataFileTable(NetBoxTable):
         linkify=True
     )
     last_updated = columns.DateTimeColumn()
-    actions = None
+    actions = columns.ActionsColumn(
+        actions=('delete',)
+    )
 
     class Meta(NetBoxTable.Meta):
         model = DataFile

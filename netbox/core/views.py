@@ -99,9 +99,20 @@ class DataFileListView(generic.ObjectListView):
     filterset = filtersets.DataFileFilterSet
     filterset_form = forms.DataFileFilterForm
     table = tables.DataFileTable
-    actions = ('edit',)
+    actions = ('bulk_delete',)
 
 
 @register_model_view(DataFile)
 class DataFileView(generic.ObjectView):
     queryset = DataFile.objects.all()
+
+
+@register_model_view(DataFile, 'delete')
+class DataFileDeleteView(generic.ObjectDeleteView):
+    queryset = DataFile.objects.all()
+
+
+class DataFileBulkDeleteView(generic.BulkDeleteView):
+    queryset = DataFile.objects.defer('data')
+    filterset = filtersets.DataFileFilterSet
+    table = tables.DataFileTable

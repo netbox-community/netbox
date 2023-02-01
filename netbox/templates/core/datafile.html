@@ -1,6 +1,8 @@
 {% extends 'generic/object.html' %}
+{% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load perms %}
 {% load plugins %}
 
 {% block breadcrumbs %}
@@ -9,11 +11,13 @@
 {% endblock %}
 
 {% block controls %}
-  {# Clone/Edit/Delete Buttons #}
   <div class="controls">
     <div class="control-group">
       {% plugin_buttons object %}
     </div>
+    {% if request.user|can_delete:object %}
+      {% delete_button object %}
+    {% endif %}
     <div class="control-group">
       {% custom_links object %}
     </div>

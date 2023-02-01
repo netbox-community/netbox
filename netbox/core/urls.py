@@ -16,6 +16,7 @@ urlpatterns = (
 
     # Data files
     path('data-files/', views.DataFileListView.as_view(), name='datafile_list'),
+    path('data-files/delete/', views.DataFileBulkDeleteView.as_view(), name='datafile_bulk_delete'),
     path('data-files/<int:pk>/', include(get_model_urls('core', 'datafile'))),
 
 )
