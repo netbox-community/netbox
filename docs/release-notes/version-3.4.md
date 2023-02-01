@@ -17,6 +17,8 @@
 * [#11528](https://github.com/netbox-community/netbox/issues/11528) - Permit import of devices using uploaded file
 * [#11555](https://github.com/netbox-community/netbox/issues/11555) - Avoid inadvertent interpretation of search query as regular expression under global search (previously [#11516](https://github.com/netbox-community/netbox/issues/11516))
 * [#11562](https://github.com/netbox-community/netbox/issues/11562) - Correct ordering of virtual chassis interfaces with duplicate names
+* [#11620](https://github.com/netbox-community/netbox/issues/11620) - Correct available filter choices for interface PoE type
+* [#11635](https://github.com/netbox-community/netbox/issues/11635) - Pre-populate assigned VRF when following "first available IP" link from prefix view
 
 ---
 
