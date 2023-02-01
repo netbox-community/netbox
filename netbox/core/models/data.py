@@ -20,6 +20,7 @@ from utilities.files import sha256_hash
 from utilities.querysets import RestrictedQuerySet
 from ..choices import *
 from ..exceptions import SyncError
+from ..signals import post_sync, pre_sync
 
 __all__ = (
     'DataSource',
@@ -137,6 +138,9 @@ class DataSource(PrimaryModel):
         if not self.ready_for_sync:
             raise SyncError(f"Cannot initiate sync; data source not ready/enabled")
 
+        # Emit the pre_sync signal
+        pre_sync.send(sender=self.__class__, instance=self)
+
         self.status = DataSourceStatusChoices.SYNCING
         DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
@@ -187,6 +191,9 @@ class DataSource(PrimaryModel):
         self.status = DataSourceStatusChoices.COMPLETED
         self.last_synced = timezone.now()
         DataSource.objects.filter(pk=self.pk).update(status=self.status, last_synced=self.last_synced)
+
+        # Emit the post_sync signal
+        post_sync.send(sender=self.__class__, instance=self)
 
     def _walk(self, root):
         """
