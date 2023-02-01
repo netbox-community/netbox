@@ -9,6 +9,7 @@ class DataSourceIndex(SearchIndex):
         ('name', 100),
         ('url', 300),
         ('description', 500),
+        ('comments', 5000),
     )
 
 

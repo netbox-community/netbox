@@ -14,7 +14,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
 from extras.models import JobResult
-from netbox.models import ChangeLoggedModel
+from netbox.models import PrimaryModel
 from netbox.registry import registry
 from utilities.files import sha256_hash
 from utilities.querysets import RestrictedQuerySet
@@ -29,7 +29,7 @@ __all__ = (
 logger = logging.getLogger('netbox.core.data')
 
 
-class DataSource(ChangeLoggedModel):
+class DataSource(PrimaryModel):
     """
     A remote source, such as a git repository, from which DataFiles are synchronized.
     """
@@ -54,10 +54,6 @@ class DataSource(ChangeLoggedModel):
     )
     enabled = models.BooleanField(
         default=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
     )
     ignore_rules = models.TextField(
         blank=True,

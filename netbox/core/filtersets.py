@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 import django_filters
 
-from netbox.filtersets import ChangeLoggedModelFilterSet
+from netbox.filtersets import NetBoxModelFilterSet
 from .models import *
 
 __all__ = (
@@ -12,7 +12,7 @@ __all__ = (
 )
 
 
-class DataSourceFilterSet(ChangeLoggedModelFilterSet):
+class DataSourceFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = DataSource
@@ -23,7 +23,8 @@ class DataSourceFilterSet(ChangeLoggedModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(description__icontains=value)
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
         )
 
 

@@ -18,7 +18,7 @@ class DataSourceForm(NetBoxModelForm):
     class Meta:
         model = DataSource
         fields = [
-            'name', 'type', 'url', 'enabled', 'description', 'ignore_rules',
+            'name', 'type', 'url', 'enabled', 'description', 'comments', 'ignore_rules',
         ]
         widgets = {
             'type': StaticSelect(

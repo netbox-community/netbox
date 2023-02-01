@@ -16,6 +16,9 @@ class DataSourceTable(NetBoxTable):
     type = columns.ChoiceFieldColumn()
     status = columns.ChoiceFieldColumn()
     enabled = columns.BooleanColumn()
+    tags = columns.TagColumn(
+        url_name='core:datasource_list'
+    )
     file_count = tables.Column(
         verbose_name='Files'
     )
@@ -23,7 +26,7 @@ class DataSourceTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = DataSource
         fields = (
-            'pk', 'id', 'name', 'type', 'status', 'enabled', 'url', 'description', 'parameters', 'created',
+            'pk', 'id', 'name', 'type', 'status', 'enabled', 'url', 'description', 'comments', 'parameters', 'created',
             'last_updated', 'file_count',
         )
         default_columns = ('pk', 'name', 'type', 'status', 'enabled', 'description', 'file_count')
