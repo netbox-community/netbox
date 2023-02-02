@@ -51,7 +51,7 @@ menu_items = (item1, item2, item3)
 
 Each menu item represents a link and (optionally) a set of buttons comprising one entry in NetBox's navigation menu. Menu items are defined as PluginMenuItem instances. An example is shown below.
 
-```python filename="navigation.py"
+```python title="navigation.py"
 from extras.plugins import PluginMenuButton, PluginMenuItem
 from utilities.choices import ButtonColorChoices
 

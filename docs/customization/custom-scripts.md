@@ -142,6 +142,19 @@ obj.full_clean()
 obj.save()
 ```
 
+## Error handling
+
+Sometimes things go wrong and a script will run into an `Exception`. If that happens and an uncaught exception is raised by the custom script, the execution is aborted and a full stack trace is reported.
+
+Although this is helpful for debugging, in some situations it might be required to cleanly abort the execution of a custom script (e.g. because of invalid input data) and thereby make sure no changes are performed on the database. In this case the script can throw an `AbortScript` exception, which will prevent the stack trace from being reported, but still terminating the script's execution and reporting a given error message.
+
+```python
+from utilities.exceptions import AbortScript
+
+if some_error:
+    raise AbortScript("Some meaningful error message")
+```
+
 ## Variable Reference
 
 ### Default Options

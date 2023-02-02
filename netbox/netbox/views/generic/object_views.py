@@ -453,6 +453,9 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
 
                 if component_form.is_valid():
                     new_components.append(component_form)
+                else:
+                    form.errors.update(component_form.errors)
+                    break
 
             if not form.errors and not component_form.errors:
                 try:

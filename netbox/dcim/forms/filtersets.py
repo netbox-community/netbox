@@ -1170,7 +1170,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         label='PoE mode'
     )
     poe_type = MultipleChoiceField(
-        choices=InterfacePoEModeChoices,
+        choices=InterfacePoETypeChoices,
         required=False,
         label='PoE type'
     )

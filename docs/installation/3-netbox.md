@@ -272,7 +272,10 @@ See the [housekeeping documentation](../administration/housekeeping.md) for furt
 
 ## Test the Application
 
-At this point, we should be able to run NetBox's development server for testing. We can check by starting a development instance:
+At this point, we should be able to run NetBox's development server for testing. We can check by starting a development instance locally.
+
+!!! tip
+    Check that the Python virtual environment is still active before attempting to run the server.
 
 ```no-highlight
 python3 manage.py runserver 0.0.0.0:8000 --insecure

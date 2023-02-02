@@ -642,6 +642,7 @@ class RackListView(generic.ObjectListView):
     filterset = filtersets.RackFilterSet
     filterset_form = forms.RackFilterForm
     table = tables.RackTable
+    template_name = 'dcim/rack_list.html'
 
 
 class RackElevationListView(generic.ObjectListView):
@@ -842,6 +843,7 @@ class RackReservationBulkDeleteView(generic.BulkDeleteView):
 class ManufacturerListView(generic.ObjectListView):
     queryset = Manufacturer.objects.annotate(
         devicetype_count=count_related(DeviceType, 'manufacturer'),
+        moduletype_count=count_related(ModuleType, 'manufacturer'),
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
         platform_count=count_related(Platform, 'manufacturer')
     )
@@ -2090,22 +2092,15 @@ class DeviceBulkImportView(generic.BulkImportView):
     queryset = Device.objects.all()
     model_form = forms.DeviceImportForm
     table = tables.DeviceImportTable
-    template_name = 'dcim/device_import.html'
-
-
-class ChildDeviceBulkImportView(generic.BulkImportView):
-    queryset = Device.objects.all()
-    model_form = forms.ChildDeviceImportForm
-    table = tables.DeviceImportTable
-    template_name = 'dcim/device_import_child.html'
 
     def save_object(self, object_form, request):
         obj = object_form.save()
 
-        # Save the reverse relation to the parent device bay
-        device_bay = obj.parent_bay
-        device_bay.installed_device = obj
-        device_bay.save()
+        # For child devices, save the reverse relation to the parent device bay
+        if getattr(obj, 'parent_bay', None):
+            device_bay = obj.parent_bay
+            device_bay.installed_device = obj
+            device_bay.save()
 
         return obj
 

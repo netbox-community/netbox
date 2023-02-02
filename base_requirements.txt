@@ -1,6 +1,6 @@
 # HTML sanitizer
 # https://github.com/mozilla/bleach
-bleach
+bleach<6.0
 
 # The Python web framework on which NetBox is built
 # https://github.com/django/django

@@ -527,6 +527,7 @@ def highlight_string(value, highlight, trim_pre=None, trim_post=None, trim_place
         if type(highlight) is re.Pattern:
             pre, match, post = highlight.split(value, maxsplit=1)
         else:
+            highlight = re.escape(highlight)
             pre, match, post = re.split(fr'({highlight})', value, maxsplit=1, flags=re.IGNORECASE)
     except ValueError as e:
         # Match not found

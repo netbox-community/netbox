@@ -1,107 +1,73 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/netbox-community/netbox/develop/docs/netbox_logo.svg" width="400" alt="NetBox logo" />
+
+  The premiere source of truth powering network automation
 </div>
+
+![Master branch build status](https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master)
 
 NetBox is the leading solution for modeling and documenting modern networks. By
 combining the traditional disciplines of IP address management (IPAM) and
 datacenter infrastructure management (DCIM) with powerful APIs and extensions,
 NetBox provides the ideal "source of truth" to power network automation.
-Available as open source software under the Apache 2.0 license, NetBox is
-employed by thousands of organizations around the world.
+Available as open source software under the Apache 2.0 license, NetBox serves
+as the cornerstone for network automation in thousands of organizations.
 
-![Master branch build status](https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master)
-
-[![Timeline graph](https://images.repography.com/29023055/netbox-community/netbox/recent-activity/31db894eee74b8a5475e3af307a81b6c_timeline.svg)](https://github.com/netbox-community/netbox/commits)
-[![Issue status graph](https://images.repography.com/29023055/netbox-community/netbox/recent-activity/31db894eee74b8a5475e3af307a81b6c_issues.svg)](https://github.com/netbox-community/netbox/issues)
-[![Pull request status graph](https://images.repography.com/29023055/netbox-community/netbox/recent-activity/31db894eee74b8a5475e3af307a81b6c_prs.svg)](https://github.com/netbox-community/netbox/pulls)
-[![Top contributors](https://images.repography.com/29023055/netbox-community/netbox/recent-activity/31db894eee74b8a5475e3af307a81b6c_users.svg)](https://github.com/netbox-community/netbox/graphs/contributors)
-<br />Stats via [Repography](https://repography.com)
-
-## About NetBox
+* **Physical infrasucture:** Accurately model the physical world, from global regions down to individual racks of gear. Then connect everything - network, console, and power!
+* **Modern IPAM:** All the standard IPAM functionality you expect, plus VRF import/export tracking, VLAN management, and overlay support.
+* **Data circuits:** Confidently manage the delivery of crtical circuits from various service providers, modeled seamlessly alongside your own infrastructure.
+* **Power tracking:** Map the distribution of power from upstream sources to individual feeds and outlets.
+* **Organization:** Manage tenant and contact assignments natively.
+* **Powerful search:** Easily find anything you need using a single global search function.
+* **Comprehensive logging:** Leverage both automatic change logging and user-submitted journal entries to track your network's growth over time.
+* **Endless customization:** Custom fields, custom links, tags, export templates, custom validation, reports, scripts, and more!
+* **Flexible permissions:** An advanced permissions systems enables very flexible delegation of permissions.
+* **Integrations:** Easily connect NetBox to your other tooling via its REST & GraphQL APIs.
+* **Plugins:** Not finding what you need in the core application? Try one of many community plugins - or build your own!
 
 ![Screenshot of NetBox UI](docs/media/screenshots/netbox-ui.png "NetBox UI")
 
-Myriad infrastructure components can be modeled in NetBox, including:
+## Getting Started
 
-* Hierarchical regions, site groups, sites, and locations
-* Racks, devices, and device components
-* Cables and wireless connections
-* Power distribution
-* Data circuits and providers
-* Virtual machines and clusters
-* IP prefixes, ranges, and addresses
-* VRFs and route targets
-* L2VPN and overlays
-* FHRP groups (VRRP, HSRP, etc.)
-* AS numbers
-* VLANs and scoped VLAN groups
-* Organizational tenants and contacts
+* Just want to explore? Check out [our public demo](https://demo.netbox.dev/) right now!
+* The [official documentation](https://docs.netbox.dev) offers a comprehensive introduction.
+* Choose your deployment: [self-hosted](https://github.com/netbox-community/netbox), [Docker](https://github.com/netbox-community/netbox-docker), or [NetBox Cloud](https://netboxlabs.com/netbox-cloud/).
+* Check out [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions) for even more projects to get the most out of NetBox!
 
-In addition to its extensive built-in models and functionality, NetBox can be
-customized and extended through the use of:
+## Get Involved
 
-* Custom fields
-* Custom links
-* Configuration contexts
-* Custom model validation rules
-* Reports
-* Custom scripts
-* Export templates
-* Conditional webhooks
-* Plugins
-* Single sign-on (SSO) authentication
-* NAPALM integration
-* Detailed change logging
+* Follow [@NetBoxOfficial](https://twitter.com/NetBoxOfficial) on Twitter!
+* Join the conversation on [the discussion forum](https://github.com/netbox-community/netbox/discussions) and [Slack](https://netdev.chat/)!
+* Already a power user? You can [suggest a feature](https://github.com/netbox-community/netbox/issues/new?assignees=&labels=type%3A+feature&template=feature_request.yaml) or [report a bug](https://github.com/netbox-community/netbox/issues/new?assignees=&labels=type%3A+bug&template=bug_report.yaml) on GitHub.
+* Contributions from the community are encouraged and appreciated! Check out our [contributing guide](CONTRIBUTING.md) to get started.
 
-NetBox also features a complete REST API as well as a GraphQL API for easily
-integrating with other tools and systems.
-
-The complete documentation for NetBox can be found at [docs.netbox.dev](https://docs.netbox.dev/).
-A public demo instance is available at [demo.netbox.dev](https://demo.netbox.dev).
-
-NetBox runs as a web application atop the [Django](https://www.djangoproject.com/)
-Python framework with a [PostgreSQL](https://www.postgresql.org/) database. For a
-complete list of requirements, see `requirements.txt`. The code is available
-[on GitHub](https://github.com/netbox-community/netbox).
+## Project Stats
 
 <div align="center">
-  <h3>Thank you to our sponsors!</h3>
+  <a href="https://github.com/netbox-community/netbox/commits"><img src="https://images.repography.com/29023055/netbox-community/netbox/recent-activity/31db894eee74b8a5475e3af307a81b6c_timeline.svg" alt="Timeline graph"></a>
+  <a href="https://github.com/netbox-community/netbox/issues"><img src="https://images.repography.com/29023055/netbox-community/netbox/recent-activity/31db894eee74b8a5475e3af307a81b6c_issues.svg" alt="Issues graph"></a>
+  <a href="https://github.com/netbox-community/netbox/pulls"><img src="https://images.repography.com/29023055/netbox-community/netbox/recent-activity/31db894eee74b8a5475e3af307a81b6c_prs.svg" alt="Pull requests graph"></a>
+  <a href="https://github.com/netbox-community/netbox/graphs/contributors"><img src="https://images.repography.com/29023055/netbox-community/netbox/recent-activity/31db894eee74b8a5475e3af307a81b6c_users.svg" alt="Top contributors"></a>
+  <br />Stats via <a href="https://repography.com">Repography</a>
+</div>
 
+## Sponsors
+
+<div align="center">
+
+  [![NetBox Labs](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/netbox_labs.png)](https://netboxlabs.com)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   [![DigitalOcean](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/digitalocean.png)](https://try.digitalocean.com/developer-cloud)
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  [![Equinix Metal](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/equinix.png)](https://metal.equinix.com/)
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  [![NS1](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/ns1.png)](https://ns1.com/)
+  [![NS1](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/ns1.png)](https://ns1.com)
   <br />
-  [![Sentry](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/sentry.png)](https://sentry.io/)
+  [![Sentry](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/sentry.png)](https://sentry.io)
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  [![Stellar Technologies](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/stellar.png)](https://stellar.tech/)
+  [![Equinix Metal](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/equinix.png)](https://metal.equinix.com)
 
 </div>
 
-### Discussion
-
-* [GitHub Discussions](https://github.com/netbox-community/netbox/discussions) - Discussion forum hosted by GitHub; ideal for Q&A and other structured discussions
-* [Slack](https://netdev.chat/) - Real-time chat hosted by the NetDev Community; best for unstructured discussion or just hanging out
-
-### Installation
-
-Please see [the documentation](https://docs.netbox.dev/) for
-instructions on installing NetBox. To upgrade NetBox, please download the
-[latest release](https://github.com/netbox-community/netbox/releases) and
-run `upgrade.sh`.
-
-### Providing Feedback
-
-The best platform for general feedback, assistance, and other discussion is our
-[GitHub discussions](https://github.com/netbox-community/netbox/discussions).
-To report a bug or request a specific feature, please open a GitHub issue using
-the [appropriate template](https://github.com/netbox-community/netbox/issues/new/choose).
-
-If you are interested in contributing to the development of NetBox, please read
-our [contributing guide](CONTRIBUTING.md) prior to beginning any work.
-
-### Screenshots
+## Screenshots
 
 ![Screenshot of main page (dark mode)](docs/media/screenshots/home-dark.png "Main page (dark mode)")
 
@@ -110,8 +76,3 @@ our [contributing guide](CONTRIBUTING.md) prior to beginning any work.
 ![Screenshot of prefixes hierarchy](docs/media/screenshots/prefixes-list.png "Prefixes hierarchy")
 
 ![Screenshot of cable trace](docs/media/screenshots/cable-trace.png "Cable tracing")
-
-### Related projects
-
-Please see [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions)
-for a list of relevant community projects.

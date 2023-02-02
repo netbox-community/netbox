@@ -18,7 +18,6 @@ from .common import ModuleCommonForm
 
 __all__ = (
     'CableImportForm',
-    'ChildDeviceImportForm',
     'ConsolePortImportForm',
     'ConsoleServerPortImportForm',
     'DeviceBayImportForm',
@@ -413,6 +412,18 @@ class DeviceImportForm(BaseDeviceImportForm):
         required=False,
         help_text=_('Mounted rack face')
     )
+    parent = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Parent device (for child devices)')
+    )
+    device_bay = CSVModelChoiceField(
+        queryset=DeviceBay.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Device bay in which this device is installed (for child devices)')
+    )
     airflow = CSVChoiceField(
         choices=DeviceAirflowChoices,
         required=False,
@@ -422,8 +433,8 @@ class DeviceImportForm(BaseDeviceImportForm):
     class Meta(BaseDeviceImportForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-            'site', 'location', 'rack', 'position', 'face', 'airflow', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'cluster', 'description', 'comments', 'tags',
+            'site', 'location', 'rack', 'position', 'face', 'parent', 'device_bay', 'airflow', 'virtual_chassis',
+            'vc_position', 'vc_priority', 'cluster', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -434,6 +445,7 @@ class DeviceImportForm(BaseDeviceImportForm):
             # Limit location queryset by assigned site
             params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
+            self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
 
             # Limit rack queryset by assigned site and group
             params = {
@@ -441,6 +453,23 @@ class DeviceImportForm(BaseDeviceImportForm):
                 f"location__{self.fields['location'].to_field_name}": data.get('location'),
             }
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
+
+            # Limit device bay queryset by parent device
+            if parent := data.get('parent'):
+                params = {f"device__{self.fields['parent'].to_field_name}": parent}
+                self.fields['device_bay'].queryset = self.fields['device_bay'].queryset.filter(**params)
+
+    def clean(self):
+        super().clean()
+
+        # Inherit site and rack from parent device
+        if parent := self.cleaned_data.get('parent'):
+            self.instance.site = parent.site
+            self.instance.rack = parent.rack
+
+        # Set parent_bay reverse relationship
+        if device_bay := self.cleaned_data.get('device_bay'):
+            self.instance.parent_bay = device_bay
 
 
 class ModuleImportForm(ModuleCommonForm, NetBoxModelImportForm):
@@ -493,48 +522,6 @@ class ModuleImportForm(ModuleCommonForm, NetBoxModelImportForm):
             return True
         else:
             return self.cleaned_data['replicate_components']
-
-
-class ChildDeviceImportForm(BaseDeviceImportForm):
-    parent = CSVModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text=_('Parent device')
-    )
-    device_bay = CSVModelChoiceField(
-        queryset=DeviceBay.objects.all(),
-        to_field_name='name',
-        help_text=_('Device bay in which this device is installed')
-    )
-
-    class Meta(BaseDeviceImportForm.Meta):
-        fields = [
-            'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-            'parent', 'device_bay', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster', 'comments', 'tags'
-        ]
-
-    def __init__(self, data=None, *args, **kwargs):
-        super().__init__(data, *args, **kwargs)
-
-        if data:
-
-            # Limit device bay queryset by parent device
-            params = {f"device__{self.fields['parent'].to_field_name}": data.get('parent')}
-            self.fields['device_bay'].queryset = self.fields['device_bay'].queryset.filter(**params)
-
-    def clean(self):
-        super().clean()
-
-        # Set parent_bay reverse relationship
-        device_bay = self.cleaned_data.get('device_bay')
-        if device_bay:
-            self.instance.parent_bay = device_bay
-
-        # Inherit site and rack from parent device
-        parent = self.cleaned_data.get('parent')
-        if parent:
-            self.instance.site = parent.site
-            self.instance.rack = parent.rack
 
 
 #
