@@ -23,8 +23,8 @@ from ..exceptions import SyncError
 from ..signals import post_sync, pre_sync
 
 __all__ = (
-    'DataSource',
     'DataFile',
+    'DataSource',
 )
 
 logger = logging.getLogger('netbox.core.data')
@@ -43,7 +43,7 @@ class DataSource(PrimaryModel):
         choices=DataSourceTypeChoices,
         default=DataSourceTypeChoices.LOCAL
     )
-    url = models.CharField(
+    source_url = models.CharField(
         max_length=200,
         verbose_name=_('URL')
     )
@@ -91,7 +91,7 @@ class DataSource(PrimaryModel):
 
     @property
     def url_scheme(self):
-        return urlparse(self.url).scheme.lower()
+        return urlparse(self.source_url).scheme.lower()
 
     @property
     def ready_for_sync(self):
@@ -129,7 +129,7 @@ class DataSource(PrimaryModel):
         backend_cls = registry['data_backends'].get(self.type)
         backend_params = self.parameters or {}
 
-        return backend_cls(self.url, **backend_params)
+        return backend_cls(self.source_url, **backend_params)
 
     def sync(self):
         """

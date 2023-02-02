@@ -11,14 +11,14 @@ __all__ = (
 
 class DataSourceForm(NetBoxModelForm):
     # fieldsets = (
-    #     ('Source', ('name', 'type', 'url', 'enabled', 'description')),
+    #     ('Source', ('name', 'type', 'source_url', 'enabled', 'description')),
     #     ('Backend', ('parameters', 'ignore_rules')),
     # )
 
     class Meta:
         model = DataSource
         fields = [
-            'name', 'type', 'url', 'enabled', 'description', 'comments', 'ignore_rules',
+            'name', 'type', 'source_url', 'enabled', 'description', 'comments', 'ignore_rules',
         ]
         widgets = {
             'type': StaticSelect(
