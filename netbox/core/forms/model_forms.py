@@ -1,8 +1,11 @@
 import copy
 
+from django import forms
+
 from core.models import *
 from netbox.forms import NetBoxModelForm, StaticSelect
 from netbox.registry import registry
+from utilities.forms import CommentField
 
 __all__ = (
     'DataSourceForm',
@@ -10,10 +13,7 @@ __all__ = (
 
 
 class DataSourceForm(NetBoxModelForm):
-    # fieldsets = (
-    #     ('Source', ('name', 'type', 'source_url', 'enabled', 'description')),
-    #     ('Backend', ('parameters', 'ignore_rules')),
-    # )
+    comments = CommentField()
 
     class Meta:
         model = DataSource
@@ -28,7 +28,26 @@ class DataSourceForm(NetBoxModelForm):
                     'hx-target': '#form_fields',
                 }
             ),
+            'ignore_rules': forms.Textarea(
+                attrs={
+                    'rows': 5,
+                    'class': 'font-monospace',
+                    'placeholder': '.cache\n*.txt'
+                }
+            ),
         }
+
+    @property
+    def fieldsets(self):
+        fieldsets = [
+            ('Source', ('name', 'type', 'source_url', 'enabled', 'description', 'tags', 'ignore_rules')),
+        ]
+        if self.backend_fields:
+            fieldsets.append(
+                ('Backend', self.backend_fields)
+            )
+
+        return fieldsets
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -36,13 +55,17 @@ class DataSourceForm(NetBoxModelForm):
         backend_classes = registry['data_backends']
 
         if self.is_bound and self.data.get('type') in backend_classes:
-            backend = backend_classes.get(self.data['type'])
+            type_ = self.data['type']
         elif self.initial and self.initial.get('type') in backend_classes:
-            backend = backend_classes.get(self.initial['type'])
+            type_ = self.initial['type']
         else:
-            backend = backend_classes.get(self.fields['type'].initial)
+            type_ = self.fields['type'].initial
+        backend = backend_classes.get(type_)
+
+        self.backend_fields = []
         for name, form_field in backend.parameters.items():
             field_name = f'backend_{name}'
+            self.backend_fields.append(field_name)
             self.fields[field_name] = copy.copy(form_field)
             if self.instance and self.instance.parameters:
                 self.fields[field_name].initial = self.instance.parameters.get(name)
