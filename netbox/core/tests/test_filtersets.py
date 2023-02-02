@@ -3,10 +3,10 @@ from datetime import datetime
 from django.test import TestCase
 from django.utils import timezone
 
+from utilities.testing import ChangeLoggedFilterSetTests
 from ..choices import *
 from ..filtersets import *
 from ..models import *
-from utilities.testing import ChangeLoggedFilterSetTests
 
 
 class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTests):

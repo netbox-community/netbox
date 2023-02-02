@@ -1,27 +1,12 @@
-from django.urls import reverse
 from django.utils import timezone
 
-from utilities.testing import APITestCase, APIViewTestCases
+from utilities.testing import ViewTestCases, create_tags
 from ..choices import *
 from ..models import *
 
 
-class AppTest(APITestCase):
-
-    def test_root(self):
-        url = reverse('core-api:api-root')
-        response = self.client.get('{}?format=api'.format(url), **self.header)
-
-        self.assertEqual(response.status_code, 200)
-
-
-class DataSourceTest(APIViewTestCases.APIViewTestCase):
+class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = DataSource
-    brief_fields = ['display', 'id', 'name', 'url']
-    bulk_update_data = {
-        'enabled': False,
-        'description': 'foo bar baz',
-    }
 
     @classmethod
     def setUpTestData(cls):
@@ -32,32 +17,45 @@ class DataSourceTest(APIViewTestCases.APIViewTestCase):
         )
         DataSource.objects.bulk_create(data_sources)
 
-        cls.create_data = [
-            {
-                'name': 'Data Source 4',
-                'type': DataSourceTypeChoices.GIT,
-                'source_url': 'https://example.com/git/source4'
-            },
-            {
-                'name': 'Data Source 5',
-                'type': DataSourceTypeChoices.GIT,
-                'source_url': 'https://example.com/git/source5'
-            },
-            {
-                'name': 'Data Source 6',
-                'type': DataSourceTypeChoices.GIT,
-                'source_url': 'https://example.com/git/source6'
-            },
-        ]
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Data Source X',
+            'type': DataSourceTypeChoices.GIT,
+            'source_url': 'http:///exmaple/com/foo/bar/',
+            'description': 'Something',
+            'comments': 'Foo bar baz',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            f"name,type,source_url,enabled",
+            f"Data Source 4,{DataSourceTypeChoices.LOCAL},file:///var/tmp/source4/,true",
+            f"Data Source 5,{DataSourceTypeChoices.LOCAL},file:///var/tmp/source4/,true",
+            f"Data Source 6,{DataSourceTypeChoices.GIT},http:///exmaple/com/foo/bar/,false",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{data_sources[0].pk},Data Source 7,New description7",
+            f"{data_sources[1].pk},Data Source 8,New description8",
+            f"{data_sources[2].pk},Data Source 9,New description9",
+        )
+
+        cls.bulk_edit_data = {
+            'enabled': False,
+            'description': 'New description',
+        }
 
 
-class DataFileTest(
-    APIViewTestCases.GetObjectViewTestCase,
-    APIViewTestCases.ListObjectsViewTestCase,
-    APIViewTestCases.GraphQLTestCase
+class DataFileTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
 ):
     model = DataFile
-    brief_fields = ['display', 'id', 'path', 'url']
 
     @classmethod
     def setUpTestData(cls):
