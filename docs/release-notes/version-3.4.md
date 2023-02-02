@@ -1,10 +1,11 @@
 # NetBox v3.4
 
-## v3.4.4 (FUTURE)
+## v3.4.4 (2023-02-02)
 
 ### Enhancements
 
 * [#10762](https://github.com/netbox-community/netbox/issues/10762) - Permit selection custom fields to have only one choice
+* [#11152](https://github.com/netbox-community/netbox/issues/11152) - Introduce AbortScript exception to elegantly abort scripts
 * [#11554](https://github.com/netbox-community/netbox/issues/11554) - Add module types count to manufacturers list
 * [#11585](https://github.com/netbox-community/netbox/issues/11585) - Add IP address filters for services
 * [#11598](https://github.com/netbox-community/netbox/issues/11598) - Add buttons to easily switch between rack list and elevations views
