@@ -1,8 +1,10 @@
 import { getElements, isTruthy } from './util';
 import { initButtons } from './buttons';
+import { initSelect } from './select';
 
 function initDepedencies(): void {
-  for (const init of [initButtons]) {
+  console.log('initDepedencies()');
+  for (const init of [initButtons, initSelect]) {
     init();
   }
 }
