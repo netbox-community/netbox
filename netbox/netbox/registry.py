@@ -25,9 +25,10 @@ class Registry(dict):
 
 # Initialize the global registry
 registry = Registry()
+registry['data_backends'] = dict()
+registry['denormalized_fields'] = collections.defaultdict(list)
 registry['model_features'] = {
     feature: collections.defaultdict(set) for feature in EXTRAS_FEATURES
 }
-registry['denormalized_fields'] = collections.defaultdict(list)
 registry['search'] = dict()
 registry['views'] = collections.defaultdict(dict)
