@@ -1,5 +1,5 @@
 from core import filtersets, models
-from netbox.graphql.types import NetBoxObjectType
+from netbox.graphql.types import BaseObjectType, NetBoxObjectType
 
 __all__ = (
     'DataFileType',
@@ -7,7 +7,7 @@ __all__ = (
 )
 
 
-class DataFileType(NetBoxObjectType):
+class DataFileType(BaseObjectType):
     class Meta:
         model = models.DataFile
         exclude = ('data',)

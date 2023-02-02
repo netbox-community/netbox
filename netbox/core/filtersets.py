@@ -3,7 +3,8 @@ from django.utils.translation import gettext as _
 
 import django_filters
 
-from netbox.filtersets import NetBoxModelFilterSet
+from netbox.filtersets import ChangeLoggedModelFilterSet, NetBoxModelFilterSet
+from .choices import *
 from .models import *
 
 __all__ = (
@@ -13,10 +14,18 @@ __all__ = (
 
 
 class DataSourceFilterSet(NetBoxModelFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=DataSourceTypeChoices,
+        null_value=None
+    )
+    status = django_filters.MultipleChoiceFilter(
+        choices=DataSourceStatusChoices,
+        null_value=None
+    )
 
     class Meta:
         model = DataSource
-        fields = ('id', 'name', 'type', 'enabled', 'status')
+        fields = ('id', 'name', 'enabled')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -28,7 +37,7 @@ class DataSourceFilterSet(NetBoxModelFilterSet):
         )
 
 
-class DataFileFilterSet(django_filters.FilterSet):
+class DataFileFilterSet(ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search'
     )

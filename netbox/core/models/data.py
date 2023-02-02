@@ -15,6 +15,7 @@ from django.utils.translation import gettext as _
 
 from extras.models import JobResult
 from netbox.models import PrimaryModel
+from netbox.models.features import ChangeLoggingMixin
 from netbox.registry import registry
 from utilities.files import sha256_hash
 from utilities.querysets import RestrictedQuerySet
@@ -226,7 +227,7 @@ class DataSource(PrimaryModel):
         return False
 
 
-class DataFile(models.Model):
+class DataFile(ChangeLoggingMixin, models.Model):
     """
     The database representation of a remote file fetched from a remote DataSource. DataFile instances should be created,
     updated, or deleted only by calling DataSource.sync().

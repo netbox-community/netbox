@@ -5,8 +5,8 @@ from .types import *
 
 
 class CoreQuery(graphene.ObjectType):
-    datafile = ObjectField(DataFileType)
-    datafile_list = ObjectListField(DataFileType)
+    data_file = ObjectField(DataFileType)
+    data_file_list = ObjectListField(DataFileType)
 
-    datasource = ObjectField(DataSourceType)
-    datasource_list = ObjectListField(DataSourceType)
+    data_source = ObjectField(DataSourceType)
+    data_source_list = ObjectListField(DataSourceType)
