@@ -168,7 +168,7 @@ class DataSource(PrimaryModel):
                     continue
 
             # Bulk update modified files
-            updated_count = DataFile.objects.bulk_update(updated_files, ['hash'])
+            updated_count = DataFile.objects.bulk_update(updated_files, ('last_updated', 'size', 'hash', 'data'))
             logger.debug(f"Updated {updated_count} files")
 
             # Bulk delete deleted files
