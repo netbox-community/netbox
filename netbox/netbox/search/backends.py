@@ -103,7 +103,7 @@ class CachedValueSearchBackend(SearchBackend):
             # Partial string matches are valid only on string values
             query_filter &= Q(type=FieldTypes.STRING)
         if object_types:
-            query_filter &= Q(object_typeo__in=object_types)
+            query_filter &= Q(object_type__in=object_types)
 
         if lookup == LookupTypes.PARTIAL:
             try:
