@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
+from extras.forms.mixins import SyncedDataMixin
 from extras.models import *
 from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelForm
@@ -183,7 +184,7 @@ class TagForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ConfigContextForm(BootstrapMixin, forms.ModelForm):
+class ConfigContextForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
     regions = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False
@@ -236,10 +237,13 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         queryset=Tag.objects.all(),
         required=False
     )
-    data = JSONField()
+    data = JSONField(
+        required=False
+    )
 
     fieldsets = (
         ('Config Context', ('name', 'weight', 'description', 'data', 'is_active')),
+        ('Data Source', ('data_source', 'data_file')),
         ('Assignment', (
             'regions', 'site_groups', 'sites', 'locations', 'device_types', 'roles', 'platforms', 'cluster_types',
             'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags',
@@ -251,8 +255,22 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         fields = (
             'name', 'weight', 'description', 'data', 'is_active', 'regions', 'site_groups', 'sites', 'locations',
             'roles', 'device_types', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
-            'tenants', 'tags',
+            'tenants', 'tags', 'data_source', 'data_file',
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # if self.instance and self.instance.data_file:
+        #     self.fields['data'].widget.attrs.update({'disabled': True})
+
+    def clean(self):
+        super().clean()
+
+        if not self.cleaned_data.get('data') and not self.cleaned_data.get('data_source'):
+            raise forms.ValidationError("Must specify either local data or a data source")
+
+        return self.cleaned_data
 
 
 class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):

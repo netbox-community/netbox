@@ -8,6 +8,7 @@ EXTRAS_FEATURES = [
     'export_templates',
     'job_results',
     'journaling',
+    'synced_data',
     'tags',
     'webhooks'
 ]

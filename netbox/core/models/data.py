@@ -1,5 +1,6 @@
 import logging
 import os
+import yaml
 from fnmatch import fnmatchcase
 from urllib.parse import urlparse
 
@@ -282,6 +283,13 @@ class DataFile(ChangeLoggingMixin, models.Model):
             return self.data.tobytes().decode('utf-8')
         except UnicodeDecodeError:
             return None
+
+    def get_data(self):
+        """
+        Attempt to read the file data as JSON/YAML and return a native Python object.
+        """
+        # TODO: Something more robust
+        return yaml.safe_load(self.data_as_string)
 
     def refresh_from_disk(self, source_root):
         """

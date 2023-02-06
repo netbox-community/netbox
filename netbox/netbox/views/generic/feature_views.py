@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.generic import View
 
@@ -11,6 +12,7 @@ from utilities.views import ViewTab
 __all__ = (
     'ObjectChangeLogView',
     'ObjectJournalView',
+    'ObjectSyncDataView',
 )
 
 
@@ -126,3 +128,25 @@ class ObjectJournalView(View):
             'base_template': self.base_template,
             'tab': self.tab,
         })
+
+
+class ObjectSyncDataView(View):
+
+    def post(self, request, model, **kwargs):
+        """
+        Synchronize data from the DataFile associated with this object.
+        """
+        qs = model.objects.all()
+        if hasattr(model.objects, 'restrict'):
+            qs = qs.restrict(request.user, 'change')
+        obj = get_object_or_404(qs, **kwargs)
+
+        if not obj.data_file:
+            messages.error(request, f"Unable to synchronize data: No data file set.")
+            return redirect(obj.get_absolute_url())
+
+        obj.sync_data()
+        obj.save()
+        messages.success(request, f"Synchronized data for {model._meta._verbose_name} {obj}.")
+
+        return redirect(obj.get_absolute_url())

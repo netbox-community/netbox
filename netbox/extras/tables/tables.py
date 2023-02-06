@@ -188,6 +188,12 @@ class TaggedItemTable(NetBoxTable):
 
 
 class ConfigContextTable(NetBoxTable):
+    data_source = tables.Column(
+        linkify=True
+    )
+    data_file = tables.Column(
+        linkify=True
+    )
     name = tables.Column(
         linkify=True
     )
@@ -199,8 +205,8 @@ class ConfigContextTable(NetBoxTable):
         model = ConfigContext
         fields = (
             'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'locations', 'roles',
-            'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'created',
-            'last_updated',
+            'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'data_source',
+            'data_file', 'data_synced', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'weight', 'is_active', 'description')
 
