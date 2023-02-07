@@ -352,7 +352,8 @@ class ConfigContextListView(generic.ObjectListView):
     filterset = filtersets.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
     table = tables.ConfigContextTable
-    actions = ('add', 'bulk_edit', 'bulk_delete')
+    template_name = 'extras/configcontext_list.html'
+    actions = ('add', 'bulk_edit', 'bulk_delete', 'bulk_sync')
 
 
 @register_model_view(ConfigContext)
@@ -414,6 +415,10 @@ class ConfigContextDeleteView(generic.ObjectDeleteView):
 class ConfigContextBulkDeleteView(generic.BulkDeleteView):
     queryset = ConfigContext.objects.all()
     table = tables.ConfigContextTable
+
+
+class ConfigContextBulkSyncDataView(generic.BulkSyncDataView):
+    queryset = ConfigContext.objects.all()
 
 
 class ObjectConfigContextView(generic.ObjectView):

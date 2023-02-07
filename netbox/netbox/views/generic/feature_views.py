@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
@@ -7,9 +8,12 @@ from django.views.generic import View
 
 from extras import forms, tables
 from extras.models import *
-from utilities.views import ViewTab
+from utilities.permissions import get_permission_for_model
+from utilities.views import GetReturnURLMixin, ViewTab
+from .base import BaseMultiObjectView
 
 __all__ = (
+    'BulkSyncDataView',
     'ObjectChangeLogView',
     'ObjectJournalView',
     'ObjectSyncDataView',
@@ -150,3 +154,27 @@ class ObjectSyncDataView(View):
         messages.success(request, f"Synchronized data for {model._meta._verbose_name} {obj}.")
 
         return redirect(obj.get_absolute_url())
+
+
+class BulkSyncDataView(GetReturnURLMixin, BaseMultiObjectView):
+    """
+    Synchronize multiple instances of a model inheriting from SyncedDataMixin.
+    """
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'change')
+
+    def post(self, request):
+        selected_objects = self.queryset.filter(
+            pk__in=request.POST.getlist('pk'),
+            data_file__isnull=False
+        )
+
+        with transaction.atomic():
+            for obj in selected_objects:
+                obj.sync_data()
+                obj.save()
+
+            model_name = self.queryset.model._meta.verbose_name_plural
+            messages.success(request, f"Synced {len(selected_objects)} {model_name}")
+
+        return redirect(self.get_return_url(request))

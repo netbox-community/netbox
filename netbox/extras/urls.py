@@ -60,6 +60,7 @@ urlpatterns = [
     path('config-contexts/add/', views.ConfigContextEditView.as_view(), name='configcontext_add'),
     path('config-contexts/edit/', views.ConfigContextBulkEditView.as_view(), name='configcontext_bulk_edit'),
     path('config-contexts/delete/', views.ConfigContextBulkDeleteView.as_view(), name='configcontext_bulk_delete'),
+    path('config-contexts/sync/', views.ConfigContextBulkSyncDataView.as_view(), name='configcontext_bulk_sync'),
     path('config-contexts/<int:pk>/', include(get_model_urls('extras', 'configcontext'))),
 
     # Image attachments

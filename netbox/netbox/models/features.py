@@ -349,6 +349,10 @@ class SyncedDataMixin(models.Model):
     class Meta:
         abstract = True
 
+    @property
+    def is_synced(self):
+        return self.data_file and self.data_synced >= self.data_file.last_updated
+
     def clean(self):
         if self.data_file:
             self.sync_data()

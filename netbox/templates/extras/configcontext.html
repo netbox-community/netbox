@@ -42,7 +42,7 @@
                   <a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>
                 {% elif object.data_path %}
                   <div class="float-end text-warning">
-                    <i class="mdi mdi-alert" title="No file exists at specified path."></i>
+                    <i class="mdi mdi-alert" title="The data file associated with this object has been deleted."></i>
                   </div>
                   {{ object.data_path }}
                 {% else %}
