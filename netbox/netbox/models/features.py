@@ -2,11 +2,12 @@ from collections import defaultdict
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericRelation
-from django.db.models.signals import class_prepared
-from django.dispatch import receiver
-
 from django.core.validators import ValidationError
 from django.db import models
+from django.db.models.signals import class_prepared
+from django.dispatch import receiver
+from django.utils.translation import gettext as _
+
 from taggit.managers import TaggableManager
 
 from extras.choices import CustomFieldVisibilityChoices, ObjectChangeActionChoices
@@ -25,6 +26,7 @@ __all__ = (
     'ExportTemplatesMixin',
     'JobResultsMixin',
     'JournalingMixin',
+    'SyncedDataMixin',
     'TagsMixin',
     'WebhooksMixin',
 )
@@ -317,12 +319,82 @@ class WebhooksMixin(models.Model):
         abstract = True
 
 
+class SyncedDataMixin(models.Model):
+    """
+    Enables population of local data from a DataFile object, synchronized from a remote DatSource.
+    """
+    data_source = models.ForeignKey(
+        to='core.DataSource',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        related_name='+',
+        help_text=_("Remote data source")
+    )
+    data_file = models.ForeignKey(
+        to='core.DataFile',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='+'
+    )
+    data_path = models.CharField(
+        max_length=1000,
+        blank=True,
+        editable=False,
+        help_text=_("Path to remote file (relative to data source root)")
+    )
+    data_synced = models.DateTimeField(
+        blank=True,
+        null=True,
+        editable=False
+    )
+
+    class Meta:
+        abstract = True
+
+    @property
+    def is_synced(self):
+        return self.data_file and self.data_synced >= self.data_file.last_updated
+
+    def clean(self):
+        if self.data_file:
+            self.sync_data()
+            self.data_path = self.data_file.path
+
+        if self.data_source and not self.data_file:
+            raise ValidationError({
+                'data_file': _(f"Must specify a data file when designating a data source.")
+            })
+        if self.data_file and not self.data_source:
+            self.data_source = self.data_file.source
+
+        super().clean()
+
+    def resolve_data_file(self):
+        """
+        Determine the designated DataFile object identified by its parent DataSource and its path. Returns None if
+        either attribute is unset, or if no matching DataFile is found.
+        """
+        from core.models import DataFile
+
+        if self.data_source and self.data_path:
+            try:
+                return DataFile.objects.get(source=self.data_source, path=self.data_path)
+            except DataFile.DoesNotExist:
+                pass
+
+    def sync_data(self):
+        raise NotImplementedError(f"{self.__class__} must implement a sync_data() method.")
+
+
 FEATURES_MAP = (
     ('custom_fields', CustomFieldsMixin),
     ('custom_links', CustomLinksMixin),
     ('export_templates', ExportTemplatesMixin),
     ('job_results', JobResultsMixin),
     ('journaling', JournalingMixin),
+    ('synced_data', SyncedDataMixin),
     ('tags', TagsMixin),
     ('webhooks', WebhooksMixin),
 )
@@ -348,3 +420,9 @@ def _register_features(sender, **kwargs):
             'changelog',
             kwargs={'model': sender}
         )('netbox.views.generic.ObjectChangeLogView')
+    if issubclass(sender, SyncedDataMixin):
+        register_model_view(
+            sender,
+            'sync',
+            kwargs={'model': sender}
+        )('netbox.views.generic.ObjectSyncDataView')

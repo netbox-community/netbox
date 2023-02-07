@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
+from core.api.nested_serializers import NestedDataSourceSerializer, NestedDataFileSerializer
 from dcim.api.nested_serializers import (
     NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedLocationSerializer, NestedPlatformSerializer,
     NestedRegionSerializer, NestedSiteSerializer, NestedSiteGroupSerializer,
@@ -358,13 +359,20 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
+    data_source = NestedDataSourceSerializer(
+        required=False
+    )
+    data_file = NestedDataFileSerializer(
+        read_only=True
+    )
 
     class Meta:
         model = ConfigContext
         fields = [
             'id', 'url', 'display', 'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites',
             'locations', 'device_types', 'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters',
-            'tenant_groups', 'tenants', 'tags', 'data', 'created', 'last_updated',
+            'tenant_groups', 'tenants', 'tags', 'data_source', 'data_path', 'data_file', 'data_synced', 'data',
+            'created', 'last_updated',
         ]
 
 

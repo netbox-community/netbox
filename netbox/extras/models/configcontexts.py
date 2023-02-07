@@ -2,10 +2,11 @@ from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 from extras.querysets import ConfigContextQuerySet
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import WebhooksMixin
+from netbox.models.features import SyncedDataMixin, WebhooksMixin
 from utilities.utils import deepmerge
 
 
@@ -19,7 +20,7 @@ __all__ = (
 # Config contexts
 #
 
-class ConfigContext(WebhooksMixin, ChangeLoggedModel):
+class ConfigContext(SyncedDataMixin, WebhooksMixin, ChangeLoggedModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
     qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
@@ -129,6 +130,13 @@ class ConfigContext(WebhooksMixin, ChangeLoggedModel):
             raise ValidationError(
                 {'data': 'JSON data must be in object form. Example: {"foo": 123}'}
             )
+
+    def sync_data(self):
+        """
+        Synchronize context data from the designated DataFile (if any).
+        """
+        self.data = self.data_file.get_data()
+        self.data_synced = timezone.now()
 
 
 class ConfigContextModel(models.Model):

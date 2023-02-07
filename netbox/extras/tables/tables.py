@@ -188,21 +188,30 @@ class TaggedItemTable(NetBoxTable):
 
 
 class ConfigContextTable(NetBoxTable):
+    data_source = tables.Column(
+        linkify=True
+    )
+    data_file = tables.Column(
+        linkify=True
+    )
     name = tables.Column(
         linkify=True
     )
     is_active = columns.BooleanColumn(
         verbose_name='Active'
     )
+    is_synced = columns.BooleanColumn(
+        verbose_name='Synced'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ConfigContext
         fields = (
-            'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'locations', 'roles',
-            'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'created',
-            'last_updated',
+            'pk', 'id', 'name', 'weight', 'is_active', 'is_synced', 'description', 'regions', 'sites', 'locations',
+            'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants',
+            'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'weight', 'is_active', 'description')
+        default_columns = ('pk', 'name', 'weight', 'is_active', 'is_synced', 'description')
 
 
 class ObjectChangeTable(NetBoxTable):

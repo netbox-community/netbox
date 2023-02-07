@@ -18,6 +18,10 @@ A numeric value which influences the order in which context data is merged. Cont
 
 The context data expressed in JSON format.
 
+### Data File
+
+Config context data may optionally be sourced from a remote [data file](../core/datafile.md), which is synchronized from a remote data source. When designating a data file, there is no need to specify local data for the config context: It will be populated automatically from the data file.
+
 ### Is Active
 
 If not selected, this config context will be excluded from rendering. This can be convenient to temporarily disable a config context.
