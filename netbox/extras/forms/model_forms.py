@@ -258,12 +258,6 @@ class ConfigContextForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
             'tenants', 'tags', 'data_source', 'data_file',
         )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # if self.instance and self.instance.data_file:
-        #     self.fields['data'].widget.attrs.update({'disabled': True})
-
     def clean(self):
         super().clean()
 
