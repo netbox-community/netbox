@@ -37,7 +37,7 @@ class Command(BaseCommand):
                     f"clearing sessions; skipping."
                 )
 
-        # Delete expired ObjectRecords
+        # Delete expired ObjectChanges
         if options['verbosity']:
             self.stdout.write("[*] Checking for expired changelog records")
         if config.CHANGELOG_RETENTION:
