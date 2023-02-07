@@ -89,7 +89,7 @@
           {% if object.data_file and object.data_file.last_updated > object.data_synced %}
             <div class="alert alert-warning" role="alert">
               <i class="mdi mdi-alert"></i> Data is out of sync with upstream file (<a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>).
-              {% if perms.extras.change_configcontext %}
+              {% if perms.extras.sync_configcontext %}
                 <div class="float-end">
                   <form action="{% url 'extras:configcontext_sync' pk=object.pk %}" method="post">
                     {% csrf_token %}

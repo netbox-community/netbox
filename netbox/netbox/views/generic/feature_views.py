@@ -142,7 +142,7 @@ class ObjectSyncDataView(View):
         """
         qs = model.objects.all()
         if hasattr(model.objects, 'restrict'):
-            qs = qs.restrict(request.user, 'change')
+            qs = qs.restrict(request.user, 'sync')
         obj = get_object_or_404(qs, **kwargs)
 
         if not obj.data_file:
@@ -151,7 +151,7 @@ class ObjectSyncDataView(View):
 
         obj.sync_data()
         obj.save()
-        messages.success(request, f"Synchronized data for {model._meta._verbose_name} {obj}.")
+        messages.success(request, f"Synchronized data for {model._meta.verbose_name} {obj}.")
 
         return redirect(obj.get_absolute_url())
 
@@ -161,7 +161,7 @@ class BulkSyncDataView(GetReturnURLMixin, BaseMultiObjectView):
     Synchronize multiple instances of a model inheriting from SyncedDataMixin.
     """
     def get_required_permission(self):
-        return get_permission_for_model(self.queryset.model, 'change')
+        return get_permission_for_model(self.queryset.model, 'sync')
 
     def post(self, request):
         selected_objects = self.queryset.filter(
