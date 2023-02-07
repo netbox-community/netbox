@@ -1,5 +1,5 @@
 from django.db.models import CharField, TextField, Lookup
-
+from .fields import CachedValueField
 
 class Empty(Lookup):
     """
@@ -27,4 +27,4 @@ class NetContainsOrEquals(Lookup):
         return 'CAST(%s as inet) >>= %s' % (lhs, rhs), params
 
 CharField.register_lookup(Empty)
-TextField.register_lookup(NetContainsOrEquals)
+CachedValueField.register_lookup(NetContainsOrEquals)
