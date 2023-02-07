@@ -1,6 +1,7 @@
 from django.db.models import CharField, TextField, Lookup
 from .fields import CachedValueField
 
+
 class Empty(Lookup):
     """
     Filter on whether a string is empty.
@@ -25,6 +26,7 @@ class NetContainsOrEquals(Lookup):
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = lhs_params + rhs_params
         return 'CAST(%s as inet) >>= %s' % (lhs, rhs), params
+
 
 CharField.register_lookup(Empty)
 CachedValueField.register_lookup(NetContainsOrEquals)

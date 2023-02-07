@@ -108,7 +108,7 @@ class CachedValueSearchBackend(SearchBackend):
         if lookup == LookupTypes.PARTIAL:
             try:
                 address = str(netaddr.IPNetwork(value.strip()).cidr)
-                query_filter |=  Q(type=FieldTypes.CIDR) & Q(value__net_contains_or_equals=address)
+                query_filter |= Q(type=FieldTypes.CIDR) & Q(value__net_contains_or_equals=address)
             except (AddrFormatError, ValueError):
                 pass
 
