@@ -2,6 +2,10 @@
 
 ## v3.4.5 (FUTURE)
 
+### Bug Fixes
+
+* [#11683](https://github.com/netbox-community/netbox/issues/11683) - Fix CSV header attribute detection when auto-detecting import format
+
 ---
 
 ## v3.4.4 (2023-02-02)
