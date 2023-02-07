@@ -359,7 +359,9 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
-    data_source = NestedDataSourceSerializer()
+    data_source = NestedDataSourceSerializer(
+        required=False
+    )
     data_file = NestedDataFileSerializer(
         read_only=True
     )
