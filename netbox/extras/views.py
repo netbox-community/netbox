@@ -121,6 +121,8 @@ class ExportTemplateListView(generic.ObjectListView):
     filterset = filtersets.ExportTemplateFilterSet
     filterset_form = forms.ExportTemplateFilterForm
     table = tables.ExportTemplateTable
+    template_name = 'extras/exporttemplate_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_sync')
 
 
 @register_model_view(ExportTemplate)
@@ -156,6 +158,10 @@ class ExportTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = ExportTemplate.objects.all()
     filterset = filtersets.ExportTemplateFilterSet
     table = tables.ExportTemplateTable
+
+
+class ExportTemplateBulkSyncDataView(generic.BulkSyncDataView):
+    queryset = ExportTemplate.objects.all()
 
 
 #

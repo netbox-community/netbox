@@ -29,6 +29,7 @@ urlpatterns = [
     path('export-templates/import/', views.ExportTemplateBulkImportView.as_view(), name='exporttemplate_import'),
     path('export-templates/edit/', views.ExportTemplateBulkEditView.as_view(), name='exporttemplate_bulk_edit'),
     path('export-templates/delete/', views.ExportTemplateBulkDeleteView.as_view(), name='exporttemplate_bulk_delete'),
+    path('export-templates/sync/', views.ExportTemplateBulkSyncDataView.as_view(), name='exporttemplate_bulk_sync'),
     path('export-templates/<int:pk>/', include(get_model_urls('extras', 'exporttemplate'))),
 
     # Saved filters

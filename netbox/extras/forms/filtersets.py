@@ -21,9 +21,9 @@ from .mixins import SavedFiltersMixin
 __all__ = (
     'ConfigContextFilterForm',
     'CustomFieldFilterForm',
-    'JobResultFilterForm',
     'CustomLinkFilterForm',
     'ExportTemplateFilterForm',
+    'JobResultFilterForm',
     'JournalEntryFilterForm',
     'LocalConfigContextFilterForm',
     'ObjectChangeFilterForm',
@@ -160,7 +160,21 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
 class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
+        ('Data', ('data_source_id', 'data_file_id')),
         ('Attributes', ('content_types', 'mime_type', 'file_extension', 'as_attachment')),
+    )
+    data_source_id = DynamicModelMultipleChoiceField(
+        queryset=DataSource.objects.all(),
+        required=False,
+        label=_('Data source')
+    )
+    data_file_id = DynamicModelMultipleChoiceField(
+        queryset=DataFile.objects.all(),
+        required=False,
+        label=_('Data file'),
+        query_params={
+            'source_id': '$data_source_id'
+        }
     )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),

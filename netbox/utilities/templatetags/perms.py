@@ -28,3 +28,8 @@ def can_change(user, instance):
 @register.filter()
 def can_delete(user, instance):
     return _check_permission(user, instance, 'delete')
+
+
+@register.filter()
+def can_sync(user, instance):
+    return _check_permission(user, instance, 'sync')

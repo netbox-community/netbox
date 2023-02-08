@@ -26,7 +26,8 @@ from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
-    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, TagsMixin, WebhooksMixin,
+    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, SyncedDataMixin,
+    TagsMixin, WebhooksMixin,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import render_jinja2
@@ -281,7 +282,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
         }
 
 
-class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class ExportTemplate(SyncedDataMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='export_templates',
@@ -334,6 +335,13 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
             raise ValidationError({
                 'name': f'"{self.name}" is a reserved name. Please choose a different name.'
             })
+
+    def sync_data(self):
+        """
+        Synchronize template content from the designated DataFile (if any).
+        """
+        self.template_code = self.data_file.data_as_string
+        self.data_synced = timezone.now()
 
     def render(self, queryset):
         """
