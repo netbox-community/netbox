@@ -258,7 +258,7 @@ class CustomValidationMixin(models.Model):
         super().clean()
 
         # If the instance is a base for replications, skip custom validation
-        if hasattr(self, '_replicated_base'):
+        if getattr(self, '_replicated_base', False):
             return
 
         # Send the post_clean signal
