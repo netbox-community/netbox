@@ -142,12 +142,19 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
         queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
         many=True
     )
+    data_source = NestedDataSourceSerializer(
+        required=False
+    )
+    data_file = NestedDataFileSerializer(
+        read_only=True
+    )
 
     class Meta:
         model = ExportTemplate
         fields = [
             'id', 'url', 'display', 'content_types', 'name', 'description', 'template_code', 'mime_type',
-            'file_extension', 'as_attachment', 'created', 'last_updated',
+            'file_extension', 'as_attachment', 'data_source', 'data_path', 'data_file', 'data_synced', 'created',
+            'last_updated',
         ]
 
 

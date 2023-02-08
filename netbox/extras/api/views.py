@@ -92,9 +92,9 @@ class CustomLinkViewSet(NetBoxModelViewSet):
 # Export templates
 #
 
-class ExportTemplateViewSet(NetBoxModelViewSet):
+class ExportTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
-    queryset = ExportTemplate.objects.all()
+    queryset = ExportTemplate.objects.prefetch_related('data_source', 'data_file')
     serializer_class = serializers.ExportTemplateSerializer
     filterset_class = filtersets.ExportTemplateFilterSet
 

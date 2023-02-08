@@ -90,15 +90,24 @@ class ExportTemplateTable(NetBoxTable):
     )
     content_types = columns.ContentTypesColumn()
     as_attachment = columns.BooleanColumn()
+    data_source = tables.Column(
+        linkify=True
+    )
+    data_file = tables.Column(
+        linkify=True
+    )
+    is_synced = columns.BooleanColumn(
+        verbose_name='Synced'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ExportTemplate
         fields = (
             'pk', 'id', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
-            'created', 'last_updated',
+            'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
+            'pk', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'is_synced',
         )
 
 

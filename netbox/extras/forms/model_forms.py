@@ -96,19 +96,28 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('export_templates')
     )
+    template_code = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'font-monospace'})
+    )
 
     fieldsets = (
         ('Export Template', ('name', 'content_types', 'description')),
-        ('Template', ('template_code',)),
+        ('Content', ('data_source', 'data_file', 'template_code',)),
         ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
     )
 
     class Meta:
         model = ExportTemplate
         fields = '__all__'
-        widgets = {
-            'template_code': forms.Textarea(attrs={'class': 'font-monospace'}),
-        }
+
+    def clean(self):
+        super().clean()
+
+        if not self.cleaned_data.get('template_code') and not self.cleaned_data.get('data_file'):
+            raise forms.ValidationError("Must specify either local content or a data file")
+
+        return self.cleaned_data
 
 
 class SavedFilterForm(BootstrapMixin, forms.ModelForm):
@@ -261,8 +270,8 @@ class ConfigContextForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
     def clean(self):
         super().clean()
 
-        if not self.cleaned_data.get('data') and not self.cleaned_data.get('data_source'):
-            raise forms.ValidationError("Must specify either local data or a data source")
+        if not self.cleaned_data.get('data') and not self.cleaned_data.get('data_file'):
+            raise forms.ValidationError("Must specify either local data or a data file")
 
         return self.cleaned_data
 

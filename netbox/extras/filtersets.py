@@ -127,10 +127,18 @@ class ExportTemplateFilterSet(BaseFilterSet):
         field_name='content_types__id'
     )
     content_types = ContentTypeFilter()
+    data_source_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data source (ID)'),
+    )
+    data_file_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data file (ID)'),
+    )
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'content_types', 'name', 'description']
+        fields = ['id', 'content_types', 'name', 'description', 'data_synced']
 
     def search(self, queryset, name, value):
         if not value.strip():
