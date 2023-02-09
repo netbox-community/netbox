@@ -158,6 +158,27 @@ class ConfigContextViewSet(SyncedDataMixin, NetBoxModelViewSet):
 
 
 #
+# Config templates
+#
+
+class ConfigTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
+    queryset = ConfigTemplate.objects.prefetch_related('data_source', 'data_file')
+    serializer_class = serializers.ConfigTemplateSerializer
+    filterset_class = filtersets.ConfigTemplateFilterSet
+
+    @action(detail=True, methods=['post'])
+    def render(self, request, pk):
+        """
+        Render a ConfigTemplate using the context data provided (if any).
+        """
+        configtemplate = self.get_object()
+        output = configtemplate.render(context=request.data)
+
+        # TODO: Create a proper serializer
+        return Response({"output": output})
+
+
+#
 # Reports
 #
 

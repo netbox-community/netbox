@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from core.models import DataFile, DataSource
+from core.models import DataSource
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
@@ -13,9 +13,9 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
 from .models import *
 
-
 __all__ = (
     'ConfigContextFilterSet',
+    'ConfigTemplateFilterSet',
     'ContentTypeFilterSet',
     'CustomFieldFilterSet',
     'CustomLinkFilterSet',
@@ -451,6 +451,33 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
             Q(name__icontains=value) |
             Q(description__icontains=value) |
             Q(data__icontains=value)
+        )
+
+
+class ConfigTemplateFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    data_source_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data source (ID)'),
+    )
+    data_file_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data file (ID)'),
+    )
+
+    class Meta:
+        model = ConfigTemplate
+        fields = ['id', 'name', 'description', 'data_synced']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
         )
 
 

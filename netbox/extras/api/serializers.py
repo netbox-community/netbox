@@ -384,6 +384,27 @@ class ConfigContextSerializer(ValidatedModelSerializer):
 
 
 #
+# Config templates
+#
+
+class ConfigTemplateSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:configtemplate-detail')
+    data_source = NestedDataSourceSerializer(
+        required=False
+    )
+    data_file = NestedDataFileSerializer(
+        read_only=True
+    )
+
+    class Meta:
+        model = ConfigTemplate
+        fields = [
+            'id', 'url', 'display', 'name', 'description', 'environment_params', 'template_code', 'data_source',
+            'data_path', 'data_file', 'data_synced', 'created', 'last_updated',
+        ]
+
+
+#
 # Job Results
 #
 
