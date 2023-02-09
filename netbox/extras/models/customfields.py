@@ -425,9 +425,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
             field_class = CSVModelMultipleChoiceField if for_csv_import else DynamicModelMultipleChoiceField
 
             field = field_class(
-                    queryset=model.objects.all(),
-                    required=required,
-                    initial=initial,
+                queryset=model.objects.all(),
+                required=required,
+                initial=initial,
             )
 
         # Text
