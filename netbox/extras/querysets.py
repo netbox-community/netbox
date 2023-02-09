@@ -1,4 +1,5 @@
-from django.conf import settings
+from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.aggregates import JSONBAgg
 from django.db.models import Manager, OuterRef, Subquery, Q
 
@@ -159,7 +160,7 @@ class ObjectChangeManager(Manager.from_queryset(RestrictedQuerySet)):
     def get_queryset(self):
         # Exclude any change records which refer to an instance of a model that's no longer installed. This
         # can happen when a plugin is removed but its data remains in the database, for example.
-        app_labels = [
-            app.split('.')[-1] for app in settings.INSTALLED_APPS
-        ]
-        return super().get_queryset().filter(changed_object_type__app_label__in=app_labels)
+        content_type_ids = set(
+            ct.pk for ct in ContentType.objects.get_for_models(*apps.get_models()).values()
+        )
+        return super().get_queryset().filter(changed_object_type_id__in=content_type_ids)
