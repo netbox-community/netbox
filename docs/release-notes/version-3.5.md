@@ -10,6 +10,7 @@
 * [#11517](https://github.com/netbox-community/netbox/issues/11517) - Standardize the inclusion of related objects across the entire UI
 * [#11584](https://github.com/netbox-community/netbox/issues/11584) - Add a list view for contact assignments
 * [#11625](https://github.com/netbox-community/netbox/issues/11625) - Add HTMX support to ObjectEditView
+* [#11693](https://github.com/netbox-community/netbox/issues/11693) - Enable syncing export template content from remote sources
 
 ### Other Changes
 
