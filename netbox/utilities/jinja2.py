@@ -31,7 +31,7 @@ class ConfigTemplateLoader(BaseLoader):
                 DataFile.objects.filter(source=self.data_source, path__in=referenced_templates)
             })
 
-        return template_source, template, True
+        return template_source, template, lambda: True
 
     def cache_templates(self, templates):
         self._template_cache.update(templates)
