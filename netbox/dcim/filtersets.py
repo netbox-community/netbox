@@ -436,6 +436,16 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
+    default_platform_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Platform.objects.all(),
+        label=_('Default platform (ID)'),
+    )
+    default_platform = django_filters.ModelMultipleChoiceFilter(
+        field_name='default_platform__slug',
+        queryset=Platform.objects.all(),
+        to_field_name='slug',
+        label=_('Default platform (slug)'),
+    )
     has_front_image = django_filters.BooleanFilter(
         label=_('Has a front image'),
         method='_has_front_image'

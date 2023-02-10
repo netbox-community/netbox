@@ -82,6 +82,14 @@ class DeviceType(PrimaryModel, WeightMixin):
     slug = models.SlugField(
         max_length=100
     )
+    default_platform = models.ForeignKey(
+        to='dcim.Platform',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name='Default platform'
+    )
     part_number = models.CharField(
         max_length=50,
         blank=True,
@@ -121,7 +129,7 @@ class DeviceType(PrimaryModel, WeightMixin):
     )
 
     clone_fields = (
-        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
+        'manufacturer', 'default_platform', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
     )
     prerequisite_models = (
         'dcim.Manufacturer',
@@ -165,6 +173,7 @@ class DeviceType(PrimaryModel, WeightMixin):
             'manufacturer': self.manufacturer.name,
             'model': self.model,
             'slug': self.slug,
+            'default_platform': self.default_platform.name if self.default_platform else None,
             'part_number': self.part_number,
             'u_height': float(self.u_height),
             'is_full_depth': self.is_full_depth,
@@ -800,6 +809,10 @@ class Device(PrimaryModel, ConfigContextModel):
         # Inherit airflow attribute from DeviceType if not set
         if is_new and not self.airflow:
             self.airflow = self.device_type.airflow
+
+        # Inherit default_platform from DeviceType if not set
+        if is_new and not self.platform:
+            self.platform = self.device_type.default_platform
 
         super().save(*args, **kwargs)
 
