@@ -230,16 +230,20 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, ChangeLoggedModel):
         Render the contents of the template.
         """
         context = context or {}
-        template_code = self.template_code
-        # output = render_jinja2(template_code, context)
+        template_path = self.data_file.path
 
-        environment = SandboxedEnvironment(
-            loader=ConfigTemplateLoader(data_source=self.data_source)
-        )
+        # Initialize the template loader & cache the base template code
+        loader = ConfigTemplateLoader(data_source=self.data_source)
+        loader.cache_templates({
+            template_path: self.template_code
+        })
+
+        # Initialize the Jinja2 environment
+        environment = SandboxedEnvironment(loader=loader)
         environment.filters.update(get_config().JINJA2_FILTERS)
-        output = environment.from_string(source=template_code).render(**context)
+
+        # Render the template
+        output = environment.get_template(template_path).render(**context)
 
         # Replace CRLF-style line terminators
-        output = output.replace('\r\n', '\n')
-
-        return output
+        return output.replace('\r\n', '\n')
