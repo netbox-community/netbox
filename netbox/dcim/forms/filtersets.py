@@ -378,7 +378,7 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     model = DeviceType
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Hardware', ('manufacturer_id', 'part_number', 'subdevice_role', 'airflow')),
+        ('Hardware', ('manufacturer_id', 'default_platform_id', 'part_number', 'subdevice_role', 'airflow')),
         ('Images', ('has_front_image', 'has_rear_image')),
         ('Components', (
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
@@ -390,6 +390,11 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
         queryset=Manufacturer.objects.all(),
         required=False,
         label=_('Manufacturer')
+    )
+    default_platform_id = DynamicModelMultipleChoiceField(
+        queryset=Platform.objects.all(),
+        required=False,
+        label=_('Default platform')
     )
     part_number = forms.CharField(
         required=False

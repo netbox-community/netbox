@@ -503,6 +503,12 @@ class DeviceTypeTestCase(
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
+        platforms = (
+            Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturers[0]),
+            Platform(name='Platform 2', slug='platform-3', manufacturer=manufacturers[1]),
+        )
+        Platform.objects.bulk_create(platforms)
+
         DeviceType.objects.bulk_create([
             DeviceType(model='Device Type 1', slug='device-type-1', manufacturer=manufacturers[0]),
             DeviceType(model='Device Type 2', slug='device-type-2', manufacturer=manufacturers[0]),
@@ -513,6 +519,7 @@ class DeviceTypeTestCase(
 
         cls.form_data = {
             'manufacturer': manufacturers[1].pk,
+            'default_platform': platforms[0].pk,
             'model': 'Device Type X',
             'slug': 'device-type-x',
             'part_number': '123ABC',
@@ -525,6 +532,7 @@ class DeviceTypeTestCase(
 
         cls.bulk_edit_data = {
             'manufacturer': manufacturers[1].pk,
+            'default_platform': platforms[1].pk,
             'u_height': 3,
             'is_full_depth': False,
         }
@@ -673,6 +681,7 @@ class DeviceTypeTestCase(
         """
         IMPORT_DATA = """
 manufacturer: Generic
+default_platform: Platform
 model: TEST-1000
 slug: test-1000
 u_height: 2
@@ -755,8 +764,11 @@ inventory-items:
     manufacturer: Generic
 """
 
-        # Create the manufacturer
-        Manufacturer(name='Generic', slug='generic').save()
+        # Create the manufacturer and platform
+        manufacturer = Manufacturer(name='Generic', slug='generic')
+        manufacturer.save()
+        platform = Platform(name='Platform', slug='test-platform', manufacturer=manufacturer)
+        platform.save()
 
         # Add all required permissions to the test user
         self.add_permissions(
@@ -783,6 +795,7 @@ inventory-items:
 
         device_type = DeviceType.objects.get(model='TEST-1000')
         self.assertEqual(device_type.comments, 'Test comment')
+        self.assertEqual(device_type.default_platform.pk, platform.pk)
 
         # Verify all of the components were created
         self.assertEqual(device_type.consoleporttemplates.count(), 3)

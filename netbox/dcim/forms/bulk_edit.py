@@ -374,6 +374,10 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
+    default_platform = DynamicModelChoiceField(
+        queryset=Platform.objects.all(),
+        required=False
+    )
     part_number = forms.CharField(
         required=False
     )
@@ -412,7 +416,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = DeviceType
     fieldsets = (
-        ('Device Type', ('manufacturer', 'part_number', 'u_height', 'is_full_depth', 'airflow', 'description')),
+        ('Device Type', ('manufacturer', 'default_platform', 'part_number', 'u_height', 'is_full_depth', 'airflow', 'description')),
         ('Weight', ('weight', 'weight_unit')),
     )
     nullable_fields = ('part_number', 'airflow', 'weight', 'weight_unit', 'description', 'comments')
