@@ -5,7 +5,7 @@ from core.choices import DataSourceTypeChoices
 from core.models import *
 from netbox.forms import NetBoxModelBulkEditForm
 from utilities.forms import (
-    add_blank_choice, BulkEditNullBooleanSelect, CommentField, SmallTextarea, StaticSelect,
+    add_blank_choice, BulkEditNullBooleanSelect, CommentField, StaticSelect,
 )
 
 __all__ = (
@@ -30,7 +30,7 @@ class DataSourceBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=forms.Textarea,
         label=_('Comments')
     )
     parameters = forms.JSONField(

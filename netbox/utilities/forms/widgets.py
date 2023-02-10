@@ -21,7 +21,6 @@ __all__ = (
     'SelectSpeedWidget',
     'SelectWithPK',
     'SlugWidget',
-    'SmallTextarea',
     'StaticSelect',
     'StaticSelectMultiple',
     'TimePicker',
@@ -31,13 +30,6 @@ JSONPrimitive = Union[str, bool, int, float, None]
 QueryParamValue = Union[JSONPrimitive, Sequence[JSONPrimitive]]
 QueryParam = Dict[str, QueryParamValue]
 ProcessedParams = Sequence[Dict[str, Sequence[JSONPrimitive]]]
-
-
-class SmallTextarea(forms.Textarea):
-    """
-    Subclass used for rendering a smaller textarea element.
-    """
-    pass
 
 
 class SlugWidget(forms.TextInput):
