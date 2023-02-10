@@ -77,6 +77,9 @@ class DeviceTypeTable(NetBoxTable):
     manufacturer = tables.Column(
         linkify=True
     )
+    default_platform = tables.Column(
+        linkify=True
+    )
     is_full_depth = columns.BooleanColumn(
         verbose_name='Full Depth'
     )
@@ -100,7 +103,7 @@ class DeviceTypeTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.DeviceType
         fields = (
-            'pk', 'id', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
             'airflow', 'weight', 'description', 'comments', 'instance_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (

@@ -378,13 +378,17 @@ class DeviceTypeForm(NetBoxModelForm):
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all()
     )
+    default_platform = DynamicModelChoiceField(
+        queryset=Platform.objects.all(),
+        required=False
+    )
     slug = SlugField(
         slug_source='model'
     )
     comments = CommentField()
 
     fieldsets = (
-        ('Device Type', ('manufacturer', 'model', 'slug', 'description', 'tags')),
+        ('Device Type', ('manufacturer', 'model', 'slug', 'description', 'tags', 'default_platform')),
         ('Chassis', (
             'u_height', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
         )),
@@ -395,7 +399,7 @@ class DeviceTypeForm(NetBoxModelForm):
         model = DeviceType
         fields = [
             'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
-            'weight', 'weight_unit', 'front_image', 'rear_image', 'description', 'comments', 'tags',
+            'weight', 'weight_unit', 'front_image', 'rear_image', 'description', 'comments', 'tags', 'default_platform'
         ]
         widgets = {
             'airflow': StaticSelect(),

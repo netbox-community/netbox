@@ -309,6 +309,7 @@ class ManufacturerSerializer(NetBoxModelSerializer):
 class DeviceTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicetype-detail')
     manufacturer = NestedManufacturerSerializer()
+    default_platform = NestedPlatformSerializer(required=False, allow_null=True)
     u_height = serializers.DecimalField(
         max_digits=4,
         decimal_places=1,
@@ -324,7 +325,7 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'url', 'display', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
+            'id', 'url', 'display', 'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
             'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image', 'description',
             'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
         ]
