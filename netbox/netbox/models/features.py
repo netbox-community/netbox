@@ -216,6 +216,13 @@ class CustomFieldsMixin(models.Model):
 
         return dict(groups)
 
+    def populate_custom_field_defaults(self):
+        """
+        Apply the default value for each custom field
+        """
+        for cf in self.custom_fields:
+            self.custom_field_data[cf.name] = cf.default
+
     def clean(self):
         super().clean()
         from extras.models import CustomField
