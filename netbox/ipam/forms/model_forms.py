@@ -578,6 +578,7 @@ class FHRPGroupForm(NetBoxModelForm):
                 role=FHRP_PROTOCOL_ROLE_MAPPINGS.get(self.cleaned_data['protocol'], IPAddressRoleChoices.ROLE_VIP),
                 assigned_object=instance
             )
+            ipaddress.populate_custom_field_defaults()
             ipaddress.save()
 
             # Check that the new IPAddress conforms with any assigned object-level permissions
