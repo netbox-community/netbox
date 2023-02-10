@@ -590,6 +590,13 @@ class Device(PrimaryModel, ConfigContextModel):
         null=True,
         validators=[MaxValueValidator(255)]
     )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='devices',
+        blank=True,
+        null=True
+    )
 
     # Generic relations
     contacts = GenericRelation(

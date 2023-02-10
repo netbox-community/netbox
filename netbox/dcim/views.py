@@ -1997,6 +1997,32 @@ class DeviceInventoryView(DeviceComponentsView):
     )
 
 
+@register_model_view(Device, 'render-config')
+class DeviceRenderConfigView(generic.ObjectView):
+    queryset = Device.objects.all()
+    template_name = 'dcim/device/render_config.html'
+    tab = ViewTab(
+        label=_('Render Config'),
+        permission='extras.view_configtemplate',
+        weight=2000
+    )
+
+    def get_extra_context(self, request, instance):
+        context_data = {
+            'device': instance,
+        }
+        context_data.update(**instance.get_config_context())
+        if instance.config_template:
+            rendered_config = instance.config_template.render(context=context_data)
+        else:
+            rendered_config = None
+
+        return {
+            'context_data': context_data,
+            'rendered_config': rendered_config,
+        }
+
+
 @register_model_view(Device, 'configcontext', path='config-context')
 class DeviceConfigContextView(ObjectConfigContextView):
     queryset = Device.objects.annotate_config_context_data()
@@ -2004,7 +2030,7 @@ class DeviceConfigContextView(ObjectConfigContextView):
     tab = ViewTab(
         label=_('Config Context'),
         permission='extras.view_configcontext',
-        weight=2000
+        weight=2100
     )
 
 

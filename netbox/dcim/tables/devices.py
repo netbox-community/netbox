@@ -203,6 +203,9 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     vc_priority = tables.Column(
         verbose_name='VC Priority'
     )
+    config_template = tables.Column(
+        linkify=True
+    )
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='dcim:device_list'
@@ -214,7 +217,7 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
             'pk', 'id', 'name', 'status', 'tenant', 'tenant_group', 'device_role', 'manufacturer', 'device_type',
             'platform', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'location', 'rack', 'position', 'face',
             'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position',
-            'vc_priority', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'vc_priority', 'description', 'config_template', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',

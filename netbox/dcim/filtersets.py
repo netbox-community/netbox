@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 
 from extras.filtersets import LocalConfigContextFilterSet
+from extras.models import ConfigTemplate
 from ipam.models import ASN, L2VPN, IPAddress, VRF
 from netbox.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet,
@@ -935,6 +936,10 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
     virtual_chassis_member = django_filters.BooleanFilter(
         method='_virtual_chassis_member',
         label=_('Is a virtual chassis member')
+    )
+    config_template_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ConfigTemplate.objects.all(),
+        label=_('Config template (ID)'),
     )
     console_ports = django_filters.BooleanFilter(
         method='_console_ports',

@@ -6,6 +6,7 @@ from timezone_field import TimeZoneFormField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from extras.models import ConfigTemplate
 from ipam.models import ASN, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
@@ -540,6 +541,10 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    config_template = DynamicModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False
+    )
     comments = CommentField(
         widget=forms.Textarea,
         label='Comments'
@@ -550,6 +555,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         ('Device', ('device_role', 'status', 'tenant', 'platform', 'description')),
         ('Location', ('site', 'location')),
         ('Hardware', ('manufacturer', 'device_type', 'airflow', 'serial')),
+        ('Configuration', ('config_template',)),
     )
     nullable_fields = (
         'location', 'tenant', 'platform', 'serial', 'airflow', 'description', 'comments',

@@ -8,6 +8,7 @@ from django.utils.translation import gettext as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from extras.models import ConfigTemplate
 from ipam.models import VRF
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
@@ -434,12 +435,17 @@ class DeviceImportForm(BaseDeviceImportForm):
         required=False,
         help_text=_('Airflow direction')
     )
+    config_template = CSVModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        to_field_name='name',
+        help_text=_('Config template')
+    )
 
     class Meta(BaseDeviceImportForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'location', 'rack', 'position', 'face', 'parent', 'device_bay', 'airflow', 'virtual_chassis',
-            'vc_position', 'vc_priority', 'cluster', 'description', 'comments', 'tags',
+            'vc_position', 'vc_priority', 'cluster', 'description', 'config_template', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
