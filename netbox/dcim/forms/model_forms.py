@@ -12,7 +12,7 @@ from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import (
     APISelect, add_blank_choice, BootstrapMixin, ClearableFileInput, CommentField, ContentTypeChoiceField,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SelectWithPK, SmallTextarea,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SelectWithPK,
     SlugField, StaticSelect, SelectSpeedWidget,
 )
 from virtualization.models import Cluster, ClusterGroup
@@ -149,12 +149,12 @@ class SiteForm(TenancyForm, NetBoxModelForm):
             'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments', 'tags',
         )
         widgets = {
-            'physical_address': SmallTextarea(
+            'physical_address': forms.Textarea(
                 attrs={
                     'rows': 3,
                 }
             ),
-            'shipping_address': SmallTextarea(
+            'shipping_address': forms.Textarea(
                 attrs={
                     'rows': 3,
                 }
@@ -470,7 +470,7 @@ class PlatformForm(NetBoxModelForm):
             'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'tags',
         ]
         widgets = {
-            'napalm_args': SmallTextarea(),
+            'napalm_args': forms.Textarea(),
         }
 
 
