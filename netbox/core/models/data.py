@@ -228,11 +228,17 @@ class DataSource(PrimaryModel):
         return False
 
 
-class DataFile(ChangeLoggingMixin, models.Model):
+class DataFile(models.Model):
     """
     The database representation of a remote file fetched from a remote DataSource. DataFile instances should be created,
     updated, or deleted only by calling DataSource.sync().
     """
+    created = models.DateTimeField(
+        auto_now_add=True
+    )
+    last_updated = models.DateTimeField(
+        editable=False
+    )
     source = models.ForeignKey(
         to='core.DataSource',
         on_delete=models.CASCADE,
@@ -243,9 +249,6 @@ class DataFile(ChangeLoggingMixin, models.Model):
         max_length=1000,
         editable=False,
         help_text=_("File path relative to the data source's root")
-    )
-    last_updated = models.DateTimeField(
-        editable=False
     )
     size = models.PositiveIntegerField(
         editable=False

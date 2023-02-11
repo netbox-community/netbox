@@ -43,9 +43,9 @@ class Migration(migrations.Migration):
             name='DataFile',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
-                ('created', models.DateTimeField(auto_now_add=True, null=True)),
-                ('path', models.CharField(editable=False, max_length=1000)),
+                ('created', models.DateTimeField(auto_now_add=True)),
                 ('last_updated', models.DateTimeField(editable=False)),
+                ('path', models.CharField(editable=False, max_length=1000)),
                 ('size', models.PositiveIntegerField(editable=False)),
                 ('hash', models.CharField(editable=False, max_length=64, validators=[django.core.validators.RegexValidator(message='Length must be 64 hexadecimal characters.', regex='^[0-9a-f]{64}$')])),
                 ('data', models.BinaryField()),

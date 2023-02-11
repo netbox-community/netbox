@@ -50,7 +50,6 @@ class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class DataFileTestCase(
     ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.GetObjectChangelogViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.ListObjectsViewTestCase,
     ViewTestCases.BulkDeleteObjectsViewTestCase,
