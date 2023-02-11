@@ -6,9 +6,8 @@ from django.utils import timezone
 
 from extras.querysets import ConfigContextQuerySet
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import SyncedDataMixin, WebhooksMixin
+from netbox.models.features import SyncedDataMixin
 from utilities.utils import deepmerge
-
 
 __all__ = (
     'ConfigContext',
@@ -20,7 +19,7 @@ __all__ = (
 # Config contexts
 #
 
-class ConfigContext(SyncedDataMixin, WebhooksMixin, ChangeLoggedModel):
+class ConfigContext(SyncedDataMixin, ChangeLoggedModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
     qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B

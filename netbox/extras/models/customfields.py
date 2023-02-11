@@ -17,7 +17,7 @@ from django.utils.translation import gettext as _
 from extras.choices import *
 from extras.utils import FeatureQuery
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import CloningMixin, ExportTemplatesMixin, WebhooksMixin
+from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from netbox.search import FieldTypes
 from utilities import filters
 from utilities.forms.fields import (
@@ -56,7 +56,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',

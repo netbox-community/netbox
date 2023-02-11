@@ -1,4 +1,3 @@
-from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -10,7 +9,6 @@ from dcim.models import CabledObjectModel
 from netbox.models import (
     ChangeLoggedModel, CustomFieldsMixin, CustomLinksMixin, OrganizationalModel, PrimaryModel, TagsMixin,
 )
-from netbox.models.features import WebhooksMixin
 
 __all__ = (
     'Circuit',
@@ -132,7 +130,6 @@ class CircuitTermination(
     CustomFieldsMixin,
     CustomLinksMixin,
     TagsMixin,
-    WebhooksMixin,
     ChangeLoggedModel,
     CabledObjectModel
 ):

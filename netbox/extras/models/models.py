@@ -27,7 +27,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, SyncedDataMixin,
-    TagsMixin, WebhooksMixin,
+    TagsMixin,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import render_jinja2
@@ -46,7 +46,7 @@ __all__ = (
 )
 
 
-class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class Webhook(ExportTemplatesMixin, ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
@@ -203,7 +203,7 @@ class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         return render_jinja2(self.payload_url, context)
 
 
-class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
@@ -282,7 +282,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
         }
 
 
-class ExportTemplate(SyncedDataMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class ExportTemplate(SyncedDataMixin, ExportTemplatesMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='export_templates',
@@ -376,7 +376,7 @@ class ExportTemplate(SyncedDataMixin, ExportTemplatesMixin, WebhooksMixin, Chang
         return response
 
 
-class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A set of predefined keyword parameters that can be reused to filter for specific objects.
     """
@@ -447,7 +447,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         return qd.urlencode()
 
 
-class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
+class ImageAttachment(ChangeLoggedModel):
     """
     An uploaded image which is associated with an object.
     """
@@ -523,7 +523,7 @@ class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
         return objectchange
 
 
-class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin, ExportTemplatesMixin, ChangeLoggedModel):
+class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A historical remark concerning an object; collectively, these form an object's journal. The journal is used to
     preserve historical context around an object, and complements NetBox's built-in change logging. For example, you
