@@ -308,11 +308,17 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
+    config_template = CSVModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Config template')
+    )
     slug = SlugField()
 
     class Meta:
         model = DeviceRole
-        fields = ('name', 'slug', 'color', 'vm_role', 'description', 'tags')
+        fields = ('name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags')
         help_texts = {
             'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
         }
@@ -438,6 +444,7 @@ class DeviceImportForm(BaseDeviceImportForm):
     config_template = CSVModelChoiceField(
         queryset=ConfigTemplate.objects.all(),
         to_field_name='name',
+        required=False,
         help_text=_('Config template')
     )
 

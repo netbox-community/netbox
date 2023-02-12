@@ -86,6 +86,9 @@ class DeviceRoleTable(NetBoxTable):
     )
     color = columns.ColorColumn()
     vm_role = columns.BooleanColumn()
+    config_template = tables.Column(
+        linkify=True
+    )
     tags = columns.TagColumn(
         url_name='dcim:devicerole_list'
     )
@@ -93,8 +96,8 @@ class DeviceRoleTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.DeviceRole
         fields = (
-            'pk', 'id', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'slug', 'tags',
-            'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'config_template', 'description',
+            'slug', 'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description')
 

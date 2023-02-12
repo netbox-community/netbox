@@ -410,6 +410,13 @@ class DeviceRole(OrganizationalModel):
         verbose_name='VM Role',
         help_text=_('Virtual machines may be assigned to this role')
     )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='device_roles',
+        blank=True,
+        null=True
+    )
 
     def get_absolute_url(self):
         return reverse('dcim:devicerole', args=[self.pk])
@@ -868,6 +875,12 @@ class Device(PrimaryModel, ConfigContextModel):
     @property
     def interfaces_count(self):
         return self.vc_interfaces().count()
+
+    def get_config_template(self):
+        """
+        Return the appropriate ConfigTemplate (if any) for this Device.
+        """
+        return self.config_template or self.device_role.config_template
 
     def get_vc_master(self):
         """

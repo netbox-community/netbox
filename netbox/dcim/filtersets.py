@@ -777,6 +777,10 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
 
 
 class DeviceRoleFilterSet(OrganizationalModelFilterSet):
+    config_template_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ConfigTemplate.objects.all(),
+        label=_('Config template (ID)'),
+    )
 
     class Meta:
         model = DeviceRole

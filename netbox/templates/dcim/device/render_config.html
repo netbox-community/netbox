@@ -12,15 +12,15 @@
           <table class="table table-hover attr-table">
             <tr>
               <th scope="row">Config Template</th>
-              <td>{{ object.config_template|linkify|placeholder }}</td>
+              <td>{{ config_template|linkify|placeholder }}</td>
             </tr>
             <tr>
               <th scope="row">Data Source</th>
-              <td>{{ object.config_template.data_file.source|linkify|placeholder }}</td>
+              <td>{{ config_template.data_file.source|linkify|placeholder }}</td>
             </tr>
             <tr>
               <th scope="row">Data File</th>
-              <td>{{ object.config_template.data_file|linkify|placeholder }}</td>
+              <td>{{ config_template.data_file|linkify|placeholder }}</td>
             </tr>
           </table>
         </div>

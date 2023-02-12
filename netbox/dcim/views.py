@@ -13,7 +13,7 @@ from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
-from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
+from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
 from ipam.tables import InterfaceVLANTable
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
@@ -2008,16 +2008,20 @@ class DeviceRenderConfigView(generic.ObjectView):
     )
 
     def get_extra_context(self, request, instance):
+        # Compile context data
         context_data = {
             'device': instance,
         }
         context_data.update(**instance.get_config_context())
-        if instance.config_template:
-            rendered_config = instance.config_template.render(context=context_data)
+
+        # Render the config template
+        if config_template := instance.get_config_template():
+            rendered_config = config_template.render(context=context_data)
         else:
             rendered_config = None
 
         return {
+            'config_template': config_template,
             'context_data': context_data,
             'rendered_config': rendered_config,
         }

@@ -417,18 +417,22 @@ class ModuleTypeForm(NetBoxModelForm):
 
 
 class DeviceRoleForm(NetBoxModelForm):
+    config_template = DynamicModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False
+    )
     slug = SlugField()
 
     fieldsets = (
         ('Device Role', (
-            'name', 'slug', 'color', 'vm_role', 'description', 'tags',
+            'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags',
         )),
     )
 
     class Meta:
         model = DeviceRole
         fields = [
-            'name', 'slug', 'color', 'vm_role', 'description', 'tags',
+            'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags',
         ]
 
 

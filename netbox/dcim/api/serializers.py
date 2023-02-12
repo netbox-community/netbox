@@ -606,8 +606,8 @@ class DeviceRoleSerializer(NetBoxModelSerializer):
     class Meta:
         model = DeviceRole
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'color', 'vm_role', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'device_count', 'virtualmachine_count',
+            'id', 'url', 'display', 'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
 
 
