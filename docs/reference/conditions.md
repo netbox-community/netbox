@@ -97,7 +97,7 @@ Multiple conditions can be combined into nested sets using AND or OR logic. This
 
 ### Examples
 
-`status` is "active" and `primary_ip` is defined _or_ the "exempt" tag is applied.
+`status` is "active" and `primary_ip4` is defined _or_ the "exempt" tag is applied.
 
 ```json
 {
@@ -109,8 +109,8 @@ Multiple conditions can be combined into nested sets using AND or OR logic. This
           "value": "active"
         },
         {
-          "attr": "primary_ip",
-          "value": "",
+          "attr": "primary_ip4",
+          "value": null,
           "negate": true
         }
       ]
