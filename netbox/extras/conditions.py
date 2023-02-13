@@ -45,7 +45,7 @@ class Condition:
         int: (EQ, GT, GTE, LT, LTE, CONTAINS),
         float: (EQ, GT, GTE, LT, LTE, CONTAINS),
         list: (EQ, IN, CONTAINS),
-        type(None): (EQ)
+        type(None): (EQ,)
     }
 
     def __init__(self, attr, value, op=EQ, negate=False):
