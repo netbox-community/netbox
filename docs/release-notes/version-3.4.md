@@ -5,9 +5,11 @@
 ### Bug Fixes
 
 * [#11032](https://github.com/netbox-community/netbox/issues/11032) - Fix false custom validation errors during component creation
+* [#11459](https://github.com/netbox-community/netbox/issues/11459) - Enable evaluating null values in custom validation rules
 * [#11582](https://github.com/netbox-community/netbox/issues/11582) - Ensure form validation errors are displayed when adding virtual chassis members
 * [#11601](https://github.com/netbox-community/netbox/issues/11601) - Fix partial matching of start/end addresses for IP range search
 * [#11683](https://github.com/netbox-community/netbox/issues/11683) - Fix CSV header attribute detection when auto-detecting import format
+* [#11711](https://github.com/netbox-community/netbox/issues/11711) - Fix CSV import for multiple-object custom fields
 
 ---
 
