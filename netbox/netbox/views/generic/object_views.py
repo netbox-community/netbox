@@ -436,6 +436,10 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         form = self.initialize_form(request)
         instance = self.alter_object(self.queryset.model(), request)
 
+        # Note that the form instance is a replicated field base
+        # This is needed to avoid running custom validators multiple times
+        form.instance._replicated_base = hasattr(self.form, "replication_fields")
+
         if form.is_valid():
             new_components = []
             data = deepcopy(request.POST)
@@ -453,6 +457,9 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
 
                 if component_form.is_valid():
                     new_components.append(component_form)
+                else:
+                    form.errors.update(component_form.errors)
+                    break
 
             if not form.errors and not component_form.errors:
                 try:

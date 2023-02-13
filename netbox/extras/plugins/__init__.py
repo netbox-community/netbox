@@ -1,4 +1,5 @@
 import collections
+from importlib import import_module
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -19,6 +20,15 @@ registry['plugins'] = {
     'menu_items': {},
     'preferences': {},
     'template_extensions': collections.defaultdict(list),
+}
+
+DEFAULT_RESOURCE_PATHS = {
+    'search_indexes': 'search.indexes',
+    'graphql_schema': 'graphql.schema',
+    'menu': 'navigation.menu',
+    'menu_items': 'navigation.menu_items',
+    'template_extensions': 'template_content.template_extensions',
+    'user_preferences': 'preferences.preferences',
 }
 
 
@@ -58,58 +68,53 @@ class PluginConfig(AppConfig):
     # Django apps to append to INSTALLED_APPS when plugin requires them.
     django_apps = []
 
-    # Default integration paths. Plugin authors can override these to customize the paths to
-    # integrated components.
-    search_indexes = 'search.indexes'
-    graphql_schema = 'graphql.schema'
-    menu = 'navigation.menu'
-    menu_items = 'navigation.menu_items'
-    template_extensions = 'template_content.template_extensions'
-    user_preferences = 'preferences.preferences'
+    # Optional plugin resources
+    search_indexes = None
+    graphql_schema = None
+    menu = None
+    menu_items = None
+    template_extensions = None
+    user_preferences = None
+
+    def _load_resource(self, name):
+        # Import from the configured path, if defined.
+        if getattr(self, name):
+            return import_string(f"{self.__module__}.{self.name}")
+
+        # Fall back to the resource's default path. Return None if the module has not been provided.
+        default_path = f'{self.__module__}.{DEFAULT_RESOURCE_PATHS[name]}'
+        default_module, resource_name = default_path.rsplit('.', 1)
+        try:
+            module = import_module(default_module)
+            return getattr(module, resource_name, None)
+        except ModuleNotFoundError:
+            pass
 
     def ready(self):
         plugin_name = self.name.rsplit('.', 1)[-1]
 
         # Register search extensions (if defined)
-        try:
-            search_indexes = import_string(f"{self.__module__}.{self.search_indexes}")
-            for idx in search_indexes:
-                register_search(idx)
-        except ImportError:
-            pass
+        search_indexes = self._load_resource('search_indexes') or []
+        for idx in search_indexes:
+            register_search(idx)
 
         # Register template content (if defined)
-        try:
-            template_extensions = import_string(f"{self.__module__}.{self.template_extensions}")
+        if template_extensions := self._load_resource('template_extensions'):
             register_template_extensions(template_extensions)
-        except ImportError:
-            pass
 
         # Register navigation menu and/or menu items (if defined)
-        try:
-            menu = import_string(f"{self.__module__}.{self.menu}")
+        if menu := self._load_resource('menu'):
             register_menu(menu)
-        except ImportError:
-            pass
-        try:
-            menu_items = import_string(f"{self.__module__}.{self.menu_items}")
+        if menu_items := self._load_resource('menu_items'):
             register_menu_items(self.verbose_name, menu_items)
-        except ImportError:
-            pass
 
         # Register GraphQL schema (if defined)
-        try:
-            graphql_schema = import_string(f"{self.__module__}.{self.graphql_schema}")
+        if graphql_schema := self._load_resource('graphql_schema'):
             register_graphql_schema(graphql_schema)
-        except ImportError:
-            pass
 
         # Register user preferences (if defined)
-        try:
-            user_preferences = import_string(f"{self.__module__}.{self.user_preferences}")
+        if user_preferences := self._load_resource('user_preferences'):
             register_user_preferences(plugin_name, user_preferences)
-        except ImportError:
-            pass
 
     @classmethod
     def validate(cls, user_config, netbox_version):

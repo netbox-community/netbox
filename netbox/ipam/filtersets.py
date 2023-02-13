@@ -441,9 +441,9 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = Q(description__icontains=value)
+        qs_filter = Q(description__icontains=value) | Q(start_address__contains=value) | Q(end_address__contains=value)
         try:
-            ipaddress = str(netaddr.IPNetwork(value.strip()).cidr)
+            ipaddress = str(netaddr.IPNetwork(value.strip()))
             qs_filter |= Q(start_address=ipaddress)
             qs_filter |= Q(end_address=ipaddress)
         except (AddrFormatError, ValueError):

@@ -21,7 +21,7 @@ from extras.models import JobResult
 from extras.signals import clear_webhooks
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
-from utilities.exceptions import AbortTransaction
+from utilities.exceptions import AbortScript, AbortTransaction
 from utilities.forms import add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .context_managers import change_logging
 from .forms import ScriptForm
@@ -469,6 +469,14 @@ def run_script(data, request, commit=True, *args, **kwargs):
 
         except AbortTransaction:
             script.log_info("Database changes have been reverted automatically.")
+            clear_webhooks.send(request)
+        except AbortScript as e:
+            script.log_failure(
+                f"Script aborted with error: {e}"
+            )
+            script.log_info("Database changes have been reverted due to error.")
+            logger.error(f"Script aborted with error: {e}")
+            job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
             clear_webhooks.send(request)
         except Exception as e:
             stacktrace = traceback.format_exc()

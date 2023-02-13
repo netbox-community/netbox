@@ -45,12 +45,16 @@ class ScriptForm(BootstrapMixin, forms.Form):
         self.fields['_interval'] = interval
         self.fields['_commit'] = commit
 
-    def clean__schedule_at(self):
+    def clean(self):
         scheduled_time = self.cleaned_data['_schedule_at']
-        if scheduled_time and scheduled_time < timezone.now():
+        if scheduled_time and scheduled_time < local_now():
             raise forms.ValidationError(_('Scheduled time must be in the future.'))
 
-        return scheduled_time
+        # When interval is used without schedule at, raise an exception
+        if self.cleaned_data['_interval'] and not scheduled_time:
+            raise forms.ValidationError(_('Scheduled time must be set when recurs is used.'))
+
+        return self.cleaned_data
 
     @property
     def requires_input(self):
