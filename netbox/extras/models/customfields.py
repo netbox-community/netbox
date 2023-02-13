@@ -21,7 +21,7 @@ from netbox.models.features import CloningMixin, ExportTemplatesMixin, WebhooksM
 from netbox.search import FieldTypes
 from utilities import filters
 from utilities.forms import (
-    CSVChoiceField, CSVMultipleChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    CSVChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
     JSONField, LaxURLField, StaticSelectMultiple, StaticSelect, add_blank_choice,
 )
 from utilities.querysets import RestrictedQuerySet
@@ -422,10 +422,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         # Multiple objects
         elif self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             model = self.object_type.model_class()
-            field = DynamicModelMultipleChoiceField(
+            field_class = CSVModelMultipleChoiceField if for_csv_import else DynamicModelMultipleChoiceField
+
+            field = field_class(
                 queryset=model.objects.all(),
                 required=required,
-                initial=initial
+                initial=initial,
             )
 
         # Text
