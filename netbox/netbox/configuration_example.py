@@ -217,6 +217,10 @@ RQ_DEFAULT_TIMEOUT = 300
 # this setting is derived from the installed location.
 # SCRIPTS_ROOT = '/opt/netbox/netbox/scripts'
 
+# The maximum size (in bytes) that an upload will be before it gets streamed to the file system.
+# Useful to be able to upload files bigger than 2.5Mbyte to custom scripts for processing.
+# FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440
+
 # The name to use for the csrf token cookie.
 CSRF_COOKIE_NAME = 'csrftoken'
 
