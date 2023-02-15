@@ -354,6 +354,7 @@ class ContactAssignmentListView(generic.ObjectListView):
     filterset = filtersets.ContactAssignmentFilterSet
     filterset_form = forms.ContactAssignmentFilterForm
     table = tables.ContactAssignmentTable
+    actions = ('export', 'bulk_delete')
 
 
 @register_model_view(ContactAssignment, 'edit')
@@ -374,6 +375,12 @@ class ContactAssignmentEditView(generic.ObjectEditView):
             'content_type': request.GET.get('content_type'),
             'object_id': request.GET.get('object_id'),
         }
+
+
+class ContactAssignmentBulkDeleteView(generic.BulkDeleteView):
+    queryset = ContactAssignment.objects.all()
+    filterset = filtersets.ContactAssignmentFilterSet
+    table = tables.ContactAssignmentTable
 
 
 @register_model_view(ContactAssignment, 'delete')
