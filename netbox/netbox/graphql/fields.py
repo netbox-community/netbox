@@ -61,7 +61,7 @@ class ObjectListField(DjangoListField):
         if filterset_class:
             filterset = filterset_class(data=args, queryset=queryset, request=info.context)
             if not filterset.is_valid():
-                return []
+                return queryset.none()
             return filterset.qs
 
         return queryset
