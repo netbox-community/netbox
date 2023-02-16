@@ -12,7 +12,7 @@ from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField,
-    DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect,
+    DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -58,11 +58,6 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
             'type': _("The type of data stored in this field. For object/multi-object fields, select the related object "
                       "type below.")
         }
-        widgets = {
-            'type': StaticSelect(),
-            'filter_logic': StaticSelect(),
-            'ui_visibility': StaticSelect(),
-        }
 
 
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):
@@ -80,7 +75,6 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
         model = CustomLink
         fields = '__all__'
         widgets = {
-            'button_class': StaticSelect(),
             'link_text': forms.Textarea(attrs={'class': 'font-monospace'}),
             'link_url': forms.Textarea(attrs={'class': 'font-monospace'}),
         }
@@ -172,7 +166,6 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
             'type_delete': 'Deletions',
         }
         widgets = {
-            'http_method': StaticSelect(),
             'additional_headers': forms.Textarea(attrs={'class': 'font-monospace'}),
             'body_template': forms.Textarea(attrs={'class': 'font-monospace'}),
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
@@ -288,8 +281,7 @@ class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
 class JournalEntryForm(NetBoxModelForm):
     kind = forms.ChoiceField(
         choices=add_blank_choice(JournalEntryKindChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     comments = CommentField()
 

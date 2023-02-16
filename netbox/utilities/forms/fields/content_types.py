@@ -27,11 +27,11 @@ class ContentTypeChoiceField(ContentTypeChoiceMixin, forms.ModelChoiceField):
     """
     Selection field for a single content type.
     """
-    widget = widgets.StaticSelect
+    pass
 
 
 class ContentTypeMultipleChoiceField(ContentTypeChoiceMixin, forms.ModelMultipleChoiceField):
     """
     Selection field for one or more content types.
     """
-    widget = widgets.StaticSelectMultiple
+    pass

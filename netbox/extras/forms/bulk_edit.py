@@ -4,7 +4,7 @@ from django.utils.translation import gettext as _
 from extras.choices import *
 from extras.models import *
 from utilities.forms import (
-    add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, StaticSelect,
+    add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField,
 )
 
 __all__ = (
@@ -41,8 +41,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
         label=_("UI visibility"),
         choices=add_blank_choice(CustomFieldVisibilityChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
 
     nullable_fields = ('group_name', 'description',)
@@ -66,8 +65,7 @@ class CustomLinkBulkEditForm(BulkEditForm):
     )
     button_class = forms.ChoiceField(
         choices=add_blank_choice(CustomLinkButtonClassChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
 
 

@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 
 from ipam.formfields import IPNetworkFormField
 from netbox.preferences import PREFERENCES
-from utilities.forms import BootstrapMixin, DateTimePicker, StaticSelect
+from utilities.forms import BootstrapMixin, DateTimePicker
 from utilities.utils import flatten_dict
 from .models import Token, UserConfig
 
@@ -35,7 +35,7 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
                 'help_text': mark_safe(help_text),
                 'coerce': preference.coerce,
                 'required': False,
-                'widget': StaticSelect,
+                'widget': forms.Select,
             }
             preference_fields[field_name] = forms.TypedChoiceField(**field_kwargs)
         attrs.update(preference_fields)
