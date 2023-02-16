@@ -4,7 +4,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from jinja2.exceptions import TemplateError
+from jinja2.loaders import BaseLoader
 from jinja2.sandbox import SandboxedEnvironment
 
 from extras.querysets import ConfigContextQuerySet
@@ -231,20 +231,34 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
         Render the contents of the template.
         """
         context = context or {}
-        template_path = self.data_file.path
 
-        # Initialize the template loader & cache the base template code
-        loader = ConfigTemplateLoader(data_source=self.data_source)
-        loader.cache_templates({
-            template_path: self.template_code
-        })
+        # Initialize the Jinja2 environment and instantiate the Template
+        environment = self._get_environment()
+        if self.data_file:
+            template = environment.get_template(self.data_file.path)
+        else:
+            template = environment.from_string(self.template_code)
 
-        # Initialize the Jinja2 environment
-        environment = SandboxedEnvironment(loader=loader)
-        environment.filters.update(get_config().JINJA2_FILTERS)
-
-        # Render the template
-        output = environment.get_template(template_path).render(**context)
+        output = template.render(**context)
 
         # Replace CRLF-style line terminators
         return output.replace('\r\n', '\n')
+
+    def _get_environment(self):
+        """
+        Instantiate and return a Jinja2 environment suitable for rendering the ConfigTemplate.
+        """
+        # Initialize the template loader & cache the base template code (if applicable)
+        if self.data_file:
+            loader = ConfigTemplateLoader(data_source=self.data_source)
+            loader.cache_templates({
+                self.data_file.path: self.template_code
+            })
+        else:
+            loader = BaseLoader()
+
+        # Initialize the environment
+        environment = SandboxedEnvironment(loader=loader)
+        environment.filters.update(get_config().JINJA2_FILTERS)
+
+        return environment
