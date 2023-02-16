@@ -2044,18 +2044,6 @@ class DeviceBulkRenameView(generic.BulkRenameView):
     table = tables.DeviceTable
 
 
-@register_model_view(Device, 'status')
-class DeviceStatusView(generic.ObjectView):
-    queryset = Device.objects.all()
-    template_name = 'dcim/device/status.html'
-
-
-@register_model_view(Device, 'config')
-class DeviceConfigView(generic.ObjectView):
-    queryset = Device.objects.all()
-    template_name = 'dcim/device/config.html'
-
-
 #
 # Modules
 #
