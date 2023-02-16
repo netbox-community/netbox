@@ -699,9 +699,16 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
+        platforms = (
+            Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturers[0]),
+            Platform(name='Platform 2', slug='platform-2', manufacturer=manufacturers[1]),
+            Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturers[2]),
+        )
+        Platform.objects.bulk_create(platforms)
+
         device_types = (
-            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True, front_image='front.png', rear_image='rear.png', weight=10, weight_unit=WeightUnitChoices.UNIT_POUND),
-            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR, weight=20, weight_unit=WeightUnitChoices.UNIT_POUND),
+            DeviceType(manufacturer=manufacturers[0], default_platform=platforms[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True, front_image='front.png', rear_image='rear.png', weight=10, weight_unit=WeightUnitChoices.UNIT_POUND),
+            DeviceType(manufacturer=manufacturers[1], default_platform=platforms[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR, weight=20, weight_unit=WeightUnitChoices.UNIT_POUND),
             DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD, airflow=DeviceAirflowChoices.AIRFLOW_REAR_TO_FRONT, weight=30, weight_unit=WeightUnitChoices.UNIT_KILOGRAM),
         )
         DeviceType.objects.bulk_create(device_types)
@@ -783,6 +790,13 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_default_platform(self):
+        platforms = Platform.objects.all()[:2]
+        params = {'default_platform_id': [platforms[0].pk, platforms[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'default_platform': [platforms[0].slug, platforms[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_has_front_image(self):

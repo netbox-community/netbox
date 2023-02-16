@@ -11,7 +11,7 @@ from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import (
     BootstrapMixin, CommentField, ConfirmationForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    JSONField, SlugField, StaticSelect,
+    JSONField, SlugField,
 )
 from virtualization.models import *
 
@@ -102,9 +102,6 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
             'name', 'type', 'group', 'status', 'tenant', 'region', 'site_group', 'site', 'description', 'comments',
             'tags',
         )
-        widgets = {
-            'status': StaticSelect(),
-        }
 
 
 class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
@@ -244,11 +241,6 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
             'local_context_data': _("Local config context data overwrites all sources contexts in the final rendered "
                                     "config context"),
         }
-        widgets = {
-            "status": StaticSelect(),
-            'primary_ip4': StaticSelect(),
-            'primary_ip6': StaticSelect(),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -354,9 +346,6 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
             'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
         ]
-        widgets = {
-            'mode': StaticSelect()
-        }
         labels = {
             'mode': '802.1Q Mode',
         }

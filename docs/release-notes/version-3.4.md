@@ -1,19 +1,31 @@
 # NetBox v3.4
 
-## v3.4.4 (FUTURE)
+## v3.4.5 (FUTURE)
+
+---
+
+## v3.4.4 (2023-02-02)
 
 ### Enhancements
 
 * [#10762](https://github.com/netbox-community/netbox/issues/10762) - Permit selection custom fields to have only one choice
+* [#11152](https://github.com/netbox-community/netbox/issues/11152) - Introduce AbortScript exception to elegantly abort scripts
+* [#11554](https://github.com/netbox-community/netbox/issues/11554) - Add module types count to manufacturers list
 * [#11585](https://github.com/netbox-community/netbox/issues/11585) - Add IP address filters for services
+* [#11598](https://github.com/netbox-community/netbox/issues/11598) - Add buttons to easily switch between rack list and elevations views
 
 ### Bug Fixes
 
+* [#11267](https://github.com/netbox-community/netbox/issues/11267) - Avoid catching ImportErrors when loading plugin resources
 * [#11487](https://github.com/netbox-community/netbox/issues/11487) - Remove "set null" option from non-writable custom fields during bulk edit
 * [#11491](https://github.com/netbox-community/netbox/issues/11491) - Show edit/delete buttons in user tokens table
 * [#11528](https://github.com/netbox-community/netbox/issues/11528) - Permit import of devices using uploaded file
 * [#11555](https://github.com/netbox-community/netbox/issues/11555) - Avoid inadvertent interpretation of search query as regular expression under global search (previously [#11516](https://github.com/netbox-community/netbox/issues/11516))
 * [#11562](https://github.com/netbox-community/netbox/issues/11562) - Correct ordering of virtual chassis interfaces with duplicate names
+* [#11574](https://github.com/netbox-community/netbox/issues/11574) - Fix exception when attempting to schedule reports/scripts
+* [#11620](https://github.com/netbox-community/netbox/issues/11620) - Correct available filter choices for interface PoE type
+* [#11635](https://github.com/netbox-community/netbox/issues/11635) - Pre-populate assigned VRF when following "first available IP" link from prefix view
+* [#11650](https://github.com/netbox-community/netbox/issues/11650) - Display error message when attempting to create device component with duplicate name
 
 ---
 

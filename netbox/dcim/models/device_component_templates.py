@@ -9,7 +9,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 from dcim.choices import *
 from dcim.constants import *
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import WebhooksMixin
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
@@ -33,7 +32,7 @@ __all__ = (
 )
 
 
-class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
+class ComponentTemplateModel(ChangeLoggedModel):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,

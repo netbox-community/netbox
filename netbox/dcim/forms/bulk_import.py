@@ -281,12 +281,17 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
         queryset=Manufacturer.objects.all(),
         to_field_name='name'
     )
+    default_platform = forms.ModelChoiceField(
+        queryset=Platform.objects.all(),
+        to_field_name='name',
+        required=False,
+    )
 
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
-            'description', 'comments',
+            'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
+            'subdevice_role', 'airflow', 'description', 'comments',
         ]
 
 

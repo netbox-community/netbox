@@ -46,6 +46,16 @@ def delete_button(instance):
     }
 
 
+@register.inclusion_tag('buttons/sync.html')
+def sync_button(instance):
+    viewname = get_viewname(instance, 'sync')
+    url = reverse(viewname, kwargs={'pk': instance.pk})
+
+    return {
+        'url': url,
+    }
+
+
 #
 # List buttons
 #

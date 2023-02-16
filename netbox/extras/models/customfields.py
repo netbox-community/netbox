@@ -17,12 +17,12 @@ from django.utils.translation import gettext as _
 from extras.choices import *
 from extras.utils import FeatureQuery
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import CloningMixin, ExportTemplatesMixin, WebhooksMixin
+from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from netbox.search import FieldTypes
 from utilities import filters
 from utilities.forms import (
     CSVChoiceField, CSVMultipleChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    JSONField, LaxURLField, StaticSelectMultiple, StaticSelect, add_blank_choice,
+    JSONField, LaxURLField, add_blank_choice,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
@@ -54,7 +54,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
@@ -372,7 +372,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                 (False, 'False'),
             )
             field = forms.NullBooleanField(
-                required=required, initial=initial, widget=StaticSelect(choices=choices)
+                required=required, initial=initial, widget=forms.Select(choices=choices)
             )
 
         # Date
@@ -393,14 +393,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
 
             if self.type == CustomFieldTypeChoices.TYPE_SELECT:
                 field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
-                field = field_class(
-                    choices=choices, required=required, initial=initial, widget=StaticSelect()
-                )
+                field = field_class(choices=choices, required=required, initial=initial)
             else:
                 field_class = CSVMultipleChoiceField if for_csv_import else forms.MultipleChoiceField
-                field = field_class(
-                    choices=choices, required=required, initial=initial, widget=StaticSelectMultiple()
-                )
+                field = field_class(choices=choices, required=required, initial=initial)
 
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:

@@ -5,7 +5,7 @@ from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import ExportTemplatesMixin, WebhooksMixin
+from netbox.models.features import ExportTemplatesMixin
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField
 
@@ -14,7 +14,7 @@ from utilities.fields import ColorField
 # Tags
 #
 
-class Tag(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel, TagBase):
+class Tag(ExportTemplatesMixin, ChangeLoggedModel, TagBase):
     id = models.BigAutoField(
         primary_key=True
     )

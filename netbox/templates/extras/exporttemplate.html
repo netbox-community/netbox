@@ -10,66 +10,92 @@
 {% endblock %}
 
 {% block content %}
-<div class="row mb-3">
-	<div class="col col-md-5">
-    <div class="card">
-      <h5 class="card-header">
-        Export Template
-      </h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">Name</th>
-            <td>{{ object.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Description</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">MIME Type</th>
-            <td>{{ object.mime_type|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">File Extension</th>
-            <td>{{ object.file_extension|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Attachment</th>
-            <td>{% checkmark object.as_attachment %}</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-    <div class="card">
-      <h5 class="card-header">Assigned Models</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          {% for ct in object.content_types.all %}
+  <div class="row mb-3">
+    <div class="col col-md-5">
+      <div class="card">
+        <h5 class="card-header">Export Template</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
             <tr>
-              <td>{{ ct }}</td>
+              <th scope="row">Name</th>
+              <td>{{ object.name }}</td>
             </tr>
-          {% endfor %}
-        </table>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">MIME Type</th>
+              <td>{{ object.mime_type|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">File Extension</th>
+              <td>{{ object.file_extension|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Attachment</th>
+              <td>{% checkmark object.as_attachment %}</td>
+            </tr>
+              <tr>
+                <th scope="row">Data Source</th>
+                <td>
+                  {% if object.data_source %}
+                    <a href="{{ object.data_source.get_absolute_url }}">{{ object.data_source }}</a>
+                  {% else %}
+                    {{ ''|placeholder }}
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Data File</th>
+                <td>
+                  {% if object.data_file %}
+                    <a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>
+                  {% elif object.data_path %}
+                    <div class="float-end text-warning">
+                      <i class="mdi mdi-alert" title="The data file associated with this object has been deleted."></i>
+                    </div>
+                    {{ object.data_path }}
+                  {% else %}
+                    {{ ''|placeholder }}
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Data Synced</th>
+                <td>{{ object.data_synced|placeholder }}</td>
+              </tr>
+          </table>
+        </div>
       </div>
-    </div>
-    {% plugin_left_page object %}
-	</div>
-	<div class="col col-md-7">
-    <div class="card">
-      <h5 class="card-header">
-        Template
-      </h5>
-      <div class="card-body">
-        <pre>{{ object.template_code }}</pre>
+      <div class="card">
+        <h5 class="card-header">Assigned Models</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            {% for ct in object.content_types.all %}
+              <tr>
+                <td>{{ ct }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
       </div>
+      {% plugin_left_page object %}
     </div>
-    {% plugin_right_page object %}
+    <div class="col col-md-7">
+      <div class="card">
+        <h5 class="card-header">Template</h5>
+        <div class="card-body">
+          {% include 'inc/sync_warning.html' %}
+          <pre>{{ object.template_code }}</pre>
+        </div>
+      </div>
+      {% plugin_right_page object %}
+    </div>
   </div>
-</div>
-<div class="row">
+  <div class="row">
     <div class="col col-md-12">
-        {% plugin_full_width_page object %}
+      {% plugin_full_width_page object %}
     </div>
-</div>
+  </div>
 {% endblock %}

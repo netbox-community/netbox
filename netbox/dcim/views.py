@@ -595,6 +595,7 @@ class RackListView(generic.ObjectListView):
     filterset = filtersets.RackFilterSet
     filterset_form = forms.RackFilterForm
     table = tables.RackTable
+    template_name = 'dcim/rack_list.html'
 
 
 class RackElevationListView(generic.ObjectListView):

@@ -1,16 +1,22 @@
 from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
+from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.generic import View
 
 from extras import forms, tables
 from extras.models import *
-from utilities.views import ViewTab
+from utilities.permissions import get_permission_for_model
+from utilities.views import GetReturnURLMixin, ViewTab
+from .base import BaseMultiObjectView
 
 __all__ = (
+    'BulkSyncDataView',
     'ObjectChangeLogView',
     'ObjectJournalView',
+    'ObjectSyncDataView',
 )
 
 
@@ -126,3 +132,49 @@ class ObjectJournalView(View):
             'base_template': self.base_template,
             'tab': self.tab,
         })
+
+
+class ObjectSyncDataView(View):
+
+    def post(self, request, model, **kwargs):
+        """
+        Synchronize data from the DataFile associated with this object.
+        """
+        qs = model.objects.all()
+        if hasattr(model.objects, 'restrict'):
+            qs = qs.restrict(request.user, 'sync')
+        obj = get_object_or_404(qs, **kwargs)
+
+        if not obj.data_file:
+            messages.error(request, f"Unable to synchronize data: No data file set.")
+            return redirect(obj.get_absolute_url())
+
+        obj.sync_data()
+        obj.save()
+        messages.success(request, f"Synchronized data for {model._meta.verbose_name} {obj}.")
+
+        return redirect(obj.get_absolute_url())
+
+
+class BulkSyncDataView(GetReturnURLMixin, BaseMultiObjectView):
+    """
+    Synchronize multiple instances of a model inheriting from SyncedDataMixin.
+    """
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'sync')
+
+    def post(self, request):
+        selected_objects = self.queryset.filter(
+            pk__in=request.POST.getlist('pk'),
+            data_file__isnull=False
+        )
+
+        with transaction.atomic():
+            for obj in selected_objects:
+                obj.sync_data()
+                obj.save()
+
+            model_name = self.queryset.model._meta.verbose_name_plural
+            messages.success(request, f"Synced {len(selected_objects)} {model_name}")
+
+        return redirect(self.get_return_url(request))

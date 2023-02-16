@@ -10,8 +10,8 @@ from ipam.models import ASN, L2VPN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import (
-    APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm, MultipleChoiceField,
-    StaticSelect, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES, SelectSpeedWidget,
+    APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm,
+    TagFilterField, BOOLEAN_WITH_BLANK_CHOICES, SelectSpeedWidget,
 )
 from wireless.choices import *
 
@@ -150,7 +150,7 @@ class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         ('Tenant', ('tenant_group_id', 'tenant_id')),
         ('Contacts', ('contact', 'contact_role', 'contact_group')),
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=SiteStatusChoices,
         required=False
     )
@@ -208,7 +208,7 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
         },
         label=_('Parent')
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=LocationStatusChoices,
         required=False
     )
@@ -258,15 +258,15 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         },
         label=_('Location')
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=RackStatusChoices,
         required=False
     )
-    type = MultipleChoiceField(
+    type = forms.MultipleChoiceField(
         choices=RackTypeChoices,
         required=False
     )
-    width = MultipleChoiceField(
+    width = forms.MultipleChoiceField(
         choices=RackWidthChoices,
         required=False
     )
@@ -378,7 +378,7 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     model = DeviceType
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Hardware', ('manufacturer_id', 'part_number', 'subdevice_role', 'airflow')),
+        ('Hardware', ('manufacturer_id', 'default_platform_id', 'part_number', 'subdevice_role', 'airflow')),
         ('Images', ('has_front_image', 'has_rear_image')),
         ('Components', (
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
@@ -391,91 +391,96 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('Manufacturer')
     )
+    default_platform_id = DynamicModelMultipleChoiceField(
+        queryset=Platform.objects.all(),
+        required=False,
+        label=_('Default platform')
+    )
     part_number = forms.CharField(
         required=False
     )
-    subdevice_role = MultipleChoiceField(
+    subdevice_role = forms.MultipleChoiceField(
         choices=add_blank_choice(SubdeviceRoleChoices),
         required=False
     )
-    airflow = MultipleChoiceField(
+    airflow = forms.MultipleChoiceField(
         choices=add_blank_choice(DeviceAirflowChoices),
         required=False
     )
     has_front_image = forms.NullBooleanField(
         required=False,
         label='Has a front image',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     has_rear_image = forms.NullBooleanField(
         required=False,
         label='Has a rear image',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_ports = forms.NullBooleanField(
         required=False,
         label='Has console ports',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_server_ports = forms.NullBooleanField(
         required=False,
         label='Has console server ports',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_ports = forms.NullBooleanField(
         required=False,
         label='Has power ports',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_outlets = forms.NullBooleanField(
         required=False,
         label='Has power outlets',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     interfaces = forms.NullBooleanField(
         required=False,
         label='Has interfaces',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     pass_through_ports = forms.NullBooleanField(
         required=False,
         label='Has pass-through ports',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     device_bays = forms.NullBooleanField(
         required=False,
         label='Has device bays',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     module_bays = forms.NullBooleanField(
         required=False,
         label='Has module bays',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     inventory_items = forms.NullBooleanField(
         required=False,
         label='Has inventory items',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -512,42 +517,42 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     console_ports = forms.NullBooleanField(
         required=False,
         label='Has console ports',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_server_ports = forms.NullBooleanField(
         required=False,
         label='Has console server ports',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_ports = forms.NullBooleanField(
         required=False,
         label='Has power ports',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_outlets = forms.NullBooleanField(
         required=False,
         label='Has power outlets',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     interfaces = forms.NullBooleanField(
         required=False,
         label='Has interfaces',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     pass_through_ports = forms.NullBooleanField(
         required=False,
         label='Has pass-through ports',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -657,11 +662,11 @@ class DeviceFilterForm(
         null_option='None',
         label=_('Platform')
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=DeviceStatusChoices,
         required=False
     )
-    airflow = MultipleChoiceField(
+    airflow = forms.MultipleChoiceField(
         choices=add_blank_choice(DeviceAirflowChoices),
         required=False
     )
@@ -678,56 +683,56 @@ class DeviceFilterForm(
     has_primary_ip = forms.NullBooleanField(
         required=False,
         label='Has a primary IP',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     virtual_chassis_member = forms.NullBooleanField(
         required=False,
         label='Virtual chassis member',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_ports = forms.NullBooleanField(
         required=False,
         label='Has console ports',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_server_ports = forms.NullBooleanField(
         required=False,
         label='Has console server ports',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_ports = forms.NullBooleanField(
         required=False,
         label='Has power ports',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_outlets = forms.NullBooleanField(
         required=False,
         label='Has power outlets',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     interfaces = forms.NullBooleanField(
         required=False,
         label='Has interfaces',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     pass_through_ports = forms.NullBooleanField(
         required=False,
         label='Has pass-through ports',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -750,14 +755,14 @@ class VirtualDeviceContextFilterForm(
         label=_('Device'),
         fetch_trigger='open'
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         required=False,
         choices=add_blank_choice(VirtualDeviceContextStatusChoices)
     )
     has_primary_ip = forms.NullBooleanField(
         required=False,
         label='Has a primary IP',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -785,7 +790,7 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxMo
         label=_('Type'),
         fetch_trigger='open'
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=ModuleStatusChoices,
         required=False
     )
@@ -878,11 +883,11 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         },
         label=_('Device')
     )
-    type = MultipleChoiceField(
+    type = forms.MultipleChoiceField(
         choices=add_blank_choice(CableTypeChoices),
         required=False
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         required=False,
         choices=add_blank_choice(LinkStatusChoices)
     )
@@ -980,24 +985,21 @@ class PowerFeedFilterForm(NetBoxModelFilterSetForm):
         },
         label=_('Rack')
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=PowerFeedStatusChoices,
         required=False
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedTypeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     supply = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedSupplyChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     phase = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedPhaseChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     voltage = forms.IntegerField(
         required=False
@@ -1018,13 +1020,13 @@ class PowerFeedFilterForm(NetBoxModelFilterSetForm):
 class CabledFilterForm(forms.Form):
     cabled = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     occupied = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -1033,7 +1035,7 @@ class CabledFilterForm(forms.Form):
 class PathEndpointFilterForm(CabledFilterForm):
     connected = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -1047,11 +1049,11 @@ class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
         ('Connection', ('cabled', 'connected', 'occupied')),
     )
-    type = MultipleChoiceField(
+    type = forms.MultipleChoiceField(
         choices=ConsolePortTypeChoices,
         required=False
     )
-    speed = MultipleChoiceField(
+    speed = forms.MultipleChoiceField(
         choices=ConsolePortSpeedChoices,
         required=False
     )
@@ -1066,11 +1068,11 @@ class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterF
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
         ('Connection', ('cabled', 'connected', 'occupied')),
     )
-    type = MultipleChoiceField(
+    type = forms.MultipleChoiceField(
         choices=ConsolePortTypeChoices,
         required=False
     )
-    speed = MultipleChoiceField(
+    speed = forms.MultipleChoiceField(
         choices=ConsolePortSpeedChoices,
         required=False
     )
@@ -1085,7 +1087,7 @@ class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
         ('Connection', ('cabled', 'connected', 'occupied')),
     )
-    type = MultipleChoiceField(
+    type = forms.MultipleChoiceField(
         choices=PowerPortTypeChoices,
         required=False
     )
@@ -1100,7 +1102,7 @@ class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
         ('Connection', ('cabled', 'connected', 'occupied')),
     )
-    type = MultipleChoiceField(
+    type = forms.MultipleChoiceField(
         choices=PowerOutletTypeChoices,
         required=False
     )
@@ -1127,11 +1129,11 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         },
         label=_('Virtual Device Context')
     )
-    kind = MultipleChoiceField(
+    kind = forms.MultipleChoiceField(
         choices=InterfaceKindChoices,
         required=False
     )
-    type = MultipleChoiceField(
+    type = forms.MultipleChoiceField(
         choices=InterfaceTypeChoices,
         required=False
     )
@@ -1140,19 +1142,19 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         label='Speed',
         widget=SelectSpeedWidget()
     )
-    duplex = MultipleChoiceField(
+    duplex = forms.MultipleChoiceField(
         choices=InterfaceDuplexChoices,
         required=False
     )
     enabled = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     mgmt_only = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -1164,22 +1166,22 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         required=False,
         label='WWN'
     )
-    poe_mode = MultipleChoiceField(
+    poe_mode = forms.MultipleChoiceField(
         choices=InterfacePoEModeChoices,
         required=False,
         label='PoE mode'
     )
-    poe_type = MultipleChoiceField(
-        choices=InterfacePoEModeChoices,
+    poe_type = forms.MultipleChoiceField(
+        choices=InterfacePoETypeChoices,
         required=False,
         label='PoE type'
     )
-    rf_role = MultipleChoiceField(
+    rf_role = forms.MultipleChoiceField(
         choices=WirelessRoleChoices,
         required=False,
         label='Wireless role'
     )
-    rf_channel = MultipleChoiceField(
+    rf_channel = forms.MultipleChoiceField(
         choices=WirelessChannelChoices,
         required=False,
         label='Wireless channel'
@@ -1219,7 +1221,7 @@ class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         ('Cable', ('cabled', 'occupied')),
     )
     model = FrontPort
-    type = MultipleChoiceField(
+    type = forms.MultipleChoiceField(
         choices=PortTypeChoices,
         required=False
     )
@@ -1237,7 +1239,7 @@ class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         ('Device', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id', 'device_id')),
         ('Cable', ('cabled', 'occupied')),
     )
-    type = MultipleChoiceField(
+    type = forms.MultipleChoiceField(
         choices=PortTypeChoices,
         required=False
     )
@@ -1296,7 +1298,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
     )
     discovered = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )

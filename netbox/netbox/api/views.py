@@ -27,6 +27,7 @@ class APIRootView(APIView):
 
         return Response({
             'circuits': reverse('circuits-api:api-root', request=request, format=format),
+            'core': reverse('core-api:api-root', request=request, format=format),
             'dcim': reverse('dcim-api:api-root', request=request, format=format),
             'extras': reverse('extras-api:api-root', request=request, format=format),
             'ipam': reverse('ipam-api:api-root', request=request, format=format),

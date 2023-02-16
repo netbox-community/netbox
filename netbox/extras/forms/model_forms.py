@@ -5,13 +5,14 @@ from django.utils.translation import gettext as _
 
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
+from extras.forms.mixins import SyncedDataMixin
 from extras.models import *
 from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField,
-    DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect,
+    DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -57,11 +58,6 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
             'type': _("The type of data stored in this field. For object/multi-object fields, select the related object "
                       "type below.")
         }
-        widgets = {
-            'type': StaticSelect(),
-            'filter_logic': StaticSelect(),
-            'ui_visibility': StaticSelect(),
-        }
 
 
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):
@@ -79,7 +75,6 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
         model = CustomLink
         fields = '__all__'
         widgets = {
-            'button_class': StaticSelect(),
             'link_text': forms.Textarea(attrs={'class': 'font-monospace'}),
             'link_url': forms.Textarea(attrs={'class': 'font-monospace'}),
         }
@@ -95,19 +90,28 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('export_templates')
     )
+    template_code = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'font-monospace'})
+    )
 
     fieldsets = (
         ('Export Template', ('name', 'content_types', 'description')),
-        ('Template', ('template_code',)),
+        ('Content', ('data_source', 'data_file', 'template_code',)),
         ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
     )
 
     class Meta:
         model = ExportTemplate
         fields = '__all__'
-        widgets = {
-            'template_code': forms.Textarea(attrs={'class': 'font-monospace'}),
-        }
+
+    def clean(self):
+        super().clean()
+
+        if not self.cleaned_data.get('template_code') and not self.cleaned_data.get('data_file'):
+            raise forms.ValidationError("Must specify either local content or a data file")
+
+        return self.cleaned_data
 
 
 class SavedFilterForm(BootstrapMixin, forms.ModelForm):
@@ -162,7 +166,6 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
             'type_delete': 'Deletions',
         }
         widgets = {
-            'http_method': StaticSelect(),
             'additional_headers': forms.Textarea(attrs={'class': 'font-monospace'}),
             'body_template': forms.Textarea(attrs={'class': 'font-monospace'}),
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
@@ -183,7 +186,7 @@ class TagForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ConfigContextForm(BootstrapMixin, forms.ModelForm):
+class ConfigContextForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
     regions = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False
@@ -236,10 +239,13 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         queryset=Tag.objects.all(),
         required=False
     )
-    data = JSONField()
+    data = JSONField(
+        required=False
+    )
 
     fieldsets = (
         ('Config Context', ('name', 'weight', 'description', 'data', 'is_active')),
+        ('Data Source', ('data_source', 'data_file')),
         ('Assignment', (
             'regions', 'site_groups', 'sites', 'locations', 'device_types', 'roles', 'platforms', 'cluster_types',
             'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags',
@@ -251,8 +257,16 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         fields = (
             'name', 'weight', 'description', 'data', 'is_active', 'regions', 'site_groups', 'sites', 'locations',
             'roles', 'device_types', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
-            'tenants', 'tags',
+            'tenants', 'tags', 'data_source', 'data_file',
         )
+
+    def clean(self):
+        super().clean()
+
+        if not self.cleaned_data.get('data') and not self.cleaned_data.get('data_file'):
+            raise forms.ValidationError("Must specify either local data or a data file")
+
+        return self.cleaned_data
 
 
 class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
@@ -267,8 +281,7 @@ class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
 class JournalEntryForm(NetBoxModelForm):
     kind = forms.ChoiceField(
         choices=add_blank_choice(JournalEntryKindChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     comments = CommentField()
 

@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
+from core.models import DataFile, DataSource
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
@@ -126,10 +127,18 @@ class ExportTemplateFilterSet(BaseFilterSet):
         field_name='content_types__id'
     )
     content_types = ContentTypeFilter()
+    data_source_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data source (ID)'),
+    )
+    data_file_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data file (ID)'),
+    )
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'content_types', 'name', 'description']
+        fields = ['id', 'content_types', 'name', 'description', 'data_synced']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -422,10 +431,18 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         to_field_name='slug',
         label=_('Tag (slug)'),
     )
+    data_source_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data source (ID)'),
+    )
+    data_file_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data file (ID)'),
+    )
 
     class Meta:
         model = ConfigContext
-        fields = ['id', 'name', 'is_active']
+        fields = ['id', 'name', 'is_active', 'data_synced']
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -17,6 +17,7 @@ from extras.models import CustomField
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
+from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
@@ -91,9 +92,9 @@ class CustomLinkViewSet(NetBoxModelViewSet):
 # Export templates
 #
 
-class ExportTemplateViewSet(NetBoxModelViewSet):
+class ExportTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
-    queryset = ExportTemplate.objects.all()
+    queryset = ExportTemplate.objects.prefetch_related('data_source', 'data_file')
     serializer_class = serializers.ExportTemplateSerializer
     filterset_class = filtersets.ExportTemplateFilterSet
 
@@ -147,9 +148,10 @@ class JournalEntryViewSet(NetBoxModelViewSet):
 # Config contexts
 #
 
-class ConfigContextViewSet(NetBoxModelViewSet):
+class ConfigContextViewSet(SyncedDataMixin, NetBoxModelViewSet):
     queryset = ConfigContext.objects.prefetch_related(
-        'regions', 'site_groups', 'sites', 'locations', 'roles', 'platforms', 'tenant_groups', 'tenants',
+        'regions', 'site_groups', 'sites', 'locations', 'roles', 'platforms', 'tenant_groups', 'tenants', 'data_source',
+        'data_file',
     )
     serializer_class = serializers.ConfigContextSerializer
     filterset_class = filtersets.ConfigContextFilterSet

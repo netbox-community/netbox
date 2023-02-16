@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
@@ -7,7 +8,7 @@ from tenancy.choices import *
 from tenancy.models import *
 from tenancy.forms import ContactModelFilterForm
 from utilities.forms.fields import (
-    ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, MultipleChoiceField, TagFilterField,
+    ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
 
 __all__ = (
@@ -106,7 +107,7 @@ class ContactAssignmentFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('Role')
     )
-    priority = MultipleChoiceField(
+    priority = forms.MultipleChoiceField(
         choices=ContactPriorityChoices,
         required=False
     )
