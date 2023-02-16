@@ -1,3 +1,5 @@
+import traceback
+
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -10,6 +12,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.generic import View
+from jinja2.exceptions import TemplateError
 
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
@@ -2015,10 +2018,13 @@ class DeviceRenderConfigView(generic.ObjectView):
         context_data.update(**instance.get_config_context())
 
         # Render the config template
+        rendered_config = None
         if config_template := instance.get_config_template():
-            rendered_config = config_template.render(context=context_data)
-        else:
-            rendered_config = None
+            try:
+                rendered_config = config_template.render(context=context_data)
+            except TemplateError as e:
+                messages.error(request, f"An error occurred while rendering the template: {e}")
+                rendered_config = traceback.format_exc()
 
         return {
             'config_template': config_template,

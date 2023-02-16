@@ -4,6 +4,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from jinja2.exceptions import TemplateError
 from jinja2.sandbox import SandboxedEnvironment
 
 from extras.querysets import ConfigContextQuerySet
