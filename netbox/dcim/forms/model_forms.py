@@ -441,13 +441,17 @@ class PlatformForm(NetBoxModelForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
+    config_template = DynamicModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False
+    )
     slug = SlugField(
         max_length=64
     )
 
     fieldsets = (
         ('Platform', (
-            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'tags',
+            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
 
         )),
     )
@@ -455,7 +459,7 @@ class PlatformForm(NetBoxModelForm):
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'tags',
+            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
         ]
         widgets = {
             'napalm_args': forms.Textarea(),

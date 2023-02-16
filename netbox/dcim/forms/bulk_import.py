@@ -332,10 +332,18 @@ class PlatformImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Limit platform assignments to this manufacturer')
     )
+    config_template = CSVModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Config template')
+    )
 
     class Meta:
         model = Platform
-        fields = ('name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'tags')
+        fields = (
+            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
+        )
 
 
 class BaseDeviceImportForm(NetBoxModelImportForm):

@@ -584,6 +584,11 @@ class PlatformFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('Manufacturer')
     )
+    config_template_id = DynamicModelMultipleChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False,
+        label=_('Config template')
+    )
     tag = TagFilterField(model)
 
 

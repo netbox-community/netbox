@@ -436,6 +436,13 @@ class Platform(OrganizationalModel):
         null=True,
         help_text=_('Optionally limit this platform to devices of a certain manufacturer')
     )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='platforms',
+        blank=True,
+        null=True
+    )
     napalm_driver = models.CharField(
         max_length=50,
         blank=True,
@@ -880,7 +887,12 @@ class Device(PrimaryModel, ConfigContextModel):
         """
         Return the appropriate ConfigTemplate (if any) for this Device.
         """
-        return self.config_template or self.device_role.config_template
+        if self.config_template:
+            return self.config_template
+        if self.device_role.config_template:
+            return self.device_role.config_template
+        if self.platform and self.platform.config_template:
+            return self.platform.config_template
 
     def get_vc_master(self):
         """

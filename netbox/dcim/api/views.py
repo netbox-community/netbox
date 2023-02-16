@@ -379,7 +379,7 @@ class DeviceRoleViewSet(NetBoxModelViewSet):
 #
 
 class PlatformViewSet(NetBoxModelViewSet):
-    queryset = Platform.objects.prefetch_related('tags').annotate(
+    queryset = Platform.objects.prefetch_related('config_template', 'tags').annotate(
         device_count=count_related(Device, 'platform'),
         virtualmachine_count=count_related(VirtualMachine, 'platform')
     )

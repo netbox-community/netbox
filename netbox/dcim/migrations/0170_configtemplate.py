@@ -20,4 +20,9 @@ class Migration(migrations.Migration):
             name='config_template',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='device_roles', to='extras.configtemplate'),
         ),
+        migrations.AddField(
+            model_name='platform',
+            name='config_template',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='platforms', to='extras.configtemplate'),
+        ),
     ]

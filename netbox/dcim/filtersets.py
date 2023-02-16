@@ -799,6 +799,10 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
+    config_template_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ConfigTemplate.objects.all(),
+        label=_('Config template (ID)'),
+    )
 
     class Meta:
         model = Platform
