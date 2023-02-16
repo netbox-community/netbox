@@ -2050,23 +2050,6 @@ class DeviceStatusView(generic.ObjectView):
     template_name = 'dcim/device/status.html'
 
 
-@register_model_view(Device, 'lldp_neighbors', path='lldp-neighbors')
-class DeviceLLDPNeighborsView(generic.ObjectView):
-    queryset = Device.objects.all()
-    template_name = 'dcim/device/lldp_neighbors.html'
-
-    def get_extra_context(self, request, instance):
-        interfaces = instance.vc_interfaces().restrict(request.user, 'view').prefetch_related(
-            '_path'
-        ).exclude(
-            type__in=NONCONNECTABLE_IFACE_TYPES
-        )
-
-        return {
-            'interfaces': interfaces,
-        }
-
-
 @register_model_view(Device, 'config')
 class DeviceConfigView(generic.ObjectView):
     queryset = Device.objects.all()
