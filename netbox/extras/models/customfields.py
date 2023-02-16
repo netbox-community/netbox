@@ -1,6 +1,6 @@
+import decimal
 import re
 from datetime import datetime, date
-import decimal
 
 import django_filters
 from django import forms
@@ -24,11 +24,10 @@ from utilities.forms.fields import (
     CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, JSONField, LaxURLField,
 )
-from utilities.forms.widgets import DatePicker, StaticSelectMultiple, StaticSelect
 from utilities.forms.utils import add_blank_choice
+from utilities.forms.widgets import DatePicker
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
-
 
 __all__ = (
     'CustomField',
@@ -374,7 +373,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 (False, 'False'),
             )
             field = forms.NullBooleanField(
-                required=required, initial=initial, widget=StaticSelect(choices=choices)
+                required=required, initial=initial, widget=forms.Select(choices=choices)
             )
 
         # Date
@@ -395,14 +394,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
             if self.type == CustomFieldTypeChoices.TYPE_SELECT:
                 field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
-                field = field_class(
-                    choices=choices, required=required, initial=initial, widget=StaticSelect()
-                )
+                field = field_class(choices=choices, required=required, initial=initial)
             else:
                 field_class = CSVMultipleChoiceField if for_csv_import else forms.MultipleChoiceField
-                field = field_class(
-                    choices=choices, required=required, initial=initial, widget=StaticSelectMultiple()
-                )
+                field = field_class(choices=choices, required=required, initial=initial)
 
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:

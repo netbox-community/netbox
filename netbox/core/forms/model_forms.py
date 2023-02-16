@@ -3,7 +3,7 @@ import copy
 from django import forms
 
 from core.models import *
-from netbox.forms import NetBoxModelForm, StaticSelect
+from netbox.forms import NetBoxModelForm
 from netbox.registry import registry
 from utilities.forms import CommentField
 
@@ -21,7 +21,7 @@ class DataSourceForm(NetBoxModelForm):
             'name', 'type', 'source_url', 'enabled', 'description', 'comments', 'ignore_rules', 'tags',
         ]
         widgets = {
-            'type': StaticSelect(
+            'type': forms.Select(
                 attrs={
                     'hx-get': '.',
                     'hx-include': '#form_fields input',

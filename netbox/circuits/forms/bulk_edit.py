@@ -7,7 +7,7 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect,
+    add_blank_choice, CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
 )
 
 __all__ = (
@@ -100,8 +100,7 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(CircuitStatusChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),

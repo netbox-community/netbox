@@ -9,8 +9,8 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BulkEditNullBooleanSelect, CommentField, DynamicModelChoiceField, NumericArrayField,
-    StaticSelect, DynamicModelMultipleChoiceField,
+    add_blank_choice, BulkEditNullBooleanSelect, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    NumericArrayField,
 )
 
 __all__ = (
@@ -205,8 +205,7 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(PrefixStatusChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
@@ -254,8 +253,7 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(IPRangeStatusChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
@@ -296,13 +294,11 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(IPAddressStatusChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     role = forms.ChoiceField(
         choices=add_blank_choice(IPAddressRoleChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     dns_name = forms.CharField(
         max_length=255,
@@ -331,8 +327,7 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
 class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
     protocol = forms.ChoiceField(
         choices=add_blank_choice(FHRPGroupProtocolChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     group_id = forms.IntegerField(
         min_value=0,
@@ -342,7 +337,6 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
     auth_type = forms.ChoiceField(
         choices=add_blank_choice(FHRPGroupAuthTypeChoices),
         required=False,
-        widget=StaticSelect(),
         label=_('Authentication type')
     )
     auth_key = forms.CharField(
@@ -430,8 +424,7 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(VLANStatusChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
@@ -459,8 +452,7 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
 class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
     protocol = forms.ChoiceField(
         choices=add_blank_choice(ServiceProtocolChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     ports = NumericArrayField(
         base_field=forms.IntegerField(
@@ -492,8 +484,7 @@ class ServiceBulkEditForm(ServiceTemplateBulkEditForm):
 class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(L2VPNTypeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),

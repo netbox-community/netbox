@@ -11,7 +11,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, CommentField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, form_from_model, StaticSelect, SelectSpeedWidget,
+    DynamicModelMultipleChoiceField, form_from_model, SelectSpeedWidget,
 )
 
 __all__ = (
@@ -96,8 +96,7 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(SiteStatusChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
@@ -130,8 +129,7 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
     )
     time_zone = TimeZoneFormField(
         choices=add_blank_choice(TimeZoneFormField().choices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     description = forms.CharField(
         max_length=200,
@@ -166,8 +164,7 @@ class LocationBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(LocationStatusChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -238,8 +235,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(RackStatusChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     role = DynamicModelChoiceField(
         queryset=RackRole.objects.all(),
@@ -256,13 +252,11 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(RackTypeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     width = forms.ChoiceField(
         choices=add_blank_choice(RackWidthChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     u_height = forms.IntegerField(
         required=False,
@@ -283,8 +277,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
     )
     outer_unit = forms.ChoiceField(
         choices=add_blank_choice(RackDimensionUnitChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     mounting_depth = forms.IntegerField(
         required=False,
@@ -301,8 +294,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
     weight_unit = forms.ChoiceField(
         choices=add_blank_choice(WeightUnitChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     description = forms.CharField(
         max_length=200,
@@ -333,8 +325,7 @@ class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
         queryset=User.objects.order_by(
             'username'
         ),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -392,8 +383,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
     )
     airflow = forms.ChoiceField(
         choices=add_blank_choice(DeviceAirflowChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     weight = forms.DecimalField(
         min_value=0,
@@ -402,8 +392,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
     weight_unit = forms.ChoiceField(
         choices=add_blank_choice(WeightUnitChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     description = forms.CharField(
         max_length=200,
@@ -437,8 +426,7 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
     weight_unit = forms.ChoiceField(
         choices=add_blank_choice(WeightUnitChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     description = forms.CharField(
         max_length=200,
@@ -537,13 +525,11 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(DeviceStatusChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     airflow = forms.ChoiceField(
         choices=add_blank_choice(DeviceAirflowChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     serial = forms.CharField(
         max_length=50,
@@ -585,8 +571,7 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(ModuleStatusChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     serial = forms.CharField(
         max_length=50,
@@ -613,13 +598,11 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(CableTypeChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(LinkStatusChoices),
         required=False,
-        widget=StaticSelect(),
         initial=''
     )
     tenant = DynamicModelChoiceField(
@@ -640,8 +623,7 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
     length_unit = forms.ChoiceField(
         choices=add_blank_choice(CableLengthUnitChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     description = forms.CharField(
         max_length=200,
@@ -741,26 +723,22 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedStatusChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedTypeChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     supply = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedSupplyChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     phase = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedPhaseChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     voltage = forms.IntegerField(
         required=False
@@ -807,8 +785,7 @@ class ConsolePortTemplateBulkEditForm(BulkEditForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
 
     nullable_fields = ('label', 'type', 'description')
@@ -825,8 +802,7 @@ class ConsoleServerPortTemplateBulkEditForm(BulkEditForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     description = forms.CharField(
         required=False
@@ -846,8 +822,7 @@ class PowerPortTemplateBulkEditForm(BulkEditForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     maximum_draw = forms.IntegerField(
         min_value=1,
@@ -883,8 +858,7 @@ class PowerOutletTemplateBulkEditForm(BulkEditForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     power_port = forms.ModelChoiceField(
         queryset=PowerPortTemplate.objects.all(),
@@ -892,8 +866,7 @@ class PowerOutletTemplateBulkEditForm(BulkEditForm):
     )
     feed_leg = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletFeedLegChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     description = forms.CharField(
         required=False
@@ -924,8 +897,7 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(InterfaceTypeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     enabled = forms.NullBooleanField(
         required=False,
@@ -943,14 +915,12 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
         choices=add_blank_choice(InterfacePoEModeChoices),
         required=False,
         initial='',
-        widget=StaticSelect(),
         label=_('PoE mode')
     )
     poe_type = forms.ChoiceField(
         choices=add_blank_choice(InterfacePoETypeChoices),
         required=False,
         initial='',
-        widget=StaticSelect(),
         label=_('PoE type')
     )
 
@@ -968,8 +938,7 @@ class FrontPortTemplateBulkEditForm(BulkEditForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PortTypeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     color = ColorField(
         required=False
@@ -992,8 +961,7 @@ class RearPortTemplateBulkEditForm(BulkEditForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PortTypeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     color = ColorField(
         required=False
@@ -1208,14 +1176,12 @@ class InterfaceBulkEditForm(
         choices=add_blank_choice(InterfacePoEModeChoices),
         required=False,
         initial='',
-        widget=StaticSelect(),
         label=_('PoE mode')
     )
     poe_type = forms.ChoiceField(
         choices=add_blank_choice(InterfacePoETypeChoices),
         required=False,
         initial='',
-        widget=StaticSelect(),
         label=_('PoE type')
     )
     mark_connected = forms.NullBooleanField(
@@ -1225,8 +1191,7 @@ class InterfaceBulkEditForm(
     mode = forms.ChoiceField(
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
@@ -1426,8 +1391,7 @@ class VirtualDeviceContextBulkEditForm(NetBoxModelBulkEditForm):
     )
     status = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(VirtualDeviceContextStatusChoices),
-        widget=StaticSelect()
+        choices=add_blank_choice(VirtualDeviceContextStatusChoices)
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),

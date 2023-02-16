@@ -3,7 +3,7 @@ from django import forms
 from netbox.forms import NetBoxModelForm
 from tenancy.models import *
 from utilities.forms import (
-    BootstrapMixin, CommentField, DynamicModelChoiceField, SlugField, StaticSelect,
+    BootstrapMixin, CommentField, DynamicModelChoiceField, SlugField,
 )
 
 __all__ = (
@@ -142,5 +142,4 @@ class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'content_type': forms.HiddenInput(),
             'object_id': forms.HiddenInput(),
-            'priority': StaticSelect(),
         }

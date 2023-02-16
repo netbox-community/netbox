@@ -4,9 +4,7 @@ from django.utils.translation import gettext as _
 from core.choices import *
 from core.models import *
 from netbox.forms import NetBoxModelFilterSetForm
-from utilities.forms import (
-    BOOLEAN_WITH_BLANK_CHOICES, DynamicModelMultipleChoiceField, MultipleChoiceField, StaticSelect,
-)
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, DynamicModelMultipleChoiceField
 
 __all__ = (
     'DataFileFilterForm',
@@ -20,17 +18,17 @@ class DataSourceFilterForm(NetBoxModelFilterSetForm):
         (None, ('q', 'filter_id')),
         ('Data Source', ('type', 'status')),
     )
-    type = MultipleChoiceField(
+    type = forms.MultipleChoiceField(
         choices=DataSourceTypeChoices,
         required=False
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=DataSourceStatusChoices,
         required=False
     )
     enabled = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )

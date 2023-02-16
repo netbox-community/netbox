@@ -7,7 +7,7 @@ from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
-from utilities.forms import DatePicker, DynamicModelMultipleChoiceField, MultipleChoiceField, TagFilterField
+from utilities.forms import DatePicker, DynamicModelMultipleChoiceField, TagFilterField
 
 __all__ = (
     'CircuitFilterForm',
@@ -107,7 +107,7 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         },
         label=_('Provider network')
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=CircuitStatusChoices,
         required=False
     )

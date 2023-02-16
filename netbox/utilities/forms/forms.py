@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 
 from utilities.choices import ImportFormatChoices
 from utilities.forms.utils import parse_csv
-from .widgets import APISelect, APISelectMultiple, ClearableFileInput, StaticSelect
+from .widgets import APISelect, APISelectMultiple, ClearableFileInput
 
 __all__ = (
     'BootstrapMixin',
@@ -37,27 +37,27 @@ class BootstrapMixin:
         super().__init__(*args, **kwargs)
 
         exempt_widgets = [
-            forms.CheckboxInput,
             forms.FileInput,
             forms.RadioSelect,
-            forms.Select,
             APISelect,
             APISelectMultiple,
             ClearableFileInput,
-            StaticSelect,
         ]
 
         for field_name, field in self.fields.items():
             css = field.widget.attrs.get('class', '')
 
-            if field.widget.__class__ not in exempt_widgets:
-                field.widget.attrs['class'] = f'{css} form-control'
+            if field.widget.__class__ in exempt_widgets:
+                continue
 
             elif isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs['class'] = f'{css} form-check-input'
 
             elif isinstance(field.widget, forms.Select):
-                field.widget.attrs['class'] = f'{css} form-select'
+                field.widget.attrs['class'] = f'{css} netbox-static-select'
+
+            else:
+                field.widget.attrs['class'] = f'{css} form-control'
 
             if field.required and not isinstance(field.widget, forms.FileInput):
                 field.widget.attrs['required'] = 'required'
@@ -165,8 +165,7 @@ class ImportForm(BootstrapMixin, forms.Form):
     )
     format = forms.ChoiceField(
         choices=ImportFormatChoices,
-        initial=ImportFormatChoices.AUTO,
-        widget=StaticSelect()
+        initial=ImportFormatChoices.AUTO
     )
 
     data_field = 'data'
