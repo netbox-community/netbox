@@ -7,7 +7,6 @@ from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import (
     CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SelectSpeedWidget, SlugField,
-    StaticSelect,
 )
 
 __all__ = (
@@ -102,7 +101,6 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
             'commit_rate': _("Committed rate"),
         }
         widgets = {
-            'status': StaticSelect(),
             'install_date': DatePicker(),
             'termination_date': DatePicker(),
             'commit_rate': SelectSpeedWidget(),
@@ -174,7 +172,6 @@ class CircuitTerminationForm(NetBoxModelForm):
             'pp_info': _("Patch panel ID and port number(s)")
         }
         widgets = {
-            'term_side': StaticSelect(),
             'port_speed': SelectSpeedWidget(),
             'upstream_speed': SelectSpeedWidget(),
         }

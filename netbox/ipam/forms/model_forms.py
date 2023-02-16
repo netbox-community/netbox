@@ -13,7 +13,7 @@ from tenancy.forms import TenancyForm
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, CommentField, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, NumericArrayField, SlugField, StaticSelect, StaticSelectMultiple,
+    DynamicModelMultipleChoiceField, NumericArrayField, SlugField,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 
@@ -254,9 +254,6 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
             'prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'tenant_group', 'tenant',
             'description', 'comments', 'tags',
         ]
-        widgets = {
-            'status': StaticSelect(),
-        }
 
 
 class IPRangeForm(TenancyForm, NetBoxModelForm):
@@ -282,9 +279,6 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
             'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant', 'description',
             'comments', 'tags',
         ]
-        widgets = {
-            'status': StaticSelect(),
-        }
 
 
 class IPAddressForm(TenancyForm, NetBoxModelForm):
@@ -411,10 +405,6 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             'nat_cluster', 'nat_virtual_machine', 'nat_vrf', 'nat_inside', 'tenant_group', 'tenant', 'description',
             'comments', 'tags',
         ]
-        widgets = {
-            'status': StaticSelect(),
-            'role': StaticSelect(),
-        }
 
     def __init__(self, *args, **kwargs):
 
@@ -510,10 +500,6 @@ class IPAddressBulkAddForm(TenancyForm, NetBoxModelForm):
         fields = [
             'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'tenant_group', 'tenant', 'tags',
         ]
-        widgets = {
-            'status': StaticSelect(),
-            'role': StaticSelect(),
-        }
 
 
 class IPAddressAssignForm(BootstrapMixin, forms.Form):
@@ -559,11 +545,6 @@ class FHRPGroupForm(NetBoxModelForm):
             'protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'ip_vrf', 'ip_address', 'ip_status', 'description',
             'comments', 'tags',
         )
-        widgets = {
-            'protocol': StaticSelect(),
-            'auth_type': StaticSelect(),
-            'ip_status': StaticSelect(),
-        }
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
@@ -700,9 +681,6 @@ class VLANGroupForm(NetBoxModelForm):
             'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
             'clustergroup', 'cluster', 'min_vid', 'max_vid', 'tags',
         ]
-        widgets = {
-            'scope_type': StaticSelect,
-        }
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
@@ -740,7 +718,6 @@ class VLANForm(TenancyForm, NetBoxModelForm):
             ('virtualization.cluster', 'Cluster'),
         ),
         required=False,
-        widget=StaticSelect,
         label=_('Group scope')
     )
     group = DynamicModelChoiceField(
@@ -800,9 +777,6 @@ class VLANForm(TenancyForm, NetBoxModelForm):
             'status': _("Operational status of this VLAN"),
             'role': _("The primary function of this VLAN"),
         }
-        widgets = {
-            'status': StaticSelect(),
-        }
 
 
 class ServiceTemplateForm(NetBoxModelForm):
@@ -824,9 +798,6 @@ class ServiceTemplateForm(NetBoxModelForm):
     class Meta:
         model = ServiceTemplate
         fields = ('name', 'protocol', 'ports', 'description', 'comments', 'tags')
-        widgets = {
-            'protocol': StaticSelect(),
-        }
 
 
 class ServiceForm(NetBoxModelForm):
@@ -864,10 +835,6 @@ class ServiceForm(NetBoxModelForm):
         help_texts = {
             'ipaddresses': _("IP address assignment is optional. If no IPs are selected, the service is assumed to be "
                              "reachable via all IPs assigned to the device."),
-        }
-        widgets = {
-            'protocol': StaticSelect(),
-            'ipaddresses': StaticSelectMultiple(),
         }
 
 
@@ -934,9 +901,6 @@ class L2VPNForm(TenancyForm, NetBoxModelForm):
             'name', 'slug', 'type', 'identifier', 'import_targets', 'export_targets', 'tenant', 'description',
             'comments', 'tags'
         )
-        widgets = {
-            'type': StaticSelect(),
-        }
 
 
 class L2VPNTerminationForm(NetBoxModelForm):

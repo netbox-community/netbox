@@ -13,7 +13,7 @@ from tenancy.forms import TenancyForm
 from utilities.forms import (
     APISelect, add_blank_choice, BootstrapMixin, ClearableFileInput, CommentField, ContentTypeChoiceField,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SelectWithPK,
-    SlugField, StaticSelect, SelectSpeedWidget,
+    SlugField, SelectSpeedWidget,
 )
 from virtualization.models import Cluster, ClusterGroup
 from wireless.models import WirelessLAN, WirelessLANGroup
@@ -130,7 +130,7 @@ class SiteForm(TenancyForm, NetBoxModelForm):
     time_zone = TimeZoneFormField(
         choices=add_blank_choice(TimeZoneFormField().choices),
         required=False,
-        widget=StaticSelect()
+        # widget=StaticSelect()
     )
     comments = CommentField()
 
@@ -159,8 +159,8 @@ class SiteForm(TenancyForm, NetBoxModelForm):
                     'rows': 3,
                 }
             ),
-            'status': StaticSelect(),
-            'time_zone': StaticSelect(),
+            # 'status': StaticSelect(),
+            # 'time_zone': StaticSelect(),
         }
         help_texts = {
             'name': _("Full name of the site"),
@@ -218,9 +218,6 @@ class LocationForm(TenancyForm, NetBoxModelForm):
             'region', 'site_group', 'site', 'parent', 'name', 'slug', 'status', 'description', 'tenant_group', 'tenant',
             'tags',
         )
-        widgets = {
-            'status': StaticSelect(),
-        }
 
 
 class RackRoleForm(NetBoxModelForm):
@@ -287,13 +284,6 @@ class RackForm(TenancyForm, NetBoxModelForm):
             'facility_id': _("The unique rack ID assigned by the facility"),
             'u_height': _("Height in rack units"),
         }
-        widgets = {
-            'status': StaticSelect(),
-            'type': StaticSelect(),
-            'width': StaticSelect(),
-            'outer_unit': StaticSelect(),
-            'weight_unit': StaticSelect(),
-        }
 
 
 class RackReservationForm(TenancyForm, NetBoxModelForm):
@@ -340,8 +330,7 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
     user = forms.ModelChoiceField(
         queryset=User.objects.order_by(
             'username'
-        ),
-        widget=StaticSelect()
+        )
     )
     comments = CommentField()
 
@@ -402,15 +391,12 @@ class DeviceTypeForm(NetBoxModelForm):
             'weight', 'weight_unit', 'front_image', 'rear_image', 'description', 'comments', 'tags', 'default_platform'
         ]
         widgets = {
-            'airflow': StaticSelect(),
-            'subdevice_role': StaticSelect(),
             'front_image': ClearableFileInput(attrs={
                 'accept': DEVICETYPE_IMAGE_FORMATS
             }),
             'rear_image': ClearableFileInput(attrs={
                 'accept': DEVICETYPE_IMAGE_FORMATS
             }),
-            'weight_unit': StaticSelect(),
         }
 
 
@@ -430,10 +416,6 @@ class ModuleTypeForm(NetBoxModelForm):
         fields = [
             'manufacturer', 'model', 'part_number', 'weight', 'weight_unit', 'description', 'comments', 'tags',
         ]
-
-        widgets = {
-            'weight_unit': StaticSelect(),
-        }
 
 
 class DeviceRoleForm(NetBoxModelForm):
@@ -601,13 +583,6 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             'local_context_data': _("Local config context data overwrites all source contexts in the final rendered "
                                     "config context"),
         }
-        widgets = {
-            'face': StaticSelect(),
-            'status': StaticSelect(),
-            'airflow': StaticSelect(),
-            'primary_ip4': StaticSelect(),
-            'primary_ip6': StaticSelect(),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -741,11 +716,6 @@ class CableForm(TenancyForm, NetBoxModelForm):
             'type', 'status', 'tenant_group', 'tenant', 'label', 'color', 'length', 'length_unit', 'description',
             'comments', 'tags',
         ]
-        widgets = {
-            'status': StaticSelect,
-            'type': StaticSelect,
-            'length_unit': StaticSelect,
-        }
         error_messages = {
             'length': {
                 'max_value': 'Maximum length is 32767 (any unit)'
@@ -860,12 +830,6 @@ class PowerFeedForm(NetBoxModelForm):
             'mark_connected', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization', 'description', 'comments',
             'tags',
         ]
-        widgets = {
-            'status': StaticSelect(),
-            'type': StaticSelect(),
-            'supply': StaticSelect(),
-            'phase': StaticSelect(),
-        }
 
 
 #
@@ -1029,9 +993,6 @@ class ConsolePortTemplateForm(ModularComponentTemplateForm):
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'description',
         ]
-        widgets = {
-            'type': StaticSelect,
-        }
 
 
 class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
@@ -1044,9 +1005,6 @@ class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'description',
         ]
-        widgets = {
-            'type': StaticSelect,
-        }
 
 
 class PowerPortTemplateForm(ModularComponentTemplateForm):
@@ -1061,9 +1019,6 @@ class PowerPortTemplateForm(ModularComponentTemplateForm):
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
         ]
-        widgets = {
-            'type': StaticSelect(),
-        }
 
 
 class PowerOutletTemplateForm(ModularComponentTemplateForm):
@@ -1084,10 +1039,6 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
         ]
-        widgets = {
-            'type': StaticSelect(),
-            'feed_leg': StaticSelect(),
-        }
 
 
 class InterfaceTemplateForm(ModularComponentTemplateForm):
@@ -1101,11 +1052,6 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode', 'poe_type',
         ]
-        widgets = {
-            'type': StaticSelect(),
-            'poe_mode': StaticSelect(),
-            'poe_type': StaticSelect(),
-        }
 
 
 class FrontPortTemplateForm(ModularComponentTemplateForm):
@@ -1131,9 +1077,6 @@ class FrontPortTemplateForm(ModularComponentTemplateForm):
             'device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
             'description',
         ]
-        widgets = {
-            'type': StaticSelect(),
-        }
 
 
 class RearPortTemplateForm(ModularComponentTemplateForm):
@@ -1146,9 +1089,6 @@ class RearPortTemplateForm(ModularComponentTemplateForm):
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions', 'description',
         ]
-        widgets = {
-            'type': StaticSelect(),
-        }
 
 
 class ModuleBayTemplateForm(ComponentTemplateForm):
@@ -1256,10 +1196,6 @@ class ConsolePortForm(ModularDeviceComponentForm):
         fields = [
             'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
         ]
-        widgets = {
-            'type': StaticSelect(),
-            'speed': StaticSelect(),
-        }
 
 
 class ConsoleServerPortForm(ModularDeviceComponentForm):
@@ -1275,10 +1211,6 @@ class ConsoleServerPortForm(ModularDeviceComponentForm):
         fields = [
             'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
         ]
-        widgets = {
-            'type': StaticSelect(),
-            'speed': StaticSelect(),
-        }
 
 
 class PowerPortForm(ModularDeviceComponentForm):
@@ -1296,9 +1228,6 @@ class PowerPortForm(ModularDeviceComponentForm):
             'device', 'module', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected',
             'description', 'tags',
         ]
-        widgets = {
-            'type': StaticSelect(),
-        }
 
 
 class PowerOutletForm(ModularDeviceComponentForm):
@@ -1323,10 +1252,6 @@ class PowerOutletForm(ModularDeviceComponentForm):
             'device', 'module', 'name', 'label', 'type', 'power_port', 'feed_leg', 'mark_connected', 'description',
             'tags',
         ]
-        widgets = {
-            'type': StaticSelect(),
-            'feed_leg': StaticSelect(),
-        }
 
 
 class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
@@ -1431,14 +1356,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
         ]
         widgets = {
-            'type': StaticSelect(),
             'speed': SelectSpeedWidget(),
-            'poe_mode': StaticSelect(),
-            'poe_type': StaticSelect(),
-            'duplex': StaticSelect(),
-            'mode': StaticSelect(),
-            'rf_role': StaticSelect(),
-            'rf_channel': StaticSelect(),
         }
         labels = {
             'mode': '802.1Q Mode',
@@ -1471,9 +1389,6 @@ class FrontPortForm(ModularDeviceComponentForm):
             'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
             'description', 'tags',
         ]
-        widgets = {
-            'type': StaticSelect(),
-        }
 
 
 class RearPortForm(ModularDeviceComponentForm):
@@ -1488,9 +1403,6 @@ class RearPortForm(ModularDeviceComponentForm):
         fields = [
             'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
         ]
-        widgets = {
-            'type': StaticSelect(),
-        }
 
 
 class ModuleBayForm(DeviceComponentForm):
@@ -1521,8 +1433,7 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
     installed_device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         label=_('Child Device'),
-        help_text=_("Child devices must first be created and assigned to the site/rack of the parent device."),
-        widget=StaticSelect(),
+        help_text=_("Child devices must first be created and assigned to the site/rack of the parent device.")
     )
 
     def __init__(self, device_bay, *args, **kwargs):
@@ -1771,8 +1682,3 @@ class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
             'region', 'site_group', 'site', 'location', 'rack', 'device', 'name', 'status', 'identifier',
             'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'comments', 'tags'
         ]
-        widgets = {
-            'status': StaticSelect(),
-            'primary_ip4': StaticSelect(),
-            'primary_ip6': StaticSelect(),
-        }

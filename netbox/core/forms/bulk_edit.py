@@ -4,9 +4,7 @@ from django.utils.translation import gettext as _
 from core.choices import DataSourceTypeChoices
 from core.models import *
 from netbox.forms import NetBoxModelBulkEditForm
-from utilities.forms import (
-    add_blank_choice, BulkEditNullBooleanSelect, CommentField, StaticSelect,
-)
+from utilities.forms import add_blank_choice, BulkEditNullBooleanSelect, CommentField
 
 __all__ = (
     'DataSourceBulkEditForm',
@@ -17,8 +15,7 @@ class DataSourceBulkEditForm(NetBoxModelBulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(DataSourceTypeChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     enabled = forms.NullBooleanField(
         required=False,
