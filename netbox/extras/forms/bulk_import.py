@@ -89,7 +89,7 @@ class ConfigTemplateImportForm(CSVModelForm):
     class Meta:
         model = ConfigTemplate
         fields = (
-            'name', 'description', 'environment_params', 'template_code',
+            'name', 'description', 'environment_params', 'template_code', 'tags',
         )
 
 

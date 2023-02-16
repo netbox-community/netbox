@@ -11,6 +11,7 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
+from .filters import TagFilter
 from .models import *
 
 __all__ = (
@@ -467,6 +468,7 @@ class ConfigTemplateFilterSet(BaseFilterSet):
         queryset=DataSource.objects.all(),
         label=_('Data file (ID)'),
     )
+    tag = TagFilter()
 
     class Meta:
         model = ConfigTemplate

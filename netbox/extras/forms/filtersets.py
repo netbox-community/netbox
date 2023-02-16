@@ -367,7 +367,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
 
 class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id')),
+        (None, ('q', 'filter_id', 'tag')),
         ('Data', ('data_source_id', 'data_file_id')),
     )
     data_source_id = DynamicModelMultipleChoiceField(
@@ -383,6 +383,7 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
             'source_id': '$data_source_id'
         }
     )
+    tag = TagFilterField(ConfigTemplate)
 
 
 class LocalConfigContextFilterForm(forms.Form):

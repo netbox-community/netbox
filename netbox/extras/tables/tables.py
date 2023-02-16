@@ -237,11 +237,15 @@ class ConfigTemplateTable(NetBoxTable):
     is_synced = columns.BooleanColumn(
         verbose_name='Synced'
     )
+    tags = columns.TagColumn(
+        url_name='extras:configtemplate_list'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ConfigTemplate
         fields = (
             'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
+            'tags',
         )
         default_columns = (
             'pk', 'name', 'description', 'is_synced',

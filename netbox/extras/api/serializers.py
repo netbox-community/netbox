@@ -16,6 +16,7 @@ from extras.utils import FeatureQuery
 from netbox.api.exceptions import SerializerNotFound
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer
+from netbox.api.serializers.features import TaggableModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
@@ -29,6 +30,7 @@ from .nested_serializers import *
 
 __all__ = (
     'ConfigContextSerializer',
+    'ConfigTemplateSerializer',
     'ContentTypeSerializer',
     'CustomFieldSerializer',
     'CustomLinkSerializer',
@@ -387,7 +389,7 @@ class ConfigContextSerializer(ValidatedModelSerializer):
 # Config templates
 #
 
-class ConfigTemplateSerializer(ValidatedModelSerializer):
+class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:configtemplate-detail')
     data_source = NestedDataSourceSerializer(
         required=False
@@ -400,7 +402,7 @@ class ConfigTemplateSerializer(ValidatedModelSerializer):
         model = ConfigTemplate
         fields = [
             'id', 'url', 'display', 'name', 'description', 'environment_params', 'template_code', 'data_source',
-            'data_path', 'data_file', 'data_synced', 'created', 'last_updated',
+            'data_path', 'data_file', 'data_synced', 'tags', 'created', 'last_updated',
         ]
 
 

@@ -281,7 +281,7 @@ class ConfigTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        ('Export Template', ('name', 'description', 'environment_params', 'tags')),
+        ('Config Template', ('name', 'description', 'environment_params', 'tags')),
         ('Content', ('data_source', 'data_file', 'template_code',)),
     )
 

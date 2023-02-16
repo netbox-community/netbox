@@ -9,7 +9,7 @@ from jinja2.sandbox import SandboxedEnvironment
 from extras.querysets import ConfigContextQuerySet
 from netbox.config import get_config
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import ExportTemplatesMixin, SyncedDataMixin
+from netbox.models.features import ExportTemplatesMixin, SyncedDataMixin, TagsMixin
 from utilities.jinja2 import ConfigTemplateLoader
 from utilities.utils import deepmerge
 
@@ -193,7 +193,7 @@ class ConfigContextModel(models.Model):
 # Config templates
 #
 
-class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, ChangeLoggedModel):
+class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     name = models.CharField(
         max_length=100
     )
