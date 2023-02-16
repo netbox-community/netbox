@@ -129,8 +129,7 @@ class SiteForm(TenancyForm, NetBoxModelForm):
     slug = SlugField()
     time_zone = TimeZoneFormField(
         choices=add_blank_choice(TimeZoneFormField().choices),
-        required=False,
-        # widget=StaticSelect()
+        required=False
     )
     comments = CommentField()
 
@@ -159,8 +158,6 @@ class SiteForm(TenancyForm, NetBoxModelForm):
                     'rows': 3,
                 }
             ),
-            # 'status': StaticSelect(),
-            # 'time_zone': StaticSelect(),
         }
         help_texts = {
             'name': _("Full name of the site"),

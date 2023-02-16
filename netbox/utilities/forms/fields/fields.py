@@ -138,7 +138,7 @@ class ChoiceField(forms.ChoiceField):
     """
     Previously used to override Django's built-in `ChoiceField` to use NetBox's now-obsolete `StaticSelect` widget.
     """
-    # TODO: Remove in v4.0
+    # TODO: Remove in v3.6
     pass
 
 
@@ -147,5 +147,5 @@ class MultipleChoiceField(forms.MultipleChoiceField):
     Previously used to override Django's built-in `MultipleChoiceField` to use NetBox's now-obsolete
     `StaticSelectMultiple` widget.
     """
-    # TODO: Remove in v4.0
+    # TODO: Remove in v3.6
     pass
