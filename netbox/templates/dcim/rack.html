@@ -32,7 +32,7 @@
         <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ object }}</button>
         <ul class="dropdown-menu">
         {% for peer_rack in peer_racks %}
-            <li><a class="dropdown-item" href="{% url 'dcim:rack' pk=peer_rack.pk %}">{{ peer_rack }}</a></li>
+            <li><a class="dropdown-item{% if peer_rack.pk == object.pk %} active{% endif %}" href="{% url 'dcim:rack' pk=peer_rack.pk %}">{{ peer_rack }}</a></li>
         {% endfor %}
         </ul>
     </div>
