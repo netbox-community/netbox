@@ -410,6 +410,13 @@ class DeviceRole(OrganizationalModel):
         verbose_name='VM Role',
         help_text=_('Virtual machines may be assigned to this role')
     )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='device_roles',
+        blank=True,
+        null=True
+    )
 
     def get_absolute_url(self):
         return reverse('dcim:devicerole', args=[self.pk])
@@ -428,6 +435,13 @@ class Platform(OrganizationalModel):
         blank=True,
         null=True,
         help_text=_('Optionally limit this platform to devices of a certain manufacturer')
+    )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='platforms',
+        blank=True,
+        null=True
     )
     napalm_driver = models.CharField(
         max_length=50,
@@ -589,6 +603,13 @@ class Device(PrimaryModel, ConfigContextModel):
         blank=True,
         null=True,
         validators=[MaxValueValidator(255)]
+    )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='devices',
+        blank=True,
+        null=True
     )
 
     # Generic relations
@@ -861,6 +882,17 @@ class Device(PrimaryModel, ConfigContextModel):
     @property
     def interfaces_count(self):
         return self.vc_interfaces().count()
+
+    def get_config_template(self):
+        """
+        Return the appropriate ConfigTemplate (if any) for this Device.
+        """
+        if self.config_template:
+            return self.config_template
+        if self.device_role.config_template:
+            return self.device_role.config_template
+        if self.platform and self.platform.config_template:
+            return self.platform.config_template
 
     def get_vc_master(self):
         """

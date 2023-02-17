@@ -10,6 +10,7 @@ from extras.utils import FeatureQuery
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelForm, CSVMultipleContentTypeField, SlugField
 
 __all__ = (
+    'ConfigTemplateImportForm',
     'CustomFieldImportForm',
     'CustomLinkImportForm',
     'ExportTemplateImportForm',
@@ -80,6 +81,15 @@ class ExportTemplateImportForm(CSVModelForm):
         model = ExportTemplate
         fields = (
             'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'template_code',
+        )
+
+
+class ConfigTemplateImportForm(CSVModelForm):
+
+    class Meta:
+        model = ConfigTemplate
+        fields = (
+            'name', 'description', 'environment_params', 'template_code', 'tags',
         )
 
 

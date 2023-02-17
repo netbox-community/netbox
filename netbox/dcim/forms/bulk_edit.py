@@ -6,6 +6,7 @@ from timezone_field import TimeZoneFormField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from extras.models import ConfigTemplate
 from ipam.models import ASN, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
@@ -454,6 +455,10 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
         widget=BulkEditNullBooleanSelect,
         label=_('VM role')
     )
+    config_template = DynamicModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False
+    )
     description = forms.CharField(
         max_length=200,
         required=False
@@ -461,9 +466,9 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
 
     model = DeviceRole
     fieldsets = (
-        (None, ('color', 'vm_role', 'description')),
+        (None, ('color', 'vm_role', 'config_template', 'description')),
     )
-    nullable_fields = ('color', 'description')
+    nullable_fields = ('color', 'config_template', 'description')
 
 
 class PlatformBulkEditForm(NetBoxModelBulkEditForm):
@@ -475,7 +480,10 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
         max_length=50,
         required=False
     )
-    # TODO: Bulk edit support for napalm_args
+    config_template = DynamicModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False
+    )
     description = forms.CharField(
         max_length=200,
         required=False
@@ -483,9 +491,9 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Platform
     fieldsets = (
-        (None, ('manufacturer', 'napalm_driver', 'description')),
+        (None, ('manufacturer', 'config_template', 'napalm_driver', 'description')),
     )
-    nullable_fields = ('manufacturer', 'napalm_driver', 'description')
+    nullable_fields = ('manufacturer', 'config_template', 'napalm_driver', 'description')
 
 
 class DeviceBulkEditForm(NetBoxModelBulkEditForm):
@@ -540,6 +548,10 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    config_template = DynamicModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False
+    )
     comments = CommentField(
         widget=forms.Textarea,
         label='Comments'
@@ -550,6 +562,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         ('Device', ('device_role', 'status', 'tenant', 'platform', 'description')),
         ('Location', ('site', 'location')),
         ('Hardware', ('manufacturer', 'device_type', 'airflow', 'serial')),
+        ('Configuration', ('config_template',)),
     )
     nullable_fields = (
         'location', 'tenant', 'platform', 'serial', 'airflow', 'description', 'comments',

@@ -1,0 +1,10 @@
+{% extends 'generic/object_list.html' %}
+
+{% block bulk_buttons %}
+  {% if perms.extras.sync_configtemplate %}
+    <button type="submit" name="_sync" formaction="{% url 'extras:configtemplate_bulk_sync' %}" class="btn btn-primary btn-sm">
+      <i class="mdi mdi-sync" aria-hidden="true"></i> Sync Data
+    </button>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

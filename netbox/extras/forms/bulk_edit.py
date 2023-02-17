@@ -9,6 +9,7 @@ from utilities.forms import (
 
 __all__ = (
     'ConfigContextBulkEditForm',
+    'ConfigTemplateBulkEditForm',
     'CustomFieldBulkEditForm',
     'CustomLinkBulkEditForm',
     'ExportTemplateBulkEditForm',
@@ -196,6 +197,19 @@ class ConfigContextBulkEditForm(BulkEditForm):
     description = forms.CharField(
         required=False,
         max_length=100
+    )
+
+    nullable_fields = ('description',)
+
+
+class ConfigTemplateBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
     )
 
     nullable_fields = ('description',)
