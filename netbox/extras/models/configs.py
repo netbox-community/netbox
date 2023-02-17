@@ -3,15 +3,21 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext as _
+from jinja2.loaders import BaseLoader
+from jinja2.sandbox import SandboxedEnvironment
 
 from extras.querysets import ConfigContextQuerySet
+from netbox.config import get_config
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import SyncedDataMixin
+from netbox.models.features import ExportTemplatesMixin, SyncedDataMixin, TagsMixin
+from utilities.jinja2 import ConfigTemplateLoader
 from utilities.utils import deepmerge
 
 __all__ = (
     'ConfigContext',
     'ConfigContextModel',
+    'ConfigTemplate',
 )
 
 
@@ -182,3 +188,77 @@ class ConfigContextModel(models.Model):
             raise ValidationError(
                 {'local_context_data': 'JSON data must be in object form. Example: {"foo": 123}'}
             )
+
+
+#
+# Config templates
+#
+
+class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
+    name = models.CharField(
+        max_length=100
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    template_code = models.TextField(
+        help_text=_('Jinja2 template code.')
+    )
+    environment_params = models.JSONField(
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:configtemplate', args=[self.pk])
+
+    def sync_data(self):
+        """
+        Synchronize template content from the designated DataFile (if any).
+        """
+        self.template_code = self.data_file.data_as_string
+        self.data_synced = timezone.now()
+
+    def render(self, context=None):
+        """
+        Render the contents of the template.
+        """
+        context = context or {}
+
+        # Initialize the Jinja2 environment and instantiate the Template
+        environment = self._get_environment()
+        if self.data_file:
+            template = environment.get_template(self.data_file.path)
+        else:
+            template = environment.from_string(self.template_code)
+
+        output = template.render(**context)
+
+        # Replace CRLF-style line terminators
+        return output.replace('\r\n', '\n')
+
+    def _get_environment(self):
+        """
+        Instantiate and return a Jinja2 environment suitable for rendering the ConfigTemplate.
+        """
+        # Initialize the template loader & cache the base template code (if applicable)
+        if self.data_file:
+            loader = ConfigTemplateLoader(data_source=self.data_source)
+            loader.cache_templates({
+                self.data_file.path: self.template_code
+            })
+        else:
+            loader = BaseLoader()
+
+        # Initialize the environment
+        environment = SandboxedEnvironment(loader=loader)
+        environment.filters.update(get_config().JINJA2_FILTERS)
+
+        return environment

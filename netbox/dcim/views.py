@@ -1,3 +1,5 @@
+import traceback
+
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -10,10 +12,11 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.generic import View
+from jinja2.exceptions import TemplateError
 
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
-from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
+from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
 from ipam.tables import InterfaceVLANTable
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
@@ -1997,6 +2000,39 @@ class DeviceInventoryView(DeviceComponentsView):
     )
 
 
+@register_model_view(Device, 'render-config')
+class DeviceRenderConfigView(generic.ObjectView):
+    queryset = Device.objects.all()
+    template_name = 'dcim/device/render_config.html'
+    tab = ViewTab(
+        label=_('Render Config'),
+        permission='extras.view_configtemplate',
+        weight=2000
+    )
+
+    def get_extra_context(self, request, instance):
+        # Compile context data
+        context_data = {
+            'device': instance,
+        }
+        context_data.update(**instance.get_config_context())
+
+        # Render the config template
+        rendered_config = None
+        if config_template := instance.get_config_template():
+            try:
+                rendered_config = config_template.render(context=context_data)
+            except TemplateError as e:
+                messages.error(request, f"An error occurred while rendering the template: {e}")
+                rendered_config = traceback.format_exc()
+
+        return {
+            'config_template': config_template,
+            'context_data': context_data,
+            'rendered_config': rendered_config,
+        }
+
+
 @register_model_view(Device, 'configcontext', path='config-context')
 class DeviceConfigContextView(ObjectConfigContextView):
     queryset = Device.objects.annotate_config_context_data()
@@ -2004,7 +2040,7 @@ class DeviceConfigContextView(ObjectConfigContextView):
     tab = ViewTab(
         label=_('Config Context'),
         permission='extras.view_configcontext',
-        weight=2000
+        weight=2100
     )
 
 

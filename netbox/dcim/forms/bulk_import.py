@@ -8,6 +8,7 @@ from django.utils.translation import gettext as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from extras.models import ConfigTemplate
 from ipam.models import VRF
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
@@ -307,11 +308,17 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
+    config_template = CSVModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Config template')
+    )
     slug = SlugField()
 
     class Meta:
         model = DeviceRole
-        fields = ('name', 'slug', 'color', 'vm_role', 'description', 'tags')
+        fields = ('name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags')
         help_texts = {
             'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
         }
@@ -325,10 +332,18 @@ class PlatformImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Limit platform assignments to this manufacturer')
     )
+    config_template = CSVModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Config template')
+    )
 
     class Meta:
         model = Platform
-        fields = ('name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'tags')
+        fields = (
+            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
+        )
 
 
 class BaseDeviceImportForm(NetBoxModelImportForm):
@@ -434,12 +449,18 @@ class DeviceImportForm(BaseDeviceImportForm):
         required=False,
         help_text=_('Airflow direction')
     )
+    config_template = CSVModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Config template')
+    )
 
     class Meta(BaseDeviceImportForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'location', 'rack', 'position', 'face', 'parent', 'device_bay', 'airflow', 'virtual_chassis',
-            'vc_position', 'vc_priority', 'cluster', 'description', 'comments', 'tags',
+            'vc_position', 'vc_priority', 'cluster', 'description', 'config_template', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):

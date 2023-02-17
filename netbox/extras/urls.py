@@ -64,6 +64,14 @@ urlpatterns = [
     path('config-contexts/sync/', views.ConfigContextBulkSyncDataView.as_view(), name='configcontext_bulk_sync'),
     path('config-contexts/<int:pk>/', include(get_model_urls('extras', 'configcontext'))),
 
+    # Config templates
+    path('config-templates/', views.ConfigTemplateListView.as_view(), name='configtemplate_list'),
+    path('config-templates/add/', views.ConfigTemplateEditView.as_view(), name='configtemplate_add'),
+    path('config-templates/edit/', views.ConfigTemplateBulkEditView.as_view(), name='configtemplate_bulk_edit'),
+    path('config-templates/delete/', views.ConfigTemplateBulkDeleteView.as_view(), name='configtemplate_bulk_delete'),
+    path('config-templates/sync/', views.ConfigTemplateBulkSyncDataView.as_view(), name='configtemplate_bulk_sync'),
+    path('config-templates/<int:pk>/', include(get_model_urls('extras', 'configtemplate'))),
+
     # Image attachments
     path('image-attachments/add/', views.ImageAttachmentEditView.as_view(), name='imageattachment_add'),
     path('image-attachments/<int:pk>/', include(get_model_urls('extras', 'imageattachment'))),

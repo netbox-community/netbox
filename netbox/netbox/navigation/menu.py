@@ -311,6 +311,7 @@ OTHER_MENU = Menu(
             items=(
                 get_model_item('extras', 'tag', 'Tags'),
                 get_model_item('extras', 'configcontext', _('Config Contexts'), actions=['add']),
+                get_model_item('extras', 'configtemplate', _('Config Templates'), actions=['add']),
             ),
         ),
     ),

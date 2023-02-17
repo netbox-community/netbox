@@ -19,3 +19,7 @@ The color used when displaying the role in the NetBox UI.
 ### VM Role
 
 If selected, this role may be assigned to [virtual machines](../virtualization/virtualmachine.md)
+
+### Configuration Template
+
+The default [configuration template](../extras/configtemplate.md) for devices assigned to this role.

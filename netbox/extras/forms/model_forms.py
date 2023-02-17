@@ -18,6 +18,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
     'ConfigContextForm',
+    'ConfigTemplateForm',
     'CustomFieldForm',
     'CustomLinkForm',
     'ExportTemplateForm',
@@ -265,6 +266,34 @@ class ConfigContextForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
 
         if not self.cleaned_data.get('data') and not self.cleaned_data.get('data_file'):
             raise forms.ValidationError("Must specify either local data or a data file")
+
+        return self.cleaned_data
+
+
+class ConfigTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+    template_code = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'font-monospace'})
+    )
+
+    fieldsets = (
+        ('Config Template', ('name', 'description', 'environment_params', 'tags')),
+        ('Content', ('data_source', 'data_file', 'template_code',)),
+    )
+
+    class Meta:
+        model = ConfigTemplate
+        fields = '__all__'
+
+    def clean(self):
+        super().clean()
+
+        if not self.cleaned_data.get('template_code') and not self.cleaned_data.get('data_file'):
+            raise forms.ValidationError("Must specify either local content or a data file")
 
         return self.cleaned_data
 

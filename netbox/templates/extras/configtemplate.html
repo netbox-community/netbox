@@ -1,0 +1,77 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-5">
+      <div class="card">
+        <h5 class="card-header">Config Template</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Data Source</th>
+              <td>
+                {% if object.data_source %}
+                  <a href="{{ object.data_source.get_absolute_url }}">{{ object.data_source }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Data File</th>
+              <td>
+                {% if object.data_file %}
+                  <a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>
+                {% elif object.data_path %}
+                  <div class="float-end text-warning">
+                    <i class="mdi mdi-alert" title="The data file associated with this object has been deleted."></i>
+                  </div>
+                  {{ object.data_path }}
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Data Synced</th>
+              <td>{{ object.data_synced|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-7">
+      <div class="card">
+        <h5 class="card-header">Environment Parameters</h5>
+        <div class="card-body">
+          <pre>{{ object.environment_params }}</pre>
+        </div>
+      </div>
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Template</h5>
+        <div class="card-body">
+          {% include 'inc/sync_warning.html' %}
+          <pre>{{ object.template_code }}</pre>
+        </div>
+      </div>
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

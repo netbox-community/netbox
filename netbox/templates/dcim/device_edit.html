@@ -65,6 +65,7 @@
       </div>
       {% render_field form.status %}
       {% render_field form.platform %}
+      {% render_field form.config_template %}
       {% if object.pk %}
         {% render_field form.primary_ip4 %}
         {% render_field form.primary_ip6 %}

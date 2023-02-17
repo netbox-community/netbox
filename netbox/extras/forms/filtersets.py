@@ -20,6 +20,7 @@ from .mixins import SavedFiltersMixin
 
 __all__ = (
     'ConfigContextFilterForm',
+    'ConfigTemplateFilterForm',
     'CustomFieldFilterForm',
     'CustomLinkFilterForm',
     'ExportTemplateFilterForm',
@@ -362,6 +363,27 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Tags')
     )
+
+
+class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        ('Data', ('data_source_id', 'data_file_id')),
+    )
+    data_source_id = DynamicModelMultipleChoiceField(
+        queryset=DataSource.objects.all(),
+        required=False,
+        label=_('Data source')
+    )
+    data_file_id = DynamicModelMultipleChoiceField(
+        queryset=DataFile.objects.all(),
+        required=False,
+        label=_('Data file'),
+        query_params={
+            'source_id': '$data_source_id'
+        }
+    )
+    tag = TagFilterField(ConfigTemplate)
 
 
 class LocalConfigContextFilterForm(forms.Form):
