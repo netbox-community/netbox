@@ -738,6 +738,7 @@ class RackView(generic.ObjectView):
             'next_rack': next_rack,
             'prev_rack': prev_rack,
             'svg_extra': svg_extra,
+            'peer_racks': peer_racks,
         }
 
 
