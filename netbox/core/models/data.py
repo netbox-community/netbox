@@ -273,6 +273,9 @@ class DataFile(models.Model):
                 name='%(app_label)s_%(class)s_unique_source_path'
             ),
         )
+        indexes = [
+            models.Index(fields=('source', 'path'), name='core_datafile_source_path'),
+        ]
 
     def __str__(self):
         return self.path

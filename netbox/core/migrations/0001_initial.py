@@ -59,4 +59,8 @@ class Migration(migrations.Migration):
             model_name='datafile',
             constraint=models.UniqueConstraint(fields=('source', 'path'), name='core_datafile_unique_source_path'),
         ),
+        migrations.AddIndex(
+            model_name='datafile',
+            index=models.Index(fields=['source', 'path'], name='core_datafile_source_path'),
+        ),
     ]
