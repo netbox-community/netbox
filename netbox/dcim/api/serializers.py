@@ -620,7 +620,7 @@ class PlatformSerializer(NetBoxModelSerializer):
     class Meta:
         model = Platform
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'manufacturer', 'config_template',
+            'id', 'url', 'display', 'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args',
             'description', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
 
@@ -724,6 +724,10 @@ class ModuleSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'device', 'module_bay', 'module_type', 'status', 'serial', 'asset_tag',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
+
+
+class DeviceNAPALMSerializer(serializers.Serializer):
+    method = serializers.JSONField()
 
 
 #
