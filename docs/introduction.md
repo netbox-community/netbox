@@ -4,7 +4,7 @@
 
 NetBox was originally developed by its lead maintainer, [Jeremy Stretch](https://github.com/jeremystretch), while he was working as a network engineer at [DigitalOcean](https://www.digitalocean.com/) in 2015 as part of an effort to automate their network provisioning. Recognizing the new tool's potential, DigitalOcean agreed to release it as an open source project in June 2016.
 
-Since then, thousands of organizations around the world have embraced NetBox as their central network source of truth to empower both network operators and automation.
+Since then, thousands of organizations around the world have embraced NetBox as their central network source of truth to empower both network operators and automation. Today, the open source project is stewarded by [NetBox Labs](https://netboxlabs.com/) and a team of volunteer maintainers. Beyond the core product, myriad [plugins](https://netbox.dev/plugins/) have been developed by the NetBox community to enhance and expand its feature set.
 
 ## Key Features
 
@@ -17,6 +17,7 @@ NetBox was built specifically to serve the needs of network engineers and operat
 * AS number (ASN) management
 * Rack elevations with SVG rendering
 * Device modeling using pre-defined types
+* Virtual chassis and device contexts
 * Network, power, and console cabling with SVG traces
 * Power distribution modeling
 * Data circuit and provider tracking
@@ -29,12 +30,13 @@ NetBox was built specifically to serve the needs of network engineers and operat
 * Tenant ownership assignment
 * Device & VM configuration contexts for advanced configuration rendering
 * Custom fields for data model extension
-* Support for custom validation rules
+* Custom validation rules
 * Custom reports & scripts executable directly within the UI
 * Extensive plugin framework for adding custom functionality
 * Single sign-on (SSO) authentication
 * Robust object-based permissions
 * Detailed, automatic change logging
+* Global search engine
 * NAPALM integration
 
 ## What NetBox Is Not
