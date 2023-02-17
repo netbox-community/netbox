@@ -6,6 +6,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.forms import LocalConfigContextFilterForm
+from extras.models import ConfigTemplate
 from ipam.models import ASN, L2VPN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
@@ -568,6 +569,11 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
 
 class DeviceRoleFilterForm(NetBoxModelFilterSetForm):
     model = DeviceRole
+    config_template_id = DynamicModelMultipleChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False,
+        label=_('Config template')
+    )
     tag = TagFilterField(model)
 
 
@@ -577,6 +583,11 @@ class PlatformFilterForm(NetBoxModelFilterSetForm):
         queryset=Manufacturer.objects.all(),
         required=False,
         label=_('Manufacturer')
+    )
+    config_template_id = DynamicModelMultipleChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False,
+        label=_('Config template')
     )
     tag = TagFilterField(model)
 
@@ -598,7 +609,7 @@ class DeviceFilterForm(
         ('Components', (
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports',
         )),
-        ('Miscellaneous', ('has_primary_ip', 'virtual_chassis_member', 'local_context_data'))
+        ('Miscellaneous', ('has_primary_ip', 'virtual_chassis_member', 'config_template_id', 'local_context_data'))
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -679,6 +690,11 @@ class DeviceFilterForm(
     mac_address = forms.CharField(
         required=False,
         label='MAC address'
+    )
+    config_template_id = DynamicModelMultipleChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False,
+        label=_('Config template')
     )
     has_primary_ip = forms.NullBooleanField(
         required=False,

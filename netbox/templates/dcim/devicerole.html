@@ -42,6 +42,10 @@
             <th scope="row">VM Role</th>
             <td>{% checkmark object.vm_role %}</td>
           </tr>
+          <tr>
+            <th scope="row">Config Template</th>
+            <td>{{ object.config_template|linkify|placeholder }}</td>
+          </tr>
         </table>
       </div>
     </div>

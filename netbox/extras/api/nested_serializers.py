@@ -7,6 +7,7 @@ from users.api.nested_serializers import NestedUserSerializer
 
 __all__ = [
     'NestedConfigContextSerializer',
+    'NestedConfigTemplateSerializer',
     'NestedCustomFieldSerializer',
     'NestedCustomLinkSerializer',
     'NestedExportTemplateSerializer',
@@ -48,6 +49,14 @@ class NestedConfigContextSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ConfigContext
+        fields = ['id', 'url', 'display', 'name']
+
+
+class NestedConfigTemplateSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:configtemplate-detail')
+
+    class Meta:
+        model = models.ConfigTemplate
         fields = ['id', 'url', 'display', 'name']
 
 

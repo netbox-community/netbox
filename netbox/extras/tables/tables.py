@@ -8,6 +8,7 @@ from .template_code import *
 
 __all__ = (
     'ConfigContextTable',
+    'ConfigTemplateTable',
     'CustomFieldTable',
     'CustomLinkTable',
     'ExportTemplateTable',
@@ -221,6 +222,34 @@ class ConfigContextTable(NetBoxTable):
             'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'weight', 'is_active', 'is_synced', 'description')
+
+
+class ConfigTemplateTable(NetBoxTable):
+    name = tables.Column(
+        linkify=True
+    )
+    data_source = tables.Column(
+        linkify=True
+    )
+    data_file = tables.Column(
+        linkify=True
+    )
+    is_synced = columns.BooleanColumn(
+        verbose_name='Synced'
+    )
+    tags = columns.TagColumn(
+        url_name='extras:configtemplate_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ConfigTemplate
+        fields = (
+            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
+            'tags',
+        )
+        default_columns = (
+            'pk', 'name', 'description', 'is_synced',
+        )
 
 
 class ObjectChangeTable(NetBoxTable):

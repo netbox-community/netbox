@@ -1,5 +1,5 @@
 from .change_logging import ObjectChange
-from .configcontexts import ConfigContext, ConfigContextModel
+from .configs import *
 from .customfields import CustomField
 from .models import *
 from .search import *
@@ -12,6 +12,7 @@ __all__ = (
     'ConfigContext',
     'ConfigContextModel',
     'ConfigRevision',
+    'ConfigTemplate',
     'CustomField',
     'CustomLink',
     'ExportTemplate',

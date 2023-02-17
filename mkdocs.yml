@@ -74,6 +74,7 @@ nav:
         - Contacts: 'features/contacts.md'
         - Search: 'features/search.md'
         - Context Data: 'features/context-data.md'
+        - Configuration Rendering: 'features/configuration-rendering.md'
         - Change Logging: 'features/change-logging.md'
         - Journaling: 'features/journaling.md'
         - Auth & Permissions: 'features/authentication-permissions.md'
@@ -196,6 +197,7 @@ nav:
         - Extras:
             - Branch: 'models/extras/branch.md'
             - ConfigContext: 'models/extras/configcontext.md'
+            - ConfigTemplate: 'models/extras/configtemplate.md'
             - CustomField: 'models/extras/customfield.md'
             - CustomLink: 'models/extras/customlink.md'
             - ExportTemplate: 'models/extras/exporttemplate.md'

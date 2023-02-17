@@ -7,6 +7,7 @@ from timezone_field import TimeZoneFormField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from extras.models import ConfigTemplate
 from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
@@ -416,18 +417,22 @@ class ModuleTypeForm(NetBoxModelForm):
 
 
 class DeviceRoleForm(NetBoxModelForm):
+    config_template = DynamicModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False
+    )
     slug = SlugField()
 
     fieldsets = (
         ('Device Role', (
-            'name', 'slug', 'color', 'vm_role', 'description', 'tags',
+            'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags',
         )),
     )
 
     class Meta:
         model = DeviceRole
         fields = [
-            'name', 'slug', 'color', 'vm_role', 'description', 'tags',
+            'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags',
         ]
 
 
@@ -436,13 +441,17 @@ class PlatformForm(NetBoxModelForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
+    config_template = DynamicModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False
+    )
     slug = SlugField(
         max_length=64
     )
 
     fieldsets = (
         ('Platform', (
-            'name', 'slug', 'manufacturer', 'description', 'tags',
+            'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
 
         )),
     )
@@ -450,7 +459,7 @@ class PlatformForm(NetBoxModelForm):
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'description', 'tags',
+            'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
         ]
 
 
@@ -562,6 +571,10 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         label=_('Priority'),
         help_text=_("The priority of the device in the virtual chassis")
     )
+    config_template = DynamicModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Device
@@ -569,7 +582,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'rack',
             'location', 'position', 'face', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6',
             'cluster_group', 'cluster', 'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'description', 'comments', 'tags', 'local_context_data'
+            'description', 'config_template', 'comments', 'tags', 'local_context_data'
         ]
         help_texts = {
             'device_role': _("The function this device serves"),
