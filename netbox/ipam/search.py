@@ -6,7 +6,7 @@ from netbox.search import SearchIndex, register_search
 class AggregateIndex(SearchIndex):
     model = models.Aggregate
     fields = (
-        ('prefix', 100),
+        ('prefix', 120),
         ('description', 500),
         ('date_added', 2000),
         ('comments', 5000),
@@ -70,7 +70,7 @@ class L2VPNIndex(SearchIndex):
 class PrefixIndex(SearchIndex):
     model = models.Prefix
     fields = (
-        ('prefix', 100),
+        ('prefix', 110),
         ('description', 500),
         ('comments', 5000),
     )
