@@ -5,7 +5,7 @@ from django import forms
 from core.models import *
 from netbox.forms import NetBoxModelForm
 from netbox.registry import registry
-from utilities.forms import CommentField
+from utilities.forms import CommentField, get_field_value
 
 __all__ = (
     'DataSourceForm',
@@ -44,7 +44,7 @@ class DataSourceForm(NetBoxModelForm):
         ]
         if self.backend_fields:
             fieldsets.append(
-                ('Backend', self.backend_fields)
+                ('Backend Parameters', self.backend_fields)
             )
 
         return fieldsets
@@ -52,16 +52,11 @@ class DataSourceForm(NetBoxModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        backend_classes = registry['data_backends']
+        # Determine the selected backend type
+        backend_type = get_field_value(self, 'type')
+        backend = registry['data_backends'].get(backend_type)
 
-        if self.is_bound and self.data.get('type') in backend_classes:
-            type_ = self.data['type']
-        elif self.initial and self.initial.get('type') in backend_classes:
-            type_ = self.initial['type']
-        else:
-            type_ = self.fields['type'].initial
-        backend = backend_classes.get(type_)
-
+        # Add backend-specific form fields
         self.backend_fields = []
         for name, form_field in backend.parameters.items():
             field_name = f'backend_{name}'

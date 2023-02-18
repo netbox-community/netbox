@@ -349,6 +349,15 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
         labels = {
             'mode': '802.1Q Mode',
         }
+        widgets = {
+            'mode': forms.Select(
+                attrs={
+                    'hx-get': '.',
+                    'hx-include': '#form_fields input',
+                    'hx-target': '#form_fields',
+                }
+            ),
+        }
         help_texts = {
             'mode': INTERFACE_MODE_HELP_TEXT,
         }
