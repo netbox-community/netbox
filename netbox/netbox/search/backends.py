@@ -54,11 +54,11 @@ class SearchBackend:
         """
         raise NotImplementedError
 
-    def caching_handler(self, sender, instance, **kwargs):
+    def caching_handler(self, sender, instance, created, **kwargs):
         """
         Receiver for the post_save signal, responsible for caching object creation/changes.
         """
-        self.cache(instance)
+        self.cache(instance, remove_existing=not created)
 
     def removal_handler(self, sender, instance, **kwargs):
         """
