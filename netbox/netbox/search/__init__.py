@@ -48,7 +48,7 @@ class SearchIndex:
             return FieldTypes.FLOAT
         if issubclass(field_cls, IPAddressField):
             return FieldTypes.INET
-        if issubclass(field_cls, (IPNetworkField)):
+        if issubclass(field_cls, IPNetworkField):
             return FieldTypes.CIDR
         if issubclass(field_cls, models.IntegerField):
             return FieldTypes.INTEGER
