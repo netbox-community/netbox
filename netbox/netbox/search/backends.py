@@ -99,11 +99,12 @@ class CachedValueSearchBackend(SearchBackend):
 
         query_filter = Q(**{f'value__{lookup}': value})
 
+        if object_types:
+            query_filter &= Q(object_type__in=object_types)
+
         if lookup in (LookupTypes.STARTSWITH, LookupTypes.ENDSWITH):
             # Partial string matches are valid only on string values
             query_filter &= Q(type=FieldTypes.STRING)
-        if object_types:
-            query_filter &= Q(object_type__in=object_types)
 
         if lookup == LookupTypes.PARTIAL:
             try:
