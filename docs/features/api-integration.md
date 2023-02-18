@@ -36,6 +36,8 @@ To learn more about this feature, check out the [webhooks documentation](../inte
 
 To learn more about this feature, check out the [NAPALM documentation](../integrations/napalm.md).
 
+As of NetBox v3.5, NAPALM integration has been moved to a plugin.  Please see the [netbox_napalm_plugin](https://github.com/netbox-community/netbox-napalm) for installation instructions.
+
 ## Prometheus Metrics
 
 NetBox includes a special `/metrics` view which exposes metrics for a [Prometheus](https://prometheus.io/) scraper, powered by the open source [django-prometheus](https://github.com/korfuri/django-prometheus) library. To learn more about this feature, check out the [Prometheus metrics documentation](../integrations/prometheus-metrics.md).
