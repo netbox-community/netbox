@@ -18,6 +18,7 @@
 * [#11601](https://github.com/netbox-community/netbox/issues/11601) - Fix partial matching of start/end addresses for IP range search
 * [#11683](https://github.com/netbox-community/netbox/issues/11683) - Fix CSV header attribute detection when auto-detecting import format
 * [#11711](https://github.com/netbox-community/netbox/issues/11711) - Fix CSV import for multiple-object custom fields
+* [#11723](https://github.com/netbox-community/netbox/issues/11723) - Circuit terminations should link to their associated circuits (rather than site or provider network)
 
 ---
 
