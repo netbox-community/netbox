@@ -1,25 +1,8 @@
-import sys
 import uuid
 
 import django.db.models.deletion
 import django.db.models.lookups
-from django.core import management
 from django.db import migrations, models
-
-
-def reindex(apps, schema_editor):
-    # Build the search index (except during tests)
-    if 'test' not in sys.argv:
-        management.call_command(
-            'reindex',
-            'circuits',
-            'dcim',
-            'extras',
-            'ipam',
-            'tenancy',
-            'virtualization',
-            'wireless',
-        )
 
 
 class Migration(migrations.Migration):
@@ -56,9 +39,5 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('weight', 'object_type', 'object_id'),
             },
-        ),
-        migrations.RunPython(
-            code=reindex,
-            reverse_code=migrations.RunPython.noop
         ),
     ]
