@@ -6,6 +6,7 @@
 
 * [#11110](https://github.com/netbox-community/netbox/issues/11110) - Add `start_address` and `end_address` filters for IP ranges
 * [#11592](https://github.com/netbox-community/netbox/issues/11592) - Introduce `FILE_UPLOAD_MAX_MEMORY_SIZE` configuration parameter
+* [#11685](https://github.com/netbox-community/netbox/issues/11685) - Match on containing prefixes and aggregates when querying for IP addresses using global search
 
 ### Bug Fixes
 
