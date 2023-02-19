@@ -19,6 +19,7 @@
 * [#11683](https://github.com/netbox-community/netbox/issues/11683) - Fix CSV header attribute detection when auto-detecting import format
 * [#11711](https://github.com/netbox-community/netbox/issues/11711) - Fix CSV import for multiple-object custom fields
 * [#11723](https://github.com/netbox-community/netbox/issues/11723) - Circuit terminations should link to their associated circuits (rather than site or provider network)
+* [#11786](https://github.com/netbox-community/netbox/issues/11786) - List only applicable object types in form widget when filtering custom fields
 
 ---
 
