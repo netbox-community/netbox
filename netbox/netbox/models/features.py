@@ -12,6 +12,7 @@ from taggit.managers import TaggableManager
 
 from extras.choices import CustomFieldVisibilityChoices, ObjectChangeActionChoices
 from extras.utils import is_taggable, register_features
+from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.json import CustomFieldJSONEncoder
 from utilities.utils import serialize_object
@@ -388,22 +389,26 @@ class SyncedDataMixin(models.Model):
         raise NotImplementedError(f"{self.__class__} must implement a sync_data() method.")
 
 
-FEATURES_MAP = (
-    ('custom_fields', CustomFieldsMixin),
-    ('custom_links', CustomLinksMixin),
-    ('export_templates', ExportTemplatesMixin),
-    ('job_results', JobResultsMixin),
-    ('journaling', JournalingMixin),
-    ('synced_data', SyncedDataMixin),
-    ('tags', TagsMixin),
-    ('webhooks', WebhooksMixin),
-)
+FEATURES_MAP = {
+    'custom_fields': CustomFieldsMixin,
+    'custom_links': CustomLinksMixin,
+    'export_templates': ExportTemplatesMixin,
+    'job_results': JobResultsMixin,
+    'journaling': JournalingMixin,
+    'synced_data': SyncedDataMixin,
+    'tags': TagsMixin,
+    'webhooks': WebhooksMixin,
+}
+
+registry['model_features'].update({
+    feature: defaultdict(set) for feature in FEATURES_MAP.keys()
+})
 
 
 @receiver(class_prepared)
 def _register_features(sender, **kwargs):
     features = {
-        feature for feature, cls in FEATURES_MAP if issubclass(sender, cls)
+        feature for feature, cls in FEATURES_MAP.items() if issubclass(sender, cls)
     }
     register_features(sender, features)
 
