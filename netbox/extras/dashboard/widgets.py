@@ -4,26 +4,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 
-from netbox.registry import registry
-
+from .utils import register_widget
 
 __all__ = (
     'ChangeLogWidget',
     'DashboardWidget',
     'ObjectCountsWidget',
     'StaticContentWidget',
-    'register_widget',
 )
-
-
-def register_widget(cls):
-    """
-    Decorator for registering a DashboardWidget class.
-    """
-    label = f'{cls.__module__}.{cls.__name__}'
-    registry['widgets'][label] = cls
-
-    return cls
 
 
 class DashboardWidget:
@@ -40,6 +28,12 @@ class DashboardWidget:
         if height:
             self.height = height
         self.x, self.y = x, y
+
+    def set_layout(self, grid_item):
+        self.width = grid_item['w']
+        self.height = grid_item['h']
+        self.x = grid_item.get('x')
+        self.y = grid_item.get('y')
 
     def render(self, request):
         raise NotImplementedError("DashboardWidget subclasses must define a render() method.")

@@ -9,7 +9,7 @@ from django.views.generic import View
 from django_tables2 import RequestConfig
 from packaging import version
 
-from extras import dashboard
+from extras.dashboard.utils import get_dashboard
 from netbox.forms import SearchForm
 from netbox.registry import registry
 from netbox.search import LookupTypes
@@ -34,19 +34,7 @@ class HomeView(View):
             return redirect('login')
 
         # Build custom dashboard from user's config
-        widgets = []
-        for grid_item in request.user.config.get('dashboard.layout'):
-            config = request.user.config.get(f"dashboard.widgets.{grid_item['id']}")
-            widget_class = registry['widgets'].get(config.pop('class'))
-            widget = widget_class(
-                id=grid_item.get('id'),
-                width=grid_item['w'],
-                height=grid_item['h'],
-                x=grid_item['x'],
-                y=grid_item['y'],
-                **config
-            )
-            widgets.append(widget)
+        widgets = get_dashboard(request.user)
 
         # Check whether a new release is available. (Only for staff/superusers.)
         new_release = None
