@@ -3,80 +3,34 @@
 {% load render_table from django_tables2 %}
 
 {% block header %}
-    {% if new_release %}
-        {# new_release is set only if the current user is a superuser or staff member #}
-        <div class="header-alert-container">
-          <div class="alert alert-info text-center mw-md-50" role="alert">
-            <h6 class="alert-heading">
-              <i class="mdi mdi-information-outline"></i><br/>New Release Available
-            </h6>
-            <small><a href="{{ new_release.url }}">NetBox v{{ new_release.version }}</a> is available.</small>
-            <hr class="my-2" />
-            <small class="mb-0">
-              <a href="https://docs.netbox.dev/en/stable/installation/upgrading/">Upgrade Instructions</a>
-            </small>
-          </div>
-        </div>
-    {% endif %}
+  {% if new_release %}
+    {# new_release is set only if the current user is a superuser or staff member #}
+    <div class="header-alert-container">
+      <div class="alert alert-info text-center mw-md-50" role="alert">
+        <h6 class="alert-heading">
+          <i class="mdi mdi-information-outline"></i><br/>New Release Available
+        </h6>
+        <small><a href="{{ new_release.url }}">NetBox v{{ new_release.version }}</a> is available.</small>
+        <hr class="my-2" />
+        <small class="mb-0">
+          <a href="https://docs.netbox.dev/en/stable/installation/upgrading/">Upgrade Instructions</a>
+        </small>
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block title %}Home{% endblock %}
 
 {% block content-wrapper %}
-  <div class="px-3">
-    {# General stats #}
-    <div class="row masonry">
-      {% for section, items, icon in stats %}
-        <div class="col col-sm-12 col-lg-6 col-xl-4 my-2 masonry-item">
-          <div class="card">
-            <h6 class="card-header text-center">
-              <i class="mdi mdi-{{ icon }}"></i>
-              <span class="ms-1">{{ section }}</span>
-            </h6>
-            <div class="card-body">
-              <div class="list-group list-group-flush">
-                {% for item in items %}
-                  {% if item.permission in perms %}
-                    <a href="{% url item.viewname %}" class="list-group-item list-group-item-action">
-                      <div class="d-flex w-100 justify-content-between align-items-center">
-                        {{ item.label }}
-                        <h4 class="mb-1">{{ item.count }}</h4>
-                      </div>
-                    </a>
-                  {% else %}
-                    <li class="list-group-item list-group-item-action disabled">
-                      <div class="d-flex w-100 justify-content-between align-items-center">
-                        {{ item.label }}
-                        <h4 class="mb-1">
-                          <i title="No permission" class="mdi mdi-lock"></i>
-                        </h4>
-                      </div>
-                    </li>
-                  {% endif %}
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
+  <div class="px-2 py-0">
+
+    {# Render the user's customized dashboard #}
+    <div class="grid-stack">
+      {% for widget in widgets %}
+        {% include 'extras/dashboard/widget.html' %}
       {% endfor %}
     </div>
 
-    {# Changelog #}
-    {% if perms.extras.view_objectchange %}
-      <div class="row my-4 flex-grow-1 changelog-container">
-        <div class="col">
-          <div class="card">
-            <h6 class="card-header text-center">
-              <i class="mdi mdi-clipboard-clock"></i>
-              <span class="ms-1">Change Log</span>
-            </h6>
-            <div class="card-body htmx-container table-responsive"
-              hx-get="{% url 'extras:objectchange_list' %}?sort=-time"
-              hx-trigger="load"
-            ></div>
-          </div>
-        </div>
-      </div>
-    {% endif %}
   </div>
 {% endblock content-wrapper %}

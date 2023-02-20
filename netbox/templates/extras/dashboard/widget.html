@@ -1,0 +1,18 @@
+{% load dashboard %}
+
+<div class="grid-stack-item" gs-w="{{ widget.width }}" gs-h="{{ widget.height }}">
+  <div class="card grid-stack-item-content">
+    {% if widget.title %}
+      <div class="card-header text-center text-light bg-secondary p-1">
+        <div class="float-end pe-1"><i class="mdi mdi-close"></i></div>
+        <strong>{{ widget.title }}</strong>
+      </div>
+    {% endif %}
+    <div class="card-body p-2">
+      {% if not widget.title %}
+        <div class="float-end pe-1"><i class="mdi mdi-close"></i></div>
+      {% endif %}
+      {% render_widget widget %}
+    </div>
+  </div>
+</div>
