@@ -3,6 +3,7 @@ import uuid
 import django.db.models.deletion
 import django.db.models.lookups
 from django.db import migrations, models
+import extras.fields
 
 
 class Migration(migrations.Migration):
@@ -32,7 +33,7 @@ class Migration(migrations.Migration):
                 ('object_id', models.PositiveBigIntegerField()),
                 ('field', models.CharField(max_length=200)),
                 ('type', models.CharField(max_length=30)),
-                ('value', models.TextField()),
+                ('value', extras.fields.CachedValueField()),
                 ('weight', models.PositiveSmallIntegerField(default=1000)),
                 ('object_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='contenttypes.contenttype')),
             ],
