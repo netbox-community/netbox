@@ -10,8 +10,11 @@ def clear_cache(apps, schema_editor):
     CachedValue = apps.get_model('extras', 'CachedValue')
 
     for model_name in ('Aggregate', 'IPAddress', 'IPRange', 'Prefix'):
-        content_type = ContentType.objects.get(app_label='ipam', model=model_name.lower())
-        CachedValue.objects.filter(object_type=content_type).delete()
+        try:
+            content_type = ContentType.objects.get(app_label='ipam', model=model_name.lower())
+            CachedValue.objects.filter(object_type=content_type).delete()
+        except ContentType.DoesNotExist:
+            pass
 
 
 class Migration(migrations.Migration):
