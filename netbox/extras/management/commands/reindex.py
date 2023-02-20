@@ -15,6 +15,11 @@ class Command(BaseCommand):
             nargs='*',
             help='One or more apps or models to reindex',
         )
+        parser.add_argument(
+            '--lazy',
+            action='store_true',
+            help="For each model, reindex objects only if no cache entries already exist"
+        )
 
     def _get_indexers(self, *model_names):
         indexers = {}
@@ -60,14 +65,15 @@ class Command(BaseCommand):
             raise CommandError("No indexers found!")
         self.stdout.write(f'Reindexing {len(indexers)} models.')
 
-        # Clear all cached values for the specified models
-        self.stdout.write('Clearing cached values... ', ending='')
-        self.stdout.flush()
-        content_types = [
-            ContentType.objects.get_for_model(model) for model in indexers.keys()
-        ]
-        deleted_count = search_backend.clear(content_types)
-        self.stdout.write(f'{deleted_count} entries deleted.')
+        # Clear all cached values for the specified models (if not being lazy)
+        if not kwargs['lazy']:
+            self.stdout.write('Clearing cached values... ', ending='')
+            self.stdout.flush()
+            content_types = [
+                ContentType.objects.get_for_model(model) for model in indexers.keys()
+            ]
+            deleted_count = search_backend.clear(content_types)
+            self.stdout.write(f'{deleted_count} entries deleted.')
 
         # Index models
         self.stdout.write('Indexing models')
@@ -76,11 +82,18 @@ class Command(BaseCommand):
             model_name = model._meta.model_name
             self.stdout.write(f'  {app_label}.{model_name}... ', ending='')
             self.stdout.flush()
+
+            if kwargs['lazy']:
+                content_type = ContentType.objects.get_for_model(model)
+                if cached_count := search_backend.count(object_types=[content_type]):
+                    self.stdout.write(f'Skipping (found {cached_count} existing).')
+                    continue
+
             i = search_backend.cache(model.objects.iterator(), remove_existing=False)
             if i:
                 self.stdout.write(f'{i} entries cached.')
             else:
-                self.stdout.write(f'None found.')
+                self.stdout.write(f'No objects found.')
 
         msg = f'Completed.'
         if total_count := search_backend.size:

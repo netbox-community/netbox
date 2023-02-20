@@ -7,6 +7,7 @@
 * [#11110](https://github.com/netbox-community/netbox/issues/11110) - Add `start_address` and `end_address` filters for IP ranges
 * [#11592](https://github.com/netbox-community/netbox/issues/11592) - Introduce `FILE_UPLOAD_MAX_MEMORY_SIZE` configuration parameter
 * [#11685](https://github.com/netbox-community/netbox/issues/11685) - Match on containing prefixes and aggregates when querying for IP addresses using global search
+* [#11787](https://github.com/netbox-community/netbox/issues/11787) - Upgrade script will automatically rebuild missing search cache
 
 ### Bug Fixes
 
@@ -20,6 +21,7 @@
 * [#11683](https://github.com/netbox-community/netbox/issues/11683) - Fix CSV header attribute detection when auto-detecting import format
 * [#11711](https://github.com/netbox-community/netbox/issues/11711) - Fix CSV import for multiple-object custom fields
 * [#11723](https://github.com/netbox-community/netbox/issues/11723) - Circuit terminations should link to their associated circuits (rather than site or provider network)
+* [#11775](https://github.com/netbox-community/netbox/issues/11775) - Skip checking for old search cache records when creating a new object
 * [#11786](https://github.com/netbox-community/netbox/issues/11786) - List only applicable object types in form widget when filtering custom fields
 
 ---

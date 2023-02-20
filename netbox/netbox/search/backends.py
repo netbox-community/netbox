@@ -80,7 +80,13 @@ class SearchBackend:
 
     def clear(self, object_types=None):
         """
-        Delete *all* cached data.
+        Delete *all* cached data (optionally filtered by object type).
+        """
+        raise NotImplementedError
+
+    def count(self, object_types=None):
+        """
+        Return a count of all cache entries (optionally filtered by object type).
         """
         raise NotImplementedError
 
@@ -217,6 +223,12 @@ class CachedValueSearchBackend(SearchBackend):
 
         # Call _raw_delete() on the queryset to avoid first loading instances into memory
         return qs._raw_delete(using=qs.db)
+
+    def count(self, object_types=None):
+        qs = CachedValue.objects.all()
+        if object_types:
+            qs = qs.filter(object_type__in=object_types)
+        return qs.count()
 
     @property
     def size(self):
