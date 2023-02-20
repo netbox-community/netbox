@@ -1,5 +1,5 @@
 import { Collapse, Modal, Popover, Tab, Toast, Tooltip } from 'bootstrap';
-import Masonry from 'masonry-layout';
+import { GridStack } from 'gridstack';
 import { createElement, getElements } from './util';
 
 type ToastLevel = 'danger' | 'warning' | 'success' | 'info';
@@ -12,16 +12,8 @@ window.Popover = Popover;
 window.Toast = Toast;
 window.Tooltip = Tooltip;
 
-/**
- * Initialize masonry-layout for homepage (or any other masonry layout cards).
- */
-function initMasonry(): void {
-  for (const grid of getElements<HTMLDivElement>('.masonry')) {
-    new Masonry(grid, {
-      itemSelector: '.masonry-item',
-      percentPosition: true,
-    });
-  }
+function initGridStack(): void {
+  GridStack.init();
 }
 
 function initTooltips() {
@@ -194,7 +186,7 @@ export function initBootstrap(): void {
   for (const func of [
     initTooltips,
     initModals,
-    initMasonry,
+    initGridStack,
     initTabs,
     initImagePreview,
     initSidebarAccordions,
