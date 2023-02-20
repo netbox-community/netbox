@@ -1,5 +1,4 @@
 import { Collapse, Modal, Popover, Tab, Toast, Tooltip } from 'bootstrap';
-import { GridStack } from 'gridstack';
 import { createElement, getElements } from './util';
 
 type ToastLevel = 'danger' | 'warning' | 'success' | 'info';
@@ -11,10 +10,6 @@ window.Modal = Modal;
 window.Popover = Popover;
 window.Toast = Toast;
 window.Tooltip = Tooltip;
-
-function initGridStack(): void {
-  GridStack.init();
-}
 
 function initTooltips() {
   for (const tooltip of getElements('[data-bs-toggle="tooltip"]')) {
@@ -186,7 +181,6 @@ export function initBootstrap(): void {
   for (const func of [
     initTooltips,
     initModals,
-    initGridStack,
     initTabs,
     initImagePreview,
     initSidebarAccordions,

@@ -23,14 +23,15 @@
 {% block title %}Home{% endblock %}
 
 {% block content-wrapper %}
-  <div class="px-2 py-0">
-
-    {# Render the user's customized dashboard #}
-    <div class="grid-stack">
-      {% for widget in widgets %}
-        {% include 'extras/dashboard/widget.html' %}
-      {% endfor %}
-    </div>
-
+  {# Render the user's customized dashboard #}
+  <div class="grid-stack">
+    {% for widget in widgets %}
+      {% include 'extras/dashboard/widget.html' %}
+    {% endfor %}
+  </div>
+  <div class="text-end px-2">
+    <button id="save_dashboard" class="btn btn-primary btn-sm">
+      <i class="mdi mdi-content-save-outline"></i> Save
+    </button>
   </div>
 {% endblock content-wrapper %}

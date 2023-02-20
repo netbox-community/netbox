@@ -1,6 +1,10 @@
+import uuid
+
 from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
+
+from netbox.registry import registry
 
 
 __all__ = (
@@ -8,14 +12,26 @@ __all__ = (
     'DashboardWidget',
     'ObjectCountsWidget',
     'StaticContentWidget',
+    'register_widget',
 )
+
+
+def register_widget(cls):
+    """
+    Decorator for registering a DashboardWidget class.
+    """
+    label = f'{cls.__module__}.{cls.__name__}'
+    registry['widgets'][label] = cls
+
+    return cls
 
 
 class DashboardWidget:
     width = 4
     height = 3
 
-    def __init__(self, config=None, title=None, width=None, height=None, x=None, y=None):
+    def __init__(self, id=None, config=None, title=None, width=None, height=None, x=None, y=None):
+        self.id = id or uuid.uuid4()
         self.config = config or {}
         if title:
             self.title = title
@@ -28,14 +44,21 @@ class DashboardWidget:
     def render(self, request):
         raise NotImplementedError("DashboardWidget subclasses must define a render() method.")
 
+    @property
+    def name(self):
+        return f'{self.__class__.__module__}.{self.__class__.__name__}'
 
+
+@register_widget
 class StaticContentWidget(DashboardWidget):
 
     def render(self, request):
         return self.config.get('content', 'Empty!')
 
 
+@register_widget
 class ObjectCountsWidget(DashboardWidget):
+    title = _('Objects')
     template_name = 'extras/dashboard/widgets/objectcounts.html'
 
     def render(self, request):
@@ -51,6 +74,7 @@ class ObjectCountsWidget(DashboardWidget):
         })
 
 
+@register_widget
 class ChangeLogWidget(DashboardWidget):
     width = 12
     height = 4

@@ -11,6 +11,7 @@ from packaging import version
 
 from extras import dashboard
 from netbox.forms import SearchForm
+from netbox.registry import registry
 from netbox.search import LookupTypes
 from netbox.search.backends import search_backend
 from netbox.tables import SearchTable
@@ -32,22 +33,20 @@ class HomeView(View):
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
             return redirect('login')
 
-        widgets = (
-            dashboard.StaticContentWidget({
-                'content': 'First widget!',
-            }),
-            dashboard.StaticContentWidget({
-                'content': 'First widget!',
-            }, title='Testing'),
-            dashboard.ObjectCountsWidget({
-                'models': [
-                    'dcim.Site',
-                    'ipam.Prefix',
-                    'tenancy.Tenant',
-                ],
-            }, title='Stuff'),
-            dashboard.ChangeLogWidget(),
-        )
+        # Build custom dashboard from user's config
+        widgets = []
+        for grid_item in request.user.config.get('dashboard.layout'):
+            config = request.user.config.get(f"dashboard.widgets.{grid_item['id']}")
+            widget_class = registry['widgets'].get(config.pop('class'))
+            widget = widget_class(
+                id=grid_item.get('id'),
+                width=grid_item['w'],
+                height=grid_item['h'],
+                x=grid_item['x'],
+                y=grid_item['y'],
+                **config
+            )
+            widgets.append(widget)
 
         # Check whether a new release is available. (Only for staff/superusers.)
         new_release = None

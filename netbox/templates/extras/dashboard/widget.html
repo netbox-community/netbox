@@ -1,6 +1,13 @@
 {% load dashboard %}
 
-<div class="grid-stack-item" gs-w="{{ widget.width }}" gs-h="{{ widget.height }}">
+<div
+    class="grid-stack-item"
+    gs-w="{{ widget.width }}"
+    gs-h="{{ widget.height }}"
+    gs-x="{{ widget.x }}"
+    gs-y="{{ widget.y }}"
+    gs-id="{{ widget.id }}"
+>
   <div class="card grid-stack-item-content">
     {% if widget.title %}
       <div class="card-header text-center text-light bg-secondary p-1">
