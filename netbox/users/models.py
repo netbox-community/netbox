@@ -140,7 +140,10 @@ class UserConfig(models.Model):
         # Set a key based on the last item in the path. Raise TypeError if attempting to overwrite a non-leaf node.
         key = keys[-1]
         if key in d and type(d[key]) is dict:
-            raise TypeError(f"Key '{path}' has child keys; cannot assign a value")
+            if type(value) is dict:
+                d[key].update(value)
+            else:
+                raise TypeError(f"Key '{path}' is a dictionary; cannot assign a non-dictionary value")
         else:
             d[key] = value
 
