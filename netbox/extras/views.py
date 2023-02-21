@@ -121,6 +121,8 @@ class ExportTemplateListView(generic.ObjectListView):
     filterset = filtersets.ExportTemplateFilterSet
     filterset_form = forms.ExportTemplateFilterForm
     table = tables.ExportTemplateTable
+    template_name = 'extras/exporttemplate_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_sync')
 
 
 @register_model_view(ExportTemplate)
@@ -156,6 +158,10 @@ class ExportTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = ExportTemplate.objects.all()
     filterset = filtersets.ExportTemplateFilterSet
     table = tables.ExportTemplateTable
+
+
+class ExportTemplateBulkSyncDataView(generic.BulkSyncDataView):
+    queryset = ExportTemplate.objects.all()
 
 
 #
@@ -352,7 +358,8 @@ class ConfigContextListView(generic.ObjectListView):
     filterset = filtersets.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
     table = tables.ConfigContextTable
-    actions = ('add', 'bulk_edit', 'bulk_delete')
+    template_name = 'extras/configcontext_list.html'
+    actions = ('add', 'bulk_edit', 'bulk_delete', 'bulk_sync')
 
 
 @register_model_view(ConfigContext)
@@ -416,6 +423,10 @@ class ConfigContextBulkDeleteView(generic.BulkDeleteView):
     table = tables.ConfigContextTable
 
 
+class ConfigContextBulkSyncDataView(generic.BulkSyncDataView):
+    queryset = ConfigContext.objects.all()
+
+
 class ObjectConfigContextView(generic.ObjectView):
     base_template = None
     template_name = 'extras/object_configcontext.html'
@@ -439,6 +450,58 @@ class ObjectConfigContextView(generic.ObjectView):
             'format': format,
             'base_template': self.base_template,
         }
+
+
+#
+# Config templates
+#
+
+class ConfigTemplateListView(generic.ObjectListView):
+    queryset = ConfigTemplate.objects.all()
+    filterset = filtersets.ConfigTemplateFilterSet
+    filterset_form = forms.ConfigTemplateFilterForm
+    table = tables.ConfigTemplateTable
+    template_name = 'extras/configtemplate_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_sync')
+
+
+@register_model_view(ConfigTemplate)
+class ConfigTemplateView(generic.ObjectView):
+    queryset = ConfigTemplate.objects.all()
+
+
+@register_model_view(ConfigTemplate, 'edit')
+class ConfigTemplateEditView(generic.ObjectEditView):
+    queryset = ConfigTemplate.objects.all()
+    form = forms.ConfigTemplateForm
+
+
+@register_model_view(ConfigTemplate, 'delete')
+class ConfigTemplateDeleteView(generic.ObjectDeleteView):
+    queryset = ConfigTemplate.objects.all()
+
+
+class ConfigTemplateBulkImportView(generic.BulkImportView):
+    queryset = ConfigTemplate.objects.all()
+    model_form = forms.ConfigTemplateImportForm
+    table = tables.ConfigTemplateTable
+
+
+class ConfigTemplateBulkEditView(generic.BulkEditView):
+    queryset = ConfigTemplate.objects.all()
+    filterset = filtersets.ConfigTemplateFilterSet
+    table = tables.ConfigTemplateTable
+    form = forms.ConfigTemplateBulkEditForm
+
+
+class ConfigTemplateBulkDeleteView(generic.BulkDeleteView):
+    queryset = ConfigTemplate.objects.all()
+    filterset = filtersets.ConfigTemplateFilterSet
+    table = tables.ConfigTemplateTable
+
+
+class ConfigTemplateBulkSyncDataView(generic.BulkSyncDataView):
+    queryset = ConfigTemplate.objects.all()
 
 
 #

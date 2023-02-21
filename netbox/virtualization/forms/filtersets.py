@@ -7,7 +7,7 @@ from ipam.models import L2VPN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import (
-    DynamicModelMultipleChoiceField, MultipleChoiceField, StaticSelect, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    DynamicModelMultipleChoiceField, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.choices import *
 from virtualization.models import *
@@ -54,7 +54,7 @@ class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         required=False,
         label=_('Region')
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=ClusterStatusChoices,
         required=False
     )
@@ -148,7 +148,7 @@ class VirtualMachineFilterForm(
         },
         label=_('Role')
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=VirtualMachineStatusChoices,
         required=False
     )
@@ -165,7 +165,7 @@ class VirtualMachineFilterForm(
     has_primary_ip = forms.NullBooleanField(
         required=False,
         label=_('Has a primary IP'),
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -194,7 +194,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     )
     enabled = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )

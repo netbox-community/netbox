@@ -8,6 +8,9 @@ class ExtrasQuery(graphene.ObjectType):
     config_context = ObjectField(ConfigContextType)
     config_context_list = ObjectListField(ConfigContextType)
 
+    config_template = ObjectField(ConfigTemplateType)
+    config_template_list = ObjectListField(ConfigTemplateType)
+
     custom_field = ObjectField(CustomFieldType)
     custom_field_list = ObjectListField(CustomFieldType)
 

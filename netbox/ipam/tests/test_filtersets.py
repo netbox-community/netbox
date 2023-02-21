@@ -680,6 +680,14 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'family': '6'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_start_address(self):
+        params = {'start_address': ['10.0.1.100', '10.0.2.100']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_end_address(self):
+        params = {'end_address': ['10.0.1.199', '10.0.2.199']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_contains(self):
         params = {'contains': '10.0.1.150/24'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)

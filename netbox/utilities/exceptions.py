@@ -24,6 +24,13 @@ class AbortRequest(Exception):
         self.message = message
 
 
+class AbortScript(Exception):
+    """
+    Raised to cleanly abort a script.
+    """
+    pass
+
+
 class PermissionsViolation(Exception):
     """
     Raised when an operation was prevented because it would violate the

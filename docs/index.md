@@ -52,4 +52,4 @@ NetBox is built on the enormously popular [Django](http://www.djangoproject.com/
 * Try out our [public demo](https://demo.netbox.dev/) if you want to jump right in
 * The [installation guide](./installation/index.md) will help you get your own deployment up and running
 * Or try the community [Docker image](https://github.com/netbox-community/netbox-docker) for a low-touch approach
-* [NetBox Cloud](https://www.getnetbox.io/) is a hosted solution offered by NS1
+* [NetBox Cloud](https://netboxlabs.com/netbox-cloud) is a managed solution offered by [NetBox Labs](https://netboxlabs.com/)

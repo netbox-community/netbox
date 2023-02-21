@@ -72,6 +72,10 @@ The device's operational status.
 
 A device may be associated with a particular [platform](./platform.md) to indicate its operating system. Note that only platforms assigned to the associated manufacturer (or to no manufacturer) will be available for selection.
 
+### Configuration Template
+
+The [configuration template](../extras/configtemplate.md) from which the configuration for this device can be rendered. If set, this will override any config template referenced by the device's role or platform.
+
 ### Primary IPv4 & IPv6 Addresses
 
 Each device may designate one primary IPv4 address and/or one primary IPv6 address for management purposes.

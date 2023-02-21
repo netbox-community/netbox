@@ -21,9 +21,6 @@ __all__ = (
     'SelectSpeedWidget',
     'SelectWithPK',
     'SlugWidget',
-    'SmallTextarea',
-    'StaticSelect',
-    'StaticSelectMultiple',
     'TimePicker',
 )
 
@@ -31,13 +28,6 @@ JSONPrimitive = Union[str, bool, int, float, None]
 QueryParamValue = Union[JSONPrimitive, Sequence[JSONPrimitive]]
 QueryParam = Dict[str, QueryParamValue]
 ProcessedParams = Sequence[Dict[str, Sequence[JSONPrimitive]]]
-
-
-class SmallTextarea(forms.Textarea):
-    """
-    Subclass used for rendering a smaller textarea element.
-    """
-    pass
 
 
 class SlugWidget(forms.TextInput):
@@ -76,26 +66,7 @@ class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
         self.attrs['class'] = 'netbox-static-select'
 
 
-class StaticSelect(forms.Select):
-    """
-    A static <select/> form widget which is client-side rendered.
-    """
-    option_template_name = 'widgets/select_option.html'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.attrs['class'] = 'netbox-static-select'
-
-
-class StaticSelectMultiple(StaticSelect, forms.SelectMultiple):
-    """
-    Extends `StaticSelect` to support multiple selections.
-    """
-    pass
-
-
-class SelectWithPK(StaticSelect):
+class SelectWithPK(forms.Select):
     """
     Include the primary key of each option in the option label (e.g. "Router7 (4721)").
     """

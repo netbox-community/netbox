@@ -10,6 +10,7 @@ from timezone_field.rest_framework import TimeZoneSerializerField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from extras.api.nested_serializers import NestedConfigTemplateSerializer
 from ipam.api.nested_serializers import (
     NestedASNSerializer, NestedIPAddressSerializer, NestedL2VPNTerminationSerializer, NestedVLANSerializer,
     NestedVRFSerializer,
@@ -313,6 +314,7 @@ class ManufacturerSerializer(NetBoxModelSerializer):
 class DeviceTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicetype-detail')
     manufacturer = NestedManufacturerSerializer()
+    default_platform = NestedPlatformSerializer(required=False, allow_null=True)
     u_height = serializers.DecimalField(
         max_digits=4,
         decimal_places=1,
@@ -328,7 +330,7 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'url', 'display', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
+            'id', 'url', 'display', 'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
             'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image', 'description',
             'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
         ]
@@ -491,7 +493,7 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description',
             'poe_mode', 'poe_type', 'created', 'last_updated',
         ]
 
@@ -608,8 +610,8 @@ class DeviceRoleSerializer(NetBoxModelSerializer):
     class Meta:
         model = DeviceRole
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'color', 'vm_role', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'device_count', 'virtualmachine_count',
+            'id', 'url', 'display', 'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
 
 
@@ -622,8 +624,8 @@ class PlatformSerializer(NetBoxModelSerializer):
     class Meta:
         model = Platform
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description',
-            'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
+            'id', 'url', 'display', 'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args',
+            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
 
 
@@ -654,6 +656,7 @@ class DeviceSerializer(NetBoxModelSerializer):
     cluster = NestedClusterSerializer(required=False, allow_null=True)
     virtual_chassis = NestedVirtualChassisSerializer(required=False, allow_null=True, default=None)
     vc_position = serializers.IntegerField(allow_null=True, max_value=255, min_value=0, default=None)
+    config_template = NestedConfigTemplateSerializer(required=False, allow_null=True, default=None)
 
     class Meta:
         model = Device
@@ -661,7 +664,7 @@ class DeviceSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
             'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
-            'comments', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
     @extend_schema_field(NestedDeviceSerializer)

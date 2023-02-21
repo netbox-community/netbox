@@ -11,6 +11,7 @@ from django.core.validators import MinValueValidator, ValidationError
 from django.db import models
 from django.http import HttpResponse, QueryDict
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
@@ -25,7 +26,8 @@ from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
-    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, TagsMixin, WebhooksMixin,
+    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, SyncedDataMixin,
+    TagsMixin,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import render_jinja2
@@ -44,7 +46,7 @@ __all__ = (
 )
 
 
-class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class Webhook(ExportTemplatesMixin, ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
@@ -201,7 +203,7 @@ class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         return render_jinja2(self.payload_url, context)
 
 
-class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
@@ -280,7 +282,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
         }
 
 
-class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class ExportTemplate(SyncedDataMixin, ExportTemplatesMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='export_templates',
@@ -334,6 +336,13 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
                 'name': f'"{self.name}" is a reserved name. Please choose a different name.'
             })
 
+    def sync_data(self):
+        """
+        Synchronize template content from the designated DataFile (if any).
+        """
+        self.template_code = self.data_file.data_as_string
+        self.data_synced = timezone.now()
+
     def render(self, queryset):
         """
         Render the contents of the template.
@@ -367,7 +376,7 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         return response
 
 
-class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A set of predefined keyword parameters that can be reused to filter for specific objects.
     """
@@ -438,7 +447,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         return qd.urlencode()
 
 
-class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
+class ImageAttachment(ChangeLoggedModel):
     """
     An uploaded image which is associated with an object.
     """
@@ -514,7 +523,7 @@ class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
         return objectchange
 
 
-class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin, ExportTemplatesMixin, ChangeLoggedModel):
+class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A historical remark concerning an object; collectively, these form an object's journal. The journal is used to
     preserve historical context around an object, and complements NetBox's built-in change logging. For example, you
@@ -634,7 +643,7 @@ class JobResult(models.Model):
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
 
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.obj_type.name, RQ_QUEUE_DEFAULT)
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.obj_type.model, RQ_QUEUE_DEFAULT)
         queue = django_rq.get_queue(rq_queue_name)
         job = queue.fetch_job(str(self.job_id))
 
@@ -642,7 +651,10 @@ class JobResult(models.Model):
             job.cancel()
 
     def get_absolute_url(self):
-        return reverse(f'extras:{self.obj_type.name}_result', args=[self.pk])
+        try:
+            return reverse(f'extras:{self.obj_type.model}_result', args=[self.pk])
+        except NoReverseMatch:
+            return None
 
     def get_status_color(self):
         return JobResultStatusChoices.colors.get(self.status)
@@ -693,7 +705,7 @@ class JobResult(models.Model):
             schedule_at: Schedule the job to be executed at the passed date and time
             interval: Recurrence interval (in minutes)
         """
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(obj_type.name, RQ_QUEUE_DEFAULT)
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get(obj_type.model, RQ_QUEUE_DEFAULT)
         queue = django_rq.get_queue(rq_queue_name)
         status = JobResultStatusChoices.STATUS_SCHEDULED if schedule_at else JobResultStatusChoices.STATUS_PENDING
         job_result: JobResult = JobResult.objects.create(

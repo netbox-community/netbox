@@ -287,6 +287,7 @@ OTHER_MENU = Menu(
         MenuGroup(
             label=_('Integrations'),
             items=(
+                get_model_item('core', 'datasource', _('Data Sources')),
                 get_model_item('extras', 'webhook', _('Webhooks')),
                 MenuItem(
                     link='extras:report_list',
@@ -310,6 +311,7 @@ OTHER_MENU = Menu(
             items=(
                 get_model_item('extras', 'tag', 'Tags'),
                 get_model_item('extras', 'configcontext', _('Config Contexts'), actions=['add']),
+                get_model_item('extras', 'configtemplate', _('Config Templates'), actions=['add']),
             ),
         ),
     ),

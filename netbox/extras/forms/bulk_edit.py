@@ -4,11 +4,12 @@ from django.utils.translation import gettext as _
 from extras.choices import *
 from extras.models import *
 from utilities.forms import (
-    add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, StaticSelect,
+    add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField,
 )
 
 __all__ = (
     'ConfigContextBulkEditForm',
+    'ConfigTemplateBulkEditForm',
     'CustomFieldBulkEditForm',
     'CustomLinkBulkEditForm',
     'ExportTemplateBulkEditForm',
@@ -41,8 +42,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
         label=_("UI visibility"),
         choices=add_blank_choice(CustomFieldVisibilityChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
 
     nullable_fields = ('group_name', 'description',)
@@ -66,8 +66,7 @@ class CustomLinkBulkEditForm(BulkEditForm):
     )
     button_class = forms.ChoiceField(
         choices=add_blank_choice(CustomLinkButtonClassChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
 
 
@@ -198,6 +197,19 @@ class ConfigContextBulkEditForm(BulkEditForm):
     description = forms.CharField(
         required=False,
         max_length=100
+    )
+
+    nullable_fields = ('description',)
+
+
+class ConfigTemplateBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
     )
 
     nullable_fields = ('description',)

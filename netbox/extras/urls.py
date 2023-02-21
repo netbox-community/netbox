@@ -29,6 +29,7 @@ urlpatterns = [
     path('export-templates/import/', views.ExportTemplateBulkImportView.as_view(), name='exporttemplate_import'),
     path('export-templates/edit/', views.ExportTemplateBulkEditView.as_view(), name='exporttemplate_bulk_edit'),
     path('export-templates/delete/', views.ExportTemplateBulkDeleteView.as_view(), name='exporttemplate_bulk_delete'),
+    path('export-templates/sync/', views.ExportTemplateBulkSyncDataView.as_view(), name='exporttemplate_bulk_sync'),
     path('export-templates/<int:pk>/', include(get_model_urls('extras', 'exporttemplate'))),
 
     # Saved filters
@@ -60,7 +61,16 @@ urlpatterns = [
     path('config-contexts/add/', views.ConfigContextEditView.as_view(), name='configcontext_add'),
     path('config-contexts/edit/', views.ConfigContextBulkEditView.as_view(), name='configcontext_bulk_edit'),
     path('config-contexts/delete/', views.ConfigContextBulkDeleteView.as_view(), name='configcontext_bulk_delete'),
+    path('config-contexts/sync/', views.ConfigContextBulkSyncDataView.as_view(), name='configcontext_bulk_sync'),
     path('config-contexts/<int:pk>/', include(get_model_urls('extras', 'configcontext'))),
+
+    # Config templates
+    path('config-templates/', views.ConfigTemplateListView.as_view(), name='configtemplate_list'),
+    path('config-templates/add/', views.ConfigTemplateEditView.as_view(), name='configtemplate_add'),
+    path('config-templates/edit/', views.ConfigTemplateBulkEditView.as_view(), name='configtemplate_bulk_edit'),
+    path('config-templates/delete/', views.ConfigTemplateBulkDeleteView.as_view(), name='configtemplate_bulk_delete'),
+    path('config-templates/sync/', views.ConfigTemplateBulkSyncDataView.as_view(), name='configtemplate_bulk_sync'),
+    path('config-templates/<int:pk>/', include(get_model_urls('extras', 'configtemplate'))),
 
     # Image attachments
     path('image-attachments/add/', views.ImageAttachmentEditView.as_view(), name='imageattachment_add'),

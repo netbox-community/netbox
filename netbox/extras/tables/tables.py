@@ -8,6 +8,7 @@ from .template_code import *
 
 __all__ = (
     'ConfigContextTable',
+    'ConfigTemplateTable',
     'CustomFieldTable',
     'CustomLinkTable',
     'ExportTemplateTable',
@@ -90,15 +91,24 @@ class ExportTemplateTable(NetBoxTable):
     )
     content_types = columns.ContentTypesColumn()
     as_attachment = columns.BooleanColumn()
+    data_source = tables.Column(
+        linkify=True
+    )
+    data_file = tables.Column(
+        linkify=True
+    )
+    is_synced = columns.BooleanColumn(
+        verbose_name='Synced'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ExportTemplate
         fields = (
             'pk', 'id', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
-            'created', 'last_updated',
+            'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
+            'pk', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'is_synced',
         )
 
 
@@ -188,21 +198,58 @@ class TaggedItemTable(NetBoxTable):
 
 
 class ConfigContextTable(NetBoxTable):
+    data_source = tables.Column(
+        linkify=True
+    )
+    data_file = tables.Column(
+        linkify=True
+    )
     name = tables.Column(
         linkify=True
     )
     is_active = columns.BooleanColumn(
         verbose_name='Active'
     )
+    is_synced = columns.BooleanColumn(
+        verbose_name='Synced'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ConfigContext
         fields = (
-            'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'locations', 'roles',
-            'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'created',
-            'last_updated',
+            'pk', 'id', 'name', 'weight', 'is_active', 'is_synced', 'description', 'regions', 'sites', 'locations',
+            'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants',
+            'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'weight', 'is_active', 'description')
+        default_columns = ('pk', 'name', 'weight', 'is_active', 'is_synced', 'description')
+
+
+class ConfigTemplateTable(NetBoxTable):
+    name = tables.Column(
+        linkify=True
+    )
+    data_source = tables.Column(
+        linkify=True
+    )
+    data_file = tables.Column(
+        linkify=True
+    )
+    is_synced = columns.BooleanColumn(
+        verbose_name='Synced'
+    )
+    tags = columns.TagColumn(
+        url_name='extras:configtemplate_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ConfigTemplate
+        fields = (
+            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
+            'tags',
+        )
+        default_columns = (
+            'pk', 'name', 'description', 'is_synced',
+        )
 
 
 class ObjectChangeTable(NetBoxTable):

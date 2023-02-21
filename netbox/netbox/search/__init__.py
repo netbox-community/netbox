@@ -2,6 +2,7 @@ from collections import namedtuple
 
 from django.db import models
 
+from ipam.fields import IPAddressField, IPNetworkField
 from netbox.registry import registry
 
 ObjectFieldValue = namedtuple('ObjectFieldValue', ('name', 'type', 'weight', 'value'))
@@ -11,6 +12,8 @@ class FieldTypes:
     FLOAT = 'float'
     INTEGER = 'int'
     STRING = 'str'
+    INET = 'inet'
+    CIDR = 'cidr'
 
 
 class LookupTypes:
@@ -43,6 +46,10 @@ class SearchIndex:
         field_cls = instance._meta.get_field(field_name).__class__
         if issubclass(field_cls, (models.FloatField, models.DecimalField)):
             return FieldTypes.FLOAT
+        if issubclass(field_cls, IPAddressField):
+            return FieldTypes.INET
+        if issubclass(field_cls, IPNetworkField):
+            return FieldTypes.CIDR
         if issubclass(field_cls, models.IntegerField):
             return FieldTypes.INTEGER
         return FieldTypes.STRING

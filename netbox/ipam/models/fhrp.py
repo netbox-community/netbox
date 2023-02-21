@@ -5,7 +5,6 @@ from django.db import models
 from django.urls import reverse
 
 from netbox.models import ChangeLoggedModel, PrimaryModel
-from netbox.models.features import WebhooksMixin
 from ipam.choices import *
 from ipam.constants import *
 
@@ -73,7 +72,7 @@ class FHRPGroup(PrimaryModel):
         return reverse('ipam:fhrpgroup', args=[self.pk])
 
 
-class FHRPGroupAssignment(WebhooksMixin, ChangeLoggedModel):
+class FHRPGroupAssignment(ChangeLoggedModel):
     interface_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE

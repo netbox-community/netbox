@@ -361,7 +361,7 @@ class InventoryItemTemplateViewSet(NetBoxModelViewSet):
 #
 
 class DeviceRoleViewSet(NetBoxModelViewSet):
-    queryset = DeviceRole.objects.prefetch_related('tags').annotate(
+    queryset = DeviceRole.objects.prefetch_related('config_template', 'tags').annotate(
         device_count=count_related(Device, 'device_role'),
         virtualmachine_count=count_related(VirtualMachine, 'role')
     )
@@ -374,7 +374,7 @@ class DeviceRoleViewSet(NetBoxModelViewSet):
 #
 
 class PlatformViewSet(NetBoxModelViewSet):
-    queryset = Platform.objects.prefetch_related('tags').annotate(
+    queryset = Platform.objects.prefetch_related('config_template', 'tags').annotate(
         device_count=count_related(Device, 'platform'),
         virtualmachine_count=count_related(VirtualMachine, 'platform')
     )

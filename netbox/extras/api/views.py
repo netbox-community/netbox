@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
@@ -17,11 +18,14 @@ from extras.models import CustomField
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
+from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
+from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.utils import copy_safe_request, count_related
 from . import serializers
+from .nested_serializers import NestedConfigTemplateSerializer
 
 
 class ExtrasRootView(APIRootView):
@@ -91,9 +95,9 @@ class CustomLinkViewSet(NetBoxModelViewSet):
 # Export templates
 #
 
-class ExportTemplateViewSet(NetBoxModelViewSet):
+class ExportTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
-    queryset = ExportTemplate.objects.all()
+    queryset = ExportTemplate.objects.prefetch_related('data_source', 'data_file')
     serializer_class = serializers.ExportTemplateSerializer
     filterset_class = filtersets.ExportTemplateFilterSet
 
@@ -147,12 +151,42 @@ class JournalEntryViewSet(NetBoxModelViewSet):
 # Config contexts
 #
 
-class ConfigContextViewSet(NetBoxModelViewSet):
+class ConfigContextViewSet(SyncedDataMixin, NetBoxModelViewSet):
     queryset = ConfigContext.objects.prefetch_related(
-        'regions', 'site_groups', 'sites', 'locations', 'roles', 'platforms', 'tenant_groups', 'tenants',
+        'regions', 'site_groups', 'sites', 'locations', 'roles', 'platforms', 'tenant_groups', 'tenants', 'data_source',
+        'data_file',
     )
     serializer_class = serializers.ConfigContextSerializer
     filterset_class = filtersets.ConfigContextFilterSet
+
+
+#
+# Config templates
+#
+
+class ConfigTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
+    queryset = ConfigTemplate.objects.prefetch_related('data_source', 'data_file')
+    serializer_class = serializers.ConfigTemplateSerializer
+    filterset_class = filtersets.ConfigTemplateFilterSet
+
+    @action(detail=True, methods=['post'], renderer_classes=[JSONRenderer, TextRenderer])
+    def render(self, request, pk):
+        """
+        Render a ConfigTemplate using the context data provided (if any). If the client requests "text/plain" data,
+        return the raw rendered content, rather than serialized JSON.
+        """
+        configtemplate = self.get_object()
+        output = configtemplate.render(context=request.data)
+
+        # If the client has requested "text/plain", return the raw content.
+        if request.accepted_renderer.format == 'txt':
+            return Response(output)
+
+        template_serializer = NestedConfigTemplateSerializer(configtemplate, context={'request': request})
+        return Response({
+            'configtemplate': template_serializer.data,
+            'content': output
+        })
 
 
 #

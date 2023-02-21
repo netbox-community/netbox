@@ -82,6 +82,14 @@ class DeviceType(PrimaryModel, WeightMixin):
     slug = models.SlugField(
         max_length=100
     )
+    default_platform = models.ForeignKey(
+        to='dcim.Platform',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name='Default platform'
+    )
     part_number = models.CharField(
         max_length=50,
         blank=True,
@@ -121,7 +129,7 @@ class DeviceType(PrimaryModel, WeightMixin):
     )
 
     clone_fields = (
-        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
+        'manufacturer', 'default_platform', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
     )
     prerequisite_models = (
         'dcim.Manufacturer',
@@ -165,6 +173,7 @@ class DeviceType(PrimaryModel, WeightMixin):
             'manufacturer': self.manufacturer.name,
             'model': self.model,
             'slug': self.slug,
+            'default_platform': self.default_platform.name if self.default_platform else None,
             'part_number': self.part_number,
             'u_height': float(self.u_height),
             'is_full_depth': self.is_full_depth,
@@ -401,6 +410,13 @@ class DeviceRole(OrganizationalModel):
         verbose_name='VM Role',
         help_text=_('Virtual machines may be assigned to this role')
     )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='device_roles',
+        blank=True,
+        null=True
+    )
 
     def get_absolute_url(self):
         return reverse('dcim:devicerole', args=[self.pk])
@@ -419,6 +435,13 @@ class Platform(OrganizationalModel):
         blank=True,
         null=True,
         help_text=_('Optionally limit this platform to devices of a certain manufacturer')
+    )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='platforms',
+        blank=True,
+        null=True
     )
     napalm_driver = models.CharField(
         max_length=50,
@@ -580,6 +603,13 @@ class Device(PrimaryModel, ConfigContextModel):
         blank=True,
         null=True,
         validators=[MaxValueValidator(255)]
+    )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='devices',
+        blank=True,
+        null=True
     )
 
     # Generic relations
@@ -801,6 +831,10 @@ class Device(PrimaryModel, ConfigContextModel):
         if is_new and not self.airflow:
             self.airflow = self.device_type.airflow
 
+        # Inherit default_platform from DeviceType if not set
+        if is_new and not self.platform:
+            self.platform = self.device_type.default_platform
+
         super().save(*args, **kwargs)
 
         # If this is a new Device, instantiate all the related components per the DeviceType definition
@@ -848,6 +882,17 @@ class Device(PrimaryModel, ConfigContextModel):
     @property
     def interfaces_count(self):
         return self.vc_interfaces().count()
+
+    def get_config_template(self):
+        """
+        Return the appropriate ConfigTemplate (if any) for this Device.
+        """
+        if self.config_template:
+            return self.config_template
+        if self.device_role.config_template:
+            return self.device_role.config_template
+        if self.platform and self.platform.config_template:
+            return self.platform.config_template
 
     def get_vc_master(self):
         """

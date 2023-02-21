@@ -74,8 +74,10 @@ nav:
         - Contacts: 'features/contacts.md'
         - Search: 'features/search.md'
         - Context Data: 'features/context-data.md'
+        - Configuration Rendering: 'features/configuration-rendering.md'
         - Change Logging: 'features/change-logging.md'
         - Journaling: 'features/journaling.md'
+        - Background Jobs: 'features/background-jobs.md'
         - Auth & Permissions: 'features/authentication-permissions.md'
         - API & Integration: 'features/api-integration.md'
         - Customization: 'features/customization.md'
@@ -116,6 +118,7 @@ nav:
         - REST API: 'integrations/rest-api.md'
         - GraphQL API: 'integrations/graphql-api.md'
         - Webhooks: 'integrations/webhooks.md'
+        - Synchronized Data: 'integrations/synchronized-data.md'
         - NAPALM: 'integrations/napalm.md'
         - Prometheus Metrics: 'integrations/prometheus-metrics.md'
     - Plugins:
@@ -152,6 +155,9 @@ nav:
             - Circuit Type: 'models/circuits/circuittype.md'
             - Provider: 'models/circuits/provider.md'
             - Provider Network: 'models/circuits/providernetwork.md'
+        - Core:
+            - DataFile: 'models/core/datafile.md'
+            - DataSource: 'models/core/datasource.md'
         - DCIM:
             - Cable: 'models/dcim/cable.md'
             - ConsolePort: 'models/dcim/consoleport.md'
@@ -196,10 +202,12 @@ nav:
         - Extras:
             - Branch: 'models/extras/branch.md'
             - ConfigContext: 'models/extras/configcontext.md'
+            - ConfigTemplate: 'models/extras/configtemplate.md'
             - CustomField: 'models/extras/customfield.md'
             - CustomLink: 'models/extras/customlink.md'
             - ExportTemplate: 'models/extras/exporttemplate.md'
             - ImageAttachment: 'models/extras/imageattachment.md'
+            - JobResult: 'models/extras/jobresult.md'
             - JournalEntry: 'models/extras/journalentry.md'
             - SavedFilter: 'models/extras/savedfilter.md'
             - StagedChange: 'models/extras/stagedchange.md'

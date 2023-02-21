@@ -3,7 +3,7 @@ from dcim.models import Device, Interface, Location, Region, Site, SiteGroup
 from ipam.models import VLAN, VLANGroup
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import CommentField, DynamicModelChoiceField, SlugField, StaticSelect
+from utilities.forms import CommentField, DynamicModelChoiceField, SlugField
 from wireless.models import *
 
 __all__ = (
@@ -97,11 +97,6 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
             'ssid', 'group', 'region', 'site_group', 'site', 'status', 'vlan_group', 'vlan', 'tenant_group', 'tenant',
             'auth_type', 'auth_cipher', 'auth_psk', 'description', 'comments', 'tags',
         ]
-        widgets = {
-            'status': StaticSelect,
-            'auth_type': StaticSelect,
-            'auth_cipher': StaticSelect,
-        }
 
 
 class WirelessLinkForm(TenancyForm, NetBoxModelForm):
@@ -202,11 +197,6 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'status', 'ssid', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description',
             'comments', 'tags',
         ]
-        widgets = {
-            'status': StaticSelect,
-            'auth_type': StaticSelect,
-            'auth_cipher': StaticSelect,
-        }
         labels = {
             'auth_type': 'Type',
             'auth_cipher': 'Cipher',

@@ -9,7 +9,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, SmallTextarea, StaticSelect
+    DynamicModelMultipleChoiceField
 )
 from virtualization.choices import *
 from virtualization.models import *
@@ -62,8 +62,7 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(ClusterStatusChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -90,7 +89,7 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=forms.Textarea,
         label=_('Comments')
     )
 
@@ -109,7 +108,6 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         choices=add_blank_choice(VirtualMachineStatusChoices),
         required=False,
         initial='',
-        widget=StaticSelect(),
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -163,7 +161,7 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=forms.Textarea,
         label=_('Comments')
     )
 
@@ -208,8 +206,7 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
     )
     mode = forms.ChoiceField(
         choices=add_blank_choice(InterfaceModeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
