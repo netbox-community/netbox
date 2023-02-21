@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponseForbidden
@@ -8,6 +9,8 @@ from django.views.generic import View
 from django_rq.queues import get_connection
 from rq import Worker
 
+from extras.dashboard.forms import DashboardWidgetForm
+from extras.dashboard.utils import get_widget_class_and_config
 from netbox.views import generic
 from utilities.htmx import is_htmx
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
@@ -662,6 +665,42 @@ class JournalEntryBulkDeleteView(generic.BulkDeleteView):
     queryset = JournalEntry.objects.all()
     filterset = filtersets.JournalEntryFilterSet
     table = tables.JournalEntryTable
+
+
+#
+# Dashboard widgets
+#
+
+class DashboardWidgetConfigView(LoginRequiredMixin, View):
+    template_name = 'extras/dashboardwidget_edit.html'
+
+    def get(self, request):
+        widget_class, config = get_widget_class_and_config(request.user, request.GET['id'])
+        widget_form = DashboardWidgetForm(initial=config)
+        config_form = widget_class.ConfigForm(initial=config.get('config'), prefix='config')
+
+        return render(request, self.template_name, {
+            'widget_form': widget_form,
+            'config_form': config_form,
+        })
+
+    def post(self, request):
+        id = request.GET['id']
+        widget_class, config = get_widget_class_and_config(request.user, id)
+        widget_form = DashboardWidgetForm(request.POST)
+        config_form = widget_class.ConfigForm(request.POST, prefix='config')
+
+        if widget_form.is_valid() and config_form.is_valid():
+            data = widget_form.cleaned_data
+            data['config'] = config_form.cleaned_data
+            request.user.config.set(f'dashboard.widgets.{id}', data, commit=True)
+
+            return redirect('home')
+
+        return render(request, self.template_name, {
+            'widget_form': widget_form,
+            'config_form': config_form,
+        })
 
 
 #

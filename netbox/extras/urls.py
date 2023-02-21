@@ -87,6 +87,9 @@ urlpatterns = [
     path('changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),
     path('changelog/<int:pk>/', include(get_model_urls('extras', 'objectchange'))),
 
+    # User dashboard
+    path('dashboard/widgets/', views.DashboardWidgetConfigView.as_view(), name='dashboardwidget_edit'),
+
     # Reports
     path('reports/', views.ReportListView.as_view(), name='report_list'),
     path('reports/results/<int:job_result_pk>/', views.ReportResultView.as_view(), name='report_result'),

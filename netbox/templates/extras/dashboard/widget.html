@@ -9,16 +9,18 @@
     gs-id="{{ widget.id }}"
 >
   <div class="card grid-stack-item-content">
-    {% if widget.title %}
-      <div class="card-header text-center text-light bg-secondary p-1">
-        <div class="float-end pe-1"><i class="mdi mdi-close"></i></div>
-        <strong>{{ widget.title }}</strong>
+    <div class="card-header text-center text-light bg-secondary p-1">
+      <div class="float-start ps-1">
+        <a href="{% url 'extras:dashboardwidget_edit' %}?id={{ widget.id }}"><i class="mdi mdi-cog text-gray"></i></a>
       </div>
-    {% endif %}
-    <div class="card-body p-2">
-      {% if not widget.title %}
-        <div class="float-end pe-1"><i class="mdi mdi-close"></i></div>
+      <div class="float-end pe-1">
+        <a href="#"><i class="mdi mdi-close text-gray"></i></a>
+      </div>
+      {% if widget.title %}
+        <strong>{{ widget.title }}</strong>
       {% endif %}
+    </div>
+    <div class="card-body p-2">
       {% render_widget widget %}
     </div>
   </div>

@@ -1,18 +1,21 @@
 import uuid
 
+from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
+from utilities.forms import BootstrapMixin
+from utilities.forms.fields import ContentTypeMultipleChoiceField
 from utilities.templatetags.builtins.filters import render_markdown
 from .utils import register_widget
 
 __all__ = (
     'ChangeLogWidget',
     'DashboardWidget',
+    'NoteWidget',
     'ObjectCountsWidget',
-    'StaticContentWidget',
 )
 
 
@@ -22,7 +25,10 @@ class DashboardWidget:
     width = 4
     height = 3
 
-    def __init__(self, id=None, config=None, title=None, width=None, height=None, x=None, y=None):
+    class ConfigForm(forms.Form):
+        pass
+
+    def __init__(self, id=None, title=None, config=None, width=None, height=None, x=None, y=None):
         self.id = id or uuid.uuid4()
         self.config = config or {}
         if title:
@@ -48,13 +54,18 @@ class DashboardWidget:
 
 
 @register_widget
-class StaticContentWidget(DashboardWidget):
+class NoteWidget(DashboardWidget):
     description = _('Display some arbitrary custom content. Markdown is supported.')
     default_content = """
     <div class="d-flex justify-content-center align-items-center" style="height: 100%">
       <div class="text-center text-muted">Empty</div>
     </div>
     """
+
+    class ConfigForm(BootstrapMixin, forms.Form):
+        content = forms.CharField(
+            widget=forms.Textarea()
+        )
 
     def render(self, request):
         if content := self.config.get('content'):
@@ -68,11 +79,19 @@ class ObjectCountsWidget(DashboardWidget):
     description = _('Display a set of NetBox models and the number of objects created for each type.')
     template_name = 'extras/dashboard/widgets/objectcounts.html'
 
+    class ConfigForm(BootstrapMixin, forms.Form):
+        # TODO: Track models by app label & name rather than ContentType ID
+        models = ContentTypeMultipleChoiceField(
+            queryset=ContentType.objects.all()
+        )
+
+        def clean_models(self):
+            return [obj.pk for obj in self.cleaned_data['models']]
+
     def render(self, request):
         counts = []
-        for model_name in self.config['models']:
-            app_label, name = model_name.lower().split('.')
-            model = ContentType.objects.get_by_natural_key(app_label, name).model_class()
+        for content_type_id in self.config['models']:
+            model = ContentType.objects.get(pk=content_type_id).model_class()
             object_count = model.objects.restrict(request.user, 'view').count
             counts.append((model, object_count))
 

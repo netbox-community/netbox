@@ -5,6 +5,8 @@ from extras.constants import DEFAULT_DASHBOARD
 
 __all__ = (
     'get_dashboard',
+    'get_default_dashboard_config',
+    'get_widget_class_and_config',
     'register_widget',
 )
 
@@ -20,6 +22,12 @@ def register_widget(cls):
     return cls
 
 
+def get_widget_class_and_config(user, id):
+    config = dict(user.config.get(f'dashboard.widgets.{id}'))  # Copy to avoid mutating userconfig data
+    widget_class = registry['widgets'].get(config.pop('class'))
+    return widget_class, config
+
+
 def get_dashboard(user):
     """
     Return the dashboard layout for a given User.
@@ -33,10 +41,8 @@ def get_dashboard(user):
 
     widgets = []
     for grid_item in config['layout']:
-        widget_id = grid_item['id']
-        widget_config = config['widgets'][widget_id]
-        widget_class = registry['widgets'].get(widget_config.pop('class'))
-        widget = widget_class(id=widget_id, **widget_config)
+        widget_class, widget_config = get_widget_class_and_config(user, grid_item['id'])
+        widget = widget_class(id=grid_item['id'], **widget_config)
         widget.set_layout(grid_item)
         widgets.append(widget)
 

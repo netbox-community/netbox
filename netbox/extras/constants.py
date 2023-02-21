@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.models import ContentType
+
 # Webhook content types
 HTTP_CONTENT_TYPE_JSON = 'application/json'
 
@@ -10,10 +12,9 @@ DEFAULT_DASHBOARD = [
         'title': 'IPAM',
         'config': {
             'models': [
-                'ipam.Aggregate',
-                'ipam.Prefix',
-                'ipam.IPRange',
-                'ipam.IPAddress',
+                ContentType.objects.get_by_natural_key('ipam', 'aggregate').pk,
+                ContentType.objects.get_by_natural_key('ipam', 'prefix').pk,
+                ContentType.objects.get_by_natural_key('ipam', 'ipaddress').pk,
             ]
         }
     },
@@ -24,15 +25,14 @@ DEFAULT_DASHBOARD = [
         'title': 'DCIM',
         'config': {
             'models': [
-                'dcim.Site',
-                'dcim.Rack',
-                'dcim.Device',
-                'dcim.Cable',
+                ContentType.objects.get_by_natural_key('dcim', 'site').pk,
+                ContentType.objects.get_by_natural_key('dcim', 'rack').pk,
+                ContentType.objects.get_by_natural_key('dcim', 'device').pk,
             ]
         }
     },
     {
-        'widget': 'extras.StaticContentWidget',
+        'widget': 'extras.NoteWidget',
         'width': 4,
         'height': 3,
         'config': {
