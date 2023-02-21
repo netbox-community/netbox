@@ -34,7 +34,7 @@ from .nested_serializers import *
 
 
 class CabledObjectSerializer(serializers.ModelSerializer):
-    cable = NestedCableSerializer(read_only=True)
+    cable = NestedCableSerializer(read_only=True, allow_null=True)
     cable_end = serializers.CharField(read_only=True)
     link_peers_type = serializers.SerializerMethodField(read_only=True)
     link_peers = serializers.SerializerMethodField(read_only=True)
