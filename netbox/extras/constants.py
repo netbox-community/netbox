@@ -7,8 +7,8 @@ DEFAULT_DASHBOARD = [
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
         'height': 3,
+        'title': 'IPAM',
         'config': {
-            'title': 'IPAM',
             'models': [
                 'ipam.Aggregate',
                 'ipam.Prefix',
@@ -21,8 +21,8 @@ DEFAULT_DASHBOARD = [
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
         'height': 3,
+        'title': 'DCIM',
         'config': {
-            'title': 'DCIM',
             'models': [
                 'dcim.Site',
                 'dcim.Rack',
@@ -36,7 +36,7 @@ DEFAULT_DASHBOARD = [
         'width': 4,
         'height': 3,
         'config': {
-            'content': 'Welcome to NetBox!'
+            'content': 'Welcome to **NetBox**!'
         }
     },
     {

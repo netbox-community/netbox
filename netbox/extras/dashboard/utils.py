@@ -28,7 +28,6 @@ def get_dashboard(user):
         config = user.config.get('dashboard')
     else:
         config = get_default_dashboard_config()
-        print(config)
         if not user.is_anonymous:
             user.config.set('dashboard', config, commit=True)
 
@@ -60,6 +59,7 @@ def get_default_dashboard_config():
         })
         config['widgets'][id] = {
             'class': widget['widget'],
+            'title': widget.get('title'),
             'config': widget.get('config', {}),
         }
 
