@@ -1,6 +1,6 @@
 # NetBox v3.4
 
-## v3.4.5 (FUTURE)
+## v3.4.5 (2023-02-21)
 
 ### Enhancements
 
@@ -13,7 +13,6 @@
 
 * [#11032](https://github.com/netbox-community/netbox/issues/11032) - Fix false custom validation errors during component creation
 * [#11226](https://github.com/netbox-community/netbox/issues/11226) - Ensure scripts and reports within submodules are automatically reloaded
-* [#11335](https://github.com/netbox-community/netbox/issues/11335) - Avoid exception when rendering change log after uninstalling a plugin
 * [#11459](https://github.com/netbox-community/netbox/issues/11459) - Enable evaluating null values in custom validation rules
 * [#11473](https://github.com/netbox-community/netbox/issues/11473) - GraphQL requests specifying an invalid filter should return an empty queryset
 * [#11582](https://github.com/netbox-community/netbox/issues/11582) - Ensure form validation errors are displayed when adding virtual chassis members
