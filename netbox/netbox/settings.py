@@ -24,7 +24,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.4.4'
+VERSION = '3.4.5'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -91,6 +91,7 @@ DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BAS
 EMAIL = getattr(configuration, 'EMAIL', {})
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
+FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})

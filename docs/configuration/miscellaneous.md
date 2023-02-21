@@ -69,6 +69,14 @@ By default, NetBox will permit users to create duplicate prefixes and IP address
 
 ---
 
+## `FILE_UPLOAD_MAX_MEMORY_SIZE`
+
+Default: `2621440` (2.5 MB).
+
+The maximum amount (in bytes) of uploaded data that will be held in memory before being written to the filesystem. Changing this setting can be useful for example to be able to upload files bigger than 2.5MB to custom scripts for processing.
+
+---
+
 ## GRAPHQL_ENABLED
 
 !!! tip "Dynamic Configuration Parameter"

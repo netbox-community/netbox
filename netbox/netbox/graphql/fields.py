@@ -60,6 +60,8 @@ class ObjectListField(DjangoListField):
         filterset_class = django_object_type._meta.filterset_class
         if filterset_class:
             filterset = filterset_class(data=args, queryset=queryset, request=info.context)
+            if not filterset.is_valid():
+                return queryset.none()
             return filterset.qs
 
         return queryset

@@ -196,12 +196,10 @@ class CircuitTermination(
         )
 
     def __str__(self):
-        return f'Termination {self.term_side}: {self.site or self.provider_network}'
+        return f'{self.circuit}: Termination {self.term_side}'
 
     def get_absolute_url(self):
-        if self.site:
-            return self.site.get_absolute_url()
-        return self.provider_network.get_absolute_url()
+        return self.circuit.get_absolute_url()
 
     def clean(self):
         super().clean()

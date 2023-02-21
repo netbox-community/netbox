@@ -1,5 +1,30 @@
 # NetBox v3.4
 
+## v3.4.5 (2023-02-21)
+
+### Enhancements
+
+* [#11110](https://github.com/netbox-community/netbox/issues/11110) - Add `start_address` and `end_address` filters for IP ranges
+* [#11592](https://github.com/netbox-community/netbox/issues/11592) - Introduce `FILE_UPLOAD_MAX_MEMORY_SIZE` configuration parameter
+* [#11685](https://github.com/netbox-community/netbox/issues/11685) - Match on containing prefixes and aggregates when querying for IP addresses using global search
+* [#11787](https://github.com/netbox-community/netbox/issues/11787) - Upgrade script will automatically rebuild missing search cache
+
+### Bug Fixes
+
+* [#11032](https://github.com/netbox-community/netbox/issues/11032) - Fix false custom validation errors during component creation
+* [#11226](https://github.com/netbox-community/netbox/issues/11226) - Ensure scripts and reports within submodules are automatically reloaded
+* [#11459](https://github.com/netbox-community/netbox/issues/11459) - Enable evaluating null values in custom validation rules
+* [#11473](https://github.com/netbox-community/netbox/issues/11473) - GraphQL requests specifying an invalid filter should return an empty queryset
+* [#11582](https://github.com/netbox-community/netbox/issues/11582) - Ensure form validation errors are displayed when adding virtual chassis members
+* [#11601](https://github.com/netbox-community/netbox/issues/11601) - Fix partial matching of start/end addresses for IP range search
+* [#11683](https://github.com/netbox-community/netbox/issues/11683) - Fix CSV header attribute detection when auto-detecting import format
+* [#11711](https://github.com/netbox-community/netbox/issues/11711) - Fix CSV import for multiple-object custom fields
+* [#11723](https://github.com/netbox-community/netbox/issues/11723) - Circuit terminations should link to their associated circuits (rather than site or provider network)
+* [#11775](https://github.com/netbox-community/netbox/issues/11775) - Skip checking for old search cache records when creating a new object
+* [#11786](https://github.com/netbox-community/netbox/issues/11786) - List only applicable object types in form widget when filtering custom fields
+
+---
+
 ## v3.4.4 (2023-02-02)
 
 ### Enhancements

@@ -38,8 +38,7 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
         ('Attributes', ('type', 'content_type_id', 'group_name', 'weight', 'required', 'ui_visibility')),
     )
     content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
+        queryset=ContentType.objects.filter(FeatureQuery('custom_fields').get_query()),
         required=False,
         label=_('Object type')
     )
@@ -79,8 +78,7 @@ class JobResultFilterForm(SavedFiltersMixin, FilterForm):
     )
     obj_type = ContentTypeChoiceField(
         label=_('Object Type'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('job_results'),  # TODO: This doesn't actually work
+        queryset=ContentType.objects.filter(FeatureQuery('job_results').get_query()),
         required=False,
     )
     status = MultipleChoiceField(
@@ -135,8 +133,7 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
         ('Attributes', ('content_types', 'enabled', 'new_window', 'weight')),
     )
     content_types = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_links'),
+        queryset=ContentType.objects.filter(FeatureQuery('custom_links').get_query()),
         required=False
     )
     enabled = forms.NullBooleanField(
@@ -162,8 +159,7 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
         ('Attributes', ('content_types', 'mime_type', 'file_extension', 'as_attachment')),
     )
     content_types = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('export_templates'),
+        queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
         required=False
     )
     mime_type = forms.CharField(
@@ -187,8 +183,7 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
         ('Attributes', ('content_types', 'enabled', 'shared', 'weight')),
     )
     content_types = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('export_templates'),
+        queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
         required=False
     )
     enabled = forms.NullBooleanField(
@@ -215,8 +210,7 @@ class WebhookFilterForm(SavedFiltersMixin, FilterForm):
         ('Events', ('type_create', 'type_update', 'type_delete')),
     )
     content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('webhooks'),
+        queryset=ContentType.objects.filter(FeatureQuery('webhooks').get_query()),
         required=False,
         label=_('Object type')
     )
