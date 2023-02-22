@@ -114,7 +114,7 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
     parent = NestedVMInterfaceSerializer(required=False, allow_null=True)
     bridge = NestedVMInterfaceSerializer(required=False, allow_null=True)
-    mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
+    mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),
@@ -123,7 +123,7 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
         many=True
     )
     vrf = NestedVRFSerializer(required=False, allow_null=True)
-    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True)
+    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True, allow_null=True)
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
     mac_address = serializers.CharField(required=False, default=None)

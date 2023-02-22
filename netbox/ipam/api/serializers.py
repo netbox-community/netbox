@@ -211,7 +211,7 @@ class VLANSerializer(NetBoxModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=VLANStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
-    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True)
+    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True, allow_null=True)
     prefix_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -341,13 +341,12 @@ class IPRangeSerializer(NetBoxModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=IPRangeStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
-    children = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = IPRange
         fields = [
             'id', 'url', 'display', 'family', 'start_address', 'end_address', 'size', 'vrf', 'tenant', 'status', 'role',
-            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'children',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         read_only_fields = ['family']
 
