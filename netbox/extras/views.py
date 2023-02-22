@@ -12,6 +12,7 @@ from rq import Worker
 from extras.dashboard.forms import DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class_and_config
 from netbox.views import generic
+from utilities.forms import ConfirmationForm
 from utilities.htmx import is_htmx
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
@@ -674,8 +675,8 @@ class JournalEntryBulkDeleteView(generic.BulkDeleteView):
 class DashboardWidgetConfigView(LoginRequiredMixin, View):
     template_name = 'extras/dashboardwidget_edit.html'
 
-    def get(self, request):
-        widget_class, config = get_widget_class_and_config(request.user, request.GET['id'])
+    def get(self, request, id):
+        widget_class, config = get_widget_class_and_config(request.user, id)
         widget_form = DashboardWidgetForm(initial=config)
         config_form = widget_class.ConfigForm(initial=config.get('config'), prefix='config')
 
@@ -684,8 +685,7 @@ class DashboardWidgetConfigView(LoginRequiredMixin, View):
             'config_form': config_form,
         })
 
-    def post(self, request):
-        id = request.GET['id']
+    def post(self, request, id):
         widget_class, config = get_widget_class_and_config(request.user, id)
         widget_form = DashboardWidgetForm(request.POST)
         config_form = widget_class.ConfigForm(request.POST, prefix='config')
@@ -701,6 +701,44 @@ class DashboardWidgetConfigView(LoginRequiredMixin, View):
             'widget_form': widget_form,
             'config_form': config_form,
         })
+
+
+class DashboardWidgetDeleteView(LoginRequiredMixin, View):
+    template_name = 'generic/object_delete.html'
+
+    def get(self, request, id):
+        widget_class, config = get_widget_class_and_config(request.user, id)
+        widget = widget_class(**config)
+        form = ConfirmationForm(initial=request.GET)
+
+        # If this is an HTMX request, return only the rendered deletion form as modal content
+        if is_htmx(request):
+            return render(request, 'htmx/delete_form.html', {
+                'object_type': widget_class.__name__,
+                'object': widget,
+                'form': form,
+                'form_url': reverse('extras:dashboardwidget_delete', kwargs={'id': id})
+            })
+
+        return render(request, self.template_name, {
+            'form': form,
+        })
+
+    def post(self, request, id):
+        form = ConfirmationForm(request.POST)
+
+        if form.is_valid():
+            config = request.user.config
+            config.clear(f'dashboard.widgets.{id}')
+            config.set('dashboard.layout', [
+                item for item in config.get('dashboard.layout') if item['id'] != str(id)
+            ])
+            config.save()
+            messages.success(request, f'Deleted widget {id}')
+        else:
+            messages.error(request, f'Error deleting widget: {form.errors[0]}')
+
+        return redirect(reverse('home'))
 
 
 #

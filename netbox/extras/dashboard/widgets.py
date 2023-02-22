@@ -39,6 +39,9 @@ class DashboardWidget:
             self.height = height
         self.x, self.y = x, y
 
+    def __str__(self):
+        return self.title or self.__class__.__name__
+
     def set_layout(self, grid_item):
         self.width = grid_item['w']
         self.height = grid_item['h']
