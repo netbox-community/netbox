@@ -414,7 +414,7 @@ class NestedFrontPortSerializer(WritableNestedSerializer):
 
 class NestedModuleBaySerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebay-detail')
-    module = NestedModuleSerializer(read_only=True)
+    module = NestedModuleSerializer(required=False, read_only=True)
 
     class Meta:
         model = models.ModuleBay

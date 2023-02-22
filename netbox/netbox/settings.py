@@ -636,6 +636,9 @@ RQ_QUEUES.update({
     queue: RQ_PARAMS for queue in set(QUEUE_MAPPINGS.values()) if queue not in RQ_QUEUES
 })
 
+CONN_MAX_AGE = 5
+CONN_HEALTH_CHECKS = True
+
 #
 # Localization
 #

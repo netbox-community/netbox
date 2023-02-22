@@ -201,12 +201,12 @@ class RackSerializer(NetBoxModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=RackStatusChoices, required=False)
     role = NestedRackRoleSerializer(required=False, allow_null=True)
-    type = ChoiceField(choices=RackTypeChoices, allow_blank=True, required=False)
+    type = ChoiceField(choices=RackTypeChoices, allow_blank=True, required=False, allow_null=True)
     facility_id = serializers.CharField(max_length=50, allow_blank=True, allow_null=True, label=_('Facility ID'),
                                         default=None)
     width = ChoiceField(choices=RackWidthChoices, required=False)
-    outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False)
-    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False)
+    outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False, allow_null=True)
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
     device_count = serializers.IntegerField(read_only=True)
     powerfeed_count = serializers.IntegerField(read_only=True)
 
@@ -322,9 +322,9 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
         min_value=0,
         default=1.0
     )
-    subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False)
-    airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
-    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False)
+    subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False, allow_null=True)
+    airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False, allow_null=True)
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
     device_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -339,7 +339,7 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
 class ModuleTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:moduletype-detail')
     manufacturer = NestedManufacturerSerializer()
-    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False)
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
 
     class Meta:
         model = ModuleType
@@ -420,7 +420,8 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
     type = ChoiceField(
         choices=PowerPortTypeChoices,
         allow_blank=True,
-        required=False
+        required=False,
+        allow_null=True
     )
 
     class Meta:
@@ -446,7 +447,8 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     type = ChoiceField(
         choices=PowerOutletTypeChoices,
         allow_blank=True,
-        required=False
+        required=False,
+        allow_null=True
     )
     power_port = NestedPowerPortTemplateSerializer(
         required=False,
@@ -455,7 +457,8 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     feed_leg = ChoiceField(
         choices=PowerOutletFeedLegChoices,
         allow_blank=True,
-        required=False
+        required=False,
+        allow_null=True
     )
 
     class Meta:
@@ -482,12 +485,14 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
     poe_mode = ChoiceField(
         choices=InterfacePoEModeChoices,
         required=False,
-        allow_blank=True
+        allow_blank=True,
+        allow_null=True
     )
     poe_type = ChoiceField(
         choices=InterfacePoETypeChoices,
         required=False,
-        allow_blank=True
+        allow_blank=True,
+        allow_null=True
     )
 
     class Meta:
@@ -699,7 +704,7 @@ class VirtualDeviceContextSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
     device = NestedDeviceSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True, default=None)
-    primary_ip = NestedIPAddressSerializer(read_only=True)
+    primary_ip = NestedIPAddressSerializer(read_only=True, allow_null=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
 
@@ -804,7 +809,8 @@ class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
     type = ChoiceField(
         choices=PowerOutletTypeChoices,
         allow_blank=True,
-        required=False
+        required=False,
+        allow_null=True
     )
     power_port = NestedPowerPortSerializer(
         required=False,
@@ -813,7 +819,8 @@ class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
     feed_leg = ChoiceField(
         choices=PowerOutletFeedLegChoices,
         allow_blank=True,
-        required=False
+        required=False,
+        allow_null=True
     )
 
     class Meta:
@@ -836,7 +843,8 @@ class PowerPortSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     type = ChoiceField(
         choices=PowerPortTypeChoices,
         allow_blank=True,
-        required=False
+        required=False,
+        allow_null=True
     )
 
     class Meta:
@@ -866,12 +874,12 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     parent = NestedInterfaceSerializer(required=False, allow_null=True)
     bridge = NestedInterfaceSerializer(required=False, allow_null=True)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
-    mode = ChoiceField(choices=InterfaceModeChoices, required=False, allow_blank=True)
-    duplex = ChoiceField(choices=InterfaceDuplexChoices, required=False, allow_blank=True)
-    rf_role = ChoiceField(choices=WirelessRoleChoices, required=False, allow_blank=True)
-    rf_channel = ChoiceField(choices=WirelessChannelChoices, required=False, allow_blank=True)
-    poe_mode = ChoiceField(choices=InterfacePoEModeChoices, required=False, allow_blank=True)
-    poe_type = ChoiceField(choices=InterfacePoETypeChoices, required=False, allow_blank=True)
+    mode = ChoiceField(choices=InterfaceModeChoices, required=False, allow_blank=True, allow_null=True)
+    duplex = ChoiceField(choices=InterfaceDuplexChoices, required=False, allow_blank=True, allow_null=True)
+    rf_role = ChoiceField(choices=WirelessRoleChoices, required=False, allow_blank=True, allow_null=True)
+    rf_channel = ChoiceField(choices=WirelessChannelChoices, required=False, allow_blank=True, allow_null=True)
+    poe_mode = ChoiceField(choices=InterfacePoEModeChoices, required=False, allow_blank=True, allow_null=True)
+    poe_type = ChoiceField(choices=InterfacePoETypeChoices, required=False, allow_blank=True, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),
@@ -880,8 +888,8 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
         many=True
     )
     vrf = NestedVRFSerializer(required=False, allow_null=True)
-    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True)
-    wireless_link = NestedWirelessLinkSerializer(read_only=True)
+    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True, allow_null=True)
+    wireless_link = NestedWirelessLinkSerializer(read_only=True, allow_null=True)
     wireless_lans = SerializedPKRelatedField(
         queryset=WirelessLAN.objects.all(),
         serializer=NestedWirelessLANSerializer,
@@ -1050,7 +1058,7 @@ class CableSerializer(NetBoxModelSerializer):
     b_terminations = GenericObjectSerializer(many=True, required=False)
     status = ChoiceField(choices=LinkStatusChoices, required=False)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    length_unit = ChoiceField(choices=CableLengthUnitChoices, allow_blank=True, required=False)
+    length_unit = ChoiceField(choices=CableLengthUnitChoices, allow_blank=True, required=False, allow_null=True)
 
     class Meta:
         model = Cable
