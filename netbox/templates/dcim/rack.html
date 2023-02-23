@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block extra_controls %}
-  <div class="btn-group" role="group" aria-label="RackNavigation">
+  <div class="btn-group d-lg-none" role="group" aria-label="RackNavigation">
     {% if prev_rack %}
     <a href="{% url 'dcim:rack' pk=prev_rack.pk %}" class="btn btn-sm btn-primary">
         <i class="mdi mdi-chevron-left" aria-hidden="true"></i> {{ prev_rack }}
@@ -35,7 +35,7 @@
             <li><a class="dropdown-item{% if peer_rack.pk == object.pk %} active{% endif %}" href="{% url 'dcim:rack' pk=peer_rack.pk %}">{{ peer_rack }}</a></li>
         {% endfor %}
         </ul>
-    </div>
+      </div>
     {% endif %}
 
     {% if next_rack %}
@@ -48,7 +48,7 @@
 
   </div>
   
-  <div class="btn-group" role="group" aria-label="RackNavigation">
+  <div class="btn-group d-none d-lg-block" role="group" aria-label="RackNavigation">
     {% if peer_racks %}
       <div class="btn-group" role="group">
         {% for peer_rack in peer_racks %}
