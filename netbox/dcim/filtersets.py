@@ -981,7 +981,9 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
             Q(serial__icontains=value.strip()) |
             Q(inventoryitems__serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
-            Q(comments__icontains=value)
+            Q(comments__icontains=value) |
+            Q(primary_ip4__address__startswith=value) |
+            Q(primary_ip6__address__startswith=value)
         ).distinct()
 
     def _has_primary_ip(self, queryset, name, value):
