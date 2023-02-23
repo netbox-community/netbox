@@ -9,10 +9,11 @@ from django.views.generic import View
 from django_rq.queues import get_connection
 from rq import Worker
 
-from extras.dashboard.forms import DashboardWidgetForm
+from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class_and_config
+from netbox.registry import registry
 from netbox.views import generic
-from utilities.forms import ConfirmationForm
+from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import is_htmx
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
@@ -671,6 +672,57 @@ class JournalEntryBulkDeleteView(generic.BulkDeleteView):
 #
 # Dashboard widgets
 #
+
+class DashboardWidgetAddView(LoginRequiredMixin, View):
+    template_name = 'extras/dashboard/widget_add.html'
+
+    def get(self, request):
+        initial = request.GET or {
+            'widget_class': 'extras.NoteWidget',
+        }
+        widget_form = DashboardWidgetAddForm(initial=initial)
+        widget_name = get_field_value(widget_form, 'widget_class')
+        widget_class = registry['widgets'][widget_name]
+        config_form = widget_class.ConfigForm(prefix='config')
+
+        if not is_htmx(request):
+            return redirect('home')
+
+        return render(request, self.template_name, {
+            'widget_form': widget_form,
+            'config_form': config_form,
+        })
+
+    def post(self, request):
+        widget_form = DashboardWidgetAddForm(request.POST)
+
+        if widget_form.is_valid():
+            widget_class = registry['widgets'][widget_form.cleaned_data['widget_class']]
+            config_form = widget_class.ConfigForm(request.POST, prefix='config')
+
+            if config_form.is_valid():
+                data = widget_form.cleaned_data
+                class_name = data.pop('widget_class')
+                data['config'] = config_form.cleaned_data
+                widget = widget_class(**data)
+                data['class'] = class_name
+                request.user.config.set(f'dashboard.widgets.{widget.id}', data)
+                request.user.config.get(f'dashboard.layout').append({
+                    'h': widget.height,
+                    'w': widget.width,
+                    'id': str(widget.id),
+                })
+                request.user.config.save()
+
+                response = HttpResponse()
+                response['HX-Redirect'] = reverse('home')
+                return response
+
+        return render(request, self.template_name, {
+            'widget_form': widget_form,
+            'config_form': config_form,
+        })
+
 
 class DashboardWidgetConfigView(LoginRequiredMixin, View):
     template_name = 'extras/dashboard/widget_config.html'

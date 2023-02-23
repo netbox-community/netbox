@@ -1,13 +1,33 @@
 from django import forms
+from django.urls import reverse_lazy
 
+from netbox.registry import registry
 from utilities.forms import BootstrapMixin
 
 __all__ = (
+    'DashboardWidgetAddForm',
     'DashboardWidgetForm',
 )
+
+
+def get_widget_choices():
+    return registry['widgets'].items()
 
 
 class DashboardWidgetForm(BootstrapMixin, forms.Form):
     title = forms.CharField(
         required=False
     )
+
+
+class DashboardWidgetAddForm(DashboardWidgetForm):
+    widget_class = forms.ChoiceField(
+        choices=get_widget_choices,
+        widget=forms.Select(
+            attrs={
+                'hx-get': reverse_lazy('extras:dashboardwidget_add'),
+                'hx-target': '#widget_add_form',
+            }
+        )
+    )
+    field_order = ('widget_class', 'title')

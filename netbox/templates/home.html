@@ -30,6 +30,15 @@
     {% endfor %}
   </div>
   <div class="text-end px-2">
+    <a href="#"
+      hx-get="{% url 'extras:dashboardwidget_add' %}"
+      hx-target="#htmx-modal-content"
+      data-bs-toggle="modal"
+      data-bs-target="#htmx-modal"
+      class="btn btn-success btn-sm"
+    >
+      <i class="mdi mdi-plus"></i> Add Widget
+    </a>
     <button id="save_dashboard" class="btn btn-primary btn-sm">
       <i class="mdi mdi-content-save-outline"></i> Save
     </button>
