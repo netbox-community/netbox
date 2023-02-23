@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
@@ -673,16 +673,20 @@ class JournalEntryBulkDeleteView(generic.BulkDeleteView):
 #
 
 class DashboardWidgetConfigView(LoginRequiredMixin, View):
-    template_name = 'extras/dashboardwidget_edit.html'
+    template_name = 'extras/dashboard/widget_config.html'
 
     def get(self, request, id):
         widget_class, config = get_widget_class_and_config(request.user, id)
         widget_form = DashboardWidgetForm(initial=config)
         config_form = widget_class.ConfigForm(initial=config.get('config'), prefix='config')
 
+        if not is_htmx(request):
+            return redirect('home')
+
         return render(request, self.template_name, {
             'widget_form': widget_form,
             'config_form': config_form,
+            'form_url': reverse('extras:dashboardwidget_config', kwargs={'id': id})
         })
 
     def post(self, request, id):
@@ -695,11 +699,14 @@ class DashboardWidgetConfigView(LoginRequiredMixin, View):
             data['config'] = config_form.cleaned_data
             request.user.config.set(f'dashboard.widgets.{id}', data, commit=True)
 
-            return redirect('home')
+            response = HttpResponse()
+            response['HX-Redirect'] = reverse('home')
+            return response
 
         return render(request, self.template_name, {
             'widget_form': widget_form,
             'config_form': config_form,
+            'form_url': reverse('extras:dashboardwidget_config', kwargs={'id': id})
         })
 
 
