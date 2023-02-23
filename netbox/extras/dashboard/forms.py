@@ -2,7 +2,8 @@ from django import forms
 from django.urls import reverse_lazy
 
 from netbox.registry import registry
-from utilities.forms import BootstrapMixin
+from utilities.forms import BootstrapMixin, add_blank_choice
+from utilities.choices import ButtonColorChoices
 
 __all__ = (
     'DashboardWidgetAddForm',
@@ -17,6 +18,10 @@ def get_widget_choices():
 class DashboardWidgetForm(BootstrapMixin, forms.Form):
     title = forms.CharField(
         required=False
+    )
+    color = forms.ChoiceField(
+        choices=add_blank_choice(ButtonColorChoices),
+        required=False,
     )
 
 

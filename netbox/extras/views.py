@@ -689,6 +689,7 @@ class DashboardWidgetAddView(LoginRequiredMixin, View):
             return redirect('home')
 
         return render(request, self.template_name, {
+            'widget_class': widget_class,
             'widget_form': widget_form,
             'config_form': config_form,
         })
@@ -719,6 +720,7 @@ class DashboardWidgetAddView(LoginRequiredMixin, View):
                 return response
 
         return render(request, self.template_name, {
+            'widget_class': widget_class,
             'widget_form': widget_form,
             'config_form': config_form,
         })

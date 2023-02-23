@@ -7,7 +7,15 @@
   </div>
   <div class="modal-body">
     {% block form %}
-      {% render_form widget_form %}
+      {% render_field widget_form.widget_class %}
+      <div class="row mb-3">
+        <label class="col-sm-3 col-form-label text-lg-end">Description</label>
+        <div class="col">
+          <div class="form-control-plaintext">{{ widget_class.description|placeholder }}</div>
+        </div>
+      </div>
+      {% render_field widget_form.color %}
+      {% render_field widget_form.title %}
       {% render_form config_form %}
     {% endblock form %}
   </div>

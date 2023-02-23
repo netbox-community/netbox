@@ -3,7 +3,6 @@ import uuid
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin
@@ -27,7 +26,7 @@ def get_content_type_labels():
 
 
 class DashboardWidget:
-    title = None
+    default_title = None
     description = None
     width = 4
     height = 3
@@ -35,11 +34,11 @@ class DashboardWidget:
     class ConfigForm(forms.Form):
         pass
 
-    def __init__(self, id=None, title=None, config=None, width=None, height=None, x=None, y=None):
+    def __init__(self, id=None, title=None, color=None, config=None, width=None, height=None, x=None, y=None):
         self.id = id or uuid.uuid4()
         self.config = config or {}
-        if title:
-            self.title = title
+        self.title = title or self.default_title
+        self.color = color
         if width:
             self.width = width
         if height:
@@ -56,7 +55,7 @@ class DashboardWidget:
         self.y = grid_item.get('y')
 
     def render(self, request):
-        raise NotImplementedError("DashboardWidget subclasses must define a render() method.")
+        raise NotImplementedError(f"{self.__class__} must define a render() method.")
 
     @property
     def name(self):
@@ -66,11 +65,6 @@ class DashboardWidget:
 @register_widget
 class NoteWidget(DashboardWidget):
     description = _('Display some arbitrary custom content. Markdown is supported.')
-    default_content = """
-    <div class="d-flex justify-content-center align-items-center" style="height: 100%">
-      <div class="text-center text-muted">Empty</div>
-    </div>
-    """
 
     class ConfigForm(BootstrapMixin, forms.Form):
         content = forms.CharField(
@@ -78,14 +72,12 @@ class NoteWidget(DashboardWidget):
         )
 
     def render(self, request):
-        if content := self.config.get('content'):
-            return render_markdown(content)
-        return mark_safe(self.default_content)
+        return render_markdown(self.config.get('content'))
 
 
 @register_widget
 class ObjectCountsWidget(DashboardWidget):
-    title = _('Objects')
+    default_title = _('Objects')
     description = _('Display a set of NetBox models and the number of objects created for each type.')
     template_name = 'extras/dashboard/widgets/objectcounts.html'
 
@@ -109,10 +101,11 @@ class ObjectCountsWidget(DashboardWidget):
 
 @register_widget
 class ChangeLogWidget(DashboardWidget):
-    title = _('Change Log')
+    default_title = _('Change Log')
+    description = _('Display the most recent records from the global change log.')
+    template_name = 'extras/dashboard/widgets/changelog.html'
     width = 12
     height = 4
-    template_name = 'extras/dashboard/widgets/changelog.html'
 
     def render(self, request):
         return render_to_string(self.template_name, {})
