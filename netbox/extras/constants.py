@@ -12,9 +12,9 @@ DEFAULT_DASHBOARD = [
         'title': 'IPAM',
         'config': {
             'models': [
-                ContentType.objects.get_by_natural_key('ipam', 'aggregate').pk,
-                ContentType.objects.get_by_natural_key('ipam', 'prefix').pk,
-                ContentType.objects.get_by_natural_key('ipam', 'ipaddress').pk,
+                'ipam.aggregate',
+                'ipam.prefix',
+                'ipam.ipaddress',
             ]
         }
     },
@@ -25,9 +25,9 @@ DEFAULT_DASHBOARD = [
         'title': 'DCIM',
         'config': {
             'models': [
-                ContentType.objects.get_by_natural_key('dcim', 'site').pk,
-                ContentType.objects.get_by_natural_key('dcim', 'rack').pk,
-                ContentType.objects.get_by_natural_key('dcim', 'device').pk,
+                'dcim.site',
+                'dcim.rack',
+                'dcim.device',
             ]
         }
     },

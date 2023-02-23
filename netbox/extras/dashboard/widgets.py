@@ -7,8 +7,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin
-from utilities.forms.fields import ContentTypeMultipleChoiceField
 from utilities.templatetags.builtins.filters import render_markdown
+from utilities.utils import content_type_identifier, content_type_name
 from .utils import register_widget
 
 __all__ = (
@@ -17,6 +17,13 @@ __all__ = (
     'NoteWidget',
     'ObjectCountsWidget',
 )
+
+
+def get_content_type_labels():
+    return [
+        (content_type_identifier(ct), content_type_name(ct))
+        for ct in ContentType.objects.order_by('app_label', 'model')
+    ]
 
 
 class DashboardWidget:
@@ -83,18 +90,15 @@ class ObjectCountsWidget(DashboardWidget):
     template_name = 'extras/dashboard/widgets/objectcounts.html'
 
     class ConfigForm(BootstrapMixin, forms.Form):
-        # TODO: Track models by app label & name rather than ContentType ID
-        models = ContentTypeMultipleChoiceField(
-            queryset=ContentType.objects.all()
+        models = forms.MultipleChoiceField(
+            choices=get_content_type_labels
         )
-
-        def clean_models(self):
-            return [obj.pk for obj in self.cleaned_data['models']]
 
     def render(self, request):
         counts = []
         for content_type_id in self.config['models']:
-            model = ContentType.objects.get(pk=content_type_id).model_class()
+            app_label, model_name = content_type_id.split('.')
+            model = ContentType.objects.get_by_natural_key(app_label, model_name).model_class()
             object_count = model.objects.restrict(request.user, 'view').count
             counts.append((model, object_count))
 
