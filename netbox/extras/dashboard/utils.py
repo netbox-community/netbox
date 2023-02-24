@@ -2,6 +2,7 @@ import uuid
 
 from netbox.registry import registry
 from extras.constants import DEFAULT_DASHBOARD
+from extras.models import Dashboard
 
 __all__ = (
     'get_dashboard',
@@ -22,8 +23,8 @@ def register_widget(cls):
     return cls
 
 
-def get_widget_class_and_config(user, id):
-    config = dict(user.config.get(f'dashboard.widgets.{id}'))  # Copy to avoid mutating userconfig data
+def get_widget_class_and_config(dashboard, id):
+    config = dict(dashboard.config[id])  # Copy to avoid mutating userconfig data
     widget_class = registry['widgets'].get(config.pop('class'))
     return widget_class, config
 
@@ -32,16 +33,14 @@ def get_dashboard(user):
     """
     Return the dashboard layout for a given User.
     """
-    if not user.is_anonymous and user.config.get('dashboard'):
-        config = user.config.get('dashboard')
+    if not user.is_anonymous and hasattr(user, 'dashboard'):
+        dashboard = user.dashboard
     else:
-        config = get_default_dashboard_config()
-        if not user.is_anonymous:
-            user.config.set('dashboard', config, commit=True)
+        dashboard = get_default_dashboard_config()
 
     widgets = []
-    for grid_item in config['layout']:
-        widget_class, widget_config = get_widget_class_and_config(user, grid_item['id'])
+    for grid_item in dashboard.layout:
+        widget_class, widget_config = get_widget_class_and_config(dashboard, grid_item['id'])
         widget = widget_class(id=grid_item['id'], **widget_config)
         widget.set_layout(grid_item)
         widgets.append(widget)
@@ -50,23 +49,23 @@ def get_dashboard(user):
 
 
 def get_default_dashboard_config():
-    config = {
-        'layout': [],
-        'widgets': {},
-    }
+    dashboard = Dashboard(
+        layout=[],
+        config={}
+    )
     for widget in DEFAULT_DASHBOARD:
         id = str(uuid.uuid4())
-        config['layout'].append({
+        dashboard.layout.append({
             'id': id,
             'w': widget['width'],
             'h': widget['height'],
             'x': widget.get('x'),
             'y': widget.get('y'),
         })
-        config['widgets'][id] = {
+        dashboard.config[id] = {
             'class': widget['widget'],
             'title': widget.get('title'),
             'config': widget.get('config', {}),
         }
 
-    return config
+    return dashboard

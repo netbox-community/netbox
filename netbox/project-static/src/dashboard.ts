@@ -7,9 +7,7 @@ async function saveDashboardLayout(
   gridData: GridStackWidget[] | GridStackOptions,
 ): Promise<APIResponse<APIUserConfig>> {
   let data = {
-    dashboard: {
-      layout: gridData
-    },
+    layout: gridData
   }
   return await apiPatch<APIUserConfig>(url, data);
 }
@@ -24,7 +22,7 @@ export function initDashboard(): void {
     return;
   }
   gridSaveButton.addEventListener('click', () => {
-    const url = '/api/users/config/';
+    const url = '/api/extras/dashboard/';
     let gridData = grid.save(false);
     saveDashboardLayout(url, gridData).then(res => {
       if (hasError(res)) {

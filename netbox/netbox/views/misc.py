@@ -11,7 +11,6 @@ from packaging import version
 
 from extras.dashboard.utils import get_dashboard
 from netbox.forms import SearchForm
-from netbox.registry import registry
 from netbox.search import LookupTypes
 from netbox.search.backends import search_backend
 from netbox.tables import SearchTable

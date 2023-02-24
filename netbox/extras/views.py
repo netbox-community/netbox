@@ -707,13 +707,8 @@ class DashboardWidgetAddView(LoginRequiredMixin, View):
                 data['config'] = config_form.cleaned_data
                 widget = widget_class(**data)
                 data['class'] = class_name
-                request.user.config.set(f'dashboard.widgets.{widget.id}', data)
-                request.user.config.get(f'dashboard.layout').append({
-                    'h': widget.height,
-                    'w': widget.width,
-                    'id': str(widget.id),
-                })
-                request.user.config.save()
+                request.user.dashboard.add_widget(widget)
+                request.user.dashboard.save()
 
                 response = HttpResponse()
                 response['HX-Redirect'] = reverse('home')
@@ -730,7 +725,8 @@ class DashboardWidgetConfigView(LoginRequiredMixin, View):
     template_name = 'extras/dashboard/widget_config.html'
 
     def get(self, request, id):
-        widget_class, config = get_widget_class_and_config(request.user, id)
+        id = str(id)
+        widget_class, config = get_widget_class_and_config(request.user.dashboard, id)
         widget_form = DashboardWidgetForm(initial=config)
         config_form = widget_class.ConfigForm(initial=config.get('config'), prefix='config')
 
@@ -744,14 +740,16 @@ class DashboardWidgetConfigView(LoginRequiredMixin, View):
         })
 
     def post(self, request, id):
-        widget_class, config = get_widget_class_and_config(request.user, id)
+        id = str(id)
+        widget_class, config = get_widget_class_and_config(request.user.dashboard, id)
         widget_form = DashboardWidgetForm(request.POST)
         config_form = widget_class.ConfigForm(request.POST, prefix='config')
 
         if widget_form.is_valid() and config_form.is_valid():
             data = widget_form.cleaned_data
             data['config'] = config_form.cleaned_data
-            request.user.config.set(f'dashboard.widgets.{id}', data, commit=True)
+            request.user.dashboard.config[id].update(data)
+            request.user.dashboard.save()
 
             response = HttpResponse()
             response['HX-Redirect'] = reverse('home')
@@ -768,7 +766,8 @@ class DashboardWidgetDeleteView(LoginRequiredMixin, View):
     template_name = 'generic/object_delete.html'
 
     def get(self, request, id):
-        widget_class, config = get_widget_class_and_config(request.user, id)
+        id = str(id)
+        widget_class, config = get_widget_class_and_config(request.user.dashboard, id)
         widget = widget_class(**config)
         form = ConfirmationForm(initial=request.GET)
 
@@ -786,15 +785,12 @@ class DashboardWidgetDeleteView(LoginRequiredMixin, View):
         })
 
     def post(self, request, id):
+        id = str(id)
         form = ConfirmationForm(request.POST)
 
         if form.is_valid():
-            config = request.user.config
-            config.clear(f'dashboard.widgets.{id}')
-            config.set('dashboard.layout', [
-                item for item in config.get('dashboard.layout') if item['id'] != str(id)
-            ])
-            config.save()
+            request.user.dashboard.delete_widget(id)
+            request.user.dashboard.save()
             messages.success(request, f'Deleted widget {id}')
         else:
             messages.error(request, f'Error deleting widget: {form.errors[0]}')

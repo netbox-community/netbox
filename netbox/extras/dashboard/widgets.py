@@ -35,7 +35,7 @@ class DashboardWidget:
         pass
 
     def __init__(self, id=None, title=None, color=None, config=None, width=None, height=None, x=None, y=None):
-        self.id = id or uuid.uuid4()
+        self.id = id or str(uuid.uuid4())
         self.config = config or {}
         self.title = title or self.default_title
         self.color = color
@@ -59,7 +59,7 @@ class DashboardWidget:
 
     @property
     def name(self):
-        return f'{self.__class__.__module__}.{self.__class__.__name__}'
+        return f'{self.__class__.__module__.split(".")[0]}.{self.__class__.__name__}'
 
 
 @register_widget
