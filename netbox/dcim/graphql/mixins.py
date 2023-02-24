@@ -10,3 +10,11 @@ class CabledObjectMixin:
 
     def resolve_link_peers(self, info):
         return self.link_peers
+
+
+class PathEndpointMixin:
+    connected_endpoints = graphene.List('dcim.graphql.gfk_mixins.LinkPeerType')
+
+    def resolve_connected_endpoints(self, info):
+        # Handle empty values
+        return self.connected_endpoints or None
