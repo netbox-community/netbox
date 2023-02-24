@@ -236,15 +236,22 @@ class TableState {
   private toggleCaption(): void {
     const showEnabled = this.enabledButton.buttonState === 'show';
     const showDisabled = this.disabledButton.buttonState === 'show';
+    const showVirtual = this.virtualButton.buttonState === 'show';
 
-    if (showEnabled && !showDisabled) {
+    if (showEnabled && !showDisabled && !showVirtual) {
       this.captionText = 'Showing Enabled Interfaces';
-    } else if (showEnabled && showDisabled) {
+    } else if (showEnabled && showDisabled && !showVirtual) {
       this.captionText = 'Showing Enabled & Disabled Interfaces';
-    } else if (!showEnabled && showDisabled) {
+    } else if (!showEnabled && showDisabled && !showVirtual) {
       this.captionText = 'Showing Disabled Interfaces';
-    } else if (!showEnabled && !showDisabled) {
-      this.captionText = 'Hiding Enabled & Disabled Interfaces';
+    } else if (!showEnabled && !showDisabled && !showVirtual) {
+      this.captionText = 'Hiding Enabled, Disabled & Virtual Interfaces';
+    } else if (!showEnabled && !showDisabled && showVirtual) {
+      this.captionText = 'Showing Virtual Interfaces';
+    } else if (showEnabled && !showDisabled && showVirtual) {
+      this.captionText = 'Showing Enabled & Virtual Interfaces';
+    } else if (showEnabled && showDisabled && showVirtual) {
+      this.captionText = 'Showing Enabled, Disabled & Virtual Interfaces';
     } else {
       this.captionText = '';
     }
