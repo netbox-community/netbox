@@ -22,7 +22,10 @@ export function initDashboard(): void {
     return;
   }
   gridSaveButton.addEventListener('click', () => {
-    const url = '/api/extras/dashboard/';
+    const url = gridSaveButton.getAttribute('data-url');
+    if (url == null) {
+      return;
+    }
     let gridData = grid.save(false);
     saveDashboardLayout(url, gridData).then(res => {
       if (hasError(res)) {
