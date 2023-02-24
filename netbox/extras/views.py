@@ -10,7 +10,7 @@ from django_rq.queues import get_connection
 from rq import Worker
 
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
-from netbox.registry import registry
+from extras.dashboard.utils import get_widget_class
 from netbox.views import generic
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import is_htmx
@@ -676,16 +676,16 @@ class DashboardWidgetAddView(LoginRequiredMixin, View):
     template_name = 'extras/dashboard/widget_add.html'
 
     def get(self, request):
+        if not is_htmx(request):
+            return redirect('home')
+
         initial = request.GET or {
             'widget_class': 'extras.NoteWidget',
         }
         widget_form = DashboardWidgetAddForm(initial=initial)
         widget_name = get_field_value(widget_form, 'widget_class')
-        widget_class = registry['widgets'][widget_name]
+        widget_class = get_widget_class(widget_name)
         config_form = widget_class.ConfigForm(prefix='config')
-
-        if not is_htmx(request):
-            return redirect('home')
 
         return render(request, self.template_name, {
             'widget_class': widget_class,
@@ -695,23 +695,25 @@ class DashboardWidgetAddView(LoginRequiredMixin, View):
 
     def post(self, request):
         widget_form = DashboardWidgetAddForm(request.POST)
+        config_form = None
+        widget_class = None
 
         if widget_form.is_valid():
-            widget_class = registry['widgets'][widget_form.cleaned_data['widget_class']]
+            widget_class = get_widget_class(widget_form.cleaned_data['widget_class'])
             config_form = widget_class.ConfigForm(request.POST, prefix='config')
 
             if config_form.is_valid():
                 data = widget_form.cleaned_data
-                class_name = data.pop('widget_class')
+                data.pop('widget_class')
                 data['config'] = config_form.cleaned_data
                 widget = widget_class(**data)
-                data['class'] = class_name
                 request.user.dashboard.add_widget(widget)
                 request.user.dashboard.save()
+                messages.success(request, f'Added widget {widget.id}')
 
-                response = HttpResponse()
-                response['HX-Redirect'] = reverse('home')
-                return response
+                return HttpResponse(headers={
+                    'HX-Redirect': reverse('home'),
+                })
 
         return render(request, self.template_name, {
             'widget_class': widget_class,
@@ -724,12 +726,12 @@ class DashboardWidgetConfigView(LoginRequiredMixin, View):
     template_name = 'extras/dashboard/widget_config.html'
 
     def get(self, request, id):
+        if not is_htmx(request):
+            return redirect('home')
+
         widget = request.user.dashboard.get_widget(id)
         widget_form = DashboardWidgetForm(initial=widget.form_data)
         config_form = widget.ConfigForm(initial=widget.form_data.get('config'), prefix='config')
-
-        if not is_htmx(request):
-            return redirect('home')
 
         return render(request, self.template_name, {
             'widget_form': widget_form,
@@ -745,14 +747,13 @@ class DashboardWidgetConfigView(LoginRequiredMixin, View):
         if widget_form.is_valid() and config_form.is_valid():
             data = widget_form.cleaned_data
             data['config'] = config_form.cleaned_data
-            print(request.user.dashboard.config)
-            print(data)
             request.user.dashboard.config[str(id)].update(data)
             request.user.dashboard.save()
+            messages.success(request, f'Updated widget {widget.id}')
 
-            response = HttpResponse()
-            response['HX-Redirect'] = reverse('home')
-            return response
+            return HttpResponse(headers={
+                'HX-Redirect': reverse('home'),
+            })
 
         return render(request, self.template_name, {
             'widget_form': widget_form,
@@ -765,20 +766,17 @@ class DashboardWidgetDeleteView(LoginRequiredMixin, View):
     template_name = 'generic/object_delete.html'
 
     def get(self, request, id):
+        if not is_htmx(request):
+            return redirect('home')
+
         widget = request.user.dashboard.get_widget(id)
         form = ConfirmationForm(initial=request.GET)
 
-        # If this is an HTMX request, return only the rendered deletion form as modal content
-        if is_htmx(request):
-            return render(request, 'htmx/delete_form.html', {
-                'object_type': widget.__class__.__name__,
-                'object': widget,
-                'form': form,
-                'form_url': reverse('extras:dashboardwidget_delete', kwargs={'id': id})
-            })
-
-        return render(request, self.template_name, {
+        return render(request, 'htmx/delete_form.html', {
+            'object_type': widget.__class__.__name__,
+            'object': widget,
             'form': form,
+            'form_url': reverse('extras:dashboardwidget_delete', kwargs={'id': id})
         })
 
     def post(self, request, id):

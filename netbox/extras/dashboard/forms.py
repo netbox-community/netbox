@@ -35,4 +35,4 @@ class DashboardWidgetAddForm(DashboardWidgetForm):
             }
         )
     )
-    field_order = ('widget_class', 'title')
+    field_order = ('widget_class', 'title', 'color')
