@@ -34,6 +34,7 @@ __all__ = (
     'ContentTypeSerializer',
     'CustomFieldSerializer',
     'CustomLinkSerializer',
+    'DashboardSerializer',
     'ExportTemplateSerializer',
     'ImageAttachmentSerializer',
     'JobResultSerializer',
@@ -563,3 +564,13 @@ class ContentTypeSerializer(BaseModelSerializer):
     class Meta:
         model = ContentType
         fields = ['id', 'url', 'display', 'app_label', 'model']
+
+
+#
+# User dashboard
+#
+
+class DashboardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dashboard
+        fields = ('layout', 'config')

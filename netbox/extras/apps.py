@@ -5,4 +5,4 @@ class ExtrasConfig(AppConfig):
     name = "extras"
 
     def ready(self):
-        from . import lookups, search, signals
+        from . import dashboard, lookups, search, signals

@@ -87,6 +87,11 @@ urlpatterns = [
     path('changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),
     path('changelog/<int:pk>/', include(get_model_urls('extras', 'objectchange'))),
 
+    # User dashboard
+    path('dashboard/widgets/add/', views.DashboardWidgetAddView.as_view(), name='dashboardwidget_add'),
+    path('dashboard/widgets/<uuid:id>/configure/', views.DashboardWidgetConfigView.as_view(), name='dashboardwidget_config'),
+    path('dashboard/widgets/<uuid:id>/delete/', views.DashboardWidgetDeleteView.as_view(), name='dashboardwidget_delete'),
+
     # Reports
     path('reports/', views.ReportListView.as_view(), name='report_list'),
     path('reports/results/<int:job_result_pk>/', views.ReportResultView.as_view(), name='report_result'),
