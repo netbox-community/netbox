@@ -41,8 +41,6 @@ class DeviceIndex(SearchIndex):
         ('asset_tag', 50),
         ('serial', 60),
         ('name', 100),
-        ('primary_ip4', 110),
-        ('primary_ip6', 110),
         ('description', 500),
         ('comments', 5000),
     )
