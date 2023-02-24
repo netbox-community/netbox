@@ -51,7 +51,6 @@ class DataSourceForm(NetBoxModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         # Determine the selected backend type
         backend_type = get_field_value(self, 'type')
         backend = registry['data_backends'].get(backend_type)

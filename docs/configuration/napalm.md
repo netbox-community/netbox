@@ -1,5 +1,7 @@
 # NAPALM Parameters
 
+!!! **Note:** As of NetBox v3.5, NAPALM integration has been moved to a plugin and these configuration parameters are now deprecated.
+
 ## NAPALM_USERNAME
 
 ## NAPALM_PASSWORD

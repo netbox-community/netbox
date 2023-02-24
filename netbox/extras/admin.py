@@ -35,10 +35,6 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
             'fields': ('CUSTOM_VALIDATORS',),
             'classes': ('monospace',),
         }),
-        ('NAPALM', {
-            'fields': ('NAPALM_USERNAME', 'NAPALM_PASSWORD', 'NAPALM_TIMEOUT', 'NAPALM_ARGS'),
-            'classes': ('monospace',),
-        }),
         ('User Preferences', {
             'fields': ('DEFAULT_USER_PREFERENCES',),
         }),

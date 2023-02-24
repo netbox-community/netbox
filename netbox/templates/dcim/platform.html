@@ -43,20 +43,10 @@
             <th scope="row">Config Template</th>
             <td>{{ object.config_template|linkify|placeholder }}</td>
           </tr>
-          <tr>
-            <th scope="row">NAPALM Driver</th>
-            <td>{{ object.napalm_driver|placeholder }}</td>
-          </tr>
         </table>
       </div>
     </div>
     {% include 'inc/panels/tags.html' %}
-    <div class="card">
-      <h5 class="card-header">NAPALM Arguments</h5>
-      <div class="card-body">
-        <pre>{{ object.napalm_args|json }}</pre>
-      </div>
-    </div>
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
