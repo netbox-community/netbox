@@ -61,6 +61,14 @@ class DashboardWidget:
     def name(self):
         return f'{self.__class__.__module__.split(".")[0]}.{self.__class__.__name__}'
 
+    @property
+    def form_data(self):
+        return {
+            'title': self.title,
+            'color': self.color,
+            'config': self.config,
+        }
+
 
 @register_widget
 class NoteWidget(DashboardWidget):

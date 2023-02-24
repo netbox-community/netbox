@@ -32,8 +32,8 @@ class HomeView(View):
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
             return redirect('login')
 
-        # Build custom dashboard from user's config
-        widgets = get_dashboard(request.user)
+        # Construct the user's custom dashboard layout
+        dashboard = get_dashboard(request.user).get_layout()
 
         # Check whether a new release is available. (Only for staff/superusers.)
         new_release = None
@@ -48,7 +48,7 @@ class HomeView(View):
                     }
 
         return render(request, self.template_name, {
-            'widgets': widgets,
+            'dashboard': dashboard,
             'new_release': new_release,
         })
 

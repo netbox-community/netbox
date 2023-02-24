@@ -10,7 +10,6 @@ from django_rq.queues import get_connection
 from rq import Worker
 
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
-from extras.dashboard.utils import get_widget_class_and_config
 from netbox.registry import registry
 from netbox.views import generic
 from utilities.forms import ConfirmationForm, get_field_value
@@ -725,10 +724,9 @@ class DashboardWidgetConfigView(LoginRequiredMixin, View):
     template_name = 'extras/dashboard/widget_config.html'
 
     def get(self, request, id):
-        id = str(id)
-        widget_class, config = get_widget_class_and_config(request.user.dashboard, id)
-        widget_form = DashboardWidgetForm(initial=config)
-        config_form = widget_class.ConfigForm(initial=config.get('config'), prefix='config')
+        widget = request.user.dashboard.get_widget(id)
+        widget_form = DashboardWidgetForm(initial=widget.form_data)
+        config_form = widget.ConfigForm(initial=widget.form_data.get('config'), prefix='config')
 
         if not is_htmx(request):
             return redirect('home')
@@ -740,15 +738,16 @@ class DashboardWidgetConfigView(LoginRequiredMixin, View):
         })
 
     def post(self, request, id):
-        id = str(id)
-        widget_class, config = get_widget_class_and_config(request.user.dashboard, id)
+        widget = request.user.dashboard.get_widget(id)
         widget_form = DashboardWidgetForm(request.POST)
-        config_form = widget_class.ConfigForm(request.POST, prefix='config')
+        config_form = widget.ConfigForm(request.POST, prefix='config')
 
         if widget_form.is_valid() and config_form.is_valid():
             data = widget_form.cleaned_data
             data['config'] = config_form.cleaned_data
-            request.user.dashboard.config[id].update(data)
+            print(request.user.dashboard.config)
+            print(data)
+            request.user.dashboard.config[str(id)].update(data)
             request.user.dashboard.save()
 
             response = HttpResponse()
@@ -766,15 +765,13 @@ class DashboardWidgetDeleteView(LoginRequiredMixin, View):
     template_name = 'generic/object_delete.html'
 
     def get(self, request, id):
-        id = str(id)
-        widget_class, config = get_widget_class_and_config(request.user.dashboard, id)
-        widget = widget_class(**config)
+        widget = request.user.dashboard.get_widget(id)
         form = ConfirmationForm(initial=request.GET)
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
         if is_htmx(request):
             return render(request, 'htmx/delete_form.html', {
-                'object_type': widget_class.__name__,
+                'object_type': widget.__class__.__name__,
                 'object': widget,
                 'form': form,
                 'form_url': reverse('extras:dashboardwidget_delete', kwargs={'id': id})
@@ -785,7 +782,6 @@ class DashboardWidgetDeleteView(LoginRequiredMixin, View):
         })
 
     def post(self, request, id):
-        id = str(id)
         form = ConfirmationForm(request.POST)
 
         if form.is_valid():

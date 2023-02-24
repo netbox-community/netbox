@@ -25,7 +25,7 @@
 {% block content-wrapper %}
   {# Render the user's customized dashboard #}
   <div class="grid-stack">
-    {% for widget in widgets %}
+    {% for widget in dashboard %}
       {% include 'extras/dashboard/widget.html' %}
     {% endfor %}
   </div>

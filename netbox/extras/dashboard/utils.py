@@ -1,13 +1,14 @@
 import uuid
 
+from django.core.exceptions import ObjectDoesNotExist
+
 from netbox.registry import registry
 from extras.constants import DEFAULT_DASHBOARD
-from extras.models import Dashboard
 
 __all__ = (
     'get_dashboard',
-    'get_default_dashboard_config',
-    'get_widget_class_and_config',
+    'get_default_dashboard',
+    'get_widget_class',
     'register_widget',
 )
 
@@ -23,32 +24,36 @@ def register_widget(cls):
     return cls
 
 
-def get_widget_class_and_config(dashboard, id):
-    config = dict(dashboard.config[id])  # Copy to avoid mutating userconfig data
-    widget_class = registry['widgets'].get(config.pop('class'))
-    return widget_class, config
+def get_widget_class(name):
+    """
+    Return a registered DashboardWidget class identified by its name.
+    """
+    try:
+        return registry['widgets'][name]
+    except KeyError:
+        raise ValueError(f"Unregistered widget class: {name}")
 
 
 def get_dashboard(user):
     """
-    Return the dashboard layout for a given User.
+    Return the Dashboard for a given User if one exists, or generate a default dashboard.
     """
-    if not user.is_anonymous and hasattr(user, 'dashboard'):
-        dashboard = user.dashboard
+    if user.is_anonymous:
+        dashboard = get_default_dashboard()
     else:
-        dashboard = get_default_dashboard_config()
+        try:
+            dashboard = user.dashboard
+        except ObjectDoesNotExist:
+            # Create a dashboard for this user
+            dashboard = get_default_dashboard()
+            dashboard.user = user
+            dashboard.save()
 
-    widgets = []
-    for grid_item in dashboard.layout:
-        widget_class, widget_config = get_widget_class_and_config(dashboard, grid_item['id'])
-        widget = widget_class(id=grid_item['id'], **widget_config)
-        widget.set_layout(grid_item)
-        widgets.append(widget)
-
-    return widgets
+    return dashboard
 
 
-def get_default_dashboard_config():
+def get_default_dashboard():
+    from extras.models import Dashboard
     dashboard = Dashboard(
         layout=[],
         config={}
