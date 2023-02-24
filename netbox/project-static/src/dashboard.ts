@@ -14,7 +14,9 @@ async function saveDashboardLayout(
 
 export function initDashboard(): void {
   // Initialize the grid
-  let grid = GridStack.init();
+  let grid = GridStack.init({
+    cellHeight: 100,
+  });
 
   // Create a listener for the dashboard save button
   const gridSaveButton = document.getElementById('save_dashboard') as HTMLButtonElement;
