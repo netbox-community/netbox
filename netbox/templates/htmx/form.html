@@ -17,7 +17,7 @@
       {% endif %}
       {% for name in fields %}
         {% with field=form|getfield:name %}
-          {% if not field.field.widget.is_hidden %}
+          {% if field and not field.field.widget.is_hidden %}
             {% render_field field %}
           {% endif %}
         {% endwith %}

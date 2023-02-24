@@ -14,13 +14,13 @@ from .registration import *
 from .templates import *
 
 # Initialize plugin registry
-registry['plugins'] = {
+registry['plugins'].update({
     'graphql_schemas': [],
     'menus': [],
     'menu_items': {},
     'preferences': {},
     'template_extensions': collections.defaultdict(list),
-}
+})
 
 DEFAULT_RESOURCE_PATHS = {
     'search_indexes': 'search.indexes',

@@ -18,7 +18,7 @@ class NetBoxSwaggerAutoSchema(SwaggerAutoSchema):
         if not operation_id:
             # Overwrite the action for bulk update/bulk delete views to ensure they get an operation ID that's
             # unique from their single-object counterparts (see #3436)
-            if operation_keys[-1] in ('delete', 'partial_update', 'update') and not self.view.detail:
+            if operation_keys[-1] in ('delete', 'partial_update', 'update') and not getattr(self.view, 'detail', None):
                 operation_keys[-1] = f'bulk_{operation_keys[-1]}'
             operation_id = '_'.join(operation_keys)
 

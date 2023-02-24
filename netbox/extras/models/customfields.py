@@ -1,6 +1,6 @@
+import decimal
 import re
 from datetime import datetime, date
-import decimal
 
 import django_filters
 from django import forms
@@ -20,13 +20,14 @@ from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from netbox.search import FieldTypes
 from utilities import filters
-from utilities.forms import (
-    CSVChoiceField, CSVMultipleChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    JSONField, LaxURLField, add_blank_choice,
+from utilities.forms.fields import (
+    CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, JSONField, LaxURLField,
 )
+from utilities.forms.utils import add_blank_choice
+from utilities.forms.widgets import DatePicker
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
-
 
 __all__ = (
     'CustomField',
@@ -409,7 +410,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         # Object
         elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             model = self.object_type.model_class()
-            field = DynamicModelChoiceField(
+            field_class = CSVModelChoiceField if for_csv_import else DynamicModelChoiceField
+            field = field_class(
                 queryset=model.objects.all(),
                 required=required,
                 initial=initial
@@ -418,10 +420,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         # Multiple objects
         elif self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             model = self.object_type.model_class()
-            field = DynamicModelMultipleChoiceField(
+            field_class = CSVModelMultipleChoiceField if for_csv_import else DynamicModelMultipleChoiceField
+            field = field_class(
                 queryset=model.objects.all(),
                 required=required,
-                initial=initial
+                initial=initial,
             )
 
         # Text

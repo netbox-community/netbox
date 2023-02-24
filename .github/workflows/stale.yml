@@ -24,7 +24,7 @@ jobs:
             necessary.
           close-pr-message: >
             This PR has been automatically closed due to lack of activity.
-          days-before-stale: 60
+          days-before-stale: 90
           days-before-close: 30
           exempt-issue-labels: 'status: accepted,status: blocked,status: needs milestone'
           operations-per-run: 100

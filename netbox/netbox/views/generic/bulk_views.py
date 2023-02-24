@@ -389,8 +389,8 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 'data': record,
                 'instance': instance,
             }
-            if form.cleaned_data['format'] == ImportFormatChoices.CSV:
-                model_form_kwargs['headers'] = form._csv_headers
+            if hasattr(form, '_csv_headers'):
+                model_form_kwargs['headers'] = form._csv_headers  # Add CSV headers
             model_form = self.model_form(**model_form_kwargs)
 
             # When updating, omit all form fields other than those specified in the record. (No

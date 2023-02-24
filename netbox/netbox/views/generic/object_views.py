@@ -431,6 +431,12 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         form = self.initialize_form(request)
         instance = self.alter_object(self.queryset.model(), request)
 
+        # If this is an HTMX request, return only the rendered form HTML
+        if is_htmx(request):
+            return render(request, 'htmx/form.html', {
+                'form': form,
+            })
+
         return render(request, self.template_name, {
             'object': instance,
             'form': form,
@@ -441,6 +447,10 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         logger = logging.getLogger('netbox.views.ComponentCreateView')
         form = self.initialize_form(request)
         instance = self.alter_object(self.queryset.model(), request)
+
+        # Note that the form instance is a replicated field base
+        # This is needed to avoid running custom validators multiple times
+        form.instance._replicated_base = hasattr(self.form, "replication_fields")
 
         if form.is_valid():
             new_components = []

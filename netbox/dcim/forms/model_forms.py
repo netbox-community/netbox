@@ -452,7 +452,6 @@ class PlatformForm(NetBoxModelForm):
     fieldsets = (
         ('Platform', (
             'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
-
         )),
     )
 
@@ -1364,6 +1363,13 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         ]
         widgets = {
             'speed': SelectSpeedWidget(),
+            'mode': forms.Select(
+                attrs={
+                    'hx-get': '.',
+                    'hx-include': '#form_fields input',
+                    'hx-target': '#form_fields',
+                }
+            ),
         }
         labels = {
             'mode': '802.1Q Mode',

@@ -5,6 +5,8 @@
 
 {% block content %}
     <form action="" method="post" enctype="multipart/form-data" class="form-object-edit">
+        {% render_errors membership_form %}
+        
         {% csrf_token %}
         <div class="card">
             <h5 class="card-header">Add New Member</h5>

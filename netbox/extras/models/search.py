@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from utilities.fields import RestrictedGenericForeignKey
+from ..fields import CachedValueField
 
 __all__ = (
     'CachedValue',
@@ -36,7 +37,7 @@ class CachedValue(models.Model):
     type = models.CharField(
         max_length=30
     )
-    value = models.TextField()
+    value = CachedValueField()
     weight = models.PositiveSmallIntegerField(
         default=1000
     )

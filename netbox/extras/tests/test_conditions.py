@@ -126,6 +126,16 @@ class ConditionSetTest(TestCase):
         with self.assertRaises(ValueError):
             ConditionSet({'foo': []})
 
+    def test_null_value(self):
+        cs = ConditionSet({
+            'and': [
+                {'attr': 'a', 'value': None, 'op': 'eq', 'negate': True},
+            ]
+        })
+        self.assertFalse(cs.eval({'a': None}))
+        self.assertTrue(cs.eval({'a': "string"}))
+        self.assertTrue(cs.eval({'a': {"key": "value"}}))
+
     def test_and_single_depth(self):
         cs = ConditionSet({
             'and': [
