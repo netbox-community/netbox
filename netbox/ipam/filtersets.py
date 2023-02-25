@@ -192,6 +192,16 @@ class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label=_('RIR (slug)'),
     )
+    range_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ASNRange.objects.all(),
+        label=_('Range (ID)'),
+    )
+    range = django_filters.ModelMultipleChoiceFilter(
+        field_name='range__slug',
+        queryset=ASNRange.objects.all(),
+        to_field_name='slug',
+        label=_('Range (slug)'),
+    )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='sites',
         queryset=Site.objects.all(),

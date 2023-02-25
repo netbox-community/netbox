@@ -106,7 +106,7 @@ class ASNRange(OrganizationalModel):
         verbose_name_plural = 'ASN ranges'
 
     def __str__(self):
-        return f'ASNs {self.range_as_string()}'
+        return f'{self.name} ({self.range_as_string()})'
 
     def get_absolute_url(self):
         return reverse('ipam:asnrange', args=[self.pk])

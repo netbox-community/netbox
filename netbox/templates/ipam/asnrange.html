@@ -46,6 +46,13 @@
   </div>
   <div class="row">
     <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">ASNs</h5>
+        <div class="card-body htmx-container table-responsive"
+          hx-get="{% url 'ipam:asn_list' %}?range_id={{ object.pk }}"
+          hx-trigger="load"
+        ></div>
+      </div>
       {% plugin_full_width_page object %}
     </div>
   </div>

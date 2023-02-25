@@ -38,6 +38,7 @@ class ASNRangeSerializer(NetBoxModelSerializer):
 
 class ASNSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
+    range = NestedASNRangeSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     site_count = serializers.IntegerField(read_only=True)
     provider_count = serializers.IntegerField(read_only=True)
@@ -45,7 +46,7 @@ class ASNSerializer(NetBoxModelSerializer):
     class Meta:
         model = ASN
         fields = [
-            'id', 'url', 'display', 'asn', 'rir', 'tenant', 'description', 'comments', 'tags', 'custom_fields',
+            'id', 'url', 'display', 'asn', 'rir', 'range', 'tenant', 'description', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated', 'site_count', 'provider_count',
         ]
 

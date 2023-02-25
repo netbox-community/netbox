@@ -107,6 +107,11 @@ class ASNImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Assigned RIR')
     )
+    range = CSVModelChoiceField(
+        queryset=ASNRange.objects.all(),
+        to_field_name='name',
+        help_text=_('ASN range')
+    )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -116,7 +121,7 @@ class ASNImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = ASN
-        fields = ('asn', 'rir', 'tenant', 'description', 'comments', 'tags')
+        fields = ('asn', 'rir', 'range', 'tenant', 'description', 'comments', 'tags')
 
 
 class RoleImportForm(NetBoxModelImportForm):

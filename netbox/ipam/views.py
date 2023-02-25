@@ -213,7 +213,7 @@ class ASNRangeView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         related_models = (
-            (ASN.objects.restrict(request.user, 'view').filter(range=instance), 'asn_id'),
+            (ASN.objects.restrict(request.user, 'view').filter(range=instance), 'range_id'),
         )
 
         return {
