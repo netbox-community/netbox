@@ -1,8 +1,9 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from dcim.fields import ASNField
+from ipam.fields import ASNField
 from netbox.models import PrimaryModel
 
 __all__ = (
