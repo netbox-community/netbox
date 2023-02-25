@@ -51,6 +51,22 @@ class ASNSerializer(NetBoxModelSerializer):
         ]
 
 
+class AvailableASNSerializer(serializers.Serializer):
+    """
+    Representation of an ASN which does not exist in the database.
+    """
+    asn = serializers.IntegerField(read_only=True)
+
+    def to_representation(self, asn):
+        range = NestedASNRangeSerializer(self.context['range'], context={
+            'request': self.context['request']
+        }).data
+        return {
+            'range': range,
+            'asn': asn,
+        }
+
+
 #
 # VRFs
 #

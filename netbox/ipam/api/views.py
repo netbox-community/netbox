@@ -209,6 +209,71 @@ def get_results_limit(request):
     return limit
 
 
+class AvailableASNsView(ObjectValidationMixin, APIView):
+    queryset = ASN.objects.all()
+
+    @swagger_auto_schema(responses={200: serializers.AvailableASNSerializer(many=True)})
+    def get(self, request, pk):
+        asnrange = get_object_or_404(ASNRange.objects.restrict(request.user), pk=pk)
+        limit = get_results_limit(request)
+
+        available_asns = asnrange.get_available_asns()[:limit]
+
+        serializer = serializers.AvailableASNSerializer(available_asns, many=True, context={
+            'request': request,
+            'range': asnrange,
+        })
+
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        request_body=serializers.AvailableASNSerializer,
+        responses={201: serializers.ASNSerializer(many=True)}
+    )
+    @advisory_lock(ADVISORY_LOCK_KEYS['available-asns'])
+    def post(self, request, pk):
+        self.queryset = self.queryset.restrict(request.user, 'add')
+        asnrange = get_object_or_404(ASNRange.objects.restrict(request.user), pk=pk)
+
+        # Normalize to a list of objects
+        requested_asns = request.data if isinstance(request.data, list) else [request.data]
+
+        # Determine if the requested number of IPs is available
+        available_asns = asnrange.get_available_asns()
+        if len(available_asns) < len(requested_asns):
+            return Response(
+                {
+                    "detail": f"An insufficient number of ASNs are available within {asnrange} "
+                              f"({len(requested_asns)} requested, {len(available_asns)} available)"
+                },
+                status=status.HTTP_409_CONFLICT
+            )
+
+        # Assign ASNs from the list of available IPs and copy VRF assignment from the parent
+        for i, requested_asn in enumerate(requested_asns):
+            requested_asn['asn'] = available_asns[i]
+            requested_asn['range'] = asnrange.pk
+
+        # Initialize the serializer with a list or a single object depending on what was requested
+        context = {'request': request}
+        if isinstance(request.data, list):
+            serializer = serializers.ASNSerializer(data=requested_asns, many=True, context=context)
+        else:
+            serializer = serializers.ASNSerializer(data=requested_asns[0], context=context)
+
+        # Create the new IP address(es)
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    created = serializer.save()
+                    self._validate_objects(created)
+            except ObjectDoesNotExist:
+                raise PermissionDenied()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class AvailablePrefixesView(ObjectValidationMixin, APIView):
     queryset = Prefix.objects.all()
 

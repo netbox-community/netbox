@@ -30,6 +30,11 @@ app_name = 'ipam-api'
 
 urlpatterns = [
     path(
+        'asn-ranges/<int:pk>/available-asns/',
+        views.AvailableASNsView.as_view(),
+        name='asnrange-available-asns'
+    ),
+    path(
         'ip-ranges/<int:pk>/available-ips/',
         views.IPRangeAvailableIPAddressesView.as_view(),
         name='iprange-available-ips'
