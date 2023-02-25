@@ -2,7 +2,7 @@ import SlimSelect from 'slim-select';
 import { getElements } from '../util';
 
 export function initStaticSelect(): void {
-  for (const select of getElements<HTMLSelectElement>('.netbox-static-select')) {
+  for (const select of getElements<HTMLSelectElement>('.netbox-static-select:not([data-ssid])')) {
     if (select !== null) {
       const label = document.querySelector(`label[for="${select.id}"]`) as HTMLLabelElement;
 

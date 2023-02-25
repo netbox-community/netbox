@@ -13,6 +13,12 @@ async function saveDashboardLayout(
 }
 
 export function initDashboard(): void {
+  // Exit if this page does not contain a dashboard
+  const dashboard = document.getElementById('dashboard') as Nullable<HTMLDivElement>;
+  if (dashboard == null) {
+    return;
+  }
+
   // Initialize the grid
   let grid = GridStack.init({
     cellHeight: 100,
