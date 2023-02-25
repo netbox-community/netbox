@@ -7,16 +7,15 @@ from django.utils.translation import gettext as _
 
 from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
-from dcim.models import Interface, Site, Device
+from dcim.models import Interface, Site
 from netbox.views import generic
 from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
-from virtualization.models import VMInterface, VirtualMachine
+from virtualization.models import VMInterface
 from . import filtersets, forms, tables
 from .constants import *
 from .models import *
-from .models import ASN
 from .tables.l2vpn import L2VPNTable, L2VPNTerminationTable
 from .utils import add_requested_prefixes, add_available_ipaddresses, add_available_vlans
 
@@ -193,6 +192,67 @@ class RIRBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.RIRFilterSet
     table = tables.RIRTable
+
+
+#
+# ASN ranges
+#
+
+class ASNRangeListView(generic.ObjectListView):
+    queryset = ASNRange.objects.annotate(
+        asn_count=count_related(ASN, 'range'),
+    )
+    filterset = filtersets.ASNRangeFilterSet
+    filterset_form = forms.ASNRangeFilterForm
+    table = tables.ASNRangeTable
+
+
+@register_model_view(ASNRange)
+class ASNRangeView(generic.ObjectView):
+    queryset = ASNRange.objects.all()
+
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (ASN.objects.restrict(request.user, 'view').filter(range=instance), 'asn_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
+
+
+@register_model_view(ASNRange, 'edit')
+class ASNRangeEditView(generic.ObjectEditView):
+    queryset = ASNRange.objects.all()
+    form = forms.ASNRangeForm
+
+
+@register_model_view(ASNRange, 'delete')
+class ASNRangeDeleteView(generic.ObjectDeleteView):
+    queryset = ASNRange.objects.all()
+
+
+class ASNRangeBulkImportView(generic.BulkImportView):
+    queryset = ASNRange.objects.all()
+    model_form = forms.ASNRangeImportForm
+    table = tables.ASNRangeTable
+
+
+class ASNRangeBulkEditView(generic.BulkEditView):
+    queryset = ASNRange.objects.annotate(
+        site_count=count_related(Site, 'asns')
+    )
+    filterset = filtersets.ASNRangeFilterSet
+    table = tables.ASNRangeTable
+    form = forms.ASNRangeBulkEditForm
+
+
+class ASNRangeBulkDeleteView(generic.BulkDeleteView):
+    queryset = ASNRange.objects.annotate(
+        site_count=count_related(Site, 'asns')
+    )
+    filterset = filtersets.ASNRangeFilterSet
+    table = tables.ASNRangeTable
 
 
 #

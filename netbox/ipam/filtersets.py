@@ -20,6 +20,7 @@ from .models import *
 __all__ = (
     'AggregateFilterSet',
     'ASNFilterSet',
+    'ASNRangeFilterSet',
     'FHRPGroupAssignmentFilterSet',
     'FHRPGroupFilterSet',
     'IPAddressFilterSet',
@@ -165,6 +166,19 @@ class AggregateFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
             return queryset.filter(prefix=query)
         except (AddrFormatError, ValueError):
             return queryset.none()
+
+
+class ASNRangeFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
+
+    class Meta:
+        model = ASNRange
+        fields = ['id', 'start', 'end', 'description']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(description__icontains=value)
+        return queryset.filter(qs_filter)
 
 
 class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):

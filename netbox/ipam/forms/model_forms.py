@@ -20,6 +20,7 @@ from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInter
 __all__ = (
     'AggregateForm',
     'ASNForm',
+    'ASNRangeForm',
     'FHRPGroupForm',
     'FHRPGroupAssignmentForm',
     'IPAddressAssignForm',
@@ -126,6 +127,20 @@ class AggregateForm(TenancyForm, NetBoxModelForm):
         widgets = {
             'date_added': DatePicker(),
         }
+
+
+class ASNRangeForm(TenancyForm, NetBoxModelForm):
+    slug = SlugField()
+    fieldsets = (
+        ('ASN Range', ('name', 'slug', 'start', 'end', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+    )
+
+    class Meta:
+        model = ASNRange
+        fields = [
+            'name', 'slug', 'start', 'end', 'tenant_group', 'tenant', 'description', 'tags'
+        ]
 
 
 class ASNForm(TenancyForm, NetBoxModelForm):

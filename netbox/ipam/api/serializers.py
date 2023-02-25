@@ -16,11 +16,25 @@ from .nested_serializers import *
 
 
 #
+# ASN ranges
+#
+
+class ASNRangeSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asnrange-detail')
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    asn_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = ASNRange
+        fields = [
+            'id', 'url', 'display', 'name', 'slug', 'start', 'end', 'tenant', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated', 'asn_count',
+        ]
+
+
+#
 # ASNs
 #
-from .nested_serializers import NestedL2VPNSerializer
-from ..models.l2vpn import L2VPNTermination, L2VPN
-
 
 class ASNSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')

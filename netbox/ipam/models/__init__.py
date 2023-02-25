@@ -9,6 +9,7 @@ from .vlans import *
 
 __all__ = (
     'ASN',
+    'ASNRange',
     'Aggregate',
     'IPAddress',
     'IPRange',

@@ -1,3 +1,4 @@
+from .asn import *
 from .fhrp import *
 from .ip import *
 from .l2vpn import *

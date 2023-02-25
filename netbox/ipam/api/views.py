@@ -33,6 +33,14 @@ class IPAMRootView(APIRootView):
 # Viewsets
 #
 
+class ASNRangeViewSet(NetBoxModelViewSet):
+    queryset = ASNRange.objects.prefetch_related('tenant').annotate(
+        asn_count=count_related(ASN, 'range')
+    )
+    serializer_class = serializers.ASNRangeSerializer
+    filterset_class = filtersets.ASNRangeFilterSet
+
+
 class ASNViewSet(NetBoxModelViewSet):
     queryset = ASN.objects.prefetch_related('tenant', 'rir').annotate(
         site_count=count_related(Site, 'asns'),
