@@ -89,6 +89,11 @@ class AggregateImportForm(NetBoxModelImportForm):
 
 
 class ASNRangeImportForm(NetBoxModelImportForm):
+    rir = CSVModelChoiceField(
+        queryset=RIR.objects.all(),
+        to_field_name='name',
+        help_text=_('Assigned RIR')
+    )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -98,7 +103,7 @@ class ASNRangeImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = ASNRange
-        fields = ('name', 'slug', 'start', 'end', 'tenant', 'description', 'tags')
+        fields = ('name', 'slug', 'rir', 'start', 'end', 'tenant', 'description', 'tags')
 
 
 class ASNImportForm(NetBoxModelImportForm):

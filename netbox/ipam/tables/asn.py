@@ -15,6 +15,9 @@ class ASNRangeTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.Column(
         linkify=True
     )
+    rir = tables.Column(
+        linkify=True
+    )
     tags = columns.TagColumn(
         url_name='ipam:asnrange_list'
     )
@@ -27,10 +30,10 @@ class ASNRangeTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ASNRange
         fields = (
-            'pk', 'name', 'slug', 'start', 'end', 'asn_count', 'tenant', 'tenant_group', 'description', 'tags',
+            'pk', 'name', 'slug', 'rir', 'start', 'end', 'asn_count', 'tenant', 'tenant_group', 'description', 'tags',
             'created', 'last_updated', 'actions',
         )
-        default_columns = ('pk', 'name', 'start', 'end', 'tenant', 'asn_count', 'description')
+        default_columns = ('pk', 'name', 'rir', 'start', 'end', 'tenant', 'asn_count', 'description')
 
 
 class ASNTable(TenancyColumnsMixin, NetBoxTable):

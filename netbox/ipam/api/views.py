@@ -34,7 +34,7 @@ class IPAMRootView(APIRootView):
 #
 
 class ASNRangeViewSet(NetBoxModelViewSet):
-    queryset = ASNRange.objects.prefetch_related('tenant').annotate(
+    queryset = ASNRange.objects.prefetch_related('tenant', 'rir').annotate(
         asn_count=count_related(ASN, 'range')
     )
     serializer_class = serializers.ASNRangeSerializer
@@ -251,8 +251,11 @@ class AvailableASNsView(ObjectValidationMixin, APIView):
 
         # Assign ASNs from the list of available IPs and copy VRF assignment from the parent
         for i, requested_asn in enumerate(requested_asns):
-            requested_asn['asn'] = available_asns[i]
-            requested_asn['range'] = asnrange.pk
+            requested_asn.update({
+                'rir': asnrange.rir.pk,
+                'range': asnrange.pk,
+                'asn': available_asns[i],
+            })
 
         # Initialize the serializer with a list or a single object depending on what was requested
         context = {'request': request}

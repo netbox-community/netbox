@@ -99,6 +99,11 @@ class RIRBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ASNRangeBulkEditForm(NetBoxModelBulkEditForm):
+    rir = DynamicModelChoiceField(
+        queryset=RIR.objects.all(),
+        required=False,
+        label=_('RIR')
+    )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -110,9 +115,9 @@ class ASNRangeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ASNRange
     fieldsets = (
-        (None, ('tenant', 'description')),
+        (None, ('rir', 'tenant', 'description')),
     )
-    nullable_fields = ('date_added', 'description')
+    nullable_fields = ('description',)
 
 
 class ASNBulkEditForm(NetBoxModelBulkEditForm):

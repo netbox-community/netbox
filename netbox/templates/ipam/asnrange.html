@@ -16,6 +16,12 @@
               <td>{{ object.name }}</td>
             </tr>
             <tr>
+              <td>RIR</td>
+              <td>
+                <a href="{% url 'ipam:asnrange_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
+              </td>
+            </tr>
+            <tr>
               <td>Range</td>
               <td>{{ object.range_as_string }}</td>
             </tr>

@@ -119,8 +119,13 @@ class ASNRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = ASNRange
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Range', ('start', 'end')),
+        ('Range', ('rir_id', 'start', 'end')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
+    )
+    rir_id = DynamicModelMultipleChoiceField(
+        queryset=RIR.objects.all(),
+        required=False,
+        label=_('RIR')
     )
     start = forms.IntegerField(
         required=False

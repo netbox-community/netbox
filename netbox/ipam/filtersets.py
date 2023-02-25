@@ -169,6 +169,16 @@ class AggregateFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
 
 class ASNRangeFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
+    rir_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=RIR.objects.all(),
+        label=_('RIR (ID)'),
+    )
+    rir = django_filters.ModelMultipleChoiceFilter(
+        field_name='rir__slug',
+        queryset=RIR.objects.all(),
+        to_field_name='slug',
+        label=_('RIR (slug)'),
+    )
 
     class Meta:
         model = ASNRange

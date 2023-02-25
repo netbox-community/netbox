@@ -130,16 +130,20 @@ class AggregateForm(TenancyForm, NetBoxModelForm):
 
 
 class ASNRangeForm(TenancyForm, NetBoxModelForm):
+    rir = DynamicModelChoiceField(
+        queryset=RIR.objects.all(),
+        label=_('RIR'),
+    )
     slug = SlugField()
     fieldsets = (
-        ('ASN Range', ('name', 'slug', 'start', 'end', 'description', 'tags')),
+        ('ASN Range', ('name', 'slug', 'rir', 'start', 'end', 'description', 'tags')),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
 
     class Meta:
         model = ASNRange
         fields = [
-            'name', 'slug', 'start', 'end', 'tenant_group', 'tenant', 'description', 'tags'
+            'name', 'slug', 'rir', 'start', 'end', 'tenant_group', 'tenant', 'description', 'tags'
         ]
 
 

@@ -17,6 +17,12 @@ class ASN(PrimaryModel):
     An autonomous system (AS) number is typically used to represent an independent routing domain. A site can have
     one or more ASNs assigned to it.
     """
+    rir = models.ForeignKey(
+        to='ipam.RIR',
+        on_delete=models.PROTECT,
+        related_name='asns',
+        verbose_name='RIR'
+    )
     range = models.ForeignKey(
         to='ipam.ASNRange',
         on_delete=models.PROTECT,
@@ -27,12 +33,6 @@ class ASN(PrimaryModel):
         unique=True,
         verbose_name='ASN',
         help_text=_('32-bit autonomous system number')
-    )
-    rir = models.ForeignKey(
-        to='ipam.RIR',
-        on_delete=models.PROTECT,
-        related_name='asns',
-        verbose_name='RIR'
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -89,6 +89,12 @@ class ASNRange(OrganizationalModel):
     slug = models.SlugField(
         max_length=100,
         unique=True
+    )
+    rir = models.ForeignKey(
+        to='ipam.RIR',
+        on_delete=models.PROTECT,
+        related_name='asn_ranges',
+        verbose_name='RIR'
     )
     start = ASNField()
     end = ASNField()
