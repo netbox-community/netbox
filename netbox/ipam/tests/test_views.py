@@ -78,14 +78,18 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             RIR(name='RIR 2', slug='rir-2', is_private=True),
         ]
         RIR.objects.bulk_create(rirs)
-        sites = [
-            Site.objects.create(name='Site 1', slug='site-1'),
-            Site.objects.create(name='Site 2', slug='site-2')
-        ]
-        tenants = [
-            Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
-            Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
-        ]
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2')
+        )
+        Site.objects.bulk_create(sites)
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+        )
+        Tenant.objects.bulk_create(tenants)
 
         asns = (
             ASN(asn=65001, rir=rirs[0], tenant=tenants[0]),

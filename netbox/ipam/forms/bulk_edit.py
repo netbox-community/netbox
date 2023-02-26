@@ -130,10 +130,6 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label=_('RIR')
     )
-    range = DynamicModelChoiceField(
-        queryset=ASNRange.objects.all(),
-        required=False
-    )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -149,9 +145,9 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ASN
     fieldsets = (
-        (None, ('sites', 'rir', 'range', 'tenant', 'description')),
+        (None, ('sites', 'rir', 'tenant', 'description')),
     )
-    nullable_fields = ('range', 'description', 'comments')
+    nullable_fields = ('tenant', 'description', 'comments')
 
 
 class AggregateBulkEditForm(NetBoxModelBulkEditForm):

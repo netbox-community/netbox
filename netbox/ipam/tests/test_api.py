@@ -92,12 +92,6 @@ class ASNTest(APIViewTestCases.APIViewTestCase):
         )
         RIR.objects.bulk_create(rirs)
 
-        ranges = (
-            ASNRange(name='ASN Range 1', slug='asn-range-1', rir=rirs[0], start=65001, end=65100),
-            ASNRange(name='ASN Range 2', slug='asn-range-2', rir=rirs[1], start=4200000001, end=4200000100),
-        )
-        ASNRange.objects.bulk_create(ranges)
-
         sites = (
             Site(name='Site 1', slug='site-1'),
             Site(name='Site 2', slug='site-2')
@@ -112,9 +106,9 @@ class ASNTest(APIViewTestCases.APIViewTestCase):
 
         asns = (
             ASN(asn=65000, rir=rirs[0], tenant=tenants[0]),
-            ASN(asn=65001, rir=rirs[0], tenant=tenants[1], range=ranges[0]),
+            ASN(asn=65001, rir=rirs[0], tenant=tenants[1]),
             ASN(asn=4200000000, rir=rirs[1], tenant=tenants[0]),
-            ASN(asn=4200000001, rir=rirs[1], tenant=tenants[1], range=ranges[1]),
+            ASN(asn=4200000001, rir=rirs[1], tenant=tenants[1]),
         )
         ASN.objects.bulk_create(asns)
 
@@ -131,12 +125,10 @@ class ASNTest(APIViewTestCases.APIViewTestCase):
             {
                 'asn': 65002,
                 'rir': rirs[0].pk,
-                'range': ranges[0].pk,
             },
             {
                 'asn': 4200000002,
                 'rir': rirs[1].pk,
-                'range': ranges[1].pk,
             },
         ]
 

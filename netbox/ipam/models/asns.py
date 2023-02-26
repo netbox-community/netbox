@@ -72,7 +72,7 @@ class ASNRange(OrganizationalModel):
         Return all available ASNs within this range.
         """
         range = set(self.range)
-        existing_asns = set(ASN.objects.filter(range=self).values_list('asn', flat=True))
+        existing_asns = set(self.get_child_asns().values_list('asn', flat=True))
         available_asns = sorted(range - existing_asns)
 
         return available_asns
@@ -88,12 +88,6 @@ class ASN(PrimaryModel):
         on_delete=models.PROTECT,
         related_name='asns',
         verbose_name='RIR'
-    )
-    range = models.ForeignKey(
-        to='ipam.ASNRange',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True
     )
     asn = ASNField(
         unique=True,
@@ -141,9 +135,3 @@ class ASN(PrimaryModel):
             return f'{self.asn} ({self.asn // 65536}.{self.asn % 65536})'
         else:
             return self.asn
-
-    def clean(self):
-        super().clean()
-
-        if self.range and self.asn not in self.range.range:
-            raise ValidationError(f"ASN {self.asn} is outside of assigned range ({self.range})")

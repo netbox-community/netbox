@@ -43,9 +43,6 @@ class ASNTable(TenancyColumnsMixin, NetBoxTable):
     rir = tables.Column(
         linkify=True
     )
-    range = tables.Column(
-        linkify=True
-    )
     asn_asdot = tables.Column(
         accessor=tables.A('asn_asdot'),
         linkify=True,
@@ -72,9 +69,9 @@ class ASNTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ASN
         fields = (
-            'pk', 'asn', 'asn_asdot', 'rir', 'range', 'site_count', 'provider_count', 'tenant', 'tenant_group',
-            'description', 'comments', 'sites', 'tags', 'created', 'last_updated', 'actions',
+            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'provider_count', 'tenant', 'tenant_group', 'description',
+            'comments', 'sites', 'tags', 'created', 'last_updated', 'actions',
         )
         default_columns = (
-            'pk', 'asn', 'rir', 'range', 'site_count', 'provider_count', 'sites', 'description', 'tenant',
+            'pk', 'asn', 'rir', 'site_count', 'provider_count', 'sites', 'description', 'tenant',
         )
