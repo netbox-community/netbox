@@ -8,8 +8,8 @@ class IPAMQuery(graphene.ObjectType):
     asn = ObjectField(ASNType)
     asn_list = ObjectListField(ASNType)
 
-    asnrange = ObjectField(ASNRangeType)
-    asnrange_list = ObjectListField(ASNRangeType)
+    asn_range = ObjectField(ASNRangeType)
+    asn_range_list = ObjectListField(ASNRangeType)
 
     aggregate = ObjectField(AggregateType)
     aggregate_list = ObjectListField(AggregateType)

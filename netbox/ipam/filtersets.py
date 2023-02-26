@@ -182,7 +182,7 @@ class ASNRangeFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = ASNRange
-        fields = ['id', 'start', 'end', 'description']
+        fields = ['id', 'name', 'start', 'end', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -114,6 +114,7 @@ class ASNImportForm(NetBoxModelImportForm):
     )
     range = CSVModelChoiceField(
         queryset=ASNRange.objects.all(),
+        required=False,
         to_field_name='name',
         help_text=_('ASN range')
     )

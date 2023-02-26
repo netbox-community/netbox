@@ -12,6 +12,66 @@ __all__ = (
 )
 
 
+class ASNRange(OrganizationalModel):
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True
+    )
+    rir = models.ForeignKey(
+        to='ipam.RIR',
+        on_delete=models.PROTECT,
+        related_name='asn_ranges',
+        verbose_name='RIR'
+    )
+    start = ASNField()
+    end = ASNField()
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='asn_ranges',
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'ASN range'
+        verbose_name_plural = 'ASN ranges'
+
+    def __str__(self):
+        return f'{self.name} ({self.range_as_string()})'
+
+    def get_absolute_url(self):
+        return reverse('ipam:asnrange', args=[self.pk])
+
+    @property
+    def range(self):
+        return range(self.start, self.end + 1)
+
+    def range_as_string(self):
+        return f'{self.start}-{self.end}'
+
+    def clean(self):
+        super().clean()
+
+        if self.end <= self.start:
+            raise ValidationError(f"Starting ASN ({self.start}) must be lower than ending ASN ({self.end}).")
+
+    def get_available_asns(self):
+        """
+        Return all available ASNs within this range.
+        """
+        range = set(self.range)
+        existing_asns = set(ASN.objects.filter(range=self).values_list('asn', flat=True))
+        available_asns = sorted(range - existing_asns)
+
+        return available_asns
+
+
 class ASN(PrimaryModel):
     """
     An autonomous system (AS) number is typically used to represent an independent routing domain. A site can have
@@ -77,63 +137,7 @@ class ASN(PrimaryModel):
             return self.asn
 
     def clean(self):
+        super().clean()
+
         if self.range and self.asn not in self.range.range:
             raise ValidationError(f"ASN {self.asn} is outside of assigned range ({self.range})")
-
-
-class ASNRange(OrganizationalModel):
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(
-        max_length=100,
-        unique=True
-    )
-    rir = models.ForeignKey(
-        to='ipam.RIR',
-        on_delete=models.PROTECT,
-        related_name='asn_ranges',
-        verbose_name='RIR'
-    )
-    start = ASNField()
-    end = ASNField()
-    tenant = models.ForeignKey(
-        to='tenancy.Tenant',
-        on_delete=models.PROTECT,
-        related_name='asn_ranges',
-        blank=True,
-        null=True
-    )
-
-    class Meta:
-        ordering = ('name',)
-        verbose_name = 'ASN range'
-        verbose_name_plural = 'ASN ranges'
-
-    def __str__(self):
-        return f'{self.name} ({self.range_as_string()})'
-
-    def get_absolute_url(self):
-        return reverse('ipam:asnrange', args=[self.pk])
-
-    @property
-    def range(self):
-        return range(self.start, self.end + 1)
-
-    def range_as_string(self):
-        return f'{self.start}-{self.end}'
-
-    def clean(self):
-        if self.end <= self.start:
-            raise ValidationError(f"Starting ASN ({self.start}) must be lower than ending ASN ({self.end}).")
-
-    def get_available_asns(self):
-        """
-        Return all available ASNs within this range.
-        """
-        range = set(self.range)
-        existing_asns = set(ASN.objects.filter(range=self).values_list('asn', flat=True))
-        available_asns = sorted(range - existing_asns)
-
-        return available_asns
