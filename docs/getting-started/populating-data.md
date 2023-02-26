@@ -24,11 +24,50 @@ NetBox supports the bulk import of new objects, and updating of existing objects
 
 When viewing the CSV import form for an object type, you'll notice that the headers for the required columns have been pre-populated. Each form has a table beneath it titled "CSV Field Options," which lists _all_ supported columns for your reference. (Generally, these map to the fields you see in the corresponding creation form for individual objects.)
 
-<!-- TODO: Screenshot -->
+![Bulk Import dialog](../media/getting-started/bulk_import_dialog.png)
 
 If an "id" field is added the data will be used to update existing records instead of importing new objects.
 
 Note that some models (namely device types and module types) do not support CSV import. Instead, they accept YAML-formatted data to facilitate the import of both the parent object as well as child components.
+
+### Export/Import/Update/Delete CSV falls and pitfalls
+
+Import tool is usefull for newcomers. It allows you to import data you have outside the Netbox, but there are details you should know in advance.
+
+There are Export tool and Import tool, but they can't be directly used reversible and it is intentinally designed that way. There is no tool which exports same file as Import tool requires.
+
+There is no separate Update tool. Import tool checks presence of "id" column. When "id" column is present in input data, it tries to find a row by "id" column and if found, it tries to update it. If row is not found by "id", error is shown. When no "id" column is presented, Import tool tries to create new record for every row and fails when duplicate is going to be created.
+
+!!! info "Update tool"
+    Update tool is available from version 3.4
+
+There is no Delete tool - delete records based on records in input file.
+
+Export tool exports data as they shown - names of items, item values formated, multiple data columns joined into one common export column etc. On the other hand Import tool requires key values, item value as raw data, each import column must match one data column.
+
+To avoid confusion in file format, Export tool uses multiword upper case column names columns and Import uses lower case underscore separated column names. E.g. "Type" vs. "type" or "Rear port" vs. "rear_port". Import column names are shown in Bulk Import dialog shown above.
+
+Enumeration items are exported as shown, by its label (e. g. "Active" for device status or "8P8C" for port type), but for Import tool key value must be used (e. g. "active" or "8p8c"). Key value can be found by clicking on question mark on right side of a row in Bulk Import dialog.
+
+There is no difference in data between Import and Update except there must be "id" column for Update. It is same value as Export column "ID", but it is presented just in "All Data (CSV)" export template.
+
+Some exports combine multiple data rows into one column (e. g. Front port export combines Rear port name and Rear port label into one column). There is no way how to recognize it export or avoid it. If you would like to use same data for import, you must manually edit the data.
+
+### How to prepare file for Import/Update based on Exported data
+
+1. Export data. If you would like to update existing data, use "All Data (CSV)" export template to receive "ID" column.
+2. Change CSV file header/column names:
+  - lower case column names
+  - join multiwords by _
+  - check new column names in Bulk Import dialog
+3. Check enumeration columns and convert data from label to key value.
+
+    Now you have data in correct format.
+
+4. Edit data you would like to import or update.
+  - For import, remove existing data rows and create new ones
+  - For update, update rows you need
+5. Use Bulk Import dialog and import data. If error shown, fix it and repeat the import.
 
 ## Scripting
 
