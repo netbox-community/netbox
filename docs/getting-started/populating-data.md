@@ -32,18 +32,18 @@ Note that some models (namely device types and module types) do not support CSV 
 
 ### Export/Import/Update/Delete CSV falls and pitfalls
 
-Import tool is usefull for newcomers. It allows you to import data you have outside the Netbox, but there are details you should know in advance.
+Import tool is useful for newcomers. It allows you to import data you have outside the Netbox, but there are details you should know in advance.
 
-There are Export tool and Import tool, but they can't be directly used reversible and it is intentinally designed that way. There is no tool which exports same file as Import tool requires.
+There are Export tool and Import tool, but they can't be directly used reversible and it is intentionally designed that way. There is no tool which exports same file as Import tool requires.
 
 There is no separate Update tool. Import tool checks presence of "id" column. When "id" column is present in input data, it tries to find a row by "id" column and if found, it tries to update it. If row is not found by "id", error is shown. When no "id" column is presented, Import tool tries to create new record for every row and fails when duplicate is going to be created.
 
 !!! info "Update tool"
     Update tool is available from version 3.4
 
-There is no Delete tool - delete records based on records in input file.
+There is no Delete tool - means delete records based on records in input file.
 
-Export tool exports data as they shown - names of items, item values formated, multiple data columns joined into one common export column etc. On the other hand Import tool requires key values, item value as raw data, each import column must match one data column.
+Export tool exports data as they shown - names of items, item values formatted, multiple data columns joined into one common export column etc. On the other hand Import tool requires key values, item value as raw data, each import column must match one data column.
 
 To avoid confusion in file format, Export tool uses multiword upper case column names columns and Import uses lower case underscore separated column names. E.g. "Type" vs. "type" or "Rear port" vs. "rear_port". Import column names are shown in Bulk Import dialog shown above.
 
@@ -56,7 +56,7 @@ Some exports combine multiple data rows into one column (e. g. Front port export
 ### How to prepare file for Import/Update based on Exported data
 
 1. Export data. If you would like to update existing data, use "All Data (CSV)" export template to receive "ID" column.
-2. Change CSV file header/column names:
+2. Change CSV file header, its column names:
   - lower case column names
   - join multiwords by _
   - check new column names in Bulk Import dialog
@@ -67,7 +67,7 @@ Some exports combine multiple data rows into one column (e. g. Front port export
 4. Edit data you would like to import or update.
   - For import, remove existing data rows and create new ones
   - For update, update rows you need
-5. Use Bulk Import dialog and import data. If error shown, fix it and repeat the import.
+5. Use Bulk Import dialog and import data. If error is shown, fix it and repeat the import.
 
 ## Scripting
 
