@@ -61,6 +61,12 @@ class ASNRange(OrganizationalModel):
         if self.end <= self.start:
             raise ValidationError(f"Starting ASN ({self.start}) must be lower than ending ASN ({self.end}).")
 
+    def get_child_asns(self):
+        return ASN.objects.filter(
+            asn__gte=self.start,
+            asn__lte=self.end
+        )
+
     def get_available_asns(self):
         """
         Return all available ASNs within this range.

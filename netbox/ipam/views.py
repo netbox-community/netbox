@@ -211,14 +211,26 @@ class ASNRangeListView(generic.ObjectListView):
 class ASNRangeView(generic.ObjectView):
     queryset = ASNRange.objects.all()
 
-    def get_extra_context(self, request, instance):
-        related_models = (
-            (ASN.objects.restrict(request.user, 'view').filter(range=instance), 'range_id'),
-        )
 
-        return {
-            'related_models': related_models,
-        }
+@register_model_view(ASNRange, 'asns')
+class ASNRangeASNsView(generic.ObjectChildrenView):
+    queryset = ASNRange.objects.all()
+    child_model = ASN
+    table = tables.ASNTable
+    filterset = filtersets.ASNFilterSet
+    template_name = 'ipam/asnrange/asns.html'
+    tab = ViewTab(
+        label=_('ASNs'),
+        badge=lambda x: x.get_child_asns().count(),
+        permission='ipam.view_asns',
+        weight=500
+    )
+
+    def get_children(self, request, parent):
+        return parent.get_child_asns().restrict(request.user, 'view').annotate(
+            site_count=count_related(Site, 'asns'),
+            provider_count=count_related(Provider, 'asns')
+        )
 
 
 @register_model_view(ASNRange, 'edit')

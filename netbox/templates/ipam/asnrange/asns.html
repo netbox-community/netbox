@@ -1,0 +1,36 @@
+{% extends 'ipam/asnrange/base.html' %}
+{% load helpers %}
+
+{% block content %}
+  {% include 'inc/table_controls_htmx.html' with table_modal="ASNTable_config" %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="card">
+      <div class="card-body htmx-container table-responsive" id="object_list">
+        {% include 'htmx/table.html' %}
+      </div>
+    </div>
+
+    <div class="noprint bulk-buttons">
+      <div class="bulk-button-group">
+        {% if 'bulk_edit' in actions %}
+          <button type="submit" name="_edit" formaction="{% url 'ipam:asn_bulk_edit' %}?return_url={% url 'ipam:asnrange_asns' pk=object.pk %}" class="btn btn-warning btn-sm">
+            <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+          </button>
+        {% endif %}
+        {% if 'bulk_delete' in actions %}
+          <button type="submit" name="_delete" formaction="{% url 'ipam:asn_bulk_delete' %}?return_url={% url 'ipam:asnrange_asns' pk=object.pk %}" class="btn btn-danger btn-sm">
+            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+{% endblock %}
+
+{% block modals %}
+  {{ block.super }}
+  {% table_config_form table %}
+{% endblock modals %}
