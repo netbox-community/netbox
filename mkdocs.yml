@@ -215,6 +215,7 @@ nav:
             - Webhook: 'models/extras/webhook.md'
         - IPAM:
             - ASN: 'models/ipam/asn.md'
+            - ASNRange: 'models/ipam/asnrange.md'
             - Aggregate: 'models/ipam/aggregate.md'
             - FHRPGroup: 'models/ipam/fhrpgroup.md'
             - FHRPGroupAssignment: 'models/ipam/fhrpgroupassignment.md'
