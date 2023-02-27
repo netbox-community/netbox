@@ -158,6 +158,7 @@ IPAM_MENU = Menu(
         MenuGroup(
             label=_('ASNs'),
             items=(
+                get_model_item('ipam', 'asnrange', _('ASN Ranges')),
                 get_model_item('ipam', 'asn', _('ASNs')),
             ),
         ),

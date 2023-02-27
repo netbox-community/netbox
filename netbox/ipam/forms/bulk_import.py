@@ -15,6 +15,7 @@ from virtualization.models import VirtualMachine, VMInterface
 __all__ = (
     'AggregateImportForm',
     'ASNImportForm',
+    'ASNRangeImportForm',
     'FHRPGroupImportForm',
     'IPAddressImportForm',
     'IPRangeImportForm',
@@ -85,6 +86,24 @@ class AggregateImportForm(NetBoxModelImportForm):
     class Meta:
         model = Aggregate
         fields = ('prefix', 'rir', 'tenant', 'date_added', 'description', 'comments', 'tags')
+
+
+class ASNRangeImportForm(NetBoxModelImportForm):
+    rir = CSVModelChoiceField(
+        queryset=RIR.objects.all(),
+        to_field_name='name',
+        help_text=_('Assigned RIR')
+    )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Assigned tenant')
+    )
+
+    class Meta:
+        model = ASNRange
+        fields = ('name', 'slug', 'rir', 'start', 'end', 'tenant', 'description', 'tags')
 
 
 class ASNImportForm(NetBoxModelImportForm):

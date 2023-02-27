@@ -20,6 +20,10 @@ This release introduces the ability to render device configurations from Jinja2 
 
 The NAPALM integration feature found in previous NetBox releases has been moved from the core application to a dedicated plugin. This allows greater control over the feature's configuration and will unlock additional potential as a separate project.
 
+#### ASN Ranges ([#8550](https://github.com/netbox-community/netbox/issues/8550))
+
+A new ASN range model has been introduced to facilitate the provisioning of new autonomous system numbers from within a prescribed range. For example, an administrator might define an ASN range of 65000-65099 to be used for internal site identification. This includes a REST API endpoint suitable for automatic provisioning, very similar to the allocation of available prefixes and IP addresses.
+
 ### Enhancements
 
 * [#9073](https://github.com/netbox-community/netbox/issues/9073) - Enable syncing config context data from remote sources

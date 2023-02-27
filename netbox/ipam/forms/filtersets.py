@@ -17,6 +17,7 @@ from virtualization.models import VirtualMachine
 __all__ = (
     'AggregateFilterForm',
     'ASNFilterForm',
+    'ASNRangeFilterForm',
     'FHRPGroupFilterForm',
     'IPAddressFilterForm',
     'IPRangeFilterForm',
@@ -110,6 +111,27 @@ class AggregateFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         queryset=RIR.objects.all(),
         required=False,
         label=_('RIR')
+    )
+    tag = TagFilterField(model)
+
+
+class ASNRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+    model = ASNRange
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        ('Range', ('rir_id', 'start', 'end')),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+    )
+    rir_id = DynamicModelMultipleChoiceField(
+        queryset=RIR.objects.all(),
+        required=False,
+        label=_('RIR')
+    )
+    start = forms.IntegerField(
+        required=False
+    )
+    end = forms.IntegerField(
+        required=False
     )
     tag = TagFilterField(model)
 

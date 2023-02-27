@@ -8,7 +8,6 @@ from tenancy.tables import TenancyColumnsMixin, TenantColumn
 
 __all__ = (
     'AggregateTable',
-    'ASNTable',
     'AssignedIPAddressesTable',
     'IPAddressAssignTable',
     'IPAddressTable',
@@ -91,47 +90,6 @@ class RIRTable(NetBoxTable):
             'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'is_private', 'aggregate_count', 'description')
-
-
-#
-# ASNs
-#
-
-class ASNTable(TenancyColumnsMixin, NetBoxTable):
-    asn = tables.Column(
-        linkify=True
-    )
-    asn_asdot = tables.Column(
-        accessor=tables.A('asn_asdot'),
-        linkify=True,
-        verbose_name='ASDOT'
-    )
-    site_count = columns.LinkedCountColumn(
-        viewname='dcim:site_list',
-        url_params={'asn_id': 'pk'},
-        verbose_name='Site Count'
-    )
-    provider_count = columns.LinkedCountColumn(
-        viewname='circuits:provider_list',
-        url_params={'asn_id': 'pk'},
-        verbose_name='Provider Count'
-    )
-    sites = columns.ManyToManyColumn(
-        linkify_item=True,
-        verbose_name='Sites'
-    )
-    comments = columns.MarkdownColumn()
-    tags = columns.TagColumn(
-        url_name='ipam:asn_list'
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = ASN
-        fields = (
-            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'provider_count', 'tenant', 'tenant_group', 'description',
-            'comments', 'sites', 'tags', 'created', 'last_updated', 'actions',
-        )
-        default_columns = ('pk', 'asn', 'rir', 'site_count', 'provider_count', 'sites', 'description', 'tenant')
 
 
 #

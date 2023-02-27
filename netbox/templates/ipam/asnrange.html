@@ -1,33 +1,29 @@
-{% extends 'generic/object.html' %}
+{% extends 'ipam/asnrange/base.html' %}
 {% load buttons %}
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li class="breadcrumb-item"><a href="{% url 'ipam:asn_list' %}?rir_id={{ object.rir.pk }}">{{ object.rir }}</a></li>
-  {% if object.range %}
-    <li class="breadcrumb-item"><a href="{% url 'ipam:asn_list' %}?range_id={{ object.range.pk }}">{{ object.range }}</a></li>
-  {% endif %}
-{% endblock breadcrumbs %}
-
 {% block content %}
   <div class="row">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">ASN</h5>
+        <h5 class="card-header">ASN Range</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <td>AS Number</td>
-              <td>{{ object.asn_with_asdot }}</td>
+              <td>Name</td>
+              <td>{{ object.name }}</td>
             </tr>
             <tr>
               <td>RIR</td>
               <td>
-                <a href="{% url 'ipam:asn_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
+                <a href="{% url 'ipam:asnrange_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
               </td>
+            </tr>
+            <tr>
+              <td>Range</td>
+              <td>{{ object.range_as_string }}</td>
             </tr>
             <tr>
               <td>Tenant</td>
@@ -49,9 +45,7 @@
       {% include 'inc/panels/tags.html' %}
     </div>
     <div class="col col-md-6">
-      {% include 'inc/panels/related_objects.html' %}
       {% include 'inc/panels/custom_fields.html' %}
-      {% include 'inc/panels/comments.html' %}
       {% plugin_right_page object %}
     </div>
   </div>

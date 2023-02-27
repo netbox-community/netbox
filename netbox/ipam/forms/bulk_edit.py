@@ -16,6 +16,7 @@ from utilities.forms import (
 __all__ = (
     'AggregateBulkEditForm',
     'ASNBulkEditForm',
+    'ASNRangeBulkEditForm',
     'FHRPGroupBulkEditForm',
     'IPAddressBulkEditForm',
     'IPRangeBulkEditForm',
@@ -97,6 +98,28 @@ class RIRBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('is_private', 'description')
 
 
+class ASNRangeBulkEditForm(NetBoxModelBulkEditForm):
+    rir = DynamicModelChoiceField(
+        queryset=RIR.objects.all(),
+        required=False,
+        label=_('RIR')
+    )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    model = ASNRange
+    fieldsets = (
+        (None, ('rir', 'tenant', 'description')),
+    )
+    nullable_fields = ('description',)
+
+
 class ASNBulkEditForm(NetBoxModelBulkEditForm):
     sites = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -124,7 +147,7 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         (None, ('sites', 'rir', 'tenant', 'description')),
     )
-    nullable_fields = ('date_added', 'description', 'comments')
+    nullable_fields = ('tenant', 'description', 'comments')
 
 
 class AggregateBulkEditForm(NetBoxModelBulkEditForm):
