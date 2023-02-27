@@ -2,6 +2,10 @@
 
 ## v3.4.6 (FUTURE)
 
+### Bug Fixes
+
+* [#11796](https://github.com/netbox-community/netbox/issues/11796) - When importing devices, restrict rack by location only if the location field is specified
+
 ---
 
 ## v3.4.5 (2023-02-21)
