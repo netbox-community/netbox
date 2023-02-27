@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#10058](https://github.com/netbox-community/netbox/issues/10058) - Enable searching for devices/VMs by primary IP address
+* [#11011](https://github.com/netbox-community/netbox/issues/11011) - Add ability to toggle visibility of virtual interfaces under device view
 * [#11807](https://github.com/netbox-community/netbox/issues/11807) - Restore default page size when navigating between views
 * [#11817](https://github.com/netbox-community/netbox/issues/11817) - Add `connected_endpoints` field to GraphQL API for cabled objects
 
