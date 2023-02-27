@@ -2,6 +2,10 @@
 
 ## v3.4.6 (FUTURE)
 
+### Enhancements
+
+* [#11807](https://github.com/netbox-community/netbox/issues/11807) - Restore default page size when navigating between views
+
 ### Bug Fixes
 
 * [#11796](https://github.com/netbox-community/netbox/issues/11796) - When importing devices, restrict rack by location only if the location field is specified
