@@ -39,6 +39,7 @@ class ASNRangeSerializer(NetBoxModelSerializer):
 
 class ASNSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
+    rir = NestedRIRSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     site_count = serializers.IntegerField(read_only=True)
     provider_count = serializers.IntegerField(read_only=True)
@@ -58,11 +59,11 @@ class AvailableASNSerializer(serializers.Serializer):
     asn = serializers.IntegerField(read_only=True)
 
     def to_representation(self, asn):
-        range = NestedASNRangeSerializer(self.context['range'], context={
+        rir = NestedRIRSerializer(self.context['range'].rir, context={
             'request': self.context['request']
         }).data
         return {
-            'range': range,
+            'rir': rir,
             'asn': asn,
         }
 

@@ -76,6 +76,62 @@ class ASNRangeTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_list_available_asns(self):
+        """
+        Test retrieval of all available ASNs within a parent range.
+        """
+        rir = RIR.objects.first()
+        asnrange = ASNRange.objects.create(name='Range 1', slug='range-1', rir=rir, start=101, end=110)
+        url = reverse('ipam-api:asnrange-available-asns', kwargs={'pk': asnrange.pk})
+        self.add_permissions('ipam.view_asnrange', 'ipam.view_asn')
+
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 10)
+
+    def test_create_single_available_asn(self):
+        """
+        Test creation of the first available ASN within a range.
+        """
+        rir = RIR.objects.first()
+        asnrange = ASNRange.objects.create(name='Range 1', slug='range-1', rir=rir, start=101, end=110)
+        url = reverse('ipam-api:asnrange-available-asns', kwargs={'pk': asnrange.pk})
+        self.add_permissions('ipam.view_asnrange', 'ipam.add_asn')
+
+        data = {
+            'description': 'New ASN'
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['rir']['id'], asnrange.rir.pk)
+        self.assertEqual(response.data['description'], data['description'])
+
+    def test_create_multiple_available_asns(self):
+        """
+        Test the creation of several available ASNs within a parent range.
+        """
+        rir = RIR.objects.first()
+        asnrange = ASNRange.objects.create(name='Range 1', slug='range-1', rir=rir, start=101, end=110)
+        url = reverse('ipam-api:asnrange-available-asns', kwargs={'pk': asnrange.pk})
+        self.add_permissions('ipam.view_asnrange', 'ipam.add_asn')
+
+        # Try to create eleven ASNs (only ten are available)
+        data = [
+            {'description': f'New ASN {i}'}
+            for i in range(1, 12)
+        ]
+        assert len(data) == 11
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+        self.assertIn('detail', response.data)
+
+        # Create all ten available ASNs in a single request
+        data.pop()
+        assert len(data) == 10
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.data), 10)
+
 
 class ASNTest(APIViewTestCases.APIViewTestCase):
     model = ASN
