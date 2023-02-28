@@ -63,15 +63,15 @@ class Webhook(ExportTemplatesMixin, ChangeLoggedModel):
         unique=True
     )
     type_create = models.BooleanField(
-        default=True,
+        default=False,
         help_text=_("Triggers when a matching object is created.")
     )
     type_update = models.BooleanField(
-        default=True,
+        default=False,
         help_text=_("Triggers when a matching object is updated.")
     )
     type_delete = models.BooleanField(
-        default=True,
+        default=False,
         help_text=_("Triggers when a matching object is deleted.")
     )
     type_job_start = models.BooleanField(
