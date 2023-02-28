@@ -16,6 +16,7 @@ Custom fields may be created by navigating to Customization > Custom Fields. Net
 * Decimal: A fixed-precision decimal number (4 decimal places)
 * Boolean: True or false
 * Date: A date in ISO 8601 format (YYYY-MM-DD)
+* Date & time: A date and time in ISO 8601 format (YYYY-MM-DD HH:MM:SS)
 * URL: This will be presented as a link in the web UI
 * JSON: Arbitrary data stored in JSON format
 * Selection: A selection of one of several pre-defined custom choices
