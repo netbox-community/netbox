@@ -245,7 +245,7 @@ class ActionsColumn(tables.Column):
         user = getattr(request, 'user', AnonymousUser())
         for idx, (action, attrs) in enumerate(self.actions.items()):
             permission = f'{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}'
-            if attrs.permission is None or user.has_perm(permission):
+            if attrs.permission is None or user.has_perm(permission, obj=record):
                 url = reverse(get_viewname(model, action), kwargs={'pk': record.pk})
 
                 # Render a separate button if a) only one action exists, or b) if split_actions is True
