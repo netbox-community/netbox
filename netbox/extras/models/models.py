@@ -26,7 +26,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, SyncedDataMixin,
-    TagsMixin,
+    TagsMixin, WebhooksMixin,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import render_jinja2
@@ -689,10 +689,16 @@ class JobResult(models.Model):
         """
         Record the job's start time and update its status to "running."
         """
-        if self.started is None:
-            self.started = timezone.now()
-            self.status = JobResultStatusChoices.STATUS_RUNNING
-            JobResult.objects.filter(pk=self.pk).update(started=self.started, status=self.status)
+        if self.started is not None:
+            return
+
+        # Start the job
+        self.started = timezone.now()
+        self.status = JobResultStatusChoices.STATUS_RUNNING
+        JobResult.objects.filter(pk=self.pk).update(started=self.started, status=self.status)
+
+        # Handle webhooks
+        self.trigger_webhooks(event='job_start')
 
     def terminate(self, status=JobResultStatusChoices.STATUS_COMPLETED):
         """
@@ -701,9 +707,14 @@ class JobResult(models.Model):
         valid_statuses = JobResultStatusChoices.TERMINAL_STATE_CHOICES
         if status not in valid_statuses:
             raise ValueError(f"Invalid status for job termination. Choices are: {', '.join(valid_statuses)}")
+
+        # Mark the job as completed
         self.status = status
         self.completed = timezone.now()
         JobResult.objects.filter(pk=self.pk).update(status=self.status, completed=self.completed)
+
+        # Handle webhooks
+        self.trigger_webhooks(event='job_end')
 
     @classmethod
     def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, interval=None, *args, **kwargs):
@@ -737,6 +748,28 @@ class JobResult(models.Model):
             queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
 
         return job_result
+
+    def trigger_webhooks(self, event):
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
+        rq_queue = django_rq.get_queue(rq_queue_name, is_async=False)
+
+        # Fetch any webhooks matching this object type and action
+        webhooks = Webhook.objects.filter(
+            **{f'type_{event}': True},
+            content_types=self.obj_type,
+            enabled=True
+        )
+
+        for webhook in webhooks:
+            rq_queue.enqueue(
+                "extras.webhooks_worker.process_webhook",
+                webhook=webhook,
+                model_name=self.obj_type.model,
+                event=event,
+                data=self.data,
+                timestamp=str(timezone.now()),
+                username=self.user.username
+            )
 
 
 class ConfigRevision(models.Model):
@@ -780,7 +813,7 @@ class ConfigRevision(models.Model):
 # Custom scripts & reports
 #
 
-class Script(JobResultsMixin, models.Model):
+class Script(JobResultsMixin, WebhooksMixin, models.Model):
     """
     Dummy model used to generate permissions for custom scripts. Does not exist in the database.
     """
@@ -792,7 +825,7 @@ class Script(JobResultsMixin, models.Model):
 # Reports
 #
 
-class Report(JobResultsMixin, models.Model):
+class Report(JobResultsMixin, WebhooksMixin, models.Model):
     """
     Dummy model used to generate permissions for reports. Does not exist in the database.
     """
