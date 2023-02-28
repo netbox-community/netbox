@@ -275,6 +275,9 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
     role = tables.Column(
         linkify=True
     )
+    mark_utilized = columns.BooleanColumn(
+        verbose_name='Marked Utilized'
+    )
     utilization = columns.UtilizationColumn(
         accessor='utilization',
         orderable=False
@@ -288,7 +291,7 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
         model = IPRange
         fields = (
             'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'tenant_group',
-            'utilization', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'mark_utilized', 'utilization', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',

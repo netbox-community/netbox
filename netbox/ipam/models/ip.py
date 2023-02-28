@@ -511,6 +511,10 @@ class IPRange(PrimaryModel):
         null=True,
         help_text=_('The primary function of this range')
     )
+    mark_utilized = models.BooleanField(
+        default=False,
+        help_text=_("Treat as 100% utilized")
+    )
 
     clone_fields = (
         'vrf', 'tenant', 'status', 'role', 'description',
@@ -652,6 +656,9 @@ class IPRange(PrimaryModel):
         """
         Determine the utilization of the range and return it as a percentage.
         """
+        if self.mark_utilized:
+            return 100
+
         # Compile an IPSet to avoid counting duplicate IPs
         child_count = netaddr.IPSet([
             ip.address.ip for ip in self.get_child_ips()

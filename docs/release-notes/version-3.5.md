@@ -26,6 +26,7 @@ A new ASN range model has been introduced to facilitate the provisioning of new 
 
 ### Enhancements
 
+* [#7947](https://github.com/netbox-community/netbox/issues/7947) - Enable marking IP ranges as fully utilized
 * [#9073](https://github.com/netbox-community/netbox/issues/9073) - Enable syncing config context data from remote sources
 * [#9653](https://github.com/netbox-community/netbox/issues/9653) - Enable setting a default platform for device types
 * [#10374](https://github.com/netbox-community/netbox/issues/10374) - Require unique tenant names & slugs per group (not globally)

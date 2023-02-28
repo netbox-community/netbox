@@ -30,7 +30,12 @@
                 <tr>
                     <th scope="row">Utilization</th>
                     <td>
-                      {% utilization_graph object.utilization %}
+                      {% if object.mark_utilized %}
+                        {% utilization_graph 100 warning_threshold=0 danger_threshold=0 %}
+                        <small>(Marked fully utilized)</small>
+                      {% else %}
+                        {% utilization_graph object.utilization %}
+                      {% endif %}
                     </td>
                 </tr>
                 <tr>
