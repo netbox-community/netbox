@@ -150,7 +150,7 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
 
     fieldsets = (
         ('Webhook', ('name', 'content_types', 'enabled')),
-        ('Events', ('type_create', 'type_update', 'type_delete')),
+        ('Events', ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
         ('HTTP Request', (
             'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
         )),
@@ -165,6 +165,8 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
             'type_create': 'Creations',
             'type_update': 'Updates',
             'type_delete': 'Deletions',
+            'type_job_start': 'Job executions',
+            'type_job_end': 'Job terminations',
         }
         widgets = {
             'additional_headers': forms.Textarea(attrs={'class': 'font-monospace'}),

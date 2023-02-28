@@ -222,7 +222,7 @@ class WebhookFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
         ('Attributes', ('content_type_id', 'http_method', 'enabled')),
-        ('Events', ('type_create', 'type_update', 'type_delete')),
+        ('Events', ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
     )
     content_type_id = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.filter(FeatureQuery('webhooks').get_query()),
@@ -244,19 +244,36 @@ class WebhookFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
+        ),
+        label=_('Object creations')
     )
     type_update = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
+        ),
+        label=_('Object updates')
     )
     type_delete = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
+        ),
+        label=_('Object deletions')
+    )
+    type_job_start = forms.NullBooleanField(
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
+        label=_('Job starts')
+    )
+    type_job_end = forms.NullBooleanField(
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
+        label=_('Job terminations')
     )
 
 
