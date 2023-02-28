@@ -288,15 +288,15 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('IP Range', ('vrf', 'start_address', 'end_address', 'role', 'status', 'description', 'tags')),
+        ('IP Range', ('vrf', 'start_address', 'end_address', 'role', 'status', 'mark_utilized', 'description', 'tags')),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
 
     class Meta:
         model = IPRange
         fields = [
-            'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant', 'description',
-            'comments', 'tags',
+            'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant', 'mark_utilized',
+            'description', 'comments', 'tags',
         ]
 
 

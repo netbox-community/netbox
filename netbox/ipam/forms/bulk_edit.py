@@ -282,6 +282,11 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Role.objects.all(),
         required=False
     )
+    mark_utilized = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect(),
+        label=_('Treat as 100% utilized')
+    )
     description = forms.CharField(
         max_length=200,
         required=False
@@ -293,7 +298,7 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = IPRange
     fieldsets = (
-        (None, ('status', 'role', 'vrf', 'tenant', 'description')),
+        (None, ('status', 'role', 'vrf', 'tenant', 'mark_utilized', 'description')),
     )
     nullable_fields = (
         'vrf', 'tenant', 'role', 'description', 'comments',
