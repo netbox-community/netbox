@@ -20,19 +20,4 @@ class Migration(migrations.Migration):
             name='type_job_start',
             field=models.BooleanField(default=False),
         ),
-        migrations.AlterField(
-            model_name='webhook',
-            name='type_create',
-            field=models.BooleanField(default=True),
-        ),
-        migrations.AlterField(
-            model_name='webhook',
-            name='type_delete',
-            field=models.BooleanField(default=True),
-        ),
-        migrations.AlterField(
-            model_name='webhook',
-            name='type_update',
-            field=models.BooleanField(default=True),
-        ),
     ]
