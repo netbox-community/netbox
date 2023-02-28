@@ -22,8 +22,9 @@ def sync_datasource(job_result, *args, **kwargs):
         # Update the search cache for DataFiles belonging to this source
         search_backend.cache(datasource.datafiles.iterator())
 
+        job_result.terminate()
+
     except SyncError as e:
-        job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-        job_result.save()
+        job_result.terminate(status=JobResultStatusChoices.STATUS_ERRORED)
         DataSource.objects.filter(pk=datasource.pk).update(status=DataSourceStatusChoices.FAILED)
         logging.error(e)

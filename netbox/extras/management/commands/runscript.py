@@ -41,16 +41,16 @@ class Command(BaseCommand):
             the change_logging context manager (which is bypassed if commit == False).
             """
             try:
-                with transaction.atomic():
-                    script.output = script.run(data=data, commit=commit)
-                    job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
-
-                    if not commit:
-                        raise AbortTransaction()
-
-            except AbortTransaction:
-                script.log_info("Database changes have been reverted automatically.")
-                clear_webhooks.send(request)
+                try:
+                    with transaction.atomic():
+                        script.output = script.run(data=data, commit=commit)
+                        if not commit:
+                            raise AbortTransaction()
+                except AbortTransaction:
+                    script.log_info("Database changes have been reverted automatically.")
+                    clear_webhooks.send(request)
+                job_result.data = ScriptOutputSerializer(script).data
+                job_result.terminate()
             except Exception as e:
                 stacktrace = traceback.format_exc()
                 script.log_failure(
@@ -58,11 +58,9 @@ class Command(BaseCommand):
                 )
                 script.log_info("Database changes have been reverted due to error.")
                 logger.error(f"Exception raised during script execution: {e}")
-                job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
                 clear_webhooks.send(request)
-            finally:
                 job_result.data = ScriptOutputSerializer(script).data
-                job_result.save()
+                job_result.terminate(status=JobResultStatusChoices.STATUS_ERRORED)
 
             logger.info(f"Script completed in {job_result.duration}")
 

@@ -694,14 +694,16 @@ class JobResult(models.Model):
             self.status = JobResultStatusChoices.STATUS_RUNNING
             JobResult.objects.filter(pk=self.pk).update(started=self.started, status=self.status)
 
-    def set_status(self, status):
+    def terminate(self, status=JobResultStatusChoices.STATUS_COMPLETED):
         """
-        Helper method to change the status of the job result. If the target status is terminal, the completion
-        time is also set.
+        Mark the job as completed, optionally specifying a particular termination status.
         """
+        valid_statuses = JobResultStatusChoices.TERMINAL_STATE_CHOICES
+        if status not in valid_statuses:
+            raise ValueError(f"Invalid status for job termination. Choices are: {', '.join(valid_statuses)}")
         self.status = status
-        if status in JobResultStatusChoices.TERMINAL_STATE_CHOICES:
-            self.completed = timezone.now()
+        self.completed = timezone.now()
+        JobResult.objects.filter(pk=self.pk).update(status=self.status, completed=self.completed)
 
     @classmethod
     def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, interval=None, *args, **kwargs):
