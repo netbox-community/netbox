@@ -10,6 +10,7 @@ from ipam.models import *
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup
+from rest_framework import serializers
 
 
 class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -850,6 +851,32 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'address': ['2001:db8::1/64', '2001:db8::1/65']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        # Check for valid edge cases. Note that Postgres inet type
+        # only accepts netmasks in the int form, so the filterset
+        # casts netmasks in the xxx.xxx.xxx.xxx format.
+        params = {'address': ['24']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'address': ['10.0.0.1/255.255.255.0']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'address': ['10.0.0.1/255.255.255.0', '10.0.0.1/25']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        # Check for invalid input.
+        params = {'address': ['/24']}
+        with self.assertRaises(serializers.ValidationError) as cm:
+            self.filterset(params, self.queryset).qs.count()
+        self.assertRegex(cm.exception.detail['address'], r'^Invalid address.*')
+
+        params = {'address': ['10.0.0.1/255.255.555.0']}
+        with self.assertRaises(serializers.ValidationError) as cm:
+            self.filterset(params, self.queryset).qs.count()
+        self.assertRegex(cm.exception.detail['address'], r'^Invalid address.*')
+
+        params = {'address': ['10.0.0.1', '/24']}
+        with self.assertRaises(serializers.ValidationError) as cm:
+            self.filterset(params, self.queryset).qs.count()
+        self.assertRegex(cm.exception.detail['address'], r'^Invalid address.*')
 
     def test_mask_length(self):
         params = {'mask_length': '24'}

@@ -16,6 +16,7 @@ from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .models import *
 
+from rest_framework import serializers
 
 __all__ = (
     'AggregateFilterSet',
@@ -599,8 +600,24 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
                 return queryset.none()
         return queryset.filter(q)
 
+    def parse_inet_addresses(self, value):
+        try:
+            parsed = []
+            for addr in value:
+                if netaddr.valid_ipv4(addr) or netaddr.valid_ipv6(addr):
+                    parsed.append(addr)
+                    continue
+                network = netaddr.IPNetwork(addr)
+                parsed.append(str(network))
+            return parsed
+        except (AddrFormatError, ValueError):
+            raise serializers.ValidationError({
+                'address': f'Invalid address {addr}. It must be a valid IPv4 or IPv6 address or network'
+            })
+
     def filter_address(self, queryset, name, value):
         try:
+            value = self.parse_inet_addresses(value)
             return queryset.filter(address__net_in=value)
         except ValidationError:
             return queryset.none()
