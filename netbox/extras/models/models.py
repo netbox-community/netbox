@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, ValidationError
 from django.db import models
@@ -64,16 +63,24 @@ class Webhook(ExportTemplatesMixin, ChangeLoggedModel):
         unique=True
     )
     type_create = models.BooleanField(
-        default=False,
-        help_text=_("Call this webhook when a matching object is created.")
+        default=True,
+        help_text=_("Triggers when a matching object is created.")
     )
     type_update = models.BooleanField(
-        default=False,
-        help_text=_("Call this webhook when a matching object is updated.")
+        default=True,
+        help_text=_("Triggers when a matching object is updated.")
     )
     type_delete = models.BooleanField(
+        default=True,
+        help_text=_("Triggers when a matching object is deleted.")
+    )
+    type_job_start = models.BooleanField(
         default=False,
-        help_text=_("Call this webhook when a matching object is deleted.")
+        help_text=_("Triggers when a job for a matching object is started.")
+    )
+    type_job_end = models.BooleanField(
+        default=False,
+        help_text=_("Triggers when a job for a matching object terminates.")
     )
     payload_url = models.CharField(
         max_length=500,
@@ -159,8 +166,12 @@ class Webhook(ExportTemplatesMixin, ChangeLoggedModel):
         super().clean()
 
         # At least one action type must be selected
-        if not self.type_create and not self.type_delete and not self.type_update:
-            raise ValidationError("At least one type must be selected: create, update, and/or delete.")
+        if not any([
+            self.type_create, self.type_update, self.type_delete, self.type_job_start, self.type_job_end
+        ]):
+            raise ValidationError(
+                "At least one event type must be selected: create, update, delete, job_start, and/or job_end."
+            )
 
         if self.conditions:
             try:
