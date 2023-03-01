@@ -8,9 +8,11 @@
 * [#11011](https://github.com/netbox-community/netbox/issues/11011) - Add ability to toggle visibility of virtual interfaces under device view
 * [#11807](https://github.com/netbox-community/netbox/issues/11807) - Restore default page size when navigating between views
 * [#11817](https://github.com/netbox-community/netbox/issues/11817) - Add `connected_endpoints` field to GraphQL API for cabled objects
+* [#11871](https://github.com/netbox-community/netbox/issues/11871) - Add IEEE 802.3az PoE type for interfaces
 
 ### Bug Fixes
 
+* [#11470](https://github.com/netbox-community/netbox/issues/11470) - Avoid raising exception when filtering IPs by an invalid address
 * [#11565](https://github.com/netbox-community/netbox/issues/11565) - Apply custom field defaults to IP address created during FHRP group creation
 * [#11758](https://github.com/netbox-community/netbox/issues/11758) - Support non-URL-safe characters in plugin menu titles
 * [#11796](https://github.com/netbox-community/netbox/issues/11796) - When importing devices, restrict rack by location only if the location field is specified
