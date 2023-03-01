@@ -87,12 +87,13 @@ class ASN(PrimaryModel):
         to='ipam.RIR',
         on_delete=models.PROTECT,
         related_name='asns',
-        verbose_name='RIR'
+        verbose_name='RIR',
+        help_text=_("Regional Internet Registry responsible for this AS number space")
     )
     asn = ASNField(
         unique=True,
         verbose_name='ASN',
-        help_text=_('32-bit autonomous system number')
+        help_text=_('16- or 32-bit autonomous system number')
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',

@@ -77,12 +77,15 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
     the hierarchy and track the overall utilization of available address space. Each Aggregate is assigned to a RIR.
     """
-    prefix = IPNetworkField()
+    prefix = IPNetworkField(
+        help_text=_("IPv4 or IPv6 network")
+    )
     rir = models.ForeignKey(
         to='ipam.RIR',
         on_delete=models.PROTECT,
         related_name='aggregates',
-        verbose_name='RIR'
+        verbose_name='RIR',
+        help_text=_("Regional Internet Registry responsible for this IP space")
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',

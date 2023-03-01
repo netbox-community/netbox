@@ -68,9 +68,6 @@ class VRFForm(TenancyForm, NetBoxModelForm):
         labels = {
             'rd': "RD",
         }
-        help_texts = {
-            'rd': _("Route distinguisher in any format"),
-        }
 
 
 class RouteTargetForm(TenancyForm, NetBoxModelForm):
@@ -120,10 +117,6 @@ class AggregateForm(TenancyForm, NetBoxModelForm):
         fields = [
             'prefix', 'rir', 'date_added', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
         ]
-        help_texts = {
-            'prefix': _("IPv4 or IPv6 network"),
-            'rir': _("Regional Internet Registry responsible for this prefix"),
-        }
         widgets = {
             'date_added': DatePicker(),
         }
@@ -169,10 +162,6 @@ class ASNForm(TenancyForm, NetBoxModelForm):
         fields = [
             'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description', 'comments', 'tags'
         ]
-        help_texts = {
-            'asn': _("AS number"),
-            'rir': _("Regional Internet Registry responsible for this prefix"),
-        }
         widgets = {
             'date_added': DatePicker(),
         }
@@ -788,14 +777,6 @@ class VLANForm(TenancyForm, NetBoxModelForm):
             'site', 'group', 'vid', 'name', 'status', 'role', 'tenant_group', 'tenant', 'description', 'comments',
             'tags',
         ]
-        help_texts = {
-            'site': _("Leave blank if this VLAN spans multiple sites"),
-            'group': _("VLAN group (optional)"),
-            'vid': _("Configured VLAN ID"),
-            'name': _("Configured VLAN name"),
-            'status': _("Operational status of this VLAN"),
-            'role': _("The primary function of this VLAN"),
-        }
 
 
 class ServiceTemplateForm(NetBoxModelForm):
@@ -851,10 +832,6 @@ class ServiceForm(NetBoxModelForm):
         fields = [
             'device', 'virtual_machine', 'name', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
         ]
-        help_texts = {
-            'ipaddresses': _("IP address assignment is optional. If no IPs are selected, the service is assumed to be "
-                             "reachable via all IPs assigned to the device."),
-        }
 
 
 class ServiceCreateForm(ServiceForm):

@@ -480,7 +480,8 @@ class Device(PrimaryModel, ConfigContextModel):
     device_role = models.ForeignKey(
         to='dcim.DeviceRole',
         on_delete=models.PROTECT,
-        related_name='devices'
+        related_name='devices',
+        help_text=_("The function this device serves")
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -510,7 +511,8 @@ class Device(PrimaryModel, ConfigContextModel):
     serial = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='Serial number'
+        verbose_name='Serial number',
+        help_text=_("Chassis serial number, assigned by the manufacturer")
     )
     asset_tag = models.CharField(
         max_length=50,
@@ -597,12 +599,14 @@ class Device(PrimaryModel, ConfigContextModel):
     vc_position = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
-        validators=[MaxValueValidator(255)]
+        validators=[MaxValueValidator(255)],
+        help_text=_('Virtual chassis position')
     )
     vc_priority = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
-        validators=[MaxValueValidator(255)]
+        validators=[MaxValueValidator(255)],
+        help_text=_('Virtual chassis master election priority')
     )
     config_template = models.ForeignKey(
         to='extras.ConfigTemplate',

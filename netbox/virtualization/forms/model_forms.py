@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from dcim.forms.common import InterfaceCommonForm
-from dcim.forms.model_forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from ipam.models import IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
@@ -237,10 +236,6 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
             'platform', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments', 'tags',
             'local_context_data',
         ]
-        help_texts = {
-            'local_context_data': _("Local config context data overwrites all sources contexts in the final rendered "
-                                    "config context"),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -357,9 +352,6 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
                     'hx-target': '#form_fields',
                 }
             ),
-        }
-        help_texts = {
-            'mode': INTERFACE_MODE_HELP_TEXT,
         }
 
     def __init__(self, *args, **kwargs):

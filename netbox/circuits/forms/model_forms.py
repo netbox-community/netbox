@@ -37,9 +37,6 @@ class ProviderForm(NetBoxModelForm):
         fields = [
             'name', 'slug', 'account', 'asns', 'description', 'comments', 'tags',
         ]
-        help_texts = {
-            'name': _("Full name of the provider"),
-        }
 
 
 class ProviderNetworkForm(NetBoxModelForm):
@@ -96,10 +93,6 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
             'cid', 'type', 'provider', 'status', 'install_date', 'termination_date', 'commit_rate', 'description',
             'tenant_group', 'tenant', 'comments', 'tags',
         ]
-        help_texts = {
-            'cid': _("Unique circuit ID"),
-            'commit_rate': _("Committed rate"),
-        }
         widgets = {
             'install_date': DatePicker(),
             'termination_date': DatePicker(),
@@ -166,11 +159,6 @@ class CircuitTerminationForm(NetBoxModelForm):
             'provider_network', 'mark_connected', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
             'description', 'tags',
         ]
-        help_texts = {
-            'port_speed': _("Physical circuit speed"),
-            'xconnect_id': _("ID of the local cross-connect"),
-            'pp_info': _("Patch panel ID and port number(s)")
-        }
         widgets = {
             'port_speed': SelectSpeedWidget(),
             'upstream_speed': SelectSpeedWidget(),

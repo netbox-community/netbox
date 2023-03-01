@@ -65,9 +65,6 @@ class RIRImportForm(NetBoxModelImportForm):
     class Meta:
         model = RIR
         fields = ('name', 'slug', 'is_private', 'description', 'tags')
-        help_texts = {
-            'name': _('RIR name'),
-        }
 
 
 class AggregateImportForm(NetBoxModelImportForm):
@@ -410,10 +407,6 @@ class VLANImportForm(NetBoxModelImportForm):
     class Meta:
         model = VLAN
         fields = ('site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'comments', 'tags')
-        help_texts = {
-            'vid': 'Numeric VLAN ID (1-4094)',
-            'name': 'VLAN name',
-        }
 
 
 class ServiceTemplateImportForm(NetBoxModelImportForm):

@@ -34,7 +34,8 @@ class Circuit(PrimaryModel):
     """
     cid = models.CharField(
         max_length=100,
-        verbose_name='Circuit ID'
+        verbose_name='Circuit ID',
+        help_text=_("Unique circuit ID")
     )
     provider = models.ForeignKey(
         to='circuits.Provider',
@@ -71,7 +72,9 @@ class Circuit(PrimaryModel):
     commit_rate = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name='Commit rate (Kbps)')
+        verbose_name='Commit rate (Kbps)',
+        help_text=_("Committed rate")
+    )
 
     # Generic relations
     contacts = GenericRelation(
@@ -160,7 +163,8 @@ class CircuitTermination(
     port_speed = models.PositiveIntegerField(
         verbose_name='Port speed (Kbps)',
         blank=True,
-        null=True
+        null=True,
+        help_text=_("Physical circuit speed")
     )
     upstream_speed = models.PositiveIntegerField(
         blank=True,
@@ -171,12 +175,14 @@ class CircuitTermination(
     xconnect_id = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='Cross-connect ID'
+        verbose_name='Cross-connect ID',
+        help_text=_("ID of the local cross-connect")
     )
     pp_info = models.CharField(
         max_length=100,
         blank=True,
-        verbose_name='Patch panel/port(s)'
+        verbose_name='Patch panel/port(s)',
+        help_text=_("Patch panel ID and port number(s)")
     )
     description = models.CharField(
         max_length=200,

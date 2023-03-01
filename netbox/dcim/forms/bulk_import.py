@@ -394,10 +394,6 @@ class BaseDeviceImportForm(NetBoxModelImportForm):
     class Meta:
         fields = []
         model = Device
-        help_texts = {
-            'vc_position': 'Virtual chassis position',
-            'vc_priority': 'Virtual chassis priority',
-        }
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -775,9 +771,6 @@ class FrontPortImportForm(NetBoxModelImportForm):
             'device', 'name', 'label', 'type', 'color', 'mark_connected', 'rear_port', 'rear_port_position',
             'description', 'tags'
         )
-        help_texts = {
-            'rear_port_position': _('Mapped position on corresponding rear port'),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -815,9 +808,6 @@ class RearPortImportForm(NetBoxModelImportForm):
     class Meta:
         model = RearPort
         fields = ('device', 'name', 'label', 'type', 'color', 'mark_connected', 'positions', 'description', 'tags')
-        help_texts = {
-            'positions': _('Number of front ports which may be mapped')
-        }
 
 
 class ModuleBayImportForm(NetBoxModelImportForm):
@@ -1204,4 +1194,3 @@ class VirtualDeviceContextImportForm(NetBoxModelImportForm):
             'name', 'device', 'status', 'tenant', 'identifier', 'comments',
         ]
         model = VirtualDeviceContext
-        help_texts = {}

@@ -47,9 +47,6 @@ class CircuitTypeImportForm(NetBoxModelImportForm):
     class Meta:
         model = CircuitType
         fields = ('name', 'slug', 'description', 'tags')
-        help_texts = {
-            'name': _('Name of circuit type'),
-        }
 
 
 class CircuitImportForm(NetBoxModelImportForm):
