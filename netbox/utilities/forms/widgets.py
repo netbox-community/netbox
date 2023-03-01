@@ -117,7 +117,7 @@ class SelectDurationWidget(forms.NumberInput):
 
 
 class MarkdownWidget(forms.Textarea):
-    template_name = 'widgets/markdowninput.html'
+    template_name = 'widgets/markdown_input.html'
 
 
 class NumericArrayField(SimpleArrayField):
