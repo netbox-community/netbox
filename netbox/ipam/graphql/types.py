@@ -64,13 +64,29 @@ class FHRPGroupAssignmentType(BaseObjectType):
         filterset_class = filtersets.FHRPGroupAssignmentFilterSet
 
 
+class IPAddressFamilyType(graphene.ObjectType):
+
+    value = graphene.Int()
+    label = graphene.String()
+
+    def __init__(self, value):
+        self.value = value
+        self.label = 'IPv4' if value == 4 else 'IPv6'
+
+
 class IPAddressType(NetBoxObjectType):
     assigned_object = graphene.Field('ipam.graphql.gfk_mixins.IPAddressAssignmentType')
+    family = graphene.Field(IPAddressFamilyType)
 
     class Meta:
         model = models.IPAddress
         exclude = ('assigned_object_type', 'assigned_object_id')
         filterset_class = filtersets.IPAddressFilterSet
+
+    def resolve_family(self, _):
+        # Note that self, is an instance of models.IPAddress
+        # thus resolves to the address family value.
+        return IPAddressFamilyType(self.family)
 
     def resolve_role(self, info):
         return self.role or None
