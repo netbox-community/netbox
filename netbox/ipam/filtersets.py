@@ -16,6 +16,7 @@ from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .models import *
 
+from rest_framework import serializers
 
 __all__ = (
     'AggregateFilterSet',
@@ -599,7 +600,33 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
                 return queryset.none()
         return queryset.filter(q)
 
+    def parse_inet_addresses(self, value):
+        '''
+        Parse networks or IP addresses and cast to a format
+        acceptable by the Postgres inet type.
+
+        Skips invalid values.
+        '''
+        parsed = []
+        for addr in value:
+            if netaddr.valid_ipv4(addr) or netaddr.valid_ipv6(addr):
+                parsed.append(addr)
+                continue
+            try:
+                network = netaddr.IPNetwork(addr)
+                parsed.append(str(network))
+            except (AddrFormatError, ValueError):
+                continue
+        return parsed
+
     def filter_address(self, queryset, name, value):
+        # Let's first parse the addresses passed
+        # as argument. If they are all invalid,
+        # we return an empty queryset
+        value = self.parse_inet_addresses(value)
+        if (len(value) == 0):
+            return queryset.none()
+
         try:
             return queryset.filter(address__net_in=value)
         except ValidationError:

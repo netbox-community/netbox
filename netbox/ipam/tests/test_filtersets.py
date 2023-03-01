@@ -10,6 +10,7 @@ from ipam.models import *
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup
+from rest_framework import serializers
 
 
 class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -849,6 +850,26 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'address': ['2001:db8::1']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'address': ['2001:db8::1/64', '2001:db8::1/65']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        # Check for valid edge cases. Note that Postgres inet type
+        # only accepts netmasks in the int form, so the filterset
+        # casts netmasks in the xxx.xxx.xxx.xxx format.
+        params = {'address': ['24']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'address': ['10.0.0.1/255.255.255.0']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'address': ['10.0.0.1/255.255.255.0', '10.0.0.1/25']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        # Check for invalid input.
+        params = {'address': ['/24']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'address': ['10.0.0.1/255.255.999.0']}  # Invalid netmask
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+        # Check for partially invalid input.
+        params = {'address': ['10.0.0.1', '/24', '10.0.0.10/24']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mask_length(self):
