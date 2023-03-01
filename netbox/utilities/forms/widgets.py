@@ -116,6 +116,10 @@ class SelectDurationWidget(forms.NumberInput):
     template_name = 'widgets/select_duration.html'
 
 
+class MarkdownWidget(forms.Textarea):
+    template_name = 'widgets/markdowninput.html'
+
+
 class NumericArrayField(SimpleArrayField):
 
     def clean(self, value):
