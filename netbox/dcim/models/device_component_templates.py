@@ -350,6 +350,14 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         default=False,
         verbose_name='Management only'
     )
+    bridge = models.ForeignKey(
+        to='self',
+        on_delete=models.SET_NULL,
+        related_name='bridge_interfaces',
+        null=True,
+        blank=True,
+        verbose_name='Bridge interface'
+    )
     poe_mode = models.CharField(
         max_length=50,
         choices=InterfacePoEModeChoices,
@@ -364,6 +372,19 @@ class InterfaceTemplate(ModularComponentTemplateModel):
     )
 
     component_model = Interface
+
+    def clean(self):
+        super().clean()
+
+        if self.bridge:
+            if self.device_type and self.device_type != self.bridge.device_type:
+                raise ValidationError({
+                    'bridge': f"Bridge interface ({self.bridge}) must belong to the same device type"
+                })
+            if self.module_type and self.module_type != self.bridge.module_type:
+                raise ValidationError({
+                    'bridge': f"Bridge interface ({self.bridge}) must belong to the same module type"
+                })
 
     def instantiate(self, **kwargs):
         return self.component_model(
@@ -385,6 +406,7 @@ class InterfaceTemplate(ModularComponentTemplateModel):
             'mgmt_only': self.mgmt_only,
             'label': self.label,
             'description': self.description,
+            'bridge': self.bridge.name if self.bridge else None,
             'poe_mode': self.poe_mode,
             'poe_type': self.poe_type,
         }

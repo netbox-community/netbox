@@ -1048,15 +1048,24 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
 
 
 class InterfaceTemplateForm(ModularComponentTemplateForm):
+    bridge = DynamicModelChoiceField(
+        queryset=InterfaceTemplate.objects.all(),
+        required=False,
+        query_params={
+            'devicetype_id': '$device_type',
+            'moduletype_id': '$module_type',
+        }
+    )
+
     fieldsets = (
-        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description')),
+        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'bridge')),
         ('PoE', ('poe_mode', 'poe_type'))
     )
 
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode', 'poe_type',
+            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode', 'poe_type', 'bridge',
         ]
 
 
