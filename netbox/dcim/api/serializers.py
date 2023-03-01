@@ -475,6 +475,7 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
         default=None
     )
     type = ChoiceField(choices=InterfaceTypeChoices)
+    bridge = NestedInterfaceTemplateSerializer(required=False, allow_null=True)
     poe_mode = ChoiceField(
         choices=InterfacePoEModeChoices,
         required=False,
@@ -489,7 +490,7 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'bridge', 'enabled', 'mgmt_only', 'description',
             'poe_mode', 'poe_type', 'created', 'last_updated',
         ]
 
