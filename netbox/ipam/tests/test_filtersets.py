@@ -864,19 +864,13 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         # Check for invalid input.
         params = {'address': ['/24']}
-        with self.assertRaises(serializers.ValidationError) as cm:
-            self.filterset(params, self.queryset).qs.count()
-        self.assertRegex(cm.exception.detail['address'], r'^Invalid address.*')
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'address': ['10.0.0.1/255.255.999.0']}  # Invalid netmask
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
-        params = {'address': ['10.0.0.1/255.255.555.0']}
-        with self.assertRaises(serializers.ValidationError) as cm:
-            self.filterset(params, self.queryset).qs.count()
-        self.assertRegex(cm.exception.detail['address'], r'^Invalid address.*')
-
-        params = {'address': ['10.0.0.1', '/24']}
-        with self.assertRaises(serializers.ValidationError) as cm:
-            self.filterset(params, self.queryset).qs.count()
-        self.assertRegex(cm.exception.detail['address'], r'^Invalid address.*')
+        # Check for partially invalid input.
+        params = {'address': ['10.0.0.1', '/24', '10.0.0.10/24']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mask_length(self):
         params = {'mask_length': '24'}
