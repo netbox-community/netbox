@@ -231,6 +231,12 @@ class Cable(PrimaryModel):
     def get_status_color(self):
         return LinkStatusChoices.colors.get(self.status)
 
+    def get_trace_url(self):
+        for cabletermination in self.terminations.all():
+            if cabletermination.termination_type.model in ['interface', 'rearport', 'frontport', 'consoleport', 'consoleserverport', 'powerport', 'poweroutlet']:
+                return reverse(f'dcim:{cabletermination.termination_type.model}_trace', kwargs={'pk': cabletermination.termination.pk})
+        return ''
+
 
 class CableTermination(ChangeLoggedModel):
     """

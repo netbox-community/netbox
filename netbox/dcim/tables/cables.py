@@ -116,6 +116,9 @@ class CableTable(TenancyColumnsMixin, NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:cable_list'
     )
+    actions = columns.ActionsColumn(
+        extra_buttons='{% if record.get_trace_url %}<a href="{{ record.get_trace_url }}" class="btn btn-sm btn-primary" title="Trace"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>{% endif %}'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = Cable
