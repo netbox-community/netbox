@@ -902,6 +902,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_STACKWISE160 = 'cisco-stackwise-160'
     TYPE_STACKWISE320 = 'cisco-stackwise-320'
     TYPE_STACKWISE480 = 'cisco-stackwise-480'
+    TYPE_STACKWISE1T = 'cisco-stackwise-1t'
     TYPE_JUNIPER_VCP = 'juniper-vcp'
     TYPE_SUMMITSTACK = 'extreme-summitstack'
     TYPE_SUMMITSTACK128 = 'extreme-summitstack-128'
@@ -1078,6 +1079,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_STACKWISE160, 'Cisco StackWise-160'),
                 (TYPE_STACKWISE320, 'Cisco StackWise-320'),
                 (TYPE_STACKWISE480, 'Cisco StackWise-480'),
+                (TYPE_STACKWISE1T, 'Cisco StackWise-1T'),
                 (TYPE_JUNIPER_VCP, 'Juniper VCP'),
                 (TYPE_SUMMITSTACK, 'Extreme SummitStack'),
                 (TYPE_SUMMITSTACK128, 'Extreme SummitStack-128'),
