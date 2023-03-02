@@ -1,7 +1,8 @@
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404, HttpResponseForbidden, HttpResponse
+from django.template import Template, Context
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
@@ -885,3 +886,24 @@ class JobResultBulkDeleteView(generic.BulkDeleteView):
     queryset = JobResult.objects.all()
     filterset = filtersets.JobResultFilterSet
     table = tables.JobResultTable
+
+
+#
+# Markdown
+#
+
+class MarkdownRenderView(View):
+    # _ignore_model_permissions = True
+    template_code = """
+    {% if text %}
+      {{ text|markdown }}
+    {% else %}
+      &mdash;
+    {% endif %}
+    """
+
+    def post(self, request):
+        context = {
+            "text": request.POST.get("text", "")
+        }
+        return HttpResponse(Template(self.template_code).render(Context(context)).strip())

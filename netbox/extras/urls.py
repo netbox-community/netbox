@@ -92,4 +92,6 @@ urlpatterns = [
     path('scripts/results/<int:job_result_pk>/', views.ScriptResultView.as_view(), name='script_result'),
     re_path(r'^scripts/(?P<module>.([^.]+)).(?P<name>.(.+))/', views.ScriptView.as_view(), name='script'),
 
+    # Markdown
+    path('markdown/', views.MarkdownRenderView.as_view(), name="markdown_render")
 ]
