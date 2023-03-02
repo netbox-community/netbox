@@ -11,7 +11,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, CommentField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, form_from_model, SmallTextarea, StaticSelect, SelectSpeedWidget,
+    DynamicModelMultipleChoiceField, form_from_model, StaticSelect, SelectSpeedWidget, SmallMarkdownWidget
 )
 
 __all__ = (
@@ -138,7 +138,7 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -309,7 +309,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -345,7 +345,7 @@ class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -406,7 +406,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -441,7 +441,7 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -551,7 +551,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -594,7 +594,7 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -644,7 +644,7 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -668,7 +668,7 @@ class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -714,7 +714,7 @@ class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -776,7 +776,7 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label=_('Comments')
     )
 

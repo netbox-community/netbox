@@ -9,7 +9,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, SmallTextarea, StaticSelect
+    DynamicModelMultipleChoiceField, StaticSelect, SmallMarkdownWidget
 )
 from virtualization.choices import *
 from virtualization.models import *
@@ -90,7 +90,7 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label=_('Comments')
     )
 
@@ -163,7 +163,7 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label=_('Comments')
     )
 

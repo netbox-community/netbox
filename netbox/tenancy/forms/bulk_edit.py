@@ -2,7 +2,7 @@ from django import forms
 
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import *
-from utilities.forms import CommentField, DynamicModelChoiceField, SmallTextarea
+from utilities.forms import CommentField, DynamicModelChoiceField, SmallMarkdownWidget
 
 __all__ = (
     'ContactBulkEditForm',
@@ -106,7 +106,7 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 

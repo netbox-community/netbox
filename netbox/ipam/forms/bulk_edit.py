@@ -10,7 +10,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BulkEditNullBooleanSelect, CommentField, DynamicModelChoiceField, NumericArrayField,
-    SmallTextarea, StaticSelect, DynamicModelMultipleChoiceField,
+    StaticSelect, DynamicModelMultipleChoiceField, SmallMarkdownWidget
 )
 
 __all__ = (
@@ -48,7 +48,7 @@ class VRFBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -69,7 +69,7 @@ class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -116,7 +116,7 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -145,7 +145,7 @@ class AggregateBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -227,7 +227,7 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -266,7 +266,7 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -314,7 +314,7 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -359,7 +359,7 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -442,7 +442,7 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -474,7 +474,7 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
@@ -504,7 +504,7 @@ class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
+        widget=SmallMarkdownWidget,
         label='Comments'
     )
 
