@@ -1,22 +1,22 @@
-<div class="border rounded markdown-preview"> 
-    <ul class="nav nav-tabs px-3 pt-2 rounded-top bg-transparent border-0">
+<div class="border rounded markdown-widget"> 
+    <ul class="nav nav-tabs px-3 pt-2 rounded-top border-0">
         <li class="nav-item" role="presentation">
-          <button class="nav-link active " id="comment-input-tab" data-bs-toggle="tab" data-bs-target="#comment-input" type="button" role="tab" aria-controls="comment-input" aria-selected="true">
+          <button class="nav-link active " id="{{ widget.name }}-input-tab" data-bs-toggle="tab" data-bs-target="#{{ widget.name }}-input" type="button" role="tab" aria-controls="{{ widget.name }}-input" aria-selected="true">
             Write
           </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link " id="markdown-preview-tab" data-bs-toggle="tab" data-bs-target="#markdown-preview" type="button" role="tab" aria-controls="markdown-preview" aria-selected="false">
+            <button hx-target="#{{ widget.name }}-preview" hx-swap="innerHTML" hx-post="{% url 'extras:markdown_render' %}" class="nav-link preview-button" id="{{ widget.name }}-markdown-preview-tab" data-bs-toggle="tab" data-bs-target="#{{ widget.name }}-markdown-preview" type="button" role="tab" aria-controls="{{ widget.name }}-markdown-preview" aria-selected="false">
               Preview   
             </button>
           </li>
       </ul>
       <div class="tab-content bg-body rounded-bottom border-top">
-        <div class="tab-pane show active" id="comment-input" role="tabpanel" aria-labelledby="comment-input-tab">
+        <div class="tab-pane show active" id="{{ widget.name }}-input" role="tabpanel" aria-labelledby="{{ widget.name }}-input-tab">
         {% include "django/forms/widgets/textarea.html" %}
         </div>
-        <div class="tab-pane show" id="markdown-preview" role="tabpanel" aria-labelledby="markdown-preview-tab">
-            <div class="test">This is rendered markdown</div>
+        <div class="tab-pane show" id="{{ widget.name }}-markdown-preview" role="tabpanel" aria-labelledby="{{ widget.name }}-markdown-preview-tab">
+            <div id="{{ widget.name }}-preview" class="preview px-3 py-2">Testing</div>
         </div>
     </div>
 </div>

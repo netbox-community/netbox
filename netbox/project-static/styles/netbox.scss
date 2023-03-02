@@ -1004,12 +1004,12 @@ div.card-overlay {
     border-bottom: 0;
 
     &.active {
-      background-color: var(--nbx-body-bg) !important;
+      background-color: var(--nbx-body-bg);
     }
   }
-  .nav-link.active {
-    // background-color: var(--nbx-body-bg) !important;
-    background-color: blueviolet;
+
+  .nav-tabs {
+    background-color: var(--nbx-pre-bg);
   }
 }
 
