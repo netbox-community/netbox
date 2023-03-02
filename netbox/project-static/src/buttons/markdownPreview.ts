@@ -34,6 +34,7 @@ function initMarkdownPreview(markdownWidget: HTMLDivElement) {
     e.detail.parameters = { text: textarea.value || '' };
     e.detail.headers['X-CSRFToken'] = window.CSRF_TOKEN;
     preview.style.minHeight = textarea.style.height;
+    preview.innerHTML = '';
   });
 }
 
