@@ -1727,6 +1727,7 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
 
 
 class CableTerminationFilterSet(BaseFilterSet):
+    termination_type = ContentTypeFilter()
 
     class Meta:
         model = CableTermination
