@@ -79,7 +79,11 @@ A human-friendly description of what your script does.
 
 ### `field_order`
 
-By default, script variables will be ordered in the form as they are defined in the script. `field_order` may be defined as an iterable of field names to determine the order in which variables are rendered. Any fields not included in this iterable be listed last.
+By default, script variables will be ordered in the form as they are defined in the script. `field_order` may be defined as an iterable of field names to determine the order in which variables are rendered. Any fields not included in this iterable be listed last. If `fieldsets` is defined, `field_order` will be ignored.
+
+### `fieldsets`
+
+By default, script variables will be ordered in the form as they are defined in the script. `fieldsets` may be defined as an iterable of field groups and their field names to determine the order in which variables are group and rendered. Any fields not included in this iterable will not be displayed in the firm. If `fieldsets` is defined, `field_order` will be ignored.
 
 ### `commit_default`
 
@@ -302,7 +306,7 @@ Optionally `schedule_at` can be passed in the form data with a datetime string t
 Scripts can be run on the CLI by invoking the management command:
 
 ```
-python3 manage.py runscript [--commit] [--loglevel {debug,info,warning,error,critical}] [--data "<data>"] <module>.<script> 
+python3 manage.py runscript [--commit] [--loglevel {debug,info,warning,error,critical}] [--data "<data>"] <module>.<script>
 ```
 
 The required ``<module>.<script>`` argument is the script to run where ``<module>`` is the name of the python file in the ``scripts`` directory without the ``.py`` extension and ``<script>`` is the name of the script class in the ``<module>`` to run.
