@@ -18,7 +18,6 @@
       <div class="row mb-2">
         <h5 class="offset-sm-3">Hardware</h5>
       </div>
-      {% render_field form.manufacturer %}
       {% render_field form.device_type %}
       {% render_field form.airflow %}
       {% render_field form.serial %}
@@ -29,8 +28,6 @@
       <div class="row mb-2">
         <h5 class="offset-sm-3">Location</h5>
       </div>
-{#      {% render_field form.region %}#}
-{#      {% render_field form.site_group %}#}
       {% render_field form.site %}
       {% render_field form.location %}
       {% render_field form.rack %}
@@ -76,7 +73,6 @@
       <div class="row mb-2">
         <h5 class="offset-sm-3">Virtualization</h5>
       </div>
-      {% render_field form.cluster_group %}
       {% render_field form.cluster %}
     </div>
     

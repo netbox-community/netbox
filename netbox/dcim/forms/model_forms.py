@@ -14,7 +14,7 @@ from tenancy.forms import TenancyForm
 from utilities.forms import (
     APISelect, add_blank_choice, BootstrapMixin, ClearableFileInput, CommentField, ContentTypeChoiceField,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SelectWithPK,
-    SlugField, SelectSpeedWidget, APISelectWithSelector
+    SlugField, SelectSpeedWidget
 )
 from virtualization.models import Cluster, ClusterGroup
 from wireless.models import WirelessLAN, WirelessLANGroup
@@ -441,27 +441,9 @@ class PlatformForm(NetBoxModelForm):
 
 
 class DeviceForm(TenancyForm, NetBoxModelForm):
-    # region = DynamicModelChoiceField(
-    #     queryset=Region.objects.all(),
-    #     required=False,
-    #     initial_params={
-    #         'sites': '$site'
-    #     }
-    # )
-    # site_group = DynamicModelChoiceField(
-    #     queryset=SiteGroup.objects.all(),
-    #     required=False,
-    #     initial_params={
-    #         'sites': '$site'
-    #     }
-    # )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        query_params={
-            'region_id': '$region',
-            'group_id': '$site_group',
-        },
-        widget=APISelectWithSelector
+        with_selector=True
     )
     location = DynamicModelChoiceField(
         queryset=Location.objects.all(),
@@ -492,43 +474,21 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             }
         )
     )
-    manufacturer = DynamicModelChoiceField(
-        queryset=Manufacturer.objects.all(),
-        required=False,
-        initial_params={
-            'device_types': '$device_type'
-        }
-    )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
-        query_params={
-            'manufacturer_id': '$manufacturer'
-        }
+        with_selector=True
     )
     device_role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all()
     )
     platform = DynamicModelChoiceField(
         queryset=Platform.objects.all(),
-        required=False,
-        query_params={
-            'manufacturer_id': ['$manufacturer', 'null']
-        }
-    )
-    cluster_group = DynamicModelChoiceField(
-        queryset=ClusterGroup.objects.all(),
-        required=False,
-        null_option='None',
-        initial_params={
-            'clusters': '$cluster'
-        }
+        required=False
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        query_params={
-            'group_id': '$cluster_group'
-        }
+        with_selector=True
     )
     comments = CommentField()
     local_context_data = JSONField(
@@ -537,7 +497,8 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     )
     virtual_chassis = DynamicModelChoiceField(
         queryset=VirtualChassis.objects.all(),
-        required=False
+        required=False,
+        with_selector=True
     )
     vc_position = forms.IntegerField(
         required=False,
@@ -557,10 +518,10 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Device
         fields = [
-            'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack',
-            'location', 'position', 'face', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6',
-            'cluster_group', 'cluster', 'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'description', 'config_template', 'comments', 'tags', 'local_context_data'
+            'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'location', 'position', 'face',
+            'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'cluster', 'tenant_group', 'tenant',
+            'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template', 'comments', 'tags',
+            'local_context_data'
         ]
 
     def __init__(self, *args, **kwargs):
