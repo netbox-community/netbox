@@ -14,7 +14,7 @@ from tenancy.forms import TenancyForm
 from utilities.forms import (
     APISelect, add_blank_choice, BootstrapMixin, ClearableFileInput, CommentField, ContentTypeChoiceField,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SelectWithPK,
-    SlugField, SelectSpeedWidget,
+    SlugField, SelectSpeedWidget, APISelectWithSelector
 )
 from virtualization.models import Cluster, ClusterGroup
 from wireless.models import WirelessLAN, WirelessLANGroup
@@ -441,26 +441,27 @@ class PlatformForm(NetBoxModelForm):
 
 
 class DeviceForm(TenancyForm, NetBoxModelForm):
-    region = DynamicModelChoiceField(
-        queryset=Region.objects.all(),
-        required=False,
-        initial_params={
-            'sites': '$site'
-        }
-    )
-    site_group = DynamicModelChoiceField(
-        queryset=SiteGroup.objects.all(),
-        required=False,
-        initial_params={
-            'sites': '$site'
-        }
-    )
+    # region = DynamicModelChoiceField(
+    #     queryset=Region.objects.all(),
+    #     required=False,
+    #     initial_params={
+    #         'sites': '$site'
+    #     }
+    # )
+    # site_group = DynamicModelChoiceField(
+    #     queryset=SiteGroup.objects.all(),
+    #     required=False,
+    #     initial_params={
+    #         'sites': '$site'
+    #     }
+    # )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         query_params={
             'region_id': '$region',
             'group_id': '$site_group',
-        }
+        },
+        widget=APISelectWithSelector
     )
     location = DynamicModelChoiceField(
         queryset=Location.objects.all(),
@@ -556,7 +557,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Device
         fields = [
-            'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'rack',
+            'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack',
             'location', 'position', 'face', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6',
             'cluster_group', 'cluster', 'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority',
             'description', 'config_template', 'comments', 'tags', 'local_context_data'

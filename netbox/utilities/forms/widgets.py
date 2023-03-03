@@ -11,6 +11,7 @@ from .utils import add_blank_choice, parse_numeric_range
 __all__ = (
     'APISelect',
     'APISelectMultiple',
+    'APISelectWithSelector',
     'BulkEditNullBooleanSelect',
     'ClearableFileInput',
     'ColorSelect',
@@ -257,6 +258,10 @@ class APISelectMultiple(APISelect, forms.SelectMultiple):
         super().__init__(*args, **kwargs)
 
         self.attrs['data-multiple'] = 1
+
+
+class APISelectWithSelector(APISelect):
+    template_name = 'widgets/apiselect_with_selector.html'
 
 
 class DatePicker(forms.TextInput):

@@ -29,8 +29,8 @@
       <div class="row mb-2">
         <h5 class="offset-sm-3">Location</h5>
       </div>
-      {% render_field form.region %}
-      {% render_field form.site_group %}
+{#      {% render_field form.region %}#}
+{#      {% render_field form.site_group %}#}
       {% render_field form.site %}
       {% render_field form.location %}
       {% render_field form.rack %}
@@ -116,4 +116,8 @@
       {% render_field form.comments %}
     </div>
 
+{% endblock %}
+
+{% block modals %}
+  {% include 'inc/htmx_modal.html' %}
 {% endblock %}
