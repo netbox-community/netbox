@@ -83,7 +83,7 @@ By default, script variables will be ordered in the form as they are defined in 
 
 ### `fieldsets`
 
-By default, script variables will be ordered in the form as they are defined in the script. `fieldsets` may be defined as an iterable of field groups and their field names to determine the order in which variables are group and rendered. Any fields not included in this iterable will not be displayed in the firm. If `fieldsets` is defined, `field_order` will be ignored.
+`fieldsets` may be defined as an iterable of field groups and their field names to determine the order in which variables are group and rendered. Any fields not included in this iterable will not be displayed in the form. If `fieldsets` is defined, `field_order` will be ignored.  A fieldset group for "Script Execution Functions" will be added to the end of the fieldsets by default for the user.
 
 ### `commit_default`
 
