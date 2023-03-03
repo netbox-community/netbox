@@ -1,11 +1,30 @@
 {% load form_helpers %}
 
-<form>
-  <div class="modal-header">
-    <h5 class="modal-title">Object Selector</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal-header">
+  <h5 class="modal-title">Object Selector</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body row">
+  <div class="col-3">
+    <ul class="nav nav-pills flex-column">
+      {% for field in form.visible_fields %}
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-bs-toggle="tab" data-bs-target="#selector{{ forloop.counter }}">{{ field.label }}</a>
+        </li>
+      {% endfor %}
+    </ul>
   </div>
-  <div class="modal-body">
-    {% render_form form %}
+  <div class="col-9">
+    <form hx-get="{% url 'htmx_object_selector' %}" hx-target="#results_list">
+      <div class="tab-content p-1">
+        {% for field in form.visible_fields %}
+          <div class="tab-pane{% if forloop.first %} active{% endif %}" id="selector{{ forloop.counter }}" role="tabpanel">{% render_field field %}</div>
+        {% endfor %}
+      </div>
+      <div class="text-end">
+        <button type="submit" name="_search" value="true" class="btn btn-sm btn-primary">Submit</button>
+      </div>
+    </form>
+    <div id="results_list" class="mt-3"></div>
   </div>
-</form>
+</div>
