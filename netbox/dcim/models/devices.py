@@ -460,6 +460,20 @@ class Platform(OrganizationalModel):
         return reverse('dcim:platform', args=[self.pk])
 
 
+def update_interface_bridges(device, interface_templates, module=None):
+    """
+    Used for device and module instantiation. Iterates all InterfaceTemplates with a bridge assigned
+    and applies it to the actual interfaces.
+    """
+    for interface_template in interface_templates.exclude(bridge=None):
+        interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
+
+        if interface_template.bridge:
+            interface.bridge = Interface.objects.get(device=device, name=interface_template.bridge.resolve_name(module=module))
+            interface.full_clean()
+            interface.save()
+
+
 class Device(PrimaryModel, ConfigContextModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
@@ -802,15 +816,6 @@ class Device(PrimaryModel, ConfigContextModel):
                 'vc_position': "A device assigned to a virtual chassis must have its position defined."
             })
 
-    def _update_interface_bridges(self, interface_templates, module=None):
-        for interface_template in interface_templates.exclude(bridge=None):
-            interface = Interface.objects.get(device=self, name=interface_template.resolve_name(module=module))
-
-            if interface_template.bridge:
-                interface.bridge = Interface.objects.get(device=self, name=interface_template.bridge.resolve_name(module=module))
-                interface.full_clean()
-                interface.save()
-
     def _instantiate_components(self, queryset, bulk_create=True):
         """
         Instantiate components for the device from the specified component templates.
@@ -864,7 +869,7 @@ class Device(PrimaryModel, ConfigContextModel):
             # Disable bulk_create to accommodate MPTT
             self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
             # Interface bridges have to be set after interface instantiation
-            self._update_interface_bridges(self.device_type.interfacetemplates.all())
+            update_interface_bridges(self, self.device_type.interfacetemplates.all())
 
         # Update Site and Rack assignment for any child Devices
         devices = Device.objects.filter(parent_bay__device=self)
@@ -1026,15 +1031,6 @@ class Module(PrimaryModel, ConfigContextModel):
                 f"Module must be installed within a module bay belonging to the assigned device ({self.device})."
             )
 
-    def _update_interface_bridges(self, interface_templates, module=None):
-        for interface_template in interface_templates.exclude(bridge=None):
-            interface = Interface.objects.get(device=self.device, name=interface_template.resolve_name(module=module))
-
-            if interface_template.bridge:
-                interface.bridge = Interface.objects.get(device=self.device, name=interface_template.bridge.resolve_name(module=module))
-                interface.full_clean()
-                interface.save()
-
     def save(self, *args, **kwargs):
         is_new = self.pk is None
 
@@ -1111,7 +1107,7 @@ class Module(PrimaryModel, ConfigContextModel):
                 )
 
         # Interface bridges have to be set after interface instantiation
-        self._update_interface_bridges(self.module_type.interfacetemplates, self)
+        update_interface_bridges(self.device, self.module_type.interfacetemplates, self)
 
 
 #
