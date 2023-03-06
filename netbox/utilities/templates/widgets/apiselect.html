@@ -7,7 +7,7 @@
       class="btn btn-sm btn-outline-dark border-input ms-1"
       data-bs-toggle="modal"
       data-bs-target="#htmx-modal"
-      hx-get="{% url 'htmx_object_selector' %}?model={{ widget.attrs.selector }}"
+      hx-get="{% url 'htmx_object_selector' %}?model={{ widget.attrs.selector }}&target={{ widget.attrs.id }}"
       hx-target="#htmx-modal-content"
     >
       <i class="mdi mdi-database-search-outline"></i>

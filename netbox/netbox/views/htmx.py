@@ -30,6 +30,7 @@ class ObjectSelectorView(View):
         return render(request, self.template_name, {
             'form': form,
             'model': model,
+            'target_id': request.GET.get('target'),
         })
 
     def _get_model(self, label):
