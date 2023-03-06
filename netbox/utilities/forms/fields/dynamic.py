@@ -26,6 +26,7 @@ class DynamicModelChoiceMixin:
             choice (optional)
         fetch_trigger: The event type which will cause the select element to
             fetch data from the API. Must be 'load', 'open', or 'collapse'. (optional)
+        selector: Include an advanced object selection widget to assist the user in identifying the desired object
     """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
@@ -40,7 +41,7 @@ class DynamicModelChoiceMixin:
             disabled_indicator=None,
             fetch_trigger=None,
             empty_label=None,
-            with_selector=False,
+            selector=False,
             **kwargs
     ):
         self.model = queryset.model
@@ -49,7 +50,7 @@ class DynamicModelChoiceMixin:
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
         self.fetch_trigger = fetch_trigger
-        self.with_selector = with_selector
+        self.selector = selector
 
         # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
         # by widget_attrs()
@@ -84,7 +85,7 @@ class DynamicModelChoiceMixin:
             widget.add_query_params(self.query_params)
 
         # Include object selector?
-        if self.with_selector:
+        if self.selector:
             attrs['selector'] = self.model._meta.label_lower
 
         return attrs

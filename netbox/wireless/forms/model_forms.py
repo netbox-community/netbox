@@ -38,55 +38,16 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
         queryset=WirelessLANGroup.objects.all(),
         required=False
     )
-    region = DynamicModelChoiceField(
-        queryset=Region.objects.all(),
-        required=False,
-        initial_params={
-            'sites': '$site'
-        }
-    )
-    site_group = DynamicModelChoiceField(
-        queryset=SiteGroup.objects.all(),
-        required=False,
-        initial_params={
-            'sites': '$site'
-        }
-    )
-    site = DynamicModelChoiceField(
-        queryset=Site.objects.all(),
-        required=False,
-        null_option='None',
-        query_params={
-            'region_id': '$region',
-            'group_id': '$site_group',
-        }
-    )
-    vlan_group = DynamicModelChoiceField(
-        queryset=VLANGroup.objects.all(),
-        required=False,
-        label=_('VLAN group'),
-        null_option='None',
-        query_params={
-            'site': '$site'
-        },
-        initial_params={
-            'vlans': '$vlan'
-        }
-    )
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label=_('VLAN'),
-        query_params={
-            'site_id': '$site',
-            'group_id': '$vlan_group',
-        }
+        selector=True,
+        label=_('VLAN')
     )
     comments = CommentField()
 
     fieldsets = (
-        ('Wireless LAN', ('ssid', 'group', 'status', 'description', 'tags')),
-        ('VLAN', ('region', 'site_group', 'site', 'vlan_group', 'vlan',)),
+        ('Wireless LAN', ('ssid', 'group', 'vlan', 'status', 'description', 'tags')),
         ('Tenancy', ('tenant_group', 'tenant')),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
     )
@@ -94,8 +55,8 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = WirelessLAN
         fields = [
-            'ssid', 'group', 'region', 'site_group', 'site', 'status', 'vlan_group', 'vlan', 'tenant_group', 'tenant',
-            'auth_type', 'auth_cipher', 'auth_psk', 'description', 'comments', 'tags',
+            'ssid', 'group', 'status', 'vlan', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
+            'description', 'comments', 'tags',
         ]
 
 
