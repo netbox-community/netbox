@@ -93,5 +93,5 @@ urlpatterns = [
     re_path(r'^scripts/(?P<module>.([^.]+)).(?P<name>.(.+))/', views.ScriptView.as_view(), name='script'),
 
     # Markdown
-    path('render/markdown/', views.MarkdownRenderView.as_view(), name="render_markdown")
+    path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown")
 ]
