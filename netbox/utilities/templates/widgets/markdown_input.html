@@ -6,7 +6,7 @@
           </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button hx-target="#{{ widget.name }}-preview" hx-swap="innerHTML" hx-post="{% url 'extras:markdown_render' %}" class="nav-link preview-button" id="{{ widget.name }}-markdown-preview-tab" data-bs-toggle="tab" data-bs-target="#{{ widget.name }}-markdown-preview" type="button" role="tab" aria-controls="{{ widget.name }}-markdown-preview" aria-selected="false">
+            <button hx-target="#{{ widget.name }}-preview" hx-swap="innerHTML" hx-post="{% url 'extras:render_markdown' %}" class="nav-link preview-button" id="{{ widget.name }}-markdown-preview-tab" data-bs-toggle="tab" data-bs-target="#{{ widget.name }}-markdown-preview" type="button" role="tab" aria-controls="{{ widget.name }}-markdown-preview" aria-selected="false">
               Preview   
             </button>
           </li>
