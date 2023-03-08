@@ -8,7 +8,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    SmallMarkdownWidget, StaticSelect,
+    StaticSelect,
 )
 
 __all__ = (
@@ -35,7 +35,6 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallMarkdownWidget,
         label=_('Comments')
     )
 
@@ -63,7 +62,6 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallMarkdownWidget,
         label=_('Comments')
     )
 
@@ -125,7 +123,6 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallMarkdownWidget,
         label=_('Comments')
     )
 

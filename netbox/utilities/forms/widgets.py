@@ -22,7 +22,6 @@ __all__ = (
     'SelectSpeedWidget',
     'SelectWithPK',
     'SlugWidget',
-    'SmallMarkdownWidget',
     'SmallTextarea',
     'StaticSelect',
     'StaticSelectMultiple',
@@ -120,13 +119,6 @@ class SelectDurationWidget(forms.NumberInput):
 
 class MarkdownWidget(forms.Textarea):
     template_name = 'widgets/markdown_input.html'
-
-
-class SmallMarkdownWidget(MarkdownWidget):
-    """
-    Subclass used for rendering a smaller markdown element.
-    """
-    pass
 
 
 class NumericArrayField(SimpleArrayField):
