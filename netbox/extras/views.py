@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponseForbidden, HttpResponse
-from django.template import Template, Context
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
@@ -11,6 +10,7 @@ from rq import Worker
 
 from netbox.views import generic
 from utilities.htmx import is_htmx
+from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
@@ -894,7 +894,6 @@ class JobResultBulkDeleteView(generic.BulkDeleteView):
 
 class MarkdownRenderView(View):
     def post(self, request):
-        context = {
-            "text": request.POST.get("text", "")
-        }
-        return HttpResponse(Template("{{text|markdown}}").render(Context(context)).strip())
+        raw = request.POST.get("text", "").strip()
+        rendered = render_markdown(raw)
+        return HttpResponse(rendered)
