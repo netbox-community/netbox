@@ -893,17 +893,8 @@ class JobResultBulkDeleteView(generic.BulkDeleteView):
 #
 
 class MarkdownRenderView(View):
-    # _ignore_model_permissions = True
-    template_code = """
-    {% if text %}
-      {{ text|markdown }}
-    {% else %}
-      &mdash;
-    {% endif %}
-    """
-
     def post(self, request):
         context = {
             "text": request.POST.get("text", "")
         }
-        return HttpResponse(Template(self.template_code).render(Context(context)).strip())
+        return HttpResponse(Template("{{text|markdown}}").render(Context(context)).strip())
