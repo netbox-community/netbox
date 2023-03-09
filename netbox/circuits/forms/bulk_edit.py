@@ -7,7 +7,7 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea,
+    add_blank_choice, CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
     StaticSelect,
 )
 
@@ -35,7 +35,6 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
         label=_('Comments')
     )
 
@@ -63,7 +62,6 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
         label=_('Comments')
     )
 
@@ -125,7 +123,6 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea,
         label=_('Comments')
     )
 
