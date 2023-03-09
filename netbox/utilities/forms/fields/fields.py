@@ -27,7 +27,7 @@ class CommentField(forms.CharField):
     """
     A textarea with support for Markdown rendering. Exists mostly just to add a standard `help_text`.
     """
-    widget = forms.Textarea
+    widget = widgets.MarkdownWidget
     help_text = f"""
         <i class="mdi mdi-information-outline"></i>
         <a href="{static('docs/reference/markdown/')}" target="_blank" tabindex="-1">
