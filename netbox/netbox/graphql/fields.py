@@ -1,10 +1,7 @@
 from functools import partial
 
-from django.db.models.query import QuerySet
 import graphene
 from graphene_django import DjangoListField
-from graphene_django.utils import maybe_queryset
-from utilities.graphql_optimizer import gql_query_optimizer
 from .utils import get_graphene_type
 
 __all__ = (
@@ -67,11 +64,7 @@ class ObjectListField(DjangoListField):
             filterset = filterset_class(data=args if args else None, queryset=queryset, request=info.context)
 
             if not filterset.is_valid():
-                queryset = queryset.none()
+                return queryset.none()
+            return filterset.qs
 
-            queryset = filterset.qs
-            return queryset
-
-        return queryset
-        qs = gql_query_optimizer(queryset, info)
         return queryset
