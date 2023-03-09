@@ -1,6 +1,9 @@
 import graphene
+from ipam.models import VLAN
+from utilities.graphql_optimizer import gql_query_optimizer
 
 from netbox.graphql.fields import ObjectField, ObjectListField
+
 from .types import *
 
 
@@ -29,6 +32,9 @@ class IPAMQuery(graphene.ObjectType):
     prefix = ObjectField(PrefixType)
     prefix_list = ObjectListField(PrefixType)
 
+    def resolve_prefix_list(root, info, **kwargs):
+        return gql_query_optimizer(Prefix.objects.all(), info)
+
     rir = ObjectField(RIRType)
     rir_list = ObjectListField(RIRType)
 
@@ -52,6 +58,9 @@ class IPAMQuery(graphene.ObjectType):
 
     vlan = ObjectField(VLANType)
     vlan_list = ObjectListField(VLANType)
+
+    def resolve_vlan_list(root, info, **kwargs):
+        return gql_query_optimizer(VLAN.objects.all(), info)
 
     vlan_group = ObjectField(VLANGroupType)
     vlan_group_list = ObjectListField(VLANGroupType)
