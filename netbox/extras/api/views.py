@@ -15,7 +15,7 @@ from extras import filtersets
 from extras.choices import JobResultStatusChoices
 from extras.models import *
 from extras.models import CustomField
-from extras.models.staging import Notification
+from extras.models.staging import Notification, ReviewRequest
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
@@ -406,6 +406,7 @@ class NotificationViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.NotificationSerializer
 
     def get_queryset(self):
+        # TODO: Maybe we want to drop the filter if an admin is querying.
         return Notification.objects.filter(user__id=self.request.user.id).order_by('created')
 
     def partial_update(self, request, pk=None):
@@ -419,3 +420,15 @@ class NotificationViewSet(ReadOnlyModelViewSet):
         n = get_object_or_404(self.get_queryset(), pk=pk)
         n.delete()
         return Response(status=status.HTTP_200_OK)
+
+
+class ReviewRequestViewSet(ReadOnlyModelViewSet):
+
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
+    serializer_class = serializers.ReviewRequestSerializer
+
+    def get_queryset(self):
+        return ReviewRequest.objects.filter(owner__id=self.request.user.id).order_by('last_updated')
+
+    def create(self, create):
+        pass

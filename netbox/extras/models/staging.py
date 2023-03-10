@@ -7,7 +7,9 @@ from django.db import models, transaction
 from django.conf import settings
 from django.urls import reverse
 
-from extras.choices import ChangeActionChoices
+from extras.choices import ChangeActionChoices, \
+    ReviewRequestStateChoices, \
+    ReviewRequestStatusChoices
 from netbox.models import ChangeLoggedModel, NetBoxModel
 from utilities.utils import deserialize_object
 
@@ -144,6 +146,48 @@ class Notification(NetBoxModel):
 
     def get_absolute_url(self):
         return reverse('extras-api:notifications-detail', args=[self.pk])
+
+    class Meta:
+        ordering = ('pk',)
+
+
+class ReviewRequest(ChangeLoggedModel):
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='review_requests'
+    )
+
+    reviewer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='assigned_review_requests'
+    )
+
+    branch = models.ForeignKey(
+        to=Branch,
+        on_delete=models.CASCADE,
+        related_name='review_request'
+    )
+
+    status = models.CharField(
+        max_length=256,
+        choices=ReviewRequestStatusChoices,
+        default=ReviewRequestStatusChoices.STATUS_OPEN
+    )
+
+    state = models.CharField(
+        max_length=256,
+        choices=ReviewRequestStateChoices,
+        default=ReviewRequestStateChoices.STATE_UNDER_REVIEW
+    )
+
+    def __str__(self):
+        return f'[OwnerId: {self.owner.pk}, ReviewerId: {self.reviewer.id} {self.status}/{self.state}] {self.branch}'
+
+    def get_absolute_url(self):
+        return reverse('extras-api:review-requests-detail', args=[self.pk])
 
     class Meta:
         ordering = ('pk',)

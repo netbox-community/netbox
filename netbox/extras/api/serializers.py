@@ -11,7 +11,7 @@ from dcim.api.nested_serializers import (
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
-from extras.models.staging import Notification
+from extras.models.staging import Notification, ReviewRequest
 from extras.utils import FeatureQuery
 from netbox.api.exceptions import SerializerNotFound
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
@@ -536,4 +536,17 @@ class NotificationSerializer(BaseModelSerializer):
         model = Notification
         fields = [
             'id', 'url', 'created', 'title', 'content', 'read'
+        ]
+
+
+class ReviewRequestSerializer(BaseModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:review-requests-detail')
+
+    def create(self, validated_data):
+        pass
+
+    class Meta:
+        model = ReviewRequest
+        fields = [
+            'id', 'url', 'created', 'last_updated', 'owner', 'reviewer', 'branch', 'status', 'state'
         ]

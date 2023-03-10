@@ -199,3 +199,27 @@ class ChangeActionChoices(ChoiceSet):
         (ACTION_UPDATE, 'Update'),
         (ACTION_DELETE, 'Delete'),
     )
+
+
+class ReviewRequestStateChoices(ChoiceSet):
+
+    STATE_UNDER_REVIEW = 'under_review'
+    STATE_APPROVED = 'approved'
+    STATE_DENIED = 'denied'
+
+    CHOICES = (
+        (STATE_UNDER_REVIEW, 'Under Review'),
+        (STATE_APPROVED, 'Approved'),
+        (STATE_DENIED, 'Denied')
+    )
+
+
+class ReviewRequestStatusChoices(ChoiceSet):
+
+    STATUS_OPEN = 'open'
+    STATUS_CLOSED = 'closed'
+
+    CHOICES = (
+        (STATUS_OPEN, 'Open'),
+        (STATUS_CLOSED, 'Closed')
+    )
