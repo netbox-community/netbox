@@ -15,7 +15,7 @@
     </ul>
   </div>
   <div class="col-9">
-    <form hx-get="{% url 'htmx_object_selector' %}?model={{ model|meta:"label_lower" }}" hx-target="#selector_results">
+    <form hx-get="{% url 'htmx_object_selector' %}?_model={{ model|meta:"label_lower" }}" hx-target="#selector_results">
       <div class="tab-content p-1">
         {% for field in form.visible_fields %}
           <div class="collapse{% if forloop.first %} show{% endif %}" id="selector{{ forloop.counter }}">{% render_field field %}</div>

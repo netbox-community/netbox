@@ -10,7 +10,7 @@ class ObjectSelectorView(View):
     template_name = 'htmx/object_selector.html'
 
     def get(self, request):
-        model = self._get_model(request.GET.get('model', ''))
+        model = self._get_model(request.GET.get('_model', ''))
 
         form_class = self._get_form_class(model)
         form = form_class(request.GET)
