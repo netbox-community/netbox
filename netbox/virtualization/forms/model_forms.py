@@ -252,7 +252,8 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
 
 class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
     virtual_machine = DynamicModelChoiceField(
-        queryset=VirtualMachine.objects.all()
+        queryset=VirtualMachine.objects.all(),
+        selector=True
     )
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),

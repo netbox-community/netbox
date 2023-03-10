@@ -940,7 +940,8 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
 
 class DeviceComponentForm(NetBoxModelForm):
     device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
+        queryset=Device.objects.all(),
+        selector=True
     )
 
     def __init__(self, *args, **kwargs):
