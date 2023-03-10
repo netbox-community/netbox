@@ -40,9 +40,6 @@ async function bundleGraphIQL() {
 async function bundleNetBox() {
   const entryPoints = {
     netbox: 'src/index.ts',
-    lldp: 'src/device/lldp.ts',
-    config: 'src/device/config.ts',
-    status: 'src/device/status.ts',
   };
   try {
     const result = await esbuild.build({

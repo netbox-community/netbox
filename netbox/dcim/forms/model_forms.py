@@ -66,12 +66,6 @@ __all__ = (
     'VirtualDeviceContextForm'
 )
 
-INTERFACE_MODE_HELP_TEXT = """
-Access: One untagged VLAN<br />
-Tagged: One untagged VLAN and/or one or more tagged VLANs<br />
-Tagged (All): Implies all VLANs are available (w/optional untagged VLAN)
-"""
-
 
 class RegionForm(NetBoxModelForm):
     parent = DynamicModelChoiceField(
@@ -159,16 +153,6 @@ class SiteForm(TenancyForm, NetBoxModelForm):
                     'rows': 3,
                 }
             ),
-        }
-        help_texts = {
-            'name': _("Full name of the site"),
-            'facility': _("Data center provider and facility (e.g. Equinix NY7)"),
-            'time_zone': _("Local time zone"),
-            'description': _("Short description (will appear in sites list)"),
-            'physical_address': _("Physical location of the building (e.g. for GPS)"),
-            'shipping_address': _("If different from the physical address"),
-            'latitude': _("Latitude in decimal format (xx.yyyyyy)"),
-            'longitude': _("Longitude in decimal format (xx.yyyyyy)")
         }
 
 
@@ -276,12 +260,6 @@ class RackForm(TenancyForm, NetBoxModelForm):
             'role', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
             'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         ]
-        help_texts = {
-            'site': _("The site at which the rack exists"),
-            'name': _("Organizational rack name"),
-            'facility_id': _("The unique rack ID assigned by the facility"),
-            'u_height': _("Height in rack units"),
-        }
 
 
 class RackReservationForm(TenancyForm, NetBoxModelForm):
@@ -451,19 +429,15 @@ class PlatformForm(NetBoxModelForm):
 
     fieldsets = (
         ('Platform', (
-            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
-
+            'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
         )),
     )
 
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
+            'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
         ]
-        widgets = {
-            'napalm_args': forms.Textarea(),
-        }
 
 
 class DeviceForm(TenancyForm, NetBoxModelForm):
@@ -587,12 +561,6 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             'cluster_group', 'cluster', 'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority',
             'description', 'config_template', 'comments', 'tags', 'local_context_data'
         ]
-        help_texts = {
-            'device_role': _("The function this device serves"),
-            'serial': _("Chassis serial number"),
-            'local_context_data': _("Local config context data overwrites all source contexts in the final rendered "
-                                    "config context"),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1052,15 +1020,24 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
 
 
 class InterfaceTemplateForm(ModularComponentTemplateForm):
+    bridge = DynamicModelChoiceField(
+        queryset=InterfaceTemplate.objects.all(),
+        required=False,
+        query_params={
+            'devicetype_id': '$device_type',
+            'moduletype_id': '$module_type',
+        }
+    )
+
     fieldsets = (
-        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description')),
+        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'bridge')),
         ('PoE', ('poe_mode', 'poe_type'))
     )
 
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode', 'poe_type',
+            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode', 'poe_type', 'bridge',
         ]
 
 
@@ -1377,11 +1354,6 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         }
         labels = {
             'mode': '802.1Q Mode',
-        }
-        help_texts = {
-            'mode': INTERFACE_MODE_HELP_TEXT,
-            'rf_channel_frequency': _("Populated by selected channel (if set)"),
-            'rf_channel_width': _("Populated by selected channel (if set)"),
         }
 
 

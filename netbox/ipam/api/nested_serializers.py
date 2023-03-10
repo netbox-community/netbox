@@ -8,6 +8,7 @@ from netbox.api.serializers import WritableNestedSerializer
 __all__ = [
     'NestedAggregateSerializer',
     'NestedASNSerializer',
+    'NestedASNRangeSerializer',
     'NestedFHRPGroupSerializer',
     'NestedFHRPGroupAssignmentSerializer',
     'NestedIPAddressSerializer',
@@ -24,6 +25,18 @@ __all__ = [
     'NestedVLANSerializer',
     'NestedVRFSerializer',
 ]
+
+
+#
+# ASN ranges
+#
+
+class NestedASNRangeSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asnrange-detail')
+
+    class Meta:
+        model = models.ASNRange
+        fields = ['id', 'url', 'display', 'name']
 
 
 #

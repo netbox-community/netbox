@@ -152,6 +152,9 @@ class ConfigContextModel(models.Model):
     local_context_data = models.JSONField(
         blank=True,
         null=True,
+        help_text=_(
+            "Local config context data takes precedence over source contexts in the final rendered config context"
+        )
     )
 
     class Meta:

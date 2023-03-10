@@ -4,6 +4,7 @@ from django_rq.queues import get_connection
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -423,3 +424,15 @@ class ContentTypeViewSet(ReadOnlyModelViewSet):
     queryset = ContentType.objects.order_by('app_label', 'model')
     serializer_class = serializers.ContentTypeSerializer
     filterset_class = filtersets.ContentTypeFilterSet
+
+
+#
+# User dashboard
+#
+
+class DashboardView(RetrieveUpdateDestroyAPIView):
+    queryset = Dashboard.objects.all()
+    serializer_class = serializers.DashboardSerializer
+
+    def get_object(self):
+        return Dashboard.objects.filter(user=self.request.user).first()

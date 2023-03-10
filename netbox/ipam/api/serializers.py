@@ -16,14 +16,30 @@ from .nested_serializers import *
 
 
 #
+# ASN ranges
+#
+
+class ASNRangeSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asnrange-detail')
+    rir = NestedRIRSerializer()
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    asn_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = ASNRange
+        fields = [
+            'id', 'url', 'display', 'name', 'slug', 'rir', 'start', 'end', 'tenant', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated', 'asn_count',
+        ]
+
+
+#
 # ASNs
 #
-from .nested_serializers import NestedL2VPNSerializer
-from ..models.l2vpn import L2VPNTermination, L2VPN
-
 
 class ASNSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
+    rir = NestedRIRSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     site_count = serializers.IntegerField(read_only=True)
     provider_count = serializers.IntegerField(read_only=True)
@@ -34,6 +50,22 @@ class ASNSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'asn', 'rir', 'tenant', 'description', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated', 'site_count', 'provider_count',
         ]
+
+
+class AvailableASNSerializer(serializers.Serializer):
+    """
+    Representation of an ASN which does not exist in the database.
+    """
+    asn = serializers.IntegerField(read_only=True)
+
+    def to_representation(self, asn):
+        rir = NestedRIRSerializer(self.context['range'].rir, context={
+            'request': self.context['request']
+        }).data
+        return {
+            'rir': rir,
+            'asn': asn,
+        }
 
 
 #
@@ -347,6 +379,7 @@ class IPRangeSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display', 'family', 'start_address', 'end_address', 'size', 'vrf', 'tenant', 'status', 'role',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'mark_utilized', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         read_only_fields = ['family']
 

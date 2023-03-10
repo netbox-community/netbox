@@ -64,7 +64,7 @@ class Rack(PrimaryModel, WeightMixin):
         blank=True,
         null=True,
         verbose_name='Facility ID',
-        help_text=_('Locally-assigned identifier')
+        help_text=_("Locally-assigned identifier")
     )
     site = models.ForeignKey(
         to='dcim.Site',

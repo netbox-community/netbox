@@ -56,8 +56,10 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         model = CustomField
         fields = '__all__'
         help_texts = {
-            'type': _("The type of data stored in this field. For object/multi-object fields, select the related object "
-                      "type below.")
+            'type': _(
+                "The type of data stored in this field. For object/multi-object fields, select the related object "
+                "type below."
+            )
         }
 
 
@@ -80,9 +82,11 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
             'link_url': forms.Textarea(attrs={'class': 'font-monospace'}),
         }
         help_texts = {
-            'link_text': _('Jinja2 template code for the link text. Reference the object as <code>{{ object }}</code>. '
-                           'Links which render as empty text will not be displayed.'),
-            'link_url': _('Jinja2 template code for the link URL. Reference the object as <code>{{ object }}</code>.'),
+            'link_text': _(
+                "Jinja2 template code for the link text. Reference the object as <code>{{ object }}</code>. Links "
+                "which render as empty text will not be displayed."
+            ),
+            'link_url': _("Jinja2 template code for the link URL. Reference the object as <code>{{ object }}</code>."),
         }
 
 
@@ -150,7 +154,7 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
 
     fieldsets = (
         ('Webhook', ('name', 'content_types', 'enabled')),
-        ('Events', ('type_create', 'type_update', 'type_delete')),
+        ('Events', ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
         ('HTTP Request', (
             'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
         )),
@@ -165,6 +169,8 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
             'type_create': 'Creations',
             'type_update': 'Updates',
             'type_delete': 'Deletions',
+            'type_job_start': 'Job executions',
+            'type_job_end': 'Job terminations',
         }
         widgets = {
             'additional_headers': forms.Textarea(attrs={'class': 'font-monospace'}),

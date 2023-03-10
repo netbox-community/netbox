@@ -460,36 +460,28 @@ def run_script(data, request, commit=True, *args, **kwargs):
         the change_logging context manager (which is bypassed if commit == False).
         """
         try:
-            with transaction.atomic():
-                script.output = script.run(data=data, commit=commit)
-                job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
-
-                if not commit:
-                    raise AbortTransaction()
-
-        except AbortTransaction:
-            script.log_info("Database changes have been reverted automatically.")
-            clear_webhooks.send(request)
-        except AbortScript as e:
-            script.log_failure(
-                f"Script aborted with error: {e}"
-            )
-            script.log_info("Database changes have been reverted due to error.")
-            logger.error(f"Script aborted with error: {e}")
-            job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-            clear_webhooks.send(request)
-        except Exception as e:
-            stacktrace = traceback.format_exc()
-            script.log_failure(
-                f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"
-            )
-            script.log_info("Database changes have been reverted due to error.")
-            logger.error(f"Exception raised during script execution: {e}")
-            job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-            clear_webhooks.send(request)
-        finally:
+            try:
+                with transaction.atomic():
+                    script.output = script.run(data=data, commit=commit)
+                    if not commit:
+                        raise AbortTransaction()
+            except AbortTransaction:
+                script.log_info("Database changes have been reverted automatically.")
+                clear_webhooks.send(request)
             job_result.data = ScriptOutputSerializer(script).data
-            job_result.save()
+            job_result.terminate()
+        except Exception as e:
+            if type(e) is AbortScript:
+                script.log_failure(f"Script aborted with error: {e}")
+                logger.error(f"Script aborted with error: {e}")
+            else:
+                stacktrace = traceback.format_exc()
+                script.log_failure(f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```")
+                logger.error(f"Exception raised during script execution: {e}")
+            script.log_info("Database changes have been reverted due to error.")
+            job_result.data = ScriptOutputSerializer(script).data
+            job_result.terminate(status=JobResultStatusChoices.STATUS_ERRORED)
+            clear_webhooks.send(request)
 
         logger.info(f"Script completed in {job_result.duration}")
 

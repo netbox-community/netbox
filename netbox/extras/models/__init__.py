@@ -1,6 +1,7 @@
 from .change_logging import ObjectChange
 from .configs import *
 from .customfields import CustomField
+from .dashboard import *
 from .models import *
 from .search import *
 from .staging import *
@@ -15,6 +16,7 @@ __all__ = (
     'ConfigTemplate',
     'CustomField',
     'CustomLink',
+    'Dashboard',
     'ExportTemplate',
     'ImageAttachment',
     'JobResult',

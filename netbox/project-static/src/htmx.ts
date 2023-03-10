@@ -3,7 +3,6 @@ import { initButtons } from './buttons';
 import { initSelect } from './select';
 
 function initDepedencies(): void {
-  console.log('initDepedencies()');
   for (const init of [initButtons, initSelect]) {
     init();
   }

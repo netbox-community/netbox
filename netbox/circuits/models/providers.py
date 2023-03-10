@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from netbox.models import PrimaryModel
 
@@ -17,7 +18,8 @@ class Provider(PrimaryModel):
     """
     name = models.CharField(
         max_length=100,
-        unique=True
+        unique=True,
+        help_text=_("Full name of the provider")
     )
     slug = models.SlugField(
         max_length=100,

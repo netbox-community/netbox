@@ -146,6 +146,12 @@ class WebhookTable(NetBoxTable):
     type_delete = columns.BooleanColumn(
         verbose_name='Delete'
     )
+    type_job_start = columns.BooleanColumn(
+        verbose_name='Job start'
+    )
+    type_job_end = columns.BooleanColumn(
+        verbose_name='Job end'
+    )
     ssl_validation = columns.BooleanColumn(
         verbose_name='SSL Validation'
     )
@@ -153,12 +159,13 @@ class WebhookTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Webhook
         fields = (
-            'pk', 'id', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method',
-            'payload_url', 'secret', 'ssl_validation', 'ca_file_path', 'created', 'last_updated',
+            'pk', 'id', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete',
+            'type_job_start', 'type_job_end', 'http_method', 'payload_url', 'secret', 'ssl_validation', 'ca_file_path',
+            'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method',
-            'payload_url',
+            'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'type_job_start',
+            'type_job_end', 'http_method', 'payload_url',
         )
 
 

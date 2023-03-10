@@ -7,6 +7,9 @@
 {% block breadcrumbs %}
   {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'ipam:asn_list' %}?rir_id={{ object.rir.pk }}">{{ object.rir }}</a></li>
+  {% if object.range %}
+    <li class="breadcrumb-item"><a href="{% url 'ipam:asn_list' %}?range_id={{ object.range.pk }}">{{ object.range }}</a></li>
+  {% endif %}
 {% endblock breadcrumbs %}
 
 {% block content %}

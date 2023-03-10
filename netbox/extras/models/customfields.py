@@ -25,7 +25,7 @@ from utilities.forms.fields import (
     DynamicModelMultipleChoiceField, JSONField, LaxURLField,
 )
 from utilities.forms.utils import add_blank_choice
-from utilities.forms.widgets import DatePicker
+from utilities.forms.widgets import DatePicker, DateTimePicker
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
 
@@ -306,8 +306,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         """
         if value is None:
             return value
-        if self.type == CustomFieldTypeChoices.TYPE_DATE and type(value) is date:
-            return value.isoformat()
+        if self.type in (CustomFieldTypeChoices.TYPE_DATE, CustomFieldTypeChoices.TYPE_DATETIME):
+            if type(value) in (date, datetime):
+                return value.isoformat()
         if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             return value.pk
         if self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
@@ -323,6 +324,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         if self.type == CustomFieldTypeChoices.TYPE_DATE:
             try:
                 return date.fromisoformat(value)
+            except ValueError:
+                return value
+        if self.type == CustomFieldTypeChoices.TYPE_DATETIME:
+            try:
+                return datetime.fromisoformat(value)
             except ValueError:
                 return value
         if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
@@ -379,6 +385,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         # Date
         elif self.type == CustomFieldTypeChoices.TYPE_DATE:
             field = forms.DateField(required=required, initial=initial, widget=DatePicker())
+
+        # Date & time
+        elif self.type == CustomFieldTypeChoices.TYPE_DATETIME:
+            field = forms.DateTimeField(required=required, initial=initial, widget=DateTimePicker())
 
         # Select
         elif self.type in (CustomFieldTypeChoices.TYPE_SELECT, CustomFieldTypeChoices.TYPE_MULTISELECT):
@@ -490,6 +500,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         elif self.type == CustomFieldTypeChoices.TYPE_DATE:
             filter_class = filters.MultiValueDateFilter
 
+        # Date & time
+        elif self.type == CustomFieldTypeChoices.TYPE_DATETIME:
+            filter_class = filters.MultiValueDateTimeFilter
+
         # Select
         elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
             filter_class = filters.MultiValueCharFilter
@@ -558,9 +572,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             elif self.type == CustomFieldTypeChoices.TYPE_DATE:
                 if type(value) is not date:
                     try:
-                        datetime.strptime(value, '%Y-%m-%d')
+                        date.fromisoformat(value)
                     except ValueError:
-                        raise ValidationError("Date values must be in the format YYYY-MM-DD.")
+                        raise ValidationError("Date values must be in ISO 8601 format (YYYY-MM-DD).")
+
+            # Validate date & time
+            elif self.type == CustomFieldTypeChoices.TYPE_DATETIME:
+                if type(value) is not datetime:
+                    try:
+                        datetime.fromisoformat(value)
+                    except ValueError:
+                        raise ValidationError("Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS).")
 
             # Validate selected choice
             elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
