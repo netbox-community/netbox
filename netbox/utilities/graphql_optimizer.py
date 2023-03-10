@@ -80,8 +80,8 @@ class QueryOptimizer(object):
                 fragment_possible_type,
                 selection,
             )
-            store.select_related(select_related_name, fragment_store)
-        return store
+            field_names.append(select_related_name)
+        return
 
     def handle_fragment_spread(self, field_names, name, field_type):
         fragment = self.root_info.fragments[name]
@@ -89,7 +89,6 @@ class QueryOptimizer(object):
             field_type,
             fragment,
         )
-        store.append(fragment_store)
 
     def _optimize_gql_selections(self, field_type, field_ast):
         field_names = []
