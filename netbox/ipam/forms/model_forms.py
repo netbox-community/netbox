@@ -639,58 +639,18 @@ class VLANGroupForm(NetBoxModelForm):
 
 
 class VLANForm(TenancyForm, NetBoxModelForm):
-    # VLANGroup assignment fields
-    scope_type = forms.ChoiceField(
-        choices=(
-            ('', ''),
-            ('dcim.region', 'Region'),
-            ('dcim.sitegroup', 'Site group'),
-            ('dcim.site', 'Site'),
-            ('dcim.location', 'Location'),
-            ('dcim.rack', 'Rack'),
-            ('virtualization.clustergroup', 'Cluster group'),
-            ('virtualization.cluster', 'Cluster'),
-        ),
-        required=False,
-        label=_('Group scope')
-    )
     group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
-        query_params={
-            'scope_type': '$scope_type',
-        },
+        selector=True,
         label=_('VLAN Group')
-    )
-
-    # Site assignment fields
-    region = DynamicModelChoiceField(
-        queryset=Region.objects.all(),
-        required=False,
-        initial_params={
-            'sites': '$site'
-        },
-        label=_('Region')
-    )
-    sitegroup = DynamicModelChoiceField(
-        queryset=SiteGroup.objects.all(),
-        required=False,
-        initial_params={
-            'sites': '$site'
-        },
-        label=_('Site group')
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
-        query_params={
-            'region_id': '$region',
-            'group_id': '$sitegroup',
-        }
+        selector=True
     )
-
-    # Other fields
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
         required=False
