@@ -12,9 +12,11 @@ from rq import Worker
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
 from extras.api.views import ReportViewSet, ScriptViewSet
 from extras.models import *
+from extras.models.staging import Notification
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
+from users.models import Token
 
 rq_worker_running = Worker.count(get_connection('default'))
 
@@ -699,3 +701,86 @@ class ContentTypeTest(APITestCase):
 
         url = reverse('extras-api:contenttype-detail', kwargs={'pk': contenttype.pk})
         self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)
+
+
+class NotificationTest(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.u1 = User.objects.create_user(username='user1')
+        cls.u2 = User.objects.create_user(username='user2')
+        cls.u1_key = Token.objects.create(user=cls.u1).key
+        cls.u2_key = Token.objects.create(user=cls.u2).key
+
+    def test_list(self):
+        test_notifs = [
+            {'user_id': self.u1, 'title': 'notif1', 'content': 'c1'},
+            {'user_id': self.u1, 'title': 'notif2', 'content': 'c2'},
+            {'user_id': self.u2, 'title': 'notif3', 'content': 'c3'},
+        ]
+        for t in test_notifs:
+            n = Notification(user=t['user_id'], title=t['title'], content=t['content'])
+            n.save()
+
+        u1_headers = {'HTTP_AUTHORIZATION': f'Token {self.u1_key}'}
+        response = self.client.get(reverse('extras-api:notifications-list'), **u1_headers)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # Make sure we get only the notifications that belong to the authenticated user.
+        self.assertEqual(response.data['count'], Notification.objects.filter(user__id=self.u1.id).count())
+
+    def test_retrieve(self):
+        expected_title = 'expected title'
+        expected_content = 'some content'
+        n = Notification(user=self.u1, title=expected_title, content=expected_content)
+        n.save()
+        u1_headers = {'HTTP_AUTHORIZATION': f'Token {self.u1_key}'}
+        url = reverse('extras-api:notifications-detail', kwargs={'pk': n.id})
+        response = self.client.get(url, **u1_headers)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], expected_title)
+        self.assertEqual(response.data['content'], expected_content)
+        self.assertEqual(response.data['read'], False)  # The default value is False
+
+        # Make sure user2 can't retrieve user1 notifications.
+        u2_headers = {'HTTP_AUTHORIZATION': f'Token {self.u2_key}'}
+        response = self.client.get(url, **u2_headers)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+    def test_partial_update(self):
+        n = Notification(user=self.u1, title='t1', content='c1')
+        n.save()
+        expected_title = 'expected_title'
+        u1_headers = {'HTTP_AUTHORIZATION': f'Token {self.u1_key}'}
+        url = reverse('extras-api:notifications-detail', kwargs={'pk': n.id})
+        data = {
+            'title': expected_title,
+            'read': True
+        }
+        response = self.client.patch(url, data, format='json', **u1_headers)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], expected_title)
+        self.assertEqual(response.data['read'], True)
+
+        # Make sure user2 can't update user1 notifications
+        u2_headers = {'HTTP_AUTHORIZATION': f'Token {self.u2_key}'}
+        response = self.client.patch(url, data, format='json', **u2_headers)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+    def test_delete(self):
+        n = Notification(user=self.u1, title='t1', content='c1')
+        n.save()
+        url = reverse('extras-api:notifications-detail', kwargs={'pk': n.id})
+
+        # First make sure user2 can't delete user1 notifications
+        u2_headers = {'HTTP_AUTHORIZATION': f'Token {self.u2_key}'}
+        response = self.client.delete(url, **u2_headers)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+        u1_headers = {'HTTP_AUTHORIZATION': f'Token {self.u1_key}'}
+        response = self.client.delete(url, **u1_headers)
+        self.assertHttpStatus(response, status.HTTP_200_OK)  # Assert deletion
+
+        # Validate that it's actually gone.
+        response = self.client.get(url, **u1_headers)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)

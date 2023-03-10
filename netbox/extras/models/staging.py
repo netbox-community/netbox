@@ -4,14 +4,17 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
+from django.conf import settings
+from django.urls import reverse
 
 from extras.choices import ChangeActionChoices
-from netbox.models import ChangeLoggedModel
+from netbox.models import ChangeLoggedModel, NetBoxModel
 from utilities.utils import deserialize_object
 
 __all__ = (
     'Branch',
     'StagedChange',
+    'Notification',
 )
 
 logger = logging.getLogger('netbox.staging')
@@ -112,3 +115,35 @@ class StagedChange(ChangeLoggedModel):
             instance = self.model.objects.get(pk=self.object_id)
             logger.info(f'Deleting {self.model._meta.verbose_name} {instance}')
             instance.delete()
+
+
+class Notification(NetBoxModel):
+    """
+    Notifications allow users to keep up to date with system events or requests.
+
+    Originally implemented to support the use case when a user is notified that a ReviewRequest
+    has been assigned to her.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+
+    title = models.CharField(
+        max_length=256
+    )
+
+    content = models.TextField()
+
+    read = models.BooleanField(
+        default=False
+    )
+
+    def __str__(self):
+        return f'[UserID: {self.user.pk}, Read: {self.read}] {self.title} {self.content}'
+
+    def get_absolute_url(self):
+        return reverse('extras-api:notifications-detail', args=[self.pk])
+
+    class Meta:
+        ordering = ('pk',)

@@ -19,6 +19,7 @@ router.register('scripts', views.ScriptViewSet, basename='script')
 router.register('object-changes', views.ObjectChangeViewSet)
 router.register('job-results', views.JobResultViewSet)
 router.register('content-types', views.ContentTypeViewSet)
+router.register('notifications', views.NotificationViewSet, basename='notifications')
 
 app_name = 'extras-api'
 urlpatterns = router.urls

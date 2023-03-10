@@ -1,6 +1,7 @@
 from django.urls import include, path, re_path
 
 from extras import views
+from extras.api.views import NotificationViewSet
 from utilities.urls import get_model_urls
 
 

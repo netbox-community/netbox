@@ -11,6 +11,7 @@ from dcim.api.nested_serializers import (
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
+from extras.models.staging import Notification
 from extras.utils import FeatureQuery
 from netbox.api.exceptions import SerializerNotFound
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
@@ -47,6 +48,7 @@ __all__ = (
     'ScriptSerializer',
     'TagSerializer',
     'WebhookSerializer',
+    'NotificationSerializer',
 )
 
 
@@ -525,3 +527,13 @@ class ContentTypeSerializer(BaseModelSerializer):
     class Meta:
         model = ContentType
         fields = ['id', 'url', 'display', 'app_label', 'model']
+
+
+class NotificationSerializer(BaseModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:notifications-detail')
+
+    class Meta:
+        model = Notification
+        fields = [
+            'id', 'url', 'created', 'title', 'content', 'read'
+        ]

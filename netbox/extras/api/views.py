@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 from django_rq.queues import get_connection
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -14,6 +15,7 @@ from extras import filtersets
 from extras.choices import JobResultStatusChoices
 from extras.models import *
 from extras.models import CustomField
+from extras.models.staging import Notification
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
@@ -389,3 +391,31 @@ class ContentTypeViewSet(ReadOnlyModelViewSet):
     queryset = ContentType.objects.order_by('app_label', 'model')
     serializer_class = serializers.ContentTypeSerializer
     filterset_class = filtersets.ContentTypeFilterSet
+
+
+class NotificationViewSet(ReadOnlyModelViewSet):
+    """
+    Notification views API.
+
+    Note that this is not quite a read only viewset, we implement partial_update and delete.
+    The use of ReadOnlyModelViewSet is simply to reuse some existing code around serving the
+    list/retrieve endpoints and getting pagination for free.
+    """
+
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
+    serializer_class = serializers.NotificationSerializer
+
+    def get_queryset(self):
+        return Notification.objects.filter(user__id=self.request.user.id).order_by('created')
+
+    def partial_update(self, request, pk=None):
+        n = get_object_or_404(self.get_queryset(), pk=pk)
+        serializer = self.get_serializer(n, data=request.data, partial=True)
+        serializer.is_valid()
+        serializer.save()
+        return Response(serializer.data)
+
+    def destroy(self, _, pk=None):
+        n = get_object_or_404(self.get_queryset(), pk=pk)
+        n.delete()
+        return Response(status=status.HTTP_200_OK)
