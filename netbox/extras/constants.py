@@ -1,7 +1,15 @@
 from django.contrib.contenttypes.models import ContentType
 
-# Webhook content types
+# Webhooks
 HTTP_CONTENT_TYPE_JSON = 'application/json'
+
+WEBHOOK_EVENT_TYPES = {
+    'create': 'created',
+    'update': 'updated',
+    'delete': 'deleted',
+    'job_start': 'job_started',
+    'job_end': 'job_ended',
+}
 
 # Dashboard
 DEFAULT_DASHBOARD = [

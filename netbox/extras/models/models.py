@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, ValidationError
 from django.db import models
@@ -27,7 +26,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, SyncedDataMixin,
-    TagsMixin,
+    TagsMixin, WebhooksMixin,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import render_jinja2
@@ -65,15 +64,23 @@ class Webhook(ExportTemplatesMixin, ChangeLoggedModel):
     )
     type_create = models.BooleanField(
         default=False,
-        help_text=_("Call this webhook when a matching object is created.")
+        help_text=_("Triggers when a matching object is created.")
     )
     type_update = models.BooleanField(
         default=False,
-        help_text=_("Call this webhook when a matching object is updated.")
+        help_text=_("Triggers when a matching object is updated.")
     )
     type_delete = models.BooleanField(
         default=False,
-        help_text=_("Call this webhook when a matching object is deleted.")
+        help_text=_("Triggers when a matching object is deleted.")
+    )
+    type_job_start = models.BooleanField(
+        default=False,
+        help_text=_("Triggers when a job for a matching object is started.")
+    )
+    type_job_end = models.BooleanField(
+        default=False,
+        help_text=_("Triggers when a job for a matching object terminates.")
     )
     payload_url = models.CharField(
         max_length=500,
@@ -159,8 +166,12 @@ class Webhook(ExportTemplatesMixin, ChangeLoggedModel):
         super().clean()
 
         # At least one action type must be selected
-        if not self.type_create and not self.type_delete and not self.type_update:
-            raise ValidationError("At least one type must be selected: create, update, and/or delete.")
+        if not any([
+            self.type_create, self.type_update, self.type_delete, self.type_job_start, self.type_job_end
+        ]):
+            raise ValidationError(
+                "At least one event type must be selected: create, update, delete, job_start, and/or job_end."
+            )
 
         if self.conditions:
             try:
@@ -678,19 +689,32 @@ class JobResult(models.Model):
         """
         Record the job's start time and update its status to "running."
         """
-        if self.started is None:
-            self.started = timezone.now()
-            self.status = JobResultStatusChoices.STATUS_RUNNING
-            JobResult.objects.filter(pk=self.pk).update(started=self.started, status=self.status)
+        if self.started is not None:
+            return
 
-    def set_status(self, status):
+        # Start the job
+        self.started = timezone.now()
+        self.status = JobResultStatusChoices.STATUS_RUNNING
+        JobResult.objects.filter(pk=self.pk).update(started=self.started, status=self.status)
+
+        # Handle webhooks
+        self.trigger_webhooks(event='job_start')
+
+    def terminate(self, status=JobResultStatusChoices.STATUS_COMPLETED):
         """
-        Helper method to change the status of the job result. If the target status is terminal, the completion
-        time is also set.
+        Mark the job as completed, optionally specifying a particular termination status.
         """
+        valid_statuses = JobResultStatusChoices.TERMINAL_STATE_CHOICES
+        if status not in valid_statuses:
+            raise ValueError(f"Invalid status for job termination. Choices are: {', '.join(valid_statuses)}")
+
+        # Mark the job as completed
         self.status = status
-        if status in JobResultStatusChoices.TERMINAL_STATE_CHOICES:
-            self.completed = timezone.now()
+        self.completed = timezone.now()
+        JobResult.objects.filter(pk=self.pk).update(status=self.status, completed=self.completed)
+
+        # Handle webhooks
+        self.trigger_webhooks(event='job_end')
 
     @classmethod
     def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, interval=None, *args, **kwargs):
@@ -724,6 +748,28 @@ class JobResult(models.Model):
             queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
 
         return job_result
+
+    def trigger_webhooks(self, event):
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
+        rq_queue = django_rq.get_queue(rq_queue_name, is_async=False)
+
+        # Fetch any webhooks matching this object type and action
+        webhooks = Webhook.objects.filter(
+            **{f'type_{event}': True},
+            content_types=self.obj_type,
+            enabled=True
+        )
+
+        for webhook in webhooks:
+            rq_queue.enqueue(
+                "extras.webhooks_worker.process_webhook",
+                webhook=webhook,
+                model_name=self.obj_type.model,
+                event=event,
+                data=self.data,
+                timestamp=str(timezone.now()),
+                username=self.user.username
+            )
 
 
 class ConfigRevision(models.Model):
@@ -767,7 +813,7 @@ class ConfigRevision(models.Model):
 # Custom scripts & reports
 #
 
-class Script(JobResultsMixin, models.Model):
+class Script(JobResultsMixin, WebhooksMixin, models.Model):
     """
     Dummy model used to generate permissions for custom scripts. Does not exist in the database.
     """
@@ -779,7 +825,7 @@ class Script(JobResultsMixin, models.Model):
 # Reports
 #
 
-class Report(JobResultsMixin, models.Model):
+class Report(JobResultsMixin, WebhooksMixin, models.Model):
     """
     Dummy model used to generate permissions for reports. Does not exist in the database.
     """

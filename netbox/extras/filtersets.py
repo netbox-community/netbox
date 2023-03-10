@@ -48,8 +48,8 @@ class WebhookFilterSet(BaseFilterSet):
     class Meta:
         model = Webhook
         fields = [
-            'id', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url', 'enabled', 'http_method',
-            'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
+            'id', 'name', 'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'payload_url',
+            'enabled', 'http_method', 'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
         ]
 
     def search(self, queryset, name, value):

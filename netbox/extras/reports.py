@@ -85,8 +85,7 @@ def run_report(job_result, *args, **kwargs):
         job_result.start()
         report.run(job_result)
     except Exception:
-        job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-        job_result.save()
+        job_result.terminate(status=JobResultStatusChoices.STATUS_ERRORED)
         logging.error(f"Error during execution of report {job_result.name}")
     finally:
         # Schedule the next job if an interval has been set
@@ -241,28 +240,23 @@ class Report(object):
         self.pre_run()
 
         try:
-
             for method_name in self.test_methods:
                 self.active_test = method_name
                 test_method = getattr(self, method_name)
                 test_method()
-
             if self.failed:
                 self.logger.warning("Report failed")
                 job_result.status = JobResultStatusChoices.STATUS_FAILED
             else:
                 self.logger.info("Report completed successfully")
                 job_result.status = JobResultStatusChoices.STATUS_COMPLETED
-
         except Exception as e:
             stacktrace = traceback.format_exc()
             self.log_failure(None, f"An exception occurred: {type(e).__name__}: {e} <pre>{stacktrace}</pre>")
             logger.error(f"Exception raised during report execution: {e}")
-            job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-
-        job_result.data = self._results
-        job_result.completed = timezone.now()
-        job_result.save()
+            job_result.terminate(status=JobResultStatusChoices.STATUS_ERRORED)
+        finally:
+            job_result.terminate()
 
         # Perform any post-run tasks
         self.post_run()
