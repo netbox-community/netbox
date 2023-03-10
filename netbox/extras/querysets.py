@@ -155,12 +155,12 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         return base_query
 
 
-class ObjectChangeManager(Manager.from_queryset(RestrictedQuerySet)):
+class ObjectChangeQuerySet(RestrictedQuerySet):
 
-    def get_queryset(self):
+    def valid_models(self):
         # Exclude any change records which refer to an instance of a model that's no longer installed. This
         # can happen when a plugin is removed but its data remains in the database, for example.
         content_type_ids = set(
             ct.pk for ct in ContentType.objects.get_for_models(*apps.get_models()).values()
         )
-        return super().get_queryset().filter(changed_object_type_id__in=content_type_ids)
+        return self.filter(changed_object_type_id__in=content_type_ids)
