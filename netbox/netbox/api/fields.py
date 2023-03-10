@@ -14,7 +14,7 @@ __all__ = (
 )
 
 
-@extend_schema_field(OpenApiTypes.OBJECT)
+@extend_schema_field(OpenApiTypes.STR)
 class ChoiceField(serializers.Field):
     """
     Represent a ChoiceField as {'value': <DB value>, 'label': <string>}. Accepts a single value on write.

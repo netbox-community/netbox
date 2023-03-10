@@ -686,7 +686,7 @@ class DeviceSerializer(NetBoxModelSerializer):
 
 
 class DeviceWithConfigContextSerializer(DeviceSerializer):
-    config_context = serializers.SerializerMethodField()
+    config_context = serializers.SerializerMethodField(read_only=True)
 
     class Meta(DeviceSerializer.Meta):
         fields = [
@@ -1168,19 +1168,15 @@ class PowerFeedSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     )
     type = ChoiceField(
         choices=PowerFeedTypeChoices,
-        default=PowerFeedTypeChoices.TYPE_PRIMARY
     )
     status = ChoiceField(
         choices=PowerFeedStatusChoices,
-        default=PowerFeedStatusChoices.STATUS_ACTIVE
     )
     supply = ChoiceField(
         choices=PowerFeedSupplyChoices,
-        default=PowerFeedSupplyChoices.SUPPLY_AC
     )
     phase = ChoiceField(
         choices=PowerFeedPhaseChoices,
-        default=PowerFeedPhaseChoices.PHASE_SINGLE
     )
 
     class Meta:
