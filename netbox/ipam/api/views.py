@@ -210,6 +210,7 @@ def get_results_limit(request):
 class AvailableASNsView(ObjectValidationMixin, APIView):
     queryset = ASN.objects.all()
 
+    @extend_schema(methods=["get"], responses={200: serializers.AvailablePrefixSerializer(many=True)})
     def get(self, request, pk):
         asnrange = get_object_or_404(ASNRange.objects.restrict(request.user), pk=pk)
         limit = get_results_limit(request)
@@ -223,6 +224,7 @@ class AvailableASNsView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
+    @extend_schema(methods=["post"], responses={201: serializers.ASNSerializer(many=True)})
     @advisory_lock(ADVISORY_LOCK_KEYS['available-asns'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
