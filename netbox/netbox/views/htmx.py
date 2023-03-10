@@ -24,7 +24,7 @@ class ObjectSelectorView(View):
                 queryset = filterset(request.GET, queryset, request=request).qs
 
             return render(request, 'htmx/object_selector_results.html', {
-                'results': queryset,
+                'results': queryset[:100],
             })
 
         return render(request, self.template_name, {
