@@ -226,6 +226,10 @@ class ImportForm(BootstrapMixin, forms.Form):
         reader = csv.reader(stream)
         headers, records = parse_csv(reader)
 
+        # Strip whitespace from headers
+        headers = {k.strip(): v for k, v in headers.items()}
+        records = [{k.strip(): v for k, v in record.items()} for record in records]
+
         # Set CSV headers for reference by the model form
         self._csv_headers = headers
 
