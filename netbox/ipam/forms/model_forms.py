@@ -464,6 +464,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
                 selected_objects[1]: "An IP address can only be assigned to a single object."
             })
         elif selected_objects:
+            self._old_parent = self.instance.assigned_object.parent_object
             self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
         else:
             self.instance.assigned_object = None
@@ -483,10 +484,19 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         if type(interface) in (Interface, VMInterface):
             parent = interface.parent_object
             if self.cleaned_data['primary_for_parent']:
+                # Clear any existing primary IP assignment
+                if old_parent := getattr(self, '_old_parent', None):
+                    if ipaddress.address.version == 4:
+                        old_parent.primary_ip4 = None
+                    else:
+                        old_parent.primary_ip6 = None
+                    old_parent.save()
+
                 if ipaddress.address.version == 4:
                     parent.primary_ip4 = ipaddress
                 else:
                     parent.primary_ip6 = ipaddress
+
                 parent.save()
             elif ipaddress.address.version == 4 and parent.primary_ip4 == ipaddress:
                 parent.primary_ip4 = None
