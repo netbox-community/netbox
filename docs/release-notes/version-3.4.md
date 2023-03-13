@@ -1,18 +1,46 @@
 # NetBox v3.4
 
-## v3.4.5 (FUTURE)
+## v3.4.6 (2023-03-13)
+
+### Enhancements
+
+* [#10058](https://github.com/netbox-community/netbox/issues/10058) - Enable searching for devices/VMs by primary IP address
+* [#11011](https://github.com/netbox-community/netbox/issues/11011) - Add ability to toggle visibility of virtual interfaces under device view
+* [#11294](https://github.com/netbox-community/netbox/issues/11294) - Enable live preview of Markdown content
+* [#11807](https://github.com/netbox-community/netbox/issues/11807) - Restore default page size when navigating between views
+* [#11817](https://github.com/netbox-community/netbox/issues/11817) - Add `connected_endpoints` field to GraphQL API for cabled objects
+* [#11851](https://github.com/netbox-community/netbox/issues/11851) - Include IP version in GraphQL API representations of aggregates, prefixes, and IP addresses
+* [#11862](https://github.com/netbox-community/netbox/issues/11862) - Add Cisco StackWise 1T interface type
+* [#11871](https://github.com/netbox-community/netbox/issues/11871) - Add IEEE 802.3az PoE type for interfaces
+* [#11929](https://github.com/netbox-community/netbox/issues/11929) - Strip whitespace from CSV headers prior to validation
+
+### Bug Fixes
+
+* [#11470](https://github.com/netbox-community/netbox/issues/11470) - Avoid raising exception when filtering IPs by an invalid address
+* [#11565](https://github.com/netbox-community/netbox/issues/11565) - Apply custom field defaults to IP address created during FHRP group creation
+* [#11631](https://github.com/netbox-community/netbox/issues/11631) - Fix filtering changelog & journal entries by multiple content type IDs
+* [#11758](https://github.com/netbox-community/netbox/issues/11758) - Support non-URL-safe characters in plugin menu titles
+* [#11796](https://github.com/netbox-community/netbox/issues/11796) - When importing devices, restrict rack by location only if the location field is specified
+* [#11819](https://github.com/netbox-community/netbox/issues/11819) - Fix filtering of cable terminations by object type
+* [#11850](https://github.com/netbox-community/netbox/issues/11850) - Fix loading of CSV files containing a byte order mark
+* [#11903](https://github.com/netbox-community/netbox/issues/11903) - Fix escaping of return URL values for action buttons in tables
+* [#11927](https://github.com/netbox-community/netbox/issues/11927) - Correct loading of plugin resources with custom paths
+
+---
+
+## v3.4.5 (2023-02-21)
 
 ### Enhancements
 
 * [#11110](https://github.com/netbox-community/netbox/issues/11110) - Add `start_address` and `end_address` filters for IP ranges
 * [#11592](https://github.com/netbox-community/netbox/issues/11592) - Introduce `FILE_UPLOAD_MAX_MEMORY_SIZE` configuration parameter
 * [#11685](https://github.com/netbox-community/netbox/issues/11685) - Match on containing prefixes and aggregates when querying for IP addresses using global search
+* [#11787](https://github.com/netbox-community/netbox/issues/11787) - Upgrade script will automatically rebuild missing search cache
 
 ### Bug Fixes
 
 * [#11032](https://github.com/netbox-community/netbox/issues/11032) - Fix false custom validation errors during component creation
 * [#11226](https://github.com/netbox-community/netbox/issues/11226) - Ensure scripts and reports within submodules are automatically reloaded
-* [#11335](https://github.com/netbox-community/netbox/issues/11335) - Avoid exception when rendering change log after uninstalling a plugin
 * [#11459](https://github.com/netbox-community/netbox/issues/11459) - Enable evaluating null values in custom validation rules
 * [#11473](https://github.com/netbox-community/netbox/issues/11473) - GraphQL requests specifying an invalid filter should return an empty queryset
 * [#11582](https://github.com/netbox-community/netbox/issues/11582) - Ensure form validation errors are displayed when adding virtual chassis members
@@ -20,6 +48,7 @@
 * [#11683](https://github.com/netbox-community/netbox/issues/11683) - Fix CSV header attribute detection when auto-detecting import format
 * [#11711](https://github.com/netbox-community/netbox/issues/11711) - Fix CSV import for multiple-object custom fields
 * [#11723](https://github.com/netbox-community/netbox/issues/11723) - Circuit terminations should link to their associated circuits (rather than site or provider network)
+* [#11775](https://github.com/netbox-community/netbox/issues/11775) - Skip checking for old search cache records when creating a new object
 * [#11786](https://github.com/netbox-community/netbox/issues/11786) - List only applicable object types in form widget when filtering custom fields
 
 ---

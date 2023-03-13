@@ -238,7 +238,9 @@ class VirtualMachineFilterSet(
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(comments__icontains=value)
+            Q(comments__icontains=value) |
+            Q(primary_ip4__address__startswith=value) |
+            Q(primary_ip6__address__startswith=value)
         )
 
     def _has_primary_ip(self, queryset, name, value):

@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
-from django.http import Http404, HttpResponseForbidden, HttpResponse
+from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
@@ -14,6 +14,7 @@ from extras.dashboard.utils import get_widget_class
 from netbox.views import generic
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import is_htmx
+from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
@@ -1076,3 +1077,18 @@ class JobResultBulkDeleteView(generic.BulkDeleteView):
     queryset = JobResult.objects.all()
     filterset = filtersets.JobResultFilterSet
     table = tables.JobResultTable
+
+
+#
+# Markdown
+#
+
+class RenderMarkdownView(View):
+
+    def post(self, request):
+        form = forms.RenderMarkdownForm(request.POST)
+        if not form.is_valid():
+            HttpResponseBadRequest()
+        rendered = render_markdown(form.cleaned_data['text'])
+
+        return HttpResponse(rendered)

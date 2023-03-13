@@ -49,7 +49,6 @@ class VRFBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -70,7 +69,6 @@ class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -139,7 +137,6 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -168,7 +165,6 @@ class AggregateBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -249,7 +245,6 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -292,7 +287,6 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -338,7 +332,6 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -381,7 +374,6 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -463,7 +455,6 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -494,7 +485,6 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -523,7 +513,6 @@ class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 

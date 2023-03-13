@@ -34,7 +34,6 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label=_('Comments')
     )
 
@@ -62,7 +61,6 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label=_('Comments')
     )
 
@@ -123,7 +121,6 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label=_('Comments')
     )
 
