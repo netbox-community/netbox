@@ -644,7 +644,7 @@ class DeviceSerializer(NetBoxModelSerializer):
     site = NestedSiteSerializer()
     location = NestedLocationSerializer(required=False, allow_null=True, default=None)
     rack = NestedRackSerializer(required=False, allow_null=True, default=None)
-    face = ChoiceField(choices=DeviceFaceChoices, allow_blank=True, default='')
+    face = ChoiceField(choices=DeviceFaceChoices, allow_blank=True, default=lambda: '')
     position = serializers.DecimalField(
         max_digits=4,
         decimal_places=1,
@@ -1168,15 +1168,19 @@ class PowerFeedSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     )
     type = ChoiceField(
         choices=PowerFeedTypeChoices,
+        default=lambda: PowerFeedTypeChoices.TYPE_PRIMARY,
     )
     status = ChoiceField(
         choices=PowerFeedStatusChoices,
+        default=lambda: PowerFeedStatusChoices.STATUS_ACTIVE,
     )
     supply = ChoiceField(
         choices=PowerFeedSupplyChoices,
+        default=lambda: PowerFeedSupplyChoices.SUPPLY_AC,
     )
     phase = ChoiceField(
         choices=PowerFeedPhaseChoices,
+        default=lambda: PowerFeedPhaseChoices.PHASE_SINGLE,
     )
 
     class Meta:
