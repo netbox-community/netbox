@@ -1,6 +1,6 @@
 # NetBox v3.4
 
-## v3.4.6 (FUTURE)
+## v3.4.6 (2023-03-13)
 
 ### Enhancements
 
@@ -12,6 +12,7 @@
 * [#11851](https://github.com/netbox-community/netbox/issues/11851) - Include IP version in GraphQL API representations of aggregates, prefixes, and IP addresses
 * [#11862](https://github.com/netbox-community/netbox/issues/11862) - Add Cisco StackWise 1T interface type
 * [#11871](https://github.com/netbox-community/netbox/issues/11871) - Add IEEE 802.3az PoE type for interfaces
+* [#11929](https://github.com/netbox-community/netbox/issues/11929) - Strip whitespace from CSV headers prior to validation
 
 ### Bug Fixes
 
