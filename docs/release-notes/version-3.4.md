@@ -22,6 +22,7 @@
 * [#11819](https://github.com/netbox-community/netbox/issues/11819) - Fix filtering of cable terminations by object type
 * [#11850](https://github.com/netbox-community/netbox/issues/11850) - Fix loading of CSV files containing a byte order mark
 * [#11903](https://github.com/netbox-community/netbox/issues/11903) - Fix escaping of return URL values for action buttons in tables
+* [#11927](https://github.com/netbox-community/netbox/issues/11927) - Correct loading of plugin resources with custom paths
 
 ---
 
