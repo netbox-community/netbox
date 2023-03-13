@@ -65,7 +65,7 @@ sudo cp /opt/netbox/contrib/apache.conf /etc/apache2/sites-available/netbox.conf
 Finally, ensure that the required Apache modules are enabled, enable the `netbox` site, and reload Apache:
 
 ```no-highlight
-sudo a2enmod ssl proxy proxy_http headers
+sudo a2enmod ssl proxy proxy_http headers rewrite
 sudo a2ensite netbox
 sudo systemctl restart apache2
 ```

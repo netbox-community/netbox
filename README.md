@@ -13,9 +13,9 @@ NetBox provides the ideal "source of truth" to power network automation.
 Available as open source software under the Apache 2.0 license, NetBox serves
 as the cornerstone for network automation in thousands of organizations.
 
-* **Physical infrasucture:** Accurately model the physical world, from global regions down to individual racks of gear. Then connect everything - network, console, and power!
+* **Physical infrastructure:** Accurately model the physical world, from global regions down to individual racks of gear. Then connect everything - network, console, and power!
 * **Modern IPAM:** All the standard IPAM functionality you expect, plus VRF import/export tracking, VLAN management, and overlay support.
-* **Data circuits:** Confidently manage the delivery of crtical circuits from various service providers, modeled seamlessly alongside your own infrastructure.
+* **Data circuits:** Confidently manage the delivery of critical circuits from various service providers, modeled seamlessly alongside your own infrastructure.
 * **Power tracking:** Map the distribution of power from upstream sources to individual feeds and outlets.
 * **Organization:** Manage tenant and contact assignments natively.
 * **Powerful search:** Easily find anything you need using a single global search function.

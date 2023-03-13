@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0064_asnrange'),
+        ('ipam', '0065_asnrange'),
     ]
 
     operations = [

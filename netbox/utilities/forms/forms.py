@@ -183,7 +183,7 @@ class ImportForm(BootstrapMixin, forms.Form):
         if 'data_file' in self.files:
             self.data_field = 'data_file'
             file = self.files.get('data_file')
-            data = file.read().decode('utf-8')
+            data = file.read().decode('utf-8-sig')
         else:
             data = self.cleaned_data['data']
 

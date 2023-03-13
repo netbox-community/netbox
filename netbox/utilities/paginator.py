@@ -76,8 +76,6 @@ def get_paginate_count(request):
     if 'per_page' in request.GET:
         try:
             per_page = int(request.GET.get('per_page'))
-            if request.user.is_authenticated:
-                request.user.config.set('pagination.per_page', per_page, commit=True)
             return _max_allowed(per_page)
         except ValueError:
             pass

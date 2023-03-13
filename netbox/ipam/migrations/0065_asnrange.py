@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('tenancy', '0009_standardize_description_comments'),
         ('extras', '0087_dashboard'),
-        ('ipam', '0063_standardize_description_comments'),
+        ('ipam', '0064_clear_search_cache'),
     ]
 
     operations = [

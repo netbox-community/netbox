@@ -107,6 +107,9 @@ CORS_ORIGIN_REGEX_WHITELIST = [
     # r'^(https?://)?(\w+\.)?example\.com$',
 ]
 
+# The name to use for the CSRF token cookie.
+CSRF_COOKIE_NAME = 'csrftoken'
+
 # Set to True to enable server debugging. WARNING: Debugging introduces a substantial performance penalty and may reveal
 # sensitive information about your installation. Only enable debugging while performing testing. Never enable debugging
 # on a production system.
@@ -126,6 +129,9 @@ EMAIL = {
     'TIMEOUT': 10,  # seconds
     'FROM_EMAIL': '',
 }
+
+# Localization
+ENABLE_LOCALIZATION = False
 
 # Exempt certain models from the enforcement of view permissions. Models listed here will be viewable by all users and
 # by anonymous users. List models in the form `<app>.<model>`. Add '*' to this list to exempt all models.
@@ -168,16 +174,6 @@ LOGOUT_REDIRECT_URL = 'home'
 # the default value of this setting is derived from the installed location.
 # MEDIA_ROOT = '/opt/netbox/netbox/media'
 
-# By default uploaded media is stored on the local filesystem. Using Django-storages is also supported. Provide the
-# class path of the storage driver in STORAGE_BACKEND and any configuration options in STORAGE_CONFIG. For example:
-# STORAGE_BACKEND = 'storages.backends.s3boto3.S3Boto3Storage'
-# STORAGE_CONFIG = {
-#     'AWS_ACCESS_KEY_ID': 'Key ID',
-#     'AWS_SECRET_ACCESS_KEY': 'Secret',
-#     'AWS_STORAGE_BUCKET_NAME': 'netbox',
-#     'AWS_S3_REGION_NAME': 'eu-west-1',
-# }
-
 # Expose Prometheus monitoring metrics at the HTTP endpoint '/metrics'
 METRICS_ENABLED = False
 
@@ -217,13 +213,6 @@ RQ_DEFAULT_TIMEOUT = 300
 # this setting is derived from the installed location.
 # SCRIPTS_ROOT = '/opt/netbox/netbox/scripts'
 
-# The maximum size (in bytes) that an upload will be before it gets streamed to the file system.
-# Useful to be able to upload files bigger than 2.5Mbyte to custom scripts for processing.
-# FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440
-
-# The name to use for the csrf token cookie.
-CSRF_COOKIE_NAME = 'csrftoken'
-
 # The name to use for the session cookie.
 SESSION_COOKIE_NAME = 'sessionid'
 
@@ -232,8 +221,15 @@ SESSION_COOKIE_NAME = 'sessionid'
 # database access.) Note that the user as which NetBox runs must have read and write permissions to this path.
 SESSION_FILE_PATH = None
 
-# Localization
-ENABLE_LOCALIZATION = False
+# By default, uploaded media is stored on the local filesystem. Using Django-storages is also supported. Provide the
+# class path of the storage driver in STORAGE_BACKEND and any configuration options in STORAGE_CONFIG. For example:
+# STORAGE_BACKEND = 'storages.backends.s3boto3.S3Boto3Storage'
+# STORAGE_CONFIG = {
+#     'AWS_ACCESS_KEY_ID': 'Key ID',
+#     'AWS_SECRET_ACCESS_KEY': 'Secret',
+#     'AWS_STORAGE_BUCKET_NAME': 'netbox',
+#     'AWS_S3_REGION_NAME': 'eu-west-1',
+# }
 
 # Time zone (default: UTC)
 TIME_ZONE = 'UTC'

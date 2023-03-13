@@ -7,7 +7,7 @@ from extras.graphql.mixins import (
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
-from .mixins import CabledObjectMixin
+from .mixins import CabledObjectMixin, PathEndpointMixin
 
 __all__ = (
     'CableType',
@@ -117,7 +117,7 @@ class CableTerminationType(NetBoxObjectType):
         filterset_class = filtersets.CableTerminationFilterSet
 
 
-class ConsolePortType(ComponentObjectType, CabledObjectMixin):
+class ConsolePortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
 
     class Meta:
         model = models.ConsolePort
@@ -139,7 +139,7 @@ class ConsolePortTemplateType(ComponentTemplateObjectType):
         return self.type or None
 
 
-class ConsoleServerPortType(ComponentObjectType, CabledObjectMixin):
+class ConsoleServerPortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
 
     class Meta:
         model = models.ConsoleServerPort
@@ -241,7 +241,7 @@ class FrontPortTemplateType(ComponentTemplateObjectType):
         filterset_class = filtersets.FrontPortTemplateFilterSet
 
 
-class InterfaceType(IPAddressesMixin, ComponentObjectType, CabledObjectMixin):
+class InterfaceType(IPAddressesMixin, ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
 
     class Meta:
         model = models.Interface
@@ -354,7 +354,7 @@ class PlatformType(OrganizationalObjectType):
         filterset_class = filtersets.PlatformFilterSet
 
 
-class PowerFeedType(NetBoxObjectType, CabledObjectMixin):
+class PowerFeedType(NetBoxObjectType, CabledObjectMixin, PathEndpointMixin):
 
     class Meta:
         model = models.PowerFeed
@@ -362,7 +362,7 @@ class PowerFeedType(NetBoxObjectType, CabledObjectMixin):
         filterset_class = filtersets.PowerFeedFilterSet
 
 
-class PowerOutletType(ComponentObjectType, CabledObjectMixin):
+class PowerOutletType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
 
     class Meta:
         model = models.PowerOutlet
@@ -398,7 +398,7 @@ class PowerPanelType(NetBoxObjectType, ContactsMixin):
         filterset_class = filtersets.PowerPanelFilterSet
 
 
-class PowerPortType(ComponentObjectType, CabledObjectMixin):
+class PowerPortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
 
     class Meta:
         model = models.PowerPort
