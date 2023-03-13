@@ -9,6 +9,7 @@
 * [#11294](https://github.com/netbox-community/netbox/issues/11294) - Enable live preview of Markdown content
 * [#11807](https://github.com/netbox-community/netbox/issues/11807) - Restore default page size when navigating between views
 * [#11817](https://github.com/netbox-community/netbox/issues/11817) - Add `connected_endpoints` field to GraphQL API for cabled objects
+* [#11851](https://github.com/netbox-community/netbox/issues/11851) - Include IP version in GraphQL API representations of aggregates, prefixes, and IP addresses
 * [#11862](https://github.com/netbox-community/netbox/issues/11862) - Add Cisco StackWise 1T interface type
 * [#11871](https://github.com/netbox-community/netbox/issues/11871) - Add IEEE 802.3az PoE type for interfaces
 
@@ -19,6 +20,7 @@
 * [#11758](https://github.com/netbox-community/netbox/issues/11758) - Support non-URL-safe characters in plugin menu titles
 * [#11796](https://github.com/netbox-community/netbox/issues/11796) - When importing devices, restrict rack by location only if the location field is specified
 * [#11819](https://github.com/netbox-community/netbox/issues/11819) - Fix filtering of cable terminations by object type
+* [#11850](https://github.com/netbox-community/netbox/issues/11850) - Fix loading of CSV files containing a byte order mark
 * [#11903](https://github.com/netbox-community/netbox/issues/11903) - Fix escaping of return URL values for action buttons in tables
 
 ---
