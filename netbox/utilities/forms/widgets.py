@@ -121,6 +121,7 @@ class APISelect(forms.Select):
 
     :param api_url: API endpoint URL. Required if not set automatically by the parent field.
     """
+    template_name = 'widgets/apiselect.html'
     option_template_name = 'widgets/select_option.html'
     dynamic_params: Dict[str, str]
     static_params: Dict[str, List[str]]

@@ -27,12 +27,9 @@
       </div>
       <div class="tab-content p-0 border-0">
         <div class="tab-pane{% if not providernetwork_tab_active %} active{% endif %}" id="site">
-          {% render_field form.region %}
-          {% render_field form.site_group %}
           {% render_field form.site %}
         </div>
         <div class="tab-pane{% if providernetwork_tab_active %} active{% endif %}" id="providernetwork">
-          {% render_field form.provider_network_provider %}
           {% render_field form.provider_network %}
         </div>
       </div>
