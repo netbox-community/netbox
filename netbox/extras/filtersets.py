@@ -210,6 +210,9 @@ class ImageAttachmentFilterSet(BaseFilterSet):
 class JournalEntryFilterSet(NetBoxModelFilterSet):
     created = django_filters.DateTimeFromToRangeFilter()
     assigned_object_type = ContentTypeFilter()
+    assigned_object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ContentType.objects.all()
+    )
     created_by_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
         label=_('User (ID)'),
@@ -458,6 +461,9 @@ class ObjectChangeFilterSet(BaseFilterSet):
     )
     time = django_filters.DateTimeFromToRangeFilter()
     changed_object_type = ContentTypeFilter()
+    changed_object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ContentType.objects.all()
+    )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
         label=_('User (ID)'),

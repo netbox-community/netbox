@@ -1,5 +1,33 @@
 # NetBox v3.4
 
+## v3.4.6 (2023-03-13)
+
+### Enhancements
+
+* [#10058](https://github.com/netbox-community/netbox/issues/10058) - Enable searching for devices/VMs by primary IP address
+* [#11011](https://github.com/netbox-community/netbox/issues/11011) - Add ability to toggle visibility of virtual interfaces under device view
+* [#11294](https://github.com/netbox-community/netbox/issues/11294) - Enable live preview of Markdown content
+* [#11807](https://github.com/netbox-community/netbox/issues/11807) - Restore default page size when navigating between views
+* [#11817](https://github.com/netbox-community/netbox/issues/11817) - Add `connected_endpoints` field to GraphQL API for cabled objects
+* [#11851](https://github.com/netbox-community/netbox/issues/11851) - Include IP version in GraphQL API representations of aggregates, prefixes, and IP addresses
+* [#11862](https://github.com/netbox-community/netbox/issues/11862) - Add Cisco StackWise 1T interface type
+* [#11871](https://github.com/netbox-community/netbox/issues/11871) - Add IEEE 802.3az PoE type for interfaces
+* [#11929](https://github.com/netbox-community/netbox/issues/11929) - Strip whitespace from CSV headers prior to validation
+
+### Bug Fixes
+
+* [#11470](https://github.com/netbox-community/netbox/issues/11470) - Avoid raising exception when filtering IPs by an invalid address
+* [#11565](https://github.com/netbox-community/netbox/issues/11565) - Apply custom field defaults to IP address created during FHRP group creation
+* [#11631](https://github.com/netbox-community/netbox/issues/11631) - Fix filtering changelog & journal entries by multiple content type IDs
+* [#11758](https://github.com/netbox-community/netbox/issues/11758) - Support non-URL-safe characters in plugin menu titles
+* [#11796](https://github.com/netbox-community/netbox/issues/11796) - When importing devices, restrict rack by location only if the location field is specified
+* [#11819](https://github.com/netbox-community/netbox/issues/11819) - Fix filtering of cable terminations by object type
+* [#11850](https://github.com/netbox-community/netbox/issues/11850) - Fix loading of CSV files containing a byte order mark
+* [#11903](https://github.com/netbox-community/netbox/issues/11903) - Fix escaping of return URL values for action buttons in tables
+* [#11927](https://github.com/netbox-community/netbox/issues/11927) - Correct loading of plugin resources with custom paths
+
+---
+
 ## v3.4.5 (2023-02-21)
 
 ### Enhancements

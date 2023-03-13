@@ -195,6 +195,7 @@ def parse_csv(reader):
     # `site.slug` header, to indicate the related site is being referenced by its slug.
 
     for header in next(reader):
+        header = header.strip()
         if '.' in header:
             field, to_field = header.split('.', 1)
             headers[field] = to_field

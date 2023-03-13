@@ -447,11 +447,14 @@ class DeviceImportForm(BaseDeviceImportForm):
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
             self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
 
-            # Limit rack queryset by assigned site and group
+            # Limit rack queryset by assigned site and location
             params = {
                 f"site__{self.fields['site'].to_field_name}": data.get('site'),
-                f"location__{self.fields['location'].to_field_name}": data.get('location'),
             }
+            if 'location' in data:
+                params.update({
+                    f"location__{self.fields['location'].to_field_name}": data.get('location'),
+                })
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
             # Limit device bay queryset by parent device

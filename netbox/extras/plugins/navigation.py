@@ -1,5 +1,6 @@
 from netbox.navigation import MenuGroup
 from utilities.choices import ButtonColorChoices
+from django.utils.text import slugify
 
 __all__ = (
     'PluginMenu',
@@ -21,7 +22,7 @@ class PluginMenu:
 
     @property
     def name(self):
-        return self.label.replace(' ', '_')
+        return slugify(self.label)
 
 
 class PluginMenuItem:

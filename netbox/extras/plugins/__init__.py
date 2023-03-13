@@ -78,8 +78,8 @@ class PluginConfig(AppConfig):
 
     def _load_resource(self, name):
         # Import from the configured path, if defined.
-        if getattr(self, name):
-            return import_string(f"{self.__module__}.{self.name}")
+        if path := getattr(self, name, None):
+            return import_string(f"{self.__module__}.{path}")
 
         # Fall back to the resource's default path. Return None if the module has not been provided.
         default_path = f'{self.__module__}.{DEFAULT_RESOURCE_PATHS[name]}'

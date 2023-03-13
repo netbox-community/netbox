@@ -902,6 +902,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_STACKWISE160 = 'cisco-stackwise-160'
     TYPE_STACKWISE320 = 'cisco-stackwise-320'
     TYPE_STACKWISE480 = 'cisco-stackwise-480'
+    TYPE_STACKWISE1T = 'cisco-stackwise-1t'
     TYPE_JUNIPER_VCP = 'juniper-vcp'
     TYPE_SUMMITSTACK = 'extreme-summitstack'
     TYPE_SUMMITSTACK128 = 'extreme-summitstack-128'
@@ -1078,6 +1079,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_STACKWISE160, 'Cisco StackWise-160'),
                 (TYPE_STACKWISE320, 'Cisco StackWise-320'),
                 (TYPE_STACKWISE480, 'Cisco StackWise-480'),
+                (TYPE_STACKWISE1T, 'Cisco StackWise-1T'),
                 (TYPE_JUNIPER_VCP, 'Juniper VCP'),
                 (TYPE_SUMMITSTACK, 'Extreme SummitStack'),
                 (TYPE_SUMMITSTACK128, 'Extreme SummitStack-128'),
@@ -1135,6 +1137,7 @@ class InterfacePoETypeChoices(ChoiceSet):
 
     TYPE_1_8023AF = 'type1-ieee802.3af'
     TYPE_2_8023AT = 'type2-ieee802.3at'
+    TYPE_2_8023AZ = 'type2-ieee802.3az'
     TYPE_3_8023BT = 'type3-ieee802.3bt'
     TYPE_4_8023BT = 'type4-ieee802.3bt'
 
@@ -1149,6 +1152,7 @@ class InterfacePoETypeChoices(ChoiceSet):
             (
                 (TYPE_1_8023AF, '802.3af (Type 1)'),
                 (TYPE_2_8023AT, '802.3at (Type 2)'),
+                (TYPE_2_8023AZ, '802.3az (Type 2)'),
                 (TYPE_3_8023BT, '802.3bt (Type 3)'),
                 (TYPE_4_8023BT, '802.3bt (Type 4)'),
             )

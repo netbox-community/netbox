@@ -27,6 +27,28 @@ __all__ = (
 )
 
 
+class IPAddressFamilyType(graphene.ObjectType):
+
+    value = graphene.Int()
+    label = graphene.String()
+
+    def __init__(self, value):
+        self.value = value
+        self.label = f'IPv{value}'
+
+
+class BaseIPAddressFamilyType:
+    '''
+    Base type for models that need to expose their IPAddress family type.
+    '''
+    family = graphene.Field(IPAddressFamilyType)
+
+    def resolve_family(self, _):
+        # Note that self, is an instance of models.IPAddress
+        # thus resolves to the address family value.
+        return IPAddressFamilyType(self.family)
+
+
 class ASNType(NetBoxObjectType):
     asn = graphene.Field(BigInt)
 
@@ -36,7 +58,7 @@ class ASNType(NetBoxObjectType):
         filterset_class = filtersets.ASNFilterSet
 
 
-class AggregateType(NetBoxObjectType):
+class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):
 
     class Meta:
         model = models.Aggregate
@@ -64,7 +86,7 @@ class FHRPGroupAssignmentType(BaseObjectType):
         filterset_class = filtersets.FHRPGroupAssignmentFilterSet
 
 
-class IPAddressType(NetBoxObjectType):
+class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
     assigned_object = graphene.Field('ipam.graphql.gfk_mixins.IPAddressAssignmentType')
 
     class Meta:
@@ -87,7 +109,7 @@ class IPRangeType(NetBoxObjectType):
         return self.role or None
 
 
-class PrefixType(NetBoxObjectType):
+class PrefixType(NetBoxObjectType, BaseIPAddressFamilyType):
 
     class Meta:
         model = models.Prefix

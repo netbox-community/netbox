@@ -17,6 +17,8 @@ from utilities.api import get_graphql_type_for_model
 from .base import ModelTestCase
 from .utils import disable_warnings
 
+from ipam.graphql.types import IPAddressFamilyType
+
 
 __all__ = (
     'APITestCase',
@@ -460,6 +462,8 @@ class APIViewTestCases:
                     # TODO: Come up with something more elegant
                     # Temporary hack to support automated testing of reverse generic relations
                     fields_string += f'{field_name} {{ id }}\n'
+                elif inspect.isclass(field.type) and issubclass(field.type, IPAddressFamilyType):
+                    fields_string += f'{field_name} {{ value, label }}\n'
                 else:
                     fields_string += f'{field_name}\n'
 

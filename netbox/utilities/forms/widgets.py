@@ -16,6 +16,7 @@ __all__ = (
     'ColorSelect',
     'DatePicker',
     'DateTimePicker',
+    'MarkdownWidget',
     'NumericArrayField',
     'SelectDurationWidget',
     'SelectSpeedWidget',
@@ -114,6 +115,10 @@ class SelectDurationWidget(forms.NumberInput):
     Dropdown to select one of several common options for a time duration (in minutes).
     """
     template_name = 'widgets/select_duration.html'
+
+
+class MarkdownWidget(forms.Textarea):
+    template_name = 'widgets/markdown_input.html'
 
 
 class NumericArrayField(SimpleArrayField):

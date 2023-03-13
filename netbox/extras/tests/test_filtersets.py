@@ -502,7 +502,7 @@ class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_assigned_object_type(self):
         params = {'assigned_object_type': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {'assigned_object_type_id': ContentType.objects.get(app_label='dcim', model='site').pk}
+        params = {'assigned_object_type_id': [ContentType.objects.get(app_label='dcim', model='site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_assigned_object(self):
@@ -876,7 +876,5 @@ class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
     def test_changed_object_type(self):
         params = {'changed_object_type': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_changed_object_type_id(self):
-        params = {'changed_object_type_id': ContentType.objects.get(app_label='dcim', model='site').pk}
+        params = {'changed_object_type_id': [ContentType.objects.get(app_label='dcim', model='site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)

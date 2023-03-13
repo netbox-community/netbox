@@ -1,0 +1,22 @@
+<div class="border rounded markdown-widget"> 
+    <ul class="nav nav-tabs px-3 pt-2 rounded-top border-0">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active " id="{{ widget.name }}-input-tab" data-bs-toggle="tab" data-bs-target="#{{ widget.name }}-input" type="button" role="tab" aria-controls="{{ widget.name }}-input" aria-selected="true">
+            Write
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button hx-target="#{{ widget.name }}-preview" hx-swap="innerHTML" hx-post="{% url 'extras:render_markdown' %}" class="nav-link preview-button" id="{{ widget.name }}-markdown-preview-tab" data-bs-toggle="tab" data-bs-target="#{{ widget.name }}-markdown-preview" type="button" role="tab" aria-controls="{{ widget.name }}-markdown-preview" aria-selected="false">
+              Preview   
+            </button>
+          </li>
+      </ul>
+      <div class="tab-content bg-body rounded-bottom border-top">
+        <div class="tab-pane show active" id="{{ widget.name }}-input" role="tabpanel" aria-labelledby="{{ widget.name }}-input-tab">
+        {% include "django/forms/widgets/textarea.html" %}
+        </div>
+        <div class="tab-pane show" id="{{ widget.name }}-markdown-preview" role="tabpanel" aria-labelledby="{{ widget.name }}-markdown-preview-tab">
+            <div id="{{ widget.name }}-preview" class="preview px-3 py-2">Testing</div>
+        </div>
+    </div>
+</div>
