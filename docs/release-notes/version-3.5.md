@@ -31,6 +31,7 @@ A new ASN range model has been introduced to facilitate the provisioning of new 
 * [#8958](https://github.com/netbox-community/netbox/issues/8958) - Changes in background job status can trigger webhooks
 * [#9073](https://github.com/netbox-community/netbox/issues/9073) - Enable syncing config context data from remote sources
 * [#9653](https://github.com/netbox-community/netbox/issues/9653) - Enable setting a default platform for device types
+* [#10054](https://github.com/netbox-community/netbox/issues/10054) - Introduce advanced object selector for UI forms
 * [#10374](https://github.com/netbox-community/netbox/issues/10374) - Require unique tenant names & slugs per group (not globally)
 * [#10729](https://github.com/netbox-community/netbox/issues/10729) - Add date & time custom field type
 * [#11254](https://github.com/netbox-community/netbox/issues/11254) - Introduce the `X-Request-ID` HTTP header to annotate the unique ID of each request for change logging
@@ -39,6 +40,7 @@ A new ASN range model has been introduced to facilitate the provisioning of new 
 * [#11584](https://github.com/netbox-community/netbox/issues/11584) - Add a list view for contact assignments
 * [#11625](https://github.com/netbox-community/netbox/issues/11625) - Add HTMX support to ObjectEditView
 * [#11693](https://github.com/netbox-community/netbox/issues/11693) - Enable syncing export template content from remote sources
+* [#11968](https://github.com/netbox-community/netbox/issues/11968) - Add navigation menu buttons to create device & VM components
 
 ### Other Changes
 
