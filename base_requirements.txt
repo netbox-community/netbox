@@ -66,6 +66,10 @@ djangorestframework
 # https://github.com/axnsan12/drf-yasg
 drf-yasg[validation]
 
+# RSS feed parser
+# https://github.com/kurtmckee/feedparser
+feedparser
+
 # Django wrapper for Graphene (GraphQL support)
 # https://github.com/graphql-python/graphene-django
 graphene_django
