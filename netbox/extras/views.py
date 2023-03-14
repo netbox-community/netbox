@@ -1,5 +1,7 @@
+from django import forms as DjangoForms
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -901,3 +903,16 @@ class RenderMarkdownView(View):
         rendered = render_markdown(form.cleaned_data['text'])
 
         return HttpResponse(rendered)
+
+
+def suggest_form_factory(obj_cls, form_cls):
+    return type(
+        f'dyn_suggest_{form_cls.__name__}',
+        (form_cls, ),
+        {
+            'reviewer': DjangoForms.ModelChoiceField(
+                # TODO: Use obj_cls to get the right qs here.
+                queryset=User.objects.filter(is_active=True, is_superuser=True),
+                required=True,)
+        }
+    )

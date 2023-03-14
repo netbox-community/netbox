@@ -14,7 +14,13 @@ Context:
 {% endcomment %}
 
 {% block title %}
-  {% if object.pk %}Editing {{ object|meta:"verbose_name" }} {{ object }}{% else %}Add a new {{ object|meta:"verbose_name" }}{% endif %}
+  {% if is_suggest %}
+    Suggesting an edit for {{ object|meta:"verbose_name" }} {{ object }}
+  {% elif object.pk %}
+    Editing {{ object|meta:"verbose_name" }} {{ object }}
+  {% else %}
+    Add a new {{ object|meta:"verbose_name" }}
+  {% endif %}
 {% endblock title %}
 
 {% block tabs %}
@@ -98,6 +104,13 @@ Context:
           {% endif %}
 
         {% endblock form %}
+
+        {% if is_suggest and form.reviewer %}
+          <div class="field-group mb-5">
+            <h5 class="text-center">Reviewer</h5>
+            {% render_field form.reviewer %}
+          </div>
+        {% endif %}
 
         <div class="text-end my-3">
           {% block buttons %}

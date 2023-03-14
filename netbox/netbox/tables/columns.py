@@ -210,6 +210,7 @@ class ActionsColumn(tables.Column):
     empty_values = ()
     actions = {
         'edit': ActionsItem('Edit', 'pencil', 'change', 'warning'),
+        'suggest': ActionsItem('Suggest edit', 'pencil', 'suggest', 'warning'),
         'delete': ActionsItem('Delete', 'trash-can-outline', 'delete', 'danger'),
         'changelog': ActionsItem('Changelog', 'history'),
     }

@@ -1,5 +1,6 @@
 import logging
 from copy import deepcopy
+from datetime import datetime
 
 from django.contrib import messages
 from django.db import transaction
@@ -9,6 +10,9 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
+from netbox.staging import checkout
+
+from extras.models.staging import ReviewRequest, Branch, Notification
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
@@ -161,10 +165,18 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
     form = None
 
     def dispatch(self, request, *args, **kwargs):
-        # Determine required permission based on whether we are editing an existing object
-        self._permission_action = 'change' if kwargs else 'add'
-
+        # Determine required permission based on whether we
+        # are suggesting an edit, editing an existing object,
+        # or creating a new instance.
+        if self.is_suggest:
+            self._permission_action = 'suggest'
+        else:
+            self._permission_action = 'change' if kwargs else 'add'
         return super().dispatch(request, *args, **kwargs)
+
+    @property
+    def is_suggest(self):
+        return getattr(self, 'is_suggest_view', False)
 
     def get_required_permission(self):
         # self._permission_action is set by dispatch() to either "add" or "change" depending on whether
@@ -222,6 +234,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
             'model': model,
             'object': obj,
             'form': form,
+            'is_suggest': self.is_suggest,
             'return_url': self.get_return_url(request, obj),
             'prerequisite_model': get_prerequisite_model(self.queryset),
             **self.get_extra_context(request, obj),
@@ -250,15 +263,39 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
             logger.debug("Form validation was successful")
 
             try:
-                with transaction.atomic():
-                    object_created = form.instance.pk is None
-                    obj = form.save()
+                if self.is_suggest:
+                    utc_timestamp = int(datetime.utcnow().timestamp())
+                    branch_name = f'{request.user}_{obj.__class__.__name__}_{utc_timestamp}'
+                    branch = Branch.objects.create(name=branch_name, user=request.user)
+                    owner = request.user
+                    reviewer = form.cleaned_data.get('reviewer')
+                    with checkout(branch):
+                        obj = form.save()
 
-                    # Check that the new object conforms with any assigned object-level permissions
-                    if not self.queryset.filter(pk=obj.pk).exists():
-                        raise PermissionsViolation()
+                    # TODO: Remove branch if this atomic transaction fails.
+                    with transaction.atomic():
+                        ReviewRequest.objects.create(
+                            owner=owner,
+                            reviewer=reviewer,
+                            branch=branch
+                        )
+                        Notification.objects.create(
+                            user=reviewer,
+                            title=f'{owner.get_full_name()} is requesting a review on a modifition on {obj}',
+                            content=f'{owner.get_full_name()} has made modifications to {obj} and is requesting \
+                                that you review and approve them.',
+                        )
+                else:
+                    with transaction.atomic():
+                        object_created = form.instance.pk is None
+                        obj = form.save()
+
+                        # Check that the new object conforms with any assigned object-level permissions
+                        if not self.queryset.filter(pk=obj.pk).exists():
+                            raise PermissionsViolation()
 
                 msg = '{} {}'.format(
+                    'Created Review Request' if self.is_suggest else
                     'Created' if object_created else 'Modified',
                     self.queryset.model._meta.verbose_name
                 )

@@ -12,7 +12,7 @@ from django.utils.translation import gettext as _
 from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
-from extras.views import ObjectConfigContextView
+from extras.views import ObjectConfigContextView, suggest_form_factory
 from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
@@ -1914,6 +1914,14 @@ class DeviceEditView(generic.ObjectEditView):
     queryset = Device.objects.all()
     form = forms.DeviceForm
     template_name = 'dcim/device_edit.html'
+
+
+@register_model_view(Device, 'suggest')
+class DeviceSuggestView(generic.ObjectEditView):
+    queryset = Device.objects.all()
+    form = suggest_form_factory(Device, forms.DeviceForm)
+    template_name = 'dcim/device_edit.html'
+    is_suggest_view = True
 
 
 @register_model_view(Device, 'delete')

@@ -204,6 +204,11 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:device_list'
     )
+    # TODO: Remove this and just piggy back on the defaults
+    #       once adjusted.
+    actions = columns.ActionsColumn(
+        actions=('edit', 'suggest', 'delete', 'changelog')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = models.Device
