@@ -10,7 +10,6 @@ class DCIMConfig(AppConfig):
     def ready(self):
         from . import signals, search
         from .models import CableTermination
-        from . import schema  # noqa: E402
 
         # Register denormalized fields
         denormalized.register(CableTermination, '_device', {

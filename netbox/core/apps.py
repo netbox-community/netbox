@@ -6,3 +6,4 @@ class CoreConfig(AppConfig):
 
     def ready(self):
         from . import data_backends, search
+        from core.api import schema  # noqa: E402
