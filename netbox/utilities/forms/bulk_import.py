@@ -15,7 +15,8 @@ from .forms import BootstrapMixin
 
 class ImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
     import_method = forms.ChoiceField(
-        choices=ImportMethodChoices
+        choices=ImportMethodChoices,
+        required=False
     )
     data = forms.CharField(
         required=False,
@@ -37,7 +38,7 @@ class ImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         super().clean()
 
         # Determine import method
-        import_method = self.cleaned_data['import_method']
+        import_method = self.cleaned_data.get('import_method') or ImportMethodChoices.DIRECT
 
         # Determine whether we're reading from form data or an uploaded file
         if self.cleaned_data['data'] and import_method != ImportMethodChoices.DIRECT:
