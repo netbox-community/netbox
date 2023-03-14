@@ -85,6 +85,17 @@ By default, script variables will be ordered in the form as they are defined in 
 
 `fieldsets` may be defined as an iterable of field groups and their field names to determine the order in which variables are group and rendered. Any fields not included in this iterable will not be displayed in the form. If `fieldsets` is defined, `field_order` will be ignored.  A fieldset group for "Script Execution Parameters" will be added to the end of the fieldsets by default for the user.
 
+An example fieldset definition is provided below:
+
+```python
+class MyScript(Script):
+    class Meta:
+        fieldsets = (
+            ('First group', ('field1', 'field2', 'field3')),
+            ('Second group', ('field4', 'field5')),
+        )
+```
+
 ### `commit_default`
 
 The checkbox to commit database changes when executing a script is checked by default. Set `commit_default` to False under the script's Meta class to leave this option unchecked by default.

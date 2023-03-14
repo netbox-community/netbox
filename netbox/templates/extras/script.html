@@ -52,21 +52,11 @@
                 {% for group, fields in script.Meta.fieldsets %}
                   <div class="field-group mb-5">
                     <div class="row mb-2">
-                      <h5 class="offset-sm-3">
-                        {% if group %}
-                          {{ group }}
-                        {% else %}
-                          {{ model|meta:"verbose_name"|bettertitle }}
-                        {% endif %}
-                      </h5>
+                      <h5 class="offset-sm-3">{{ group }}</h5>
                     </div>
                     {% for name in fields %}
                       {% with field=form|getfield:name %}
-                        {% if field.name in form.nullable_fields %}
-                          {% render_field field bulk_nullable=True %}
-                        {% else %}
-                          {% render_field field %}
-                        {% endif %}
+                        {% render_field field %}
                       {% endwith %}
                     {% endfor %}
                   </div>
