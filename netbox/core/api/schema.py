@@ -57,10 +57,6 @@ class NetBoxAutoSchema(AutoSchema):
         else:
             return False
 
-    def get_operation(self, path, path_regex, path_prefix, method, registry: ComponentRegistry):
-        operation = super().get_operation(path, path_regex, path_prefix, method, registry)
-        return operation
-
     def get_operation_id(self):
         """
         Fix: bulk serializers cause operation_id conflicts with non-bulk ones
