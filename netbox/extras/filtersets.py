@@ -78,7 +78,7 @@ class CustomFieldFilterSet(BaseFilterSet):
         model = CustomField
         fields = [
             'id', 'content_types', 'name', 'group_name', 'required', 'search_weight', 'filter_logic', 'ui_visibility',
-            'weight', 'description',
+            'weight', 'is_cloneable', 'description',
         ]
 
     def search(self, queryset, name, value):

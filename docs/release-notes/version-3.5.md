@@ -28,6 +28,7 @@ A new ASN range model has been introduced to facilitate the provisioning of new 
 
 * [#7947](https://github.com/netbox-community/netbox/issues/7947) - Enable marking IP ranges as fully utilized
 * [#8272](https://github.com/netbox-community/netbox/issues/8272) - Support bridge relationships among device type interfaces
+* [#8749](https://github.com/netbox-community/netbox/issues/8749) - Support replicating custom field values when cloning an object
 * [#8958](https://github.com/netbox-community/netbox/issues/8958) - Changes in background job status can trigger webhooks
 * [#9073](https://github.com/netbox-community/netbox/issues/9073) - Enable syncing config context data from remote sources
 * [#9653](https://github.com/netbox-community/netbox/issues/9653) - Enable setting a default platform for device types

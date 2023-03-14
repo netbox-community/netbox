@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0084_staging'),
+        ('extras', '0088_jobresult_webhooks'),
     ]
 
     operations = [
