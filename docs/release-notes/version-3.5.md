@@ -40,6 +40,7 @@ A new ASN range model has been introduced to facilitate the provisioning of new 
 * [#11584](https://github.com/netbox-community/netbox/issues/11584) - Add a list view for contact assignments
 * [#11625](https://github.com/netbox-community/netbox/issues/11625) - Add HTMX support to ObjectEditView
 * [#11693](https://github.com/netbox-community/netbox/issues/11693) - Enable syncing export template content from remote sources
+* [#11780](https://github.com/netbox-community/netbox/issues/11780) - Enable loading import data from remote sources
 * [#11968](https://github.com/netbox-community/netbox/issues/11968) - Add navigation menu buttons to create device & VM components
 
 ### Other Changes
