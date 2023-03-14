@@ -7,14 +7,14 @@ from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.utils import content_type_identifier, content_type_name
+from utilities.utils import content_type_identifier, content_type_name, get_viewname
 from .utils import register_widget
 
 __all__ = (
-    'ChangeLogWidget',
     'DashboardWidget',
     'NoteWidget',
     'ObjectCountsWidget',
+    'ObjectListWidget',
 )
 
 
@@ -85,7 +85,7 @@ class NoteWidget(DashboardWidget):
 
 @register_widget
 class ObjectCountsWidget(DashboardWidget):
-    default_title = _('Objects')
+    default_title = _('Object Counts')
     description = _('Display a set of NetBox models and the number of objects created for each type.')
     template_name = 'extras/dashboard/widgets/objectcounts.html'
 
@@ -108,12 +108,23 @@ class ObjectCountsWidget(DashboardWidget):
 
 
 @register_widget
-class ChangeLogWidget(DashboardWidget):
-    default_title = _('Change Log')
-    description = _('Display the most recent records from the global change log.')
-    template_name = 'extras/dashboard/widgets/changelog.html'
+class ObjectListWidget(DashboardWidget):
+    default_title = _('Object List')
+    description = _('Display an arbitrary list of objects.')
+    template_name = 'extras/dashboard/widgets/objectlist.html'
     width = 12
     height = 4
 
+    class ConfigForm(BootstrapMixin, forms.Form):
+        model = forms.ChoiceField(
+            choices=get_content_type_labels
+        )
+
     def render(self, request):
-        return render_to_string(self.template_name, {})
+        app_label, model_name = self.config['model'].split('.')
+        content_type = ContentType.objects.get_by_natural_key(app_label, model_name)
+        viewname = get_viewname(content_type.model_class(), action='list')
+
+        return render_to_string(self.template_name, {
+            'viewname': viewname,
+        })
