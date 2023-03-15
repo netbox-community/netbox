@@ -47,7 +47,7 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         ('Custom Field', (
             'content_types', 'name', 'label', 'group_name', 'type', 'object_type', 'required', 'description',
         )),
-        ('Behavior', ('search_weight', 'filter_logic', 'ui_visibility', 'weight')),
+        ('Behavior', ('search_weight', 'filter_logic', 'ui_visibility', 'weight', 'is_cloneable')),
         ('Values', ('default', 'choices')),
         ('Validation', ('validation_minimum', 'validation_maximum', 'validation_regex')),
     )

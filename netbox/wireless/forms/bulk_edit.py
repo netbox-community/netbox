@@ -74,7 +74,6 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -119,7 +118,6 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 

@@ -48,8 +48,12 @@ DEFAULT_DASHBOARD = [
         }
     },
     {
-        'widget': 'extras.ChangeLogWidget',
+        'widget': 'extras.ObjectListWidget',
         'width': 12,
         'height': 6,
+        'title': 'Change Log',
+        'config': {
+            'model': 'extras.objectchange',
+        }
     },
 ]

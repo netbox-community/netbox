@@ -137,7 +137,6 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -302,7 +301,6 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -337,7 +335,6 @@ class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -400,7 +397,6 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -434,7 +430,6 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -549,7 +544,6 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -592,7 +586,6 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -639,7 +632,6 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -663,7 +655,6 @@ class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -709,7 +700,6 @@ class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 
@@ -767,7 +757,6 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label=_('Comments')
     )
 

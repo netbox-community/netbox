@@ -2,6 +2,10 @@
 # https://github.com/mozilla/bleach
 bleach<6.0
 
+# Python client for Amazon AWS API
+# https://github.com/boto/boto3
+boto3
+
 # The Python web framework on which NetBox is built
 # https://github.com/django/django
 Django<4.2
@@ -65,6 +69,10 @@ djangorestframework
 # Sane and flexible OpenAPI 3 schema generation for Django REST framework.
 # https://github.com/tfranzel/drf-spectacular
 drf-spectacular
+
+# RSS feed parser
+# https://github.com/kurtmckee/feedparser
+feedparser
 
 # Django wrapper for Graphene (GraphQL support)
 # https://github.com/graphql-python/graphene-django

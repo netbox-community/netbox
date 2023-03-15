@@ -71,7 +71,7 @@
                 <div class="text-muted">
                   Not Connected
                   {% if perms.dcim.add_cable %}
-                    <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.poweroutlet&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&termination_b_site={{ object.device.site.pk }}&termination_b_rack={{ object.device.rack.pk }}&return_url={{ object.get_absolute_url }}" title="Connect" class="btn btn-primary btn-sm float-end">
+                    <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.poweroutlet&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&return_url={{ object.get_absolute_url }}" title="Connect" class="btn btn-primary btn-sm float-end">
                       <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> Connect
                     </a>
                   {% endif %}

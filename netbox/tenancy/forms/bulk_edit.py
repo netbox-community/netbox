@@ -106,7 +106,6 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label='Comments'
     )
 

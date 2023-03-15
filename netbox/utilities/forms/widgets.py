@@ -16,6 +16,7 @@ __all__ = (
     'ColorSelect',
     'DatePicker',
     'DateTimePicker',
+    'MarkdownWidget',
     'NumericArrayField',
     'SelectDurationWidget',
     'SelectSpeedWidget',
@@ -87,6 +88,10 @@ class SelectDurationWidget(forms.NumberInput):
     template_name = 'widgets/select_duration.html'
 
 
+class MarkdownWidget(forms.Textarea):
+    template_name = 'widgets/markdown_input.html'
+
+
 class NumericArrayField(SimpleArrayField):
 
     def clean(self, value):
@@ -116,6 +121,7 @@ class APISelect(forms.Select):
 
     :param api_url: API endpoint URL. Required if not set automatically by the parent field.
     """
+    template_name = 'widgets/apiselect.html'
     option_template_name = 'widgets/select_option.html'
     dynamic_params: Dict[str, str]
     static_params: Dict[str, List[str]]

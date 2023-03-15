@@ -236,12 +236,12 @@ table {
   }
 
   th.asc > a::after {
-    content: "\f0140";
+    content: '\f0140';
     font-family: 'Material Design Icons';
   }
 
   th.desc > a::after {
-    content: "\f0143";
+    content: '\f0143';
     font-family: 'Material Design Icons';
   }
 
@@ -416,18 +416,18 @@ nav.search {
   }
 }
 
-// Styles for the quicksearch and its clear button; 
+// Styles for the quicksearch and its clear button;
 // Overrides input-group styles and adds transition effects
 .quicksearch {
-  input[type="search"] {
-    border-radius: $border-radius  !important;
+  input[type='search'] {
+    border-radius: $border-radius !important;
   }
 
   button {
     margin-left: -32px !important;
     z-index: 100 !important;
     outline: none !important;
-    border-radius: $border-radius  !important;
+    border-radius: $border-radius !important;
     transition: visibility 0s, opacity 0.2s linear;
   }
 
@@ -998,9 +998,24 @@ div.card-overlay {
   padding: 8px;
 }
 
+/* Markdown widget */
+.markdown-widget {
+  .nav-link {
+    border-bottom: 0;
+
+    &.active {
+      background-color: var(--nbx-body-bg);
+    }
+  }
+
+  .nav-tabs {
+    background-color: var(--nbx-pre-bg);
+  }
+}
+
 // Preformatted text blocks
 td pre {
-  margin-bottom: 0
+  margin-bottom: 0;
 }
 pre.block {
   padding: $spacer;

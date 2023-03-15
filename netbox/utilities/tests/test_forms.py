@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from ipam.forms import IPAddressImportForm
 from utilities.choices import ImportFormatChoices
-from utilities.forms import ImportForm
+from utilities.forms.bulk_import import ImportForm
 from utilities.forms.fields import CSVDataField
 from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 

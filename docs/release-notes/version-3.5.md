@@ -10,7 +10,7 @@ The static home view has been replaced with a fully customizable dashboard. User
 
 #### Remote Data Sources ([#11558](https://github.com/netbox-community/netbox/issues/11558))
 
-NetBox now has the ability to synchronize arbitrary data from external sources through the new [DataSource](../models/core/datasource.md) and [DataFile](../models/core/datafile.md) models. Synchronized files are stored in the PostgreSQL database, and may be referenced and consumed by other NetBox models, such as export templates and config contexts. Currently, replication from local filesystem paths and from git repositories is supported, and we expect to add support for additional backends in the near future.
+NetBox now has the ability to synchronize arbitrary data from external sources through the new [DataSource](../models/core/datasource.md) and [DataFile](../models/core/datafile.md) models. Synchronized files are stored in the PostgreSQL database, and may be referenced and consumed by other NetBox models, such as export templates and config contexts. Currently, replication from local filesystem paths, git repositories, and Amazon S3 buckets is supported, and we expect to introduce additional backends in the near future.
 
 #### Configuration Template Rendering ([#11559](https://github.com/netbox-community/netbox/issues/11559))
 
@@ -28,9 +28,11 @@ A new ASN range model has been introduced to facilitate the provisioning of new 
 
 * [#7947](https://github.com/netbox-community/netbox/issues/7947) - Enable marking IP ranges as fully utilized
 * [#8272](https://github.com/netbox-community/netbox/issues/8272) - Support bridge relationships among device type interfaces
+* [#8749](https://github.com/netbox-community/netbox/issues/8749) - Support replicating custom field values when cloning an object
 * [#8958](https://github.com/netbox-community/netbox/issues/8958) - Changes in background job status can trigger webhooks
 * [#9073](https://github.com/netbox-community/netbox/issues/9073) - Enable syncing config context data from remote sources
 * [#9653](https://github.com/netbox-community/netbox/issues/9653) - Enable setting a default platform for device types
+* [#10054](https://github.com/netbox-community/netbox/issues/10054) - Introduce advanced object selector for UI forms
 * [#10374](https://github.com/netbox-community/netbox/issues/10374) - Require unique tenant names & slugs per group (not globally)
 * [#10729](https://github.com/netbox-community/netbox/issues/10729) - Add date & time custom field type
 * [#11254](https://github.com/netbox-community/netbox/issues/11254) - Introduce the `X-Request-ID` HTTP header to annotate the unique ID of each request for change logging
@@ -39,6 +41,8 @@ A new ASN range model has been introduced to facilitate the provisioning of new 
 * [#11584](https://github.com/netbox-community/netbox/issues/11584) - Add a list view for contact assignments
 * [#11625](https://github.com/netbox-community/netbox/issues/11625) - Add HTMX support to ObjectEditView
 * [#11693](https://github.com/netbox-community/netbox/issues/11693) - Enable syncing export template content from remote sources
+* [#11780](https://github.com/netbox-community/netbox/issues/11780) - Enable loading import data from remote sources
+* [#11968](https://github.com/netbox-community/netbox/issues/11968) - Add navigation menu buttons to create device & VM components
 
 ### Other Changes
 

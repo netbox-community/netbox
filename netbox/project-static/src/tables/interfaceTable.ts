@@ -1,6 +1,5 @@
 import { getElements, replaceAll, findFirstAdjacent } from '../util';
 
-type InterfaceState = 'enabled' | 'disabled';
 type ShowHide = 'show' | 'hide';
 
 function isShowHide(value: unknown): value is ShowHide {
@@ -27,54 +26,23 @@ class ButtonState {
    * Underlying Button DOM Element
    */
   public button: HTMLButtonElement;
-  /**
-   * Table rows with `data-enabled` set to `"enabled"`
-   */
-  private enabledRows: NodeListOf<HTMLTableRowElement>;
-  /**
-   * Table rows with `data-enabled` set to `"disabled"`
-   */
-  private disabledRows: NodeListOf<HTMLTableRowElement>;
 
-  constructor(button: HTMLButtonElement, table: HTMLTableElement) {
+  /**
+   * Table rows provided in constructor
+   */
+  private rows: NodeListOf<HTMLTableRowElement>;
+
+  constructor(button: HTMLButtonElement, rows: NodeListOf<HTMLTableRowElement>) {
     this.button = button;
-    this.enabledRows = table.querySelectorAll<HTMLTableRowElement>('tr[data-enabled="enabled"]');
-    this.disabledRows = table.querySelectorAll<HTMLTableRowElement>('tr[data-enabled="disabled"]');
+    this.rows = rows;
   }
 
   /**
-   * This button's controlled type. For example, a button with the class `toggle-disabled` has
-   * directive 'disabled' because it controls the visibility of rows with
-   * `data-enabled="disabled"`. Likewise, `toggle-enabled` controls rows with
-   * `data-enabled="enabled"`.
+   * Remove visibility of button state rows.
    */
-  private get directive(): InterfaceState {
-    if (this.button.classList.contains('toggle-disabled')) {
-      return 'disabled';
-    } else if (this.button.classList.contains('toggle-enabled')) {
-      return 'enabled';
-    }
-    // If this class has been instantiated but doesn't contain these classes, it's probably because
-    // the classes are missing in the HTML template.
-    console.warn(this.button);
-    throw new Error('Toggle button does not contain expected class');
-  }
-
-  /**
-   * Toggle visibility of rows with `data-enabled="enabled"`.
-   */
-  private toggleEnabledRows(): void {
-    for (const row of this.enabledRows) {
-      row.classList.toggle('d-none');
-    }
-  }
-
-  /**
-   * Toggle visibility of rows with `data-enabled="disabled"`.
-   */
-  private toggleDisabledRows(): void {
-    for (const row of this.disabledRows) {
-      row.classList.toggle('d-none');
+  private hideRows(): void {
+    for (const row of this.rows) {
+      row.classList.add('d-none');
     }
   }
 
@@ -112,17 +80,6 @@ class ButtonState {
   }
 
   /**
-   * Toggle visibility for the rows this element controls.
-   */
-  private toggleRows(): void {
-    if (this.directive === 'enabled') {
-      this.toggleEnabledRows();
-    } else if (this.directive === 'disabled') {
-      this.toggleDisabledRows();
-    }
-  }
-
-  /**
    * Toggle the DOM element's `data-state` attribute.
    */
   private toggleState(): void {
@@ -139,16 +96,19 @@ class ButtonState {
   private toggle(): void {
     this.toggleState();
     this.toggleButton();
-    this.toggleRows();
   }
 
   /**
-   * When the button is clicked, toggle all controlled elements.
+   * When the button is clicked, toggle all controlled elements and hide rows based on
+   * buttonstate.
    */
   public handleClick(event: Event): void {
     const button = event.currentTarget as HTMLButtonElement;
     if (button.isEqualNode(this.button)) {
       this.toggle();
+    }
+    if (this.buttonState === 'hide') {
+      this.hideRows();
     }
   }
 }
@@ -175,13 +135,24 @@ class TableState {
   private disabledButton: ButtonState;
 
   /**
+   * Instance of ButtonState for the 'show/hide virtual rows' button.
+   */
+  // @ts-expect-error null handling is performed in the constructor
+  private virtualButton: ButtonState;
+
+  /**
    * Underlying DOM Table Caption Element.
    */
   private caption: Nullable<HTMLTableCaptionElement> = null;
 
+  /**
+   * All table rows in table
+   */
+  private rows: NodeListOf<HTMLTableRowElement>;
+
   constructor(table: HTMLTableElement) {
     this.table = table;
-
+    this.rows = this.table.querySelectorAll('tr');
     try {
       const toggleEnabledButton = findFirstAdjacent<HTMLButtonElement>(
         this.table,
@@ -190,6 +161,10 @@ class TableState {
       const toggleDisabledButton = findFirstAdjacent<HTMLButtonElement>(
         this.table,
         'button.toggle-disabled',
+      );
+      const toggleVirtualButton = findFirstAdjacent<HTMLButtonElement>(
+        this.table,
+        'button.toggle-virtual',
       );
 
       const caption = this.table.querySelector('caption');
@@ -203,13 +178,28 @@ class TableState {
         throw new TableStateError("Table is missing a 'toggle-disabled' button.", table);
       }
 
+      if (toggleVirtualButton === null) {
+        throw new TableStateError("Table is missing a 'toggle-virtual' button.", table);
+      }
+
       // Attach event listeners to the buttons elements.
       toggleEnabledButton.addEventListener('click', event => this.handleClick(event, this));
       toggleDisabledButton.addEventListener('click', event => this.handleClick(event, this));
+      toggleVirtualButton.addEventListener('click', event => this.handleClick(event, this));
 
       // Instantiate ButtonState for each button for state management.
-      this.enabledButton = new ButtonState(toggleEnabledButton, this.table);
-      this.disabledButton = new ButtonState(toggleDisabledButton, this.table);
+      this.enabledButton = new ButtonState(
+        toggleEnabledButton,
+        table.querySelectorAll<HTMLTableRowElement>('tr[data-enabled="enabled"]'),
+      );
+      this.disabledButton = new ButtonState(
+        toggleDisabledButton,
+        table.querySelectorAll<HTMLTableRowElement>('tr[data-enabled="disabled"]'),
+      );
+      this.virtualButton = new ButtonState(
+        toggleVirtualButton,
+        table.querySelectorAll<HTMLTableRowElement>('tr[data-type="virtual"]'),
+      );
     } catch (err) {
       if (err instanceof TableStateError) {
         // This class is useless for tables that don't have toggle buttons.
@@ -246,37 +236,42 @@ class TableState {
   private toggleCaption(): void {
     const showEnabled = this.enabledButton.buttonState === 'show';
     const showDisabled = this.disabledButton.buttonState === 'show';
+    const showVirtual = this.virtualButton.buttonState === 'show';
 
-    if (showEnabled && !showDisabled) {
+    if (showEnabled && !showDisabled && !showVirtual) {
       this.captionText = 'Showing Enabled Interfaces';
-    } else if (showEnabled && showDisabled) {
+    } else if (showEnabled && showDisabled && !showVirtual) {
       this.captionText = 'Showing Enabled & Disabled Interfaces';
-    } else if (!showEnabled && showDisabled) {
+    } else if (!showEnabled && showDisabled && !showVirtual) {
       this.captionText = 'Showing Disabled Interfaces';
-    } else if (!showEnabled && !showDisabled) {
-      this.captionText = 'Hiding Enabled & Disabled Interfaces';
+    } else if (!showEnabled && !showDisabled && !showVirtual) {
+      this.captionText = 'Hiding Enabled, Disabled & Virtual Interfaces';
+    } else if (!showEnabled && !showDisabled && showVirtual) {
+      this.captionText = 'Showing Virtual Interfaces';
+    } else if (showEnabled && !showDisabled && showVirtual) {
+      this.captionText = 'Showing Enabled & Virtual Interfaces';
+    } else if (showEnabled && showDisabled && showVirtual) {
+      this.captionText = 'Showing Enabled, Disabled & Virtual Interfaces';
     } else {
       this.captionText = '';
     }
   }
 
   /**
-   * When toggle buttons are clicked, pass the event to the relevant button's handler and update
-   * this instance's state.
+   * When toggle buttons are clicked, reapply visability all rows and
+   * pass the event to all button handlers
    *
    * @param event onClick event for toggle buttons.
    * @param instance Instance of TableState (`this` cannot be used since that's context-specific).
    */
   public handleClick(event: Event, instance: TableState): void {
-    const button = event.currentTarget as HTMLButtonElement;
-    const enabled = button.isEqualNode(instance.enabledButton.button);
-    const disabled = button.isEqualNode(instance.disabledButton.button);
-
-    if (enabled) {
-      instance.enabledButton.handleClick(event);
-    } else if (disabled) {
-      instance.disabledButton.handleClick(event);
+    for (const row of this.rows) {
+      row.classList.remove('d-none');
     }
+
+    instance.enabledButton.handleClick(event);
+    instance.disabledButton.handleClick(event);
+    instance.virtualButton.handleClick(event);
     instance.toggleCaption();
   }
 }

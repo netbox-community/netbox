@@ -121,6 +121,12 @@ class CloningMixin(models.Model):
         if is_taggable(self):
             attrs['tags'] = [tag.pk for tag in self.tags.all()]
 
+        # Include any cloneable custom fields
+        if hasattr(self, 'custom_field_data'):
+            for field in self.get_custom_fields():
+                if field.is_cloneable:
+                    attrs[f'cf_{field.name}'] = self.custom_field_data.get(field.name)
+
         return attrs
 
 
@@ -218,6 +224,13 @@ class CustomFieldsMixin(models.Model):
             groups[cf.group_name][cf] = value
 
         return dict(groups)
+
+    def populate_custom_field_defaults(self):
+        """
+        Apply the default value for each custom field
+        """
+        for cf in self.custom_fields:
+            self.custom_field_data[cf.name] = cf.default
 
     def clean(self):
         super().clean()

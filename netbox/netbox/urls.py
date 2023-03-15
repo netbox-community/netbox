@@ -9,7 +9,7 @@ from extras.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_a
 from netbox.api.views import APIRootView, StatusView
 from netbox.graphql.schema import schema
 from netbox.graphql.views import GraphQLView
-from netbox.views import HomeView, StaticMediaFailureView, SearchView
+from netbox.views import HomeView, StaticMediaFailureView, SearchView, htmx
 from users.views import LoginView, LogoutView
 from .admin import admin_site
 
@@ -35,6 +35,9 @@ _patterns = [
     path('user/', include('users.urls')),
     path('virtualization/', include('virtualization.urls')),
     path('wireless/', include('wireless.urls')),
+
+    # HTMX views
+    path('htmx/object-selector/', htmx.ObjectSelectorView.as_view(), name='htmx_object_selector'),
 
     # API
     path('api/', APIRootView.as_view(), name='api-root'),

@@ -1,7 +1,7 @@
 from django.utils.translation import gettext as _
 
 from circuits.models import *
-from dcim.models import Region, Site, SiteGroup
+from dcim.models import Site
 from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
@@ -114,50 +114,22 @@ class CircuitTerminationForm(NetBoxModelForm):
             'provider_id': '$provider',
         },
     )
-    region = DynamicModelChoiceField(
-        queryset=Region.objects.all(),
-        required=False,
-        initial_params={
-            'sites': '$site'
-        }
-    )
-    site_group = DynamicModelChoiceField(
-        queryset=SiteGroup.objects.all(),
-        required=False,
-        initial_params={
-            'sites': '$site'
-        }
-    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        query_params={
-            'region_id': '$region',
-            'group_id': '$site_group',
-        },
-        required=False
-    )
-    provider_network_provider = DynamicModelChoiceField(
-        queryset=Provider.objects.all(),
         required=False,
-        label='Provider',
-        initial_params={
-            'networks': 'provider_network'
-        }
+        selector=True
     )
     provider_network = DynamicModelChoiceField(
         queryset=ProviderNetwork.objects.all(),
-        query_params={
-            'provider_id': '$provider_network_provider',
-        },
-        required=False
+        required=False,
+        selector=True
     )
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'provider_network_provider',
-            'provider_network', 'mark_connected', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
-            'description', 'tags',
+            'provider', 'circuit', 'term_side', 'site', 'provider_network', 'mark_connected', 'port_speed',
+            'upstream_speed', 'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         widgets = {
             'port_speed': SelectSpeedWidget(),

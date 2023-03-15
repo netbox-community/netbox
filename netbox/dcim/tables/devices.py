@@ -600,6 +600,7 @@ class DeviceInterfaceTable(InterfaceTable):
             'class': get_interface_row_class,
             'data-name': lambda record: record.name,
             'data-enabled': get_interface_state_attribute,
+            'data-type': lambda record: record.type,
         }
 
 

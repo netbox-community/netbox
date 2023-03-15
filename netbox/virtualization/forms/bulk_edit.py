@@ -89,7 +89,6 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label=_('Comments')
     )
 
@@ -161,7 +160,6 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label=_('Comments')
     )
 
