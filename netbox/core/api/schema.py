@@ -17,6 +17,7 @@ from drf_spectacular.plumbing import (
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
 
+# see netbox.api.routers.NetBoxRouter
 BULK_ACTIONS = ["bulk_destroy", "bulk_partial_update", "bulk_update"]
 
 
@@ -47,7 +48,9 @@ class NetBoxAutoSchema(AutoSchema):
     """
     Overrides to spectaculars AutoSchema to fix following issues:
         1. bulk serializers cause operation_id conflicts with non-bulk ones
-        2. bulk operations don't have filter params
+        2. bulk operations should specify a list
+        3. bulk operations don't have filter params
+        4. bulk operations don't have pagination
     """
 
     @property
@@ -59,7 +62,7 @@ class NetBoxAutoSchema(AutoSchema):
 
     def get_operation_id(self):
         """
-        Fix: bulk serializers cause operation_id conflicts with non-bulk ones
+        bulk serializers cause operation_id conflicts with non-bulk ones
         bulk operations cause id conflicts in spectacular resulting in numerous:
         Warning: operationId "xxx" has collisions [xxx]. "resolving with numeral suffixes"
         code is modified from drf_spectacular.openapi.AutoSchema.get_operation_id
@@ -88,8 +91,32 @@ class NetBoxAutoSchema(AutoSchema):
         # if not bulk - just return normal id
         return super().get_operation_id()
 
+    def get_request_serializer(self) -> typing.Any:
+        # bulk operations should specify a list
+        serializer = super().get_request_serializer()
+
+        if self.is_bulk_action:
+            return type(serializer)(many=True)
+
+        return serializer
+
+    def get_response_serializers(self) -> typing.Any:
+        # bulk operations should specify a list
+        response_serializers = super().get_response_serializers()
+
+        if self.is_bulk_action:
+            return type(response_serializers)(many=True)
+
+        return response_serializers
+
     def get_filter_backends(self):
-        # Fix: bulk operations don't have filter params
+        # bulk operations don't have filter params
         if self.is_bulk_action:
             return []
         return super().get_filter_backends()
+
+    def _get_paginator(self):
+        # bulk operations don't have pagination
+        if self.is_bulk_action:
+            return None
+        return super()._get_paginator()
