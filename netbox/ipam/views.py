@@ -990,7 +990,6 @@ class FHRPGroupView(generic.ObjectView):
 class FHRPGroupEditView(generic.ObjectEditView):
     queryset = FHRPGroup.objects.all()
     form = forms.FHRPGroupForm
-    template_name = 'ipam/fhrpgroup_edit.html'
 
     def get_return_url(self, request, obj=None):
         return_url = super().get_return_url(request, obj)
