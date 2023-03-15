@@ -1,3 +1,5 @@
+import json
+
 import django_tables2 as tables
 from django.conf import settings
 from django.utils.translation import gettext as _
@@ -109,6 +111,9 @@ class SavedFilterTable(NetBoxTable):
     content_types = columns.ContentTypesColumn()
     enabled = columns.BooleanColumn()
     shared = columns.BooleanColumn()
+
+    def value_parameters(self, value):
+        return json.dumps(value)
 
     class Meta(NetBoxTable.Meta):
         model = SavedFilter
