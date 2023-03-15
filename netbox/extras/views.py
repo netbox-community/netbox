@@ -11,7 +11,8 @@ from django_rq.queues import get_connection
 from rq import Worker
 
 from netbox.views import generic
-from extras.choices import ChangeActionChoices
+from extras.choices import ChangeActionChoices, \
+    ReviewRequestStateChoices, ReviewRequestStatusChoices
 from extras.models.staging import ReviewRequest
 from utilities.htmx import is_htmx
 from utilities.templatetags.builtins.filters import render_markdown
@@ -917,7 +918,7 @@ class ReviewRequestListView(generic.ObjectListView):
     table = tables.ReviewRequestTable
     actions = ('bulk_delete')
 
-    def get_queryset(self, request):
+    def get_queryset(self, _):
         return ReviewRequest.objects.filter(
             Q(owner__id=self.request.user.id) |
             Q(reviewer__id=self.request.user.id)
@@ -925,8 +926,9 @@ class ReviewRequestListView(generic.ObjectListView):
 
 
 @register_model_view(ReviewRequest)
-class ReviewRequestEditView(generic.ObjectView):
+class ReviewRequestView(generic.ObjectView):
     queryset = ReviewRequest.objects.all()
+    actions = ('delete', )
 
     def get_extra_context(self, request, instance):
         data = []
@@ -957,6 +959,46 @@ class ReviewRequestEditView(generic.ObjectView):
         return {
             'staged_change_table': staged_change_table,
         }
+
+
+@register_model_view(ReviewRequest, 'approve')
+class ReviewRequestDeleteView(View):
+    queryset = ReviewRequest.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        # TODO: Should this logic go into a form that can be
+        #       reused in the API?
+        id = kwargs.get('pk', 0)
+        qs = ReviewRequest.objects.filter(id=id)
+        rr = get_object_or_404(qs)
+        if rr.reviewer != request.user:
+            return HttpResponseForbidden()
+        rr.branch.merge()
+        rr.status = ReviewRequestStatusChoices.STATUS_CLOSED
+        rr.state = ReviewRequestStateChoices.STATE_APPROVED
+        rr.save()
+        return redirect(rr.get_absolute_url())
+
+
+@register_model_view(ReviewRequest, 'deny')
+class ReviewRequestDeleteView(View):
+    queryset = ReviewRequest.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        id = kwargs.get('pk', 0)
+        qs = ReviewRequest.objects.filter(id=id)
+        rr = get_object_or_404(qs)
+        if rr.reviewer != request.user:
+            return HttpResponseForbidden()
+        rr.status = ReviewRequestStatusChoices.STATUS_CLOSED
+        rr.state = ReviewRequestStateChoices.STATE_DENIED
+        rr.save()
+        return redirect(rr.get_absolute_url())
+
+
+@register_model_view(ReviewRequest, 'delete')
+class ReviewRequestDeleteView(generic.ObjectDeleteView):
+    queryset = ReviewRequest.objects.all()
 
 
 def suggest_form_factory(obj_cls, form_cls):

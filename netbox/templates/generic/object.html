@@ -66,6 +66,9 @@ Context:
       {% if request.user|can_change:object %}
         {% edit_button object %}
       {% endif %}
+      {% if request.user|can_suggest:object %}
+        {% suggest_button object %}
+      {% endif %}
       {% if request.user|can_delete:object %}
         {% delete_button object %}
       {% endif %}

@@ -62,7 +62,6 @@ class Branch(ChangeLoggedModel):
         with transaction.atomic():
             for change in self.staged_changes.all():
                 change.apply()
-        self.staged_changes.all().delete()
 
 
 class StagedChange(ChangeLoggedModel):
@@ -187,6 +186,9 @@ class ReviewRequest(ChangeLoggedModel):
         related_name='assigned_review_requests'
     )
 
+    # TODO: Make sure its corresponding branch and staged
+    #       changes are deleted when this entry is deleted.
+    #       atm this is not happening.
     branch = models.ForeignKey(
         to=Branch,
         on_delete=models.CASCADE,

@@ -36,6 +36,36 @@ def edit_button(instance):
     }
 
 
+@register.inclusion_tag('buttons/suggest.html')
+def suggest_button(instance):
+    viewname = get_viewname(instance, 'suggest')
+    url = reverse(viewname, kwargs={'pk': instance.pk})
+
+    return {
+        'url': url,
+    }
+
+
+@register.inclusion_tag('buttons/approve.html')
+def approve_button(instance):
+    viewname = get_viewname(instance, 'approve')
+    url = reverse(viewname, kwargs={'pk': instance.pk})
+
+    return {
+        'url': url,
+    }
+
+
+@register.inclusion_tag('buttons/deny.html')
+def deny_button(instance):
+    viewname = get_viewname(instance, 'deny')
+    url = reverse(viewname, kwargs={'pk': instance.pk})
+
+    return {
+        'url': url,
+    }
+
+
 @register.inclusion_tag('buttons/delete.html')
 def delete_button(instance):
     viewname = get_viewname(instance, 'delete')

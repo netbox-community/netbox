@@ -179,6 +179,8 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         return getattr(self, 'is_suggest_view', False)
 
     def _create_review_request(self, request, obj, form):
+        # TODO: Validate that owner and reviewer can't be the same
+        #       user unless owner is a super user.
         obj_cls_name = self.queryset.model._meta.verbose_name
         owner = request.user
         now_utc = int(datetime.utcnow().timestamp())

@@ -1,82 +1,96 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load buttons %}
+{% load perms %}
 {% load render_table from django_tables2 %}
 
 {% block title %}{{ object }}{% endblock %}
 
 {# ObjectChange does not support the default add/edit/delete controls #}
-{% block controls %}{% endblock %}
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% if object.status != 'closed' and request.user|is_reviewer:object %}
+        {% approve_button object %}
+        {% deny_button object %}
+      {% endif %}
+      {% if object.status != 'closed' and request.user|is_owner:object %}
+        {% delete_button object %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
 {% block subtitle %}{% endblock %}
 
 {% block content %}
 <div class="row mb-3">
-    <div class="col col-md-5">
-        <div class="card">
-            <h5 class="card-header">
-                Review Request
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">Created at</th>
-                        <td>
-                            {{ object.created|annotated_date }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Last Updated</th>
-                        <td>
-                            {{ object.last_updated|annotated_date }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Requester</th>
-                        <td>
-                            {% if object.owner.get_full_name %}
-                              {{ object.owner.get_full_name }} ({{ object.owner }})
-                            {% else %}
-                              {{ object.owner }}
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Reviewer</th>
-                        <td>
-                            {% if object.reviewer.get_full_name %}
-                              {{ object.reviewer.get_full_name }} ({{ object.reviewer }})
-                            {% else %}
-                              {{ object.reviewer }}
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Status</th>
-                        <td>
-                            {{ object.status }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">State</th>
-                        <td>
-                            {{ object.state }}
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
+  <div class="col col-md-5">
+    <div class="card">
+      <h5 class="card-header">
+        Review Request
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Created at</th>
+            <td>
+              {{ object.created|annotated_date }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Last Updated</th>
+            <td>
+              {{ object.last_updated|annotated_date }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Requester</th>
+            <td>
+              {% if object.owner.get_full_name %}
+                {{ object.owner.get_full_name }} ({{ object.owner }})
+              {% else %}
+                {{ object.owner }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+              <th scope="row">Reviewer</th>
+              <td>
+                {% if object.reviewer.get_full_name %}
+                  {{ object.reviewer.get_full_name }} ({{ object.reviewer }})
+                {% else %}
+                  {{ object.reviewer }}
+                {% endif %}
+              </td>
+          </tr>
+          <tr>
+            <th scope="row">Status</th>
+            <td>
+              {{ object.status }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">State</th>
+            <td>
+              {{ object.state }}
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
+  </div>
 </div>
 <div class="row">
-    <div class="col col-md-12">
-        <div class="card">
-            <h5 class="card-header">Staged Changes</h5>
-            <div class="card-body table-responsive">
-                {% render_table staged_change_table 'inc/table.html' %}
-                {% include 'inc/paginator.html' with paginator=staged_change_table.paginator page=staged_change_table.page %}
-            </div>
-        </div>
-      {% plugin_full_width_page object %}
+  <div class="col col-md-12">
+    <div class="card">
+      <h5 class="card-header">Staged Changes</h5>
+      <div class="card-body table-responsive">
+        {% render_table staged_change_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=staged_change_table.paginator page=staged_change_table.page %}
+      </div>
     </div>
+    {% plugin_full_width_page object %}
+  </div>
 </div>
 {% endblock %}
