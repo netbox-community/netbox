@@ -14,15 +14,17 @@ The type of data source. Supported options include:
 
 * Local directory
 * git repository
+* Amazon S3 bucket
 
 ### URL
 
 The URL identifying the remote source. Some examples are included below.
 
-| Type | Example URL |
-|------|-------------|
-| Local | file:///var/my/data/source/ |
-| git | https://https://github.com/my-organization/my-repo |
+| Type      | Example URL                                        |
+|-----------|----------------------------------------------------|
+| Local     | file:///path/to/my/data/                           |
+| git       | https://github.com/my-organization/my-repo         |
+| Amazon S3 | https://s3.us-east-2.amazonaws.com/my-bucket-name/ |
 
 ### Status
 

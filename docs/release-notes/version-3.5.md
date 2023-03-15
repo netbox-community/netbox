@@ -10,7 +10,7 @@ The static home view has been replaced with a fully customizable dashboard. User
 
 #### Remote Data Sources ([#11558](https://github.com/netbox-community/netbox/issues/11558))
 
-NetBox now has the ability to synchronize arbitrary data from external sources through the new [DataSource](../models/core/datasource.md) and [DataFile](../models/core/datafile.md) models. Synchronized files are stored in the PostgreSQL database, and may be referenced and consumed by other NetBox models, such as export templates and config contexts. Currently, replication from local filesystem paths and from git repositories is supported, and we expect to add support for additional backends in the near future.
+NetBox now has the ability to synchronize arbitrary data from external sources through the new [DataSource](../models/core/datasource.md) and [DataFile](../models/core/datafile.md) models. Synchronized files are stored in the PostgreSQL database, and may be referenced and consumed by other NetBox models, such as export templates and config contexts. Currently, replication from local filesystem paths, git repositories, and Amazon S3 buckets is supported, and we expect to introduce additional backends in the near future.
 
 #### Configuration Template Rendering ([#11559](https://github.com/netbox-community/netbox/issues/11559))
 
