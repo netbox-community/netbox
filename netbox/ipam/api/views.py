@@ -209,6 +209,7 @@ def get_results_limit(request):
 
 class AvailableASNsView(ObjectValidationMixin, APIView):
     queryset = ASN.objects.all()
+    serializer_class = serializers.AvailableASNSerializer  # drf-spectacular
 
     @extend_schema(methods=["get"], responses={200: serializers.AvailablePrefixSerializer(many=True)})
     def get(self, request, pk):
