@@ -17,6 +17,7 @@ __all__ = (
     'Branch',
     'StagedChange',
     'Notification',
+    'ReviewRequest',
 )
 
 logger = logging.getLogger('netbox.staging')
@@ -45,7 +46,16 @@ class Branch(ChangeLoggedModel):
         ordering = ('name',)
 
     def __str__(self):
-        return f'{self.name} ({self.pk})'
+        models_changed = set()
+        for sc in self.staged_changes.all().exclude(object_type__model='objectchange'):
+            models_changed.add(sc.model_name)
+        models_changed = list(models_changed)
+        if len(models_changed) == 1:
+            return f'Changes on {models_changed[0]} by {self.user}'
+        else:
+            dots = '' if len(models_changed) <= 3 else '...'
+            changed = ', '.join(models_changed[:3])
+            return f'Multiple changes on {changed}{dots} by {self.user}'
 
     def merge(self):
         logger.info(f'Merging changes in branch {self}')
@@ -98,6 +108,18 @@ class StagedChange(ChangeLoggedModel):
     @property
     def model(self):
         return self.object_type.model_class()
+
+    @property
+    def model_name(self):
+        return self.object_type.name
+
+    @property
+    def diff_added(self):
+        return getattr(self, '_diff_added', {})
+
+    @property
+    def diff_removed(self):
+        return getattr(self, '_diff_removed', {})
 
     def apply(self):
         """
@@ -184,10 +206,10 @@ class ReviewRequest(ChangeLoggedModel):
     )
 
     def __str__(self):
-        return f'[OwnerId: {self.owner.pk}, ReviewerId: {self.reviewer.id} {self.status}/{self.state}] {self.branch}'
+        return f'{self.branch}'
 
     def get_absolute_url(self):
-        return reverse('extras-api:review-requests-detail', args=[self.pk])
+        return reverse('extras:reviewrequest', args=[self.pk])
 
     class Meta:
         ordering = ('pk',)

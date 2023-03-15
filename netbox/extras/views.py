@@ -946,9 +946,6 @@ class ReviewRequestEditView(generic.ObjectView):
             if sc.action == ChangeActionChoices.ACTION_CREATE:
                 do = deserialize_object(sc.model(), sc.data)
                 sc._diff_added = do.object
-
-            print(sc.object_type.model)
-
             data.append(sc)
 
         staged_change_table = tables.StagedChangeTable(

@@ -26,7 +26,6 @@ __all__ = (
     'SavedFilterForm',
     'TagForm',
     'WebhookForm',
-    'ReviewRequestForm',
 )
 
 
@@ -281,12 +280,3 @@ class JournalEntryForm(NetBoxModelForm):
             'assigned_object_type': forms.HiddenInput,
             'assigned_object_id': forms.HiddenInput,
         }
-
-
-class ReviewRequestForm(BootstrapMixin, forms.ModelForm):
-
-    class Meta:
-        model = ReviewRequest
-        fields = [
-            'status', 'state'
-        ]
