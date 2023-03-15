@@ -2,6 +2,10 @@
 # https://github.com/mozilla/bleach
 bleach<6.0
 
+# Python client for Amazon AWS API
+# https://github.com/boto/boto3
+boto3
+
 # The Python web framework on which NetBox is built
 # https://github.com/django/django
 Django<4.2
