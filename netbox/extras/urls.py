@@ -93,5 +93,9 @@ urlpatterns = [
     re_path(r'^scripts/(?P<module>.([^.]+)).(?P<name>.(.+))/', views.ScriptView.as_view(), name='script'),
 
     # Markdown
-    path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown")
+    path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown"),
+
+    # Review Request
+    path('review-requests/', views.ReviewRequestListView.as_view(), name='reviewrequest_list'),
+    path('review-requests/<int:pk>/', include(get_model_urls('extras', 'reviewrequest'))),
 ]

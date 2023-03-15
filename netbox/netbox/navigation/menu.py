@@ -309,6 +309,7 @@ OTHER_MENU = Menu(
             items=(
                 get_model_item('extras', 'tag', 'Tags'),
                 get_model_item('extras', 'configcontext', _('Config Contexts'), actions=['add']),
+                get_model_item('extras', 'reviewrequest', _('Review Requests'), actions=[]),
             ),
         ),
     ),

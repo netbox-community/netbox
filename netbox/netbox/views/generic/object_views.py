@@ -178,6 +178,56 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
     def is_suggest(self):
         return getattr(self, 'is_suggest_view', False)
 
+    def _create_review_request(self, request, obj, form):
+        obj_cls_name = self.queryset.model._meta.verbose_name
+        owner = request.user
+        now_utc = int(datetime.utcnow().timestamp())
+        branch_name = f'{owner}_{now_utc}'
+        branch = Branch.objects.create(name=branch_name, user=owner)
+        reviewer = form.cleaned_data.get('reviewer')
+
+        with checkout(branch):
+            obj = form.save()
+
+        # TODO: Remove branch if this atomic transaction fails.
+        with transaction.atomic():
+            rr = ReviewRequest.objects.create(
+                owner=owner,
+                reviewer=reviewer,
+                branch=branch
+            )
+            Notification.objects.create(
+                user=reviewer,
+                # TODO: get_full_name doesn't always return a value, figure out
+                #       what's the right approach here.
+                title=f'{owner.get_full_name()} is requesting a review on a modifition on {obj}',
+                content=f'{owner.get_full_name()} has made modifications to {obj} and is requesting \
+                    that you review and approve them.',
+            )
+
+        return (obj, mark_safe(f'Created <a href="{rr.get_absolute_url()}">Review Request</a> for {obj_cls_name}'))
+
+    def _create_or_update_instance(self, obj, form):
+        logger = logging.getLogger('netbox.views.ObjectEditView')
+        with transaction.atomic():
+            object_created = form.instance.pk is None
+            obj = form.save()
+            # Check that the new object conforms with any assigned object-level permissions
+            if not self.queryset.filter(pk=obj.pk).exists():
+                raise PermissionsViolation()
+
+        msg = '{} {}'.format(
+            'Created' if object_created else 'Modified',
+            self.queryset.model._meta.verbose_name
+        )
+        logger.info(f"{msg} {obj} (PK: {obj.pk})")
+        if hasattr(obj, 'get_absolute_url'):
+            msg = mark_safe(f'{msg} <a href="{obj.get_absolute_url()}">{escape(obj)}</a>')
+        else:
+            msg = f'{msg} {obj}'
+
+        return (obj, msg)
+
     def get_required_permission(self):
         # self._permission_action is set by dispatch() to either "add" or "change" depending on whether
         # we are modifying an existing object or creating a new one.
@@ -264,46 +314,10 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
 
             try:
                 if self.is_suggest:
-                    utc_timestamp = int(datetime.utcnow().timestamp())
-                    branch_name = f'{request.user}_{obj.__class__.__name__}_{utc_timestamp}'
-                    branch = Branch.objects.create(name=branch_name, user=request.user)
-                    owner = request.user
-                    reviewer = form.cleaned_data.get('reviewer')
-                    with checkout(branch):
-                        obj = form.save()
-
-                    # TODO: Remove branch if this atomic transaction fails.
-                    with transaction.atomic():
-                        ReviewRequest.objects.create(
-                            owner=owner,
-                            reviewer=reviewer,
-                            branch=branch
-                        )
-                        Notification.objects.create(
-                            user=reviewer,
-                            title=f'{owner.get_full_name()} is requesting a review on a modifition on {obj}',
-                            content=f'{owner.get_full_name()} has made modifications to {obj} and is requesting \
-                                that you review and approve them.',
-                        )
+                    obj, msg = self._create_review_request(request, obj, form)
                 else:
-                    with transaction.atomic():
-                        object_created = form.instance.pk is None
-                        obj = form.save()
+                    obj, msg = self._create_or_update_instance(obj, form)
 
-                        # Check that the new object conforms with any assigned object-level permissions
-                        if not self.queryset.filter(pk=obj.pk).exists():
-                            raise PermissionsViolation()
-
-                msg = '{} {}'.format(
-                    'Created Review Request' if self.is_suggest else
-                    'Created' if object_created else 'Modified',
-                    self.queryset.model._meta.verbose_name
-                )
-                logger.info(f"{msg} {obj} (PK: {obj.pk})")
-                if hasattr(obj, 'get_absolute_url'):
-                    msg = mark_safe(f'{msg} <a href="{obj.get_absolute_url()}">{escape(obj)}</a>')
-                else:
-                    msg = f'{msg} {obj}'
                 messages.success(request, msg)
 
                 if '_addanother' in request.POST:

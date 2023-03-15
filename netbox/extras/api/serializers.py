@@ -49,6 +49,7 @@ __all__ = (
     'TagSerializer',
     'WebhookSerializer',
     'NotificationSerializer',
+    'ReviewRequestSerializer',
 )
 
 

@@ -11,9 +11,13 @@ from django_rq.queues import get_connection
 from rq import Worker
 
 from netbox.views import generic
+from extras.choices import ChangeActionChoices
+from extras.models.staging import ReviewRequest
 from utilities.htmx import is_htmx
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
+from utilities.utils import copy_safe_request, count_related, \
+    get_viewname, normalize_querydict, shallow_compare_dict, \
+    serialize_object, deserialize_object
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
@@ -903,6 +907,59 @@ class RenderMarkdownView(View):
         rendered = render_markdown(form.cleaned_data['text'])
 
         return HttpResponse(rendered)
+
+
+#
+# Review Request
+#
+
+class ReviewRequestListView(generic.ObjectListView):
+    table = tables.ReviewRequestTable
+    actions = ('bulk_delete')
+
+    def get_queryset(self, request):
+        return ReviewRequest.objects.filter(
+            Q(owner__id=self.request.user.id) |
+            Q(reviewer__id=self.request.user.id)
+        ).order_by('last_updated')
+
+
+@register_model_view(ReviewRequest)
+class ReviewRequestEditView(generic.ObjectView):
+    queryset = ReviewRequest.objects.all()
+
+    def get_extra_context(self, request, instance):
+        data = []
+        for sc in StagedChange.objects.filter(branch__id=instance.branch.id).exclude(object_type__model='objectchange'):
+            if sc.action == ChangeActionChoices.ACTION_UPDATE:
+                current = serialize_object(sc.object, resolve_tags=True)
+                diff_added = shallow_compare_dict(
+                    current or dict(),
+                    sc.data,
+                    exclude=['last_updated'],
+                )
+                diff_removed = {
+                    x: current.get(x) for x in diff_added
+                } if current else {}
+                sc._diff_added = diff_added
+                sc._diff_removed = diff_removed
+            if sc.action == ChangeActionChoices.ACTION_CREATE:
+                do = deserialize_object(sc.model(), sc.data)
+                sc._diff_added = do.object
+
+            print(sc.object_type.model)
+
+            data.append(sc)
+
+        staged_change_table = tables.StagedChangeTable(
+            data=data,
+            orderable=False
+        )
+        staged_change_table.configure(request)
+
+        return {
+            'staged_change_table': staged_change_table,
+        }
 
 
 def suggest_form_factory(obj_cls, form_cls):

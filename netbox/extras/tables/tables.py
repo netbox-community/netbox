@@ -3,7 +3,8 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 
 from extras.models import *
-from netbox.tables import NetBoxTable, columns
+from extras.models.staging import *
+from netbox.tables import NetBoxTable, BaseTable, columns
 from .template_code import *
 
 __all__ = (
@@ -18,6 +19,8 @@ __all__ = (
     'TaggedItemTable',
     'TagTable',
     'WebhookTable',
+    'ReviewRequestTable',
+    'StagedChangeTable',
 )
 
 
@@ -203,6 +206,47 @@ class ConfigContextTable(NetBoxTable):
             'last_updated',
         )
         default_columns = ('pk', 'name', 'weight', 'is_active', 'description')
+
+
+class ReviewRequestTable(NetBoxTable):
+    id = tables.Column(
+        linkify=True
+    )
+    actions = columns.ActionsColumn(
+        actions=()
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ReviewRequest
+        fields = (
+            'pk', 'id', 'created', 'last_updated', 'status', 'state', 'owner', 'reviewer'
+        )
+        default_columns = ('pk', 'id', 'created', 'last_updated', 'status', 'state', 'owner', 'reviewer')
+
+
+class StagedChangeTable(BaseTable):
+
+    model_name = tables.Column(
+        verbose_name='Model'
+    )
+
+    object = tables.Column(
+        verbose_name='Object',
+        linkify=lambda record: record.object.get_absolute_url(),
+        accessor='object__name'
+    )
+
+    diff_added = tables.Column(
+        verbose_name='Suggested Change'
+    )
+
+    diff_removed = tables.Column(
+        verbose_name='Current Value'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = StagedChange
+        fields = ('id', 'action', 'model_name', 'object', 'diff_added', 'diff_removed')
 
 
 class ObjectChangeTable(NetBoxTable):

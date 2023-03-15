@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
+from extras.models.staging import ReviewRequest
 from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
@@ -25,6 +26,7 @@ __all__ = (
     'SavedFilterForm',
     'TagForm',
     'WebhookForm',
+    'ReviewRequestForm',
 )
 
 
@@ -279,3 +281,12 @@ class JournalEntryForm(NetBoxModelForm):
             'assigned_object_type': forms.HiddenInput,
             'assigned_object_id': forms.HiddenInput,
         }
+
+
+class ReviewRequestForm(BootstrapMixin, forms.ModelForm):
+
+    class Meta:
+        model = ReviewRequest
+        fields = [
+            'status', 'state'
+        ]
