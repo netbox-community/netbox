@@ -8,6 +8,7 @@ from drf_spectacular.extensions import (
 )
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
+    build_media_type_object,
     ComponentRegistry,
     ResolvedComponent,
     build_basic_type,
@@ -51,6 +52,7 @@ class NetBoxAutoSchema(AutoSchema):
         2. bulk operations should specify a list
         3. bulk operations don't have filter params
         4. bulk operations don't have pagination
+        5. bulk delete should specify input
     """
 
     @property
@@ -120,3 +122,42 @@ class NetBoxAutoSchema(AutoSchema):
         if self.is_bulk_action:
             return None
         return super()._get_paginator()
+
+    def _get_request_body(self, direction='request'):
+        # bulk delete should specify input
+        if (not self.is_bulk_action) or (self.method != 'DELETE'):
+            return super()._get_request_body(direction)
+
+        # rest from drf_spectacular.openapi.AutoSchema._get_request_body
+        # but remove teh unsafe method check
+
+        request_serializer = self.get_request_serializer()
+
+        if isinstance(request_serializer, dict):
+            content = []
+            request_body_required = True
+            for media_type, serializer in request_serializer.items():
+                schema, partial_request_body_required = self._get_request_for_media_type(serializer, direction)
+                examples = self._get_examples(serializer, direction, media_type)
+                if schema is None:
+                    continue
+                content.append((media_type, schema, examples))
+                request_body_required &= partial_request_body_required
+        else:
+            schema, request_body_required = self._get_request_for_media_type(request_serializer, direction)
+            if schema is None:
+                return None
+            content = [
+                (media_type, schema, self._get_examples(request_serializer, direction, media_type))
+                for media_type in self.map_parsers()
+            ]
+
+        request_body = {
+            'content': {
+                media_type: build_media_type_object(schema, examples)
+                for media_type, schema, examples in content
+            }
+        }
+        if request_body_required:
+            request_body['required'] = request_body_required
+        return request_body
