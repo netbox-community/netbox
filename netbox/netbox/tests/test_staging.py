@@ -73,7 +73,7 @@ class StagingTestCase(TransactionTestCase):
             circuit = Circuit.objects.get(cid='Circuit D1')
             self.assertListEqual(list(circuit.tags.all()), list(tags))
 
-        # Verify that changes are applied and deleted upon branch merge
+        # Verify that changes are applied.
         branch.merge()
         self.assertEqual(Provider.objects.count(), 4)
         self.assertEqual(Circuit.objects.count(), 10)
@@ -81,7 +81,7 @@ class StagingTestCase(TransactionTestCase):
         self.assertListEqual(list(provider.asns.all()), list(asns))
         circuit = Circuit.objects.get(cid='Circuit D1')
         self.assertListEqual(list(circuit.tags.all()), list(tags))
-        self.assertEqual(StagedChange.objects.count(), 0)
+        self.assertEqual(StagedChange.objects.count(), 5)
 
     def test_object_modification(self):
         branch = Branch.objects.create(name='Branch 1')
@@ -128,7 +128,7 @@ class StagingTestCase(TransactionTestCase):
             self.assertEqual(circuit.cid, 'Circuit X')
             self.assertListEqual(list(circuit.tags.all()), list(tags))
 
-        # Verify that changes are applied and deleted upon branch merge
+        # Verify that changes are applied.
         branch.merge()
         self.assertEqual(Provider.objects.count(), 3)
         self.assertEqual(Provider.objects.get(pk=provider.pk).name, 'Provider X')
@@ -138,7 +138,7 @@ class StagingTestCase(TransactionTestCase):
         circuit = Circuit.objects.get(pk=circuit.pk)
         self.assertEqual(circuit.cid, 'Circuit X')
         self.assertListEqual(list(circuit.tags.all()), list(tags))
-        self.assertEqual(StagedChange.objects.count(), 0)
+        self.assertEqual(StagedChange.objects.count(), 5)
 
     def test_object_deletion(self):
         branch = Branch.objects.create(name='Branch 1')
@@ -162,11 +162,11 @@ class StagingTestCase(TransactionTestCase):
             self.assertEqual(Provider.objects.count(), 2)
             self.assertEqual(Circuit.objects.count(), 6)
 
-        # Verify that changes are applied and deleted upon branch merge
+        # Verify that changes are applied.
         branch.merge()
         self.assertEqual(Provider.objects.count(), 2)
         self.assertEqual(Circuit.objects.count(), 6)
-        self.assertEqual(StagedChange.objects.count(), 0)
+        self.assertEqual(StagedChange.objects.count(), 4)
 
     def test_exit_enter_context(self):
         branch = Branch.objects.create(name='Branch 1')
