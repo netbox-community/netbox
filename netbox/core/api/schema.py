@@ -47,7 +47,7 @@ class ChoiceFieldFix(OpenApiSerializerFieldExtension):
 
 class NetBoxAutoSchema(AutoSchema):
     """
-    Overrides to spectaculars AutoSchema to fix following issues:
+    Overrides to drf_spectacular.openapi.AutoSchema to fix following issues:
         1. bulk serializers cause operation_id conflicts with non-bulk ones
         2. bulk operations should specify a list
         3. bulk operations don't have filter params
@@ -129,7 +129,7 @@ class NetBoxAutoSchema(AutoSchema):
             return super()._get_request_body(direction)
 
         # rest from drf_spectacular.openapi.AutoSchema._get_request_body
-        # but remove teh unsafe method check
+        # but remove the unsafe method check
 
         request_serializer = self.get_request_serializer()
 
