@@ -69,9 +69,8 @@ class TokenProvisionView(APIView):
     Non-authenticated REST API endpoint via which a user may create a Token.
     """
     permission_classes = []
-    serializer_class = serializers.TokenSerializer  # for drf-spectacular
 
-    @extend_schema(methods=["post"], responses={201: serializers.TokenSerializer})
+    # @extend_schema(methods=["post"], responses={201: serializers.TokenSerializer})
     def post(self, request):
         serializer = serializers.TokenProvisionSerializer(data=request.data)
         serializer.is_valid()
@@ -93,6 +92,9 @@ class TokenProvisionView(APIView):
         data['key'] = token.key
 
         return Response(data, status=HTTP_201_CREATED)
+
+    def get_serializer_class(self):
+        return serializers.TokenSerializer
 
 
 #

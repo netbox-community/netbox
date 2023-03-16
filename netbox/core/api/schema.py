@@ -1,4 +1,3 @@
-import logging
 import re
 import typing
 
@@ -17,9 +16,14 @@ from drf_spectacular.plumbing import (
 )
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
+from rest_framework.relations import ManyRelatedField
+
+from netbox.api.fields import ChoiceField, SerializedPKRelatedField
+from netbox.api.serializers import WritableNestedSerializer
 
 # see netbox.api.routers.NetBoxRouter
-BULK_ACTIONS = ["bulk_destroy", "bulk_partial_update", "bulk_update"]
+BULK_ACTIONS = ("bulk_destroy", "bulk_partial_update", "bulk_update")
+WRITABLE_ACTIONS = ("PATCH", "POST", "PUT")
 
 
 class FixTimeZoneSerializerField(OpenApiSerializerFieldExtension):
@@ -54,6 +58,7 @@ class NetBoxAutoSchema(AutoSchema):
         4. bulk operations don't have pagination
         5. bulk delete should specify input
     """
+    writable_serializers = {}
 
     @property
     def is_bulk_action(self):
@@ -100,6 +105,17 @@ class NetBoxAutoSchema(AutoSchema):
         if self.is_bulk_action:
             return type(serializer)(many=True)
 
+        # handle mapping for Writable serializers - adapted from dansheps original code
+        # for drf-yasg
+        if serializer is not None and self.method in WRITABLE_ACTIONS:
+            writable_class = self.get_writable_class(serializer)
+            if writable_class is not None:
+                if hasattr(serializer, "child"):
+                    child_serializer = self.get_writable_class(serializer.child)
+                    serializer = writable_class(context=serializer.context, child=child_serializer)
+                else:
+                    serializer = writable_class(context=serializer.context)
+
         return serializer
 
     def get_response_serializers(self) -> typing.Any:
@@ -110,6 +126,51 @@ class NetBoxAutoSchema(AutoSchema):
             return type(response_serializers)(many=True)
 
         return response_serializers
+
+    def get_serializer_ref_name(self, serializer):
+        # from drf-yasg.utils
+        """Get serializer's ref_name (or None for ModelSerializer if it is named 'NestedSerializer')
+        :param serializer: Serializer instance
+        :return: Serializer's ``ref_name`` or ``None`` for inline serializer
+        :rtype: str or None
+        """
+        serializer_meta = getattr(serializer, 'Meta', None)
+        serializer_name = type(serializer).__name__
+        if hasattr(serializer_meta, 'ref_name'):
+            ref_name = serializer_meta.ref_name
+        elif serializer_name == 'NestedSerializer' and isinstance(serializer, serializers.ModelSerializer):
+            ref_name = None
+        else:
+            ref_name = serializer_name
+            if ref_name.endswith('Serializer'):
+                ref_name = ref_name[:-len('Serializer')]
+        return ref_name
+
+    def get_writable_class(self, serializer):
+        properties = {}
+        fields = {} if hasattr(serializer, 'child') else serializer.fields
+
+        for child_name, child in fields.items():
+            if isinstance(child, (ChoiceField, WritableNestedSerializer)):
+                properties[child_name] = None
+            elif isinstance(child, ManyRelatedField) and isinstance(child.child_relation, SerializedPKRelatedField):
+                properties[child_name] = None
+
+        if not properties:
+            return None
+
+        if type(serializer) not in self.writable_serializers:
+            writable_name = 'Writable' + type(serializer).__name__
+            meta_class = getattr(type(serializer), 'Meta', None)
+            if meta_class:
+                ref_name = 'Writable' + self.get_serializer_ref_name(serializer)
+                writable_meta = type('Meta', (meta_class,), {'ref_name': ref_name})
+                properties['Meta'] = writable_meta
+
+            self.writable_serializers[type(serializer)] = type(writable_name, (type(serializer),), properties)
+
+        writable_class = self.writable_serializers[type(serializer)]
+        return writable_class
 
     def get_filter_backends(self):
         # bulk operations don't have filter params

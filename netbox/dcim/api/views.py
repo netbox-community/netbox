@@ -618,7 +618,7 @@ class ConnectedDeviceViewSet(ViewSet):
         required=True,
         type=OpenApiTypes.STR
     )
-    serializer_class = serializers.DeviceSerializer  # for drf-spectacular
+    serializer_class = serializers.DeviceSerializer
 
     def get_view_name(self):
         return "Connected Device Locator"

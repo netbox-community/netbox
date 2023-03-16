@@ -209,9 +209,8 @@ def get_results_limit(request):
 
 class AvailableASNsView(ObjectValidationMixin, APIView):
     queryset = ASN.objects.all()
-    serializer_class = serializers.AvailableASNSerializer  # drf-spectacular
 
-    @extend_schema(methods=["get"], responses={200: serializers.AvailablePrefixSerializer(many=True)})
+    @extend_schema(methods=["get"], responses={200: serializers.AvailableASNSerializer(many=True)})
     def get(self, request, pk):
         asnrange = get_object_or_404(ASNRange.objects.restrict(request.user), pk=pk)
         limit = get_results_limit(request)
@@ -272,10 +271,15 @@ class AvailableASNsView(ObjectValidationMixin, APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return serializers.AvailableASNSerializer
+
+        return serializers.ASNSerializer
+
 
 class AvailablePrefixesView(ObjectValidationMixin, APIView):
     queryset = Prefix.objects.all()
-    serializer_class = serializers.PrefixSerializer  # for drf-spectacular
 
     @extend_schema(methods=["get"], responses={200: serializers.AvailablePrefixSerializer(many=True)})
     def get(self, request, pk):
@@ -352,10 +356,15 @@ class AvailablePrefixesView(ObjectValidationMixin, APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return serializers.AvailablePrefixSerializer
+
+        return serializers.PrefixLengthSerializer
+
 
 class AvailableIPAddressesView(ObjectValidationMixin, APIView):
     queryset = IPAddress.objects.all()
-    serializer_class = serializers.IPAddressSerializer  # for drf-spectacular
 
     def get_parent(self, request, pk):
         raise NotImplemented()
@@ -424,6 +433,12 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return serializers.AvailableIPSerializer
+
+        return serializers.IPAddressSerializer
+
 
 class PrefixAvailableIPAddressesView(AvailableIPAddressesView):
 
@@ -439,7 +454,6 @@ class IPRangeAvailableIPAddressesView(AvailableIPAddressesView):
 
 class AvailableVLANsView(ObjectValidationMixin, APIView):
     queryset = VLAN.objects.all()
-    serializer_class = serializers.VLANSerializer  # for drf-spectacular
 
     @extend_schema(methods=["get"], responses={200: serializers.AvailableVLANSerializer(many=True)})
     def get(self, request, pk):
@@ -506,3 +520,9 @@ class AvailableVLANsView(ObjectValidationMixin, APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return serializers.AvailableVLANSerializer
+
+        return serializers.VLANSerializer
