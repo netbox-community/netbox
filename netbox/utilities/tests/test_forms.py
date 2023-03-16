@@ -319,6 +319,22 @@ class CSVDataFieldTest(TestCase):
         with self.assertRaises(forms.ValidationError):
             self.field.clean(input)
 
+    def test_duplicate_header(self):
+        input = """
+        status,status
+        Active,Active
+        """
+        with self.assertRaisesRegex(forms.ValidationError, 'Duplicate'):
+            self.field.clean(input)
+
+    def test_duplicate_header_key(self):
+        input = """
+        vrf.name,vrf.rd
+        Test VRF,123:456
+        """
+        with self.assertRaisesRegex(forms.ValidationError, 'Duplicate'):
+            self.field.clean(input)
+
     def test_clean_default_to_field(self):
         input = """
         address,status,vrf.name
