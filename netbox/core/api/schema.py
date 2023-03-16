@@ -7,10 +7,10 @@ from drf_spectacular.extensions import (
 )
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
-    build_media_type_object,
     ComponentRegistry,
     ResolvedComponent,
     build_basic_type,
+    build_media_type_object,
     build_object_type,
     is_serializer,
 )
@@ -58,6 +58,7 @@ class NetBoxAutoSchema(AutoSchema):
         4. bulk operations don't have pagination
         5. bulk delete should specify input
     """
+
     writable_serializers = {}
 
     @property
@@ -143,7 +144,7 @@ class NetBoxAutoSchema(AutoSchema):
         else:
             ref_name = serializer_name
             if ref_name.endswith('Serializer'):
-                ref_name = ref_name[:-len('Serializer')]
+                ref_name = ref_name[: -len('Serializer')]
         return ref_name
 
     def get_writable_class(self, serializer):
@@ -215,8 +216,7 @@ class NetBoxAutoSchema(AutoSchema):
 
         request_body = {
             'content': {
-                media_type: build_media_type_object(schema, examples)
-                for media_type, schema, examples in content
+                media_type: build_media_type_object(schema, examples) for media_type, schema, examples in content
             }
         }
         if request_body_required:
