@@ -190,7 +190,7 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
         )
 
     def __str__(self):
-        return f'#{self.pk}'
+        return self.ssid or f'#{self.pk}'
 
     def get_absolute_url(self):
         return reverse('wireless:wirelesslink', args=[self.pk])
