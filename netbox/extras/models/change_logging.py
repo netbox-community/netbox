@@ -31,7 +31,8 @@ class ObjectChange(models.Model):
         editable=False
     )
     request_id = models.UUIDField(
-        editable=False
+        editable=False,
+        db_index=True
     )
     action = models.CharField(
         max_length=50,
