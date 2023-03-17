@@ -70,7 +70,6 @@ class DataSourceDeleteView(generic.ObjectDeleteView):
 class DataSourceBulkImportView(generic.BulkImportView):
     queryset = DataSource.objects.all()
     model_form = forms.DataSourceImportForm
-    table = tables.DataSourceTable
 
 
 class DataSourceBulkEditView(generic.BulkEditView):

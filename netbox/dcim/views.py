@@ -27,7 +27,6 @@ from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin, Vi
 from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices
-from .constants import NONCONNECTABLE_IFACE_TYPES
 from .models import *
 
 CABLE_TERMINATION_TYPES = {
@@ -240,7 +239,6 @@ class RegionDeleteView(generic.ObjectDeleteView):
 class RegionBulkImportView(generic.BulkImportView):
     queryset = Region.objects.all()
     model_form = forms.RegionImportForm
-    table = tables.RegionTable
 
 
 class RegionBulkEditView(generic.BulkEditView):
@@ -316,7 +314,6 @@ class SiteGroupDeleteView(generic.ObjectDeleteView):
 class SiteGroupBulkImportView(generic.BulkImportView):
     queryset = SiteGroup.objects.all()
     model_form = forms.SiteGroupImportForm
-    table = tables.SiteGroupTable
 
 
 class SiteGroupBulkEditView(generic.BulkEditView):
@@ -422,7 +419,6 @@ class SiteDeleteView(generic.ObjectDeleteView):
 class SiteBulkImportView(generic.BulkImportView):
     queryset = Site.objects.all()
     model_form = forms.SiteImportForm
-    table = tables.SiteTable
 
 
 class SiteBulkEditView(generic.BulkEditView):
@@ -499,7 +495,6 @@ class LocationDeleteView(generic.ObjectDeleteView):
 class LocationBulkImportView(generic.BulkImportView):
     queryset = Location.objects.all()
     model_form = forms.LocationImportForm
-    table = tables.LocationTable
 
 
 class LocationBulkEditView(generic.BulkEditView):
@@ -568,7 +563,6 @@ class RackRoleDeleteView(generic.ObjectDeleteView):
 class RackRoleBulkImportView(generic.BulkImportView):
     queryset = RackRole.objects.all()
     model_form = forms.RackRoleImportForm
-    table = tables.RackRoleTable
 
 
 class RackRoleBulkEditView(generic.BulkEditView):
@@ -728,7 +722,6 @@ class RackDeleteView(generic.ObjectDeleteView):
 class RackBulkImportView(generic.BulkImportView):
     queryset = Rack.objects.all()
     model_form = forms.RackImportForm
-    table = tables.RackTable
 
 
 class RackBulkEditView(generic.BulkEditView):
@@ -781,7 +774,6 @@ class RackReservationDeleteView(generic.ObjectDeleteView):
 class RackReservationImportView(generic.BulkImportView):
     queryset = RackReservation.objects.all()
     model_form = forms.RackReservationImportForm
-    table = tables.RackReservationTable
 
     def save_object(self, object_form, request):
         """
@@ -854,7 +846,6 @@ class ManufacturerDeleteView(generic.ObjectDeleteView):
 class ManufacturerBulkImportView(generic.BulkImportView):
     queryset = Manufacturer.objects.all()
     model_form = forms.ManufacturerImportForm
-    table = tables.ManufacturerTable
 
 
 class ManufacturerBulkEditView(generic.BulkEditView):
@@ -1083,7 +1074,6 @@ class DeviceTypeImportView(generic.BulkImportView):
     ]
     queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeImportForm
-    table = tables.DeviceTypeTable
     related_object_forms = {
         'console-ports': forms.ConsolePortTemplateImportForm,
         'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
@@ -1275,7 +1265,6 @@ class ModuleTypeImportView(generic.BulkImportView):
     ]
     queryset = ModuleType.objects.all()
     model_form = forms.ModuleTypeImportForm
-    table = tables.ModuleTypeTable
     related_object_forms = {
         'console-ports': forms.ConsolePortTemplateImportForm,
         'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
@@ -1722,7 +1711,6 @@ class DeviceRoleDeleteView(generic.ObjectDeleteView):
 class DeviceRoleBulkImportView(generic.BulkImportView):
     queryset = DeviceRole.objects.all()
     model_form = forms.DeviceRoleImportForm
-    table = tables.DeviceRoleTable
 
 
 class DeviceRoleBulkEditView(generic.BulkEditView):
@@ -1786,7 +1774,6 @@ class PlatformDeleteView(generic.ObjectDeleteView):
 class PlatformBulkImportView(generic.BulkImportView):
     queryset = Platform.objects.all()
     model_form = forms.PlatformImportForm
-    table = tables.PlatformTable
 
 
 class PlatformBulkEditView(generic.BulkEditView):
@@ -2047,7 +2034,6 @@ class DeviceConfigContextView(ObjectConfigContextView):
 class DeviceBulkImportView(generic.BulkImportView):
     queryset = Device.objects.all()
     model_form = forms.DeviceImportForm
-    table = tables.DeviceImportTable
 
     def save_object(self, object_form, request):
         obj = object_form.save()
@@ -2125,7 +2111,6 @@ class ModuleDeleteView(generic.ObjectDeleteView):
 class ModuleBulkImportView(generic.BulkImportView):
     queryset = Module.objects.all()
     model_form = forms.ModuleImportForm
-    table = tables.ModuleTable
 
 
 class ModuleBulkEditView(generic.BulkEditView):
@@ -2178,7 +2163,6 @@ class ConsolePortDeleteView(generic.ObjectDeleteView):
 class ConsolePortBulkImportView(generic.BulkImportView):
     queryset = ConsolePort.objects.all()
     model_form = forms.ConsolePortImportForm
-    table = tables.ConsolePortTable
 
 
 class ConsolePortBulkEditView(generic.BulkEditView):
@@ -2243,7 +2227,6 @@ class ConsoleServerPortDeleteView(generic.ObjectDeleteView):
 class ConsoleServerPortBulkImportView(generic.BulkImportView):
     queryset = ConsoleServerPort.objects.all()
     model_form = forms.ConsoleServerPortImportForm
-    table = tables.ConsoleServerPortTable
 
 
 class ConsoleServerPortBulkEditView(generic.BulkEditView):
@@ -2308,7 +2291,6 @@ class PowerPortDeleteView(generic.ObjectDeleteView):
 class PowerPortBulkImportView(generic.BulkImportView):
     queryset = PowerPort.objects.all()
     model_form = forms.PowerPortImportForm
-    table = tables.PowerPortTable
 
 
 class PowerPortBulkEditView(generic.BulkEditView):
@@ -2373,7 +2355,6 @@ class PowerOutletDeleteView(generic.ObjectDeleteView):
 class PowerOutletBulkImportView(generic.BulkImportView):
     queryset = PowerOutlet.objects.all()
     model_form = forms.PowerOutletImportForm
-    table = tables.PowerOutletTable
 
 
 class PowerOutletBulkEditView(generic.BulkEditView):
@@ -2484,7 +2465,6 @@ class InterfaceDeleteView(generic.ObjectDeleteView):
 class InterfaceBulkImportView(generic.BulkImportView):
     queryset = Interface.objects.all()
     model_form = forms.InterfaceImportForm
-    table = tables.InterfaceTable
 
 
 class InterfaceBulkEditView(generic.BulkEditView):
@@ -2549,7 +2529,6 @@ class FrontPortDeleteView(generic.ObjectDeleteView):
 class FrontPortBulkImportView(generic.BulkImportView):
     queryset = FrontPort.objects.all()
     model_form = forms.FrontPortImportForm
-    table = tables.FrontPortTable
 
 
 class FrontPortBulkEditView(generic.BulkEditView):
@@ -2614,7 +2593,6 @@ class RearPortDeleteView(generic.ObjectDeleteView):
 class RearPortBulkImportView(generic.BulkImportView):
     queryset = RearPort.objects.all()
     model_form = forms.RearPortImportForm
-    table = tables.RearPortTable
 
 
 class RearPortBulkEditView(generic.BulkEditView):
@@ -2679,7 +2657,6 @@ class ModuleBayDeleteView(generic.ObjectDeleteView):
 class ModuleBayBulkImportView(generic.BulkImportView):
     queryset = ModuleBay.objects.all()
     model_form = forms.ModuleBayImportForm
-    table = tables.ModuleBayTable
 
 
 class ModuleBayBulkEditView(generic.BulkEditView):
@@ -2805,7 +2782,6 @@ class DeviceBayDepopulateView(generic.ObjectEditView):
 class DeviceBayBulkImportView(generic.BulkImportView):
     queryset = DeviceBay.objects.all()
     model_form = forms.DeviceBayImportForm
-    table = tables.DeviceBayTable
 
 
 class DeviceBayBulkEditView(generic.BulkEditView):
@@ -2864,7 +2840,6 @@ class InventoryItemDeleteView(generic.ObjectDeleteView):
 class InventoryItemBulkImportView(generic.BulkImportView):
     queryset = InventoryItem.objects.all()
     model_form = forms.InventoryItemImportForm
-    table = tables.InventoryItemTable
 
 
 class InventoryItemBulkEditView(generic.BulkEditView):
@@ -2921,7 +2896,6 @@ class InventoryItemRoleDeleteView(generic.ObjectDeleteView):
 class InventoryItemRoleBulkImportView(generic.BulkImportView):
     queryset = InventoryItemRole.objects.all()
     model_form = forms.InventoryItemRoleImportForm
-    table = tables.InventoryItemRoleTable
 
 
 class InventoryItemRoleBulkEditView(generic.BulkEditView):
@@ -3116,7 +3090,6 @@ class CableDeleteView(generic.ObjectDeleteView):
 class CableBulkImportView(generic.BulkImportView):
     queryset = Cable.objects.all()
     model_form = forms.CableImportForm
-    table = tables.CableTable
 
 
 class CableBulkEditView(generic.BulkEditView):
@@ -3399,7 +3372,6 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
 class VirtualChassisBulkImportView(generic.BulkImportView):
     queryset = VirtualChassis.objects.all()
     model_form = forms.VirtualChassisImportForm
-    table = tables.VirtualChassisTable
 
 
 class VirtualChassisBulkEditView(generic.BulkEditView):
@@ -3456,7 +3428,6 @@ class PowerPanelDeleteView(generic.ObjectDeleteView):
 class PowerPanelBulkImportView(generic.BulkImportView):
     queryset = PowerPanel.objects.all()
     model_form = forms.PowerPanelImportForm
-    table = tables.PowerPanelTable
 
 
 class PowerPanelBulkEditView(generic.BulkEditView):
@@ -3504,7 +3475,6 @@ class PowerFeedDeleteView(generic.ObjectDeleteView):
 class PowerFeedBulkImportView(generic.BulkImportView):
     queryset = PowerFeed.objects.all()
     model_form = forms.PowerFeedImportForm
-    table = tables.PowerFeedTable
 
 
 class PowerFeedBulkEditView(generic.BulkEditView):
@@ -3566,7 +3536,6 @@ class VirtualDeviceContextDeleteView(generic.ObjectDeleteView):
 class VirtualDeviceContextBulkImportView(generic.BulkImportView):
     queryset = VirtualDeviceContext.objects.all()
     model_form = forms.VirtualDeviceContextImportForm
-    table = tables.VirtualDeviceContextTable
 
 
 class VirtualDeviceContextBulkEditView(generic.BulkEditView):
