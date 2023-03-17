@@ -55,7 +55,6 @@ class CustomFieldDeleteView(generic.ObjectDeleteView):
 class CustomFieldBulkImportView(generic.BulkImportView):
     queryset = CustomField.objects.all()
     model_form = forms.CustomFieldImportForm
-    table = tables.CustomFieldTable
 
 
 class CustomFieldBulkEditView(generic.BulkEditView):
@@ -101,7 +100,6 @@ class CustomLinkDeleteView(generic.ObjectDeleteView):
 class CustomLinkBulkImportView(generic.BulkImportView):
     queryset = CustomLink.objects.all()
     model_form = forms.CustomLinkImportForm
-    table = tables.CustomLinkTable
 
 
 class CustomLinkBulkEditView(generic.BulkEditView):
@@ -149,7 +147,6 @@ class ExportTemplateDeleteView(generic.ObjectDeleteView):
 class ExportTemplateBulkImportView(generic.BulkImportView):
     queryset = ExportTemplate.objects.all()
     model_form = forms.ExportTemplateImportForm
-    table = tables.ExportTemplateTable
 
 
 class ExportTemplateBulkEditView(generic.BulkEditView):
@@ -221,7 +218,6 @@ class SavedFilterDeleteView(SavedFilterMixin, generic.ObjectDeleteView):
 class SavedFilterBulkImportView(SavedFilterMixin, generic.BulkImportView):
     queryset = SavedFilter.objects.all()
     model_form = forms.SavedFilterImportForm
-    table = tables.SavedFilterTable
 
 
 class SavedFilterBulkEditView(SavedFilterMixin, generic.BulkEditView):
@@ -267,7 +263,6 @@ class WebhookDeleteView(generic.ObjectDeleteView):
 class WebhookBulkImportView(generic.BulkImportView):
     queryset = Webhook.objects.all()
     model_form = forms.WebhookImportForm
-    table = tables.WebhookTable
 
 
 class WebhookBulkEditView(generic.BulkEditView):
@@ -336,7 +331,6 @@ class TagDeleteView(generic.ObjectDeleteView):
 class TagBulkImportView(generic.BulkImportView):
     queryset = Tag.objects.all()
     model_form = forms.TagImportForm
-    table = tables.TagTable
 
 
 class TagBulkEditView(generic.BulkEditView):
@@ -489,7 +483,6 @@ class ConfigTemplateDeleteView(generic.ObjectDeleteView):
 class ConfigTemplateBulkImportView(generic.BulkImportView):
     queryset = ConfigTemplate.objects.all()
     model_form = forms.ConfigTemplateImportForm
-    table = tables.ConfigTemplateTable
 
 
 class ConfigTemplateBulkEditView(generic.BulkEditView):

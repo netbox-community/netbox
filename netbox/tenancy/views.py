@@ -60,7 +60,6 @@ class TenantGroupDeleteView(generic.ObjectDeleteView):
 class TenantGroupBulkImportView(generic.BulkImportView):
     queryset = TenantGroup.objects.all()
     model_form = forms.TenantGroupImportForm
-    table = tables.TenantGroupTable
 
 
 class TenantGroupBulkEditView(generic.BulkEditView):
@@ -150,7 +149,6 @@ class TenantDeleteView(generic.ObjectDeleteView):
 class TenantBulkImportView(generic.BulkImportView):
     queryset = Tenant.objects.all()
     model_form = forms.TenantImportForm
-    table = tables.TenantTable
 
 
 class TenantBulkEditView(generic.BulkEditView):
@@ -212,7 +210,6 @@ class ContactGroupDeleteView(generic.ObjectDeleteView):
 class ContactGroupBulkImportView(generic.BulkImportView):
     queryset = ContactGroup.objects.all()
     model_form = forms.ContactGroupImportForm
-    table = tables.ContactGroupTable
 
 
 class ContactGroupBulkEditView(generic.BulkEditView):
@@ -278,7 +275,6 @@ class ContactRoleDeleteView(generic.ObjectDeleteView):
 class ContactRoleBulkImportView(generic.BulkImportView):
     queryset = ContactRole.objects.all()
     model_form = forms.ContactRoleImportForm
-    table = tables.ContactRoleTable
 
 
 class ContactRoleBulkEditView(generic.BulkEditView):
@@ -325,7 +321,6 @@ class ContactDeleteView(generic.ObjectDeleteView):
 class ContactBulkImportView(generic.BulkImportView):
     queryset = Contact.objects.all()
     model_form = forms.ContactImportForm
-    table = tables.ContactTable
 
 
 class ContactBulkEditView(generic.BulkEditView):

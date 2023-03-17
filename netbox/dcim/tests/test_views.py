@@ -1994,7 +1994,7 @@ class ModuleTestCase(
         }
 
         initial_count = Module.objects.count()
-        self.assertHttpStatus(self.client.post(**request), 200)
+        self.assertHttpStatus(self.client.post(**request), 302)
         self.assertEqual(Module.objects.count(), initial_count + len(csv_data) - 1)
         self.assertEqual(Interface.objects.filter(device=device).count(), 0)
 
@@ -2010,7 +2010,7 @@ class ModuleTestCase(
         }
 
         initial_count = Module.objects.count()
-        self.assertHttpStatus(self.client.post(**request), 200)
+        self.assertHttpStatus(self.client.post(**request), 302)
         self.assertEqual(Module.objects.count(), initial_count + len(csv_data) - 1)
         self.assertEqual(Interface.objects.filter(device=device).count(), 5)
 
@@ -2086,7 +2086,7 @@ class ModuleTestCase(
         }
 
         initial_count = self._get_queryset().count()
-        self.assertHttpStatus(self.client.post(**request), 200)
+        self.assertHttpStatus(self.client.post(**request), 302)
         self.assertEqual(self._get_queryset().count(), initial_count + len(csv_data) - 1)
 
         # Re-retrieve interface to get new module id

@@ -592,7 +592,7 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
 
             # Test POST with permission
-            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.csv_data) - 1)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -617,7 +617,7 @@ class ViewTestCases:
             obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
 
             # Test POST with permission
-            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
             self.assertEqual(initial_count, self._get_queryset().count())
 
             reader = csv.DictReader(array, delimiter=',')
@@ -659,7 +659,7 @@ class ViewTestCases:
             obj_perm.save()
 
             # Import permitted objects
-            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.csv_data) - 1)
 
     class BulkEditObjectsViewTestCase(ModelViewTestCase):

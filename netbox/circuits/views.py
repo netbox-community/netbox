@@ -53,7 +53,6 @@ class ProviderDeleteView(generic.ObjectDeleteView):
 class ProviderBulkImportView(generic.BulkImportView):
     queryset = Provider.objects.all()
     model_form = forms.ProviderImportForm
-    table = tables.ProviderTable
 
 
 class ProviderBulkEditView(generic.BulkEditView):
@@ -115,7 +114,6 @@ class ProviderNetworkDeleteView(generic.ObjectDeleteView):
 class ProviderNetworkBulkImportView(generic.BulkImportView):
     queryset = ProviderNetwork.objects.all()
     model_form = forms.ProviderNetworkImportForm
-    table = tables.ProviderNetworkTable
 
 
 class ProviderNetworkBulkEditView(generic.BulkEditView):
@@ -172,7 +170,6 @@ class CircuitTypeDeleteView(generic.ObjectDeleteView):
 class CircuitTypeBulkImportView(generic.BulkImportView):
     queryset = CircuitType.objects.all()
     model_form = forms.CircuitTypeImportForm
-    table = tables.CircuitTypeTable
 
 
 class CircuitTypeBulkEditView(generic.BulkEditView):
@@ -224,7 +221,6 @@ class CircuitDeleteView(generic.ObjectDeleteView):
 class CircuitBulkImportView(generic.BulkImportView):
     queryset = Circuit.objects.all()
     model_form = forms.CircuitImportForm
-    table = tables.CircuitTable
     additional_permissions = [
         'circuits.add_circuittermination',
     ]

@@ -71,7 +71,6 @@ class VRFDeleteView(generic.ObjectDeleteView):
 class VRFBulkImportView(generic.BulkImportView):
     queryset = VRF.objects.all()
     model_form = forms.VRFImportForm
-    table = tables.VRFTable
 
 
 class VRFBulkEditView(generic.BulkEditView):
@@ -117,7 +116,6 @@ class RouteTargetDeleteView(generic.ObjectDeleteView):
 class RouteTargetBulkImportView(generic.BulkImportView):
     queryset = RouteTarget.objects.all()
     model_form = forms.RouteTargetImportForm
-    table = tables.RouteTargetTable
 
 
 class RouteTargetBulkEditView(generic.BulkEditView):
@@ -174,7 +172,6 @@ class RIRDeleteView(generic.ObjectDeleteView):
 class RIRBulkImportView(generic.BulkImportView):
     queryset = RIR.objects.all()
     model_form = forms.RIRImportForm
-    table = tables.RIRTable
 
 
 class RIRBulkEditView(generic.BulkEditView):
@@ -245,7 +242,6 @@ class ASNRangeDeleteView(generic.ObjectDeleteView):
 class ASNRangeBulkImportView(generic.BulkImportView):
     queryset = ASNRange.objects.all()
     model_form = forms.ASNRangeImportForm
-    table = tables.ASNRangeTable
 
 
 class ASNRangeBulkEditView(generic.BulkEditView):
@@ -308,7 +304,6 @@ class ASNDeleteView(generic.ObjectDeleteView):
 class ASNBulkImportView(generic.BulkImportView):
     queryset = ASN.objects.all()
     model_form = forms.ASNImportForm
-    table = tables.ASNTable
 
 
 class ASNBulkEditView(generic.BulkEditView):
@@ -395,7 +390,6 @@ class AggregateDeleteView(generic.ObjectDeleteView):
 class AggregateBulkImportView(generic.BulkImportView):
     queryset = Aggregate.objects.all()
     model_form = forms.AggregateImportForm
-    table = tables.AggregateTable
 
 
 class AggregateBulkEditView(generic.BulkEditView):
@@ -460,7 +454,6 @@ class RoleDeleteView(generic.ObjectDeleteView):
 class RoleBulkImportView(generic.BulkImportView):
     queryset = Role.objects.all()
     model_form = forms.RoleImportForm
-    table = tables.RoleTable
 
 
 class RoleBulkEditView(generic.BulkEditView):
@@ -638,7 +631,6 @@ class PrefixDeleteView(generic.ObjectDeleteView):
 class PrefixBulkImportView(generic.BulkImportView):
     queryset = Prefix.objects.all()
     model_form = forms.PrefixImportForm
-    table = tables.PrefixTable
 
 
 class PrefixBulkEditView(generic.BulkEditView):
@@ -702,7 +694,6 @@ class IPRangeDeleteView(generic.ObjectDeleteView):
 class IPRangeBulkImportView(generic.BulkImportView):
     queryset = IPRange.objects.all()
     model_form = forms.IPRangeImportForm
-    table = tables.IPRangeTable
 
 
 class IPRangeBulkEditView(generic.BulkEditView):
@@ -864,7 +855,6 @@ class IPAddressBulkCreateView(generic.BulkCreateView):
 class IPAddressBulkImportView(generic.BulkImportView):
     queryset = IPAddress.objects.all()
     model_form = forms.IPAddressImportForm
-    table = tables.IPAddressTable
 
 
 class IPAddressBulkEditView(generic.BulkEditView):
@@ -934,7 +924,6 @@ class VLANGroupDeleteView(generic.ObjectDeleteView):
 class VLANGroupBulkImportView(generic.BulkImportView):
     queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupImportForm
-    table = tables.VLANGroupTable
 
 
 class VLANGroupBulkEditView(generic.BulkEditView):
@@ -1016,7 +1005,6 @@ class FHRPGroupDeleteView(generic.ObjectDeleteView):
 class FHRPGroupBulkImportView(generic.BulkImportView):
     queryset = FHRPGroup.objects.all()
     model_form = forms.FHRPGroupImportForm
-    table = tables.FHRPGroupTable
 
 
 class FHRPGroupBulkEditView(generic.BulkEditView):
@@ -1132,7 +1120,6 @@ class VLANDeleteView(generic.ObjectDeleteView):
 class VLANBulkImportView(generic.BulkImportView):
     queryset = VLAN.objects.all()
     model_form = forms.VLANImportForm
-    table = tables.VLANTable
 
 
 class VLANBulkEditView(generic.BulkEditView):
@@ -1178,7 +1165,6 @@ class ServiceTemplateDeleteView(generic.ObjectDeleteView):
 class ServiceTemplateBulkImportView(generic.BulkImportView):
     queryset = ServiceTemplate.objects.all()
     model_form = forms.ServiceTemplateImportForm
-    table = tables.ServiceTemplateTable
 
 
 class ServiceTemplateBulkEditView(generic.BulkEditView):
@@ -1231,7 +1217,6 @@ class ServiceDeleteView(generic.ObjectDeleteView):
 class ServiceBulkImportView(generic.BulkImportView):
     queryset = Service.objects.all()
     model_form = forms.ServiceImportForm
-    table = tables.ServiceTable
 
 
 class ServiceBulkEditView(generic.BulkEditView):
@@ -1290,7 +1275,6 @@ class L2VPNDeleteView(generic.ObjectDeleteView):
 class L2VPNBulkImportView(generic.BulkImportView):
     queryset = L2VPN.objects.all()
     model_form = forms.L2VPNImportForm
-    table = tables.L2VPNTable
 
 
 class L2VPNBulkEditView(generic.BulkEditView):
@@ -1337,7 +1321,6 @@ class L2VPNTerminationDeleteView(generic.ObjectDeleteView):
 class L2VPNTerminationBulkImportView(generic.BulkImportView):
     queryset = L2VPNTermination.objects.all()
     model_form = forms.L2VPNTerminationImportForm
-    table = tables.L2VPNTerminationTable
 
 
 class L2VPNTerminationBulkEditView(generic.BulkEditView):
