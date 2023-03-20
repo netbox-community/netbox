@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, ValidationError
 from django.db import models
@@ -698,7 +699,7 @@ class JobResult(models.Model):
         JobResult.objects.filter(pk=self.pk).update(started=self.started, status=self.status)
 
         # Handle webhooks
-        self.trigger_webhooks(event='job_start')
+        self.trigger_webhooks(event=EVENT_JOB_START)
 
     def terminate(self, status=JobResultStatusChoices.STATUS_COMPLETED):
         """
@@ -714,7 +715,7 @@ class JobResult(models.Model):
         JobResult.objects.filter(pk=self.pk).update(status=self.status, completed=self.completed)
 
         # Handle webhooks
-        self.trigger_webhooks(event='job_end')
+        self.trigger_webhooks(event=EVENT_JOB_END)
 
     @classmethod
     def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, interval=None, *args, **kwargs):

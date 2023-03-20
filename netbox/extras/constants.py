@@ -1,14 +1,20 @@
-from django.contrib.contenttypes.models import ContentType
+# Events
+EVENT_CREATE = 'create'
+EVENT_UPDATE = 'update'
+EVENT_DELETE = 'delete'
+EVENT_JOB_START = 'job_start'
+EVENT_JOB_END = 'job_end'
+
 
 # Webhooks
 HTTP_CONTENT_TYPE_JSON = 'application/json'
 
 WEBHOOK_EVENT_TYPES = {
-    'create': 'created',
-    'update': 'updated',
-    'delete': 'deleted',
-    'job_start': 'job_started',
-    'job_end': 'job_ended',
+    EVENT_CREATE: 'created',
+    EVENT_UPDATE: 'updated',
+    EVENT_DELETE: 'deleted',
+    EVENT_JOB_START: 'job_started',
+    EVENT_JOB_END: 'job_ended',
 }
 
 # Dashboard
