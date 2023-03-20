@@ -280,12 +280,14 @@ class ManufacturerImportForm(NetBoxModelImportForm):
 class DeviceTypeImportForm(NetBoxModelImportForm):
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
-        to_field_name='name'
+        to_field_name='name',
+        help_text=_('The manufacturer which produces this device type')
     )
     default_platform = forms.ModelChoiceField(
         queryset=Platform.objects.all(),
         to_field_name='name',
         required=False,
+        help_text=_('The default platform for devices of this type (optional)')
     )
 
     class Meta:

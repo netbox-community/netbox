@@ -21,6 +21,10 @@ The model number assigned to this device type by its manufacturer. Must be uniqu
 
 A unique URL-friendly representation of the model identifier. (This value can be used for filtering.)
 
+### Default Platform
+
+If defined, devices instantiated from this type will automatically inherit the selected platform. (This assignment can be changed after the device has been created.)
+
 ### Part Number
 
 An alternative part number to uniquely identify the device type.

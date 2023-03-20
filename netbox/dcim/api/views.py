@@ -280,7 +280,7 @@ class ManufacturerViewSet(NetBoxModelViewSet):
 #
 
 class DeviceTypeViewSet(NetBoxModelViewSet):
-    queryset = DeviceType.objects.prefetch_related('manufacturer', 'tags').annotate(
+    queryset = DeviceType.objects.prefetch_related('manufacturer', 'default_platform', 'tags').annotate(
         device_count=count_related(Device, 'device_type')
     )
     serializer_class = serializers.DeviceTypeSerializer
