@@ -267,6 +267,14 @@ class ConfigContextForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
             'tenants', 'tags', 'data_source', 'data_file',
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Disable data field when a DataFile has been set
+        if self.instance.data_file:
+            self.fields['data'].widget.attrs['readonly'] = True
+            self.fields['data'].help_text = _('Data is populated from the remote source selected below.')
+
     def clean(self):
         super().clean()
 

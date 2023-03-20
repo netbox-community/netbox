@@ -372,16 +372,15 @@ class SyncedDataMixin(models.Model):
         return self.data_file and self.data_synced >= self.data_file.last_updated
 
     def clean(self):
-        if self.data_file:
-            self.sync_data()
-            self.data_path = self.data_file.path
 
-        if self.data_source and not self.data_file:
-            raise ValidationError({
-                'data_file': _(f"Must specify a data file when designating a data source.")
-            })
-        if self.data_file and not self.data_source:
+        if self.data_file:
             self.data_source = self.data_file.source
+            self.data_path = self.data_file.path
+            self.sync_data()
+        else:
+            self.data_source = None
+            self.data_path = ''
+            self.data_synced = None
 
         super().clean()
 
