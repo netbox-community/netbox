@@ -147,8 +147,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         validators=[validate_regex],
         max_length=500,
         verbose_name='Validation regex',
-        help_text=_('Regular expression to enforce on text field values. Use ^ and $ to force matching of entire string. '
-                    'For example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.')
+        help_text=_(
+            'Regular expression to enforce on text field values. Use ^ and $ to force matching of entire string. For '
+            'example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
+        )
     )
     choices = ArrayField(
         base_field=models.CharField(max_length=100),
@@ -166,7 +168,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     is_cloneable = models.BooleanField(
         default=False,
         verbose_name='Cloneable',
-        help_text='If true, this field will be copied over when cloning objects.'
+        help_text=_('Replicate this value when cloning objects')
     )
 
     objects = CustomFieldManager()

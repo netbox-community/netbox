@@ -122,8 +122,8 @@ class CloningMixin(models.Model):
             attrs['tags'] = [tag.pk for tag in self.tags.all()]
 
         # Include any cloneable custom fields
-        if hasattr(self, 'custom_field_data'):
-            for field in self.get_custom_fields():
+        if hasattr(self, 'custom_fields'):
+            for field in self.custom_fields:
                 if field.is_cloneable:
                     attrs[f'cf_{field.name}'] = self.custom_field_data.get(field.name)
 
