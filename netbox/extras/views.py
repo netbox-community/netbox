@@ -6,14 +6,13 @@ from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden, 
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
-from django_rq.queues import get_connection
-from rq import Worker
 
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.views import generic
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import is_htmx
+from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
@@ -863,7 +862,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         if form.is_valid():
 
             # Allow execution only if RQ worker process is running
-            if not Worker.count(get_connection('default')):
+            if not get_workers_for_queue('default'):
                 messages.error(request, "Unable to run report: RQ worker process not running.")
                 return render(request, 'extras/report.html', {
                     'report': report,
@@ -994,7 +993,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
         form = script.as_form(request.POST, request.FILES)
 
         # Allow execution only if RQ worker process is running
-        if not Worker.count(get_connection('default')):
+        if not get_workers_for_queue('default'):
             messages.error(request, "Unable to run script: RQ worker process not running.")
 
         elif form.is_valid():

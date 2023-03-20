@@ -30,6 +30,7 @@ from netbox.models.features import (
     TagsMixin, WebhooksMixin,
 )
 from utilities.querysets import RestrictedQuerySet
+from utilities.rqworker import get_queue_for_model
 from utilities.utils import render_jinja2
 
 __all__ = (
@@ -730,7 +731,7 @@ class JobResult(models.Model):
             schedule_at: Schedule the job to be executed at the passed date and time
             interval: Recurrence interval (in minutes)
         """
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(obj_type.model, RQ_QUEUE_DEFAULT)
+        rq_queue_name = get_queue_for_model(obj_type.model)
         queue = django_rq.get_queue(rq_queue_name)
         status = JobResultStatusChoices.STATUS_SCHEDULED if schedule_at else JobResultStatusChoices.STATUS_PENDING
         job_result: JobResult = JobResult.objects.create(

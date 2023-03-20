@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect
 
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
+from utilities.rqworker import get_queue_for_model, get_workers_for_queue
 from utilities.utils import count_related
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
@@ -31,7 +32,11 @@ class DataSourceView(generic.ObjectView):
             (DataFile.objects.restrict(request.user, 'view').filter(source=instance), 'source_id'),
         )
 
+        queue_name = get_queue_for_model(DataSource)
+        sync_enabled = bool(get_workers_for_queue(queue_name))
+
         return {
+            'sync_enabled': sync_enabled,
             'related_models': related_models,
         }
 

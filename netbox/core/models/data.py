@@ -16,7 +16,6 @@ from django.utils.translation import gettext as _
 
 from extras.models import JobResult
 from netbox.models import PrimaryModel
-from netbox.models.features import ChangeLoggingMixin
 from netbox.registry import registry
 from utilities.files import sha256_hash
 from utilities.querysets import RestrictedQuerySet
@@ -116,6 +115,7 @@ class DataSource(PrimaryModel):
         """
         # Set the status to "syncing"
         self.status = DataSourceStatusChoices.QUEUED
+        DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
         # Enqueue a sync job
         job_result = JobResult.enqueue_job(
@@ -137,8 +137,8 @@ class DataSource(PrimaryModel):
         """
         Create/update/delete child DataFiles as necessary to synchronize with the remote source.
         """
-        if not self.ready_for_sync:
-            raise SyncError(f"Cannot initiate sync; data source not ready/enabled")
+        if self.status == DataSourceStatusChoices.SYNCING:
+            raise SyncError(f"Cannot initiate sync; syncing already in progress.")
 
         # Emit the pre_sync signal
         pre_sync.send(sender=self.__class__, instance=self)
