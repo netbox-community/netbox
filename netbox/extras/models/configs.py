@@ -141,7 +141,6 @@ class ConfigContext(SyncedDataMixin, ChangeLoggedModel):
         Synchronize context data from the designated DataFile (if any).
         """
         self.data = self.data_file.get_data()
-        self.data_synced = timezone.now()
 
 
 class ConfigContextModel(models.Model):
@@ -227,7 +226,6 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
         Synchronize template content from the designated DataFile (if any).
         """
         self.template_code = self.data_file.data_as_string
-        self.data_synced = timezone.now()
 
     def render(self, context=None):
         """

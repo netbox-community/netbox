@@ -354,7 +354,6 @@ class ExportTemplate(SyncedDataMixin, ExportTemplatesMixin, ChangeLoggedModel):
         Synchronize template content from the designated DataFile (if any).
         """
         self.template_code = self.data_file.data_as_string
-        self.data_synced = timezone.now()
 
     def render(self, queryset):
         """

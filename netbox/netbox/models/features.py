@@ -6,6 +6,7 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.db.models.signals import class_prepared
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from taggit.managers import TaggableManager
@@ -377,6 +378,7 @@ class SyncedDataMixin(models.Model):
             self.data_source = self.data_file.source
             self.data_path = self.data_file.path
             self.sync_data()
+            self.data_synced = timezone.now()
         else:
             self.data_source = None
             self.data_path = ''
