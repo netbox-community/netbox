@@ -406,7 +406,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
     parameters = models.JSONField()
 
     clone_fields = (
-        'enabled', 'weight',
+        'content_types', 'weight', 'enabled', 'parameters',
     )
 
     class Meta:
