@@ -24,17 +24,20 @@ The NAPALM integration feature found in previous NetBox releases has been moved 
 
 A new ASN range model has been introduced to facilitate the provisioning of new autonomous system numbers from within a prescribed range. For example, an administrator might define an ASN range of 65000-65099 to be used for internal site identification. This includes a REST API endpoint suitable for automatic provisioning, very similar to the allocation of available prefixes and IP addresses.
 
+#### Job-Triggered Webhooks ([#8958](https://github.com/netbox-community/netbox/issues/8958))
+
+Two new webhook trigger events have been introduced: `job_start` and `job_end`. These enable users to configure webhook to trigger when a background job starts or ends, respectively. This new functionality can be used, for example, to inform a remote system when a custom script has been executed.
+
 ### Enhancements
 
 * [#7947](https://github.com/netbox-community/netbox/issues/7947) - Enable marking IP ranges as fully utilized
 * [#8272](https://github.com/netbox-community/netbox/issues/8272) - Support bridge relationships among device type interfaces
 * [#8749](https://github.com/netbox-community/netbox/issues/8749) - Support replicating custom field values when cloning an object
-* [#8958](https://github.com/netbox-community/netbox/issues/8958) - Changes in background job status can trigger webhooks
 * [#9073](https://github.com/netbox-community/netbox/issues/9073) - Enable syncing config context data from remote sources
 * [#9653](https://github.com/netbox-community/netbox/issues/9653) - Enable setting a default platform for device types
 * [#10054](https://github.com/netbox-community/netbox/issues/10054) - Introduce advanced object selector for UI forms
-* [#10242](https://github.com/netbox-community/netbox/issues/10242) - Redirect to filter objects list after bulk import
-* [#10374](https://github.com/netbox-community/netbox/issues/10374) - Require unique tenant names & slugs per group (not globally)
+* [#10242](https://github.com/netbox-community/netbox/issues/10242) - Redirect to filtered objects list after bulk import
+* [#10374](https://github.com/netbox-community/netbox/issues/10374) - Require unique tenant names & slugs per group
 * [#10729](https://github.com/netbox-community/netbox/issues/10729) - Add date & time custom field type
 * [#11254](https://github.com/netbox-community/netbox/issues/11254) - Introduce the `X-Request-ID` HTTP header to annotate the unique ID of each request for change logging
 * [#11440](https://github.com/netbox-community/netbox/issues/11440) - Add an `enabled` field for device type interfaces
@@ -54,3 +57,20 @@ A new ASN range model has been introduced to facilitate the provisioning of new 
 * [#11694](https://github.com/netbox-community/netbox/issues/11694) - Remove obsolete `SmallTextarea` form widget
 * [#11737](https://github.com/netbox-community/netbox/issues/11737) - `ChangeLoggedModel` now inherits `WebhooksMixin`
 * [#11765](https://github.com/netbox-community/netbox/issues/11765) - Retire the `StaticSelect` and `StaticSelectMultiple` form widgets
+
+### REST API Changes
+
+* All API responses now include a `X-Request-ID` HTTP header indicating the request's unique ID
+* Introduced the `/api/ipam/asn-ranges/` endpoint
+* dcim.DevcieType
+    * Added `default_platform` foreign key (optional)
+* dcim.InterfaceTemplate
+    * Added optional `bridge` foreign key (optional)
+* extras.ConfigContext
+    * Added `data_source`, `data_file`, `data_path`, and `data_synced` fields to enable syncing data from remote sources
+* extras.Webhook
+    * Added `type_job_start` and `type_job_end` boolean fields
+* ipam.ASN
+    * The `rir` field now fully represents the assigned RIR (if any)
+* ipam.IPRange
+    * Added the `mark_utilized` boolean field (default: false)

@@ -670,5 +670,11 @@ This header specifies the unique ID assigned to the received API request. It can
 GET /api/extras/object-changes/?request_id=e39c84bc-f169-4d5f-bc1c-94487a1b18b5
 ```
 
+The request ID can also be used to filter many objects directly, to return those created or updated by a certain request:
+
+```
+GET /api/dcim/sites/?created_by_request=e39c84bc-f169-4d5f-bc1c-94487a1b18b5
+```
+
 !!! note
     This header is included with _all_ NetBox responses, although it is most practical when working with an API.

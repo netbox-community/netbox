@@ -70,9 +70,6 @@ class MyModelImportForm(NetBoxModelImportForm):
         fields = ('name', 'status', 'site', 'comments')
 ```
 
-!!! note "Previously NetBoxModelCSVForm"
-    This form class was previously named `NetBoxModelCSVForm`. It was renamed in NetBox v3.4 to convey support for JSON and YAML formats in addition to CSV. The `NetBoxModelCSVForm` class has been retained for backward compatibility and functions exactly the same as `NetBoxModelImportForm`. However, plugin authors should be aware that this backward compatability will be removed in NetBox v3.5.
-
 ### `NetBoxModelBulkEditForm`
 
 This form facilitates editing multiple objects in bulk. Unlike a model form, this form does not have a child `Meta` class, and must explicitly define each field. All fields in a bulk edit form are generally declared with `required=False`.

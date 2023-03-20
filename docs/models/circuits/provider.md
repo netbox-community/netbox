@@ -12,13 +12,6 @@ A unique human-friendly name.
 
 A unique URL-friendly identifier. (This value can be used for filtering.)
 
-### ASN
-
-The AS number assigned to this provider.
-
-!!! warning "Legacy field"
-    This field is being removed in NetBox v3.4. Users are highly encouraged to use the [ASN model](../ipam/asn.md) to track AS number assignment for providers.
-
 ### ASNs
 
 The [AS numbers](../ipam/asn.md) assigned to this provider (optional).
