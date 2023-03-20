@@ -1,3 +1,5 @@
+import json
+
 import django_tables2 as tables
 from django.conf import settings
 from django.utils.translation import gettext as _
@@ -122,11 +124,14 @@ class SavedFilterTable(NetBoxTable):
     enabled = columns.BooleanColumn()
     shared = columns.BooleanColumn()
 
+    def value_parameters(self, value):
+        return json.dumps(value)
+
     class Meta(NetBoxTable.Meta):
         model = SavedFilter
         fields = (
             'pk', 'id', 'name', 'slug', 'content_types', 'description', 'user', 'weight', 'enabled', 'shared',
-            'created', 'last_updated',
+            'created', 'last_updated', 'parameters'
         )
         default_columns = (
             'pk', 'name', 'content_types', 'user', 'description', 'enabled', 'shared',

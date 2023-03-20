@@ -62,7 +62,7 @@ class RouteTargetTable(TenancyColumnsMixin, NetBoxTable):
     )
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
-        url_name='ipam:vrf_list'
+        url_name='ipam:routetarget_list'
     )
 
     class Meta(NetBoxTable.Meta):

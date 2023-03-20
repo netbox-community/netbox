@@ -352,6 +352,18 @@ class BaseScript:
         # Set initial "commit" checkbox state based on the script's Meta parameter
         form.fields['_commit'].initial = getattr(self.Meta, 'commit_default', True)
 
+        # Append the default fieldset if defined in the Meta class
+        default_fieldset = (
+            ('Script Execution Parameters', ('_schedule_at', '_interval', '_commit')),
+        )
+        if not hasattr(self.Meta, 'fieldsets'):
+            fields = (
+                name for name, _ in self._get_vars().items()
+            )
+            self.Meta.fieldsets = (('Script Data', fields),)
+
+        self.Meta.fieldsets += default_fieldset
+
         return form
 
     # Logging

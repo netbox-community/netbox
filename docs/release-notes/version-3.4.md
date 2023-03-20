@@ -1,5 +1,18 @@
 # NetBox v3.4
 
+## v3.4.7 (FUTURE)
+
+### Enhancements
+
+* [#11833](https://github.com/netbox-community/netbox/issues/11833) - Add fieldset support for custom script forms
+
+### Bug Fixes
+
+* [#11984](https://github.com/netbox-community/netbox/issues/11984) - Remove erroneous 802.3az PoE type
+* [#11979](https://github.com/netbox-community/netbox/issues/11979) - Correct URL for tags in route targets list
+
+---
+
 ## v3.4.6 (2023-03-13)
 
 ### Enhancements

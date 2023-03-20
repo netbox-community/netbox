@@ -47,16 +47,34 @@
           {% csrf_token %}
           <div class="field-group my-4">
             {% if form.requires_input %}
-              <div class="row mb-2">
-                <h5 class="offset-sm-3">Script Data</h5>
-              </div>
+              {% if script.Meta.fieldsets %}
+                {# Render grouped fields according to declared fieldsets #}
+                {% for group, fields in script.Meta.fieldsets %}
+                  <div class="field-group mb-5">
+                    <div class="row mb-2">
+                      <h5 class="offset-sm-3">{{ group }}</h5>
+                    </div>
+                    {% for name in fields %}
+                      {% with field=form|getfield:name %}
+                        {% render_field field %}
+                      {% endwith %}
+                    {% endfor %}
+                  </div>
+                {% endfor %}
+              {% else %}
+                {# Render all fields as a single group #}
+                <div class="row mb-2">
+                  <h5 class="offset-sm-3">Script Data</h5>
+                </div>
+                {% render_form form %}
+              {% endif %}
             {% else %}
               <div class="alert alert-info">
                 <i class="mdi mdi-information"></i>
                 This script does not require any input to run.
               </div>
+              {% render_form form %}
             {% endif %}
-            {% render_form form %}
           </div>
           <div class="float-end">
             <a href="{% url 'extras:script_list' %}" class="btn btn-outline-danger">Cancel</a>
