@@ -306,12 +306,26 @@ class ConfigTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
 
     fieldsets = (
         ('Config Template', ('name', 'description', 'environment_params', 'tags')),
-        ('Content', ('data_source', 'data_file', 'template_code',)),
+        ('Content', ('template_code',)),
+        ('Data Source', ('data_source', 'data_file')),
     )
 
     class Meta:
         model = ConfigTemplate
         fields = '__all__'
+        widgets = {
+            'environment_params': forms.Textarea(attrs={'rows': 5})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Disable content field when a DataFile has been set
+        if self.instance.data_file:
+            self.fields['template_code'].widget.attrs['readonly'] = True
+            self.fields['template_code'].help_text = _(
+                'Template content is populated from the remote source selected below.'
+            )
 
     def clean(self):
         super().clean()

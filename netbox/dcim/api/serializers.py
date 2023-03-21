@@ -604,6 +604,7 @@ class InventoryItemTemplateSerializer(ValidatedModelSerializer):
 
 class DeviceRoleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicerole-detail')
+    config_template = NestedConfigTemplateSerializer(required=False, allow_null=True, default=None)
     device_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
 
@@ -618,6 +619,7 @@ class DeviceRoleSerializer(NetBoxModelSerializer):
 class PlatformSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:platform-detail')
     manufacturer = NestedManufacturerSerializer(required=False, allow_null=True)
+    config_template = NestedConfigTemplateSerializer(required=False, allow_null=True, default=None)
     device_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
 

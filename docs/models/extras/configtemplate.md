@@ -1,6 +1,6 @@
 # Configuration Templates
 
-Configuration templates can be used to render [devices](../dcim/device.md) configurations from [context data](../../features/context-data.md). Templates are written in the [Jinja2 language](https://jinja.palletsprojects.com/) and can be associated with devices roles, platforms, and/or individual devices.
+Configuration templates can be used to render [device](../dcim/device.md) configurations from [context data](../../features/context-data.md). Templates are written in the [Jinja2 language](https://jinja.palletsprojects.com/) and can be associated with devices roles, platforms, and/or individual devices.
 
 Context data is made available to [devices](../dcim/device.md) and/or [virtual machines](../virtualization/virtualmachine.md) based on their relationships to other objects in NetBox. For example, context data can be associated only with devices assigned to a particular site, or only to virtual machines in a certain cluster.
 

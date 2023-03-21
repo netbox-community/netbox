@@ -1,12 +1,12 @@
-import socket
-
-from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
 
@@ -15,14 +15,14 @@ from dcim import filtersets
 from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from dcim.models import *
 from dcim.svg import CableTraceSVG
-from extras.api.views import ConfigContextQuerySetMixin
+from extras.api.nested_serializers import NestedConfigTemplateSerializer
+from extras.api.mixins import ConfigContextQuerySetMixin, ConfigTemplateRenderMixin
 from ipam.models import Prefix, VLAN
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
-from netbox.api.exceptions import ServiceUnavailable
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
+from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import NetBoxModelViewSet
-from netbox.config import get_config
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related
@@ -391,10 +391,10 @@ class PlatformViewSet(NetBoxModelViewSet):
 # Devices/modules
 #
 
-class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
+class DeviceViewSet(ConfigContextQuerySetMixin, ConfigTemplateRenderMixin, NetBoxModelViewSet):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'parent_bay',
-        'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',
+        'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'config_template', 'tags',
     )
     filterset_class = filtersets.DeviceFilterSet
     pagination_class = StripCountAnnotationsPaginator
@@ -418,6 +418,19 @@ class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
             return serializers.DeviceSerializer
 
         return serializers.DeviceWithConfigContextSerializer
+
+    @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer])
+    def render_config(self, request, pk):
+        """
+        Resolve and render the preferred ConfigTemplate for this Device.
+        """
+        device = self.get_object()
+        configtemplate = device.get_config_template()
+        if not configtemplate:
+            return Response({'error': 'No config template found for this device.'}, status=HTTP_400_BAD_REQUEST)
+        context = {**request.data, 'device': device}
+
+        return self.render_configtemplate(request, configtemplate, context)
 
 
 class VirtualDeviceContextViewSet(NetBoxModelViewSet):

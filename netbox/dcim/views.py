@@ -1987,6 +1987,17 @@ class DeviceInventoryView(DeviceComponentsView):
     )
 
 
+@register_model_view(Device, 'configcontext', path='config-context')
+class DeviceConfigContextView(ObjectConfigContextView):
+    queryset = Device.objects.annotate_config_context_data()
+    base_template = 'dcim/device/base.html'
+    tab = ViewTab(
+        label=_('Config Context'),
+        permission='extras.view_configcontext',
+        weight=2000
+    )
+
+
 @register_model_view(Device, 'render-config')
 class DeviceRenderConfigView(generic.ObjectView):
     queryset = Device.objects.all()
@@ -1994,7 +2005,7 @@ class DeviceRenderConfigView(generic.ObjectView):
     tab = ViewTab(
         label=_('Render Config'),
         permission='extras.view_configtemplate',
-        weight=2000
+        weight=2100
     )
 
     def get_extra_context(self, request, instance):
@@ -2018,17 +2029,6 @@ class DeviceRenderConfigView(generic.ObjectView):
             'context_data': context_data,
             'rendered_config': rendered_config,
         }
-
-
-@register_model_view(Device, 'configcontext', path='config-context')
-class DeviceConfigContextView(ObjectConfigContextView):
-    queryset = Device.objects.annotate_config_context_data()
-    base_template = 'dcim/device/base.html'
-    tab = ViewTab(
-        label=_('Config Context'),
-        permission='extras.view_configcontext',
-        weight=2100
-    )
 
 
 class DeviceBulkImportView(generic.BulkImportView):

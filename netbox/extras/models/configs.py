@@ -209,7 +209,12 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
     )
     environment_params = models.JSONField(
         blank=True,
-        null=True
+        null=True,
+        default=dict,
+        help_text=_(
+            'Any <a href="https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Environment">additional parameters</a>'
+            ' to pass when constructing the Jinja2 environment.'
+        )
     )
 
     class Meta:
@@ -235,11 +240,7 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
 
         # Initialize the Jinja2 environment and instantiate the Template
         environment = self._get_environment()
-        if self.data_file:
-            template = environment.get_template(self.data_file.path)
-        else:
-            template = environment.from_string(self.template_code)
-
+        template = environment.from_string(self.template_code)
         output = template.render(**context)
 
         # Replace CRLF-style line terminators
@@ -259,7 +260,8 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
             loader = BaseLoader()
 
         # Initialize the environment
-        environment = SandboxedEnvironment(loader=loader)
+        env_params = self.environment_params or {}
+        environment = SandboxedEnvironment(loader=loader, **env_params)
         environment.filters.update(get_config().JINJA2_FILTERS)
 
         return environment

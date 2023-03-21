@@ -26,6 +26,7 @@ from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.utils import copy_safe_request, count_related
 from . import serializers
+from .mixins import ConfigTemplateRenderMixin
 from .nested_serializers import NestedConfigTemplateSerializer
 
 
@@ -35,28 +36,6 @@ class ExtrasRootView(APIRootView):
     """
     def get_view_name(self):
         return 'Extras'
-
-
-class ConfigContextQuerySetMixin:
-    """
-    Used by views that work with config context models (device and virtual machine).
-    Provides a get_queryset() method which deals with adding the config context
-    data annotation or not.
-    """
-    def get_queryset(self):
-        """
-        Build the proper queryset based on the request context
-
-        If the `brief` query param equates to True or the `exclude` query param
-        includes `config_context` as a value, return the base queryset.
-
-        Else, return the queryset annotated with config context data
-        """
-        queryset = super().get_queryset()
-        request = self.get_serializer_context()['request']
-        if self.brief or 'config_context' in request.query_params.get('exclude', []):
-            return queryset
-        return queryset.annotate_config_context_data()
 
 
 #
@@ -165,7 +144,7 @@ class ConfigContextViewSet(SyncedDataMixin, NetBoxModelViewSet):
 # Config templates
 #
 
-class ConfigTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
+class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxModelViewSet):
     queryset = ConfigTemplate.objects.prefetch_related('data_source', 'data_file')
     serializer_class = serializers.ConfigTemplateSerializer
     filterset_class = filtersets.ConfigTemplateFilterSet
@@ -177,17 +156,9 @@ class ConfigTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
         return the raw rendered content, rather than serialized JSON.
         """
         configtemplate = self.get_object()
-        output = configtemplate.render(context=request.data)
+        context = request.data
 
-        # If the client has requested "text/plain", return the raw content.
-        if request.accepted_renderer.format == 'txt':
-            return Response(output)
-
-        template_serializer = NestedConfigTemplateSerializer(configtemplate, context={'request': request})
-        return Response({
-            'configtemplate': template_serializer.data,
-            'content': output
-        })
+        return self.render_configtemplate(request, configtemplate, context)
 
 
 #
