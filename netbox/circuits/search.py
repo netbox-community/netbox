@@ -39,8 +39,16 @@ class ProviderIndex(SearchIndex):
     model = models.Provider
     fields = (
         ('name', 100),
-        ('account', 200),
         ('description', 500),
+        ('comments', 5000),
+    )
+
+
+class ProviderAccountIndex(SearchIndex):
+    model = models.ProviderAccount
+    fields = (
+        ('name', 100),
+        ('account', 200),
         ('comments', 5000),
     )
 

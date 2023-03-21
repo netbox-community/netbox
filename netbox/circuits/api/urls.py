@@ -14,6 +14,7 @@ router.register('circuits', views.CircuitViewSet)
 router.register('circuit-terminations', views.CircuitTerminationViewSet)
 
 # Provider networks
+router.register('provider-accounts', views.ProviderAccountViewSet)
 router.register('provider-networks', views.ProviderNetworkViewSet)
 
 app_name = 'circuits-api'

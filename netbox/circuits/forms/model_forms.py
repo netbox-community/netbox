@@ -15,6 +15,7 @@ __all__ = (
     'CircuitTerminationForm',
     'CircuitTypeForm',
     'ProviderForm',
+    'ProviderAccountForm',
     'ProviderNetworkForm',
 )
 
@@ -30,17 +31,26 @@ class ProviderForm(NetBoxModelForm):
 
     fieldsets = (
         ('Provider', ('name', 'slug', 'asns', 'description', 'tags')),
-        ('Support Info', ('account',)),
     )
 
     class Meta:
         model = Provider
         fields = [
-            'name', 'slug', 'account', 'asns', 'description', 'comments', 'tags',
+            'name', 'slug', 'asns', 'description', 'comments', 'tags',
         ]
         help_texts = {
             'name': _("Full name of the provider"),
         }
+
+
+class ProviderAccountForm(NetBoxModelForm):
+    comments = CommentField()
+
+    class Meta:
+        model = ProviderAccount
+        fields = [
+            'name', 'account', 'provider', 'description', 'comments', 'tags',
+        ]
 
 
 class ProviderNetworkForm(NetBoxModelForm):

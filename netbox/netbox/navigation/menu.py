@@ -244,6 +244,7 @@ CIRCUITS_MENU = Menu(
             label=_('Providers'),
             items=(
                 get_model_item('circuits', 'provider', _('Providers')),
+                get_model_item('circuits', 'provideraccount', _('Provider Accounts')),
                 get_model_item('circuits', 'providernetwork', _('Provider Networks')),
             ),
         ),

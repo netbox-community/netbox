@@ -74,6 +74,52 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# ProviderAccounts
+#
+
+class ProviderAccountListView(generic.ObjectListView):
+    queryset = ProviderAccount.objects.all()
+    filterset = filtersets.ProviderAccountFilterSet
+    filterset_form = forms.ProviderAccountFilterForm
+    table = tables.ProviderAccountTable
+
+
+@register_model_view(ProviderAccount)
+class ProviderAccountView(generic.ObjectView):
+    queryset = ProviderAccount.objects.all()
+
+
+@register_model_view(ProviderAccount, 'edit')
+class ProviderAccountEditView(generic.ObjectEditView):
+    queryset = ProviderAccount.objects.all()
+    form = forms.ProviderAccountForm
+
+
+@register_model_view(ProviderAccount, 'delete')
+class ProviderAccountDeleteView(generic.ObjectDeleteView):
+    queryset = ProviderAccount.objects.all()
+
+
+class ProviderAccountBulkImportView(generic.BulkImportView):
+    queryset = ProviderAccount.objects.all()
+    model_form = forms.ProviderAccountImportForm
+    table = tables.ProviderAccountTable
+
+
+class ProviderAccountBulkEditView(generic.BulkEditView):
+    queryset = ProviderAccount.objects.all()
+    filterset = filtersets.ProviderAccountFilterSet
+    table = tables.ProviderAccountTable
+    form = forms.ProviderAccountBulkEditForm
+
+
+class ProviderAccountBulkDeleteView(generic.BulkDeleteView):
+    queryset = ProviderAccount.objects.all()
+    filterset = filtersets.ProviderAccountFilterSet
+    table = tables.ProviderAccountTable
+
+
+#
 # Provider networks
 #
 

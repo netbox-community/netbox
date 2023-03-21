@@ -15,6 +15,7 @@ __all__ = (
     'CircuitBulkEditForm',
     'CircuitTypeBulkEditForm',
     'ProviderBulkEditForm',
+    'ProviderAccountBulkEditForm',
     'ProviderNetworkBulkEditForm',
 )
 
@@ -24,11 +25,6 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
         queryset=ASN.objects.all(),
         label=_('ASNs'),
         required=False
-    )
-    account = forms.CharField(
-        max_length=30,
-        required=False,
-        label=_('Account number')
     )
     description = forms.CharField(
         max_length=200,
@@ -41,10 +37,23 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Provider
     fieldsets = (
-        (None, ('asns', 'account', )),
+        (None, ('asns', )),
     )
     nullable_fields = (
-        'asns', 'account', 'description', 'comments',
+        'asns', 'description', 'comments',
+    )
+
+
+class ProviderAccountBulkEditForm(NetBoxModelBulkEditForm):
+    comments = CommentField(
+        widget=SmallTextarea,
+        label=_('Comments')
+    )
+
+    model = ProviderAccount
+    fieldsets = ()
+    nullable_fields = (
+        'comments',
     )
 
 

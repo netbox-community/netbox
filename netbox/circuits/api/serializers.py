@@ -18,6 +18,12 @@ from .nested_serializers import *
 
 class ProviderSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
+    accounts = SerializedPKRelatedField(
+        queryset=ProviderAccount.objects.all(),
+        serializer=NestedProviderAccountSerializer,
+        required=False,
+        many=True
+    )
     asns = SerializedPKRelatedField(
         queryset=ASN.objects.all(),
         serializer=NestedASNSerializer,
@@ -31,8 +37,23 @@ class ProviderSerializer(NetBoxModelSerializer):
     class Meta:
         model = Provider
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'account', 'description', 'comments', 'asns', 'tags',
+            'id', 'url', 'display', 'name', 'slug', 'accounts', 'description', 'comments', 'asns', 'tags',
             'custom_fields', 'created', 'last_updated', 'circuit_count',
+        ]
+
+
+#
+# Provider Accounts
+#
+
+class ProviderAccountSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provideraccount-detail')
+
+    class Meta:
+        model = ProviderAccount
+        fields = [
+            'id', 'url', 'display', 'name', 'account', 'description', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
 
 

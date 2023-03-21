@@ -7,6 +7,7 @@ from netbox.models import PrimaryModel
 __all__ = (
     'ProviderNetwork',
     'Provider',
+    'ProviderAccount',
 )
 
 
@@ -28,6 +29,36 @@ class Provider(PrimaryModel):
         related_name='providers',
         blank=True
     )
+
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
+
+    clone_fields = ()
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('circuits:provider', args=[self.pk])
+
+
+class ProviderAccount(PrimaryModel):
+    """
+    This represents a provider account
+    """
+    name = models.CharField(
+        max_length=100
+    )
+    provider = models.ForeignKey(
+        to='circuits.Provider',
+        on_delete=models.PROTECT,
+        related_name='accounts'
+    )
     account = models.CharField(
         max_length=30,
         blank=True,
@@ -39,18 +70,26 @@ class Provider(PrimaryModel):
         to='tenancy.ContactAssignment'
     )
 
-    clone_fields = (
-        'account',
-    )
+    clone_fields = ('provider', )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('provider', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('provider', 'name'),
+                name='%(app_label)s_%(class)s_unique_provider_name'
+            ),
+            models.UniqueConstraint(
+                fields=('provider', 'account'),
+                name='%(app_label)s_%(class)s_unique_provider_account'
+            ),
+        )
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('circuits:provider', args=[self.pk])
+        return reverse('circuits:provideraccount', args=[self.pk])
 
 
 class ProviderNetwork(PrimaryModel):

@@ -69,6 +69,16 @@ class CircuitTerminationViewSet(PassThroughPortMixin, NetBoxModelViewSet):
 # Provider networks
 #
 
+class ProviderAccountViewSet(NetBoxModelViewSet):
+    queryset = ProviderAccount.objects.prefetch_related('tags')
+    serializer_class = serializers.ProviderAccountSerializer
+    filterset_class = filtersets.ProviderAccountFilterSet
+
+
+#
+# Provider networks
+#
+
 class ProviderNetworkViewSet(NetBoxModelViewSet):
     queryset = ProviderNetwork.objects.prefetch_related('tags')
     serializer_class = serializers.ProviderNetworkSerializer
