@@ -210,11 +210,11 @@ class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
         Provider.objects.bulk_create(providers)
 
         provider_accounts = (
-            ProviderNetwork(name='Provider Account 1', provider=providers[0]),
-            ProviderNetwork(name='Provider Account 2', provider=providers[0]),
-            ProviderNetwork(name='Provider Account 3', provider=providers[0]),
+            ProviderAccount(name='Provider Account 1', provider=providers[0]),
+            ProviderAccount(name='Provider Account 2', provider=providers[0]),
+            ProviderAccount(name='Provider Account 3', provider=providers[0]),
         )
-        ProviderNetwork.objects.bulk_create(provider_accounts)
+        ProviderAccount.objects.bulk_create(provider_accounts)
 
         cls.create_data = [
             {

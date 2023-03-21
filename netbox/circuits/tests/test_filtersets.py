@@ -462,11 +462,11 @@ class ProviderAccountTestCase(TestCase, ChangeLoggedFilterSetTests):
         Provider.objects.bulk_create(providers)
 
         provider_accounts = (
-            ProviderNetwork(name='Provider Account 1', provider=providers[0], description='foobar1'),
-            ProviderNetwork(name='Provider Account 2', provider=providers[1], description='foobar2'),
-            ProviderNetwork(name='Provider Account 3', provider=providers[2]),
+            ProviderAccount(name='Provider Account 1', provider=providers[0], description='foobar1'),
+            ProviderAccount(name='Provider Account 2', provider=providers[1], description='foobar2'),
+            ProviderAccount(name='Provider Account 3', provider=providers[2]),
         )
-        ProviderNetwork.objects.bulk_create(provider_accounts)
+        ProviderAccount.objects.bulk_create(provider_accounts)
 
     def test_name(self):
         params = {'name': ['Provider Account 1', 'Provider Account 2']}
