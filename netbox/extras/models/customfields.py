@@ -313,9 +313,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         """
         if value is None:
             return value
-        if self.type in (CustomFieldTypeChoices.TYPE_DATE, CustomFieldTypeChoices.TYPE_DATETIME):
-            if type(value) in (date, datetime):
-                return value.isoformat()
+        if self.type == CustomFieldTypeChoices.TYPE_DATE and type(value) is date:
+            return value.isoformat()
+        if self.type == CustomFieldTypeChoices.TYPE_DATETIME and type(value) is datetime:
+            return value.isoformat()
         if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             return value.pk
         if self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
