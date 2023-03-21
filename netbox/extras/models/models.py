@@ -280,7 +280,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
         }
 
 
-class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class ExportTemplate(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='export_templates',
@@ -311,6 +311,10 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     as_attachment = models.BooleanField(
         default=True,
         help_text=_("Download file as attachment")
+    )
+
+    clone_fields = (
+        'content_types', 'template_code', 'mime_type', 'file_extension', 'as_attachment',
     )
 
     class Meta:
