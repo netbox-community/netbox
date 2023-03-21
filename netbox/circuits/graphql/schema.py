@@ -17,5 +17,8 @@ class CircuitsQuery(graphene.ObjectType):
     provider = ObjectField(ProviderType)
     provider_list = ObjectListField(ProviderType)
 
+    provider_account = ObjectField(ProviderAccountType)
+    provider_account_list = ObjectListField(ProviderAccountType)
+
     provider_network = ObjectField(ProviderNetworkType)
     provider_network_list = ObjectListField(ProviderNetworkType)

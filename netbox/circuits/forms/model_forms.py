@@ -49,7 +49,7 @@ class ProviderAccountForm(NetBoxModelForm):
     class Meta:
         model = ProviderAccount
         fields = [
-            'name', 'account', 'provider', 'description', 'comments', 'tags',
+            'provider', 'name', 'account', 'description', 'comments', 'tags',
         ]
 
 

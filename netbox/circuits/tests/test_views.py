@@ -179,6 +179,57 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class ProviderAccountTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ProviderAccount
+
+    @classmethod
+    def setUpTestData(cls):
+
+        providers = (
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+        )
+        Provider.objects.bulk_create(providers)
+
+        provider_accounts = (
+            ProviderNetwork(name='Provider Account 1', provider=providers[0]),
+            ProviderNetwork(name='Provider Account 2', provider=providers[0]),
+            ProviderNetwork(name='Provider Account 3', provider=providers[0]),
+        )
+
+        ProviderNetwork.objects.bulk_create(provider_accounts)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Provider Account X',
+            'provider': providers[1].pk,
+            'description': 'A new provider network',
+            'comments': 'Longer description goes here',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,provider,description",
+            "Provider Account 4,Provider 1,Foo",
+            "Provider Account 5,Provider 1,Bar",
+            "Provider Account 6,Provider 1,Baz",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{provider_accounts[0].pk},Provider Network 7,New description7",
+            f"{provider_accounts[1].pk},Provider Network 8,New description8",
+            f"{provider_accounts[2].pk},Provider Network 9,New description9",
+        )
+
+        cls.bulk_edit_data = {
+            'provider': providers[1].pk,
+            'description': 'New description',
+            'comments': 'New comments',
+        }
+
+
 class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ProviderNetwork
 

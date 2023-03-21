@@ -48,11 +48,12 @@ class ProviderSerializer(NetBoxModelSerializer):
 
 class ProviderAccountSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provideraccount-detail')
+    provider = NestedProviderSerializer()
 
     class Meta:
         model = ProviderAccount
         fields = [
-            'id', 'url', 'display', 'name', 'account', 'description', 'comments', 'tags', 'custom_fields',
+            'id', 'url', 'display', 'provider', 'name', 'account', 'description', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
 
