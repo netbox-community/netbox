@@ -1,4 +1,6 @@
 import django_tables2 as tables
+from django_tables2.utils import Accessor
+
 from circuits.models import *
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
@@ -48,6 +50,10 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         verbose_name='Circuit ID'
     )
     provider = tables.Column(
+        accessor=Accessor('provider_account__provider'),
+        linkify=True
+    )
+    provider_account = tables.Column(
         linkify=True
     )
     status = columns.ChoiceFieldColumn()
@@ -68,7 +74,7 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Circuit
         fields = (
-            'pk', 'id', 'cid', 'provider', 'type', 'status', 'tenant', 'tenant_group', 'termination_a', 'termination_z',
+            'pk', 'id', 'cid', 'provider', 'provider_account', 'type', 'status', 'tenant', 'tenant_group', 'termination_a', 'termination_z',
             'install_date', 'termination_date', 'commit_rate', 'description', 'comments', 'contacts', 'tags', 'created',
             'last_updated',
         )

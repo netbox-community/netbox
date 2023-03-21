@@ -504,10 +504,11 @@ class CableTestCase(TestCase):
             device=patch_pannel, name='FP4', type='8p8c', rear_port=rear_port4, rear_port_position=1
         )
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        provider_account = ProviderAccount.objects.create(name='Provider Account 1', account='A1', provider=provider)
         provider_network = ProviderNetwork.objects.create(name='Provider Network 1', provider=provider)
         circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
-        circuit1 = Circuit.objects.create(provider=provider, type=circuittype, cid='1')
-        circuit2 = Circuit.objects.create(provider=provider, type=circuittype, cid='2')
+        circuit1 = Circuit.objects.create(provider_account=provider_account, type=circuittype, cid='1')
+        circuit2 = Circuit.objects.create(provider_account=provider_account, type=circuittype, cid='2')
         circuittermination1 = CircuitTermination.objects.create(circuit=circuit1, site=site, term_side='A')
         circuittermination2 = CircuitTermination.objects.create(circuit=circuit1, site=site, term_side='Z')
         circuittermination3 = CircuitTermination.objects.create(circuit=circuit2, provider_network=provider_network, term_side='A')

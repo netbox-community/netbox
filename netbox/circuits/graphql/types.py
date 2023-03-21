@@ -10,6 +10,7 @@ __all__ = (
     'CircuitType',
     'CircuitTypeType',
     'ProviderType',
+    'ProviderAccountType',
     'ProviderNetworkType',
 )
 
@@ -43,6 +44,14 @@ class ProviderType(NetBoxObjectType, ContactsMixin):
         model = models.Provider
         fields = '__all__'
         filterset_class = filtersets.ProviderFilterSet
+
+
+class ProviderAccountType(NetBoxObjectType):
+
+    class Meta:
+        model = models.ProviderAccount
+        fields = '__all__'
+        filterset_class = filtersets.ProviderAccountFilterSet
 
 
 class ProviderNetworkType(NetBoxObjectType):

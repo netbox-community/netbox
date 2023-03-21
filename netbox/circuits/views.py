@@ -18,7 +18,7 @@ from .models import *
 
 class ProviderListView(generic.ObjectListView):
     queryset = Provider.objects.annotate(
-        count_circuits=count_related(Circuit, 'provider')
+        count_circuits=count_related(Circuit, 'provider_account__provider')
     )
     filterset = filtersets.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm
@@ -31,7 +31,8 @@ class ProviderView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         related_models = (
-            (Circuit.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
+            (ProviderAccount.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
+            (Circuit.objects.restrict(request.user, 'view').filter(provider_account__provider=instance), 'provider_id'),
         )
 
         return {
@@ -57,7 +58,7 @@ class ProviderBulkImportView(generic.BulkImportView):
 
 class ProviderBulkEditView(generic.BulkEditView):
     queryset = Provider.objects.annotate(
-        count_circuits=count_related(Circuit, 'provider')
+        count_circuits=count_related(Circuit, 'provider_account__provider')
     )
     filterset = filtersets.ProviderFilterSet
     table = tables.ProviderTable
@@ -66,10 +67,71 @@ class ProviderBulkEditView(generic.BulkEditView):
 
 class ProviderBulkDeleteView(generic.BulkDeleteView):
     queryset = Provider.objects.annotate(
-        count_circuits=count_related(Circuit, 'provider')
+        count_circuits=count_related(Circuit, 'provider_account__provider')
     )
     filterset = filtersets.ProviderFilterSet
     table = tables.ProviderTable
+
+
+#
+# ProviderAccounts
+#
+
+class ProviderAccountListView(generic.ObjectListView):
+    queryset = ProviderAccount.objects.annotate(
+        count_circuits=count_related(Circuit, 'provider_account')
+    )
+    filterset = filtersets.ProviderAccountFilterSet
+    filterset_form = forms.ProviderAccountFilterForm
+    table = tables.ProviderAccountTable
+
+
+@register_model_view(ProviderAccount)
+class ProviderAccountView(generic.ObjectView):
+    queryset = ProviderAccount.objects.all()
+
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (Circuit.objects.restrict(request.user, 'view').filter(provider_account=instance), 'provider_account_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
+
+
+@register_model_view(ProviderAccount, 'edit')
+class ProviderAccountEditView(generic.ObjectEditView):
+    queryset = ProviderAccount.objects.all()
+    form = forms.ProviderAccountForm
+
+
+@register_model_view(ProviderAccount, 'delete')
+class ProviderAccountDeleteView(generic.ObjectDeleteView):
+    queryset = ProviderAccount.objects.all()
+
+
+class ProviderAccountBulkImportView(generic.BulkImportView):
+    queryset = ProviderAccount.objects.all()
+    model_form = forms.ProviderAccountImportForm
+    table = tables.ProviderAccountTable
+
+
+class ProviderAccountBulkEditView(generic.BulkEditView):
+    queryset = ProviderAccount.objects.annotate(
+        count_circuits=count_related(Circuit, 'provider_account')
+    )
+    filterset = filtersets.ProviderAccountFilterSet
+    table = tables.ProviderAccountTable
+    form = forms.ProviderAccountBulkEditForm
+
+
+class ProviderAccountBulkDeleteView(generic.BulkDeleteView):
+    queryset = ProviderAccount.objects.annotate(
+        count_circuits=count_related(Circuit, 'provider_account')
+    )
+    filterset = filtersets.ProviderAccountFilterSet
+    table = tables.ProviderAccountTable
 
 
 #

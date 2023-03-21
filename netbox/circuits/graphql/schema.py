@@ -31,6 +31,9 @@ class CircuitsQuery(graphene.ObjectType):
     def resolve_provider_list(root, info, **kwargs):
         return gql_query_optimizer(models.Provider.objects.all(), info)
 
+    provider_account = ObjectField(ProviderAccountType)
+    provider_account_list = ObjectListField(ProviderAccountType)
+
     provider_network = ObjectField(ProviderNetworkType)
     provider_network_list = ObjectListField(ProviderNetworkType)
 

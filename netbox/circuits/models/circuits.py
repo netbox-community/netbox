@@ -28,17 +28,17 @@ class CircuitType(OrganizationalModel):
 
 class Circuit(PrimaryModel):
     """
-    A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
-    circuits. Each circuit is also assigned a CircuitType and a Site.  Circuit port speed and commit rate are measured
-    in Kbps.
+    A communications circuit connects two points. Each Circuit belongs to a Provider Account; ProviderAccounts may have
+    multiple circuits. Each circuit is also assigned a CircuitType and a Site.  Circuit port speed and commit rate are
+    measured in Kbps.
     """
     cid = models.CharField(
         max_length=100,
         verbose_name='Circuit ID',
         help_text=_("Unique circuit ID")
     )
-    provider = models.ForeignKey(
-        to='circuits.Provider',
+    provider_account = models.ForeignKey(
+        to='circuits.ProviderAccount',
         on_delete=models.PROTECT,
         related_name='circuits'
     )
@@ -103,18 +103,18 @@ class Circuit(PrimaryModel):
     )
 
     clone_fields = (
-        'provider', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate', 'description',
+        'provider_account', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate', 'description',
     )
     prerequisite_models = (
         'circuits.CircuitType',
-        'circuits.Provider',
+        'circuits.ProviderAccount',
     )
 
     class Meta:
-        ordering = ['provider', 'cid']
+        ordering = ['provider_account', 'cid']
         constraints = (
             models.UniqueConstraint(
-                fields=('provider', 'cid'),
+                fields=('provider_account', 'cid'),
                 name='%(app_label)s_%(class)s_unique_provider_cid'
             ),
         )

@@ -13,6 +13,7 @@ __all__ = (
     'CircuitTerminationImportForm',
     'CircuitTypeImportForm',
     'ProviderImportForm',
+    'ProviderAccountImportForm',
     'ProviderNetworkImportForm',
 )
 
@@ -23,7 +24,21 @@ class ProviderImportForm(NetBoxModelImportForm):
     class Meta:
         model = Provider
         fields = (
-            'name', 'slug', 'account', 'description', 'comments', 'tags',
+            'name', 'slug', 'description', 'comments', 'tags',
+        )
+
+
+class ProviderAccountImportForm(NetBoxModelImportForm):
+    provider = CSVModelChoiceField(
+        queryset=Provider.objects.all(),
+        to_field_name='name',
+        help_text=_('Assigned provider')
+    )
+
+    class Meta:
+        model = ProviderAccount
+        fields = (
+            'provider', 'name', 'account', 'comments', 'tags',
         )
 
 
@@ -50,10 +65,10 @@ class CircuitTypeImportForm(NetBoxModelImportForm):
 
 
 class CircuitImportForm(NetBoxModelImportForm):
-    provider = CSVModelChoiceField(
-        queryset=Provider.objects.all(),
+    provider_account = CSVModelChoiceField(
+        queryset=ProviderAccount.objects.all(),
         to_field_name='name',
-        help_text=_('Assigned provider')
+        help_text=_('Assigned provider account')
     )
     type = CSVModelChoiceField(
         queryset=CircuitType.objects.all(),
@@ -74,7 +89,7 @@ class CircuitImportForm(NetBoxModelImportForm):
     class Meta:
         model = Circuit
         fields = [
-            'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate',
+            'cid', 'provider_account', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate',
             'description', 'comments', 'tags'
         ]
 
