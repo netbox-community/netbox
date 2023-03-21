@@ -90,7 +90,7 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
+class ExportTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('export_templates')
@@ -101,14 +101,24 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        ('Export Template', ('name', 'content_types', 'description')),
-        ('Content', ('data_source', 'data_file', 'template_code',)),
+        ('Export Template', ('name', 'content_types', 'description', 'template_code')),
+        ('Data Source', ('data_source', 'data_file')),
         ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
     )
 
     class Meta:
         model = ExportTemplate
         fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Disable data field when a DataFile has been set
+        if self.instance.data_file:
+            self.fields['template_code'].widget.attrs['readonly'] = True
+            self.fields['template_code'].help_text = _(
+                'Template content is populated from the remote source selected below.'
+            )
 
     def clean(self):
         super().clean()
