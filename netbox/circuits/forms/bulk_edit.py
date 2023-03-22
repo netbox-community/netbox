@@ -45,14 +45,25 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ProviderAccountBulkEditForm(NetBoxModelBulkEditForm):
+    provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
     comments = CommentField(
         widget=SmallTextarea,
         label=_('Comments')
     )
 
     model = ProviderAccount
-    fieldsets = ()
+    fieldsets = (
+        (None, ('provider', 'description')),
+    )
     nullable_fields = (
+        'description',
         'comments',
     )
 

@@ -38,7 +38,6 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'name': 'Provider X',
             'slug': 'provider-x',
             'asns': [asns[6].pk, asns[7].pk],
-            'account': '1234',
             'comments': 'Another provider',
             'tags': [t.pk for t in tags],
         }
@@ -58,7 +57,6 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'account': '5678',
             'comments': 'New comments',
         }
 

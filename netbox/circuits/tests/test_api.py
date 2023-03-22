@@ -20,7 +20,7 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
     model = Provider
     brief_fields = ['circuit_count', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
-        'account': '1234',
+        'comments': 'New comments',
     }
 
     @classmethod
@@ -199,7 +199,7 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
 
 class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
     model = ProviderAccount
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['account', 'display', 'id', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):

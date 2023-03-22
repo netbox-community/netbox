@@ -25,11 +25,11 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         ASN.objects.bulk_create(asns)
 
         providers = (
-            Provider(name='Provider 1', slug='provider-1', account='1234'),
-            Provider(name='Provider 2', slug='provider-2', account='2345'),
-            Provider(name='Provider 3', slug='provider-3', account='3456'),
-            Provider(name='Provider 4', slug='provider-4', account='4567'),
-            Provider(name='Provider 5', slug='provider-5', account='5678'),
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
+            Provider(name='Provider 4', slug='provider-4'),
+            Provider(name='Provider 5', slug='provider-5'),
         )
         Provider.objects.bulk_create(providers)
         providers[0].asns.set([asns[0]])
@@ -85,10 +85,6 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_asn_id(self):  # ASN object assignment
         asns = ASN.objects.all()[:2]
         params = {'asn_id': [asns[0].pk, asns[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_account(self):
-        params = {'account': ['1234', '2345']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
