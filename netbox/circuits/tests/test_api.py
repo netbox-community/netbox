@@ -210,9 +210,9 @@ class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
         Provider.objects.bulk_create(providers)
 
         provider_accounts = (
-            ProviderAccount(name='Provider Account 1', provider=providers[0]),
-            ProviderAccount(name='Provider Account 2', provider=providers[0]),
-            ProviderAccount(name='Provider Account 3', provider=providers[0]),
+            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
+            ProviderAccount(name='Provider Account 2', provider=providers[0], account='2345'),
+            ProviderAccount(name='Provider Account 3', provider=providers[0], account='3456'),
         )
         ProviderAccount.objects.bulk_create(provider_accounts)
 
@@ -220,14 +220,17 @@ class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'Provider Account 4',
                 'provider': providers[0].pk,
+                'account': '4567',
             },
             {
                 'name': 'Provider Account 5',
                 'provider': providers[0].pk,
+                'account': '5678',
             },
             {
                 'name': 'Provider Account 6',
                 'provider': providers[0].pk,
+                'account': '6789',
             },
         ]
 

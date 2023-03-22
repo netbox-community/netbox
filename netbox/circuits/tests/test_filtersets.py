@@ -458,14 +458,18 @@ class ProviderAccountTestCase(TestCase, ChangeLoggedFilterSetTests):
         Provider.objects.bulk_create(providers)
 
         provider_accounts = (
-            ProviderAccount(name='Provider Account 1', provider=providers[0], description='foobar1'),
-            ProviderAccount(name='Provider Account 2', provider=providers[1], description='foobar2'),
-            ProviderAccount(name='Provider Account 3', provider=providers[2]),
+            ProviderAccount(name='Provider Account 1', provider=providers[0], description='foobar1', account='1234'),
+            ProviderAccount(name='Provider Account 2', provider=providers[1], description='foobar2', account='2345'),
+            ProviderAccount(name='Provider Account 3', provider=providers[2], account='3456'),
         )
         ProviderAccount.objects.bulk_create(provider_accounts)
 
     def test_name(self):
         params = {'name': ['Provider Account 1', 'Provider Account 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_account(self):
+        params = {'account': ['1234', '3456']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):

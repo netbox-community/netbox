@@ -190,9 +190,9 @@ class ProviderAccountTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Provider.objects.bulk_create(providers)
 
         provider_accounts = (
-            ProviderAccount(name='Provider Account 1', provider=providers[0]),
-            ProviderAccount(name='Provider Account 2', provider=providers[0]),
-            ProviderAccount(name='Provider Account 3', provider=providers[0]),
+            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
+            ProviderAccount(name='Provider Account 2', provider=providers[0], account='2345'),
+            ProviderAccount(name='Provider Account 3', provider=providers[0], account='3456'),
         )
 
         ProviderAccount.objects.bulk_create(provider_accounts)
@@ -202,23 +202,24 @@ class ProviderAccountTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'name': 'Provider Account X',
             'provider': providers[1].pk,
+            'account': 'XXXX',
             'description': 'A new provider network',
             'comments': 'Longer description goes here',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "name,provider,description",
-            "Provider Account 4,Provider 1,Foo",
-            "Provider Account 5,Provider 1,Bar",
-            "Provider Account 6,Provider 1,Baz",
+            "name,provider,account,description",
+            "Provider Account 4,Provider 1,4567,Foo",
+            "Provider Account 5,Provider 1,5678,Bar",
+            "Provider Account 6,Provider 1,6789,Baz",
         )
 
         cls.csv_update_data = (
-            "id,name,description",
-            f"{provider_accounts[0].pk},Provider Network 7,New description7",
-            f"{provider_accounts[1].pk},Provider Network 8,New description8",
-            f"{provider_accounts[2].pk},Provider Network 9,New description9",
+            "id,name,account,description",
+            f"{provider_accounts[0].pk},Provider Network 7,7890,New description7",
+            f"{provider_accounts[1].pk},Provider Network 8,8901,New description8",
+            f"{provider_accounts[2].pk},Provider Network 9,9012,New description9",
         )
 
         cls.bulk_edit_data = {

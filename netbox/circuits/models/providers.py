@@ -52,18 +52,18 @@ class ProviderAccount(PrimaryModel):
     """
     This represents a provider account
     """
+    account = models.CharField(
+        max_length=30,
+        verbose_name='Account number'
+    )
     name = models.CharField(
-        max_length=100
+        max_length=100,
+        blank=True
     )
     provider = models.ForeignKey(
         to='circuits.Provider',
         on_delete=models.PROTECT,
         related_name='accounts'
-    )
-    account = models.CharField(
-        max_length=30,
-        blank=True,
-        verbose_name='Account number'
     )
 
     # Generic relations
@@ -74,21 +74,22 @@ class ProviderAccount(PrimaryModel):
     clone_fields = ('provider', )
 
     class Meta:
-        ordering = ('provider', 'name')
+        ordering = ('provider', 'account')
         constraints = (
             models.UniqueConstraint(
-                fields=('provider', 'name'),
-                name='%(app_label)s_%(class)s_unique_provider_name'
+                fields=('provider', 'account'),
+                name='%(app_label)s_%(class)s_unique_provider_account'
             ),
             models.UniqueConstraint(
-                fields=('provider', 'account'),
-                name='%(app_label)s_%(class)s_unique_provider_account',
+                fields=('provider', 'name'),
+                name='%(app_label)s_%(class)s_unique_provider_name',
                 condition=~Q(account="")
             ),
         )
 
     def __str__(self):
-        return self.name
+        if self.name:
+            return f'{self.account} ({self.name})'
 
     def get_absolute_url(self):
         return reverse('circuits:provideraccount', args=[self.pk])

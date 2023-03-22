@@ -31,6 +31,7 @@ class ProviderView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         related_models = (
+            (ProviderAccount.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
             (Circuit.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
         )
 

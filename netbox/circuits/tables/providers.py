@@ -72,9 +72,9 @@ class ProviderAccountTable(ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ProviderAccount
         fields = (
-            'pk', 'id', 'name', 'account', 'provider', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'account', 'name', 'provider', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'account', 'provider')
+        default_columns = ('pk', 'account', 'name', 'provider')
 
 
 class ProviderNetworkTable(NetBoxTable):

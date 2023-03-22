@@ -51,22 +51,22 @@ class Migration(migrations.Migration):
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
-                ('name', models.CharField(max_length=100)),
-                ('account', models.CharField(blank=True, max_length=30)),
+                ('account', models.CharField(max_length=30)),
+                ('name', models.CharField(blank=True, max_length=100)),
                 ('provider', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='accounts', to='circuits.provider')),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={
-                'ordering': ('provider', 'name'),
+                'ordering': ('provider', 'account'),
             },
         ),
         migrations.AddConstraint(
             model_name='provideraccount',
-            constraint=models.UniqueConstraint(fields=('provider', 'name'), name='circuits_provideraccount_unique_provider_name'),
+            constraint=models.UniqueConstraint(condition=models.Q(('account', ''), _negated=True), fields=('provider', 'name'), name='circuits_provideraccount_unique_provider_name'),
         ),
         migrations.AddConstraint(
             model_name='provideraccount',
-            constraint=models.UniqueConstraint(condition=models.Q(('account', ''), _negated=True), fields=('provider', 'account'), name='circuits_provideraccount_unique_provider_account'),
+            constraint=models.UniqueConstraint(fields=('provider', 'account'), name='circuits_provideraccount_unique_provider_account'),
         ),
         migrations.RunPython(
             create_provideraccounts_from_providers, revert_provideraccounts_from_providers
