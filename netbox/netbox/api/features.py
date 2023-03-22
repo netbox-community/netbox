@@ -23,7 +23,7 @@ class SyncedDataMixin:
 
         obj = get_object_or_404(self.queryset, pk=pk)
         if obj.data_file:
-            obj.sync_data()
+            obj.sync()
             obj.save()
         serializer = self.serializer_class(obj, context={'request': request})
 

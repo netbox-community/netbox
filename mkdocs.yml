@@ -75,6 +75,7 @@ nav:
         - Search: 'features/search.md'
         - Context Data: 'features/context-data.md'
         - Configuration Rendering: 'features/configuration-rendering.md'
+        - Synchronized Data: 'features/synchronized-data.md'
         - Change Logging: 'features/change-logging.md'
         - Journaling: 'features/journaling.md'
         - Background Jobs: 'features/background-jobs.md'

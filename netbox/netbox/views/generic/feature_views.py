@@ -149,7 +149,7 @@ class ObjectSyncDataView(View):
             messages.error(request, f"Unable to synchronize data: No data file set.")
             return redirect(obj.get_absolute_url())
 
-        obj.sync_data()
+        obj.sync()
         obj.save()
         messages.success(request, f"Synchronized data for {model._meta.verbose_name} {obj}.")
 
@@ -171,7 +171,7 @@ class BulkSyncDataView(GetReturnURLMixin, BaseMultiObjectView):
 
         with transaction.atomic():
             for obj in selected_objects:
-                obj.sync_data()
+                obj.sync()
                 obj.save()
 
             model_name = self.queryset.model._meta.verbose_name_plural

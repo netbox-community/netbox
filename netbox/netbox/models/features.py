@@ -336,7 +336,7 @@ class WebhooksMixin(models.Model):
 
 class SyncedDataMixin(models.Model):
     """
-    Enables population of local data from a DataFile object, synchronized from a remote DatSource.
+    Enables population of local data from a DataFile object, synchronized from a remote DataSource.
     """
     data_source = models.ForeignKey(
         to='core.DataSource',
@@ -377,8 +377,7 @@ class SyncedDataMixin(models.Model):
         if self.data_file:
             self.data_source = self.data_file.source
             self.data_path = self.data_file.path
-            self.sync_data()
-            self.data_synced = timezone.now()
+            self.sync()
         else:
             self.data_source = None
             self.data_path = ''
@@ -399,7 +398,19 @@ class SyncedDataMixin(models.Model):
             except DataFile.DoesNotExist:
                 pass
 
+    def sync(self):
+        """
+        Synchronize the object from it's assigned DataFile (if any). This wraps sync_data() and updates
+        the synced_data timestamp.
+        """
+        self.sync_data()
+        self.data_synced = timezone.now()
+
     def sync_data(self):
+        """
+        Inheriting models must override this method with specific logic to copy data from the assigned DataFile
+        to the local instance. This method should *NOT* call save() on the instance.
+        """
         raise NotImplementedError(f"{self.__class__} must implement a sync_data() method.")
 
 
