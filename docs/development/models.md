@@ -30,6 +30,7 @@ The Django [content types](https://docs.djangoproject.com/en/stable/ref/contrib/
 
 * [circuits.Circuit](../models/circuits/circuit.md)
 * [circuits.Provider](../models/circuits/provider.md)
+* [circuits.ProviderAccount](../models/circuits/provideracount.md)
 * [circuits.ProviderNetwork](../models/circuits/providernetwork.md)
 * [dcim.Cable](../models/dcim/cable.md)
 * [dcim.Device](../models/dcim/device.md)

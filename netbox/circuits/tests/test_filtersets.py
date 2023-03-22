@@ -36,6 +36,15 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         providers[1].asns.set([asns[1]])
         providers[2].asns.set([asns[2]])
 
+        provider_accounts = (
+            ProviderAccount(name='Account A', account='AAAA', provider=providers[0]),
+            ProviderAccount(name='Account B', account='BBBB', provider=providers[1]),
+            ProviderAccount(name='Account C', account='CCCC', provider=providers[2]),
+            ProviderAccount(name='Account D', account='DDDD', provider=providers[3]),
+            ProviderAccount(name='Account E', account='EEEE', provider=providers[4]),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
+
         regions = (
             Region(name='Test Region 1', slug='test-region-1'),
             Region(name='Test Region 2', slug='test-region-2'),
@@ -64,8 +73,8 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         CircuitType.objects.bulk_create(circuit_types)
 
         circuits = (
-            Circuit(provider=providers[0], type=circuit_types[0], cid='Test Circuit 1'),
-            Circuit(provider=providers[1], type=circuit_types[1], cid='Test Circuit 1'),
+            Circuit(provider_account=provider_accounts[0], type=circuit_types[0], cid='Test Circuit 1'),
+            Circuit(provider_account=provider_accounts[1], type=circuit_types[1], cid='Test Circuit 1'),
         )
         Circuit.objects.bulk_create(circuits)
 
@@ -249,8 +258,8 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_provider_account(self):
-        provider = ProviderAccount.objects.first()
-        params = {'provider_id': [provider.pk]}
+        provider_account = ProviderAccount.objects.first()
+        params = {'provider_account_id': [provider_account.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_provider_network(self):

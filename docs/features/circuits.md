@@ -5,13 +5,15 @@ NetBox is ideal for managing your network's transit and peering providers and ci
 ```mermaid
 flowchart TD
     ASN --> Provider
-    Provider --> ProviderNetwork & Circuit
+    Provider --> ProviderAccount --> Circuit
+    Provider --> ProviderNetwork
     CircuitType --> Circuit
 
 click ASN "../../models/circuits/asn/"
 click Circuit "../../models/circuits/circuit/"
 click CircuitType "../../models/circuits/circuittype/"
 click Provider "../../models/circuits/provider/"
+click ProviderAccount "../../models/circuits/provideraccount/"
 click ProviderNetwork "../../models/circuits/providernetwork/"
 ```
 
@@ -25,7 +27,7 @@ Sometimes you'll need to model provider networks into which you don't have full 
 
 A circuit is a physical connection between two points, which is installed and maintained by an external provider. For example, an Internet connection delivered as a fiber optic cable would be modeled as a circuit in NetBox.
 
-Each circuit is associated with a provider and assigned a circuit ID, which must be unique to that provider. A circuit is also assigned a user-defined type, operational status, and various other operating characteristics.
+Each circuit is associated with a provider account and assigned a circuit ID, which must be unique to that provider. A circuit is also assigned a user-defined type, operational status, and various other operating characteristics.
 
 Each circuit may have up to two terminations (A and Z) defined. Each termination can be associated with a particular site or provider network. In the case of the former, a cable can be connected between the circuit termination and a device component to map its physical connectivity.
 

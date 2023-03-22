@@ -23,10 +23,6 @@ The AS number assigned to this provider.
 
 The [AS numbers](../ipam/asn.md) assigned to this provider (optional).
 
-### Account Number
-
-The administrative account identifier tied to this provider for your organization.
-
 ### Portal URL
 
 The URL for the provider's customer service portal.

@@ -14,8 +14,8 @@ __all__ = (
 
 class Provider(PrimaryModel):
     """
-    Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
-    stores information pertinent to the user's relationship with the Provider.
+    This is usually a telecommunications company or similar organization. This model stores information pertinent to
+    the user's relationship with the Provider.
     """
     name = models.CharField(
         max_length=100,
@@ -50,7 +50,7 @@ class Provider(PrimaryModel):
 
 class ProviderAccount(PrimaryModel):
     """
-    This represents a provider account
+    This is a discrete account within a provider.  Each Circuit belongs to a Provider Account.
     """
     account = models.CharField(
         max_length=30,

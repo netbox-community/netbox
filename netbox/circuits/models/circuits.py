@@ -30,9 +30,9 @@ class CircuitType(OrganizationalModel):
 
 class Circuit(PrimaryModel):
     """
-    A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
-    circuits. Each circuit is also assigned a CircuitType and a Site.  Circuit port speed and commit rate are measured
-    in Kbps.
+    A communications circuit connects two points. Each Circuit belongs to a Provider Account; ProviderAccounts may have
+    multiple circuits. Each circuit is also assigned a CircuitType and a Site.  Circuit port speed and commit rate are
+    measured in Kbps.
     """
     cid = models.CharField(
         max_length=100,
