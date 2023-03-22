@@ -122,6 +122,12 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Provider.objects.bulk_create(providers)
 
+        provider_accounts = (
+            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
+            ProviderAccount(name='Provider Account 2', provider=providers[1], account='2345'),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
+
         circuittypes = (
             CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
             CircuitType(name='Circuit Type 2', slug='circuit-type-2'),
@@ -129,9 +135,9 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         CircuitType.objects.bulk_create(circuittypes)
 
         circuits = (
-            Circuit(cid='Circuit 1', provider=providers[0], type=circuittypes[0]),
-            Circuit(cid='Circuit 2', provider=providers[0], type=circuittypes[0]),
-            Circuit(cid='Circuit 3', provider=providers[0], type=circuittypes[0]),
+            Circuit(cid='Circuit 1', provider_account=provider_accounts[0], type=circuittypes[0]),
+            Circuit(cid='Circuit 2', provider_account=provider_accounts[0], type=circuittypes[0]),
+            Circuit(cid='Circuit 3', provider_account=provider_accounts[0], type=circuittypes[0]),
         )
 
         Circuit.objects.bulk_create(circuits)
@@ -140,7 +146,7 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'cid': 'Circuit X',
-            'provider': providers[1].pk,
+            'provider_account': provider_accounts[1].pk,
             'type': circuittypes[1].pk,
             'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
             'tenant': None,
@@ -153,10 +159,10 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "cid,provider,type,status",
-            "Circuit 4,Provider 1,Circuit Type 1,active",
-            "Circuit 5,Provider 1,Circuit Type 1,active",
-            "Circuit 6,Provider 1,Circuit Type 1,active",
+            "cid,provider_account,type,status",
+            "Circuit 4,Provider Account 1,Circuit Type 1,active",
+            "Circuit 5,Provider Account 1,Circuit Type 1,active",
+            "Circuit 6,Provider Account 1,Circuit Type 1,active",
         )
 
         cls.csv_update_data = (
@@ -167,7 +173,7 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'provider': providers[1].pk,
+            'provider_account': provider_accounts[1].pk,
             'type': circuittypes[1].pk,
             'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
             'tenant': None,
@@ -297,11 +303,12 @@ class CircuitTerminationTestCase(
         Site.objects.bulk_create(sites)
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        account = ProviderAccount.objects.create(name='Provider Account 1', provider=provider, account='1234')
 
         circuits = (
-            Circuit(cid='Circuit 1', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 2', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 3', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 1', provider_account=account, type=circuittype),
+            Circuit(cid='Circuit 2', provider_account=account, type=circuittype),
+            Circuit(cid='Circuit 3', provider_account=account, type=circuittype),
         )
         Circuit.objects.bulk_create(circuits)
 

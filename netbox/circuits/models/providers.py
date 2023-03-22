@@ -90,6 +90,7 @@ class ProviderAccount(PrimaryModel):
     def __str__(self):
         if self.name:
             return f'{self.account} ({self.name})'
+        return f'{self.account}'
 
     def get_absolute_url(self):
         return reverse('circuits:provideraccount', args=[self.pk])

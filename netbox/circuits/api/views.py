@@ -22,7 +22,7 @@ class CircuitsRootView(APIRootView):
 
 class ProviderViewSet(NetBoxModelViewSet):
     queryset = Provider.objects.prefetch_related('asns', 'tags').annotate(
-        circuit_count=count_related(Circuit, 'provider')
+        circuit_count=count_related(Circuit, 'provider_account__provider')
     )
     serializer_class = serializers.ProviderSerializer
     filterset_class = filtersets.ProviderFilterSet
@@ -46,7 +46,7 @@ class CircuitTypeViewSet(NetBoxModelViewSet):
 
 class CircuitViewSet(NetBoxModelViewSet):
     queryset = Circuit.objects.prefetch_related(
-        'type', 'tenant', 'provider', 'termination_a', 'termination_z'
+        'type', 'tenant', 'provider_account', 'provider_account__provider', 'termination_a', 'termination_z'
     ).prefetch_related('tags')
     serializer_class = serializers.CircuitSerializer
     filterset_class = filtersets.CircuitFilterSet

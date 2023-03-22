@@ -118,6 +118,13 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Provider.objects.all(),
         required=False
     )
+    provider_account = DynamicModelChoiceField(
+        queryset=ProviderAccount.objects.all(),
+        required=False,
+        query_params={
+            'provider': '$provider'
+        }
+    )
     status = forms.ChoiceField(
         choices=add_blank_choice(CircuitStatusChoices),
         required=False,

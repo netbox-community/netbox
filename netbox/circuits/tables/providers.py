@@ -57,10 +57,10 @@ class ProviderTable(ContactsColumnMixin, NetBoxTable):
 
 
 class ProviderAccountTable(ContactsColumnMixin, NetBoxTable):
-    name = tables.Column(
+    account = tables.Column(
         linkify=True
     )
-    account = tables.Column()
+    name = tables.Column()
     provider = tables.Column(
         linkify=True
     )
@@ -72,9 +72,9 @@ class ProviderAccountTable(ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ProviderAccount
         fields = (
-            'pk', 'id', 'account', 'name', 'provider', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'account', 'name', 'provider', 'circuit_count', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'account', 'name', 'provider')
+        default_columns = ('pk', 'account', 'name', 'provider', 'circuit_count')
 
 
 class ProviderNetworkTable(NetBoxTable):

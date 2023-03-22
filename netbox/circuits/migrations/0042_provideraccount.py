@@ -34,6 +34,22 @@ def revert_provideraccounts_from_providers(apps, schema_editor):
             provideraccount.provider.save()
 
 
+def migrate_circuits_to_provideraccount(apps, schema_editor):
+    Circuit = apps.get_model('circuits', 'Circuit')
+    circuits = Circuit.objects.all()
+    for circuit in circuits:
+        circuit.provider_account = circuit.provider.accounts.order_by('pk').first()
+        circuit.save()
+
+
+def migrate_circuits_from_provideraccount(apps, schema_editor):
+    Circuit = apps.get_model('circuits', 'Circuit')
+    circuits = Circuit.objects.all().order_by('pk')
+    for circuit in circuits:
+        circuit.provider = circuit.provider_account.provider
+        circuit.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -74,5 +90,40 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='provider',
             name='account',
+        ),
+        migrations.AddField(
+            model_name='circuit',
+            name='provider_account',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='circuits', to='circuits.provideraccount', null=True, blank=True),
+            preserve_default=False,
+        ),
+        migrations.AlterField(
+            model_name='circuit',
+            name='provider',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, related_name='circuits', to='circuits.provider', null=True, blank=True),
+        ),
+        migrations.RunPython(
+            migrate_circuits_to_provideraccount, migrate_circuits_from_provideraccount
+        ),
+        migrations.AlterField(
+            model_name='circuit',
+            name='provider_account',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='circuits', to='circuits.provideraccount'),
+        ),
+        migrations.RemoveConstraint(
+            model_name='circuit',
+            name='circuits_circuit_unique_provider_cid',
+        ),
+        migrations.AlterModelOptions(
+            name='circuit',
+            options={'ordering': ['provider_account', 'cid']},
+        ),
+        migrations.AddConstraint(
+            model_name='circuit',
+            constraint=models.UniqueConstraint(fields=('provider_account', 'cid'), name='circuits_circuit_unique_provider_cid'),
+        ),
+        migrations.RemoveField(
+            model_name='circuit',
+            name='provider',
         ),
     ]

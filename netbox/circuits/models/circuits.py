@@ -38,8 +38,8 @@ class Circuit(PrimaryModel):
         max_length=100,
         verbose_name='Circuit ID'
     )
-    provider = models.ForeignKey(
-        to='circuits.Provider',
+    provider_account = models.ForeignKey(
+        to='circuits.ProviderAccount',
         on_delete=models.PROTECT,
         related_name='circuits'
     )
@@ -102,18 +102,18 @@ class Circuit(PrimaryModel):
     )
 
     clone_fields = (
-        'provider', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate', 'description',
+        'provider_account', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate', 'description',
     )
     prerequisite_models = (
         'circuits.CircuitType',
-        'circuits.Provider',
+        'circuits.ProviderAccount',
     )
 
     class Meta:
-        ordering = ['provider', 'cid']
+        ordering = ['provider_account', 'cid']
         constraints = (
             models.UniqueConstraint(
-                fields=('provider', 'cid'),
+                fields=('provider_account', 'cid'),
                 name='%(app_label)s_%(class)s_unique_provider_cid'
             ),
         )

@@ -24,37 +24,37 @@ __all__ = (
 class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='circuits__terminations__site__region',
+        field_name='accounts__circuits__terminations__site__region',
         lookup_expr='in',
         label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='circuits__terminations__site__region',
+        field_name='accounts__circuits__terminations__site__region',
         lookup_expr='in',
         to_field_name='slug',
         label=_('Region (slug)'),
     )
     site_group_id = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='circuits__terminations__site__group',
+        field_name='accounts__circuits__terminations__site__group',
         lookup_expr='in',
         label=_('Site group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='circuits__terminations__site__group',
+        field_name='accounts__circuits__terminations__site__group',
         lookup_expr='in',
         to_field_name='slug',
         label=_('Site group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='circuits__terminations__site',
+        field_name='accounts__circuits__terminations__site',
         queryset=Site.objects.all(),
         label=_('Site'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        field_name='circuits__terminations__site__slug',
+        field_name='accounts__circuits__terminations__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label=_('Site (slug)'),
@@ -142,14 +142,20 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
 
 class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='provider_account__provider',
         queryset=Provider.objects.all(),
         label=_('Provider (ID)'),
     )
     provider = django_filters.ModelMultipleChoiceFilter(
-        field_name='provider__slug',
+        field_name='provider_account__provider__slug',
         queryset=Provider.objects.all(),
         to_field_name='slug',
         label=_('Provider (slug)'),
+    )
+    provider_account_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='provider_account',
+        queryset=ProviderAccount.objects.all(),
+        label=_('ProviderAccount (ID)'),
     )
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         field_name='terminations__provider_network',

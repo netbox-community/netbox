@@ -44,6 +44,9 @@ class ProviderForm(NetBoxModelForm):
 
 
 class ProviderAccountForm(NetBoxModelForm):
+    provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all()
+    )
     comments = CommentField()
 
     class Meta:
@@ -88,7 +91,20 @@ class CircuitTypeForm(NetBoxModelForm):
 
 class CircuitForm(TenancyForm, NetBoxModelForm):
     provider = DynamicModelChoiceField(
-        queryset=Provider.objects.all()
+        required=False,
+        queryset=Provider.objects.all(),
+        initial_params={
+            'accounts': '$provider_account'
+        },
+    )
+    provider_account = DynamicModelChoiceField(
+        queryset=ProviderAccount.objects.all(),
+        initial_params={
+            'circuits': '$circuit'
+        },
+        query_params={
+            'provider': '$provider',
+        }
     )
     type = DynamicModelChoiceField(
         queryset=CircuitType.objects.all()
@@ -96,7 +112,7 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Circuit', ('provider', 'cid', 'type', 'status', 'description', 'tags')),
+        ('Circuit', ('provider', 'provider_account', 'cid', 'type', 'status', 'description', 'tags')),
         ('Service Parameters', ('install_date', 'termination_date', 'commit_rate')),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
@@ -104,8 +120,8 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Circuit
         fields = [
-            'cid', 'type', 'provider', 'status', 'install_date', 'termination_date', 'commit_rate', 'description',
-            'tenant_group', 'tenant', 'comments', 'tags',
+            'cid', 'type', 'provider', 'provider_account', 'status', 'install_date', 'termination_date', 'commit_rate',
+            'description', 'tenant_group', 'tenant', 'comments', 'tags',
         ]
         help_texts = {
             'cid': _("Unique circuit ID"),
@@ -124,7 +140,17 @@ class CircuitTerminationForm(NetBoxModelForm):
         queryset=Provider.objects.all(),
         required=False,
         initial_params={
+            'accounts': '$provider_account'
+        }
+    )
+    provider_account = DynamicModelChoiceField(
+        queryset=ProviderAccount.objects.all(),
+        required=False,
+        initial_params={
             'circuits': '$circuit'
+        },
+        query_params={
+            'provider': '$provider',
         }
     )
     circuit = DynamicModelChoiceField(
@@ -174,9 +200,9 @@ class CircuitTerminationForm(NetBoxModelForm):
     class Meta:
         model = CircuitTermination
         fields = [
-            'provider', 'circuit', 'term_side', 'region', 'site_group', 'site', 'provider_network_provider',
-            'provider_network', 'mark_connected', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
-            'description', 'tags',
+            'provider', 'provider_account', 'circuit', 'term_side', 'region', 'site_group', 'site',
+            'provider_network_provider', 'provider_network', 'mark_connected', 'port_speed', 'upstream_speed',
+            'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         help_texts = {
             'port_speed': _("Physical circuit speed"),

@@ -106,6 +106,12 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
         )
         Provider.objects.bulk_create(providers)
 
+        provider_accounts = (
+            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
+            ProviderAccount(name='Provider Account 2', provider=providers[1], account='2345'),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
+
         circuit_types = (
             CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
             CircuitType(name='Circuit Type 2', slug='circuit-type-2'),
@@ -113,26 +119,26 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
         CircuitType.objects.bulk_create(circuit_types)
 
         circuits = (
-            Circuit(cid='Circuit 1', provider=providers[0], type=circuit_types[0]),
-            Circuit(cid='Circuit 2', provider=providers[0], type=circuit_types[0]),
-            Circuit(cid='Circuit 3', provider=providers[0], type=circuit_types[0]),
+            Circuit(cid='Circuit 1', provider_account=provider_accounts[0], type=circuit_types[0]),
+            Circuit(cid='Circuit 2', provider_account=provider_accounts[0], type=circuit_types[0]),
+            Circuit(cid='Circuit 3', provider_account=provider_accounts[0], type=circuit_types[0]),
         )
         Circuit.objects.bulk_create(circuits)
 
         cls.create_data = [
             {
                 'cid': 'Circuit 4',
-                'provider': providers[1].pk,
+                'provider_account': provider_accounts[1].pk,
                 'type': circuit_types[1].pk,
             },
             {
                 'cid': 'Circuit 5',
-                'provider': providers[1].pk,
+                'provider_account': provider_accounts[1].pk,
                 'type': circuit_types[1].pk,
             },
             {
                 'cid': 'Circuit 6',
-                'provider': providers[1].pk,
+                'provider_account': provider_accounts[1].pk,
                 'type': circuit_types[1].pk,
             },
         ]
@@ -149,6 +155,11 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
 
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        provider_account = ProviderAccount.objects.create(
+            name='Provider Account 2',
+            provider=provider,
+            account='2345'
+        )
 
         sites = (
             Site(name='Site 1', slug='site-1'),
@@ -163,9 +174,9 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         ProviderNetwork.objects.bulk_create(provider_networks)
 
         circuits = (
-            Circuit(cid='Circuit 1', provider=provider, type=circuit_type),
-            Circuit(cid='Circuit 2', provider=provider, type=circuit_type),
-            Circuit(cid='Circuit 3', provider=provider, type=circuit_type),
+            Circuit(cid='Circuit 1', provider_account=provider_account, type=circuit_type),
+            Circuit(cid='Circuit 2', provider_account=provider_account, type=circuit_type),
+            Circuit(cid='Circuit 3', provider_account=provider_account, type=circuit_type),
         )
         Circuit.objects.bulk_create(circuits)
 

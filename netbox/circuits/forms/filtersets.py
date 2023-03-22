@@ -118,6 +118,14 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         required=False,
         label=_('Provider')
     )
+    provider_account_id = DynamicModelMultipleChoiceField(
+        queryset=Provider.objects.all(),
+        required=False,
+        query_params={
+            'provider_id': '$provider_id'
+        },
+        label=_('Provider')
+    )
     provider_network_id = DynamicModelMultipleChoiceField(
         queryset=ProviderNetwork.objects.all(),
         required=False,
