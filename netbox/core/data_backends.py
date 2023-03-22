@@ -99,7 +99,7 @@ class GitBackend(DataBackend):
             url = self.url
 
         # Compile git arguments
-        args = ['git', 'clone', '--depth', '1']
+        args = [settings.GIT_PATH, 'clone', '--depth', '1']
         if branch := self.params.get('branch'):
             args.extend(['--branch', branch])
         args.extend([url, local_path.name])
@@ -112,10 +112,13 @@ class GitBackend(DataBackend):
         logger.debug(f"Cloning git repo: {' '.join(args)}")
         try:
             subprocess.run(args, check=True, capture_output=True, env=env_vars)
-        except subprocess.CalledProcessError as e:
+        except FileNotFoundError as e:
             raise SyncError(
-                f"Fetching remote data failed: {e.stderr}"
+                f"Unable to fetch: git executable not found. Check that the git executable exists at the "
+                f"configured path: {settings.GIT_PATH}"
             )
+        except subprocess.CalledProcessError as e:
+            raise SyncError(f"Fetching remote data failed: {e.stderr}")
 
         yield local_path.name
 
