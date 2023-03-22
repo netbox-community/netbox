@@ -27,7 +27,7 @@ def create_provideraccounts_from_providers(apps, schema_editor):
 #
 def revert_provideraccounts_from_providers(apps, schema_editor):
     ProviderAccount = apps.get_model('circuits', 'ProviderAccount')
-    provideraccounts = ProviderAccount.objects.all().orderby('pk')
+    provideraccounts = ProviderAccount.objects.all().order_by('pk')
     for provideraccount in provideraccounts:
         if provideraccounts.filter(provider=provideraccount.provider)[0] == provideraccount:
             provideraccount.provider.account = provideraccount.account
@@ -66,7 +66,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='provideraccount',
-            constraint=models.UniqueConstraint(fields=('provider', 'account'), name='circuits_provideraccount_unique_provider_account'),
+            constraint=models.UniqueConstraint(condition=models.Q(('account', ''), _negated=True), fields=('provider', 'account'), name='circuits_provideraccount_unique_provider_account'),
         ),
         migrations.RunPython(
             create_provideraccounts_from_providers, revert_provideraccounts_from_providers

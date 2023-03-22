@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 
 from netbox.models import PrimaryModel
@@ -81,7 +82,8 @@ class ProviderAccount(PrimaryModel):
             ),
             models.UniqueConstraint(
                 fields=('provider', 'account'),
-                name='%(app_label)s_%(class)s_unique_provider_account'
+                name='%(app_label)s_%(class)s_unique_provider_account',
+                condition=~Q(account="")
             ),
         )
 
