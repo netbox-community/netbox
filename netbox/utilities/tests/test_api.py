@@ -234,24 +234,24 @@ class APIOrderingTestCase(APITestCase):
         )
 
 
-# class APIDocsTestCase(TestCase):
-#
-#     def setUp(self):
-#         self.client = Client()
-#
-#         # Populate a CustomField to activate CustomFieldSerializer
-#         content_type = ContentType.objects.get_for_model(Site)
-#         self.cf_text = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='test')
-#         self.cf_text.save()
-#         self.cf_text.content_types.set([content_type])
-#         self.cf_text.save()
-#
-#     def test_api_docs(self):
-#
-#         url = reverse('api_docs')
-#         params = {
-#             "format": "openapi",
-#         }
-#
-#         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-#         self.assertEqual(response.status_code, 200)
+class APIDocsTestCase(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+
+        # Populate a CustomField to activate CustomFieldSerializer
+        content_type = ContentType.objects.get_for_model(Site)
+        self.cf_text = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='test')
+        self.cf_text.save()
+        self.cf_text.content_types.set([content_type])
+        self.cf_text.save()
+
+    def test_api_docs(self):
+
+        url = reverse('api_docs')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        url = reverse('schema')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
