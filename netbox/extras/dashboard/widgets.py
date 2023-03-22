@@ -7,6 +7,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.template.loader import render_to_string
+from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin
@@ -126,14 +127,26 @@ class ObjectListWidget(DashboardWidget):
         model = forms.ChoiceField(
             choices=get_content_type_labels
         )
+        page_size = forms.IntegerField(
+            required=False,
+            min_value=1,
+            max_value=100,
+            help_text=_('The default number of objects to display')
+        )
 
     def render(self, request):
         app_label, model_name = self.config['model'].split('.')
         content_type = ContentType.objects.get_by_natural_key(app_label, model_name)
         viewname = get_viewname(content_type.model_class(), action='list')
+        try:
+            htmx_url = reverse(viewname)
+        except NoReverseMatch:
+            htmx_url = None
 
         return render_to_string(self.template_name, {
             'viewname': viewname,
+            'htmx_url': htmx_url,
+            'page_size': self.config.get('page_size'),
         })
 
 

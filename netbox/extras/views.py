@@ -727,6 +727,7 @@ class DashboardWidgetConfigView(LoginRequiredMixin, View):
         config_form = widget.ConfigForm(initial=widget.form_data.get('config'), prefix='config')
 
         return render(request, self.template_name, {
+            'widget_class': widget.__class__,
             'widget_form': widget_form,
             'config_form': config_form,
             'form_url': reverse('extras:dashboardwidget_config', kwargs={'id': id})

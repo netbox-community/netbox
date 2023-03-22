@@ -1,4 +1,7 @@
-<div class="htmx-container"
-  hx-get="{% url viewname %}"
-  hx-trigger="load"
-></div>
+{% if htmx_url %}
+  <div class="htmx-container" hx-get="{{ htmx_url }}{% if page_size %}?per_page={{ page_size }}{% endif %}" hx-trigger="load"></div>
+{% else %}
+  <div class="text-danger text-center">
+    <i class="mdi mdi-alert"></i> Unable to load content. Invalid view name: <span class="font-monospace">{{ viewname }}</span>
+  </div>
+{% endif %}
