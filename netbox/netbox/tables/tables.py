@@ -201,7 +201,7 @@ class NetBoxTable(BaseTable):
 class SearchTable(tables.Table):
     object_type = columns.ContentTypeColumn(
         verbose_name=_('Type'),
-        order_by="object_type_id",
+        order_by="object___meta__verbose_name",
     )
     object = tables.Column(
         linkify=True
