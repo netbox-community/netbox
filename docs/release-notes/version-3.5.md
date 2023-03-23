@@ -40,6 +40,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#10374](https://github.com/netbox-community/netbox/issues/10374) - Require unique tenant names & slugs per group
 * [#10729](https://github.com/netbox-community/netbox/issues/10729) - Add date & time custom field type
 * [#11254](https://github.com/netbox-community/netbox/issues/11254) - Introduce the `X-Request-ID` HTTP header to annotate the unique ID of each request for change logging
+* [#11291](https://github.com/netbox-community/netbox/issues/11291) - Optimized GraphQL API request handling
 * [#11440](https://github.com/netbox-community/netbox/issues/11440) - Add an `enabled` field for device type interfaces
 * [#11494](https://github.com/netbox-community/netbox/issues/11494) - Enable filtering objects by create/update request IDs
 * [#11517](https://github.com/netbox-community/netbox/issues/11517) - Standardize the inclusion of related objects across the entire UI
@@ -61,13 +62,23 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 ### REST API Changes
 
 * All API responses now include a `X-Request-ID` HTTP header indicating the request's unique ID
-* Introduced the `/api/ipam/asn-ranges/` endpoint
-* dcim.DevcieType
+* Introduced new endpoints:
+    * `/api/core/data-files/`
+    * `/api/core/data-sources/`
+    * `/api/dcim/device/<id>/render-config/`
+    * `/api/extras/config-templates/`
+    * `/api/ipam/asn-ranges/`
+* Removed existing endpoints:
+    * `/api/dcim/device/<id>/napalm/`
+* dcim.DeviceType
     * Added `default_platform` foreign key (optional)
 * dcim.InterfaceTemplate
+    * Added `enabled` boolean field
     * Added optional `bridge` foreign key (optional)
 * extras.ConfigContext
     * Added `data_source`, `data_file`, `data_path`, and `data_synced` fields to enable syncing data from remote sources
+* extras.ExportTemplate
+    * Added `data_source`, `data_file`, `data_path`, and `data_synced` fields to enable syncing content from remote sources
 * extras.Webhook
     * Added `type_job_start` and `type_job_end` boolean fields
 * ipam.ASN
