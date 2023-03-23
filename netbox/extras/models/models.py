@@ -836,7 +836,7 @@ class Script(JobResultsMixin, WebhooksMixin, models.Model):
         managed = False
 
 
-class ScriptModuleManager(models.Manager):
+class ScriptModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
 
     def get_queryset(self):
         return super().get_queryset().filter(file_root='scripts')
@@ -851,6 +851,10 @@ class ScriptModule(JobResultsMixin, WebhooksMixin, PythonModuleMixin, ManagedFil
     class Meta:
         proxy = True
 
+    def save(self, *args, **kwargs):
+        self.file_root = SCRIPTS_ROOT_NAME
+        return super().save(*args, **kwargs)
+
 
 #
 # Reports
@@ -864,7 +868,7 @@ class Report(JobResultsMixin, WebhooksMixin, models.Model):
         managed = False
 
 
-class ReportModuleManager(models.Manager):
+class ReportModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
 
     def get_queryset(self):
         return super().get_queryset().filter(file_root='reports')
@@ -878,3 +882,7 @@ class ReportModule(JobResultsMixin, WebhooksMixin, PythonModuleMixin, ManagedFil
 
     class Meta:
         proxy = True
+
+    def save(self, *args, **kwargs):
+        self.file_root = REPORTS_ROOT_NAME
+        return super().save(*args, **kwargs)

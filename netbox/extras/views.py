@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
 
+from core.forms import ManagedFileForm
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.views import generic
@@ -18,6 +19,7 @@ from utilities.utils import copy_safe_request, count_related, get_viewname, norm
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
+from .constants import SCRIPTS_ROOT_NAME, REPORTS_ROOT_NAME
 from .forms.reports import ReportForm
 from .models import *
 from .reports import get_report, get_reports, run_report
@@ -790,6 +792,21 @@ class DashboardWidgetDeleteView(LoginRequiredMixin, View):
 # Reports
 #
 
+@register_model_view(ReportModule, 'edit')
+class ReportModuleCreateView(generic.ObjectEditView):
+    queryset = ReportModule.objects.all()
+    form = ManagedFileForm
+
+    def alter_object(self, obj, *args, **kwargs):
+        obj.file_root = REPORTS_ROOT_NAME
+        return obj
+
+
+@register_model_view(ReportModule, 'delete')
+class ReportModuleDeleteView(generic.ObjectDeleteView):
+    queryset = ReportModule.objects.all()
+
+
 class ReportListView(ContentTypePermissionRequiredMixin, View):
     """
     Retrieve all of the available reports from disk and the recorded JobResult (if any) for each.
@@ -819,6 +836,7 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
             ret.append((module, module_reports))
 
         return render(request, 'extras/report_list.html', {
+            'model': ReportModule,
             'reports': ret,
         })
 
@@ -924,6 +942,21 @@ class ReportResultView(ContentTypePermissionRequiredMixin, View):
 # Scripts
 #
 
+@register_model_view(ScriptModule, 'edit')
+class ScriptModuleCreateView(generic.ObjectEditView):
+    queryset = ScriptModule.objects.all()
+    form = ManagedFileForm
+
+    def alter_object(self, obj, *args, **kwargs):
+        obj.file_root = SCRIPTS_ROOT_NAME
+        return obj
+
+
+@register_model_view(ScriptModule, 'delete')
+class ScriptModuleDeleteView(generic.ObjectDeleteView):
+    queryset = ScriptModule.objects.all()
+
+
 class GetScriptMixin:
     def _get_script(self, name, module=None):
         if module is None:
@@ -957,6 +990,7 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
                 script.result = results.get(script.full_name)
 
         return render(request, 'extras/script_list.html', {
+            'model': ScriptModule,
             'scripts': scripts,
         })
 

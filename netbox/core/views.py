@@ -128,35 +128,9 @@ class DataFileBulkDeleteView(generic.BulkDeleteView):
 
 class ManagedFileListView(generic.ObjectListView):
     queryset = ManagedFile.objects.all()
-    # filterset = filtersets.ManagedFileFilterSet
-    # filterset_form = forms.ManagedFileFilterForm
     table = tables.ManagedFileTable
 
 
 @register_model_view(ManagedFile)
 class ManagedFileView(generic.ObjectView):
     queryset = ManagedFile.objects.all()
-
-
-# @register_model_view(ManagedFile, 'edit')
-# class ManagedFileEditView(generic.ObjectEditView):
-#     queryset = ManagedFile.objects.all()
-#     form = forms.ManagedFileForm
-
-
-@register_model_view(ManagedFile, 'delete')
-class ManagedFileDeleteView(generic.ObjectDeleteView):
-    queryset = ManagedFile.objects.all()
-
-
-# class ManagedFileBulkEditView(generic.BulkEditView):
-#     queryset = ManagedFile.objects.all()
-#     # filterset = filtersets.ManagedFileFilterSet
-#     table = tables.ManagedFileTable
-#     form = forms.ManagedFileBulkEditForm
-
-
-# class ManagedFileBulkDeleteView(generic.BulkDeleteView):
-#     queryset = ManagedFile.objects.all()
-#     # filterset = filtersets.ManagedFileFilterSet
-#     table = tables.ManagedFileTable

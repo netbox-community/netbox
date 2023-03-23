@@ -96,16 +96,20 @@ urlpatterns = [
     path('reports/', views.ReportListView.as_view(), name='report_list'),
     path('reports/results/<int:job_result_pk>/', views.ReportResultView.as_view(), name='report_result'),
     re_path(r'^reports/(?P<module>.([^.]+)).(?P<name>.(.+))/', views.ReportView.as_view(), name='report'),
-
-    # Job results
-    path('job-results/', views.JobResultListView.as_view(), name='jobresult_list'),
-    path('job-results/delete/', views.JobResultBulkDeleteView.as_view(), name='jobresult_bulk_delete'),
-    path('job-results/<int:pk>/delete/', views.JobResultDeleteView.as_view(), name='jobresult_delete'),
+    path('reports/add/', views.ScriptModuleCreateView.as_view(), name='reportmodule_add'),
+    path('reports/<int:pk>/', include(get_model_urls('extras', 'reportmodule'))),
 
     # Scripts
     path('scripts/', views.ScriptListView.as_view(), name='script_list'),
     path('scripts/results/<int:job_result_pk>/', views.ScriptResultView.as_view(), name='script_result'),
     re_path(r'^scripts/(?P<module>.([^.]+)).(?P<name>.(.+))/', views.ScriptView.as_view(), name='script'),
+    path('scripts/add/', views.ScriptModuleCreateView.as_view(), name='scriptmodule_add'),
+    path('scripts/<int:pk>/', include(get_model_urls('extras', 'scriptmodule'))),
+
+    # Job results
+    path('job-results/', views.JobResultListView.as_view(), name='jobresult_list'),
+    path('job-results/delete/', views.JobResultBulkDeleteView.as_view(), name='jobresult_bulk_delete'),
+    path('job-results/<int:pk>/delete/', views.JobResultDeleteView.as_view(), name='jobresult_delete'),
 
     # Markdown
     path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown")

@@ -1,5 +1,7 @@
 {% extends 'base/layout.html' %}
+{% load buttons %}
 {% load helpers %}
+{% load perms %}
 
 {% block title %}Reports{% endblock %}
 
@@ -10,6 +12,15 @@
     </li>
   </ul>
 {% endblock tabs %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% block extra_controls %}{% endblock %}
+      {% add_button model %}
+    </div>
+  </div>
+{% endblock controls %}
 
 {% block content-wrapper %}
   <div class="tab-content">

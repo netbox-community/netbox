@@ -71,3 +71,14 @@ class ManagedFile(SyncedDataMixin, models.Model):
             'scripts': settings.SCRIPTS_ROOT,
             'reports': settings.REPORTS_ROOT,
         }[self.file_root]
+
+    def sync_data(self):
+        if self.data_file:
+            self.file_path = self.data_path
+            self.data_file.write_to_disk(self.full_path, overwrite=True)
+
+    def delete(self, *args, **kwargs):
+        # Delete file from disk
+        os.remove(self.full_path)
+
+        return super().delete(*args, **kwargs)

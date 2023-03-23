@@ -1,7 +1,17 @@
 {% extends 'base/layout.html' %}
+{% load buttons %}
 {% load helpers %}
 
 {% block title %}Scripts{% endblock %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% block extra_controls %}{% endblock %}
+      {% add_button model %}
+    </div>
+  </div>
+{% endblock controls %}
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">

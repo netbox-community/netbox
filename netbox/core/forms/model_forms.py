@@ -3,12 +3,14 @@ import copy
 from django import forms
 
 from core.models import *
+from extras.forms.mixins import SyncedDataMixin
 from netbox.forms import NetBoxModelForm
 from netbox.registry import registry
-from utilities.forms import BootstrapMixin, CommentField, get_field_value
+from utilities.forms import CommentField, get_field_value
 
 __all__ = (
     'DataSourceForm',
+    'ManagedFileForm',
 )
 
 
@@ -73,3 +75,26 @@ class DataSourceForm(NetBoxModelForm):
         self.instance.parameters = parameters
 
         return super().save(*args, **kwargs)
+
+
+class ManagedFileForm(SyncedDataMixin, NetBoxModelForm):
+    upload_file = forms.FileField(
+        required=False
+    )
+
+    fieldsets = (
+        ('File Upload', ('upload_file',)),
+        ('Data Source', ('data_source', 'data_file')),
+    )
+
+    class Meta:
+        model = ManagedFile
+        fields = ('data_source', 'data_file')
+
+    def clean(self):
+        super().clean()
+
+        if self.cleaned_data.get('upload_file') and self.cleaned_data.get('data_file'):
+            raise forms.ValidationError("Cannot upload a file and sync from an existing file")
+
+        return self.cleaned_data
