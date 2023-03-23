@@ -942,7 +942,7 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
 
     def get(self, request):
 
-        scripts = get_scripts(use_names=True)
+        scripts = get_scripts()
         script_content_type = ContentType.objects.get(app_label='extras', model='script')
         results = {
             r.name: r

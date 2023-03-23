@@ -1,16 +1,13 @@
-import inspect
 import logging
-import pkgutil
 import traceback
 from datetime import timedelta
 
-from django.conf import settings
 from django.utils import timezone
 from django_rq import job
 
-from core.models import ManagedFile
 from .choices import JobResultStatusChoices, LogLevelChoices
-from .models import JobResult
+from .models import JobResult, ReportModule
+from .utils import get_modules
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +17,10 @@ def is_report(obj):
     Returns True if the given object is a Report.
     """
     return obj in Report.__subclasses__()
+
+
+def get_reports():
+    return get_modules(ReportModule.objects.all(), is_report, 'report_order')
 
 
 def get_report(module_name, report_name):
@@ -38,41 +39,6 @@ def get_report(module_name, report_name):
         return None
 
     return report
-
-
-def get_reports():
-    """
-    Compile a list of all reports available across all modules in the reports path. Returns a list of tuples:
-
-    [
-        (module_name, (report, report, report, ...)),
-        (module_name, (report, report, report, ...)),
-        ...
-    ]
-    """
-    module_list = {}
-
-    # Iterate through all modules within the reports path. These are the user-created files in which reports are
-    # defined.
-    # modules = pkgutil.iter_modules([settings.REPORTS_ROOT])
-    modules = [mf.get_module_info() for mf in ManagedFile.objects.filter(file_root='reports')]
-    for importer, module_name, _ in modules:
-        module = importer.find_module(module_name).load_module(module_name)
-        report_order = getattr(module, "report_order", ())
-        ordered_reports = [cls() for cls in report_order if is_report(cls)]
-        unordered_reports = [cls() for _, cls in inspect.getmembers(module, is_report) if cls not in report_order]
-
-        module_reports = {}
-
-        for cls in [*ordered_reports, *unordered_reports]:
-            # For reports in submodules use the full import path w/o the root module as the name
-            report_name = cls.full_name.split(".", maxsplit=1)[1]
-            module_reports[report_name] = cls
-
-        if module_reports:
-            module_list[module_name] = module_reports
-
-    return module_list
 
 
 @job('default')
