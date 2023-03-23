@@ -1,7 +1,8 @@
 import pkgutil
 
 from django.conf import settings
-from django.db import migrations
+from django.db import migrations, models
+import extras.models.models
 
 
 def create_files(cls, root_name, path):
@@ -36,6 +37,31 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Create proxy models
+        migrations.CreateModel(
+            name='ReportModule',
+            fields=[
+            ],
+            options={
+                'proxy': True,
+                'indexes': [],
+                'constraints': [],
+            },
+            bases=(extras.models.models.PythonModuleMixin, 'core.managedfile', models.Model),
+        ),
+        migrations.CreateModel(
+            name='ScriptModule',
+            fields=[
+            ],
+            options={
+                'proxy': True,
+                'indexes': [],
+                'constraints': [],
+            },
+            bases=(extras.models.models.PythonModuleMixin, 'core.managedfile', models.Model),
+        ),
+
+        # Instantiate ManagedFiles to represent scripts & reports
         migrations.RunPython(
             code=replicate_scripts,
             reverse_code=migrations.RunPython.noop

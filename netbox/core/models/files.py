@@ -1,7 +1,5 @@
 import logging
 import os
-from importlib.machinery import FileFinder
-from pkgutil import ModuleInfo, get_importer
 
 from django.conf import settings
 from django.db import models
@@ -73,10 +71,3 @@ class ManagedFile(SyncedDataMixin, models.Model):
             'scripts': settings.SCRIPTS_ROOT,
             'reports': settings.REPORTS_ROOT,
         }[self.file_root]
-
-    def get_module_info(self):
-        return ModuleInfo(
-            module_finder=get_importer(self.file_root),
-            name=self.file_path.split('.py')[0],
-            ispkg=False
-        )

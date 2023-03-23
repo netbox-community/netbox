@@ -1,5 +1,6 @@
 import json
 import uuid
+from pkgutil import ModuleInfo, get_importer
 
 from django.conf import settings
 from django.contrib import admin
@@ -18,6 +19,7 @@ from django.utils.translation import gettext as _
 from rest_framework.utils.encoders import JSONEncoder
 import django_rq
 
+from core.models import ManagedFile
 from extras.choices import *
 from extras.constants import *
 from extras.conditions import ConditionSet
@@ -41,8 +43,10 @@ __all__ = (
     'JobResult',
     'JournalEntry',
     'Report',
+    'ReportModule',
     'SavedFilter',
     'Script',
+    'ScriptModule',
     'Webhook',
 )
 
@@ -814,12 +818,38 @@ class ConfigRevision(models.Model):
 # Custom scripts & reports
 #
 
+class PythonModuleMixin:
+
+    def get_module_info(self):
+        return ModuleInfo(
+            module_finder=get_importer(self.file_root),
+            name=self.file_path.split('.py')[0],
+            ispkg=False
+        )
+
+
 class Script(JobResultsMixin, WebhooksMixin, models.Model):
     """
     Dummy model used to generate permissions for custom scripts. Does not exist in the database.
     """
     class Meta:
         managed = False
+
+
+class ScriptModuleManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(file_root='scripts')
+
+
+class ScriptModule(JobResultsMixin, WebhooksMixin, PythonModuleMixin, ManagedFile):
+    """
+    Proxy model for script module files.
+    """
+    objects = ScriptModuleManager()
+
+    class Meta:
+        proxy = True
 
 
 #
@@ -832,3 +862,19 @@ class Report(JobResultsMixin, WebhooksMixin, models.Model):
     """
     class Meta:
         managed = False
+
+
+class ReportModuleManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(file_root='reports')
+
+
+class ReportModule(JobResultsMixin, WebhooksMixin, PythonModuleMixin, ManagedFile):
+    """
+    Proxy model for report module files.
+    """
+    objects = ReportModuleManager()
+
+    class Meta:
+        proxy = True
