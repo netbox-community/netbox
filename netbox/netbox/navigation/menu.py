@@ -313,6 +313,7 @@ OTHER_MENU = Menu(
                 get_model_item('extras', 'tag', 'Tags'),
                 get_model_item('extras', 'configcontext', _('Config Contexts'), actions=['add']),
                 get_model_item('extras', 'configtemplate', _('Config Templates'), actions=['add']),
+                get_model_item('core', 'managedfile', _('Managed Files'), actions=()),
             ),
         ),
     ),

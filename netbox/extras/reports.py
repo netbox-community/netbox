@@ -8,6 +8,7 @@ from django.conf import settings
 from django.utils import timezone
 from django_rq import job
 
+from core.models import ManagedFile
 from .choices import JobResultStatusChoices, LogLevelChoices
 from .models import JobResult
 
@@ -53,7 +54,9 @@ def get_reports():
 
     # Iterate through all modules within the reports path. These are the user-created files in which reports are
     # defined.
-    for importer, module_name, _ in pkgutil.iter_modules([settings.REPORTS_ROOT]):
+    # modules = pkgutil.iter_modules([settings.REPORTS_ROOT])
+    modules = [mf.get_module_info() for mf in ManagedFile.objects.filter(file_root='reports')]
+    for importer, module_name, _ in modules:
         module = importer.find_module(module_name).load_module(module_name)
         report_order = getattr(module, "report_order", ())
         ordered_reports = [cls() for cls in report_order if is_report(cls)]

@@ -5,7 +5,7 @@ from django import forms
 from core.models import *
 from netbox.forms import NetBoxModelForm
 from netbox.registry import registry
-from utilities.forms import CommentField, get_field_value
+from utilities.forms import BootstrapMixin, CommentField, get_field_value
 
 __all__ = (
     'DataSourceForm',

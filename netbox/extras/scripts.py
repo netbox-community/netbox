@@ -15,6 +15,7 @@ from django.core.validators import RegexValidator
 from django.db import transaction
 from django.utils.functional import classproperty
 
+from core.models import ManagedFile
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices, LogLevelChoices
 from extras.models import JobResult
@@ -531,7 +532,8 @@ def get_scripts(use_names=False):
 
     # Get all modules within the scripts path. These are the user-created files in which scripts are
     # defined.
-    modules = list(pkgutil.iter_modules([settings.SCRIPTS_ROOT]))
+    # modules = list(pkgutil.iter_modules([settings.SCRIPTS_ROOT]))
+    modules = [mf.get_module_info() for mf in ManagedFile.objects.filter(file_root='scripts')]
     modules_bases = set([name.split(".")[0] for _, name, _ in modules])
 
     # Deleting from sys.modules needs to done behind a lock to prevent race conditions where a module is

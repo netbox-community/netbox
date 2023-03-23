@@ -19,4 +19,11 @@ urlpatterns = (
     path('data-files/delete/', views.DataFileBulkDeleteView.as_view(), name='datafile_bulk_delete'),
     path('data-files/<int:pk>/', include(get_model_urls('core', 'datafile'))),
 
+    # Managed files
+    path('files/', views.ManagedFileListView.as_view(), name='managedfile_list'),
+    # path('files/add/', views.ManagedFileEditView.as_view(), name='managedfile_add'),
+    # path('files/edit/', views.ManagedFileBulkEditView.as_view(), name='managedfile_bulk_edit'),
+    # path('files/delete/', views.ManagedFileBulkDeleteView.as_view(), name='managedfile_bulk_delete'),
+    path('files/<int:pk>/', include(get_model_urls('core', 'managedfile'))),
+
 )

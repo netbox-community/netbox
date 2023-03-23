@@ -20,7 +20,6 @@ class DataSourceTypeChoices(ChoiceSet):
 
 
 class DataSourceStatusChoices(ChoiceSet):
-
     NEW = 'new'
     QUEUED = 'queued'
     SYNCING = 'syncing'
