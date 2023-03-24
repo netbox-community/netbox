@@ -805,6 +805,7 @@ class ReportModuleCreateView(generic.ObjectEditView):
 @register_model_view(ReportModule, 'delete')
 class ReportModuleDeleteView(generic.ObjectDeleteView):
     queryset = ReportModule.objects.all()
+    default_return_url = 'extras:report_list'
 
 
 class ReportListView(ContentTypePermissionRequiredMixin, View):
@@ -943,6 +944,7 @@ class ScriptModuleCreateView(generic.ObjectEditView):
 @register_model_view(ScriptModule, 'delete')
 class ScriptModuleDeleteView(generic.ObjectDeleteView):
     queryset = ScriptModule.objects.all()
+    default_return_url = 'extras:script_list'
 
 
 class ScriptListView(ContentTypePermissionRequiredMixin, View):

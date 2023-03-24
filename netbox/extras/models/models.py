@@ -874,13 +874,20 @@ class ScriptModule(PythonModuleMixin, ManagedFile):
 
     @cached_property
     def scripts(self):
-        module = self.get_module()
 
-        scripts = {}
-        for name, cls in inspect.getmembers(module, is_script):
+        def _get_name(cls):
             # For child objects in submodules use the full import path w/o the root module as the name
-            child_name = cls.full_name.split(".", maxsplit=1)[1]
-            scripts[child_name] = cls
+            return cls.full_name.split(".", maxsplit=1)[1]
+
+        module = self.get_module()
+        scripts = {}
+        ordered = getattr(module, 'script_order', [])
+
+        for cls in ordered:
+            scripts[_get_name(cls)] = cls
+        for name, cls in inspect.getmembers(module, is_script):
+            if cls not in ordered:
+                scripts[_get_name(cls)] = cls
 
         return scripts
 
@@ -928,13 +935,20 @@ class ReportModule(PythonModuleMixin, ManagedFile):
 
     @cached_property
     def reports(self):
-        module = self.get_module()
 
-        reports = {}
-        for name, cls in inspect.getmembers(module, is_report):
+        def _get_name(cls):
             # For child objects in submodules use the full import path w/o the root module as the name
-            child_name = cls().full_name.split(".", maxsplit=1)[1]
-            reports[child_name] = cls
+            return cls.full_name.split(".", maxsplit=1)[1]
+
+        module = self.get_module()
+        reports = {}
+        ordered = getattr(module, 'report_order', [])
+
+        for cls in ordered:
+            reports[_get_name(cls)] = cls
+        for name, cls in inspect.getmembers(module, is_report):
+            if cls not in ordered:
+                reports[_get_name(cls)] = cls
 
         return reports
 
