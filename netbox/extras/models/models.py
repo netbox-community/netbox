@@ -1,5 +1,6 @@
 import inspect
 import json
+import os
 import uuid
 from functools import cached_property
 from pkgutil import ModuleInfo, get_importer
@@ -824,9 +825,11 @@ class ConfigRevision(models.Model):
 class PythonModuleMixin:
 
     def get_module_info(self):
+        path = os.path.dirname(self.full_path)
+        module_name = os.path.splitext(os.path.basename(self.file_path))[0]
         return ModuleInfo(
-            module_finder=get_importer(self.file_root),
-            name=self.file_path.split('.py')[0],
+            module_finder=get_importer(path),
+            name=module_name,
             ispkg=False
         )
 
@@ -859,9 +862,8 @@ class ScriptModule(PythonModuleMixin, ManagedFile):
     class Meta:
         proxy = True
 
-    def save(self, *args, **kwargs):
-        self.file_root = SCRIPTS_ROOT_NAME
-        return super().save(*args, **kwargs)
+    def __str__(self):
+        return self.file_path
 
     def get_absolute_url(self):
         return reverse('extras:script_list')
@@ -881,6 +883,10 @@ class ScriptModule(PythonModuleMixin, ManagedFile):
             scripts[child_name] = cls
 
         return scripts
+
+    def save(self, *args, **kwargs):
+        self.file_root = SCRIPTS_ROOT_NAME
+        return super().save(*args, **kwargs)
 
 
 #
@@ -910,9 +916,8 @@ class ReportModule(PythonModuleMixin, ManagedFile):
     class Meta:
         proxy = True
 
-    def save(self, *args, **kwargs):
-        self.file_root = REPORTS_ROOT_NAME
-        return super().save(*args, **kwargs)
+    def __str__(self):
+        return self.file_path
 
     def get_absolute_url(self):
         return reverse('extras:report_list')
@@ -932,3 +937,7 @@ class ReportModule(PythonModuleMixin, ManagedFile):
             reports[child_name] = cls
 
         return reports
+
+    def save(self, *args, **kwargs):
+        self.file_root = REPORTS_ROOT_NAME
+        return super().save(*args, **kwargs)
