@@ -23,63 +23,61 @@
 
 {% block content-wrapper %}
   <div class="tab-content">
-    {% if scripts %}
-      {% for module, module_scripts in scripts.items %}
-        <div class="card">
-          <h5 class="card-header">
-            {% if perms.extras.delete_scriptmodule %}
-              <div class="float-end">
-                <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
-                  <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
-                </a>
-              </div>
-            {% endif %}
-            <a name="module.{{ module.name }}"></a>
-            <i class="mdi mdi-file-document-outline"></i> {{ module.name|bettertitle }}
-          </h5>
-          <div class="card-body">
-            <table class="table table-hover table-headings reports">
-              <thead>
+    {% for module in script_modules %}
+      <div class="card">
+        <h5 class="card-header">
+          {% if perms.extras.delete_scriptmodule %}
+            <div class="float-end">
+              <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
+                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+              </a>
+            </div>
+          {% endif %}
+          <a name="module.{{ module.name }}"></a>
+          <i class="mdi mdi-file-document-outline"></i> {{ module.name|bettertitle }}
+        </h5>
+        <div class="card-body">
+          <table class="table table-hover table-headings reports">
+            <thead>
+              <tr>
+                <th width="250">Name</th>
+                <th width="110">Status</th>
+                <th>Description</th>
+                <th class="text-end">Last Run</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for script_name, script_class in module.scripts.items %}
                 <tr>
-                  <th width="250">Name</th>
-                  <th width="110">Status</th>
-                  <th>Description</th>
-                  <th class="text-end">Last Run</th>
+                  <td>
+                    <a href="{% url 'extras:script' module=script_class.root_module name=script_name %}" name="script.{{ script_name }}">{{ script_class.name }}</a>
+                  </td>
+                  <td>
+                    {% include 'extras/inc/job_label.html' with result=script_class.result %}
+                  </td>
+                  <td>
+                    {{ script_class.Meta.description|markdown|placeholder }}
+                  </td>
+                  {% if script_class.result %}
+                    <td class="text-end">
+                      <a href="{% url 'extras:script_result' job_result_pk=script_class.result.pk %}">{{ script_class.result.created|annotated_date }}</a>
+                    </td>
+                  {% else %}
+                    <td class="text-end text-muted">Never</td>
+                  {% endif %}
                 </tr>
-              </thead>
-              <tbody>
-                {% for class_name, script in module_scripts.items %}
-                  <tr>
-                    <td>
-                      <a href="{% url 'extras:script' module=script.root_module name=class_name %}" name="script.{{ class_name }}">{{ script.name }}</a>
-                    </td>
-                    <td>
-                      {% include 'extras/inc/job_label.html' with result=script.result %}
-                    </td>
-                    <td>
-                      {{ script.Meta.description|markdown|placeholder }}
-                    </td>
-                    {% if script.result %}
-                      <td class="text-end">
-                        <a href="{% url 'extras:script_result' job_result_pk=script.result.pk %}">{{ script.result.created|annotated_date }}</a>
-                      </td>
-                    {% else %}
-                      <td class="text-end text-muted">Never</td>
-                    {% endif %}
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-      {% endfor %}
-    {% else %}
+      </div>
+    {% empty %}
       <div class="alert alert-info">
         <h4 class="alert-heading">No Scripts Found</h4>
         Scripts should be saved to <code>{{ settings.SCRIPTS_ROOT }}</code>.
         <hr/>
         This path can be changed by setting <code>SCRIPTS_ROOT</code> in NetBox's configuration.
       </div>
-    {% endif %}
+    {% endfor %}
   </div>
 {% endblock content-wrapper %}

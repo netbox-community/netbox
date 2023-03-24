@@ -1,5 +1,3 @@
-import inspect
-import sys
 import threading
 
 from django.db.models import Q
@@ -72,48 +70,3 @@ def register_features(model, features):
             raise KeyError(
                 f"{feature} is not a valid model feature! Valid keys are: {registry['model_features'].keys()}"
             )
-
-
-def get_modules(queryset, litmus_func, ordering_attr):
-    """
-    Returns a list of tuples:
-
-    [
-        (module, (child, child, ...)),
-        (module, (child, child, ...)),
-        ...
-    ]
-    """
-    results = {}
-
-    modules = [(mf, *mf.get_module_info()) for mf in queryset]
-    modules_bases = set([name.split(".")[0] for _, _, name, _ in modules])
-
-    # Deleting from sys.modules needs to done behind a lock to prevent race conditions where a module is
-    # removed from sys.modules while another thread is importing
-    with lock:
-        for module_name in list(sys.modules.keys()):
-            # Everything sharing a base module path with a module in the script folder is removed.
-            # We also remove all modules with a base module called "scripts". This allows modifying imported
-            # non-script modules without having to reload the RQ worker.
-            module_base = module_name.split(".")[0]
-            if module_base in ('reports', 'scripts', *modules_bases):
-                del sys.modules[module_name]
-
-    for mf, importer, module_name, _ in modules:
-        module = importer.find_module(module_name).load_module(module_name)
-        child_order = getattr(module, ordering_attr, ())
-        ordered_children = [cls() for cls in child_order if litmus_func(cls)]
-        unordered_children = [cls() for _, cls in inspect.getmembers(module, litmus_func) if cls not in child_order]
-
-        children = {}
-
-        for cls in [*ordered_children, *unordered_children]:
-            # For child objects in submodules use the full import path w/o the root module as the name
-            child_name = cls.full_name.split(".", maxsplit=1)[1]
-            children[child_name] = cls
-
-        if children:
-            results[mf] = children
-
-    return results

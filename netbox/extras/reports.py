@@ -7,32 +7,16 @@ from django_rq import job
 
 from .choices import JobResultStatusChoices, LogLevelChoices
 from .models import JobResult, ReportModule
-from .temp import is_report
-from .utils import get_modules
 
 logger = logging.getLogger(__name__)
-
-
-def get_reports():
-    return get_modules(ReportModule.objects.all(), is_report, 'report_order')
 
 
 def get_report(module_name, report_name):
     """
     Return a specific report from within a module.
     """
-    reports = get_reports()
-    module = reports.get(module_name)
-
-    if module is None:
-        return None
-
-    report = module.get(report_name)
-
-    if report is None:
-        return None
-
-    return report
+    module = ReportModule.objects.get(file_path=f'{module_name}.py')
+    return module.scripts.get(report_name)
 
 
 @job('default')

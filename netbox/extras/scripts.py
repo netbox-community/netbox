@@ -22,8 +22,6 @@ from utilities.exceptions import AbortScript, AbortTransaction
 from utilities.forms import add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .context_managers import change_logging
 from .forms import ScriptForm
-from .temp import is_script
-from .utils import get_modules
 
 __all__ = [
     'BaseScript',
@@ -432,10 +430,6 @@ def is_variable(obj):
     return isinstance(obj, ScriptVariable)
 
 
-def get_scripts():
-    return get_modules(ScriptModule.objects.all(), is_script, 'script_order')
-
-
 def run_script(data, request, commit=True, *args, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
@@ -444,10 +438,10 @@ def run_script(data, request, commit=True, *args, **kwargs):
     job_result = kwargs.pop('job_result')
     job_result.start()
 
-    module, script_name = job_result.name.split('.', 1)
-    script = get_script(module, script_name)()
+    module_name, script_name = job_result.name.split('.', 1)
+    script = get_script(module_name, script_name)()
 
-    logger = logging.getLogger(f"netbox.scripts.{module}.{script_name}")
+    logger = logging.getLogger(f"netbox.scripts.{module_name}.{script_name}")
     logger.info(f"Running script (commit={commit})")
 
     # Add files to form data
@@ -518,7 +512,5 @@ def get_script(module_name, script_name):
     """
     Retrieve a script class by module and name. Returns None if the script does not exist.
     """
-    scripts = get_scripts()
-    module = scripts.get(module_name)
-    if module:
-        return module.get(script_name)
+    module = ScriptModule.objects.get(file_path=f'{module_name}.py')
+    return module.scripts.get(script_name)

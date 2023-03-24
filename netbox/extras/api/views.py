@@ -16,8 +16,8 @@ from extras import filtersets
 from extras.choices import JobResultStatusChoices
 from extras.models import *
 from extras.models import CustomField
-from extras.reports import get_report, get_reports, run_report
-from extras.scripts import get_script, get_scripts, run_script
+from extras.reports import get_report, run_report
+from extras.scripts import get_script, run_script
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
@@ -27,7 +27,6 @@ from utilities.exceptions import RQWorkerNotRunningException
 from utilities.utils import copy_safe_request, count_related
 from . import serializers
 from .mixins import ConfigTemplateRenderMixin
-from .nested_serializers import NestedConfigTemplateSerializer
 
 
 class ExtrasRootView(APIRootView):
@@ -189,7 +188,6 @@ class ReportViewSet(ViewSet):
         """
         Compile all reports and their related results (if any). Result data is deferred in the list view.
         """
-        report_list = []
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
         results = {
             r.name: r
@@ -199,13 +197,13 @@ class ReportViewSet(ViewSet):
             ).order_by('name', '-created').distinct('name').defer('data')
         }
 
-        # Iterate through all available Reports.
-        for module_name, reports in get_reports().items():
-            for report in reports.values():
+        report_list = []
+        for report_module in ReportModule.objects.restrict(request.user):
+            report_list.extend([report() for report in report_module.reports.values()])
 
-                # Attach the relevant JobResult (if any) to each Report.
-                report.result = results.get(report.full_name, None)
-                report_list.append(report)
+        # Attach JobResult objects to each report (if any)
+        for report in report_list:
+            report.result = results.get(report.full_name, None)
 
         serializer = serializers.ReportSerializer(report_list, many=True, context={
             'request': request,
@@ -296,15 +294,15 @@ class ScriptViewSet(ViewSet):
             ).order_by('name', '-created').distinct('name').defer('data')
         }
 
-        flat_list = []
-        for script_list in get_scripts().values():
-            flat_list.extend(script_list.values())
+        script_list = []
+        for script_module in ScriptModule.objects.restrict(request.user):
+            script_list.extend(script_module.scripts.values())
 
         # Attach JobResult objects to each script (if any)
-        for script in flat_list:
+        for script in script_list:
             script.result = results.get(script.full_name, None)
 
-        serializer = serializers.ScriptSerializer(flat_list, many=True, context={'request': request})
+        serializer = serializers.ScriptSerializer(script_list, many=True, context={'request': request})
 
         return Response(serializer.data)
 
