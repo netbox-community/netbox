@@ -826,13 +826,6 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
             ).order_by('name', '-created').distinct('name').defer('data')
         }
 
-        # for module, report_list in reports.items():
-        #     module_reports = []
-        #     for report in report_list.values():
-        #         report.result = results.get(report.full_name, None)
-        #         module_reports.append(report)
-        #     ret.append((module, module_reports))
-
         return render(request, 'extras/report_list.html', {
             'model': ScriptModule,
             'report_modules': report_modules,
@@ -970,10 +963,6 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
                 status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
             ).order_by('name', '-created').distinct('name').defer('data')
         }
-
-        # for _scripts in scripts.values():
-        #     for script in _scripts.values():
-        #         script.result = results.get(script.full_name)
 
         return render(request, 'extras/script_list.html', {
             'model': ScriptModule,

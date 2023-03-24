@@ -16,7 +16,7 @@ def get_report(module_name, report_name):
     Return a specific report from within a module.
     """
     module = ReportModule.objects.get(file_path=f'{module_name}.py')
-    return module.scripts.get(report_name)
+    return module.reports.get(report_name)
 
 
 @job('default')

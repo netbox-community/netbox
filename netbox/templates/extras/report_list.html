@@ -44,7 +44,8 @@
                 <th width="250">Name</th>
                 <th width="110">Status</th>
                 <th>Description</th>
-                <th width="150" class="text-end">Last Run</th>
+                <th>Last Run</th>
+                <th>Last Status</th>
                 <th width="120"></th>
               </tr>
             </thead>
@@ -58,29 +59,35 @@
                     {% include 'extras/inc/job_label.html' with result=report.result %}
                   </td>
                   <td>{{ report.description|markdown|placeholder }}</td>
-                  <td class="text-end">
-                    {% if report.result %}
-                      <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">{{ report.result.created|annotated_date }}</a>
+                  {% with last_result=job_results|get_key:report.full_name %}
+                    {% if last_result %}
+                      <td>
+                        <a href="{% url 'extras:report_result' job_result_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
+                      </td>
+                      <td>
+                        {% badge last_result.get_status_display last_result.get_status_color %}
+                      </td>
                     {% else %}
-                      <span class="text-muted">Never</span>
+                      <td class="text-muted">Never</td>
+                      <td>{{ ''|placeholder }}</td>
                     {% endif %}
-                  </td>
-                  <td>
-                    {% if perms.extras.run_report %}
-                      <div class="float-end noprint">
-                        <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
-                          {% csrf_token %}
-                          <button type="submit" name="_run" class="btn btn-primary btn-sm" style="width: 110px">
-                            {% if report.result %}
-                              <i class="mdi mdi-replay"></i> Run Again
-                            {% else %}
-                              <i class="mdi mdi-play"></i> Run Report
-                            {% endif %}
-                          </button>
-                        </form>
-                      </div>
-                    {% endif %}
-                  </td>
+                    <td>
+                      {% if perms.extras.run_report %}
+                        <div class="float-end noprint">
+                          <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" name="_run" class="btn btn-primary btn-sm" style="width: 110px">
+                              {% if last_result %}
+                                <i class="mdi mdi-replay"></i> Run Again
+                              {% else %}
+                                <i class="mdi mdi-play"></i> Run Report
+                              {% endif %}
+                            </button>
+                          </form>
+                        </div>
+                      {% endif %}
+                    </td>
+                  {% endwith %}
                 </tr>
                 {% for method, stats in report.result.data.items %}
                   <tr>

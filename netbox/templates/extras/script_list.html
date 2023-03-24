@@ -43,7 +43,8 @@
                 <th width="250">Name</th>
                 <th width="110">Status</th>
                 <th>Description</th>
-                <th class="text-end">Last Run</th>
+                <th>Last Run</th>
+                <th class="text-end">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -58,13 +59,19 @@
                   <td>
                     {{ script_class.Meta.description|markdown|placeholder }}
                   </td>
-                  {% if script_class.result %}
-                    <td class="text-end">
-                      <a href="{% url 'extras:script_result' job_result_pk=script_class.result.pk %}">{{ script_class.result.created|annotated_date }}</a>
-                    </td>
-                  {% else %}
-                    <td class="text-end text-muted">Never</td>
-                  {% endif %}
+                  {% with last_result=job_results|get_key:script_class.full_name %}
+                    {% if last_result %}
+                      <td>
+                        <a href="{% url 'extras:script_result' job_result_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
+                      </td>
+                      <td class="text-end">
+                        {% badge last_result.get_status_display last_result.get_status_color %}
+                      </td>
+                    {% else %}
+                      <td class="text-muted">Never</td>
+                      <td class="text-end">{{ ''|placeholder }}</td>
+                    {% endif %}
+                  {% endwith %}
                 </tr>
               {% endfor %}
             </tbody>
