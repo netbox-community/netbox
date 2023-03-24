@@ -74,11 +74,14 @@ class ManagedFile(SyncedDataMixin, models.Model):
 
     def sync_data(self):
         if self.data_file:
-            self.file_path = self.data_path
+            self.file_path = os.path.basename(self.data_path)
             self.data_file.write_to_disk(self.full_path, overwrite=True)
 
     def delete(self, *args, **kwargs):
         # Delete file from disk
-        os.remove(self.full_path)
+        try:
+            os.remove(self.full_path)
+        except FileNotFoundError:
+            pass
 
         return super().delete(*args, **kwargs)

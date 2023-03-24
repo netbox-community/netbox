@@ -850,7 +850,7 @@ class ScriptModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return super().get_queryset().filter(file_root='scripts')
 
 
-class ScriptModule(JobResultsMixin, WebhooksMixin, PythonModuleMixin, ManagedFile):
+class ScriptModule(PythonModuleMixin, ManagedFile):
     """
     Proxy model for script module files.
     """
@@ -901,7 +901,7 @@ class ReportModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return super().get_queryset().filter(file_root='reports')
 
 
-class ReportModule(JobResultsMixin, WebhooksMixin, PythonModuleMixin, ManagedFile):
+class ReportModule(PythonModuleMixin, ManagedFile):
     """
     Proxy model for report module files.
     """

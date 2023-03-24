@@ -827,7 +827,7 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
         }
 
         return render(request, 'extras/report_list.html', {
-            'model': ScriptModule,
+            'model': ReportModule,
             'report_modules': report_modules,
             'job_results': job_results,
         })
