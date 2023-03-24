@@ -28,8 +28,15 @@
       {% for module, module_reports in reports %}
         <div class="card">
           <h5 class="card-header">
-            <a name="module.{{ module }}"></a>
-            <i class="mdi mdi-file-document-outline"></i> {{ module|bettertitle }}
+            {% if perms.extras.delete_reportmodule %}
+              <div class="float-end">
+                <a href="{% url 'extras:reportmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
+                  <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+                </a>
+              </div>
+            {% endif %}
+            <a name="module.{{ module.name }}"></a>
+            <i class="mdi mdi-file-document-outline"></i> {{ module.name|bettertitle }}
           </h5>
           <div class="card-body">
             <table class="table table-hover table-headings reports">

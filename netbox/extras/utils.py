@@ -79,15 +79,15 @@ def get_modules(queryset, litmus_func, ordering_attr):
     Returns a list of tuples:
 
     [
-        (module_name, (child, child, ...)),
-        (module_name, (child, child, ...)),
+        (module, (child, child, ...)),
+        (module, (child, child, ...)),
         ...
     ]
     """
     results = {}
 
-    modules = [mf.get_module_info() for mf in queryset]
-    modules_bases = set([name.split(".")[0] for _, name, _ in modules])
+    modules = [(mf, *mf.get_module_info()) for mf in queryset]
+    modules_bases = set([name.split(".")[0] for _, _, name, _ in modules])
 
     # Deleting from sys.modules needs to done behind a lock to prevent race conditions where a module is
     # removed from sys.modules while another thread is importing
@@ -100,7 +100,7 @@ def get_modules(queryset, litmus_func, ordering_attr):
             if module_base in ('reports', 'scripts', *modules_bases):
                 del sys.modules[module_name]
 
-    for importer, module_name, _ in modules:
+    for mf, importer, module_name, _ in modules:
         module = importer.find_module(module_name).load_module(module_name)
         child_order = getattr(module, ordering_attr, ())
         ordered_children = [cls() for cls in child_order if litmus_func(cls)]
@@ -114,6 +114,6 @@ def get_modules(queryset, litmus_func, ordering_attr):
             children[child_name] = cls
 
         if children:
-            results[module_name] = children
+            results[mf] = children
 
     return results

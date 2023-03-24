@@ -855,6 +855,13 @@ class ScriptModule(JobResultsMixin, WebhooksMixin, PythonModuleMixin, ManagedFil
         self.file_root = SCRIPTS_ROOT_NAME
         return super().save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse('extras:script_list')
+
+    @property
+    def name(self):
+        return self.file_path
+
 
 #
 # Reports
@@ -886,3 +893,6 @@ class ReportModule(JobResultsMixin, WebhooksMixin, PythonModuleMixin, ManagedFil
     def save(self, *args, **kwargs):
         self.file_root = REPORTS_ROOT_NAME
         return super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('extras:report_list')
