@@ -26,7 +26,7 @@ from core.models import ManagedFile
 from extras.choices import *
 from extras.constants import *
 from extras.conditions import ConditionSet
-from extras.utils import FeatureQuery, image_upload
+from extras.utils import FeatureQuery, image_upload, is_report, is_script
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models import ChangeLoggedModel
@@ -34,7 +34,6 @@ from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, SyncedDataMixin,
     TagsMixin, WebhooksMixin,
 )
-from ..temp import is_report, is_script
 from utilities.querysets import RestrictedQuerySet
 from utilities.rqworker import get_queue_for_model
 from utilities.utils import render_jinja2
