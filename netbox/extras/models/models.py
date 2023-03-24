@@ -1,5 +1,7 @@
+import inspect
 import json
 import uuid
+from functools import cached_property
 from pkgutil import ModuleInfo, get_importer
 
 from django.conf import settings
@@ -31,6 +33,7 @@ from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, SyncedDataMixin,
     TagsMixin, WebhooksMixin,
 )
+from ..temp import is_report, is_script
 from utilities.querysets import RestrictedQuerySet
 from utilities.rqworker import get_queue_for_model
 from utilities.utils import render_jinja2
@@ -827,6 +830,11 @@ class PythonModuleMixin:
             ispkg=False
         )
 
+    def get_module(self):
+        importer, module_name, _ = self.get_module_info()
+        module = importer.find_module(module_name).load_module(module_name)
+        return module
+
 
 class Script(JobResultsMixin, WebhooksMixin, models.Model):
     """
@@ -862,6 +870,18 @@ class ScriptModule(JobResultsMixin, WebhooksMixin, PythonModuleMixin, ManagedFil
     def name(self):
         return self.file_path
 
+    @cached_property
+    def scripts(self):
+        module = self.get_module()
+
+        scripts = {}
+        for name, cls in inspect.getmembers(module, is_script):
+            # For child objects in submodules use the full import path w/o the root module as the name
+            child_name = cls.full_name.split(".", maxsplit=1)[1]
+            scripts[child_name] = cls
+
+        return scripts
+
 
 #
 # Reports
@@ -896,3 +916,15 @@ class ReportModule(JobResultsMixin, WebhooksMixin, PythonModuleMixin, ManagedFil
 
     def get_absolute_url(self):
         return reverse('extras:report_list')
+
+    @cached_property
+    def reports(self):
+        module = self.get_module()
+
+        reports = {}
+        for name, cls in inspect.getmembers(module, is_report):
+            # For child objects in submodules use the full import path w/o the root module as the name
+            child_name = cls().full_name.split(".", maxsplit=1)[1]
+            reports[child_name] = cls
+
+        return reports

@@ -22,6 +22,7 @@ from utilities.exceptions import AbortScript, AbortTransaction
 from utilities.forms import add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .context_managers import change_logging
 from .forms import ScriptForm
+from .temp import is_script
 from .utils import get_modules
 
 __all__ = [
@@ -422,15 +423,6 @@ class Script(BaseScript):
 #
 # Functions
 #
-
-def is_script(obj):
-    """
-    Returns True if the object is a Script.
-    """
-    try:
-        return issubclass(obj, Script) and obj != Script
-    except TypeError:
-        return False
 
 
 def is_variable(obj):

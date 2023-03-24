@@ -849,10 +849,8 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_report'
 
     def get(self, request, module, name):
-
-        report = get_report(module, name)
-        if report is None:
-            raise Http404
+        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path=f'{module}.py')
+        report = module.reports[name]()
 
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
         report.result = JobResult.objects.filter(
@@ -1001,7 +999,8 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
         return 'extras.view_script'
 
     def get(self, request, module, name):
-        script = self._get_script(name, module)
+        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path=f'{module}.py')
+        script = module.scripts[name]()
         form = script.as_form(initial=normalize_querydict(request.GET))
 
         # Look for a pending JobResult (use the latest one by creation timestamp)

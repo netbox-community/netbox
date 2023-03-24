@@ -7,16 +7,10 @@ from django_rq import job
 
 from .choices import JobResultStatusChoices, LogLevelChoices
 from .models import JobResult, ReportModule
+from .temp import is_report
 from .utils import get_modules
 
 logger = logging.getLogger(__name__)
-
-
-def is_report(obj):
-    """
-    Returns True if the given object is a Report.
-    """
-    return obj in Report.__subclasses__()
 
 
 def get_reports():
