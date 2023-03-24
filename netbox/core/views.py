@@ -120,17 +120,3 @@ class DataFileBulkDeleteView(generic.BulkDeleteView):
     queryset = DataFile.objects.defer('data')
     filterset = filtersets.DataFileFilterSet
     table = tables.DataFileTable
-
-
-#
-# Managed files
-#
-
-class ManagedFileListView(generic.ObjectListView):
-    queryset = ManagedFile.objects.all()
-    table = tables.ManagedFileTable
-
-
-@register_model_view(ManagedFile)
-class ManagedFileView(generic.ObjectView):
-    queryset = ManagedFile.objects.all()

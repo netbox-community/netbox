@@ -19,8 +19,4 @@ urlpatterns = (
     path('data-files/delete/', views.DataFileBulkDeleteView.as_view(), name='datafile_bulk_delete'),
     path('data-files/<int:pk>/', include(get_model_urls('core', 'datafile'))),
 
-    # Managed files
-    path('files/', views.ManagedFileListView.as_view(), name='managedfile_list'),
-    path('files/<int:pk>/', include(get_model_urls('core', 'managedfile'))),
-
 )
