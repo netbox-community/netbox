@@ -36,11 +36,11 @@
           <i class="mdi mdi-file-document-outline"></i> {{ module.name|bettertitle }}
         </h5>
         <div class="card-body">
+          {% include 'inc/sync_warning.html' with object=module %}
           <table class="table table-hover table-headings reports">
             <thead>
               <tr>
                 <th width="250">Name</th>
-                <th width="110">Status</th>
                 <th>Description</th>
                 <th>Last Run</th>
                 <th class="text-end">Status</th>
@@ -52,9 +52,6 @@
                   <tr>
                     <td>
                       <a href="{% url 'extras:script' module=script_class.root_module name=script_name %}" name="script.{{ script_name }}">{{ script_class.name }}</a>
-                    </td>
-                    <td>
-                      {% include 'extras/inc/job_label.html' with result=script_class.result %}
                     </td>
                     <td>
                       {{ script_class.Meta.description|markdown|placeholder }}

@@ -37,14 +37,14 @@
           <i class="mdi mdi-file-document-outline"></i> {{ module.name|bettertitle }}
         </h5>
         <div class="card-body">
+          {% include 'inc/sync_warning.html' with object=module %}
           <table class="table table-hover table-headings reports">
             <thead>
               <tr>
                 <th width="250">Name</th>
-                <th width="110">Status</th>
                 <th>Description</th>
                 <th>Last Run</th>
-                <th>Last Status</th>
+                <th>Status</th>
                 <th width="120"></th>
               </tr>
             </thead>
@@ -54,9 +54,6 @@
                   <tr>
                     <td>
                       <a href="{% url 'extras:report' module=report.module name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">{{ report.name }}</a>
-                    </td>
-                    <td>
-                      {% include 'extras/inc/job_label.html' with result=report.result %}
                     </td>
                     <td>{{ report.description|markdown|placeholder }}</td>
                     {% if last_result %}
