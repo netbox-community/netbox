@@ -917,6 +917,10 @@ class ReportModule(JobResultsMixin, WebhooksMixin, PythonModuleMixin, ManagedFil
     def get_absolute_url(self):
         return reverse('extras:report_list')
 
+    @property
+    def name(self):
+        return self.file_path
+
     @cached_property
     def reports(self):
         module = self.get_module()

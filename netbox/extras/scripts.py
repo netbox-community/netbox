@@ -267,7 +267,7 @@ class BaseScript:
     def __init__(self):
 
         # Initiate the log
-        self.logger = logging.getLogger(f"netbox.scripts.{self.module()}.{self.__class__.__name__}")
+        self.logger = logging.getLogger(f"netbox.scripts.{self.__module__}.{self.__class__.__name__}")
         self.log = []
 
         # Declare the placeholder for the current request
@@ -281,20 +281,24 @@ class BaseScript:
         return self.name
 
     @classproperty
+    def module(self):
+        return self.__module__
+
+    @classproperty
+    def class_name(self):
+        return self.__name__
+
+    @classproperty
+    def full_name(self):
+        return f'{self.module}.{self.class_name}'
+
+    @classproperty
     def name(self):
         return getattr(self.Meta, 'name', self.__name__)
 
     @classproperty
-    def full_name(self):
-        return '.'.join([self.__module__, self.__name__])
-
-    @classproperty
     def description(self):
         return getattr(self.Meta, 'description', '')
-
-    @classmethod
-    def module(cls):
-        return cls.__module__
 
     @classmethod
     def root_module(cls):

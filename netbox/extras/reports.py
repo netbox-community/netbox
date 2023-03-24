@@ -3,6 +3,7 @@ import traceback
 from datetime import timedelta
 
 from django.utils import timezone
+from django.utils.functional import classproperty
 from django_rq import job
 
 from .choices import JobResultStatusChoices, LogLevelChoices
@@ -26,7 +27,7 @@ def run_report(job_result, *args, **kwargs):
     method for queueing into the background processor.
     """
     module_name, report_name = job_result.name.split('.', 1)
-    report = get_report(module_name, report_name)
+    report = get_report(module_name, report_name)()
 
     try:
         job_result.start()
@@ -83,7 +84,7 @@ class Report(object):
         self.active_test = None
         self.failed = False
 
-        self.logger = logging.getLogger(f"netbox.reports.{self.full_name}")
+        self.logger = logging.getLogger(f"netbox.reports.{self.__module__}.{self.__class__.__name__}")
 
         # Compile test methods and initialize results skeleton
         test_methods = []
@@ -101,13 +102,17 @@ class Report(object):
             raise Exception("A report must contain at least one test method.")
         self.test_methods = test_methods
 
-    @property
+    @classproperty
     def module(self):
         return self.__module__
 
-    @property
+    @classproperty
     def class_name(self):
-        return self.__class__.__name__
+        return self.__name__
+
+    @classproperty
+    def full_name(self):
+        return f'{self.module}.{self.class_name}'
 
     @property
     def name(self):
@@ -116,9 +121,9 @@ class Report(object):
         """
         return self.class_name
 
-    @property
-    def full_name(self):
-        return f'{self.module}.{self.class_name}'
+    #
+    # Logging methods
+    #
 
     def _log(self, obj, message, level=LogLevelChoices.LOG_DEFAULT):
         """
@@ -174,6 +179,10 @@ class Report(object):
         self._results[self.active_test]['failure'] += 1
         self.logger.info(f"Failure | {obj}: {message}")
         self.failed = True
+
+    #
+    # Run methods
+    #
 
     def run(self, job_result):
         """

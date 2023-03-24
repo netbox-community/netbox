@@ -26,7 +26,7 @@
   <div class="tab-content">
     {% for module in report_modules %}
       <div class="card">
-        <h5 class="card-header">
+        <h5 class="card-header" id="module{{ module.pk }}">
           {% if perms.extras.delete_reportmodule %}
             <div class="float-end">
               <a href="{% url 'extras:reportmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
@@ -34,7 +34,6 @@
               </a>
             </div>
           {% endif %}
-          <a name="module.{{ module.name }}"></a>
           <i class="mdi mdi-file-document-outline"></i> {{ module.name|bettertitle }}
         </h5>
         <div class="card-body">
@@ -51,15 +50,15 @@
             </thead>
             <tbody>
               {% for report_name, report in module.reports.items %}
-                <tr>
-                  <td>
-                    <a href="{% url 'extras:report' module=report.module name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">{{ report.name }}</a>
-                  </td>
-                  <td>
-                    {% include 'extras/inc/job_label.html' with result=report.result %}
-                  </td>
-                  <td>{{ report.description|markdown|placeholder }}</td>
-                  {% with last_result=job_results|get_key:report.full_name %}
+                {% with last_result=job_results|get_key:report.full_name %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'extras:report' module=report.module name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">{{ report.name }}</a>
+                    </td>
+                    <td>
+                      {% include 'extras/inc/job_label.html' with result=report.result %}
+                    </td>
+                    <td>{{ report.description|markdown|placeholder }}</td>
                     {% if last_result %}
                       <td>
                         <a href="{% url 'extras:report_result' job_result_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
@@ -87,21 +86,21 @@
                         </div>
                       {% endif %}
                     </td>
-                  {% endwith %}
-                </tr>
-                {% for method, stats in report.result.data.items %}
-                  <tr>
-                    <td colspan="4" class="method">
-                      <span class="ps-3">{{ method }}</span>
-                    </td>
-                    <td class="text-end text-nowrap report-stats">
-                      <span class="badge bg-success">{{ stats.success }}</span>
-                      <span class="badge bg-info">{{ stats.info }}</span>
-                      <span class="badge bg-warning">{{ stats.warning }}</span>
-                      <span class="badge bg-danger">{{ stats.failure }}</span>
-                    </td>
                   </tr>
-                {% endfor %}
+                  {% for method, stats in last_result.data.items %}
+                    <tr>
+                      <td colspan="4" class="method">
+                        <span class="ps-3">{{ method }}</span>
+                      </td>
+                      <td class="text-end text-nowrap report-stats">
+                        <span class="badge bg-success">{{ stats.success }}</span>
+                        <span class="badge bg-info">{{ stats.info }}</span>
+                        <span class="badge bg-warning">{{ stats.warning }}</span>
+                        <span class="badge bg-danger">{{ stats.failure }}</span>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% endwith %}
               {% endfor %}
             </tbody>
           </table>

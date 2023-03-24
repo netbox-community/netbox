@@ -852,20 +852,17 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         ).first()
 
         return render(request, 'extras/report.html', {
+            'module': module,
             'report': report,
             'form': ReportForm(),
         })
 
     def post(self, request, module, name):
-
-        # Permissions check
         if not request.user.has_perm('extras.run_report'):
             return HttpResponseForbidden()
 
-        report = get_report(module, name)
-        if report is None:
-            raise Http404
-
+        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path=f'{module}.py')
+        report = module.reports[name]()
         form = ReportForm(request.POST)
 
         if form.is_valid():
@@ -891,6 +888,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
             return redirect('extras:report_result', job_result_pk=job_result.pk)
 
         return render(request, 'extras/report.html', {
+            'module': module,
             'report': report,
             'form': form,
         })
