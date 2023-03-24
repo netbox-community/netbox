@@ -823,9 +823,13 @@ class ConfigRevision(models.Model):
 
 class PythonModuleMixin:
 
+    @property
+    def path(self):
+        return os.path.splitext(self.file_path)[0]
+
     def get_module_info(self):
         path = os.path.dirname(self.full_path)
-        module_name = os.path.splitext(os.path.basename(self.file_path))[0]
+        module_name = os.path.basename(self.path)
         return ModuleInfo(
             module_finder=get_importer(path),
             name=module_name,
@@ -861,15 +865,8 @@ class ScriptModule(PythonModuleMixin, ManagedFile):
     class Meta:
         proxy = True
 
-    def __str__(self):
-        return self.file_path
-
     def get_absolute_url(self):
         return reverse('extras:script_list')
-
-    @property
-    def name(self):
-        return self.file_path
 
     @cached_property
     def scripts(self):
@@ -922,15 +919,8 @@ class ReportModule(PythonModuleMixin, ManagedFile):
     class Meta:
         proxy = True
 
-    def __str__(self):
-        return self.file_path
-
     def get_absolute_url(self):
         return reverse('extras:report_list')
-
-    @property
-    def name(self):
-        return self.file_path
 
     @cached_property
     def reports(self):

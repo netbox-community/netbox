@@ -56,8 +56,15 @@ class ManagedFile(SyncedDataMixin, models.Model):
             models.Index(fields=('file_root', 'file_path'), name='core_managedfile_root_path'),
         ]
 
+    def __str__(self):
+        return self.name
+
     def get_absolute_url(self):
         return reverse('core:managedfile', args=[self.pk])
+
+    @property
+    def name(self):
+        return self.file_path
 
     @property
     def full_path(self):

@@ -51,7 +51,7 @@
                 {% with last_result=job_results|get_key:script_class.full_name %}
                   <tr>
                     <td>
-                      <a href="{% url 'extras:script' module=script_class.root_module name=script_name %}" name="script.{{ script_name }}">{{ script_class.name }}</a>
+                      <a href="{% url 'extras:script' module=module.path name=script_name %}" name="script.{{ script_name }}">{{ script_class.name }}</a>
                     </td>
                     <td>
                       {{ script_class.Meta.description|markdown|placeholder }}
