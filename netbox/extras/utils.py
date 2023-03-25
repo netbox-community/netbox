@@ -1,12 +1,8 @@
-import threading
-
 from django.db.models import Q
 from django.utils.deconstruct import deconstructible
 from taggit.managers import _TaggableManager
 
 from netbox.registry import registry
-
-lock = threading.Lock()
 
 
 def is_taggable(obj):

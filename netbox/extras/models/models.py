@@ -5,6 +5,7 @@ import uuid
 from functools import cached_property
 from pkgutil import ModuleInfo, get_importer
 
+import django_rq
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
@@ -20,12 +21,12 @@ from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 from rest_framework.utils.encoders import JSONEncoder
-import django_rq
 
+from core.choices import ManagedFileRootPathChoices
 from core.models import ManagedFile
 from extras.choices import *
-from extras.constants import *
 from extras.conditions import ConditionSet
+from extras.constants import *
 from extras.utils import FeatureQuery, image_upload, is_report, is_script
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
@@ -853,7 +854,7 @@ class Script(JobResultsMixin, WebhooksMixin, models.Model):
 class ScriptModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
 
     def get_queryset(self):
-        return super().get_queryset().filter(file_root='scripts')
+        return super().get_queryset().filter(file_root=ManagedFileRootPathChoices.SCRIPTS)
 
 
 class ScriptModule(PythonModuleMixin, ManagedFile):
@@ -888,7 +889,7 @@ class ScriptModule(PythonModuleMixin, ManagedFile):
         return scripts
 
     def save(self, *args, **kwargs):
-        self.file_root = SCRIPTS_ROOT_NAME
+        self.file_root = ManagedFileRootPathChoices.SCRIPTS
         return super().save(*args, **kwargs)
 
 
@@ -907,7 +908,7 @@ class Report(JobResultsMixin, WebhooksMixin, models.Model):
 class ReportModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
 
     def get_queryset(self):
-        return super().get_queryset().filter(file_root='reports')
+        return super().get_queryset().filter(file_root=ManagedFileRootPathChoices.REPORTS)
 
 
 class ReportModule(PythonModuleMixin, ManagedFile):
@@ -942,5 +943,5 @@ class ReportModule(PythonModuleMixin, ManagedFile):
         return reports
 
     def save(self, *args, **kwargs):
-        self.file_root = REPORTS_ROOT_NAME
+        self.file_root = ManagedFileRootPathChoices.REPORTS
         return super().save(*args, **kwargs)

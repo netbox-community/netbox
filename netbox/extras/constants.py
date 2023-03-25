@@ -17,10 +17,6 @@ WEBHOOK_EVENT_TYPES = {
     EVENT_JOB_END: 'job_ended',
 }
 
-# Managed files
-REPORTS_ROOT_NAME = 'reports'
-SCRIPTS_ROOT_NAME = 'scripts'
-
 # Dashboard
 DEFAULT_DASHBOARD = [
     {

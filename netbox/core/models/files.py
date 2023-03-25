@@ -6,6 +6,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from ..choices import ManagedFileRootPathChoices
 from netbox.models.features import SyncedDataMixin
 from utilities.querysets import RestrictedQuerySet
 
@@ -15,15 +16,11 @@ __all__ = (
 
 logger = logging.getLogger('netbox.core.files')
 
-ROOT_PATH_CHOICES = (
-    ('scripts', 'Scripts Root'),
-    ('reports', 'Reports Root'),
-)
-
 
 class ManagedFile(SyncedDataMixin, models.Model):
     """
-    Database representation for a file on disk.
+    Database representation for a file on disk. This class is typically wrapped by a proxy class (e.g. ScriptModule)
+    to provide additional functionality.
     """
     created = models.DateTimeField(
         auto_now_add=True
@@ -35,7 +32,7 @@ class ManagedFile(SyncedDataMixin, models.Model):
     )
     file_root = models.CharField(
         max_length=1000,
-        choices=ROOT_PATH_CHOICES
+        choices=ManagedFileRootPathChoices
     )
     file_path = models.FilePathField(
         editable=False,

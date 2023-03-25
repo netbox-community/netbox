@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
 
+from core.choices import ManagedFileRootPathChoices
 from core.forms import ManagedFileForm
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
@@ -19,7 +20,6 @@ from utilities.utils import copy_safe_request, count_related, get_viewname, norm
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
-from .constants import SCRIPTS_ROOT_NAME, REPORTS_ROOT_NAME
 from .forms.reports import ReportForm
 from .models import *
 from .reports import get_report, run_report
@@ -798,7 +798,7 @@ class ReportModuleCreateView(generic.ObjectEditView):
     form = ManagedFileForm
 
     def alter_object(self, obj, *args, **kwargs):
-        obj.file_root = REPORTS_ROOT_NAME
+        obj.file_root = ManagedFileRootPathChoices.REPORTS
         return obj
 
 
@@ -937,7 +937,7 @@ class ScriptModuleCreateView(generic.ObjectEditView):
     form = ManagedFileForm
 
     def alter_object(self, obj, *args, **kwargs):
-        obj.file_root = SCRIPTS_ROOT_NAME
+        obj.file_root = ManagedFileRootPathChoices.SCRIPTS
         return obj
 
 
