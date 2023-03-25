@@ -14,7 +14,6 @@ from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
-from extras.models import JobResult
 from netbox.models import PrimaryModel
 from netbox.registry import registry
 from utilities.files import sha256_hash
@@ -113,6 +112,8 @@ class DataSource(PrimaryModel):
         """
         Enqueue a background job to synchronize the DataSource by calling sync().
         """
+        from extras.models import JobResult
+
         # Set the status to "syncing"
         self.status = DataSourceStatusChoices.QUEUED
         DataSource.objects.filter(pk=self.pk).update(status=self.status)
@@ -314,3 +315,14 @@ class DataFile(models.Model):
                 self.data = f.read()
 
         return is_modified
+
+    def write_to_disk(self, path, overwrite=False):
+        """
+        Write the object's data to disk at the specified path
+        """
+        # Check whether file already exists
+        if os.path.isfile(path) and not overwrite:
+            raise FileExistsError()
+
+        with open(path, 'wb+') as new_file:
+            new_file.write(self.data)

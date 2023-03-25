@@ -7,6 +7,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
 
+from core.choices import ManagedFileRootPathChoices
+from core.forms import ManagedFileForm
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.views import generic
@@ -20,8 +22,8 @@ from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
 from .forms.reports import ReportForm
 from .models import *
-from .reports import get_report, get_reports, run_report
-from .scripts import get_scripts, run_script
+from .reports import get_report, run_report
+from .scripts import run_script
 
 
 #
@@ -790,18 +792,34 @@ class DashboardWidgetDeleteView(LoginRequiredMixin, View):
 # Reports
 #
 
+@register_model_view(ReportModule, 'edit')
+class ReportModuleCreateView(generic.ObjectEditView):
+    queryset = ReportModule.objects.all()
+    form = ManagedFileForm
+
+    def alter_object(self, obj, *args, **kwargs):
+        obj.file_root = ManagedFileRootPathChoices.REPORTS
+        return obj
+
+
+@register_model_view(ReportModule, 'delete')
+class ReportModuleDeleteView(generic.ObjectDeleteView):
+    queryset = ReportModule.objects.all()
+    default_return_url = 'extras:report_list'
+
+
 class ReportListView(ContentTypePermissionRequiredMixin, View):
     """
-    Retrieve all of the available reports from disk and the recorded JobResult (if any) for each.
+    Retrieve all the available reports from disk and the recorded JobResult (if any) for each.
     """
     def get_required_permission(self):
         return 'extras.view_report'
 
     def get(self, request):
+        report_modules = ReportModule.objects.restrict(request.user)
 
-        reports = get_reports()
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        results = {
+        job_results = {
             r.name: r
             for r in JobResult.objects.filter(
                 obj_type=report_content_type,
@@ -809,17 +827,10 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
             ).order_by('name', '-created').distinct('name').defer('data')
         }
 
-        ret = []
-
-        for module, report_list in reports.items():
-            module_reports = []
-            for report in report_list.values():
-                report.result = results.get(report.full_name, None)
-                module_reports.append(report)
-            ret.append((module, module_reports))
-
         return render(request, 'extras/report_list.html', {
-            'reports': ret,
+            'model': ReportModule,
+            'report_modules': report_modules,
+            'job_results': job_results,
         })
 
 
@@ -831,10 +842,8 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_report'
 
     def get(self, request, module, name):
-
-        report = get_report(module, name)
-        if report is None:
-            raise Http404
+        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path=f'{module}.py')
+        report = module.reports[name]()
 
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
         report.result = JobResult.objects.filter(
@@ -844,20 +853,17 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         ).first()
 
         return render(request, 'extras/report.html', {
+            'module': module,
             'report': report,
             'form': ReportForm(),
         })
 
     def post(self, request, module, name):
-
-        # Permissions check
         if not request.user.has_perm('extras.run_report'):
             return HttpResponseForbidden()
 
-        report = get_report(module, name)
-        if report is None:
-            raise Http404
-
+        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path=f'{module}.py')
+        report = module.reports[name]()
         form = ReportForm(request.POST)
 
         if form.is_valid():
@@ -883,6 +889,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
             return redirect('extras:report_result', job_result_pk=job_result.pk)
 
         return render(request, 'extras/report.html', {
+            'module': module,
             'report': report,
             'form': form,
         })
@@ -924,15 +931,20 @@ class ReportResultView(ContentTypePermissionRequiredMixin, View):
 # Scripts
 #
 
-class GetScriptMixin:
-    def _get_script(self, name, module=None):
-        if module is None:
-            module, name = name.split('.', 1)
-        scripts = get_scripts()
-        try:
-            return scripts[module][name]()
-        except KeyError:
-            raise Http404
+@register_model_view(ScriptModule, 'edit')
+class ScriptModuleCreateView(generic.ObjectEditView):
+    queryset = ScriptModule.objects.all()
+    form = ManagedFileForm
+
+    def alter_object(self, obj, *args, **kwargs):
+        obj.file_root = ManagedFileRootPathChoices.SCRIPTS
+        return obj
+
+
+@register_model_view(ScriptModule, 'delete')
+class ScriptModuleDeleteView(generic.ObjectDeleteView):
+    queryset = ScriptModule.objects.all()
+    default_return_url = 'extras:script_list'
 
 
 class ScriptListView(ContentTypePermissionRequiredMixin, View):
@@ -941,10 +953,10 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request):
+        script_modules = ScriptModule.objects.restrict(request.user)
 
-        scripts = get_scripts(use_names=True)
         script_content_type = ContentType.objects.get(app_label='extras', model='script')
-        results = {
+        job_results = {
             r.name: r
             for r in JobResult.objects.filter(
                 obj_type=script_content_type,
@@ -952,22 +964,21 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
             ).order_by('name', '-created').distinct('name').defer('data')
         }
 
-        for _scripts in scripts.values():
-            for script in _scripts.values():
-                script.result = results.get(script.full_name)
-
         return render(request, 'extras/script_list.html', {
-            'scripts': scripts,
+            'model': ScriptModule,
+            'script_modules': script_modules,
+            'job_results': job_results,
         })
 
 
-class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
+class ScriptView(ContentTypePermissionRequiredMixin, View):
 
     def get_required_permission(self):
         return 'extras.view_script'
 
     def get(self, request, module, name):
-        script = self._get_script(name, module)
+        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path=f'{module}.py')
+        script = module.scripts[name]()
         form = script.as_form(initial=normalize_querydict(request.GET))
 
         # Look for a pending JobResult (use the latest one by creation timestamp)
@@ -985,12 +996,11 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
         })
 
     def post(self, request, module, name):
-
-        # Permissions check
         if not request.user.has_perm('extras.run_script'):
             return HttpResponseForbidden()
 
-        script = self._get_script(name, module)
+        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path=f'{module}.py')
+        script = module.scripts[name]()
         form = script.as_form(request.POST, request.FILES)
 
         # Allow execution only if RQ worker process is running
@@ -1020,7 +1030,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
         })
 
 
-class ScriptResultView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
+class ScriptResultView(ContentTypePermissionRequiredMixin, View):
 
     def get_required_permission(self):
         return 'extras.view_script'
@@ -1031,7 +1041,9 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, GetScriptMixin, View)
         if result.obj_type != script_content_type:
             raise Http404
 
-        script = self._get_script(result.name)
+        module_name, script_name = result.name.split('.', 1)
+        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path=f'{module_name}.py')
+        script = module.scripts[script_name]()
 
         # If this is an HTMX request, return only the result HTML
         if is_htmx(request):

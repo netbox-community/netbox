@@ -1,75 +1,23 @@
-import inspect
 import logging
-import pkgutil
 import traceback
 from datetime import timedelta
 
-from django.conf import settings
 from django.utils import timezone
+from django.utils.functional import classproperty
 from django_rq import job
 
 from .choices import JobResultStatusChoices, LogLevelChoices
-from .models import JobResult
+from .models import JobResult, ReportModule
 
 logger = logging.getLogger(__name__)
-
-
-def is_report(obj):
-    """
-    Returns True if the given object is a Report.
-    """
-    return obj in Report.__subclasses__()
 
 
 def get_report(module_name, report_name):
     """
     Return a specific report from within a module.
     """
-    reports = get_reports()
-    module = reports.get(module_name)
-
-    if module is None:
-        return None
-
-    report = module.get(report_name)
-
-    if report is None:
-        return None
-
-    return report
-
-
-def get_reports():
-    """
-    Compile a list of all reports available across all modules in the reports path. Returns a list of tuples:
-
-    [
-        (module_name, (report, report, report, ...)),
-        (module_name, (report, report, report, ...)),
-        ...
-    ]
-    """
-    module_list = {}
-
-    # Iterate through all modules within the reports path. These are the user-created files in which reports are
-    # defined.
-    for importer, module_name, _ in pkgutil.iter_modules([settings.REPORTS_ROOT]):
-        module = importer.find_module(module_name).load_module(module_name)
-        report_order = getattr(module, "report_order", ())
-        ordered_reports = [cls() for cls in report_order if is_report(cls)]
-        unordered_reports = [cls() for _, cls in inspect.getmembers(module, is_report) if cls not in report_order]
-
-        module_reports = {}
-
-        for cls in [*ordered_reports, *unordered_reports]:
-            # For reports in submodules use the full import path w/o the root module as the name
-            report_name = cls.full_name.split(".", maxsplit=1)[1]
-            module_reports[report_name] = cls
-
-        if module_reports:
-            module_list[module_name] = module_reports
-
-    return module_list
+    module = ReportModule.objects.get(file_path=f'{module_name}.py')
+    return module.reports.get(report_name)
 
 
 @job('default')
@@ -79,7 +27,7 @@ def run_report(job_result, *args, **kwargs):
     method for queueing into the background processor.
     """
     module_name, report_name = job_result.name.split('.', 1)
-    report = get_report(module_name, report_name)
+    report = get_report(module_name, report_name)()
 
     try:
         job_result.start()
@@ -136,7 +84,7 @@ class Report(object):
         self.active_test = None
         self.failed = False
 
-        self.logger = logging.getLogger(f"netbox.reports.{self.full_name}")
+        self.logger = logging.getLogger(f"netbox.reports.{self.__module__}.{self.__class__.__name__}")
 
         # Compile test methods and initialize results skeleton
         test_methods = []
@@ -154,13 +102,17 @@ class Report(object):
             raise Exception("A report must contain at least one test method.")
         self.test_methods = test_methods
 
-    @property
+    @classproperty
     def module(self):
         return self.__module__
 
-    @property
+    @classproperty
     def class_name(self):
-        return self.__class__.__name__
+        return self.__name__
+
+    @classproperty
+    def full_name(self):
+        return f'{self.module}.{self.class_name}'
 
     @property
     def name(self):
@@ -169,9 +121,9 @@ class Report(object):
         """
         return self.class_name
 
-    @property
-    def full_name(self):
-        return f'{self.module}.{self.class_name}'
+    #
+    # Logging methods
+    #
 
     def _log(self, obj, message, level=LogLevelChoices.LOG_DEFAULT):
         """
@@ -227,6 +179,10 @@ class Report(object):
         self._results[self.active_test]['failure'] += 1
         self.logger.info(f"Failure | {obj}: {message}")
         self.failed = True
+
+    #
+    # Run methods
+    #
 
     def run(self, job_result):
         """

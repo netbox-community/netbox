@@ -11,7 +11,7 @@
 
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ module }}">{{ module|bettertitle }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module{{ module.pk }}">{{ module|bettertitle }}</a></li>
 {% endblock breadcrumbs %}
 
 {% block subtitle %}

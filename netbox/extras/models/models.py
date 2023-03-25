@@ -1,6 +1,11 @@
+import inspect
 import json
+import os
 import uuid
+from functools import cached_property
+from pkgutil import ModuleInfo, get_importer
 
+import django_rq
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
@@ -16,12 +21,13 @@ from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 from rest_framework.utils.encoders import JSONEncoder
-import django_rq
 
+from core.choices import ManagedFileRootPathChoices
+from core.models import ManagedFile
 from extras.choices import *
-from extras.constants import *
 from extras.conditions import ConditionSet
-from extras.utils import FeatureQuery, image_upload
+from extras.constants import *
+from extras.utils import FeatureQuery, image_upload, is_report, is_script
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models import ChangeLoggedModel
@@ -41,8 +47,10 @@ __all__ = (
     'JobResult',
     'JournalEntry',
     'Report',
+    'ReportModule',
     'SavedFilter',
     'Script',
+    'ScriptModule',
     'Webhook',
 )
 
@@ -814,12 +822,75 @@ class ConfigRevision(models.Model):
 # Custom scripts & reports
 #
 
+class PythonModuleMixin:
+
+    @property
+    def path(self):
+        return os.path.splitext(self.file_path)[0]
+
+    def get_module_info(self):
+        path = os.path.dirname(self.full_path)
+        module_name = os.path.basename(self.path)
+        return ModuleInfo(
+            module_finder=get_importer(path),
+            name=module_name,
+            ispkg=False
+        )
+
+    def get_module(self):
+        importer, module_name, _ = self.get_module_info()
+        module = importer.find_module(module_name).load_module(module_name)
+        return module
+
+
 class Script(JobResultsMixin, WebhooksMixin, models.Model):
     """
     Dummy model used to generate permissions for custom scripts. Does not exist in the database.
     """
     class Meta:
         managed = False
+
+
+class ScriptModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(file_root=ManagedFileRootPathChoices.SCRIPTS)
+
+
+class ScriptModule(PythonModuleMixin, ManagedFile):
+    """
+    Proxy model for script module files.
+    """
+    objects = ScriptModuleManager()
+
+    class Meta:
+        proxy = True
+
+    def get_absolute_url(self):
+        return reverse('extras:script_list')
+
+    @cached_property
+    def scripts(self):
+
+        def _get_name(cls):
+            # For child objects in submodules use the full import path w/o the root module as the name
+            return cls.full_name.split(".", maxsplit=1)[1]
+
+        module = self.get_module()
+        scripts = {}
+        ordered = getattr(module, 'script_order', [])
+
+        for cls in ordered:
+            scripts[_get_name(cls)] = cls
+        for name, cls in inspect.getmembers(module, is_script):
+            if cls not in ordered:
+                scripts[_get_name(cls)] = cls
+
+        return scripts
+
+    def save(self, *args, **kwargs):
+        self.file_root = ManagedFileRootPathChoices.SCRIPTS
+        return super().save(*args, **kwargs)
 
 
 #
@@ -832,3 +903,45 @@ class Report(JobResultsMixin, WebhooksMixin, models.Model):
     """
     class Meta:
         managed = False
+
+
+class ReportModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(file_root=ManagedFileRootPathChoices.REPORTS)
+
+
+class ReportModule(PythonModuleMixin, ManagedFile):
+    """
+    Proxy model for report module files.
+    """
+    objects = ReportModuleManager()
+
+    class Meta:
+        proxy = True
+
+    def get_absolute_url(self):
+        return reverse('extras:report_list')
+
+    @cached_property
+    def reports(self):
+
+        def _get_name(cls):
+            # For child objects in submodules use the full import path w/o the root module as the name
+            return cls.full_name.split(".", maxsplit=1)[1]
+
+        module = self.get_module()
+        reports = {}
+        ordered = getattr(module, 'report_order', [])
+
+        for cls in ordered:
+            reports[_get_name(cls)] = cls
+        for name, cls in inspect.getmembers(module, is_report):
+            if cls not in ordered:
+                reports[_get_name(cls)] = cls
+
+        return reports
+
+    def save(self, *args, **kwargs):
+        self.file_root = ManagedFileRootPathChoices.REPORTS
+        return super().save(*args, **kwargs)

@@ -2,9 +2,6 @@ import inspect
 import json
 import logging
 import os
-import pkgutil
-import sys
-import threading
 import traceback
 from datetime import timedelta
 
@@ -17,7 +14,7 @@ from django.utils.functional import classproperty
 
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices, LogLevelChoices
-from extras.models import JobResult
+from extras.models import JobResult, ScriptModule
 from extras.signals import clear_webhooks
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
@@ -42,8 +39,6 @@ __all__ = [
     'StringVar',
     'TextVar',
 ]
-
-lock = threading.Lock()
 
 
 #
@@ -272,7 +267,7 @@ class BaseScript:
     def __init__(self):
 
         # Initiate the log
-        self.logger = logging.getLogger(f"netbox.scripts.{self.module()}.{self.__class__.__name__}")
+        self.logger = logging.getLogger(f"netbox.scripts.{self.__module__}.{self.__class__.__name__}")
         self.log = []
 
         # Declare the placeholder for the current request
@@ -286,20 +281,24 @@ class BaseScript:
         return self.name
 
     @classproperty
+    def module(self):
+        return self.__module__
+
+    @classproperty
+    def class_name(self):
+        return self.__name__
+
+    @classproperty
+    def full_name(self):
+        return f'{self.module}.{self.class_name}'
+
+    @classproperty
     def name(self):
         return getattr(self.Meta, 'name', self.__name__)
 
     @classproperty
-    def full_name(self):
-        return '.'.join([self.__module__, self.__name__])
-
-    @classproperty
     def description(self):
         return getattr(self.Meta, 'description', '')
-
-    @classmethod
-    def module(cls):
-        return cls.__module__
 
     @classmethod
     def root_module(cls):
@@ -427,15 +426,6 @@ class Script(BaseScript):
 # Functions
 #
 
-def is_script(obj):
-    """
-    Returns True if the object is a Script.
-    """
-    try:
-        return issubclass(obj, Script) and obj != Script
-    except TypeError:
-        return False
-
 
 def is_variable(obj):
     """
@@ -452,10 +442,10 @@ def run_script(data, request, commit=True, *args, **kwargs):
     job_result = kwargs.pop('job_result')
     job_result.start()
 
-    module, script_name = job_result.name.split('.', 1)
-    script = get_script(module, script_name)()
+    module_name, script_name = job_result.name.split('.', 1)
+    script = get_script(module_name, script_name)()
 
-    logger = logging.getLogger(f"netbox.scripts.{module}.{script_name}")
+    logger = logging.getLogger(f"netbox.scripts.{module_name}.{script_name}")
     logger.info(f"Running script (commit={commit})")
 
     # Add files to form data
@@ -522,56 +512,9 @@ def run_script(data, request, commit=True, *args, **kwargs):
         )
 
 
-def get_scripts(use_names=False):
-    """
-    Return a dict of dicts mapping all scripts to their modules. Set use_names to True to use each module's human-
-    defined name in place of the actual module name.
-    """
-    scripts = {}
-
-    # Get all modules within the scripts path. These are the user-created files in which scripts are
-    # defined.
-    modules = list(pkgutil.iter_modules([settings.SCRIPTS_ROOT]))
-    modules_bases = set([name.split(".")[0] for _, name, _ in modules])
-
-    # Deleting from sys.modules needs to done behind a lock to prevent race conditions where a module is
-    # removed from sys.modules while another thread is importing
-    with lock:
-        for module_name in list(sys.modules.keys()):
-            # Everything sharing a base module path with a module in the script folder is removed.
-            # We also remove all modules with a base module called "scripts". This allows modifying imported
-            # non-script modules without having to reload the RQ worker.
-            module_base = module_name.split(".")[0]
-            if module_base == "scripts" or module_base in modules_bases:
-                del sys.modules[module_name]
-
-    for importer, module_name, _ in modules:
-        module = importer.find_module(module_name).load_module(module_name)
-
-        if use_names and hasattr(module, 'name'):
-            module_name = module.name
-
-        module_scripts = {}
-        script_order = getattr(module, "script_order", ())
-        ordered_scripts = [cls for cls in script_order if is_script(cls)]
-        unordered_scripts = [cls for _, cls in inspect.getmembers(module, is_script) if cls not in script_order]
-
-        for cls in [*ordered_scripts, *unordered_scripts]:
-            # For scripts in submodules use the full import path w/o the root module as the name
-            script_name = cls.full_name.split(".", maxsplit=1)[1]
-            module_scripts[script_name] = cls
-
-        if module_scripts:
-            scripts[module_name] = module_scripts
-
-    return scripts
-
-
 def get_script(module_name, script_name):
     """
     Retrieve a script class by module and name. Returns None if the script does not exist.
     """
-    scripts = get_scripts()
-    module = scripts.get(module_name)
-    if module:
-        return module.get(script_name)
+    module = ScriptModule.objects.get(file_path=f'{module_name}.py')
+    return module.scripts.get(script_name)

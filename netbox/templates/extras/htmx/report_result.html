@@ -12,7 +12,7 @@
   {% if result.completed %}
     Duration: <strong>{{ result.duration }}</strong>
   {% endif %}
-  <span id="pending-result-label">{% include 'extras/inc/job_label.html' %}</span>
+  <span id="pending-result-label">{% badge result.get_status_display result.get_status_color %}</span>
 </p>
 {% if result.completed %}
   <div class="card">

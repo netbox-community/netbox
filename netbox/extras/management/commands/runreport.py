@@ -5,8 +5,8 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from extras.choices import JobResultStatusChoices
-from extras.models import JobResult
-from extras.reports import get_reports, run_report
+from extras.models import JobResult, ReportModule
+from extras.reports import run_report
 
 
 class Command(BaseCommand):
@@ -17,13 +17,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        # Gather all available reports
-        reports = get_reports()
-
-        # Run reports
-        for module_name, report_list in reports.items():
-            for report in report_list.values():
-                if module_name in options['reports'] or report.full_name in options['reports']:
+        for module in ReportModule.objects.all():
+            for report in module.reports.values():
+                if module.name in options['reports'] or report.full_name in options['reports']:
 
                     # Run the report and create a new JobResult
                     self.stdout.write(

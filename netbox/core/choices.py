@@ -20,7 +20,6 @@ class DataSourceTypeChoices(ChoiceSet):
 
 
 class DataSourceStatusChoices(ChoiceSet):
-
     NEW = 'new'
     QUEUED = 'queued'
     SYNCING = 'syncing'
@@ -33,4 +32,18 @@ class DataSourceStatusChoices(ChoiceSet):
         (SYNCING, _('Syncing'), 'cyan'),
         (COMPLETED, _('Completed'), 'green'),
         (FAILED, _('Failed'), 'red'),
+    )
+
+
+#
+# Managed files
+#
+
+class ManagedFileRootPathChoices(ChoiceSet):
+    SCRIPTS = 'scripts'  # settings.SCRIPTS_ROOT
+    REPORTS = 'reports'  # settings.REPORTS_ROOT
+
+    CHOICES = (
+        (SCRIPTS, _('Scripts')),
+        (REPORTS, _('Reports')),
     )
