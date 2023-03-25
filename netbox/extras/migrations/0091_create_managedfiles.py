@@ -3,7 +3,7 @@ import pkgutil
 
 from django.conf import settings
 from django.db import migrations, models
-import extras.models.models
+import extras.models.mixins
 
 
 def create_files(cls, root_name, root_path):
@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
                 'indexes': [],
                 'constraints': [],
             },
-            bases=(extras.models.models.PythonModuleMixin, 'core.managedfile', models.Model),
+            bases=(extras.models.mixins.PythonModuleMixin, 'core.managedfile', models.Model),
         ),
         migrations.CreateModel(
             name='ScriptModule',
@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
                 'indexes': [],
                 'constraints': [],
             },
-            bases=(extras.models.models.PythonModuleMixin, 'core.managedfile', models.Model),
+            bases=(extras.models.mixins.PythonModuleMixin, 'core.managedfile', models.Model),
         ),
 
         # Instantiate ManagedFiles to represent scripts & reports

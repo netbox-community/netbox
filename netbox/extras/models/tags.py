@@ -9,6 +9,11 @@ from netbox.models.features import ExportTemplatesMixin
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField
 
+__all__ = (
+    'Tag',
+    'TaggedItem',
+)
+
 
 #
 # Tags
