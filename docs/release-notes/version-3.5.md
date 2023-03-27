@@ -2,6 +2,12 @@
 
 ## v3.5.0 (FUTURE)
 
+### Breaking Changes
+
+* The JobResult model has been moved from the `extras` app to `core` and renamed to Job. Accordingly, its REST API endpoint has been moved from `/api/extras/job-results/` to `/api/core/jobs/`.
+* The `obj_type` field on the Job model (previously JobResult) has been renamed to `object_type` for consistency with other models.
+* The `JOBRESULT_RETENTION` configuration parameter has been renamed to `JOB_RETENTION`.
+
 ### New Features
 
 #### Customizable Dashboard ([#9416](https://github.com/netbox-community/netbox/issues/9416))
@@ -58,6 +64,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#11694](https://github.com/netbox-community/netbox/issues/11694) - Remove obsolete `SmallTextarea` form widget
 * [#11737](https://github.com/netbox-community/netbox/issues/11737) - `ChangeLoggedModel` now inherits `WebhooksMixin`
 * [#11765](https://github.com/netbox-community/netbox/issues/11765) - Retire the `StaticSelect` and `StaticSelectMultiple` form widgets
+* [#12067](https://github.com/netbox-community/netbox/issues/12067) - Move & rename `extras.JobResult` to `core.Job`
 
 ### REST API Changes
 
@@ -68,8 +75,12 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
     * `/api/dcim/device/<id>/render-config/`
     * `/api/extras/config-templates/`
     * `/api/ipam/asn-ranges/`
-* Removed existing endpoints:
+* Changed endpoints:
+    * `/api/extras/job-results/` is now `/api/core/jobs/`
+* Removed endpoints:
     * `/api/dcim/device/<id>/napalm/`
+* core.Job
+    * Renamed `obj_type` to `object_type`
 * dcim.DeviceType
     * Added `default_platform` foreign key (optional)
 * dcim.InterfaceTemplate
@@ -79,6 +90,8 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
     * Added `data_source`, `data_file`, `data_path`, and `data_synced` fields to enable syncing data from remote sources
 * extras.ExportTemplate
     * Added `data_source`, `data_file`, `data_path`, and `data_synced` fields to enable syncing content from remote sources
+* extras.JobResult
+    * Move to `core.Job`
 * extras.Webhook
     * Added `type_job_start` and `type_job_end` boolean fields
 * ipam.ASN
