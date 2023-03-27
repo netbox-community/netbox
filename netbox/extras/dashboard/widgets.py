@@ -193,14 +193,16 @@ class RSSFeedWidget(DashboardWidget):
         return f'dashboard_rss_{url_checksum}'
 
     def get_feed(self):
-        # Fetch RSS content from cache
+        # Fetch RSS content from cache if available
         if feed_content := cache.get(self.cache_key):
             feed = feedparser.FeedParserDict(feed_content)
         else:
             feed = feedparser.parse(self.config['feed_url'])
-            # Cap number of entries
-            max_entries = self.config.get('max_entries')
-            feed['entries'] = feed['entries'][:max_entries]
-            cache.set(self.cache_key, dict(feed), self.config.get('cache_timeout'))
+            if not feed.bozo:
+                # Cap number of entries
+                max_entries = self.config.get('max_entries')
+                feed['entries'] = feed['entries'][:max_entries]
+                # Cache the feed content
+                cache.set(self.cache_key, dict(feed), self.config.get('cache_timeout'))
 
         return feed
