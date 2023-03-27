@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('object_id', models.PositiveBigIntegerField(blank=True, null=True)),
                 ('name', models.CharField(max_length=200)),
-                ('created', models.DateTimeField(auto_now_add=True)),
+                ('created', models.DateTimeField()),
                 ('scheduled', models.DateTimeField(blank=True, null=True)),
                 ('interval', models.PositiveIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)])),
                 ('started', models.DateTimeField(blank=True, null=True)),
