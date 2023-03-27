@@ -1,6 +1,6 @@
 import logging
 
-from extras.choices import JobResultStatusChoices
+from .choices import JobStatusChoices
 from netbox.search.backends import search_backend
 from .choices import *
 from .exceptions import SyncError
@@ -25,6 +25,6 @@ def sync_datasource(job_result, *args, **kwargs):
         job_result.terminate()
 
     except SyncError as e:
-        job_result.terminate(status=JobResultStatusChoices.STATUS_ERRORED)
+        job_result.terminate(status=JobStatusChoices.STATUS_ERRORED)
         DataSource.objects.filter(pk=datasource.pk).update(status=DataSourceStatusChoices.FAILED)
         logging.error(e)

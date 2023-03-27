@@ -47,3 +47,32 @@ class ManagedFileRootPathChoices(ChoiceSet):
         (SCRIPTS, _('Scripts')),
         (REPORTS, _('Reports')),
     )
+
+
+#
+# Jobs
+#
+
+class JobStatusChoices(ChoiceSet):
+
+    STATUS_PENDING = 'pending'
+    STATUS_SCHEDULED = 'scheduled'
+    STATUS_RUNNING = 'running'
+    STATUS_COMPLETED = 'completed'
+    STATUS_ERRORED = 'errored'
+    STATUS_FAILED = 'failed'
+
+    CHOICES = (
+        (STATUS_PENDING, 'Pending', 'cyan'),
+        (STATUS_SCHEDULED, 'Scheduled', 'gray'),
+        (STATUS_RUNNING, 'Running', 'blue'),
+        (STATUS_COMPLETED, 'Completed', 'green'),
+        (STATUS_ERRORED, 'Errored', 'red'),
+        (STATUS_FAILED, 'Failed', 'red'),
+    )
+
+    TERMINAL_STATE_CHOICES = (
+        STATUS_COMPLETED,
+        STATUS_ERRORED,
+        STATUS_FAILED,
+    )

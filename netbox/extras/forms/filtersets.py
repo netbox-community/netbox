@@ -11,9 +11,8 @@ from extras.utils import FeatureQuery
 from netbox.forms.base import NetBoxModelFilterSetForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
-    add_blank_choice, APISelectMultiple, BOOLEAN_WITH_BLANK_CHOICES, ContentTypeChoiceField,
-    ContentTypeMultipleChoiceField, DateTimePicker, DynamicModelMultipleChoiceField, FilterForm,
-    TagFilterField,
+    add_blank_choice, APISelectMultiple, BOOLEAN_WITH_BLANK_CHOICES, ContentTypeMultipleChoiceField, DateTimePicker,
+    DynamicModelMultipleChoiceField, FilterForm, TagFilterField,
 )
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .mixins import SavedFiltersMixin
@@ -24,7 +23,6 @@ __all__ = (
     'CustomFieldFilterForm',
     'CustomLinkFilterForm',
     'ExportTemplateFilterForm',
-    'JobResultFilterForm',
     'JournalEntryFilterForm',
     'LocalConfigContextFilterForm',
     'ObjectChangeFilterForm',
@@ -72,66 +70,6 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
-    )
-
-
-class JobResultFilterForm(SavedFiltersMixin, FilterForm):
-    fieldsets = (
-        (None, ('q', 'filter_id')),
-        ('Attributes', ('obj_type', 'status')),
-        ('Creation', (
-            'created__before', 'created__after', 'scheduled__before', 'scheduled__after', 'started__before',
-            'started__after', 'completed__before', 'completed__after', 'user',
-        )),
-    )
-    obj_type = ContentTypeChoiceField(
-        label=_('Object Type'),
-        queryset=ContentType.objects.filter(FeatureQuery('job_results').get_query()),
-        required=False,
-    )
-    status = forms.MultipleChoiceField(
-        choices=JobResultStatusChoices,
-        required=False
-    )
-    created__after = forms.DateTimeField(
-        required=False,
-        widget=DateTimePicker()
-    )
-    created__before = forms.DateTimeField(
-        required=False,
-        widget=DateTimePicker()
-    )
-    scheduled__after = forms.DateTimeField(
-        required=False,
-        widget=DateTimePicker()
-    )
-    scheduled__before = forms.DateTimeField(
-        required=False,
-        widget=DateTimePicker()
-    )
-    started__after = forms.DateTimeField(
-        required=False,
-        widget=DateTimePicker()
-    )
-    started__before = forms.DateTimeField(
-        required=False,
-        widget=DateTimePicker()
-    )
-    completed__after = forms.DateTimeField(
-        required=False,
-        widget=DateTimePicker()
-    )
-    completed__before = forms.DateTimeField(
-        required=False,
-        widget=DateTimePicker()
-    )
-    user = DynamicModelMultipleChoiceField(
-        queryset=User.objects.all(),
-        required=False,
-        label=_('User'),
-        widget=APISelectMultiple(
-            api_url='/api/users/users/',
         )
     )
 

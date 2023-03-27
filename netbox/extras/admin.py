@@ -6,7 +6,7 @@ from django.utils.html import format_html
 
 from netbox.config import get_config, PARAMS
 from .forms import ConfigRevisionForm
-from .models import ConfigRevision, JobResult
+from .models import ConfigRevision
 
 
 @admin.register(ConfigRevision)

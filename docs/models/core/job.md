@@ -1,6 +1,6 @@
-# Job Results
+# Jobs
 
-The JobResult model is used to schedule and record the execution of [background tasks](../../features/background-jobs.md).
+The Job model is used to schedule and record the execution of [background tasks](../../features/background-jobs.md).
 
 ## Fields
 

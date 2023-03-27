@@ -594,7 +594,7 @@ class JobResult(models.Model):
         to=ContentType,
         related_name='job_results',
         verbose_name='Object types',
-        limit_choices_to=FeatureQuery('job_results'),
+        limit_choices_to=FeatureQuery('jobs'),
         help_text=_("The object type to which this job result applies"),
         on_delete=models.CASCADE,
     )

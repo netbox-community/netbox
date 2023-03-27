@@ -12,9 +12,11 @@ from django.core.validators import RegexValidator
 from django.db import transaction
 from django.utils.functional import classproperty
 
+from core.choices import JobStatusChoices
+from core.models import Job
 from extras.api.serializers import ScriptOutputSerializer
-from extras.choices import JobResultStatusChoices, LogLevelChoices
-from extras.models import JobResult, ScriptModule
+from extras.choices import LogLevelChoices
+from extras.models import ScriptModule
 from extras.signals import clear_webhooks
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
@@ -482,7 +484,7 @@ def run_script(data, request, commit=True, *args, **kwargs):
                 logger.error(f"Exception raised during script execution: {e}")
             script.log_info("Database changes have been reverted due to error.")
             job_result.data = ScriptOutputSerializer(script).data
-            job_result.terminate(status=JobResultStatusChoices.STATUS_ERRORED)
+            job_result.terminate(status=JobStatusChoices.STATUS_ERRORED)
             clear_webhooks.send(request)
 
         logger.info(f"Script completed in {job_result.duration}")
@@ -498,7 +500,7 @@ def run_script(data, request, commit=True, *args, **kwargs):
     # Schedule the next job if an interval has been set
     if job_result.interval:
         new_scheduled_time = job_result.scheduled + timedelta(minutes=job_result.interval)
-        JobResult.enqueue_job(
+        Job.enqueue_job(
             run_script,
             name=job_result.name,
             obj_type=job_result.obj_type,

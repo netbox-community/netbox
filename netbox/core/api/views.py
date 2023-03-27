@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from core import filtersets
 from core.models import *
@@ -19,10 +20,6 @@ class CoreRootView(APIRootView):
     def get_view_name(self):
         return 'Core'
 
-
-#
-# Data sources
-#
 
 class DataSourceViewSet(NetBoxModelViewSet):
     queryset = DataSource.objects.annotate(
@@ -50,3 +47,12 @@ class DataFileViewSet(NetBoxReadOnlyModelViewSet):
     queryset = DataFile.objects.defer('data').prefetch_related('source')
     serializer_class = serializers.DataFileSerializer
     filterset_class = filtersets.DataFileFilterSet
+
+
+class JobViewSet(ReadOnlyModelViewSet):
+    """
+    Retrieve a list of job results
+    """
+    queryset = Job.objects.prefetch_related('user')
+    serializer_class = serializers.JobSerializer
+    filterset_class = filtersets.JobFilterSet

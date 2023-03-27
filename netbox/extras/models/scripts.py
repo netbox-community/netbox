@@ -7,7 +7,7 @@ from django.urls import reverse
 from core.choices import ManagedFileRootPathChoices
 from core.models import ManagedFile
 from extras.utils import is_script
-from netbox.models.features import JobResultsMixin, WebhooksMixin
+from netbox.models.features import JobsMixin, WebhooksMixin
 from utilities.querysets import RestrictedQuerySet
 from .mixins import PythonModuleMixin
 
@@ -17,7 +17,7 @@ __all__ = (
 )
 
 
-class Script(JobResultsMixin, WebhooksMixin, models.Model):
+class Script(JobsMixin, WebhooksMixin, models.Model):
     """
     Dummy model used to generate permissions for custom scripts. Does not exist in the database.
     """

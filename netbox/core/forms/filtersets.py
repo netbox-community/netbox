@@ -1,14 +1,22 @@
 from django import forms
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 from core.choices import *
 from core.models import *
+from extras.forms.mixins import SavedFiltersMixin
+from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelFilterSetForm
-from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, DynamicModelMultipleChoiceField
+from utilities.forms import (
+    APISelectMultiple, BOOLEAN_WITH_BLANK_CHOICES, ContentTypeChoiceField, DateTimePicker,
+    DynamicModelMultipleChoiceField, FilterForm,
+)
 
 __all__ = (
     'DataFileFilterForm',
     'DataSourceFilterForm',
+    'JobFilterForm',
 )
 
 
@@ -44,4 +52,64 @@ class DataFileFilterForm(NetBoxModelFilterSetForm):
         queryset=DataSource.objects.all(),
         required=False,
         label=_('Data source')
+    )
+
+
+class JobFilterForm(SavedFiltersMixin, FilterForm):
+    fieldsets = (
+        (None, ('q', 'filter_id')),
+        ('Attributes', ('object_type', 'status')),
+        ('Creation', (
+            'created__before', 'created__after', 'scheduled__before', 'scheduled__after', 'started__before',
+            'started__after', 'completed__before', 'completed__after', 'user',
+        )),
+    )
+    object_type = ContentTypeChoiceField(
+        label=_('Object Type'),
+        queryset=ContentType.objects.filter(FeatureQuery('jobs').get_query()),
+        required=False,
+    )
+    status = forms.MultipleChoiceField(
+        choices=JobStatusChoices,
+        required=False
+    )
+    created__after = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    created__before = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    scheduled__after = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    scheduled__before = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    started__after = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    started__before = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    completed__after = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    completed__before = forms.DateTimeField(
+        required=False,
+        widget=DateTimePicker()
+    )
+    user = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        label=_('User'),
+        widget=APISelectMultiple(
+            api_url='/api/users/users/',
+        )
     )

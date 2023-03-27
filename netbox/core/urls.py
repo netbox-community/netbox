@@ -19,4 +19,9 @@ urlpatterns = (
     path('data-files/delete/', views.DataFileBulkDeleteView.as_view(), name='datafile_bulk_delete'),
     path('data-files/<int:pk>/', include(get_model_urls('core', 'datafile'))),
 
+    # Job results
+    path('jobs/', views.JobListView.as_view(), name='job_list'),
+    path('jobs/delete/', views.JobBulkDeleteView.as_view(), name='job_bulk_delete'),
+    path('jobs/<int:pk>/delete/', views.JobDeleteView.as_view(), name='job_delete'),
+
 )
