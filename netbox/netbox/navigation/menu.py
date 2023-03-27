@@ -326,9 +326,9 @@ OPERATIONS_MENU = Menu(
             label=_('Jobs'),
             items=(
                 MenuItem(
-                    link='extras:jobresult_list',
+                    link='core:job_list',
                     link_text=_('Jobs'),
-                    permissions=['extras.view_jobresult'],
+                    permissions=['core.view_job'],
                 ),
             ),
         ),

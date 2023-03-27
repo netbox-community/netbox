@@ -120,3 +120,25 @@ class DataFileBulkDeleteView(generic.BulkDeleteView):
     queryset = DataFile.objects.defer('data')
     filterset = filtersets.DataFileFilterSet
     table = tables.DataFileTable
+
+
+#
+# Jobs
+#
+
+class JobListView(generic.ObjectListView):
+    queryset = Job.objects.all()
+    filterset = filtersets.JobFilterSet
+    filterset_form = forms.JobFilterForm
+    table = tables.JobTable
+    actions = ('export', 'delete', 'bulk_delete', )
+
+
+class JobDeleteView(generic.ObjectDeleteView):
+    queryset = Job.objects.all()
+
+
+class JobBulkDeleteView(generic.BulkDeleteView):
+    queryset = Job.objects.all()
+    filterset = filtersets.JobFilterSet
+    table = tables.JobTable

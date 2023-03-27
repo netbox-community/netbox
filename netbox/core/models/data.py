@@ -21,6 +21,7 @@ from utilities.querysets import RestrictedQuerySet
 from ..choices import *
 from ..exceptions import SyncError
 from ..signals import post_sync, pre_sync
+from .jobs import Job
 
 __all__ = (
     'DataFile',
@@ -112,14 +113,12 @@ class DataSource(PrimaryModel):
         """
         Enqueue a background job to synchronize the DataSource by calling sync().
         """
-        from extras.models import JobResult
-
         # Set the status to "syncing"
         self.status = DataSourceStatusChoices.QUEUED
         DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
         # Enqueue a sync job
-        job_result = JobResult.enqueue_job(
+        job_result = Job.enqueue_job(
             import_string('core.jobs.sync_datasource'),
             name=self.name,
             obj_type=ContentType.objects.get_for_model(DataSource),

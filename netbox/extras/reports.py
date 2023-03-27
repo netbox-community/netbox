@@ -6,8 +6,10 @@ from django.utils import timezone
 from django.utils.functional import classproperty
 from django_rq import job
 
-from .choices import JobResultStatusChoices, LogLevelChoices
-from .models import JobResult, ReportModule
+from core.choices import JobStatusChoices
+from core.models import Job
+from .choices import LogLevelChoices
+from .models import ReportModule
 
 logger = logging.getLogger(__name__)
 
@@ -33,14 +35,14 @@ def run_report(job_result, *args, **kwargs):
         job_result.start()
         report.run(job_result)
     except Exception:
-        job_result.terminate(status=JobResultStatusChoices.STATUS_ERRORED)
+        job_result.terminate(status=JobStatusChoices.STATUS_ERRORED)
         logging.error(f"Error during execution of report {job_result.name}")
     finally:
         # Schedule the next job if an interval has been set
         start_time = job_result.scheduled or job_result.started
         if start_time and job_result.interval:
             new_scheduled_time = start_time + timedelta(minutes=job_result.interval)
-            JobResult.enqueue_job(
+            Job.enqueue_job(
                 run_report,
                 name=job_result.name,
                 obj_type=job_result.obj_type,
@@ -189,7 +191,7 @@ class Report(object):
         Run the report and save its results. Each test method will be executed in order.
         """
         self.logger.info(f"Running report")
-        job_result.status = JobResultStatusChoices.STATUS_RUNNING
+        job_result.status = JobStatusChoices.STATUS_RUNNING
         job_result.save()
 
         # Perform any post-run tasks
@@ -202,15 +204,15 @@ class Report(object):
                 test_method()
             if self.failed:
                 self.logger.warning("Report failed")
-                job_result.status = JobResultStatusChoices.STATUS_FAILED
+                job_result.status = JobStatusChoices.STATUS_FAILED
             else:
                 self.logger.info("Report completed successfully")
-                job_result.status = JobResultStatusChoices.STATUS_COMPLETED
+                job_result.status = JobStatusChoices.STATUS_COMPLETED
         except Exception as e:
             stacktrace = traceback.format_exc()
             self.log_failure(None, f"An exception occurred: {type(e).__name__}: {e} <pre>{stacktrace}</pre>")
             logger.error(f"Exception raised during report execution: {e}")
-            job_result.terminate(status=JobResultStatusChoices.STATUS_ERRORED)
+            job_result.terminate(status=JobStatusChoices.STATUS_ERRORED)
         finally:
             job_result.terminate()
 

@@ -4,8 +4,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from extras.choices import JobResultStatusChoices
-from extras.models import JobResult, ReportModule
+from core.choices import JobStatusChoices
+from core.models import Job
+from extras.models import ReportModule
 from extras.reports import run_report
 
 
@@ -21,13 +22,13 @@ class Command(BaseCommand):
             for report in module.reports.values():
                 if module.name in options['reports'] or report.full_name in options['reports']:
 
-                    # Run the report and create a new JobResult
+                    # Run the report and create a new Job
                     self.stdout.write(
                         "[{:%H:%M:%S}] Running {}...".format(timezone.now(), report.full_name)
                     )
 
                     report_content_type = ContentType.objects.get(app_label='extras', model='report')
-                    job_result = JobResult.enqueue_job(
+                    job = Job.enqueue_job(
                         run_report,
                         report.full_name,
                         report_content_type,
@@ -36,19 +37,19 @@ class Command(BaseCommand):
                     )
 
                     # Wait on the job to finish
-                    while job_result.status not in JobResultStatusChoices.TERMINAL_STATE_CHOICES:
+                    while job.status not in JobStatusChoices.TERMINAL_STATE_CHOICES:
                         time.sleep(1)
-                        job_result = JobResult.objects.get(pk=job_result.pk)
+                        job = Job.objects.get(pk=job.pk)
 
                     # Report on success/failure
-                    if job_result.status == JobResultStatusChoices.STATUS_FAILED:
+                    if job.status == JobStatusChoices.STATUS_FAILED:
                         status = self.style.ERROR('FAILED')
-                    elif job_result == JobResultStatusChoices.STATUS_ERRORED:
+                    elif job == JobStatusChoices.STATUS_ERRORED:
                         status = self.style.ERROR('ERRORED')
                     else:
                         status = self.style.SUCCESS('SUCCESS')
 
-                    for test_name, attrs in job_result.data.items():
+                    for test_name, attrs in job.data.items():
                         self.stdout.write(
                             "\t{}: {} success, {} info, {} warning, {} failure".format(
                                 test_name, attrs['success'], attrs['info'], attrs['warning'], attrs['failure']
@@ -58,7 +59,7 @@ class Command(BaseCommand):
                         "[{:%H:%M:%S}] {}: {}".format(timezone.now(), report.full_name, status)
                     )
                     self.stdout.write(
-                        "[{:%H:%M:%S}] {}: Duration {}".format(timezone.now(), report.full_name, job_result.duration)
+                        "[{:%H:%M:%S}] {}: Duration {}".format(timezone.now(), report.full_name, job.duration)
                     )
 
         # Wrap things up

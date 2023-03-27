@@ -26,7 +26,7 @@ __all__ = (
     'CustomLinksMixin',
     'CustomValidationMixin',
     'ExportTemplatesMixin',
-    'JobResultsMixin',
+    'JobsMixin',
     'JournalingMixin',
     'SyncedDataMixin',
     'TagsMixin',
@@ -290,7 +290,7 @@ class ExportTemplatesMixin(models.Model):
         abstract = True
 
 
-class JobResultsMixin(models.Model):
+class JobsMixin(models.Model):
     """
     Enables support for job results.
     """
@@ -418,7 +418,7 @@ FEATURES_MAP = {
     'custom_fields': CustomFieldsMixin,
     'custom_links': CustomLinksMixin,
     'export_templates': ExportTemplatesMixin,
-    'job_results': JobResultsMixin,
+    'jobs': JobsMixin,
     'journaling': JournalingMixin,
     'synced_data': SyncedDataMixin,
     'tags': TagsMixin,

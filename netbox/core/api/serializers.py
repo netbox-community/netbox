@@ -2,12 +2,15 @@ from rest_framework import serializers
 
 from core.choices import *
 from core.models import *
-from netbox.api.fields import ChoiceField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer
+from users.api.nested_serializers import NestedUserSerializer
 from .nested_serializers import *
 
 __all__ = (
+    'DataFileSerializer',
     'DataSourceSerializer',
+    'JobSerializer',
 )
 
 
@@ -48,4 +51,22 @@ class DataFileSerializer(NetBoxModelSerializer):
         model = DataFile
         fields = [
             'id', 'url', 'display', 'source', 'path', 'last_updated', 'size', 'hash',
+        ]
+
+
+class JobSerializer(BaseModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='core-api:job-detail')
+    user = NestedUserSerializer(
+        read_only=True
+    )
+    status = ChoiceField(choices=JobStatusChoices, read_only=True)
+    object_type = ContentTypeField(
+        read_only=True
+    )
+
+    class Meta:
+        model = Job
+        fields = [
+            'id', 'url', 'display', 'status', 'created', 'scheduled', 'interval', 'started', 'completed', 'name',
+            'object_type', 'user', 'data', 'job_id',
         ]

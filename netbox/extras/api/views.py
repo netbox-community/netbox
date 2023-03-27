@@ -12,10 +12,10 @@ from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from rq import Worker
 
+from core.choices import JobStatusChoices
+from core.models import Job
 from extras import filtersets
-from extras.choices import JobResultStatusChoices
 from extras.models import *
-from extras.models import CustomField
 from extras.reports import get_report, run_report
 from extras.scripts import get_script, run_script
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
@@ -191,9 +191,9 @@ class ReportViewSet(ViewSet):
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
         results = {
             r.name: r
-            for r in JobResult.objects.filter(
-                obj_type=report_content_type,
-                status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+            for r in Job.objects.filter(
+                object_type=report_content_type,
+                status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
             ).order_by('name', '-created').distinct('name').defer('data')
         }
 
@@ -201,7 +201,7 @@ class ReportViewSet(ViewSet):
         for report_module in ReportModule.objects.restrict(request.user):
             report_list.extend([report() for report in report_module.reports.values()])
 
-        # Attach JobResult objects to each report (if any)
+        # Attach Job objects to each report (if any)
         for report in report_list:
             report.result = results.get(report.full_name, None)
 
@@ -216,13 +216,13 @@ class ReportViewSet(ViewSet):
         Retrieve a single Report identified as "<module>.<report>".
         """
 
-        # Retrieve the Report and JobResult, if any.
+        # Retrieve the Report and Job, if any.
         report = self._retrieve_report(pk)
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        report.result = JobResult.objects.filter(
-            obj_type=report_content_type,
+        report.result = Job.objects.filter(
+            object_type=report_content_type,
             name=report.full_name,
-            status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
 
         serializer = serializers.ReportDetailSerializer(report, context={
@@ -234,7 +234,7 @@ class ReportViewSet(ViewSet):
     @action(detail=True, methods=['post'])
     def run(self, request, pk):
         """
-        Run a Report identified as "<module>.<script>" and return the pending JobResult as the result
+        Run a Report identified as "<module>.<script>" and return the pending Job as the result
         """
         # Check that the user has permission to run reports.
         if not request.user.has_perm('extras.run_report'):
@@ -244,12 +244,12 @@ class ReportViewSet(ViewSet):
         if not Worker.count(get_connection('default')):
             raise RQWorkerNotRunningException()
 
-        # Retrieve and run the Report. This will create a new JobResult.
+        # Retrieve and run the Report. This will create a new Job.
         report = self._retrieve_report(pk)
         input_serializer = serializers.ReportInputSerializer(data=request.data)
 
         if input_serializer.is_valid():
-            job_result = JobResult.enqueue_job(
+            report.result = Job.enqueue_job(
                 run_report,
                 name=report.full_name,
                 obj_type=ContentType.objects.get_for_model(Report),
@@ -258,8 +258,6 @@ class ReportViewSet(ViewSet):
                 schedule_at=input_serializer.validated_data.get('schedule_at'),
                 interval=input_serializer.validated_data.get('interval')
             )
-            report.result = job_result
-
             serializer = serializers.ReportDetailSerializer(report, context={'request': request})
 
             return Response(serializer.data)
@@ -288,9 +286,9 @@ class ScriptViewSet(ViewSet):
         script_content_type = ContentType.objects.get(app_label='extras', model='script')
         results = {
             r.name: r
-            for r in JobResult.objects.filter(
-                obj_type=script_content_type,
-                status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+            for r in Job.objects.filter(
+                object_type=script_content_type,
+                status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
             ).order_by('name', '-created').distinct('name').defer('data')
         }
 
@@ -298,7 +296,7 @@ class ScriptViewSet(ViewSet):
         for script_module in ScriptModule.objects.restrict(request.user):
             script_list.extend(script_module.scripts.values())
 
-        # Attach JobResult objects to each script (if any)
+        # Attach Job objects to each script (if any)
         for script in script_list:
             script.result = results.get(script.full_name, None)
 
@@ -309,10 +307,10 @@ class ScriptViewSet(ViewSet):
     def retrieve(self, request, pk):
         script = self._get_script(pk)
         script_content_type = ContentType.objects.get(app_label='extras', model='script')
-        script.result = JobResult.objects.filter(
-            obj_type=script_content_type,
+        script.result = Job.objects.filter(
+            object_type=script_content_type,
             name=script.full_name,
-            status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
         serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
@@ -320,7 +318,7 @@ class ScriptViewSet(ViewSet):
 
     def post(self, request, pk):
         """
-        Run a Script identified as "<module>.<script>" and return the pending JobResult as the result
+        Run a Script identified as "<module>.<script>" and return the pending Job as the result
         """
 
         if not request.user.has_perm('extras.run_script'):
@@ -334,7 +332,7 @@ class ScriptViewSet(ViewSet):
             raise RQWorkerNotRunningException()
 
         if input_serializer.is_valid():
-            job_result = JobResult.enqueue_job(
+            script.result = Job.enqueue_job(
                 run_script,
                 name=script.full_name,
                 obj_type=ContentType.objects.get_for_model(Script),
@@ -346,7 +344,6 @@ class ScriptViewSet(ViewSet):
                 schedule_at=input_serializer.validated_data.get('schedule_at'),
                 interval=input_serializer.validated_data.get('interval')
             )
-            script.result = job_result
             serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
             return Response(serializer.data)
@@ -366,19 +363,6 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     queryset = ObjectChange.objects.prefetch_related('user')
     serializer_class = serializers.ObjectChangeSerializer
     filterset_class = filtersets.ObjectChangeFilterSet
-
-
-#
-# Job Results
-#
-
-class JobResultViewSet(ReadOnlyModelViewSet):
-    """
-    Retrieve a list of job results
-    """
-    queryset = JobResult.objects.prefetch_related('user')
-    serializer_class = serializers.JobResultSerializer
-    filterset_class = filtersets.JobResultFilterSet
 
 
 #

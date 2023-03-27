@@ -2,13 +2,14 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
-from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
 
-from core.choices import ManagedFileRootPathChoices
+from core.choices import JobStatusChoices, ManagedFileRootPathChoices
 from core.forms import ManagedFileForm
+from core.models import Job
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.views import generic
@@ -19,7 +20,6 @@ from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
-from .choices import JobResultStatusChoices
 from .forms.reports import ReportForm
 from .models import *
 from .reports import get_report, run_report
@@ -810,7 +810,7 @@ class ReportModuleDeleteView(generic.ObjectDeleteView):
 
 class ReportListView(ContentTypePermissionRequiredMixin, View):
     """
-    Retrieve all the available reports from disk and the recorded JobResult (if any) for each.
+    Retrieve all the available reports from disk and the recorded Job (if any) for each.
     """
     def get_required_permission(self):
         return 'extras.view_report'
@@ -821,9 +821,9 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
         job_results = {
             r.name: r
-            for r in JobResult.objects.filter(
-                obj_type=report_content_type,
-                status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+            for r in Job.objects.filter(
+                object_type=report_content_type,
+                status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
             ).order_by('name', '-created').distinct('name').defer('data')
         }
 
@@ -836,7 +836,7 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
 
 class ReportView(ContentTypePermissionRequiredMixin, View):
     """
-    Display a single Report and its associated JobResult (if any).
+    Display a single Report and its associated Job (if any).
     """
     def get_required_permission(self):
         return 'extras.view_report'
@@ -846,10 +846,10 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         report = module.reports[name]()
 
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        report.result = JobResult.objects.filter(
-            obj_type=report_content_type,
+        report.result = Job.objects.filter(
+            object_type=report_content_type,
             name=report.full_name,
-            status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
 
         return render(request, 'extras/report.html', {
@@ -875,8 +875,8 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
                     'report': report,
                 })
 
-            # Run the Report. A new JobResult is created.
-            job_result = JobResult.enqueue_job(
+            # Run the Report. A new Job is created.
+            job_result = Job.enqueue_job(
                 run_report,
                 name=report.full_name,
                 obj_type=ContentType.objects.get_for_model(Report),
@@ -897,16 +897,16 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
 
 class ReportResultView(ContentTypePermissionRequiredMixin, View):
     """
-    Display a JobResult pertaining to the execution of a Report.
+    Display a Job pertaining to the execution of a Report.
     """
     def get_required_permission(self):
         return 'extras.view_report'
 
     def get(self, request, job_result_pk):
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        result = get_object_or_404(JobResult.objects.all(), pk=job_result_pk, obj_type=report_content_type)
+        result = get_object_or_404(Job.objects.all(), pk=job_result_pk, object_type=report_content_type)
 
-        # Retrieve the Report and attach the JobResult to it
+        # Retrieve the Report and attach the Job to it
         module, report_name = result.name.split('.', maxsplit=1)
         report = get_report(module, report_name)
         report.result = result
@@ -958,9 +958,9 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         script_content_type = ContentType.objects.get(app_label='extras', model='script')
         job_results = {
             r.name: r
-            for r in JobResult.objects.filter(
-                obj_type=script_content_type,
-                status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+            for r in Job.objects.filter(
+                object_type=script_content_type,
+                status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
             ).order_by('name', '-created').distinct('name').defer('data')
         }
 
@@ -981,12 +981,12 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
         script = module.scripts[name]()
         form = script.as_form(initial=normalize_querydict(request.GET))
 
-        # Look for a pending JobResult (use the latest one by creation timestamp)
-        script.result = JobResult.objects.filter(
-            obj_type=ContentType.objects.get_for_model(Script),
+        # Look for a pending Job (use the latest one by creation timestamp)
+        script.result = Job.objects.filter(
+            object_type=ContentType.objects.get_for_model(Script),
             name=script.full_name,
         ).exclude(
-            status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
 
         return render(request, 'extras/script.html', {
@@ -1008,7 +1008,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
             messages.error(request, "Unable to run script: RQ worker process not running.")
 
         elif form.is_valid():
-            job_result = JobResult.enqueue_job(
+            job_result = Job.enqueue_job(
                 run_script,
                 name=script.full_name,
                 obj_type=ContentType.objects.get_for_model(Script),
@@ -1036,10 +1036,8 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request, job_result_pk):
-        result = get_object_or_404(JobResult.objects.all(), pk=job_result_pk)
         script_content_type = ContentType.objects.get(app_label='extras', model='script')
-        if result.obj_type != script_content_type:
-            raise Http404
+        result = get_object_or_404(Job.objects.all(), pk=job_result_pk, object_type=script_content_type)
 
         module_name, script_name = result.name.split('.', 1)
         module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path=f'{module_name}.py')
@@ -1060,28 +1058,6 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
             'result': result,
             'class_name': script.__class__.__name__
         })
-
-
-#
-# Job results
-#
-
-class JobResultListView(generic.ObjectListView):
-    queryset = JobResult.objects.all()
-    filterset = filtersets.JobResultFilterSet
-    filterset_form = forms.JobResultFilterForm
-    table = tables.JobResultTable
-    actions = ('export', 'delete', 'bulk_delete', )
-
-
-class JobResultDeleteView(generic.ObjectDeleteView):
-    queryset = JobResult.objects.all()
-
-
-class JobResultBulkDeleteView(generic.BulkDeleteView):
-    queryset = JobResult.objects.all()
-    filterset = filtersets.JobResultFilterSet
-    table = tables.JobResultTable
 
 
 #

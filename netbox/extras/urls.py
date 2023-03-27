@@ -106,11 +106,6 @@ urlpatterns = [
     path('scripts/<int:pk>/', include(get_model_urls('extras', 'scriptmodule'))),
     path('scripts/<path:module>.<str:name>/', views.ScriptView.as_view(), name='script'),
 
-    # Job results
-    path('job-results/', views.JobResultListView.as_view(), name='jobresult_list'),
-    path('job-results/delete/', views.JobResultBulkDeleteView.as_view(), name='jobresult_bulk_delete'),
-    path('job-results/<int:pk>/delete/', views.JobResultDeleteView.as_view(), name='jobresult_delete'),
-
     # Markdown
     path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown")
 ]
