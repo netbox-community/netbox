@@ -26,7 +26,7 @@ Some configuration parameters are primarily controlled via NetBox's admin interf
 * [`DEFAULT_USER_PREFERENCES`](./default-values.md#default_user_preferences)
 * [`ENFORCE_GLOBAL_UNIQUE`](./miscellaneous.md#enforce_global_unique)
 * [`GRAPHQL_ENABLED`](./miscellaneous.md#graphql_enabled)
-* [`JOBRESULT_RETENTION`](./miscellaneous.md#jobresult_retention)
+* [`JOB_RETENTION`](./miscellaneous.md#job_retention)
 * [`MAINTENANCE_MODE`](./miscellaneous.md#maintenance_mode)
 * [`MAPS_URL`](./miscellaneous.md#maps_url)
 * [`MAX_PAGE_SIZE`](./miscellaneous.md#max_page_size)
