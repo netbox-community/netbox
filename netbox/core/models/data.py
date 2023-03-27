@@ -118,11 +118,10 @@ class DataSource(PrimaryModel):
         DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
         # Enqueue a sync job
-        job_result = Job.enqueue_job(
+        job_result = Job.enqueue(
             import_string('core.jobs.sync_datasource'),
-            name=self.name,
-            obj_type=ContentType.objects.get_for_model(DataSource),
-            user=request.user,
+            instance=self,
+            user=request.user
         )
 
         return job_result

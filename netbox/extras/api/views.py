@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
 from rest_framework import status
 from rest_framework.decorators import action

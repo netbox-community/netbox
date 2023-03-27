@@ -28,24 +28,24 @@ def run_report(job_result, *args, **kwargs):
     Helper function to call the run method on a report. This is needed to get around the inability to pickle an instance
     method for queueing into the background processor.
     """
-    module_name, report_name = job_result.name.split('.', 1)
-    report = get_report(module_name, report_name)()
+    job_result.start()
+
+    module = ReportModule.objects.get(pk=job_result.object_id)
+    report = module.reports.get(job_result.name)()
 
     try:
-        job_result.start()
         report.run(job_result)
     except Exception:
         job_result.terminate(status=JobStatusChoices.STATUS_ERRORED)
         logging.error(f"Error during execution of report {job_result.name}")
     finally:
         # Schedule the next job if an interval has been set
-        start_time = job_result.scheduled or job_result.started
-        if start_time and job_result.interval:
-            new_scheduled_time = start_time + timedelta(minutes=job_result.interval)
-            Job.enqueue_job(
+        if job_result.interval:
+            new_scheduled_time = job_result.scheduled + timedelta(minutes=job_result.interval)
+            Job.enqueue(
                 run_report,
+                instance=job_result.object,
                 name=job_result.name,
-                obj_type=job_result.obj_type,
                 user=job_result.user,
                 job_timeout=report.job_timeout,
                 schedule_at=new_scheduled_time,

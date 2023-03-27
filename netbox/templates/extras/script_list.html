@@ -58,7 +58,7 @@
                     </td>
                     {% if last_result %}
                       <td>
-                        <a href="{% url 'extras:script_result' job_result_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
+                        <a href="{% url 'extras:script_result' job_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
                       </td>
                       <td class="text-end">
                         {% badge last_result.get_status_display last_result.get_status_color %}

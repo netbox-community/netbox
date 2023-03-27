@@ -845,10 +845,11 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path=f'{module}.py')
         report = module.reports[name]()
 
-        report_content_type = ContentType.objects.get(app_label='extras', model='report')
+        object_type = ContentType.objects.get(app_label='extras', model='reportmodule')
         report.result = Job.objects.filter(
-            object_type=report_content_type,
-            name=report.full_name,
+            object_type=object_type,
+            object_id=module.pk,
+            name=report.name,
             status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
 
@@ -876,17 +877,17 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
                 })
 
             # Run the Report. A new Job is created.
-            job_result = Job.enqueue_job(
+            job = Job.enqueue(
                 run_report,
-                name=report.full_name,
-                obj_type=ContentType.objects.get_for_model(Report),
+                instance=module,
+                name=report.class_name,
                 user=request.user,
                 schedule_at=form.cleaned_data.get('schedule_at'),
                 interval=form.cleaned_data.get('interval'),
                 job_timeout=report.job_timeout
             )
 
-            return redirect('extras:report_result', job_result_pk=job_result.pk)
+            return redirect('extras:report_result', job_pk=job.pk)
 
         return render(request, 'extras/report.html', {
             'module': module,
@@ -902,28 +903,26 @@ class ReportResultView(ContentTypePermissionRequiredMixin, View):
     def get_required_permission(self):
         return 'extras.view_report'
 
-    def get(self, request, job_result_pk):
-        report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        result = get_object_or_404(Job.objects.all(), pk=job_result_pk, object_type=report_content_type)
+    def get(self, request, job_pk):
+        object_type = ContentType.objects.get_by_natural_key(app_label='extras', model='reportmodule')
+        job = get_object_or_404(Job.objects.all(), pk=job_pk, object_type=object_type)
 
-        # Retrieve the Report and attach the Job to it
-        module, report_name = result.name.split('.', maxsplit=1)
-        report = get_report(module, report_name)
-        report.result = result
+        module = job.object
+        report = module.reports[job.name]
 
         # If this is an HTMX request, return only the result HTML
         if is_htmx(request):
             response = render(request, 'extras/htmx/report_result.html', {
                 'report': report,
-                'result': result,
+                'job': job,
             })
-            if result.completed or not result.started:
+            if job.completed or not job.started:
                 response.status_code = 286
             return response
 
         return render(request, 'extras/report_result.html', {
             'report': report,
-            'result': result,
+            'job': job,
         })
 
 
@@ -982,9 +981,11 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
         form = script.as_form(initial=normalize_querydict(request.GET))
 
         # Look for a pending Job (use the latest one by creation timestamp)
+        object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
         script.result = Job.objects.filter(
-            object_type=ContentType.objects.get_for_model(Script),
-            name=script.full_name,
+            object_type=object_type,
+            object_id=module.pk,
+            name=script.name,
         ).exclude(
             status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
@@ -1008,10 +1009,10 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
             messages.error(request, "Unable to run script: RQ worker process not running.")
 
         elif form.is_valid():
-            job_result = Job.enqueue_job(
+            job = Job.enqueue(
                 run_script,
-                name=script.full_name,
-                obj_type=ContentType.objects.get_for_model(Script),
+                instance=module,
+                name=script.class_name,
                 user=request.user,
                 schedule_at=form.cleaned_data.pop('_schedule_at'),
                 interval=form.cleaned_data.pop('_interval'),
@@ -1021,7 +1022,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
                 commit=form.cleaned_data.pop('_commit')
             )
 
-            return redirect('extras:script_result', job_result_pk=job_result.pk)
+            return redirect('extras:script_result', job_pk=job.pk)
 
         return render(request, 'extras/script.html', {
             'module': module,
@@ -1035,28 +1036,26 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
     def get_required_permission(self):
         return 'extras.view_script'
 
-    def get(self, request, job_result_pk):
-        script_content_type = ContentType.objects.get(app_label='extras', model='script')
-        result = get_object_or_404(Job.objects.all(), pk=job_result_pk, object_type=script_content_type)
+    def get(self, request, job_pk):
+        object_type = ContentType.objects.get_by_natural_key(app_label='extras', model='scriptmodule')
+        job = get_object_or_404(Job.objects.all(), pk=job_pk, object_type=object_type)
 
-        module_name, script_name = result.name.split('.', 1)
-        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path=f'{module_name}.py')
-        script = module.scripts[script_name]()
+        module = job.object
+        script = module.scripts[job.name]()
 
         # If this is an HTMX request, return only the result HTML
         if is_htmx(request):
             response = render(request, 'extras/htmx/script_result.html', {
                 'script': script,
-                'result': result,
+                'job': job,
             })
-            if result.completed or not result.started:
+            if job.completed or not job.started:
                 response.status_code = 286
             return response
 
         return render(request, 'extras/script_result.html', {
             'script': script,
-            'result': result,
-            'class_name': script.__class__.__name__
+            'job': job,
         })
 
 

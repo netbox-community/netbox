@@ -1,6 +1,7 @@
 import inspect
 from functools import cached_property
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 
@@ -35,6 +36,12 @@ class ReportModule(PythonModuleMixin, ManagedFile):
     """
     Proxy model for report module files.
     """
+    jobs = GenericRelation(
+        to='core.Job',
+        content_type_field='object_type',
+        object_id_field='object_id'
+    )
+
     objects = ReportModuleManager()
 
     class Meta:
