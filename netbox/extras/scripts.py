@@ -25,7 +25,7 @@ from utilities.forms import add_blank_choice, DynamicModelChoiceField, DynamicMo
 from .context_managers import change_logging
 from .forms import ScriptForm
 
-__all__ = [
+__all__ = (
     'BaseScript',
     'BooleanVar',
     'ChoiceVar',
@@ -40,7 +40,9 @@ __all__ = [
     'Script',
     'StringVar',
     'TextVar',
-]
+    'get_module_and_script',
+    'run_script',
+)
 
 
 #
@@ -436,6 +438,12 @@ def is_variable(obj):
     return isinstance(obj, ScriptVariable)
 
 
+def get_module_and_script(module_name, script_name):
+    module = ScriptModule.objects.get(file_path=f'{module_name}.py')
+    script = module.scripts.get(script_name)
+    return module, script
+
+
 def run_script(data, request, commit=True, *args, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
@@ -512,17 +520,3 @@ def run_script(data, request, commit=True, *args, **kwargs):
             request=request,
             commit=commit
         )
-
-
-def get_script(module_name, script_name):
-    """
-    Retrieve a script class by module and name. Returns None if the script does not exist.
-    """
-    module = ScriptModule.objects.get(file_path=f'{module_name}.py')
-    return module.scripts.get(script_name)
-
-
-def get_module_and_script(module_name, script_name):
-    module = ScriptModule.objects.get(file_path=f'{module_name}.py')
-    script = module.scripts.get(script_name)
-    return module, script

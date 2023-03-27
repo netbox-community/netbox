@@ -5,7 +5,6 @@ import traceback
 import uuid
 
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
@@ -13,7 +12,7 @@ from core.choices import JobStatusChoices
 from core.models import Job
 from extras.api.serializers import ScriptOutputSerializer
 from extras.context_managers import change_logging
-from extras.scripts import get_script
+from extras.scripts import get_module_and_script
 from extras.signals import clear_webhooks
 from utilities.exceptions import AbortTransaction
 from utilities.utils import NetBoxFakeRequest
@@ -73,7 +72,8 @@ class Command(BaseCommand):
         except TypeError:
             data = {}
 
-        module, name = script.split('.', 1)
+        module_name, script_name = script.split('.', 1)
+        module, script = get_module_and_script(module_name, script_name)
 
         # Take user from command line if provided and exists, other
         if options['user']:
@@ -90,7 +90,7 @@ class Command(BaseCommand):
         stdouthandler.setLevel(logging.DEBUG)
         stdouthandler.setFormatter(formatter)
 
-        logger = logging.getLogger(f"netbox.scripts.{module}.{name}")
+        logger = logging.getLogger(f"netbox.scripts.{script.full_name}")
         logger.addHandler(stdouthandler)
 
         try:
@@ -105,17 +105,14 @@ class Command(BaseCommand):
         except KeyError:
             raise CommandError(f"Invalid log level: {loglevel}")
 
-        # Get the script
-        script = get_script(module, name)()
-        # Parse the parameters
+        # Initialize the script form
+        script = script()
         form = script.as_form(data, None)
 
-        script_content_type = ContentType.objects.get(app_label='extras', model='script')
-
-        # Create the job result
+        # Create the job
         job_result = Job.objects.create(
-            name=script.full_name,
-            obj_type=script_content_type,
+            instance=module,
+            name=script.name,
             user=User.objects.filter(is_superuser=True).order_by('pk')[0],
             job_id=uuid.uuid4()
         )

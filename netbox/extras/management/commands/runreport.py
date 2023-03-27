@@ -1,6 +1,5 @@
 import time
 
-from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
@@ -27,12 +26,10 @@ class Command(BaseCommand):
                         "[{:%H:%M:%S}] Running {}...".format(timezone.now(), report.full_name)
                     )
 
-                    report_content_type = ContentType.objects.get(app_label='extras', model='report')
-                    job = Job.enqueue_job(
+                    job = Job.enqueue(
                         run_report,
-                        report.full_name,
-                        report_content_type,
-                        None,
+                        instance=module,
+                        name=report.class_name,
                         job_timeout=report.job_timeout
                     )
 

@@ -11,15 +11,13 @@ from core.models import Job
 from .choices import LogLevelChoices
 from .models import ReportModule
 
+__all__ = (
+    'Report',
+    'get_module_and_report',
+    'run_report',
+)
+
 logger = logging.getLogger(__name__)
-
-
-def get_report(module_name, report_name):
-    """
-    Return a specific report from within a module.
-    """
-    module = ReportModule.objects.get(file_path=f'{module_name}.py')
-    return module.reports.get(report_name)
 
 
 def get_module_and_report(module_name, report_name):

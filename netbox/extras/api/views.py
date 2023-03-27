@@ -17,8 +17,8 @@ from core.choices import JobStatusChoices
 from core.models import Job
 from extras import filtersets
 from extras.models import *
-from extras.reports import get_module_and_report, get_report, run_report
-from extras.scripts import get_module_and_script, get_script, run_script
+from extras.reports import get_module_and_report, run_report
+from extras.scripts import get_module_and_script, run_script
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata

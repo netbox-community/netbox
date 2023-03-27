@@ -22,7 +22,7 @@ from utilities.views import ContentTypePermissionRequiredMixin, register_model_v
 from . import filtersets, forms, tables
 from .forms.reports import ReportForm
 from .models import *
-from .reports import get_report, run_report
+from .reports import run_report
 from .scripts import run_script
 
 

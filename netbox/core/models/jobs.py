@@ -162,39 +162,6 @@ class Job(models.Model):
         self.trigger_webhooks(event=EVENT_JOB_END)
 
     @classmethod
-    def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, interval=None, *args, **kwargs):
-        """
-        Create a Job instance and enqueue a job using the given callable
-
-        Args:
-            func: The callable object to be enqueued for execution
-            name: Name for the job (optional)
-            obj_type: ContentType to link to the Job instance object_type
-            user: User object to link to the Job instance
-            schedule_at: Schedule the job to be executed at the passed date and time
-            interval: Recurrence interval (in minutes)
-        """
-        rq_queue_name = get_queue_for_model(obj_type.model)
-        queue = django_rq.get_queue(rq_queue_name)
-        status = JobStatusChoices.STATUS_SCHEDULED if schedule_at else JobStatusChoices.STATUS_PENDING
-        job = Job.objects.create(
-            name=name,
-            status=status,
-            object_type=obj_type,
-            scheduled=schedule_at,
-            interval=interval,
-            user=user,
-            job_id=uuid.uuid4()
-        )
-
-        if schedule_at:
-            queue.enqueue_at(schedule_at, func, job_id=str(job.job_id), job_result=job, **kwargs)
-        else:
-            queue.enqueue(func, job_id=str(job.job_id), job_result=job, **kwargs)
-
-        return job
-
-    @classmethod
     def enqueue(cls, func, instance, name=None, user=None, schedule_at=None, interval=None, **kwargs):
         """
         Create a Job instance and enqueue a job using the given callable
