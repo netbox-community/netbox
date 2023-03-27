@@ -9,6 +9,7 @@ from django_rq.queues import get_connection
 from rest_framework import status
 from rq import Worker
 
+from core.choices import ManagedFileRootPathChoices
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
 from extras.api.views import ReportViewSet, ScriptViewSet
 from extras.models import *
@@ -524,14 +525,21 @@ class ReportTest(APITestCase):
         def test_foo(self):
             self.log_success(None, "Report completed")
 
+    @classmethod
+    def setUpTestData(cls):
+        ReportModule.objects.create(
+            file_root=ManagedFileRootPathChoices.REPORTS,
+            file_path='/var/tmp/report.py'
+        )
+
     def get_test_report(self, *args):
-        return self.TestReport()
+        return ReportModule.objects.first(), self.TestReport()
 
     def setUp(self):
         super().setUp()
 
-        # Monkey-patch the API viewset's _get_script method to return our test script above
-        ReportViewSet._retrieve_report = self.get_test_report
+        # Monkey-patch the API viewset's _get_report() method to return our test Report above
+        ReportViewSet._get_report = self.get_test_report
 
     def test_get_report(self):
         url = reverse('extras-api:report-detail', kwargs={'pk': None})
@@ -569,14 +577,20 @@ class ScriptTest(APITestCase):
 
             return 'Script complete'
 
+    @classmethod
+    def setUpTestData(cls):
+        ScriptModule.objects.create(
+            file_root=ManagedFileRootPathChoices.SCRIPTS,
+            file_path='/var/tmp/script.py'
+        )
+
     def get_test_script(self, *args):
-        return self.TestScript
+        return ScriptModule.objects.first(), self.TestScript
 
     def setUp(self):
-
         super().setUp()
 
-        # Monkey-patch the API viewset's _get_script method to return our test script above
+        # Monkey-patch the API viewset's _get_script() method to return our test Script above
         ScriptViewSet._get_script = self.get_test_script
 
     def test_get_script(self):

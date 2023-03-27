@@ -22,6 +22,12 @@ def get_report(module_name, report_name):
     return module.reports.get(report_name)
 
 
+def get_module_and_report(module_name, report_name):
+    module = ReportModule.objects.get(file_path=f'{module_name}.py')
+    report = module.reports.get(report_name)
+    return module, report
+
+
 @job('default')
 def run_report(job_result, *args, **kwargs):
     """

@@ -520,3 +520,9 @@ def get_script(module_name, script_name):
     """
     module = ScriptModule.objects.get(file_path=f'{module_name}.py')
     return module.scripts.get(script_name)
+
+
+def get_module_and_script(module_name, script_name):
+    module = ScriptModule.objects.get(file_path=f'{module_name}.py')
+    script = module.scripts.get(script_name)
+    return module, script
