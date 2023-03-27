@@ -9,7 +9,7 @@ def replicate_jobresults(apps, schema_editor):
     JobResult = apps.get_model('extras', 'JobResult')
 
     jobs = []
-    for job_result in JobResult.objects.iterator(chunk_size=100):
+    for job_result in JobResult.objects.order_by('pk').iterator(chunk_size=100):
         jobs.append(
             Job(
                 object_type=job_result.obj_type,
