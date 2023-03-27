@@ -67,10 +67,10 @@ class Command(BaseCommand):
         # Delete expired Jobs
         if options['verbosity']:
             self.stdout.write("[*] Checking for expired jobs")
-        if config.JOBRESULT_RETENTION:
-            cutoff = timezone.now() - timedelta(days=config.JOBRESULT_RETENTION)
+        if config.JOB_RETENTION:
+            cutoff = timezone.now() - timedelta(days=config.JOB_RETENTION)
             if options['verbosity'] >= 2:
-                self.stdout.write(f"\tRetention period: {config.JOBRESULT_RETENTION} days")
+                self.stdout.write(f"\tRetention period: {config.JOB_RETENTION} days")
                 self.stdout.write(f"\tCut-off time: {cutoff}")
             expired_records = Job.objects.filter(created__lt=cutoff).count()
             if expired_records:
@@ -88,7 +88,7 @@ class Command(BaseCommand):
                 self.stdout.write("\tNo expired records found.", self.style.SUCCESS)
         elif options['verbosity']:
             self.stdout.write(
-                f"\tSkipping: No retention period specified (JOBRESULT_RETENTION = {config.JOBRESULT_RETENTION})"
+                f"\tSkipping: No retention period specified (JOB_RETENTION = {config.JOB_RETENTION})"
             )
 
         # Check for new releases (if enabled)
