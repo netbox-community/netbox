@@ -38,15 +38,15 @@ class StagingTestCase(TransactionTestCase):
         circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
 
         Circuit.objects.bulk_create((
-            Circuit(provider_account=provider_accounts[0], cid='Circuit A1', type=circuit_type),
-            Circuit(provider_account=provider_accounts[0], cid='Circuit A2', type=circuit_type),
-            Circuit(provider_account=provider_accounts[0], cid='Circuit A3', type=circuit_type),
-            Circuit(provider_account=provider_accounts[1], cid='Circuit B1', type=circuit_type),
-            Circuit(provider_account=provider_accounts[1], cid='Circuit B2', type=circuit_type),
-            Circuit(provider_account=provider_accounts[1], cid='Circuit B3', type=circuit_type),
-            Circuit(provider_account=provider_accounts[2], cid='Circuit C1', type=circuit_type),
-            Circuit(provider_account=provider_accounts[2], cid='Circuit C2', type=circuit_type),
-            Circuit(provider_account=provider_accounts[2], cid='Circuit C3', type=circuit_type),
+            Circuit(provider=providers[0], provider_account=provider_accounts[0], cid='Circuit A1', type=circuit_type),
+            Circuit(provider=providers[0], provider_account=provider_accounts[0], cid='Circuit A2', type=circuit_type),
+            Circuit(provider=providers[0], provider_account=provider_accounts[0], cid='Circuit A3', type=circuit_type),
+            Circuit(provider=providers[1], provider_account=provider_accounts[1], cid='Circuit B1', type=circuit_type),
+            Circuit(provider=providers[1], provider_account=provider_accounts[1], cid='Circuit B2', type=circuit_type),
+            Circuit(provider=providers[1], provider_account=provider_accounts[1], cid='Circuit B3', type=circuit_type),
+            Circuit(provider=providers[2], provider_account=provider_accounts[2], cid='Circuit C1', type=circuit_type),
+            Circuit(provider=providers[2], provider_account=provider_accounts[2], cid='Circuit C2', type=circuit_type),
+            Circuit(provider=providers[2], provider_account=provider_accounts[2], cid='Circuit C3', type=circuit_type),
         ))
 
     def test_object_creation(self):
@@ -58,7 +58,7 @@ class StagingTestCase(TransactionTestCase):
             provider = Provider.objects.create(name='Provider D', slug='provider-d')
             provider.asns.set(asns)
             provider_account = ProviderAccount.objects.create(name='Account D', provider=provider, account='DDDD')
-            circuit = Circuit.objects.create(provider_account=provider_account, cid='Circuit D1', type=CircuitType.objects.first())
+            circuit = Circuit.objects.create(provider=provider, provider_account=provider_account, cid='Circuit D1', type=CircuitType.objects.first())
             circuit.tags.set(tags)
 
             # Sanity-checking

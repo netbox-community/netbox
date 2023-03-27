@@ -105,6 +105,7 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
 
 class CircuitSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
+    provider = NestedProviderSerializer()
     provider_account = NestedProviderAccountSerializer()
     status = ChoiceField(choices=CircuitStatusChoices, required=False)
     type = NestedCircuitTypeSerializer()
@@ -115,9 +116,9 @@ class CircuitSerializer(NetBoxModelSerializer):
     class Meta:
         model = Circuit
         fields = [
-            'id', 'url', 'display', 'cid', 'provider_account', 'type', 'status', 'tenant', 'install_date', 'termination_date',
-            'commit_rate', 'description', 'termination_a', 'termination_z', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'cid', 'provider', 'provider_account', 'type', 'status', 'tenant', 'install_date',
+            'termination_date', 'commit_rate', 'description', 'termination_a', 'termination_z', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 

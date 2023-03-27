@@ -37,10 +37,17 @@ class Circuit(PrimaryModel):
         verbose_name='Circuit ID',
         help_text=_("Unique circuit ID")
     )
+    provider = models.ForeignKey(
+        to='circuits.Provider',
+        on_delete=models.PROTECT,
+        related_name='circuits'
+    )
     provider_account = models.ForeignKey(
         to='circuits.ProviderAccount',
         on_delete=models.PROTECT,
-        related_name='circuits'
+        related_name='circuits',
+        blank=True,
+        null=True
     )
     type = models.ForeignKey(
         to='CircuitType',
@@ -103,19 +110,25 @@ class Circuit(PrimaryModel):
     )
 
     clone_fields = (
-        'provider_account', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate', 'description',
+        'provider', 'provider_account', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate',
+        'description',
     )
     prerequisite_models = (
         'circuits.CircuitType',
+        'circuits.Provider',
         'circuits.ProviderAccount',
     )
 
     class Meta:
-        ordering = ['provider_account', 'cid']
+        ordering = ['provider', 'provider_account', 'cid']
         constraints = (
             models.UniqueConstraint(
-                fields=('provider_account', 'cid'),
+                fields=('provider', 'cid'),
                 name='%(app_label)s_%(class)s_unique_provider_cid'
+            ),
+            models.UniqueConstraint(
+                fields=('provider_account', 'cid'),
+                name='%(app_label)s_%(class)s_unique_provideraccount_cid'
             ),
         )
 
@@ -127,6 +140,11 @@ class Circuit(PrimaryModel):
 
     def get_status_color(self):
         return CircuitStatusChoices.colors.get(self.status)
+
+    def clean(self):
+        super().clean()
+        if self.provider_account and self.provider != self.provider_account.provider:
+            raise ValidationError("Provider must match ProviderAccount's provider")
 
 
 class CircuitTermination(

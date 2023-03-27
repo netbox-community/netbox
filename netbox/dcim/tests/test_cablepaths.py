@@ -32,7 +32,7 @@ class CablePathTestCase(TestCase):
         provider = Provider.objects.create(name='Provider', slug='provider')
         provider_account = ProviderAccount.objects.create(name='Account', account='AAAA1111', provider=provider)
         circuit_type = CircuitType.objects.create(name='Circuit Type', slug='circuit-type')
-        cls.circuit = Circuit.objects.create(provider_account=provider_account, type=circuit_type, cid='Circuit 1')
+        cls.circuit = Circuit.objects.create(provider=provider, provider_account=provider_account, type=circuit_type, cid='Circuit 1')
 
     def assertPathExists(self, nodes, **kwargs):
         """

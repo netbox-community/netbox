@@ -18,7 +18,7 @@ from .models import *
 
 class ProviderListView(generic.ObjectListView):
     queryset = Provider.objects.annotate(
-        count_circuits=count_related(Circuit, 'provider_account__provider')
+        count_circuits=count_related(Circuit, 'provider')
     )
     filterset = filtersets.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm
@@ -32,7 +32,7 @@ class ProviderView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         related_models = (
             (ProviderAccount.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
-            (Circuit.objects.restrict(request.user, 'view').filter(provider_account__provider=instance), 'provider_id'),
+            (Circuit.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
         )
 
         return {
@@ -58,7 +58,7 @@ class ProviderBulkImportView(generic.BulkImportView):
 
 class ProviderBulkEditView(generic.BulkEditView):
     queryset = Provider.objects.annotate(
-        count_circuits=count_related(Circuit, 'provider_account__provider')
+        count_circuits=count_related(Circuit, 'provider')
     )
     filterset = filtersets.ProviderFilterSet
     table = tables.ProviderTable
@@ -67,7 +67,7 @@ class ProviderBulkEditView(generic.BulkEditView):
 
 class ProviderBulkDeleteView(generic.BulkDeleteView):
     queryset = Provider.objects.annotate(
-        count_circuits=count_related(Circuit, 'provider_account__provider')
+        count_circuits=count_related(Circuit, 'provider')
     )
     filterset = filtersets.ProviderFilterSet
     table = tables.ProviderTable

@@ -6,7 +6,7 @@ NetBox is ideal for managing your network's transit and peering providers and ci
 flowchart TD
     ASN --> Provider
     Provider --> ProviderAccount --> Circuit
-    Provider --> ProviderNetwork
+    Provider --> ProviderNetwork & Circuit
     CircuitType --> Circuit
 
 click ASN "../../models/circuits/asn/"

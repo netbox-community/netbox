@@ -142,12 +142,11 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
 
 class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='provider_account__provider',
         queryset=Provider.objects.all(),
         label=_('Provider (ID)'),
     )
     provider = django_filters.ModelMultipleChoiceFilter(
-        field_name='provider_account__provider__slug',
+        field_name='provider__slug',
         queryset=Provider.objects.all(),
         to_field_name='slug',
         label=_('Provider (slug)'),

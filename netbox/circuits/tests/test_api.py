@@ -119,25 +119,28 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
         CircuitType.objects.bulk_create(circuit_types)
 
         circuits = (
-            Circuit(cid='Circuit 1', provider_account=provider_accounts[0], type=circuit_types[0]),
-            Circuit(cid='Circuit 2', provider_account=provider_accounts[0], type=circuit_types[0]),
-            Circuit(cid='Circuit 3', provider_account=provider_accounts[0], type=circuit_types[0]),
+            Circuit(cid='Circuit 1', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
+            Circuit(cid='Circuit 2', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
+            Circuit(cid='Circuit 3', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
         )
         Circuit.objects.bulk_create(circuits)
 
         cls.create_data = [
             {
                 'cid': 'Circuit 4',
+                'provider': providers[1].pk,
                 'provider_account': provider_accounts[1].pk,
                 'type': circuit_types[1].pk,
             },
             {
                 'cid': 'Circuit 5',
+                'provider': providers[1].pk,
                 'provider_account': provider_accounts[1].pk,
                 'type': circuit_types[1].pk,
             },
             {
                 'cid': 'Circuit 6',
+                'provider': providers[1].pk,
                 'provider_account': provider_accounts[1].pk,
                 'type': circuit_types[1].pk,
             },
@@ -174,9 +177,9 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         ProviderNetwork.objects.bulk_create(provider_networks)
 
         circuits = (
-            Circuit(cid='Circuit 1', provider_account=provider_account, type=circuit_type),
-            Circuit(cid='Circuit 2', provider_account=provider_account, type=circuit_type),
-            Circuit(cid='Circuit 3', provider_account=provider_account, type=circuit_type),
+            Circuit(cid='Circuit 1', provider=provider, provider_account=provider_account, type=circuit_type),
+            Circuit(cid='Circuit 2', provider=provider, provider_account=provider_account, type=circuit_type),
+            Circuit(cid='Circuit 3', provider=provider, provider_account=provider_account, type=circuit_type),
         )
         Circuit.objects.bulk_create(circuits)
 
