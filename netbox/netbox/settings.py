@@ -396,11 +396,12 @@ TEMPLATES = [
 ]
 
 # Set up authentication backends
-if isinstance(REMOTE_AUTH_BACKEND, list) or isinstance(REMOTE_AUTH_BACKEND, tuple):
-    AUTHENTICATION_BACKENDS = [x for x in REMOTE_AUTH_BACKEND]
-else:
-    AUTHENTICATION_BACKENDS = [REMOTE_AUTH_BACKEND]
-AUTHENTICATION_BACKENDS.append('netbox.authentication.ObjectPermissionBackend')
+if type(REMOTE_AUTH_BACKEND) not in (list, tuple):
+    REMOTE_AUTH_BACKEND = [REMOTE_AUTH_BACKEND]
+AUTHENTICATION_BACKENDS = [
+    *REMOTE_AUTH_BACKEND,
+    'netbox.authentication.ObjectPermissionBackend',
+]
 
 # Time zones
 USE_TZ = True
