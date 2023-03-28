@@ -36,12 +36,6 @@ class ReportModule(PythonModuleMixin, JobsMixin, ManagedFile):
     """
     Proxy model for report module files.
     """
-    jobs = GenericRelation(
-        to='core.Job',
-        content_type_field='object_type',
-        object_id_field='object_id'
-    )
-
     objects = ReportModuleManager()
 
     class Meta:

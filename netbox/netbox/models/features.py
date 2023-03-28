@@ -299,6 +299,12 @@ class JobsMixin(models.Model):
     """
     Enables support for job results.
     """
+    jobs = GenericRelation(
+        to='core.Job',
+        content_type_field='object_type',
+        object_id_field='object_id'
+    )
+
     class Meta:
         abstract = True
 

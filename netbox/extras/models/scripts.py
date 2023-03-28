@@ -1,6 +1,7 @@
 import inspect
 from functools import cached_property
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 

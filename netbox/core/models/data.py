@@ -71,11 +71,6 @@ class DataSource(JobsMixin, PrimaryModel):
         null=True,
         editable=False
     )
-    jobs = GenericRelation(
-        to='core.Job',
-        content_type_field='object_type',
-        object_id_field='object_id'
-    )
 
     class Meta:
         ordering = ('name',)
