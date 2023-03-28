@@ -730,6 +730,7 @@ class InterfaceImportForm(NetBoxModelImportForm):
                 self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
                 self.fields['bridge'].queryset = self.fields['bridge'].queryset.filter(**params)
                 self.fields['lag'].queryset = self.fields['lag'].queryset.filter(**params)
+                self.fields['vdcs'].queryset = self.fields['vdcs'].queryset.filter(**params)
 
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data
