@@ -1437,7 +1437,7 @@ class CablePathTestCase(TestCase):
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
-        circuit2 = Circuit.objects.create(provider_account=self.circuit.provider_account, type=self.circuit.type, cid='Circuit 2')
+        circuit2 = Circuit.objects.create(provider=self.circuit.provider, provider_account=self.circuit.provider_account, type=self.circuit.type, cid='Circuit 2')
         circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
         circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='Z')
         circuittermination3 = CircuitTermination.objects.create(circuit=circuit2, site=self.site, term_side='A')

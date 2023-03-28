@@ -127,22 +127,12 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
 
 
 class CircuitTerminationForm(NetBoxModelForm):
-    provider_account = DynamicModelChoiceField(
-        queryset=ProviderAccount.objects.all(),
-        required=False,
-        initial_params={
-            'circuits': '$circuit'
-        },
-        query_params={
-            'provider': '$provider',
-        },
-        selector=True
-    )
     circuit = DynamicModelChoiceField(
         queryset=Circuit.objects.all(),
         query_params={
             'provider_id': '$provider',
         },
+        selector=True
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -158,8 +148,8 @@ class CircuitTerminationForm(NetBoxModelForm):
     class Meta:
         model = CircuitTermination
         fields = [
-            'provider_account', 'circuit', 'term_side', 'site', 'provider_network', 'mark_connected',
-            'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description', 'tags',
+            'circuit', 'term_side', 'site', 'provider_network', 'mark_connected', 'port_speed', 'upstream_speed',
+            'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         widgets = {
             'port_speed': SelectSpeedWidget(),
