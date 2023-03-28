@@ -1,6 +1,6 @@
 # NetBox v3.4
 
-## v3.4.7 (FUTURE)
+## v3.4.7 (2023-03-28)
 
 ### Enhancements
 
@@ -9,6 +9,7 @@
 * [#11973](https://github.com/netbox-community/netbox/issues/11833) - Use SSID for representing wireless links, if set
 * [#11977](https://github.com/netbox-community/netbox/issues/11977) - Support designating multiple backends via `REMOTE_AUTH_BACKEND` config parameter
 * [#11990](https://github.com/netbox-community/netbox/issues/11990) - Improve error reporting for duplicate CSV column headings
+* [#11991](https://github.com/netbox-community/netbox/issues/11991) - Enable VDC assignment during bulk import/edit of interfaces
 
 ### Bug Fixes
 

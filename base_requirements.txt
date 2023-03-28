@@ -121,7 +121,8 @@ social-auth-core
 
 # Django app for social-auth-core
 # https://github.com/python-social-auth/social-app-django
-social-auth-app-django
+# See https://github.com/python-social-auth/social-app-django/issues/429
+social-auth-app-django==5.0.0
 
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite
