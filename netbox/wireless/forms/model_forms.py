@@ -208,6 +208,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'status': StaticSelect,
             'auth_type': StaticSelect,
             'auth_cipher': StaticSelect,
+            'auth_psk': PasswordInput(attrs={'data-toggle': 'password'}),
         }
         labels = {
             'auth_type': 'Type',
