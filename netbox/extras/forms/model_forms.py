@@ -1,6 +1,7 @@
+import json
+
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.http import QueryDict
 from django.utils.translation import gettext as _
 
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
@@ -128,11 +129,10 @@ class SavedFilterForm(BootstrapMixin, forms.ModelForm):
 
     def __init__(self, *args, initial=None, **kwargs):
 
-        # Convert any parameters delivered via initial data to a dictionary
+        # Convert any parameters delivered via initial data to JSON data
         if initial and 'parameters' in initial:
             if type(initial['parameters']) is str:
-                # TODO: Make a utility function for this
-                initial['parameters'] = dict(QueryDict(initial['parameters']).lists())
+                initial['parameters'] = json.loads(initial['parameters'])
 
         super().__init__(*args, initial=initial, **kwargs)
 

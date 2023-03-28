@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 from functools import cached_property
 
@@ -110,14 +111,13 @@ class CloningMixin(models.Model):
 
         for field_name in getattr(self, 'clone_fields', []):
             field = self._meta.get_field(field_name)
-            if isinstance(field, models.ManyToManyField):
-                m2m = getattr(self, field.name)
-                if m2m:
-                    attrs[field_name] = [f.pk for f in m2m.all()]
-            else:
-                field_value = field.value_from_object(self)
-                if field_value not in (None, ''):
-                    attrs[field_name] = field_value
+            field_value = field.value_from_object(self)
+            if field_value and isinstance(field, models.ManyToManyField):
+                attrs[field_name] = [v.pk for v in field_value]
+            elif field_value and isinstance(field, models.JSONField):
+                attrs[field_name] = json.dumps(field_value)
+            elif field_value not in (None, ''):
+                attrs[field_name] = field_value
 
         # Include tags (if applicable)
         if is_taggable(self):
