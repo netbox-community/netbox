@@ -5,6 +5,7 @@ from fnmatch import fnmatchcase
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -69,6 +70,11 @@ class DataSource(JobsMixin, PrimaryModel):
         blank=True,
         null=True,
         editable=False
+    )
+    jobs = GenericRelation(
+        to='core.Job',
+        content_type_field='object_type',
+        object_id_field='object_id'
     )
 
     class Meta:

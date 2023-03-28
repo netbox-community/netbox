@@ -1,6 +1,5 @@
 import logging
 
-from .choices import JobStatusChoices
 from netbox.search.backends import search_backend
 from .choices import *
 from .exceptions import SyncError
@@ -13,7 +12,7 @@ def sync_datasource(job_result, *args, **kwargs):
     """
     Call sync() on a DataSource.
     """
-    datasource = DataSource.objects.get(name=job_result.name)
+    datasource = DataSource.objects.get(pk=job_result.object_id)
 
     try:
         job_result.start()

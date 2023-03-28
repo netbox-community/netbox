@@ -162,7 +162,7 @@ class Job(models.Model):
         self.trigger_webhooks(event=EVENT_JOB_END)
 
     @classmethod
-    def enqueue(cls, func, instance, name=None, user=None, schedule_at=None, interval=None, **kwargs):
+    def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None, **kwargs):
         """
         Create a Job instance and enqueue a job using the given callable
 

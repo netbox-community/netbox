@@ -455,6 +455,12 @@ def _register_features(sender, **kwargs):
             'changelog',
             kwargs={'model': sender}
         )('netbox.views.generic.ObjectChangeLogView')
+    if issubclass(sender, JobsMixin):
+        register_model_view(
+            sender,
+            'jobs',
+            kwargs={'model': sender}
+        )('netbox.views.generic.ObjectJobsView')
     if issubclass(sender, SyncedDataMixin):
         register_model_view(
             sender,
