@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#11645](https://github.com/netbox-community/netbox/issues/11645) - Automatically set the scheduled time when executing reports/scripts at a recurring interval
 * [#11833](https://github.com/netbox-community/netbox/issues/11833) - Add fieldset support for custom script forms
 * [#11973](https://github.com/netbox-community/netbox/issues/11833) - Use SSID for representing wireless links, if set
 * [#11977](https://github.com/netbox-community/netbox/issues/11977) - Support designating multiple backends via `REMOTE_AUTH_BACKEND` config parameter
@@ -16,6 +17,8 @@
 * [#11984](https://github.com/netbox-community/netbox/issues/11984) - Remove erroneous 802.3az PoE type
 * [#11979](https://github.com/netbox-community/netbox/issues/11979) - Correct URL for tags in route targets list
 * [#12008](https://github.com/netbox-community/netbox/issues/12008) - Enable cloning of export templates
+* [#12029](https://github.com/netbox-community/netbox/issues/12029) - Restore missing description field on virtual chassis form
+* [#12038](https://github.com/netbox-community/netbox/issues/12038) - Correct display of zero values for virtual chassis member priority
 * [#12048](https://github.com/netbox-community/netbox/issues/12048) - Enable cloning of tags
 * [#12058](https://github.com/netbox-community/netbox/issues/12058) - Enable cloning of config contexts
 
