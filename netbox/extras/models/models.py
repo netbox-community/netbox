@@ -245,7 +245,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
     )
 
     clone_fields = (
-        'enabled', 'weight', 'group_name', 'button_class', 'new_window',
+        'content_types', 'enabled', 'weight', 'group_name', 'button_class', 'new_window',
     )
 
     class Meta:
@@ -410,7 +410,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
     parameters = models.JSONField()
 
     clone_fields = (
-        'enabled', 'weight',
+        'content_types', 'weight', 'enabled', 'parameters',
     )
 
     class Meta:
