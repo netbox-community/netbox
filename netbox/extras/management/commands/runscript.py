@@ -48,8 +48,8 @@ class Command(BaseCommand):
                 except AbortTransaction:
                     script.log_info("Database changes have been reverted automatically.")
                     clear_webhooks.send(request)
-                job_result.data = ScriptOutputSerializer(script).data
-                job_result.terminate()
+                job.data = ScriptOutputSerializer(script).data
+                job.terminate()
             except Exception as e:
                 stacktrace = traceback.format_exc()
                 script.log_failure(
@@ -58,10 +58,10 @@ class Command(BaseCommand):
                 script.log_info("Database changes have been reverted due to error.")
                 logger.error(f"Exception raised during script execution: {e}")
                 clear_webhooks.send(request)
-                job_result.data = ScriptOutputSerializer(script).data
-                job_result.terminate(status=JobStatusChoices.STATUS_ERRORED)
+                job.data = ScriptOutputSerializer(script).data
+                job.terminate(status=JobStatusChoices.STATUS_ERRORED)
 
-            logger.info(f"Script completed in {job_result.duration}")
+            logger.info(f"Script completed in {job.duration}")
 
         # Params
         script = options['script']
@@ -110,7 +110,7 @@ class Command(BaseCommand):
         form = script.as_form(data, None)
 
         # Create the job
-        job_result = Job.objects.create(
+        job = Job.objects.create(
             instance=module,
             name=script.name,
             user=User.objects.filter(is_superuser=True).order_by('pk')[0],
@@ -124,12 +124,12 @@ class Command(BaseCommand):
             'FILES': {},
             'user': user,
             'path': '',
-            'id': job_result.job_id
+            'id': job.job_id
         })
 
         if form.is_valid():
-            job_result.status = JobStatusChoices.STATUS_RUNNING
-            job_result.save()
+            job.status = JobStatusChoices.STATUS_RUNNING
+            job.save()
 
             logger.info(f"Running script (commit={commit})")
             script.request = request
@@ -143,5 +143,5 @@ class Command(BaseCommand):
             for field, errors in form.errors.get_json_data().items():
                 for error in errors:
                     logger.error(f'\t{field}: {error.get("message")}')
-            job_result.status = JobStatusChoices.STATUS_ERRORED
-            job_result.save()
+            job.status = JobStatusChoices.STATUS_ERRORED
+            job.save()

@@ -119,13 +119,11 @@ class DataSource(JobsMixin, PrimaryModel):
         DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
         # Enqueue a sync job
-        job_result = Job.enqueue(
+        return Job.enqueue(
             import_string('core.jobs.sync_datasource'),
             instance=self,
             user=request.user
         )
-
-        return job_result
 
     def get_backend(self):
         backend_cls = registry['data_backends'].get(self.type)

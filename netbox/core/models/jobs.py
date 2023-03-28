@@ -190,9 +190,9 @@ class Job(models.Model):
         )
 
         if schedule_at:
-            queue.enqueue_at(schedule_at, func, job_id=str(job.job_id), job_result=job, **kwargs)
+            queue.enqueue_at(schedule_at, func, job_id=str(job.job_id), job=job, **kwargs)
         else:
-            queue.enqueue(func, job_id=str(job.job_id), job_result=job, **kwargs)
+            queue.enqueue(func, job_id=str(job.job_id), job=job, **kwargs)
 
         return job
 

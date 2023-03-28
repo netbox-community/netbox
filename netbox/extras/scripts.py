@@ -444,16 +444,15 @@ def get_module_and_script(module_name, script_name):
     return module, script
 
 
-def run_script(data, request, commit=True, *args, **kwargs):
+def run_script(data, request, job, commit=True, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
     exists outside the Script class to ensure it cannot be overridden by a script author.
     """
-    job_result = kwargs.pop('job_result')
-    job_result.start()
+    job.start()
 
-    module = ScriptModule.objects.get(pk=job_result.object_id)
-    script = module.scripts.get(job_result.name)()
+    module = ScriptModule.objects.get(pk=job.object_id)
+    script = module.scripts.get(job.name)()
 
     logger = logging.getLogger(f"netbox.scripts.{script.full_name}")
     logger.info(f"Running script (commit={commit})")
@@ -480,8 +479,8 @@ def run_script(data, request, commit=True, *args, **kwargs):
             except AbortTransaction:
                 script.log_info("Database changes have been reverted automatically.")
                 clear_webhooks.send(request)
-            job_result.data = ScriptOutputSerializer(script).data
-            job_result.terminate()
+            job.data = ScriptOutputSerializer(script).data
+            job.terminate()
         except Exception as e:
             if type(e) is AbortScript:
                 script.log_failure(f"Script aborted with error: {e}")
@@ -491,11 +490,11 @@ def run_script(data, request, commit=True, *args, **kwargs):
                 script.log_failure(f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```")
                 logger.error(f"Exception raised during script execution: {e}")
             script.log_info("Database changes have been reverted due to error.")
-            job_result.data = ScriptOutputSerializer(script).data
-            job_result.terminate(status=JobStatusChoices.STATUS_ERRORED)
+            job.data = ScriptOutputSerializer(script).data
+            job.terminate(status=JobStatusChoices.STATUS_ERRORED)
             clear_webhooks.send(request)
 
-        logger.info(f"Script completed in {job_result.duration}")
+        logger.info(f"Script completed in {job.duration}")
 
     # Execute the script. If commit is True, wrap it with the change_logging context manager to ensure we process
     # change logging, webhooks, etc.
@@ -506,15 +505,15 @@ def run_script(data, request, commit=True, *args, **kwargs):
         _run_script()
 
     # Schedule the next job if an interval has been set
-    if job_result.interval:
-        new_scheduled_time = job_result.scheduled + timedelta(minutes=job_result.interval)
+    if job.interval:
+        new_scheduled_time = job.scheduled + timedelta(minutes=job.interval)
         Job.enqueue(
             run_script,
-            instance=job_result.object,
-            name=job_result.name,
-            user=job_result.user,
+            instance=job.object,
+            name=job.name,
+            user=job.user,
             schedule_at=new_scheduled_time,
-            interval=job_result.interval,
+            interval=job.interval,
             job_timeout=script.job_timeout,
             data=data,
             request=request,

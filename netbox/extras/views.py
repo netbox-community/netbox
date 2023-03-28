@@ -820,7 +820,7 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
         report_modules = ReportModule.objects.restrict(request.user)
 
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        job_results = {
+        jobs = {
             r.name: r
             for r in Job.objects.filter(
                 object_type=report_content_type,
@@ -831,7 +831,7 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
         return render(request, 'extras/report_list.html', {
             'model': ReportModule,
             'report_modules': report_modules,
-            'job_results': job_results,
+            'jobs': jobs,
         })
 
 
@@ -988,7 +988,7 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         script_modules = ScriptModule.objects.restrict(request.user)
 
         script_content_type = ContentType.objects.get(app_label='extras', model='script')
-        job_results = {
+        jobs = {
             r.name: r
             for r in Job.objects.filter(
                 object_type=script_content_type,
@@ -999,7 +999,7 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         return render(request, 'extras/script_list.html', {
             'model': ScriptModule,
             'script_modules': script_modules,
-            'job_results': job_results,
+            'jobs': jobs,
         })
 
 
