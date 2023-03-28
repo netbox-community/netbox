@@ -5,11 +5,19 @@
 ### Enhancements
 
 * [#11833](https://github.com/netbox-community/netbox/issues/11833) - Add fieldset support for custom script forms
+* [#11973](https://github.com/netbox-community/netbox/issues/11833) - Use SSID for representing wireless links, if set
+* [#11977](https://github.com/netbox-community/netbox/issues/11977) - Support designating multiple backends via `REMOTE_AUTH_BACKEND` config parameter
+* [#11990](https://github.com/netbox-community/netbox/issues/11990) - Improve error reporting for duplicate CSV column headings
 
 ### Bug Fixes
 
+* [#11914](https://github.com/netbox-community/netbox/issues/11914) - Include parameters when exporting saved filters
+* [#11933](https://github.com/netbox-community/netbox/issues/11933) - Fix cloning of saved filters
 * [#11984](https://github.com/netbox-community/netbox/issues/11984) - Remove erroneous 802.3az PoE type
 * [#11979](https://github.com/netbox-community/netbox/issues/11979) - Correct URL for tags in route targets list
+* [#12008](https://github.com/netbox-community/netbox/issues/12008) - Enable cloning of export templates
+* [#12048](https://github.com/netbox-community/netbox/issues/12048) - Enable cloning of tags
+* [#12058](https://github.com/netbox-community/netbox/issues/12058) - Enable cloning of config contexts
 
 ---
 
