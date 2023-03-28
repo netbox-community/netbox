@@ -113,7 +113,7 @@ class JobFilterSet(BaseFilterSet):
 
     class Meta:
         model = Job
-        fields = ('id', 'interval', 'status', 'user', 'object_type', 'name')
+        fields = ('id', 'object_type', 'object_id', 'name', 'interval', 'status', 'user')
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -5,7 +5,7 @@ from fnmatch import fnmatchcase
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -15,6 +15,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
 from netbox.models import PrimaryModel
+from netbox.models.features import JobsMixin
 from netbox.registry import registry
 from utilities.files import sha256_hash
 from utilities.querysets import RestrictedQuerySet
@@ -31,7 +32,7 @@ __all__ = (
 logger = logging.getLogger('netbox.core.data')
 
 
-class DataSource(PrimaryModel):
+class DataSource(JobsMixin, PrimaryModel):
     """
     A remote source, such as a git repository, from which DataFiles are synchronized.
     """
@@ -118,14 +119,11 @@ class DataSource(PrimaryModel):
         DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
         # Enqueue a sync job
-        job_result = Job.enqueue_job(
+        return Job.enqueue(
             import_string('core.jobs.sync_datasource'),
-            name=self.name,
-            obj_type=ContentType.objects.get_for_model(DataSource),
-            user=request.user,
+            instance=self,
+            user=request.user
         )
-
-        return job_result
 
     def get_backend(self):
         backend_cls = registry['data_backends'].get(self.type)

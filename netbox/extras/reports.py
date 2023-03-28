@@ -11,45 +11,49 @@ from core.models import Job
 from .choices import LogLevelChoices
 from .models import ReportModule
 
+__all__ = (
+    'Report',
+    'get_module_and_report',
+    'run_report',
+)
+
 logger = logging.getLogger(__name__)
 
 
-def get_report(module_name, report_name):
-    """
-    Return a specific report from within a module.
-    """
+def get_module_and_report(module_name, report_name):
     module = ReportModule.objects.get(file_path=f'{module_name}.py')
-    return module.reports.get(report_name)
+    report = module.reports.get(report_name)
+    return module, report
 
 
 @job('default')
-def run_report(job_result, *args, **kwargs):
+def run_report(job, *args, **kwargs):
     """
     Helper function to call the run method on a report. This is needed to get around the inability to pickle an instance
     method for queueing into the background processor.
     """
-    module_name, report_name = job_result.name.split('.', 1)
-    report = get_report(module_name, report_name)()
+    job.start()
+
+    module = ReportModule.objects.get(pk=job.object_id)
+    report = module.reports.get(job.name)()
 
     try:
-        job_result.start()
-        report.run(job_result)
+        report.run(job)
     except Exception:
-        job_result.terminate(status=JobStatusChoices.STATUS_ERRORED)
-        logging.error(f"Error during execution of report {job_result.name}")
+        job.terminate(status=JobStatusChoices.STATUS_ERRORED)
+        logging.error(f"Error during execution of report {job.name}")
     finally:
         # Schedule the next job if an interval has been set
-        start_time = job_result.scheduled or job_result.started
-        if start_time and job_result.interval:
-            new_scheduled_time = start_time + timedelta(minutes=job_result.interval)
-            Job.enqueue_job(
+        if job.interval:
+            new_scheduled_time = job.scheduled + timedelta(minutes=job.interval)
+            Job.enqueue(
                 run_report,
-                name=job_result.name,
-                obj_type=job_result.obj_type,
-                user=job_result.user,
+                instance=job.object,
+                name=job.name,
+                user=job.user,
                 job_timeout=report.job_timeout,
                 schedule_at=new_scheduled_time,
-                interval=job_result.interval
+                interval=job.interval
             )
 
 
@@ -186,13 +190,13 @@ class Report(object):
     # Run methods
     #
 
-    def run(self, job_result):
+    def run(self, job):
         """
         Run the report and save its results. Each test method will be executed in order.
         """
         self.logger.info(f"Running report")
-        job_result.status = JobStatusChoices.STATUS_RUNNING
-        job_result.save()
+        job.status = JobStatusChoices.STATUS_RUNNING
+        job.save()
 
         # Perform any post-run tasks
         self.pre_run()
@@ -204,17 +208,17 @@ class Report(object):
                 test_method()
             if self.failed:
                 self.logger.warning("Report failed")
-                job_result.status = JobStatusChoices.STATUS_FAILED
+                job.status = JobStatusChoices.STATUS_FAILED
             else:
                 self.logger.info("Report completed successfully")
-                job_result.status = JobStatusChoices.STATUS_COMPLETED
+                job.status = JobStatusChoices.STATUS_COMPLETED
         except Exception as e:
             stacktrace = traceback.format_exc()
             self.log_failure(None, f"An exception occurred: {type(e).__name__}: {e} <pre>{stacktrace}</pre>")
             logger.error(f"Exception raised during report execution: {e}")
-            job_result.terminate(status=JobStatusChoices.STATUS_ERRORED)
+            job.terminate(status=JobStatusChoices.STATUS_ERRORED)
         finally:
-            job_result.terminate()
+            job.terminate()
 
         # Perform any post-run tasks
         self.post_run()

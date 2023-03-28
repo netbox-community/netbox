@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.generic import View
 
+from core.models import Job
+from core.tables import JobTable
 from extras import forms, tables
 from extras.models import *
 from utilities.permissions import get_permission_for_model
@@ -15,6 +17,7 @@ from .base import BaseMultiObjectView
 __all__ = (
     'BulkSyncDataView',
     'ObjectChangeLogView',
+    'ObjectJobsView',
     'ObjectJournalView',
     'ObjectSyncDataView',
 )
@@ -129,6 +132,59 @@ class ObjectJournalView(View):
             'object': obj,
             'form': form,
             'table': journalentry_table,
+            'base_template': self.base_template,
+            'tab': self.tab,
+        })
+
+
+class ObjectJobsView(View):
+    """
+    Render a list of all Job assigned to an object. For example:
+
+        path('data-sources/<int:pk>/jobs/', ObjectJobsView.as_view(), name='datasource_jobs', kwargs={'model': DataSource}),
+
+    Attributes:
+        base_template: The name of the template to extend. If not provided, "{app}/{model}.html" will be used.
+    """
+    base_template = None
+    tab = ViewTab(
+        label=_('Jobs'),
+        badge=lambda obj: obj.jobs.count(),
+        permission='core.view_job',
+        weight=11000
+    )
+
+    def get_object(self, request, **kwargs):
+        return get_object_or_404(self.model.objects.restrict(request.user, 'view'), **kwargs)
+
+    def get_jobs(self, instance):
+        object_type = ContentType.objects.get_for_model(instance)
+        return Job.objects.filter(
+            object_type=object_type,
+            object_id=instance.id
+        )
+
+    def get(self, request, model, **kwargs):
+        self.model = model
+        obj = self.get_object(request, **kwargs)
+
+        # Gather all Jobs for this object
+        jobs = self.get_jobs(obj)
+        jobs_table = JobTable(
+            data=jobs,
+            orderable=False,
+            user=request.user
+        )
+        jobs_table.configure(request)
+
+        # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
+        # fall back to using base.html.
+        if self.base_template is None:
+            self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
+
+        return render(request, 'core/object_jobs.html', {
+            'object': obj,
+            'table': jobs_table,
             'base_template': self.base_template,
             'tab': self.tab,
         })
