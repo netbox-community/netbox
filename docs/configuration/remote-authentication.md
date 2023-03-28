@@ -16,7 +16,7 @@ If true, NetBox will automatically create local accounts for users authenticated
 
 Default: `'netbox.authentication.RemoteUserBackend'`
 
-This is the Python path to the custom [Django authentication backend](https://docs.djangoproject.com/en/stable/topics/auth/customizing/) to use for external user authentication. NetBox provides two built-in backends (listed below), though custom authentication backends may also be provided by other packages or plugins.
+This is the Python path to the custom [Django authentication backend](https://docs.djangoproject.com/en/stable/topics/auth/customizing/) to use for external user authentication. NetBox provides two built-in backends (listed below), though custom authentication backends may also be provided by other packages or plugins. Provide a string for a single backend, or an iterable for multiple backends, which will be attempted in the order given.
 
 * `netbox.authentication.RemoteUserBackend`
 * `netbox.authentication.LDAPBackend`

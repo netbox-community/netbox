@@ -394,8 +394,10 @@ TEMPLATES = [
 ]
 
 # Set up authentication backends
+if type(REMOTE_AUTH_BACKEND) not in (list, tuple):
+    REMOTE_AUTH_BACKEND = [REMOTE_AUTH_BACKEND]
 AUTHENTICATION_BACKENDS = [
-    REMOTE_AUTH_BACKEND,
+    *REMOTE_AUTH_BACKEND,
     'netbox.authentication.ObjectPermissionBackend',
 ]
 

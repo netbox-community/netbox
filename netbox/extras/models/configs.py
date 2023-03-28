@@ -2,7 +2,6 @@ from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext as _
 from jinja2.loaders import BaseLoader
 from jinja2.sandbox import SandboxedEnvironment
@@ -10,7 +9,7 @@ from jinja2.sandbox import SandboxedEnvironment
 from extras.querysets import ConfigContextQuerySet
 from netbox.config import get_config
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import ExportTemplatesMixin, SyncedDataMixin, TagsMixin
+from netbox.models.features import CloningMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
 from utilities.jinja2 import ConfigTemplateLoader
 from utilities.utils import deepmerge
 
@@ -25,7 +24,7 @@ __all__ = (
 # Config contexts
 #
 
-class ConfigContext(SyncedDataMixin, ChangeLoggedModel):
+class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
     qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
@@ -113,6 +112,12 @@ class ConfigContext(SyncedDataMixin, ChangeLoggedModel):
     data = models.JSONField()
 
     objects = ConfigContextQuerySet.as_manager()
+
+    clone_fields = (
+        'weight', 'is_active', 'regions', 'site_groups', 'sites', 'locations', 'device_types',
+        'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
+        'tenants', 'tags', 'data',
+    )
 
     class Meta:
         ordering = ['weight', 'name']
