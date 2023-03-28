@@ -98,6 +98,7 @@ urlpatterns = [
     path('reports/results/<int:job_pk>/', views.ReportResultView.as_view(), name='report_result'),
     path('reports/<int:pk>/', include(get_model_urls('extras', 'reportmodule'))),
     path('reports/<path:module>.<str:name>/', views.ReportView.as_view(), name='report'),
+    path('reports/<path:module>.<str:name>/jobs/', views.ReportJobsView.as_view(), name='report_jobs'),
 
     # Scripts
     path('scripts/', views.ScriptListView.as_view(), name='script_list'),
@@ -105,6 +106,8 @@ urlpatterns = [
     path('scripts/results/<int:job_pk>/', views.ScriptResultView.as_view(), name='script_result'),
     path('scripts/<int:pk>/', include(get_model_urls('extras', 'scriptmodule'))),
     path('scripts/<path:module>.<str:name>/', views.ScriptView.as_view(), name='script'),
+    path('scripts/<path:module>.<str:name>/source/', views.ScriptSourceView.as_view(), name='script_source'),
+    path('scripts/<path:module>.<str:name>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
 
     # Markdown
     path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown")

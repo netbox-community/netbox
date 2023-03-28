@@ -6,11 +6,17 @@ from ..models import Job
 
 
 class JobTable(NetBoxTable):
+    id = tables.Column(
+        linkify=True
+    )
     name = tables.Column(
         linkify=True
     )
     object_type = columns.ContentTypeColumn(
         verbose_name=_('Type')
+    )
+    object = tables.Column(
+        linkify=True
     )
     status = columns.ChoiceFieldColumn()
     created = columns.DateTimeColumn()
@@ -25,10 +31,9 @@ class JobTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Job
         fields = (
-            'pk', 'id', 'object_type', 'name', 'status', 'created', 'scheduled', 'interval', 'started', 'completed',
-            'user', 'job_id',
+            'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'scheduled', 'interval', 'started',
+            'completed', 'user', 'job_id',
         )
         default_columns = (
-            'pk', 'id', 'object_type', 'name', 'status', 'created', 'scheduled', 'interval', 'started', 'completed',
-            'user',
+            'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'started', 'completed', 'user',
         )

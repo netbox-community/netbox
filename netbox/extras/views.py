@@ -10,6 +10,7 @@ from django.views.generic import View
 from core.choices import JobStatusChoices, ManagedFileRootPathChoices
 from core.forms import ManagedFileForm
 from core.models import Job
+from core.tables import JobTable
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.views import generic
@@ -896,6 +897,38 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         })
 
 
+class ReportJobsView(ContentTypePermissionRequiredMixin, View):
+
+    def get_required_permission(self):
+        return 'extras.view_report'
+
+    def get(self, request, module, name):
+        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path=f'{module}.py')
+        report = module.reports[name]()
+
+        object_type = ContentType.objects.get(app_label='extras', model='reportmodule')
+        jobs = Job.objects.filter(
+            object_type=object_type,
+            object_id=module.pk,
+            name=report.name,
+            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
+        )
+
+        jobs_table = JobTable(
+            data=jobs,
+            orderable=False,
+            user=request.user
+        )
+        jobs_table.configure(request)
+
+        return render(request, 'extras/report/jobs.html', {
+            'module': module,
+            'report': report,
+            'table': jobs_table,
+            'tab': 'jobs',
+        })
+
+
 class ReportResultView(ContentTypePermissionRequiredMixin, View):
     """
     Display a Job pertaining to the execution of a Report.
@@ -1028,6 +1061,54 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
             'module': module,
             'script': script,
             'form': form,
+        })
+
+
+class ScriptSourceView(ContentTypePermissionRequiredMixin, View):
+
+    def get_required_permission(self):
+        return 'extras.view_script'
+
+    def get(self, request, module, name):
+        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path=f'{module}.py')
+        script = module.scripts[name]()
+
+        return render(request, 'extras/script/source.html', {
+            'module': module,
+            'script': script,
+            'tab': 'source',
+        })
+
+
+class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
+
+    def get_required_permission(self):
+        return 'extras.view_script'
+
+    def get(self, request, module, name):
+        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path=f'{module}.py')
+        script = module.scripts[name]()
+
+        object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
+        jobs = Job.objects.filter(
+            object_type=object_type,
+            object_id=module.pk,
+            name=script.class_name,
+            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
+        )
+
+        jobs_table = JobTable(
+            data=jobs,
+            orderable=False,
+            user=request.user
+        )
+        jobs_table.configure(request)
+
+        return render(request, 'extras/script/jobs.html', {
+            'module': module,
+            'script': script,
+            'table': jobs_table,
+            'tab': 'jobs',
         })
 
 

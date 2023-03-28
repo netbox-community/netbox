@@ -7,7 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
-from django.urls.exceptions import NoReverseMatch
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -96,21 +95,12 @@ class Job(models.Model):
     def __str__(self):
         return str(self.job_id)
 
-    def delete(self, *args, **kwargs):
-        super().delete(*args, **kwargs)
-
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.object_type.model, RQ_QUEUE_DEFAULT)
-        queue = django_rq.get_queue(rq_queue_name)
-        job = queue.fetch_job(str(self.job_id))
-
-        if job:
-            job.cancel()
-
     def get_absolute_url(self):
-        try:
-            return reverse(f'extras:{self.object_type.model}_result', args=[self.pk])
-        except NoReverseMatch:
-            return None
+        # TODO: Employ dynamic registration
+        if self.object_type.model == 'reportmodule':
+            return reverse(f'extras:report_result', kwargs={'job_pk': self.pk})
+        if self.object_type.model == 'scriptmodule':
+            return reverse(f'extras:script_result', kwargs={'job_pk': self.pk})
 
     def get_status_color(self):
         return JobStatusChoices.colors.get(self.status)
@@ -129,6 +119,16 @@ class Job(models.Model):
         minutes, seconds = divmod(duration.total_seconds(), 60)
 
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.object_type.model, RQ_QUEUE_DEFAULT)
+        queue = django_rq.get_queue(rq_queue_name)
+        job = queue.fetch_job(str(self.job_id))
+
+        if job:
+            job.cancel()
 
     def start(self):
         """
