@@ -18,7 +18,7 @@ __all__ = (
 )
 
 
-class Report(JobsMixin, WebhooksMixin, models.Model):
+class Report(WebhooksMixin, models.Model):
     """
     Dummy model used to generate permissions for reports. Does not exist in the database.
     """
@@ -32,7 +32,7 @@ class ReportModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return super().get_queryset().filter(file_root=ManagedFileRootPathChoices.REPORTS)
 
 
-class ReportModule(PythonModuleMixin, ManagedFile):
+class ReportModule(PythonModuleMixin, JobsMixin, ManagedFile):
     """
     Proxy model for report module files.
     """

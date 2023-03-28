@@ -17,7 +17,7 @@ __all__ = (
 )
 
 
-class Script(JobsMixin, WebhooksMixin, models.Model):
+class Script(WebhooksMixin, models.Model):
     """
     Dummy model used to generate permissions for custom scripts. Does not exist in the database.
     """
@@ -31,7 +31,7 @@ class ScriptModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return super().get_queryset().filter(file_root=ManagedFileRootPathChoices.SCRIPTS)
 
 
-class ScriptModule(PythonModuleMixin, ManagedFile):
+class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
     """
     Proxy model for script module files.
     """

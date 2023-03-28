@@ -5,7 +5,6 @@ from fnmatch import fnmatchcase
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -15,6 +14,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
 from netbox.models import PrimaryModel
+from netbox.models.features import JobsMixin
 from netbox.registry import registry
 from utilities.files import sha256_hash
 from utilities.querysets import RestrictedQuerySet
@@ -31,7 +31,7 @@ __all__ = (
 logger = logging.getLogger('netbox.core.data')
 
 
-class DataSource(PrimaryModel):
+class DataSource(JobsMixin, PrimaryModel):
     """
     A remote source, such as a git repository, from which DataFiles are synchronized.
     """
