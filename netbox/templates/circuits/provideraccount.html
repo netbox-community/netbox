@@ -1,0 +1,55 @@
+{% extends 'generic/object.html' %}
+{% load static %}
+{% load helpers %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'circuits:provideraccount_list' %}?provider_id={{ object.provider_id }}">{{ object.provider }}</a></li>
+{% endblock %}
+
+{% block content %}
+  <div class="row mb-3">
+	  <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Provider Account</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Provider</th>
+              <td>{{ object.provider|linkify }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Account</th>
+              <td>{{ object.account }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      {% include 'inc/panels/related_objects.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/contacts.html' %}
+      {% plugin_right_page object %}
+    </div>
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Circuits</h5>
+        <div class="card-body htmx-container table-responsive"
+          hx-get="{% url 'circuits:circuit_list' %}?provider_account_id={{ object.pk }}"
+          hx-trigger="load"
+        ></div>
+      </div>
+    {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

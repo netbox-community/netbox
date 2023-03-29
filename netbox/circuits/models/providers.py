@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -8,6 +9,7 @@ from netbox.models import PrimaryModel
 __all__ = (
     'ProviderNetwork',
     'Provider',
+    'ProviderAccount',
 )
 
 
@@ -30,20 +32,13 @@ class Provider(PrimaryModel):
         related_name='providers',
         blank=True
     )
-    account = models.CharField(
-        max_length=30,
-        blank=True,
-        verbose_name='Account number'
-    )
 
     # Generic relations
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
     )
 
-    clone_fields = (
-        'account',
-    )
+    clone_fields = ()
 
     class Meta:
         ordering = ['name']
@@ -53,6 +48,54 @@ class Provider(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('circuits:provider', args=[self.pk])
+
+
+class ProviderAccount(PrimaryModel):
+    """
+    This is a discrete account within a provider.  Each Circuit belongs to a Provider Account.
+    """
+    provider = models.ForeignKey(
+        to='circuits.Provider',
+        on_delete=models.PROTECT,
+        related_name='accounts'
+    )
+    account = models.CharField(
+        max_length=100,
+        verbose_name='Account ID'
+    )
+    name = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
+
+    clone_fields = ('provider', )
+
+    class Meta:
+        ordering = ('provider', 'account')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('provider', 'account'),
+                name='%(app_label)s_%(class)s_unique_provider_account'
+            ),
+            models.UniqueConstraint(
+                fields=('provider', 'name'),
+                name='%(app_label)s_%(class)s_unique_provider_name',
+                condition=~Q(name="")
+            ),
+        )
+
+    def __str__(self):
+        if self.name:
+            return f'{self.account} ({self.name})'
+        return f'{self.account}'
+
+    def get_absolute_url(self):
+        return reverse('circuits:provideraccount', args=[self.pk])
 
 
 class ProviderNetwork(PrimaryModel):

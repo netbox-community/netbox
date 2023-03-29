@@ -54,6 +54,14 @@
 <div class="row mb-3">
   <div class="col col-md-12">
     <div class="card">
+      <h5 class="card-header">Provider Accounts</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'circuits:provideraccount_list' %}?provider_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
+    </div>
+  <div class="col col-md-12">
+    <div class="card">
       <h5 class="card-header">Circuits</h5>
       <div class="card-body htmx-container table-responsive"
         hx-get="{% url 'circuits:circuit_list' %}?provider_id={{ object.pk }}"

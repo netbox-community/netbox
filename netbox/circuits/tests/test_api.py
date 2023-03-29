@@ -20,7 +20,7 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
     model = Provider
     brief_fields = ['circuit_count', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
-        'account': '1234',
+        'comments': 'New comments',
     }
 
     @classmethod
@@ -106,6 +106,12 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
         )
         Provider.objects.bulk_create(providers)
 
+        provider_accounts = (
+            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
+            ProviderAccount(name='Provider Account 2', provider=providers[1], account='2345'),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
+
         circuit_types = (
             CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
             CircuitType(name='Circuit Type 2', slug='circuit-type-2'),
@@ -113,9 +119,9 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
         CircuitType.objects.bulk_create(circuit_types)
 
         circuits = (
-            Circuit(cid='Circuit 1', provider=providers[0], type=circuit_types[0]),
-            Circuit(cid='Circuit 2', provider=providers[0], type=circuit_types[0]),
-            Circuit(cid='Circuit 3', provider=providers[0], type=circuit_types[0]),
+            Circuit(cid='Circuit 1', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
+            Circuit(cid='Circuit 2', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
+            Circuit(cid='Circuit 3', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
         )
         Circuit.objects.bulk_create(circuits)
 
@@ -123,16 +129,19 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
             {
                 'cid': 'Circuit 4',
                 'provider': providers[1].pk,
+                'provider_account': provider_accounts[1].pk,
                 'type': circuit_types[1].pk,
             },
             {
                 'cid': 'Circuit 5',
                 'provider': providers[1].pk,
+                'provider_account': provider_accounts[1].pk,
                 'type': circuit_types[1].pk,
             },
             {
                 'cid': 'Circuit 6',
                 'provider': providers[1].pk,
+                'provider_account': provider_accounts[1].pk,
                 'type': circuit_types[1].pk,
             },
         ]
@@ -194,6 +203,49 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
 
         cls.bulk_update_data = {
             'port_speed': 123456
+        }
+
+
+class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
+    model = ProviderAccount
+    brief_fields = ['account', 'display', 'id', 'name', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+        providers = (
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+        )
+        Provider.objects.bulk_create(providers)
+
+        provider_accounts = (
+            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
+            ProviderAccount(name='Provider Account 2', provider=providers[0], account='2345'),
+            ProviderAccount(name='Provider Account 3', provider=providers[0], account='3456'),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
+
+        cls.create_data = [
+            {
+                'name': 'Provider Account 4',
+                'provider': providers[0].pk,
+                'account': '4567',
+            },
+            {
+                'name': 'Provider Account 5',
+                'provider': providers[0].pk,
+                'account': '5678',
+            },
+            {
+                'name': 'Provider Account 6',
+                'provider': providers[0].pk,
+                'account': '6789',
+            },
+        ]
+
+        cls.bulk_update_data = {
+            'provider': providers[1].pk,
+            'description': 'New description',
         }
 
 
