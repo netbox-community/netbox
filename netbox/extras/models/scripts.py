@@ -1,7 +1,6 @@
 import inspect
 from functools import cached_property
 
-from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 
@@ -43,6 +42,9 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
     def get_absolute_url(self):
         return reverse('extras:script_list')
+
+    def __str__(self):
+        return self.python_name
 
     @cached_property
     def scripts(self):

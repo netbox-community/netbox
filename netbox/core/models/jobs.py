@@ -39,7 +39,8 @@ class Job(models.Model):
     )
     object = GenericForeignKey(
         ct_field='object_type',
-        fk_field='object_id'
+        fk_field='object_id',
+        for_concrete_model=False
     )
     name = models.CharField(
         max_length=200
@@ -140,7 +141,7 @@ class Job(models.Model):
         # Start the job
         self.started = timezone.now()
         self.status = JobStatusChoices.STATUS_RUNNING
-        Job.objects.filter(pk=self.pk).update(started=self.started, status=self.status)
+        self.save()
 
         # Handle webhooks
         self.trigger_webhooks(event=EVENT_JOB_START)
@@ -156,7 +157,7 @@ class Job(models.Model):
         # Mark the job as completed
         self.status = status
         self.completed = timezone.now()
-        Job.objects.filter(pk=self.pk).update(status=self.status, completed=self.completed)
+        self.save()
 
         # Handle webhooks
         self.trigger_webhooks(event=EVENT_JOB_END)

@@ -44,6 +44,9 @@ class ReportModule(PythonModuleMixin, JobsMixin, ManagedFile):
     def get_absolute_url(self):
         return reverse('extras:report_list')
 
+    def __str__(self):
+        return self.python_name
+
     @cached_property
     def reports(self):
 
@@ -51,7 +54,10 @@ class ReportModule(PythonModuleMixin, JobsMixin, ManagedFile):
             # For child objects in submodules use the full import path w/o the root module as the name
             return cls.full_name.split(".", maxsplit=1)[1]
 
-        module = self.get_module()
+        try:
+            module = self.get_module()
+        except ImportError:
+            return {}
         reports = {}
         ordered = getattr(module, 'report_order', [])
 
