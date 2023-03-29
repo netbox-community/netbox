@@ -44,6 +44,9 @@ class ReportModule(PythonModuleMixin, JobsMixin, ManagedFile):
     def get_absolute_url(self):
         return reverse('extras:report_list')
 
+    def __str__(self):
+        return self.python_name
+
     @cached_property
     def reports(self):
 

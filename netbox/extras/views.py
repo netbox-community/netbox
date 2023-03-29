@@ -833,7 +833,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_report'
 
     def get(self, request, module, name):
-        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path=f'{module}.py')
+        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path__startswith=module)
         report = module.reports[name]()
 
         object_type = ContentType.objects.get(app_label='extras', model='reportmodule')
@@ -854,7 +854,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         if not request.user.has_perm('extras.run_report'):
             return HttpResponseForbidden()
 
-        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path=f'{module}.py')
+        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path__startswith=module)
         report = module.reports[name]()
         form = ReportForm(request.POST)
 
@@ -893,7 +893,7 @@ class ReportJobsView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_report'
 
     def get(self, request, module, name):
-        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path=f'{module}.py')
+        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path__startswith=module)
         report = module.reports[name]()
 
         object_type = ContentType.objects.get(app_label='extras', model='reportmodule')
@@ -989,7 +989,8 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request, module, name):
-        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path=f'{module}.py')
+        print(module)
+        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__startswith=module)
         script = module.scripts[name]()
         form = script.as_form(initial=normalize_querydict(request.GET))
 
@@ -1013,7 +1014,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
         if not request.user.has_perm('extras.run_script'):
             return HttpResponseForbidden()
 
-        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path=f'{module}.py')
+        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__startswith=module)
         script = module.scripts[name]()
         form = script.as_form(request.POST, request.FILES)
 
@@ -1050,7 +1051,7 @@ class ScriptSourceView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request, module, name):
-        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path=f'{module}.py')
+        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__startswith=module)
         script = module.scripts[name]()
 
         return render(request, 'extras/script/source.html', {
@@ -1066,7 +1067,7 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request, module, name):
-        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path=f'{module}.py')
+        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__startswith=module)
         script = module.scripts[name]()
 
         object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
