@@ -9,9 +9,9 @@ from django.db.models.signals import class_prepared
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext as _
-
 from taggit.managers import TaggableManager
 
+from core.choices import JobStatusChoices
 from extras.choices import CustomFieldVisibilityChoices, ObjectChangeActionChoices
 from extras.utils import is_taggable, register_features
 from netbox.registry import registry
@@ -302,11 +302,23 @@ class JobsMixin(models.Model):
     jobs = GenericRelation(
         to='core.Job',
         content_type_field='object_type',
-        object_id_field='object_id'
+        object_id_field='object_id',
+        for_concrete_model=False
     )
 
     class Meta:
         abstract = True
+
+    def get_latest_jobs(self):
+        """
+        Return a dictionary mapping of the most recent jobs for this instance.
+        """
+        return {
+            job.name: job
+            for job in self.jobs.filter(
+                status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
+            ).order_by('name', '-created').distinct('name').defer('data')
+        }
 
 
 class JournalingMixin(models.Model):

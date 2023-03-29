@@ -819,18 +819,9 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
     def get(self, request):
         report_modules = ReportModule.objects.restrict(request.user)
 
-        jobs = {
-            r.name: r
-            for r in Job.objects.filter(
-                object_type=ContentType.objects.get_by_natural_key('extras', 'reportmodule'),
-                status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
-            ).order_by('name', '-created').distinct('name').defer('data')
-        }
-
         return render(request, 'extras/report_list.html', {
             'model': ReportModule,
             'report_modules': report_modules,
-            'jobs': jobs,
         })
 
 
@@ -986,18 +977,9 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
     def get(self, request):
         script_modules = ScriptModule.objects.restrict(request.user)
 
-        jobs = {
-            r.name: r
-            for r in Job.objects.filter(
-                object_type=ContentType.objects.get_by_natural_key('extras', 'scriptmodule'),
-                status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
-            ).order_by('name', '-created').distinct('name').defer('data')
-        }
-
         return render(request, 'extras/script_list.html', {
             'model': ScriptModule,
             'script_modules': script_modules,
-            'jobs': jobs,
         })
 
 

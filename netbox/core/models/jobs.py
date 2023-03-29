@@ -39,7 +39,8 @@ class Job(models.Model):
     )
     object = GenericForeignKey(
         ct_field='object_type',
-        fk_field='object_id'
+        fk_field='object_id',
+        for_concrete_model=False
     )
     name = models.CharField(
         max_length=200

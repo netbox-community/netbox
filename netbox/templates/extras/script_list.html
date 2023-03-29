@@ -47,8 +47,8 @@
               </tr>
             </thead>
             <tbody>
-              {% for script_name, script_class in module.scripts.items %}
-                {% with last_result=jobs|get_key:script_class.name %}
+              {% with jobs=module.get_latest_jobs %}
+                {% for script_name, script_class in module.scripts.items %}
                   <tr>
                     <td>
                       <a href="{% url 'extras:script' module=module.path name=script_name %}" name="script.{{ script_name }}">{{ script_class.name }}</a>
@@ -56,20 +56,22 @@
                     <td>
                       {{ script_class.Meta.description|markdown|placeholder }}
                     </td>
-                    {% if last_result %}
-                      <td>
-                        <a href="{% url 'extras:script_result' job_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
-                      </td>
-                      <td class="text-end">
-                        {% badge last_result.get_status_display last_result.get_status_color %}
-                      </td>
-                    {% else %}
-                      <td class="text-muted">Never</td>
-                      <td class="text-end">{{ ''|placeholder }}</td>
-                    {% endif %}
+                    {% with last_result=jobs|get_key:script_class.name %}
+                      {% if last_result %}
+                        <td>
+                          <a href="{% url 'extras:script_result' job_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
+                        </td>
+                        <td class="text-end">
+                          {% badge last_result.get_status_display last_result.get_status_color %}
+                        </td>
+                      {% else %}
+                        <td class="text-muted">Never</td>
+                        <td class="text-end">{{ ''|placeholder }}</td>
+                      {% endif %}
+                    {% endwith %}
                   </tr>
-                {% endwith %}
-              {% endfor %}
+                {% endfor %}
+              {% endwith %}
             </tbody>
           </table>
         </div>
