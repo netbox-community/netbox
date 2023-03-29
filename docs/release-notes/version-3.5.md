@@ -30,6 +30,10 @@ The NAPALM integration feature found in previous NetBox releases has been moved 
 
 A new ASN range model has been introduced to facilitate the provisioning of new autonomous system numbers from within a prescribed range. For example, an administrator might define an ASN range of 65000-65099 to be used for internal site identification. This includes a REST API endpoint suitable for automatic provisioning, very similar to the allocation of available prefixes and IP addresses.
 
+#### Provider Accounts ([#9047](https://github.com/netbox-community/netbox/issues/9047))
+
+A new model has been introduced to represent individual accounts within a common circuit provider. This replaces the `account` field on the provider model, enabling users to track multiple accounts per provider. New provider account instances will be created automatically during upgrade for all providers which currently have an account assigned. The assignment of individual circuits to a provider account remains optional.
+
 #### Job-Triggered Webhooks ([#8958](https://github.com/netbox-community/netbox/issues/8958))
 
 Two new webhook trigger events have been introduced: `job_start` and `job_end`. These enable users to configure webhook to trigger when a background job starts or ends, respectively. This new functionality can be used, for example, to inform a remote system when a custom script has been executed.
@@ -70,17 +74,18 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 
 * All API responses now include a `X-Request-ID` HTTP header indicating the request's unique ID
 * Introduced new endpoints:
+    * `/api/circuits/provider-accounts/`
     * `/api/core/data-files/`
     * `/api/core/data-sources/`
     * `/api/dcim/device/<id>/render-config/`
     * `/api/extras/config-templates/`
     * `/api/ipam/asn-ranges/`
-* Changed endpoints:
-    * `/api/extras/job-results/` is now `/api/core/jobs/`
-* Removed endpoints:
+* Removed existing endpoints:
     * `/api/dcim/device/<id>/napalm/`
-* core.Job
-    * Renamed `obj_type` to `object_type`
+* circuits.Circuit
+    * Added the optional `account` foreign key to ProviderAccount
+* circuits.Provider
+    * Removed the `account` field
 * dcim.DeviceType
     * Added `default_platform` foreign key (optional)
 * dcim.InterfaceTemplate
@@ -90,8 +95,6 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
     * Added `data_source`, `data_file`, `data_path`, and `data_synced` fields to enable syncing data from remote sources
 * extras.ExportTemplate
     * Added `data_source`, `data_file`, `data_path`, and `data_synced` fields to enable syncing content from remote sources
-* extras.JobResult
-    * Move to `core.Job`
 * extras.Webhook
     * Added `type_job_start` and `type_job_end` boolean fields
 * ipam.ASN
