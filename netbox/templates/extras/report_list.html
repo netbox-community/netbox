@@ -50,7 +50,7 @@
             </thead>
             <tbody>
               {% for report_name, report in module.reports.items %}
-                {% with last_result=jobs|get_key:report.full_name %}
+                {% with last_result=jobs|get_key:report.name %}
                   <tr>
                     <td>
                       <a href="{% url 'extras:report' module=module.path name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">{{ report.name }}</a>
