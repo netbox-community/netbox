@@ -33,7 +33,7 @@
               </a>
             </div>
           {% endif %}
-          <i class="mdi mdi-file-document-outline"></i> {{ module.name|bettertitle }}
+          <i class="mdi mdi-file-document-outline"></i> {{ module.name }}
         </h5>
         <div class="card-body">
           {% include 'inc/sync_warning.html' with object=module %}
@@ -51,7 +51,7 @@
                 {% for script_name, script_class in module.scripts.items %}
                   <tr>
                     <td>
-                      <a href="{% url 'extras:script' module=module.path name=script_name %}" name="script.{{ script_name }}">{{ script_class.name }}</a>
+                      <a href="{% url 'extras:script' module=module.pymodule_name name=script_name %}" name="script.{{ script_name }}">{{ script_class.name }}</a>
                     </td>
                     <td>
                       {{ script_class.Meta.description|markdown|placeholder }}

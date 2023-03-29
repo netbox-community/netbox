@@ -1,5 +1,5 @@
 import os
-from pkgutil import ModuleInfo, get_importer
+from importlib.machinery import SourceFileLoader
 
 __all__ = (
     'PythonModuleMixin',
@@ -12,16 +12,17 @@ class PythonModuleMixin:
     def path(self):
         return os.path.splitext(self.file_path)[0]
 
-    def get_module_info(self):
-        path = os.path.dirname(self.full_path)
-        module_name = os.path.basename(self.path)
-        return ModuleInfo(
-            module_finder=get_importer(path),
-            name=module_name,
-            ispkg=False
-        )
+    @property
+    def pymodule_name(self):
+        path, filename = os.path.split(self.full_path)
+        name = os.path.splitext(filename)[0]
+        if name == '__init__':
+            # File is a package
+            return os.path.basename(path)
+        else:
+            return name
 
     def get_module(self):
-        importer, module_name, _ = self.get_module_info()
-        module = importer.find_module(module_name).load_module(module_name)
+        loader = SourceFileLoader(self.pymodule_name, self.full_path)
+        module = loader.load_module()
         return module

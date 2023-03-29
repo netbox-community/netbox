@@ -8,16 +8,9 @@ import extras.models.mixins
 
 def create_files(cls, root_name, root_path):
 
-    path_tree = [
-        path for path, _, _ in os.walk(root_path)
-        if os.path.basename(path)[0] not in ('_', '.')
-    ]
-
-    modules = list(pkgutil.iter_modules(path_tree))
+    modules = list(pkgutil.iter_modules([root_path]))
     filenames = []
-    for importer, module_name, is_pkg in modules:
-        if is_pkg:
-            continue
+    for importer, module_name, ispkg in modules:
         try:
             module = importer.find_module(module_name).load_module(module_name)
             rel_path = os.path.relpath(module.__file__, root_path)

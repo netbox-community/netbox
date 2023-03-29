@@ -1,7 +1,6 @@
 import inspect
 from functools import cached_property
 
-from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 
@@ -51,10 +50,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
             # For child objects in submodules use the full import path w/o the root module as the name
             return cls.full_name.split(".", maxsplit=1)[1]
 
-        try:
-            module = self.get_module()
-        except ImportError:
-            return {}
+        module = self.get_module()
         scripts = {}
         ordered = getattr(module, 'script_order', [])
 

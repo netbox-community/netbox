@@ -34,7 +34,7 @@
               </a>
             </div>
           {% endif %}
-          <i class="mdi mdi-file-document-outline"></i> {{ module.name|bettertitle }}
+          <i class="mdi mdi-file-document-outline"></i> {{ module.name }}
         </h5>
         <div class="card-body">
           {% include 'inc/sync_warning.html' with object=module %}
@@ -54,7 +54,7 @@
                   {% with last_job=jobs|get_key:report.name %}
                     <tr>
                       <td>
-                        <a href="{% url 'extras:report' module=module.path name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">{{ report.name }}</a>
+                        <a href="{% url 'extras:report' module=module.pymodule_name name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">{{ report.name }}</a>
                       </td>
                       <td>{{ report.description|markdown|placeholder }}</td>
                       {% if last_job %}
