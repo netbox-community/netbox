@@ -195,8 +195,6 @@ class Report(object):
         Run the report and save its results. Each test method will be executed in order.
         """
         self.logger.info(f"Running report")
-        job.status = JobStatusChoices.STATUS_RUNNING
-        job.save()
 
         # Perform any post-run tasks
         self.pre_run()
@@ -218,6 +216,7 @@ class Report(object):
             logger.error(f"Exception raised during report execution: {e}")
             job.terminate(status=JobStatusChoices.STATUS_ERRORED)
         finally:
+            job.data = self._results
             job.terminate()
 
         # Perform any post-run tasks
