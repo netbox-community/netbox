@@ -10,6 +10,7 @@ from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Re
 from dcim.models import Location
 from extras.choices import *
 from extras.filtersets import *
+from extras.forms import SavedFilterForm
 from extras.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
@@ -313,6 +314,27 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'usable': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+
+class SavedFilterFormTest(TestCase):
+
+    def test_basic_submit(self):
+        """
+        Test form submission and validation
+        """
+        form = SavedFilterForm({
+            'name': 'test-sf',
+            'slug': 'test-sf',
+            'content_types': [ContentType.objects.get_for_model(Site).pk],
+            'weight': 100,
+            'parameters': {
+                "status": [
+                    "active"
+                ]
+            }
+        })
+        self.assertTrue(form.is_valid())
+        instance = form.save()
 
 
 class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
