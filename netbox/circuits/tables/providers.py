@@ -50,8 +50,8 @@ class ProviderTable(ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Provider
         fields = (
-            'pk', 'id', 'name', 'accounts', 'account_count', 'asns', 'asn_count', 'circuit_count', 'description', 'comments', 'contacts',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'accounts', 'account_count', 'asns', 'asn_count', 'circuit_count', 'description',
+            'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'account_count', 'circuit_count')
 
@@ -64,6 +64,12 @@ class ProviderAccountTable(ContactsColumnMixin, NetBoxTable):
     provider = tables.Column(
         linkify=True
     )
+    circuit_count = columns.LinkedCountColumn(
+        accessor=Accessor('count_circuits'),
+        viewname='circuits:circuit_list',
+        url_params={'provider_account_id': 'pk'},
+        verbose_name='Circuits'
+    )
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='circuits:provideraccount_list'
@@ -72,7 +78,8 @@ class ProviderAccountTable(ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ProviderAccount
         fields = (
-            'pk', 'id', 'account', 'name', 'provider', 'circuit_count', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'account', 'name', 'provider', 'circuit_count', 'comments', 'contacts', 'tags', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'account', 'name', 'provider', 'circuit_count')
 

@@ -1,5 +1,4 @@
 import django_tables2 as tables
-from django_tables2.utils import Accessor
 
 from circuits.models import *
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
@@ -53,7 +52,8 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         linkify=True
     )
     provider_account = tables.Column(
-        linkify=True
+        linkify=True,
+        verbose_name='Account'
     )
     status = columns.ChoiceFieldColumn()
     termination_a = tables.TemplateColumn(

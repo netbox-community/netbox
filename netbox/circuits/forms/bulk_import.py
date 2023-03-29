@@ -38,7 +38,7 @@ class ProviderAccountImportForm(NetBoxModelImportForm):
     class Meta:
         model = ProviderAccount
         fields = (
-            'provider', 'name', 'account', 'comments', 'tags',
+            'provider', 'name', 'account', 'description', 'comments', 'tags',
         )
 
 

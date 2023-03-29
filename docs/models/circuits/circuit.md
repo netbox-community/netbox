@@ -4,9 +4,13 @@ A circuit represents a physical point-to-point data connection, typically used t
 
 ## Fields
 
+### Provider
+
+The [provider](./provider.md) to which this circuit belongs.
+
 ### Provider Account
 
-The [provider account](./provideraccount.md) to which this circuit belongs.
+Circuits may optionally be assigned to a specific [provider account](./provideraccount.md).
 
 ### Circuit ID
 

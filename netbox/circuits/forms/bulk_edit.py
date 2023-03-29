@@ -35,7 +35,7 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Provider
     fieldsets = (
-        (None, ('asns', )),
+        (None, ('asns', 'description')),
     )
     nullable_fields = (
         'asns', 'description', 'comments',
@@ -60,8 +60,7 @@ class ProviderAccountBulkEditForm(NetBoxModelBulkEditForm):
         (None, ('provider', 'description')),
     )
     nullable_fields = (
-        'description',
-        'comments',
+        'description', 'comments',
     )
 
 

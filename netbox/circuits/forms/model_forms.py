@@ -41,8 +41,7 @@ class ProviderForm(NetBoxModelForm):
 
 class ProviderAccountForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
-        queryset=Provider.objects.all(),
-        selector=True
+        queryset=Provider.objects.all()
     )
     comments = CommentField()
 
@@ -93,14 +92,10 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
     )
     provider_account = DynamicModelChoiceField(
         queryset=ProviderAccount.objects.all(),
-        initial_params={
-            'circuits': '$circuit'
-        },
+        required=False,
         query_params={
             'provider_id': '$provider',
-        },
-        selector=True,
-        required=False
+        }
     )
     type = DynamicModelChoiceField(
         queryset=CircuitType.objects.all()
@@ -129,9 +124,6 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
 class CircuitTerminationForm(NetBoxModelForm):
     circuit = DynamicModelChoiceField(
         queryset=Circuit.objects.all(),
-        query_params={
-            'provider_id': '$provider',
-        },
         selector=True
     )
     site = DynamicModelChoiceField(

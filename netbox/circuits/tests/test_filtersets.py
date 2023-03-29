@@ -36,15 +36,6 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         providers[1].asns.set([asns[1]])
         providers[2].asns.set([asns[2]])
 
-        provider_accounts = (
-            ProviderAccount(name='Account A', account='AAAA', provider=providers[0]),
-            ProviderAccount(name='Account B', account='BBBB', provider=providers[1]),
-            ProviderAccount(name='Account C', account='CCCC', provider=providers[2]),
-            ProviderAccount(name='Account D', account='DDDD', provider=providers[3]),
-            ProviderAccount(name='Account E', account='EEEE', provider=providers[4]),
-        )
-        ProviderAccount.objects.bulk_create(provider_accounts)
-
         regions = (
             Region(name='Test Region 1', slug='test-region-1'),
             Region(name='Test Region 2', slug='test-region-2'),
@@ -73,8 +64,8 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         CircuitType.objects.bulk_create(circuit_types)
 
         circuits = (
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0], cid='Test Circuit 1'),
-            Circuit(provider=providers[1], provider_account=provider_accounts[1], type=circuit_types[1], cid='Test Circuit 1'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 1'),
+            Circuit(provider=providers[1], type=circuit_types[1], cid='Circuit 2'),
         )
         Circuit.objects.bulk_create(circuits)
 
@@ -202,8 +193,9 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         Provider.objects.bulk_create(providers)
 
         provider_accounts = (
-            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
-            ProviderAccount(name='Provider Account 2', provider=providers[1], account='2345'),
+            ProviderAccount(name='Provider Account 1', provider=providers[0], account='A'),
+            ProviderAccount(name='Provider Account 2', provider=providers[1], account='B'),
+            ProviderAccount(name='Provider Account 3', provider=providers[2], account='C'),
         )
         ProviderAccount.objects.bulk_create(provider_accounts)
 
@@ -217,10 +209,10 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         circuits = (
             Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 1', install_date='2020-01-01', termination_date='2021-01-01', commit_rate=1000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar1'),
             Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 2', install_date='2020-01-02', termination_date='2021-01-02', commit_rate=2000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar2'),
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[1], type=circuit_types[0], cid='Test Circuit 3', install_date='2020-01-03', termination_date='2021-01-03', commit_rate=3000, status=CircuitStatusChoices.STATUS_PLANNED),
+            Circuit(provider=providers[0], provider_account=provider_accounts[1], tenant=tenants[1], type=circuit_types[0], cid='Test Circuit 3', install_date='2020-01-03', termination_date='2021-01-03', commit_rate=3000, status=CircuitStatusChoices.STATUS_PLANNED),
             Circuit(provider=providers[1], provider_account=provider_accounts[1], tenant=tenants[1], type=circuit_types[1], cid='Test Circuit 4', install_date='2020-01-04', termination_date='2021-01-04', commit_rate=4000, status=CircuitStatusChoices.STATUS_PLANNED),
-            Circuit(provider=providers[1], provider_account=provider_accounts[1], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 5', install_date='2020-01-05', termination_date='2021-01-05', commit_rate=5000, status=CircuitStatusChoices.STATUS_OFFLINE),
-            Circuit(provider=providers[1], provider_account=provider_accounts[1], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 6', install_date='2020-01-06', termination_date='2021-01-06', commit_rate=6000, status=CircuitStatusChoices.STATUS_OFFLINE),
+            Circuit(provider=providers[1], provider_account=provider_accounts[2], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 5', install_date='2020-01-05', termination_date='2021-01-05', commit_rate=5000, status=CircuitStatusChoices.STATUS_OFFLINE),
+            Circuit(provider=providers[1], provider_account=provider_accounts[2], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 6', install_date='2020-01-06', termination_date='2021-01-06', commit_rate=6000, status=CircuitStatusChoices.STATUS_OFFLINE),
         )
         Circuit.objects.bulk_create(circuits)
 
@@ -258,9 +250,9 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_provider_account(self):
-        provider_account = ProviderAccount.objects.first()
-        params = {'provider_account_id': [provider_account.pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        provider_accounts = ProviderAccount.objects.all()[:2]
+        params = {'provider_account_id': [provider_accounts[0].pk, provider_accounts[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_provider_network(self):
         provider_networks = ProviderNetwork.objects.all()[:2]
@@ -342,11 +334,6 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Provider.objects.bulk_create(providers)
 
-        provider_accounts = (
-            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
-        )
-        ProviderAccount.objects.bulk_create(provider_accounts)
-
         provider_networks = (
             ProviderNetwork(name='Provider Network 1', provider=providers[0]),
             ProviderNetwork(name='Provider Network 2', provider=providers[0]),
@@ -355,13 +342,13 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         ProviderNetwork.objects.bulk_create(provider_networks)
 
         circuits = (
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0], cid='Circuit 1'),
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0], cid='Circuit 2'),
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0], cid='Circuit 3'),
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0], cid='Circuit 4'),
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0], cid='Circuit 5'),
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0], cid='Circuit 6'),
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0], cid='Circuit 7'),
+            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 1'),
+            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 2'),
+            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 3'),
+            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 4'),
+            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 5'),
+            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 6'),
+            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 7'),
         )
         Circuit.objects.bulk_create(circuits)
 

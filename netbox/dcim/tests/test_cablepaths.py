@@ -30,9 +30,8 @@ class CablePathTestCase(TestCase):
         cls.powerpanel = PowerPanel.objects.create(site=cls.site, name='Power Panel')
 
         provider = Provider.objects.create(name='Provider', slug='provider')
-        provider_account = ProviderAccount.objects.create(name='Account', account='AAAA1111', provider=provider)
         circuit_type = CircuitType.objects.create(name='Circuit Type', slug='circuit-type')
-        cls.circuit = Circuit.objects.create(provider=provider, provider_account=provider_account, type=circuit_type, cid='Circuit 1')
+        cls.circuit = Circuit.objects.create(provider=provider, type=circuit_type, cid='Circuit 1')
 
     def assertPathExists(self, nodes, **kwargs):
         """
@@ -1309,7 +1308,7 @@ class CablePathTestCase(TestCase):
         [IF1] --C1-- [CT1] [CT2] --> [PN1]
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
-        providernetwork = ProviderNetwork.objects.create(name='Provider Network 1', provider=self.circuit.provider_account.provider)
+        providernetwork = ProviderNetwork.objects.create(name='Provider Network 1', provider=self.circuit.provider)
         circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
         circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, provider_network=providernetwork, term_side='Z')
 
@@ -1437,7 +1436,7 @@ class CablePathTestCase(TestCase):
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
-        circuit2 = Circuit.objects.create(provider=self.circuit.provider, provider_account=self.circuit.provider_account, type=self.circuit.type, cid='Circuit 2')
+        circuit2 = Circuit.objects.create(provider=self.circuit.provider, type=self.circuit.type, cid='Circuit 2')
         circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
         circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='Z')
         circuittermination3 = CircuitTermination.objects.create(circuit=circuit2, site=self.site, term_side='A')

@@ -28,9 +28,9 @@ class CircuitType(OrganizationalModel):
 
 class Circuit(PrimaryModel):
     """
-    A communications circuit connects two points. Each Circuit belongs to a Provider Account; ProviderAccounts may have
-    multiple circuits. Each circuit is also assigned a CircuitType and a Site.  Circuit port speed and commit rate are
-    measured in Kbps.
+    A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
+    circuits. Each circuit is also assigned a CircuitType and a Site, and may optionally be assigned to a particular
+    ProviderAccount. Circuit port speed and commit rate are measured in Kbps.
     """
     cid = models.CharField(
         max_length=100,
@@ -116,7 +116,6 @@ class Circuit(PrimaryModel):
     prerequisite_models = (
         'circuits.CircuitType',
         'circuits.Provider',
-        'circuits.ProviderAccount',
     )
 
     class Meta:
@@ -143,8 +142,9 @@ class Circuit(PrimaryModel):
 
     def clean(self):
         super().clean()
+
         if self.provider_account and self.provider != self.provider_account.provider:
-            raise ValidationError("Provider must match ProviderAccount's provider")
+            raise ValidationError({'provider_account': "The assigned account must belong to the assigned provider."})
 
 
 class CircuitTermination(

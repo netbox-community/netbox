@@ -1,6 +1,6 @@
 from django.test import TransactionTestCase
 
-from circuits.models import Provider, Circuit, CircuitType, ProviderAccount
+from circuits.models import Provider, Circuit, CircuitType
 from extras.choices import ChangeActionChoices
 from extras.models import Branch, StagedChange, Tag
 from ipam.models import ASN, RIR
@@ -28,25 +28,18 @@ class StagingTestCase(TransactionTestCase):
         )
         Provider.objects.bulk_create(providers)
 
-        provider_accounts = (
-            ProviderAccount(name='Account A', provider=providers[0], account='AAAA'),
-            ProviderAccount(name='Account B', provider=providers[1], account='BBBB'),
-            ProviderAccount(name='Account C', provider=providers[2], account='CCCC'),
-        )
-        ProviderAccount.objects.bulk_create(provider_accounts)
-
         circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
 
         Circuit.objects.bulk_create((
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], cid='Circuit A1', type=circuit_type),
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], cid='Circuit A2', type=circuit_type),
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], cid='Circuit A3', type=circuit_type),
-            Circuit(provider=providers[1], provider_account=provider_accounts[1], cid='Circuit B1', type=circuit_type),
-            Circuit(provider=providers[1], provider_account=provider_accounts[1], cid='Circuit B2', type=circuit_type),
-            Circuit(provider=providers[1], provider_account=provider_accounts[1], cid='Circuit B3', type=circuit_type),
-            Circuit(provider=providers[2], provider_account=provider_accounts[2], cid='Circuit C1', type=circuit_type),
-            Circuit(provider=providers[2], provider_account=provider_accounts[2], cid='Circuit C2', type=circuit_type),
-            Circuit(provider=providers[2], provider_account=provider_accounts[2], cid='Circuit C3', type=circuit_type),
+            Circuit(provider=providers[0], cid='Circuit A1', type=circuit_type),
+            Circuit(provider=providers[0], cid='Circuit A2', type=circuit_type),
+            Circuit(provider=providers[0], cid='Circuit A3', type=circuit_type),
+            Circuit(provider=providers[1], cid='Circuit B1', type=circuit_type),
+            Circuit(provider=providers[1], cid='Circuit B2', type=circuit_type),
+            Circuit(provider=providers[1], cid='Circuit B3', type=circuit_type),
+            Circuit(provider=providers[2], cid='Circuit C1', type=circuit_type),
+            Circuit(provider=providers[2], cid='Circuit C2', type=circuit_type),
+            Circuit(provider=providers[2], cid='Circuit C3', type=circuit_type),
         ))
 
     def test_object_creation(self):
@@ -57,8 +50,7 @@ class StagingTestCase(TransactionTestCase):
         with checkout(branch):
             provider = Provider.objects.create(name='Provider D', slug='provider-d')
             provider.asns.set(asns)
-            provider_account = ProviderAccount.objects.create(name='Account D', provider=provider, account='DDDD')
-            circuit = Circuit.objects.create(provider=provider, provider_account=provider_account, cid='Circuit D1', type=CircuitType.objects.first())
+            circuit = Circuit.objects.create(provider=provider, cid='Circuit D1', type=CircuitType.objects.first())
             circuit.tags.set(tags)
 
             # Sanity-checking
@@ -70,7 +62,7 @@ class StagingTestCase(TransactionTestCase):
         # Verify that changes have been rolled back after exiting the context
         self.assertEqual(Provider.objects.count(), 3)
         self.assertEqual(Circuit.objects.count(), 9)
-        self.assertEqual(StagedChange.objects.count(), 6)
+        self.assertEqual(StagedChange.objects.count(), 5)
 
         # Verify that changes are replayed upon entering the context
         with checkout(branch):
@@ -153,31 +145,25 @@ class StagingTestCase(TransactionTestCase):
 
         with checkout(branch):
             provider = Provider.objects.get(name='Provider A')
-            Circuit.objects.filter(provider_account__provider=provider).delete()
-            provider.accounts.all().delete()
             provider.delete()
 
             # Sanity-checking
             self.assertEqual(Provider.objects.count(), 2)
-            self.assertEqual(ProviderAccount.objects.count(), 2)
             self.assertEqual(Circuit.objects.count(), 6)
 
         # Verify that changes have been rolled back after exiting the context
         self.assertEqual(Provider.objects.count(), 3)
-        self.assertEqual(ProviderAccount.objects.count(), 3)
         self.assertEqual(Circuit.objects.count(), 9)
-        self.assertEqual(StagedChange.objects.count(), 5)
+        self.assertEqual(StagedChange.objects.count(), 4)
 
         # Verify that changes are replayed upon entering the context
         with checkout(branch):
             self.assertEqual(Provider.objects.count(), 2)
-            self.assertEqual(ProviderAccount.objects.count(), 2)
             self.assertEqual(Circuit.objects.count(), 6)
 
         # Verify that changes are applied and deleted upon branch merge
         branch.merge()
         self.assertEqual(Provider.objects.count(), 2)
-        self.assertEqual(ProviderAccount.objects.count(), 2)
         self.assertEqual(Circuit.objects.count(), 6)
         self.assertEqual(StagedChange.objects.count(), 0)
 

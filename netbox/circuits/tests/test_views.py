@@ -202,7 +202,6 @@ class ProviderAccountTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             ProviderAccount(name='Provider Account 2', provider=providers[0], account='2345'),
             ProviderAccount(name='Provider Account 3', provider=providers[0], account='3456'),
         )
-
         ProviderAccount.objects.bulk_create(provider_accounts)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
@@ -305,12 +304,11 @@ class CircuitTerminationTestCase(
         Site.objects.bulk_create(sites)
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
-        account = ProviderAccount.objects.create(name='Provider Account 1', provider=provider, account='1234')
 
         circuits = (
-            Circuit(cid='Circuit 1', provider=provider, provider_account=account, type=circuittype),
-            Circuit(cid='Circuit 2', provider=provider, provider_account=account, type=circuittype),
-            Circuit(cid='Circuit 3', provider=provider, provider_account=account, type=circuittype),
+            Circuit(cid='Circuit 1', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 2', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 3', provider=provider, type=circuittype),
         )
         Circuit.objects.bulk_create(circuits)
 

@@ -69,7 +69,6 @@ class ProviderAccountFilterForm(NetBoxModelFilterSetForm):
         label=_('Provider')
     )
     account = forms.CharField(
-        max_length=100,
         required=False
     )
     tag = TagFilterField(model)

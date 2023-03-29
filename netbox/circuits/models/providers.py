@@ -15,8 +15,8 @@ __all__ = (
 
 class Provider(PrimaryModel):
     """
-    This is usually a telecommunications company or similar organization. This model stores information pertinent to
-    the user's relationship with the Provider.
+    Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
+    stores information pertinent to the user's relationship with the Provider.
     """
     name = models.CharField(
         max_length=100,
@@ -54,18 +54,18 @@ class ProviderAccount(PrimaryModel):
     """
     This is a discrete account within a provider.  Each Circuit belongs to a Provider Account.
     """
-    account = models.CharField(
-        max_length=30,
-        verbose_name='Account number'
-    )
-    name = models.CharField(
-        max_length=100,
-        blank=True
-    )
     provider = models.ForeignKey(
         to='circuits.Provider',
         on_delete=models.PROTECT,
         related_name='accounts'
+    )
+    account = models.CharField(
+        max_length=100,
+        verbose_name='Account ID'
+    )
+    name = models.CharField(
+        max_length=100,
+        blank=True
     )
 
     # Generic relations
@@ -85,7 +85,7 @@ class ProviderAccount(PrimaryModel):
             models.UniqueConstraint(
                 fields=('provider', 'name'),
                 name='%(app_label)s_%(class)s_unique_provider_name',
-                condition=~Q(account="")
+                condition=~Q(name="")
             ),
         )
 
