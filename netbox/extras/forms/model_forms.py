@@ -130,7 +130,7 @@ class SavedFilterForm(BootstrapMixin, forms.ModelForm):
 
     def __init__(self, *args, initial=None, **kwargs):
 
-        # Convert any parameters delivered via initial data to JSON data
+        # Convert any parameters delivered via initial data to dict
         if initial and 'parameters' in initial:
             if type(initial['parameters']) is str:
                 initial['parameters'] = dict(QueryDict(initial['parameters']).lists())
