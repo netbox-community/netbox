@@ -887,6 +887,22 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         })
 
 
+class ReportSourceView(ContentTypePermissionRequiredMixin, View):
+
+    def get_required_permission(self):
+        return 'extras.view_report'
+
+    def get(self, request, module, name):
+        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path__startswith=module)
+        report = module.reports[name]()
+
+        return render(request, 'extras/report/source.html', {
+            'module': module,
+            'report': report,
+            'tab': 'source',
+        })
+
+
 class ReportJobsView(ContentTypePermissionRequiredMixin, View):
 
     def get_required_permission(self):

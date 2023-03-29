@@ -1,3 +1,4 @@
+import inspect
 import logging
 import traceback
 from datetime import timedelta
@@ -126,6 +127,14 @@ class Report(object):
         Override this attribute to set a custom display name.
         """
         return self.class_name
+
+    @property
+    def filename(self):
+        return inspect.getfile(self.__class__)
+
+    @property
+    def source(self):
+        return inspect.getsource(self.__class__)
 
     #
     # Logging methods

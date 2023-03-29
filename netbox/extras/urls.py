@@ -98,6 +98,7 @@ urlpatterns = [
     path('reports/results/<int:job_pk>/', views.ReportResultView.as_view(), name='report_result'),
     path('reports/<int:pk>/', include(get_model_urls('extras', 'reportmodule'))),
     path('reports/<str:module>/<str:name>/', views.ReportView.as_view(), name='report'),
+    path('reports/<str:module>/<str:name>/source/', views.ReportSourceView.as_view(), name='report_source'),
     path('reports/<str:module>/<str:name>/jobs/', views.ReportJobsView.as_view(), name='report_jobs'),
 
     # Scripts

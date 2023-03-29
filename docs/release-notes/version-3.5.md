@@ -59,6 +59,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#11693](https://github.com/netbox-community/netbox/issues/11693) - Enable syncing export template content from remote sources
 * [#11780](https://github.com/netbox-community/netbox/issues/11780) - Enable loading import data from remote sources
 * [#11968](https://github.com/netbox-community/netbox/issues/11968) - Add navigation menu buttons to create device & VM components
+* [#12085](https://github.com/netbox-community/netbox/issues/12085) - Add a file source view for reports
 
 ### Other Changes
 
