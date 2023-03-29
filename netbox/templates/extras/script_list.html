@@ -79,9 +79,9 @@
     {% empty %}
       <div class="alert alert-info">
         <h4 class="alert-heading">No Scripts Found</h4>
-        Scripts should be saved to <code>{{ settings.SCRIPTS_ROOT }}</code>.
-        <hr/>
-        This path can be changed by setting <code>SCRIPTS_ROOT</code> in NetBox's configuration.
+        {% if perms.extras.add_scriptmodule %}
+          Get started by <a href="{% url 'extras:scriptmodule_add' %}">creating a script</a> from an uploaded file or data source.
+        {% endif %}
       </div>
     {% endfor %}
   </div>

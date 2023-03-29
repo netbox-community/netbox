@@ -108,9 +108,9 @@
     {% empty %}
       <div class="alert alert-info" role="alert">
         <h4 class="alert-heading">No Reports Found</h4>
-        Reports should be saved to <code>{{ settings.REPORTS_ROOT }}</code>.
-        <hr/>
-        <small>This path can be changed by setting <code>REPORTS_ROOT</code> in NetBox's configuration.</small>
+        {% if perms.extras.add_reportmodule %}
+          Get started by <a href="{% url 'extras:reportmodule_add' %}">creating a report</a> from an uploaded file or data source.
+        {% endif %}
       </div>
     {% endfor %}
   </div>
