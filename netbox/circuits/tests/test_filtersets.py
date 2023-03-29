@@ -189,6 +189,7 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         providers = (
             Provider(name='Provider 1', slug='provider-1'),
             Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
         )
         Provider.objects.bulk_create(providers)
 
@@ -342,13 +343,13 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         ProviderNetwork.objects.bulk_create(provider_networks)
 
         circuits = (
-            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 1'),
-            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 2'),
-            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 3'),
-            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 4'),
-            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 5'),
-            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 6'),
-            Circuit(provider=providers[0], circuitstype=circuit_types[0], cid='Circuit 7'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 1'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 2'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 3'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 4'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 5'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 6'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 7'),
         )
         Circuit.objects.bulk_create(circuits)
 
