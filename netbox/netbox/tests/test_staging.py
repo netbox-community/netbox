@@ -145,6 +145,7 @@ class StagingTestCase(TransactionTestCase):
 
         with checkout(branch):
             provider = Provider.objects.get(name='Provider A')
+            provider.circuits.all().delete()
             provider.delete()
 
             # Sanity-checking
