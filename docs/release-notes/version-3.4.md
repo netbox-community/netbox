@@ -2,6 +2,14 @@
 
 ## v3.4.8 (FUTURE)
 
+### Enhancements
+
+* [#12095](https://github.com/netbox-community/netbox/issues/12095) - Specify UTF-8 encoding for default export template MIME type
+
+### Bug Fixes
+
+* [#12084](https://github.com/netbox-community/netbox/issues/12084) - Fix exception when attempting to create a saved filter for applied filters
+
 ---
 
 ## v3.4.7 (2023-03-28)
