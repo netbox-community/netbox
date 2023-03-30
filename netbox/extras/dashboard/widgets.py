@@ -11,6 +11,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin
+from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import content_type_identifier, content_type_name, get_viewname
 from .utils import register_widget
@@ -107,8 +108,12 @@ class ObjectCountsWidget(DashboardWidget):
         for content_type_id in self.config['models']:
             app_label, model_name = content_type_id.split('.')
             model = ContentType.objects.get_by_natural_key(app_label, model_name).model_class()
-            object_count = model.objects.restrict(request.user, 'view').count
-            counts.append((model, object_count))
+            permission = get_permission_for_model(model, 'view')
+            if request.user.has_perm(permission):
+                object_count = model.objects.restrict(request.user, 'view').count
+                counts.append((model, object_count))
+            else:
+                counts.append((model, None))
 
         return render_to_string(self.template_name, {
             'counts': counts,
@@ -136,15 +141,21 @@ class ObjectListWidget(DashboardWidget):
 
     def render(self, request):
         app_label, model_name = self.config['model'].split('.')
-        content_type = ContentType.objects.get_by_natural_key(app_label, model_name)
-        viewname = get_viewname(content_type.model_class(), action='list')
+        model = ContentType.objects.get_by_natural_key(app_label, model_name).model_class()
+        viewname = get_viewname(model, action='list')
+
+        # Evaluate user's permission. Note that this controls only whether the HTMX element is
+        # embedded on the page: The view itself will also evaluate permissions separately.
+        permission = get_permission_for_model(model, 'view')
+        has_permission = request.user.has_perm(permission)
+
         try:
             htmx_url = reverse(viewname)
         except NoReverseMatch:
             htmx_url = None
-
         return render_to_string(self.template_name, {
             'viewname': viewname,
+            'has_permission': has_permission,
             'htmx_url': htmx_url,
             'page_size': self.config.get('page_size'),
         })
