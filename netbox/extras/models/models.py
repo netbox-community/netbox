@@ -301,7 +301,7 @@ class ExportTemplate(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLo
         max_length=50,
         blank=True,
         verbose_name='MIME type',
-        help_text=_('Defaults to <code>text/plain</code>')
+        help_text=_('Defaults to <code>text/plain; charset=utf-8</code>')
     )
     file_extension = models.CharField(
         max_length=15,
@@ -357,7 +357,7 @@ class ExportTemplate(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLo
         Render the template to an HTTP response, delivered as a named file attachment
         """
         output = self.render(queryset)
-        mime_type = 'text/plain' if not self.mime_type else self.mime_type
+        mime_type = 'text/plain; charset=utf-8' if not self.mime_type else self.mime_type
 
         # Build the response
         response = HttpResponse(output, content_type=mime_type)
