@@ -29,19 +29,26 @@
       {% include 'extras/dashboard/widget.html' %}
     {% endfor %}
   </div>
-  <div class="text-end px-2">
-    <a href="#"
-      hx-get="{% url 'extras:dashboardwidget_add' %}"
-      hx-target="#htmx-modal-content"
-      data-bs-toggle="modal"
-      data-bs-target="#htmx-modal"
-      class="btn btn-success btn-sm"
-    >
-      <i class="mdi mdi-plus"></i> Add Widget
-    </a>
-    <button id="save_dashboard" class="btn btn-primary btn-sm" data-url="{% url 'extras-api:dashboard' %}">
-      <i class="mdi mdi-content-save-outline"></i> Save Layout
-    </button>
+  <div class="d-flex px-3">
+    <div class="flex-grow-1">
+      <a href="#"
+        hx-get="{% url 'extras:dashboardwidget_add' %}"
+        hx-target="#htmx-modal-content"
+        data-bs-toggle="modal"
+        data-bs-target="#htmx-modal"
+        class="btn btn-success btn-sm"
+      >
+        <i class="mdi mdi-plus"></i> Add Widget
+      </a>
+    </div>
+    <div>
+      <button id="save_dashboard" class="btn btn-primary btn-sm" data-url="{% url 'extras-api:dashboard' %}">
+        <i class="mdi mdi-content-save-outline"></i> Save Layout
+      </button>
+      <a href="{% url 'extras:dashboard_reset' %}" class="btn btn-danger btn-sm">
+        <i class="mdi mdi-backspace"></i>  Reset Dashboard
+      </a>
+    </div>
   </div>
 {% endblock content-wrapper %}
 

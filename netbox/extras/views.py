@@ -5,6 +5,7 @@ from django.db.models import Count, Q
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from django.views.generic import View
 
 from core.choices import JobStatusChoices, ManagedFileRootPathChoices
@@ -665,8 +666,35 @@ class JournalEntryBulkDeleteView(generic.BulkDeleteView):
 
 
 #
-# Dashboard widgets
+# Dashboard & widgets
 #
+
+class DashboardResetView(LoginRequiredMixin, View):
+    template_name = 'extras/dashboard/reset.html'
+
+    def get(self, request):
+        get_object_or_404(Dashboard.objects.all(), user=request.user)
+        form = ConfirmationForm()
+
+        return render(request, self.template_name, {
+            'form': form,
+            'return_url': reverse('home'),
+        })
+
+    def post(self, request):
+        dashboard = get_object_or_404(Dashboard.objects.all(), user=request.user)
+        form = ConfirmationForm(request.POST)
+
+        if form.is_valid():
+            dashboard.delete()
+            messages.success(request, _("Your dashboard has been reset."))
+            return redirect(reverse('home'))
+
+        return render(request, self.template_name, {
+            'form': form,
+            'return_url': reverse('home'),
+        })
+
 
 class DashboardWidgetAddView(LoginRequiredMixin, View):
     template_name = 'extras/dashboard/widget_add.html'
