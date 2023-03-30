@@ -92,8 +92,8 @@ class CircuitTypeSerializer(NetBoxModelSerializer):
 
 class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
-    site = NestedSiteSerializer()
-    provider_network = NestedProviderNetworkSerializer()
+    site = NestedSiteSerializer(allow_null=True)
+    provider_network = NestedProviderNetworkSerializer(allow_null=True)
 
     class Meta:
         model = CircuitTermination
@@ -110,8 +110,8 @@ class CircuitSerializer(NetBoxModelSerializer):
     status = ChoiceField(choices=CircuitStatusChoices, required=False)
     type = NestedCircuitTypeSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    termination_a = CircuitCircuitTerminationSerializer(read_only=True)
-    termination_z = CircuitCircuitTerminationSerializer(read_only=True)
+    termination_a = CircuitCircuitTerminationSerializer(read_only=True, allow_null=True)
+    termination_z = CircuitCircuitTerminationSerializer(read_only=True, allow_null=True)
 
     class Meta:
         model = Circuit

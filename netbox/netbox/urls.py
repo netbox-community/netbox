@@ -3,8 +3,7 @@ from django.conf.urls import include
 from django.urls import path, re_path
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
-from drf_yasg import openapi
-from drf_yasg.views import get_schema_view
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 from extras.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_api_patterns
 from netbox.api.views import APIRootView, StatusView
@@ -14,20 +13,6 @@ from netbox.views import HomeView, StaticMediaFailureView, SearchView, htmx
 from users.views import LoginView, LogoutView
 from .admin import admin_site
 
-openapi_info = openapi.Info(
-    title="NetBox API",
-    default_version='v3',
-    description="API to access NetBox",
-    terms_of_service="https://github.com/netbox-community/netbox",
-    license=openapi.License(name="Apache v2 License"),
-)
-
-schema_view = get_schema_view(
-    openapi_info,
-    validators=['flex', 'ssv'],
-    public=True,
-    permission_classes=()
-)
 
 _patterns = [
 
@@ -66,9 +51,10 @@ _patterns = [
     path('api/virtualization/', include('virtualization.api.urls')),
     path('api/wireless/', include('wireless.api.urls')),
     path('api/status/', StatusView.as_view(), name='api-status'),
-    path('api/docs/', schema_view.with_ui('swagger', cache_timeout=86400), name='api_docs'),
-    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=86400), name='api_redocs'),
-    re_path(r'^api/swagger(?P<format>.json|.yaml)$', schema_view.without_ui(cache_timeout=86400), name='schema_swagger'),
+
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='api_docs'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='api_redocs'),
 
     # GraphQL
     path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema)), name='graphql'),

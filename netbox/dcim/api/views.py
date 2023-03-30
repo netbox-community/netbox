@@ -1,8 +1,7 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-from drf_yasg import openapi
-from drf_yasg.openapi import Parameter
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 from rest_framework.decorators import action
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -194,10 +193,6 @@ class RackViewSet(NetBoxModelViewSet):
     serializer_class = serializers.RackSerializer
     filterset_class = filtersets.RackFilterSet
 
-    @swagger_auto_schema(
-        responses={200: serializers.RackUnitSerializer(many=True)},
-        query_serializer=serializers.RackElevationDetailFilterSerializer
-    )
     @action(detail=True)
     def elevation(self, request, pk=None):
         """
@@ -622,28 +617,26 @@ class ConnectedDeviceViewSet(ViewSet):
     * `peer_interface`: The name of the peer interface
     """
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
-    _device_param = Parameter(
+    _device_param = OpenApiParameter(
         name='peer_device',
-        in_='query',
+        location='query',
         description='The name of the peer device',
         required=True,
-        type=openapi.TYPE_STRING
+        type=OpenApiTypes.STR
     )
-    _interface_param = Parameter(
+    _interface_param = OpenApiParameter(
         name='peer_interface',
-        in_='query',
+        location='query',
         description='The name of the peer interface',
         required=True,
-        type=openapi.TYPE_STRING
+        type=OpenApiTypes.STR
     )
+    serializer_class = serializers.DeviceSerializer
 
     def get_view_name(self):
         return "Connected Device Locator"
 
-    @swagger_auto_schema(
-        manual_parameters=[_device_param, _interface_param],
-        responses={'200': serializers.DeviceSerializer}
-    )
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def list(self, request):
 
         peer_device_name = request.query_params.get(self._device_param.name)

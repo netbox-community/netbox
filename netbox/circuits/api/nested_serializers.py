@@ -1,3 +1,5 @@
+from drf_spectacular.utils import extend_schema_field, extend_schema_serializer
+from drf_spectacular.types import OpenApiTypes
 from rest_framework import serializers
 
 from circuits.models import *
@@ -29,6 +31,9 @@ class NestedProviderNetworkSerializer(WritableNestedSerializer):
 # Providers
 #
 
+@extend_schema_serializer(
+    exclude_fields=('circuit_count',),
+)
 class NestedProviderSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
     circuit_count = serializers.IntegerField(read_only=True)
@@ -54,6 +59,9 @@ class NestedProviderAccountSerializer(WritableNestedSerializer):
 # Circuits
 #
 
+@extend_schema_serializer(
+    exclude_fields=('circuit_count',),
+)
 class NestedCircuitTypeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
     circuit_count = serializers.IntegerField(read_only=True)

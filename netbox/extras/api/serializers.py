@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 from core.api.serializers import JobSerializer
@@ -11,6 +10,8 @@ from dcim.api.nested_serializers import (
     NestedRegionSerializer, NestedSiteSerializer, NestedSiteGroupSerializer,
 )
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
@@ -103,6 +104,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
             'last_updated',
         ]
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_data_type(self, obj):
         types = CustomFieldTypeChoices
         if obj.type == types.TYPE_INTEGER:
@@ -230,7 +232,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 
         return data
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_parent(self, obj):
         serializer = get_serializer_for_model(obj.parent, prefix=NESTED_SERIALIZER_PREFIX)
         return serializer(obj.parent, context={'request': self.context['request']}).data
@@ -280,7 +282,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
 
         return data
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, instance):
         serializer = get_serializer_for_model(instance.assigned_object_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
@@ -453,7 +455,7 @@ class ScriptSerializer(serializers.Serializer):
     vars = serializers.SerializerMethodField(read_only=True)
     result = NestedJobSerializer()
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_vars(self, instance):
         return {
             k: v.__class__.__name__ for k, v in instance._get_vars().items()
@@ -514,7 +516,7 @@ class ObjectChangeSerializer(BaseModelSerializer):
             'changed_object_id', 'changed_object', 'prechange_data', 'postchange_data',
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_changed_object(self, obj):
         """
         Serialize a nested representation of the changed object.

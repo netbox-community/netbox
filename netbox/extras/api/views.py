@@ -168,7 +168,7 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 class ReportViewSet(ViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
     _ignore_model_permissions = True
-    exclude_from_schema = True
+    schema = None
     lookup_value_regex = '[^/]+'  # Allow dots
 
     def _get_report(self, pk):
@@ -270,7 +270,7 @@ class ReportViewSet(ViewSet):
 class ScriptViewSet(ViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
     _ignore_model_permissions = True
-    exclude_from_schema = True
+    schema = None
     lookup_value_regex = '[^/]+'  # Allow dots
 
     def _get_script(self, pk):

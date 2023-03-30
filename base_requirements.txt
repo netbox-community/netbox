@@ -66,9 +66,9 @@ django-timezone-field
 # https://github.com/encode/django-rest-framework
 djangorestframework
 
-# Swagger/OpenAPI schema generation for REST APIs
-# https://github.com/axnsan12/drf-yasg
-drf-yasg[validation]
+# Sane and flexible OpenAPI 3 schema generation for Django REST framework.
+# https://github.com/tfranzel/drf-spectacular
+drf-spectacular
 
 # RSS feed parser
 # https://github.com/kurtmckee/feedparser

@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_yasg.utils import swagger_serializer_method
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from netbox.api.fields import ContentTypeField
@@ -38,7 +38,7 @@ class GenericObjectSerializer(serializers.Serializer):
 
         return data
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_object(self, obj):
         serializer = get_serializer_for_model(obj, prefix=NESTED_SERIALIZER_PREFIX)
         # context = {'request': self.context['request']}

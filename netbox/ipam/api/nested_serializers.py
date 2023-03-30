@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from ipam import models
@@ -54,6 +55,9 @@ class NestedASNSerializer(WritableNestedSerializer):
 # VRFs
 #
 
+@extend_schema_serializer(
+    exclude_fields=('prefix_count',),
+)
 class NestedVRFSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vrf-detail')
     prefix_count = serializers.IntegerField(read_only=True)
@@ -79,6 +83,9 @@ class NestedRouteTargetSerializer(WritableNestedSerializer):
 # RIRs/aggregates
 #
 
+@extend_schema_serializer(
+    exclude_fields=('aggregate_count',),
+)
 class NestedRIRSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
     aggregate_count = serializers.IntegerField(read_only=True)
@@ -121,6 +128,9 @@ class NestedFHRPGroupAssignmentSerializer(WritableNestedSerializer):
 # VLANs
 #
 
+@extend_schema_serializer(
+    exclude_fields=('prefix_count', 'vlan_count'),
+)
 class NestedRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
     prefix_count = serializers.IntegerField(read_only=True)
@@ -131,6 +141,9 @@ class NestedRoleSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name', 'slug', 'prefix_count', 'vlan_count']
 
 
+@extend_schema_serializer(
+    exclude_fields=('vlan_count',),
+)
 class NestedVLANGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
     vlan_count = serializers.IntegerField(read_only=True)

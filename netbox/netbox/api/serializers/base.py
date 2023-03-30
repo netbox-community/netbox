@@ -1,5 +1,7 @@
 from django.db.models import ManyToManyField
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 
 __all__ = (
     'BaseModelSerializer',
@@ -10,6 +12,7 @@ __all__ = (
 class BaseModelSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField(read_only=True)
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):
         return str(obj)
 

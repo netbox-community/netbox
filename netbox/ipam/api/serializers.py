@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_yasg.utils import swagger_serializer_method
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerializer
@@ -136,6 +136,7 @@ class AggregateSerializer(NetBoxModelSerializer):
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     rir = NestedRIRSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
+    prefix = serializers.CharField()
 
     class Meta:
         model = Aggregate
@@ -177,7 +178,7 @@ class FHRPGroupAssignmentSerializer(NetBoxModelSerializer):
             'last_updated',
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_interface(self, obj):
         if obj.interface is None:
             return None
@@ -225,7 +226,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
         ]
         validators = []
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_scope(self, obj):
         if obj.scope_id is None:
             return None
@@ -242,7 +243,7 @@ class VLANSerializer(NetBoxModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=VLANStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
-    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True)
+    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True, allow_null=True)
     prefix_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -302,6 +303,7 @@ class PrefixSerializer(NetBoxModelSerializer):
     role = NestedRoleSerializer(required=False, allow_null=True)
     children = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(read_only=True)
+    prefix = serializers.CharField()
 
     class Meta:
         model = Prefix
@@ -371,13 +373,13 @@ class IPRangeSerializer(NetBoxModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=IPRangeStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
-    children = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = IPRange
         fields = [
             'id', 'url', 'display', 'family', 'start_address', 'end_address', 'size', 'vrf', 'tenant', 'status', 'role',
-            'mark_utilized', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'children',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'mark_utilized', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         read_only_fields = ['family']
 
@@ -392,7 +394,7 @@ class IPAddressSerializer(NetBoxModelSerializer):
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=IPAddressStatusChoices, required=False)
-    role = ChoiceField(choices=IPAddressRoleChoices, allow_blank=True, required=False)
+    role = ChoiceField(choices=IPAddressRoleChoices, allow_blank=True, required=False, allow_null=True)
     assigned_object_type = ContentTypeField(
         queryset=ContentType.objects.filter(IPADDRESS_ASSIGNMENT_MODELS),
         required=False,
@@ -410,7 +412,7 @@ class IPAddressSerializer(NetBoxModelSerializer):
             'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, obj):
         if obj.assigned_object is None:
             return None
@@ -519,7 +521,7 @@ class L2VPNTerminationSerializer(NetBoxModelSerializer):
             'assigned_object', 'tags', 'custom_fields', 'created', 'last_updated'
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, instance):
         serializer = get_serializer_for_model(instance.assigned_object, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}

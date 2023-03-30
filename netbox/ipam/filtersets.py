@@ -16,8 +16,6 @@ from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .models import *
 
-from rest_framework import serializers
-
 __all__ = (
     'AggregateFilterSet',
     'ASNFilterSet',
