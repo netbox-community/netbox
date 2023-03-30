@@ -6,7 +6,7 @@
 
 {% block extra_controls %}
   {% if perms.core.sync_datasource %}
-    {% if sync_enabled and object.ready_for_sync %}
+    {% if object.ready_for_sync %}
       <form action="{% url 'core:datasource_sync' pk=object.pk %}" method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-sm btn-primary">
@@ -14,7 +14,7 @@
         </button>
       </form>
     {% else %}
-      <span class="inline-block" tabindex="0" data-bs-toggle="tooltip" data-bs-delay="100" data-bs-placement="bottom" title="Unable to sync: No RQ worker running">
+      <span class="inline-block" tabindex="0" data-bs-toggle="tooltip" data-bs-delay="100" data-bs-placement="bottom">
         <button class="btn btn-sm btn-primary" disabled>
           <i class="mdi mdi-sync" aria-hidden="true"></i> Sync
         </button>

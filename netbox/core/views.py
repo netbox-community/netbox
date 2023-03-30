@@ -32,11 +32,7 @@ class DataSourceView(generic.ObjectView):
             (DataFile.objects.restrict(request.user, 'view').filter(source=instance), 'source_id'),
         )
 
-        queue_name = get_queue_for_model(DataSource)
-        sync_enabled = bool(get_workers_for_queue(queue_name))
-
         return {
-            'sync_enabled': sync_enabled,
             'related_models': related_models,
         }
 
