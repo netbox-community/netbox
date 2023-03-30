@@ -91,10 +91,9 @@ class GitBackend(DataBackend):
         username = self.params.get('username')
         password = self.params.get('password')
         if username and password:
-            url_components = list(urlparse(self.url))
-            # Prepend username & password to netloc
-            url_components[1] = quote(f'{username}@{password}:') + url_components[1]
-            url = urlunparse(url_components)
+            # Add username & password to URL
+            parsed = urlparse(self.url)
+            url = f'{parsed.scheme}://{quote(username)}:{quote(password)}@{parsed.netloc}{parsed.path}'
         else:
             url = self.url
 
