@@ -155,6 +155,7 @@ nav:
             - Circuit Termination: 'models/circuits/circuittermination.md'
             - Circuit Type: 'models/circuits/circuittype.md'
             - Provider: 'models/circuits/provider.md'
+            - Provider Account: 'models/circuits/provideraccount.md'
             - Provider Network: 'models/circuits/providernetwork.md'
         - Core:
             - DataFile: 'models/core/datafile.md'
