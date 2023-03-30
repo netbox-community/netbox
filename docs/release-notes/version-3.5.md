@@ -12,7 +12,7 @@
 
 #### Customizable Dashboard ([#9416](https://github.com/netbox-community/netbox/issues/9416))
 
-The static home view has been replaced with a fully customizable dashboard. Users can construct and rearrange their own personal dashboard to convey the information most pertinent to them. Supported widgets include object statistics, change log records, notes, and more, and we expect to continue adding new widgets over time. Plugins can also register their own custom widgets.
+The static home view has been replaced with a fully customizable dashboard. Users can construct and rearrange their own personal dashboard to convey the information most pertinent to them. Supported widgets include object statistics, configurable object lists, RSS feeds, and notes, and we expect to continue adding new widgets over time.
 
 #### Remote Data Sources ([#11558](https://github.com/netbox-community/netbox/issues/11558))
 
@@ -24,7 +24,7 @@ This release introduces the ability to render device configurations from Jinja2 
 
 #### NAPALM Plugin ([#10520](https://github.com/netbox-community/netbox/issues/10520))
 
-The NAPALM integration feature found in previous NetBox releases has been moved from the core application to a dedicated plugin. This allows greater control over the feature's configuration and will unlock additional potential as a separate project.
+The NAPALM integration feature found in previous NetBox releases has been moved from the core application to a [dedicated plugin](https://github.com/netbox-community/netbox-napalm). This allows greater control over the feature's configuration and will unlock additional potential as a separate project.
 
 #### ASN Ranges ([#8550](https://github.com/netbox-community/netbox/issues/8550))
 
@@ -41,6 +41,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 ### Enhancements
 
 * [#7947](https://github.com/netbox-community/netbox/issues/7947) - Enable marking IP ranges as fully utilized
+* [#8184](https://github.com/netbox-community/netbox/issues/8184) - Employ HTMX to dynamically render tables listing related objects
 * [#8272](https://github.com/netbox-community/netbox/issues/8272) - Support bridge relationships among device type interfaces
 * [#8749](https://github.com/netbox-community/netbox/issues/8749) - Support replicating custom field values when cloning an object
 * [#9073](https://github.com/netbox-community/netbox/issues/9073) - Enable syncing config context data from remote sources
@@ -58,17 +59,21 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#11625](https://github.com/netbox-community/netbox/issues/11625) - Add HTMX support to ObjectEditView
 * [#11693](https://github.com/netbox-community/netbox/issues/11693) - Enable syncing export template content from remote sources
 * [#11780](https://github.com/netbox-community/netbox/issues/11780) - Enable loading import data from remote sources
+* [#11790](https://github.com/netbox-community/netbox/issues/11790) - Create database indexes for all generic foreign keys
 * [#11968](https://github.com/netbox-community/netbox/issues/11968) - Add navigation menu buttons to create device & VM components
+* [#12068](https://github.com/netbox-community/netbox/issues/12068) - Enable generic foreign key relationships from jobs to NetBox objects
 * [#12085](https://github.com/netbox-community/netbox/issues/12085) - Add a file source view for reports
 
 ### Other Changes
 
 * [#10604](https://github.com/netbox-community/netbox/issues/10604) - Remove unused `extra_tabs` block from `object.html` generic template
 * [#10923](https://github.com/netbox-community/netbox/issues/10923) - Remove unused `NetBoxModelCSVForm` class (replaced by `NetBoxModelImportForm`)
+* [#11489](https://github.com/netbox-community/netbox/issues/11489) - Consoldated several middleware classes
 * [#11611](https://github.com/netbox-community/netbox/issues/11611) - Refactor API viewset classes and introduce NetBoxReadOnlyModelViewSet
 * [#11694](https://github.com/netbox-community/netbox/issues/11694) - Remove obsolete `SmallTextarea` form widget
 * [#11737](https://github.com/netbox-community/netbox/issues/11737) - `ChangeLoggedModel` now inherits `WebhooksMixin`
 * [#11765](https://github.com/netbox-community/netbox/issues/11765) - Retire the `StaticSelect` and `StaticSelectMultiple` form widgets
+* [#11955](https://github.com/netbox-community/netbox/issues/11955) - Remove the unused `CSVDataField` and `CSVFileField` classes
 * [#12067](https://github.com/netbox-community/netbox/issues/12067) - Move & rename `extras.JobResult` to `core.Job`
 
 ### REST API Changes
