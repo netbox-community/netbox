@@ -54,7 +54,7 @@ Within the shell, enter the following commands to create the database and user (
 ```postgresql
 CREATE DATABASE netbox;
 CREATE USER netbox WITH PASSWORD 'J5brHrAXFLQSif0K';
-GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox;
+ALTER DATABASE netbox OWNER TO netbox;
 ```
 
 !!! danger "Use a strong password"
