@@ -1,5 +1,6 @@
 import datetime
 import decimal
+import json
 from urllib.parse import quote
 from typing import Dict, Any
 
@@ -321,7 +322,7 @@ def applied_filters(context, model, form, query_params):
     save_link = None
     if user.has_perm('extras.add_savedfilter') and 'filter_id' not in context['request'].GET:
         content_type = ContentType.objects.get_for_model(model).pk
-        parameters = context['request'].GET.urlencode()
+        parameters = json.dumps(context['request'].GET)
         url = reverse('extras:savedfilter_add')
         save_link = f"{url}?content_types={content_type}&parameters={quote(parameters)}"
 
