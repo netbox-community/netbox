@@ -16,7 +16,7 @@ from jinja2.exceptions import TemplateError
 
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
-from ipam.models import ASN, IPAddress, Prefix, Service, VLAN, VLANGroup
+from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
 from ipam.tables import InterfaceVLANTable
 from netbox.views import generic
 from utilities.forms import ConfirmationForm

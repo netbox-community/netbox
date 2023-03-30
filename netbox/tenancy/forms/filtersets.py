@@ -8,7 +8,7 @@ from tenancy.choices import *
 from tenancy.models import *
 from tenancy.forms import ContactModelFilterForm
 from utilities.forms.fields import (
-    ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, MultipleChoiceField, TagFilterField,
+    ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
 
 __all__ = (

@@ -1438,10 +1438,10 @@ class PowerFeedTypeChoices(ChoiceSet):
     TYPE_PRIMARY = 'primary'
     TYPE_REDUNDANT = 'redundant'
 
-    CHOICES = [
+    CHOICES = (
         (TYPE_PRIMARY, 'Primary', 'green'),
         (TYPE_REDUNDANT, 'Redundant', 'cyan'),
-    ]
+    )
 
 
 class PowerFeedSupplyChoices(ChoiceSet):

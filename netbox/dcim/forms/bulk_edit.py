@@ -901,10 +901,6 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect
     )
-    enabled = forms.NullBooleanField(
-        required=False,
-        widget=BulkEditNullBooleanSelect
-    )
     mgmt_only = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect,
