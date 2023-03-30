@@ -4,6 +4,7 @@ from hashlib import sha256
 
 import feedparser
 from django import forms
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.template.loader import render_to_string
@@ -208,7 +209,10 @@ class RSSFeedWidget(DashboardWidget):
         if feed_content := cache.get(self.cache_key):
             feed = feedparser.FeedParserDict(feed_content)
         else:
-            feed = feedparser.parse(self.config['feed_url'])
+            feed = feedparser.parse(
+                self.config['feed_url'],
+                request_headers={'User-Agent': f'NetBox/{settings.VERSION}'}
+            )
             if not feed.bozo:
                 # Cap number of entries
                 max_entries = self.config.get('max_entries')
