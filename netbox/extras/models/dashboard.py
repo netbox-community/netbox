@@ -14,8 +14,12 @@ class Dashboard(models.Model):
         on_delete=models.CASCADE,
         related_name='dashboard'
     )
-    layout = models.JSONField()
-    config = models.JSONField()
+    layout = models.JSONField(
+        default=list
+    )
+    config = models.JSONField(
+        default=dict
+    )
 
     class Meta:
         pass

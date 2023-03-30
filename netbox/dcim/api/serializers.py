@@ -482,7 +482,10 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
         default=None
     )
     type = ChoiceField(choices=InterfaceTypeChoices)
-    bridge = NestedInterfaceTemplateSerializer(required=False, allow_null=True)
+    bridge = NestedInterfaceTemplateSerializer(
+        required=False,
+        allow_null=True
+    )
     poe_mode = ChoiceField(
         choices=InterfacePoEModeChoices,
         required=False,
@@ -499,8 +502,8 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'bridge', 'enabled', 'mgmt_only', 'description',
-            'poe_mode', 'poe_type', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only',
+            'description', 'bridge', 'poe_mode', 'poe_type', 'created', 'last_updated',
         ]
 
 
@@ -610,6 +613,7 @@ class InventoryItemTemplateSerializer(ValidatedModelSerializer):
 
 class DeviceRoleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicerole-detail')
+    config_template = NestedConfigTemplateSerializer(required=False, allow_null=True, default=None)
     device_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
 
@@ -624,6 +628,7 @@ class DeviceRoleSerializer(NetBoxModelSerializer):
 class PlatformSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:platform-detail')
     manufacturer = NestedManufacturerSerializer(required=False, allow_null=True)
+    config_template = NestedConfigTemplateSerializer(required=False, allow_null=True, default=None)
     device_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
 

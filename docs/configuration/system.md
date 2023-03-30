@@ -38,7 +38,7 @@ In order to send email, NetBox needs an email server configured. The following i
 * `SERVER` - Hostname or IP address of the email server (use `localhost` if running locally)
 * `PORT` - TCP port to use for the connection (default: `25`)
 * `USERNAME` - Username with which to authenticate
-* `PASSSWORD` - Password with which to authenticate
+* `PASSWORD` - Password with which to authenticate
 * `USE_SSL` - Use SSL when connecting to the server (default: `False`)
 * `USE_TLS` - Use TLS when connecting to the server (default: `False`)
 * `SSL_CERTFILE` - Path to the PEM-formatted SSL certificate file (optional)
@@ -70,6 +70,14 @@ Email is sent from NetBox only for critical events or if configured for [logging
 Default: False
 
 Determines if localization features are enabled or not. This should only be enabled for development or testing purposes as netbox is not yet fully localized. Turning this on will localize numeric and date formats (overriding what is set for DATE_FORMAT) based on the browser locale as well as translate certain strings from third party modules.
+
+---
+
+## GIT_PATH
+
+Default: `git`
+
+The system path to the `git` executable, used by the synchronization backend for remote git repositories.
 
 ---
 

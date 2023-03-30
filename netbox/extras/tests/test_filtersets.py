@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from circuits.models import Provider
+from dcim.filtersets import SiteFilterSet
 from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
 from dcim.models import Location
 from extras.choices import *
@@ -924,3 +925,71 @@ class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'changed_object_type_id': [ContentType.objects.get(app_label='dcim', model='site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+
+class ChangeLoggedFilterSetTestCase(TestCase):
+    """
+    Evaluate base ChangeLoggedFilterSet filters using the Site model.
+    """
+    queryset = Site.objects.all()
+    filterset = SiteFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        content_type = ContentType.objects.get_for_model(Site)
+
+        # Create three sites
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+
+        # Simulate *creation* changelog records for two of the sites
+        request_id = uuid.uuid4()
+        objectchanges = (
+            ObjectChange(
+                changed_object_type=content_type,
+                changed_object_id=sites[0].pk,
+                action=ObjectChangeActionChoices.ACTION_CREATE,
+                request_id=request_id
+            ),
+            ObjectChange(
+                changed_object_type=content_type,
+                changed_object_id=sites[1].pk,
+                action=ObjectChangeActionChoices.ACTION_CREATE,
+                request_id=request_id
+            ),
+        )
+        ObjectChange.objects.bulk_create(objectchanges)
+
+        # Simulate *update* changelog records for two of the sites
+        request_id = uuid.uuid4()
+        objectchanges = (
+            ObjectChange(
+                changed_object_type=content_type,
+                changed_object_id=sites[0].pk,
+                action=ObjectChangeActionChoices.ACTION_UPDATE,
+                request_id=request_id
+            ),
+            ObjectChange(
+                changed_object_type=content_type,
+                changed_object_id=sites[1].pk,
+                action=ObjectChangeActionChoices.ACTION_UPDATE,
+                request_id=request_id
+            ),
+        )
+        ObjectChange.objects.bulk_create(objectchanges)
+
+    def test_created_by_request(self):
+        request_id = ObjectChange.objects.filter(action=ObjectChangeActionChoices.ACTION_CREATE).first().request_id
+        params = {'created_by_request': request_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.queryset.count(), 3)
+
+    def test_updated_by_request(self):
+        request_id = ObjectChange.objects.filter(action=ObjectChangeActionChoices.ACTION_UPDATE).first().request_id
+        params = {'updated_by_request': request_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.queryset.count(), 3)

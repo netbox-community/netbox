@@ -185,6 +185,10 @@
     margin-bottom: 0;
   }
 
+  .nav {
+    margin-bottom: 0.5rem;
+  }
+
   // Child Link nav-item
   .nav .nav-item {
     display: flex;
@@ -193,8 +197,7 @@
     width: 100%;
 
     &.no-buttons {
-      // When there are no buttons, don't extend to the full width of the sidenav.
-      padding-right: $spacer * 5;
+      padding-right: 0.5rem;
     }
   }
 
@@ -262,7 +265,6 @@
     margin-left: -$sidenav-spacing-x;
 
     .nav-item {
-      margin-top: 2px;
 
       &.disabled {
         cursor: not-allowed;

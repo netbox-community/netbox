@@ -4,12 +4,15 @@ from hashlib import sha256
 
 import feedparser
 from django import forms
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.template.loader import render_to_string
+from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin
+from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import content_type_identifier, content_type_name, get_viewname
 from .utils import register_widget
@@ -106,8 +109,12 @@ class ObjectCountsWidget(DashboardWidget):
         for content_type_id in self.config['models']:
             app_label, model_name = content_type_id.split('.')
             model = ContentType.objects.get_by_natural_key(app_label, model_name).model_class()
-            object_count = model.objects.restrict(request.user, 'view').count
-            counts.append((model, object_count))
+            permission = get_permission_for_model(model, 'view')
+            if request.user.has_perm(permission):
+                object_count = model.objects.restrict(request.user, 'view').count
+                counts.append((model, object_count))
+            else:
+                counts.append((model, None))
 
         return render_to_string(self.template_name, {
             'counts': counts,
@@ -126,14 +133,32 @@ class ObjectListWidget(DashboardWidget):
         model = forms.ChoiceField(
             choices=get_content_type_labels
         )
+        page_size = forms.IntegerField(
+            required=False,
+            min_value=1,
+            max_value=100,
+            help_text=_('The default number of objects to display')
+        )
 
     def render(self, request):
         app_label, model_name = self.config['model'].split('.')
-        content_type = ContentType.objects.get_by_natural_key(app_label, model_name)
-        viewname = get_viewname(content_type.model_class(), action='list')
+        model = ContentType.objects.get_by_natural_key(app_label, model_name).model_class()
+        viewname = get_viewname(model, action='list')
 
+        # Evaluate user's permission. Note that this controls only whether the HTMX element is
+        # embedded on the page: The view itself will also evaluate permissions separately.
+        permission = get_permission_for_model(model, 'view')
+        has_permission = request.user.has_perm(permission)
+
+        try:
+            htmx_url = reverse(viewname)
+        except NoReverseMatch:
+            htmx_url = None
         return render_to_string(self.template_name, {
             'viewname': viewname,
+            'has_permission': has_permission,
+            'htmx_url': htmx_url,
+            'page_size': self.config.get('page_size'),
         })
 
 
@@ -180,14 +205,19 @@ class RSSFeedWidget(DashboardWidget):
         return f'dashboard_rss_{url_checksum}'
 
     def get_feed(self):
-        # Fetch RSS content from cache
+        # Fetch RSS content from cache if available
         if feed_content := cache.get(self.cache_key):
             feed = feedparser.FeedParserDict(feed_content)
         else:
-            feed = feedparser.parse(self.config['feed_url'])
-            # Cap number of entries
-            max_entries = self.config.get('max_entries')
-            feed['entries'] = feed['entries'][:max_entries]
-            cache.set(self.cache_key, dict(feed), self.config.get('cache_timeout'))
+            feed = feedparser.parse(
+                self.config['feed_url'],
+                request_headers={'User-Agent': f'NetBox/{settings.VERSION}'}
+            )
+            if not feed.bozo:
+                # Cap number of entries
+                max_entries = self.config.get('max_entries')
+                feed['entries'] = feed['entries'][:max_entries]
+                # Cache the feed content
+                cache.set(self.cache_key, dict(feed), self.config.get('cache_timeout'))
 
         return feed

@@ -5,7 +5,7 @@ from fnmatch import fnmatchcase
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -14,15 +14,15 @@ from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
-from extras.models import JobResult
 from netbox.models import PrimaryModel
-from netbox.models.features import ChangeLoggingMixin
+from netbox.models.features import JobsMixin
 from netbox.registry import registry
 from utilities.files import sha256_hash
 from utilities.querysets import RestrictedQuerySet
 from ..choices import *
 from ..exceptions import SyncError
 from ..signals import post_sync, pre_sync
+from .jobs import Job
 
 __all__ = (
     'DataFile',
@@ -32,7 +32,7 @@ __all__ = (
 logger = logging.getLogger('netbox.core.data')
 
 
-class DataSource(PrimaryModel):
+class DataSource(JobsMixin, PrimaryModel):
     """
     A remote source, such as a git repository, from which DataFiles are synchronized.
     """
@@ -116,16 +116,14 @@ class DataSource(PrimaryModel):
         """
         # Set the status to "syncing"
         self.status = DataSourceStatusChoices.QUEUED
+        DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
         # Enqueue a sync job
-        job_result = JobResult.enqueue_job(
+        return Job.enqueue(
             import_string('core.jobs.sync_datasource'),
-            name=self.name,
-            obj_type=ContentType.objects.get_for_model(DataSource),
-            user=request.user,
+            instance=self,
+            user=request.user
         )
-
-        return job_result
 
     def get_backend(self):
         backend_cls = registry['data_backends'].get(self.type)
@@ -137,8 +135,8 @@ class DataSource(PrimaryModel):
         """
         Create/update/delete child DataFiles as necessary to synchronize with the remote source.
         """
-        if not self.ready_for_sync:
-            raise SyncError(f"Cannot initiate sync; data source not ready/enabled")
+        if self.status == DataSourceStatusChoices.SYNCING:
+            raise SyncError(f"Cannot initiate sync; syncing already in progress.")
 
         # Emit the pre_sync signal
         pre_sync.send(sender=self.__class__, instance=self)
@@ -314,3 +312,14 @@ class DataFile(models.Model):
                 self.data = f.read()
 
         return is_modified
+
+    def write_to_disk(self, path, overwrite=False):
+        """
+        Write the object's data to disk at the specified path
+        """
+        # Check whether file already exists
+        if os.path.isfile(path) and not overwrite:
+            raise FileExistsError()
+
+        with open(path, 'wb+') as new_file:
+            new_file.write(self.data)

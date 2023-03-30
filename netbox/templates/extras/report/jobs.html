@@ -1,0 +1,15 @@
+{% extends 'extras/report/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <div class="card-body table-responsive">
+          {% render_table table 'inc/table.html' %}
+          {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

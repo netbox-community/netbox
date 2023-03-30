@@ -12,7 +12,9 @@ from extras.models import ConfigTemplate
 from ipam.models import VRF
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField, SlugField
+from utilities.forms import (
+    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField, SlugField, CSVModelMultipleChoiceField
+)
 from virtualization.models import Cluster
 from wireless.choices import WirelessRoleChoices
 from .common import ModuleCommonForm
@@ -280,12 +282,14 @@ class ManufacturerImportForm(NetBoxModelImportForm):
 class DeviceTypeImportForm(NetBoxModelImportForm):
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
-        to_field_name='name'
+        to_field_name='name',
+        help_text=_('The manufacturer which produces this device type')
     )
     default_platform = forms.ModelChoiceField(
         queryset=Platform.objects.all(),
         to_field_name='name',
         required=False,
+        help_text=_('The default platform for devices of this type (optional)')
     )
 
     class Meta:
@@ -689,6 +693,12 @@ class InterfaceImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Parent LAG interface')
     )
+    vdcs = CSVModelMultipleChoiceField(
+        queryset=VirtualDeviceContext.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='VDC names separated by commas, encased with double quotes (e.g. "vdc1, vdc2, vdc3")'
+    )
     type = CSVChoiceField(
         choices=InterfaceTypeChoices,
         help_text=_('Physical medium')
@@ -728,7 +738,7 @@ class InterfaceImportForm(NetBoxModelImportForm):
         model = Interface
         fields = (
             'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'speed', 'duplex', 'enabled',
-            'mark_connected', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
+            'mark_connected', 'mac_address', 'wwn', 'vdcs', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
             'vrf', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'tags'
         )
 
@@ -744,6 +754,7 @@ class InterfaceImportForm(NetBoxModelImportForm):
                 self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
                 self.fields['bridge'].queryset = self.fields['bridge'].queryset.filter(**params)
                 self.fields['lag'].queryset = self.fields['lag'].queryset.filter(**params)
+                self.fields['vdcs'].queryset = self.fields['vdcs'].queryset.filter(**params)
 
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data
@@ -751,6 +762,12 @@ class InterfaceImportForm(NetBoxModelImportForm):
             return True
         else:
             return self.cleaned_data['enabled']
+
+    def clean_vdcs(self):
+        for vdc in self.cleaned_data['vdcs']:
+            if vdc.device != self.cleaned_data['device']:
+                raise forms.ValidationError(f"VDC {vdc} is not assigned to device {self.cleaned_data['device']}")
+        return self.cleaned_data['vdcs']
 
 
 class FrontPortImportForm(NetBoxModelImportForm):

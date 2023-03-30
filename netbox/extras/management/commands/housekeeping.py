@@ -9,7 +9,7 @@ from django.db import DEFAULT_DB_ALIAS
 from django.utils import timezone
 from packaging import version
 
-from extras.models import JobResult
+from core.models import Job
 from extras.models import ObjectChange
 from netbox.config import Config
 
@@ -64,15 +64,15 @@ class Command(BaseCommand):
                 f"\tSkipping: No retention period specified (CHANGELOG_RETENTION = {config.CHANGELOG_RETENTION})"
             )
 
-        # Delete expired JobResults
+        # Delete expired Jobs
         if options['verbosity']:
-            self.stdout.write("[*] Checking for expired jobresult records")
-        if config.JOBRESULT_RETENTION:
-            cutoff = timezone.now() - timedelta(days=config.JOBRESULT_RETENTION)
+            self.stdout.write("[*] Checking for expired jobs")
+        if config.JOB_RETENTION:
+            cutoff = timezone.now() - timedelta(days=config.JOB_RETENTION)
             if options['verbosity'] >= 2:
-                self.stdout.write(f"\tRetention period: {config.JOBRESULT_RETENTION} days")
+                self.stdout.write(f"\tRetention period: {config.JOB_RETENTION} days")
                 self.stdout.write(f"\tCut-off time: {cutoff}")
-            expired_records = JobResult.objects.filter(created__lt=cutoff).count()
+            expired_records = Job.objects.filter(created__lt=cutoff).count()
             if expired_records:
                 if options['verbosity']:
                     self.stdout.write(
@@ -81,14 +81,14 @@ class Command(BaseCommand):
                         ending=""
                     )
                     self.stdout.flush()
-                JobResult.objects.filter(created__lt=cutoff).delete()
+                Job.objects.filter(created__lt=cutoff).delete()
                 if options['verbosity']:
                     self.stdout.write("Done.", self.style.SUCCESS)
             elif options['verbosity']:
                 self.stdout.write("\tNo expired records found.", self.style.SUCCESS)
         elif options['verbosity']:
             self.stdout.write(
-                f"\tSkipping: No retention period specified (JOBRESULT_RETENTION = {config.JOBRESULT_RETENTION})"
+                f"\tSkipping: No retention period specified (JOB_RETENTION = {config.JOB_RETENTION})"
             )
 
         # Check for new releases (if enabled)

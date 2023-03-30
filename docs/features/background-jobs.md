@@ -6,7 +6,7 @@ NetBox includes the ability to execute certain functions as background tasks. Th
 * [Custom script](../customization/custom-scripts.md) execution
 * Synchronization of [remote data sources](../integrations/synchronized-data.md)
 
-Additionally, NetBox plugins can enqueue their own background tasks. This is accomplished using the [JobResult model](../models/extras/jobresult.md). Background tasks are executed by the `rqworker` process(es).
+Additionally, NetBox plugins can enqueue their own background tasks. This is accomplished using the [Job model](../models/core/job.md). Background tasks are executed by the `rqworker` process(es).
 
 ## Scheduled Jobs
 

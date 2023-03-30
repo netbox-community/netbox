@@ -59,7 +59,6 @@ class ClusterTypeDeleteView(generic.ObjectDeleteView):
 class ClusterTypeBulkImportView(generic.BulkImportView):
     queryset = ClusterType.objects.all()
     model_form = forms.ClusterTypeImportForm
-    table = tables.ClusterTypeTable
 
 
 class ClusterTypeBulkEditView(generic.BulkEditView):
@@ -121,7 +120,6 @@ class ClusterGroupBulkImportView(generic.BulkImportView):
         cluster_count=count_related(Cluster, 'group')
     )
     model_form = forms.ClusterGroupImportForm
-    table = tables.ClusterGroupTable
 
 
 class ClusterGroupBulkEditView(generic.BulkEditView):
@@ -213,7 +211,6 @@ class ClusterDeleteView(generic.ObjectDeleteView):
 class ClusterBulkImportView(generic.BulkImportView):
     queryset = Cluster.objects.all()
     model_form = forms.ClusterImportForm
-    table = tables.ClusterTable
 
 
 class ClusterBulkEditView(generic.BulkEditView):
@@ -376,7 +373,6 @@ class VirtualMachineDeleteView(generic.ObjectDeleteView):
 class VirtualMachineBulkImportView(generic.BulkImportView):
     queryset = VirtualMachine.objects.all()
     model_form = forms.VirtualMachineImportForm
-    table = tables.VirtualMachineTable
 
 
 class VirtualMachineBulkEditView(generic.BulkEditView):
@@ -458,7 +454,6 @@ class VMInterfaceDeleteView(generic.ObjectDeleteView):
 class VMInterfaceBulkImportView(generic.BulkImportView):
     queryset = VMInterface.objects.all()
     model_form = forms.VMInterfaceImportForm
-    table = tables.VMInterfaceTable
 
 
 class VMInterfaceBulkEditView(generic.BulkEditView):

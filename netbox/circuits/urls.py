@@ -14,6 +14,14 @@ urlpatterns = [
     path('providers/delete/', views.ProviderBulkDeleteView.as_view(), name='provider_bulk_delete'),
     path('providers/<int:pk>/', include(get_model_urls('circuits', 'provider'))),
 
+    # Provider accounts
+    path('provider-accounts/', views.ProviderAccountListView.as_view(), name='provideraccount_list'),
+    path('provider-accounts/add/', views.ProviderAccountEditView.as_view(), name='provideraccount_add'),
+    path('provider-accounts/import/', views.ProviderAccountBulkImportView.as_view(), name='provideraccount_import'),
+    path('provider-accounts/edit/', views.ProviderAccountBulkEditView.as_view(), name='provideraccount_bulk_edit'),
+    path('provider-accounts/delete/', views.ProviderAccountBulkDeleteView.as_view(), name='provideraccount_bulk_delete'),
+    path('provider-accounts/<int:pk>/', include(get_model_urls('circuits', 'provideraccount'))),
+
     # Provider networks
     path('provider-networks/', views.ProviderNetworkListView.as_view(), name='providernetwork_list'),
     path('provider-networks/add/', views.ProviderNetworkEditView.as_view(), name='providernetwork_add'),

@@ -4,7 +4,7 @@ from django.core.management.base import CommandError
 from django.core.management.commands.makemigrations import Command as _Command
 from django.db import models
 
-from . import custom_deconstruct
+from utilities.migration import custom_deconstruct
 
 models.Field.deconstruct = custom_deconstruct
 

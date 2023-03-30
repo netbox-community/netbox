@@ -1,6 +1,7 @@
+import json
+
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.http import QueryDict
 from django.utils.translation import gettext as _
 
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
@@ -90,7 +91,7 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
+class ExportTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('export_templates')
@@ -101,14 +102,24 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        ('Export Template', ('name', 'content_types', 'description')),
-        ('Content', ('data_source', 'data_file', 'template_code',)),
+        ('Export Template', ('name', 'content_types', 'description', 'template_code')),
+        ('Data Source', ('data_source', 'data_file')),
         ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
     )
 
     class Meta:
         model = ExportTemplate
         fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Disable data field when a DataFile has been set
+        if self.instance.data_file:
+            self.fields['template_code'].widget.attrs['readonly'] = True
+            self.fields['template_code'].help_text = _(
+                'Template content is populated from the remote source selected below.'
+            )
 
     def clean(self):
         super().clean()
@@ -137,11 +148,10 @@ class SavedFilterForm(BootstrapMixin, forms.ModelForm):
 
     def __init__(self, *args, initial=None, **kwargs):
 
-        # Convert any parameters delivered via initial data to a dictionary
+        # Convert any parameters delivered via initial data to JSON data
         if initial and 'parameters' in initial:
             if type(initial['parameters']) is str:
-                # TODO: Make a utility function for this
-                initial['parameters'] = dict(QueryDict(initial['parameters']).lists())
+                initial['parameters'] = json.loads(initial['parameters'])
 
         super().__init__(*args, initial=initial, **kwargs)
 
@@ -267,6 +277,20 @@ class ConfigContextForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
             'tenants', 'tags', 'data_source', 'data_file',
         )
 
+    def __init__(self, *args, initial=None, **kwargs):
+
+        # Convert data delivered via initial data to JSON data
+        if initial and 'data' in initial:
+            if type(initial['data']) is str:
+                initial['data'] = json.loads(initial['data'])
+
+        super().__init__(*args, initial=initial, **kwargs)
+
+        # Disable data field when a DataFile has been set
+        if self.instance.data_file:
+            self.fields['data'].widget.attrs['readonly'] = True
+            self.fields['data'].help_text = _('Data is populated from the remote source selected below.')
+
     def clean(self):
         super().clean()
 
@@ -288,12 +312,26 @@ class ConfigTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
 
     fieldsets = (
         ('Config Template', ('name', 'description', 'environment_params', 'tags')),
-        ('Content', ('data_source', 'data_file', 'template_code',)),
+        ('Content', ('template_code',)),
+        ('Data Source', ('data_source', 'data_file')),
     )
 
     class Meta:
         model = ConfigTemplate
         fields = '__all__'
+        widgets = {
+            'environment_params': forms.Textarea(attrs={'rows': 5})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Disable content field when a DataFile has been set
+        if self.instance.data_file:
+            self.fields['template_code'].widget.attrs['readonly'] = True
+            self.fields['template_code'].help_text = _(
+                'Template content is populated from the remote source selected below.'
+            )
 
     def clean(self):
         super().clean()

@@ -38,7 +38,6 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'name': 'Provider X',
             'slug': 'provider-x',
             'asns': [asns[6].pk, asns[7].pk],
-            'account': '1234',
             'comments': 'Another provider',
             'tags': [t.pk for t in tags],
         }
@@ -58,7 +57,6 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'account': '5678',
             'comments': 'New comments',
         }
 
@@ -124,6 +122,12 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Provider.objects.bulk_create(providers)
 
+        provider_accounts = (
+            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
+            ProviderAccount(name='Provider Account 2', provider=providers[1], account='2345'),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
+
         circuittypes = (
             CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
             CircuitType(name='Circuit Type 2', slug='circuit-type-2'),
@@ -131,9 +135,9 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         CircuitType.objects.bulk_create(circuittypes)
 
         circuits = (
-            Circuit(cid='Circuit 1', provider=providers[0], type=circuittypes[0]),
-            Circuit(cid='Circuit 2', provider=providers[0], type=circuittypes[0]),
-            Circuit(cid='Circuit 3', provider=providers[0], type=circuittypes[0]),
+            Circuit(cid='Circuit 1', provider=providers[0], provider_account=provider_accounts[0], type=circuittypes[0]),
+            Circuit(cid='Circuit 2', provider=providers[0], provider_account=provider_accounts[0], type=circuittypes[0]),
+            Circuit(cid='Circuit 3', provider=providers[0], provider_account=provider_accounts[0], type=circuittypes[0]),
         )
 
         Circuit.objects.bulk_create(circuits)
@@ -143,6 +147,7 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'cid': 'Circuit X',
             'provider': providers[1].pk,
+            'provider_account': provider_accounts[1].pk,
             'type': circuittypes[1].pk,
             'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
             'tenant': None,
@@ -155,10 +160,10 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "cid,provider,type,status",
-            "Circuit 4,Provider 1,Circuit Type 1,active",
-            "Circuit 5,Provider 1,Circuit Type 1,active",
-            "Circuit 6,Provider 1,Circuit Type 1,active",
+            "cid,provider,provider_account,type,status",
+            "Circuit 4,Provider 1,Provider Account 1,Circuit Type 1,active",
+            "Circuit 5,Provider 1,Provider Account 1,Circuit Type 1,active",
+            "Circuit 6,Provider 1,Provider Account 1,Circuit Type 1,active",
         )
 
         cls.csv_update_data = (
@@ -170,10 +175,62 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'provider': providers[1].pk,
+            'provider_account': provider_accounts[1].pk,
             'type': circuittypes[1].pk,
             'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
             'tenant': None,
             'commit_rate': 2000,
+            'description': 'New description',
+            'comments': 'New comments',
+        }
+
+
+class ProviderAccountTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ProviderAccount
+
+    @classmethod
+    def setUpTestData(cls):
+
+        providers = (
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+        )
+        Provider.objects.bulk_create(providers)
+
+        provider_accounts = (
+            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
+            ProviderAccount(name='Provider Account 2', provider=providers[0], account='2345'),
+            ProviderAccount(name='Provider Account 3', provider=providers[0], account='3456'),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Provider Account X',
+            'provider': providers[1].pk,
+            'account': 'XXXX',
+            'description': 'A new provider network',
+            'comments': 'Longer description goes here',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,provider,account,description",
+            "Provider Account 4,Provider 1,4567,Foo",
+            "Provider Account 5,Provider 1,5678,Bar",
+            "Provider Account 6,Provider 1,6789,Baz",
+        )
+
+        cls.csv_update_data = (
+            "id,name,account,description",
+            f"{provider_accounts[0].pk},Provider Network 7,7890,New description7",
+            f"{provider_accounts[1].pk},Provider Network 8,8901,New description8",
+            f"{provider_accounts[2].pk},Provider Network 9,9012,New description9",
+        )
+
+        cls.bulk_edit_data = {
+            'provider': providers[1].pk,
             'description': 'New description',
             'comments': 'New comments',
         }

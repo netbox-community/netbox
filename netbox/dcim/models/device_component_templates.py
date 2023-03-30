@@ -377,6 +377,8 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         super().clean()
 
         if self.bridge:
+            if self.pk and self.bridge_id == self.pk:
+                raise ValidationError({'bridge': "An interface cannot be bridged to itself."})
             if self.device_type and self.device_type != self.bridge.device_type:
                 raise ValidationError({
                     'bridge': f"Bridge interface ({self.bridge}) must belong to the same device type"

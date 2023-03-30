@@ -2,7 +2,6 @@ from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext as _
 from jinja2.loaders import BaseLoader
 from jinja2.sandbox import SandboxedEnvironment
@@ -10,7 +9,7 @@ from jinja2.sandbox import SandboxedEnvironment
 from extras.querysets import ConfigContextQuerySet
 from netbox.config import get_config
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import ExportTemplatesMixin, SyncedDataMixin, TagsMixin
+from netbox.models.features import CloningMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
 from utilities.jinja2 import ConfigTemplateLoader
 from utilities.utils import deepmerge
 
@@ -25,7 +24,7 @@ __all__ = (
 # Config contexts
 #
 
-class ConfigContext(SyncedDataMixin, ChangeLoggedModel):
+class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
     qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
@@ -114,6 +113,12 @@ class ConfigContext(SyncedDataMixin, ChangeLoggedModel):
 
     objects = ConfigContextQuerySet.as_manager()
 
+    clone_fields = (
+        'weight', 'is_active', 'regions', 'site_groups', 'sites', 'locations', 'device_types',
+        'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
+        'tenants', 'tags', 'data',
+    )
+
     class Meta:
         ordering = ['weight', 'name']
 
@@ -141,7 +146,6 @@ class ConfigContext(SyncedDataMixin, ChangeLoggedModel):
         Synchronize context data from the designated DataFile (if any).
         """
         self.data = self.data_file.get_data()
-        self.data_synced = timezone.now()
 
 
 class ConfigContextModel(models.Model):
@@ -210,7 +214,12 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
     )
     environment_params = models.JSONField(
         blank=True,
-        null=True
+        null=True,
+        default=dict,
+        help_text=_(
+            'Any <a href="https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Environment">additional parameters</a>'
+            ' to pass when constructing the Jinja2 environment.'
+        )
     )
 
     class Meta:
@@ -227,7 +236,6 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
         Synchronize template content from the designated DataFile (if any).
         """
         self.template_code = self.data_file.data_as_string
-        self.data_synced = timezone.now()
 
     def render(self, context=None):
         """
@@ -237,11 +245,7 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
 
         # Initialize the Jinja2 environment and instantiate the Template
         environment = self._get_environment()
-        if self.data_file:
-            template = environment.get_template(self.data_file.path)
-        else:
-            template = environment.from_string(self.template_code)
-
+        template = environment.from_string(self.template_code)
         output = template.render(**context)
 
         # Replace CRLF-style line terminators
@@ -261,7 +265,8 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
             loader = BaseLoader()
 
         # Initialize the environment
-        environment = SandboxedEnvironment(loader=loader)
+        env_params = self.environment_params or {}
+        environment = SandboxedEnvironment(loader=loader, **env_params)
         environment.filters.update(get_config().JINJA2_FILTERS)
 
         return environment

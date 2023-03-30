@@ -27,7 +27,6 @@ class DataSourceBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     comments = CommentField(
-        widget=forms.Textarea,
         label=_('Comments')
     )
     parameters = forms.JSONField(

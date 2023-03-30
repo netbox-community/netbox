@@ -14,9 +14,11 @@
         </button>
       </form>
     {% else %}
-      <button class="btn btn-sm btn-primary" disabled>
-        <i class="mdi mdi-sync" aria-hidden="true"></i> Sync
-      </button>
+      <span class="inline-block" tabindex="0" data-bs-toggle="tooltip" data-bs-delay="100" data-bs-placement="bottom">
+        <button class="btn btn-sm btn-primary" disabled>
+          <i class="mdi mdi-sync" aria-hidden="true"></i> Sync
+        </button>
+      </span>
     {% endif %}
   {% endif %}
 {% endblock %}

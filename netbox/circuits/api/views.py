@@ -46,7 +46,7 @@ class CircuitTypeViewSet(NetBoxModelViewSet):
 
 class CircuitViewSet(NetBoxModelViewSet):
     queryset = Circuit.objects.prefetch_related(
-        'type', 'tenant', 'provider', 'termination_a', 'termination_z'
+        'type', 'tenant', 'provider', 'provider_account', 'termination_a', 'termination_z'
     ).prefetch_related('tags')
     serializer_class = serializers.CircuitSerializer
     filterset_class = filtersets.CircuitFilterSet
@@ -63,6 +63,16 @@ class CircuitTerminationViewSet(PassThroughPortMixin, NetBoxModelViewSet):
     serializer_class = serializers.CircuitTerminationSerializer
     filterset_class = filtersets.CircuitTerminationFilterSet
     brief_prefetch_fields = ['circuit']
+
+
+#
+# Provider accounts
+#
+
+class ProviderAccountViewSet(NetBoxModelViewSet):
+    queryset = ProviderAccount.objects.prefetch_related('provider', 'tags')
+    serializer_class = serializers.ProviderAccountSerializer
+    filterset_class = filtersets.ProviderAccountFilterSet
 
 
 #

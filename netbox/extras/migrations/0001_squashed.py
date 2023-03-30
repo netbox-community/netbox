@@ -151,7 +151,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(default='pending', max_length=30)),
                 ('data', models.JSONField(blank=True, null=True)),
                 ('job_id', models.UUIDField(unique=True)),
-                ('obj_type', models.ForeignKey(limit_choices_to=extras.utils.FeatureQuery('job_results'), on_delete=django.db.models.deletion.CASCADE, related_name='job_results', to='contenttypes.contenttype')),
+                ('obj_type', models.ForeignKey(limit_choices_to=extras.utils.FeatureQuery('jobs'), on_delete=django.db.models.deletion.CASCADE, related_name='job_results', to='contenttypes.contenttype')),
                 ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
             ],
             options={

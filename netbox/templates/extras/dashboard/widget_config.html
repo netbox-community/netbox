@@ -3,10 +3,11 @@
 <form hx-post="{{ form_url }}">
   {% csrf_token %}
   <div class="modal-header">
-    <h5 class="modal-title">Widget Configuration</h5>
+    <h5 class="modal-title">{{ widget_class }} Configuration</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
   </div>
   <div class="modal-body">
+    <p>{{ widget_class.description }}</p>
     {% block form %}
       {% render_form widget_form %}
       {% render_form config_form %}

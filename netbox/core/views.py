@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect
 
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
+from utilities.rqworker import get_queue_for_model, get_workers_for_queue
 from utilities.utils import count_related
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
@@ -50,9 +51,9 @@ class DataSourceSyncView(BaseObjectView):
 
     def post(self, request, pk):
         datasource = get_object_or_404(self.queryset, pk=pk)
-        job_result = datasource.enqueue_sync_job(request)
+        job = datasource.enqueue_sync_job(request)
 
-        messages.success(request, f"Queued job #{job_result.pk} to sync {datasource}")
+        messages.success(request, f"Queued job #{job.pk} to sync {datasource}")
         return redirect(datasource.get_absolute_url())
 
 
@@ -70,7 +71,6 @@ class DataSourceDeleteView(generic.ObjectDeleteView):
 class DataSourceBulkImportView(generic.BulkImportView):
     queryset = DataSource.objects.all()
     model_form = forms.DataSourceImportForm
-    table = tables.DataSourceTable
 
 
 class DataSourceBulkEditView(generic.BulkEditView):
@@ -116,3 +116,25 @@ class DataFileBulkDeleteView(generic.BulkDeleteView):
     queryset = DataFile.objects.defer('data')
     filterset = filtersets.DataFileFilterSet
     table = tables.DataFileTable
+
+
+#
+# Jobs
+#
+
+class JobListView(generic.ObjectListView):
+    queryset = Job.objects.all()
+    filterset = filtersets.JobFilterSet
+    filterset_form = forms.JobFilterForm
+    table = tables.JobTable
+    actions = ('export', 'delete', 'bulk_delete', )
+
+
+class JobDeleteView(generic.ObjectDeleteView):
+    queryset = Job.objects.all()
+
+
+class JobBulkDeleteView(generic.BulkDeleteView):
+    queryset = Job.objects.all()
+    filterset = filtersets.JobFilterSet
+    table = tables.JobTable

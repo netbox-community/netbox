@@ -17,8 +17,8 @@ class Migration(migrations.Migration):
             name='Dashboard',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
-                ('layout', models.JSONField()),
-                ('config', models.JSONField()),
+                ('layout', models.JSONField(default=list)),
+                ('config', models.JSONField(default=dict)),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='dashboard', to=settings.AUTH_USER_MODEL)),
             ],
         ),

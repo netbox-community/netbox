@@ -3,7 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
-from core.api.nested_serializers import NestedDataSourceSerializer, NestedDataFileSerializer
+from core.api.serializers import JobSerializer
+from core.api.nested_serializers import NestedDataSourceSerializer, NestedDataFileSerializer, NestedJobSerializer
 from dcim.api.nested_serializers import (
     NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedLocationSerializer, NestedPlatformSerializer,
     NestedRegionSerializer, NestedSiteSerializer, NestedSiteGroupSerializer,
@@ -38,7 +39,6 @@ __all__ = (
     'DashboardSerializer',
     'ExportTemplateSerializer',
     'ImageAttachmentSerializer',
-    'JobResultSerializer',
     'JournalEntrySerializer',
     'ObjectChangeSerializer',
     'ReportDetailSerializer',
@@ -412,28 +412,6 @@ class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer
 
 
 #
-# Job Results
-#
-
-class JobResultSerializer(BaseModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:jobresult-detail')
-    user = NestedUserSerializer(
-        read_only=True
-    )
-    status = ChoiceField(choices=JobResultStatusChoices, read_only=True)
-    obj_type = ContentTypeField(
-        read_only=True
-    )
-
-    class Meta:
-        model = JobResult
-        fields = [
-            'id', 'url', 'display', 'status', 'created', 'scheduled', 'interval', 'started', 'completed', 'name',
-            'obj_type', 'user', 'data', 'job_id',
-        ]
-
-
-#
 # Reports
 #
 
@@ -448,11 +426,11 @@ class ReportSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255)
     description = serializers.CharField(max_length=255, required=False)
     test_methods = serializers.ListField(child=serializers.CharField(max_length=255))
-    result = NestedJobResultSerializer()
+    result = NestedJobSerializer()
 
 
 class ReportDetailSerializer(ReportSerializer):
-    result = JobResultSerializer()
+    result = JobSerializer()
 
 
 class ReportInputSerializer(serializers.Serializer):
@@ -475,7 +453,7 @@ class ScriptSerializer(serializers.Serializer):
     name = serializers.CharField(read_only=True)
     description = serializers.CharField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
-    result = NestedJobResultSerializer()
+    result = NestedJobSerializer()
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_vars(self, instance):
@@ -485,7 +463,7 @@ class ScriptSerializer(serializers.Serializer):
 
 
 class ScriptDetailSerializer(ScriptSerializer):
-    result = JobResultSerializer()
+    result = JobSerializer()
 
 
 class ScriptInputSerializer(serializers.Serializer):

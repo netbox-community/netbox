@@ -21,6 +21,8 @@ function handleSelection(link: HTMLAnchorElement): void {
   target.slim.setData([
     {text: label, value: value}
   ]);
+  const change = new Event('change');
+  target.dispatchEvent(change);
 
 }
 

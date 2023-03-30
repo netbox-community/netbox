@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 from functools import cached_property
 
@@ -6,10 +7,11 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.db.models.signals import class_prepared
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.translation import gettext as _
-
 from taggit.managers import TaggableManager
 
+from core.choices import JobStatusChoices
 from extras.choices import CustomFieldVisibilityChoices, ObjectChangeActionChoices
 from extras.utils import is_taggable, register_features
 from netbox.registry import registry
@@ -25,7 +27,7 @@ __all__ = (
     'CustomLinksMixin',
     'CustomValidationMixin',
     'ExportTemplatesMixin',
-    'JobResultsMixin',
+    'JobsMixin',
     'JournalingMixin',
     'SyncedDataMixin',
     'TagsMixin',
@@ -114,7 +116,11 @@ class CloningMixin(models.Model):
         for field_name in getattr(self, 'clone_fields', []):
             field = self._meta.get_field(field_name)
             field_value = field.value_from_object(self)
-            if field_value not in (None, ''):
+            if field_value and isinstance(field, models.ManyToManyField):
+                attrs[field_name] = [v.pk for v in field_value]
+            elif field_value and isinstance(field, models.JSONField):
+                attrs[field_name] = json.dumps(field_value)
+            elif field_value not in (None, ''):
                 attrs[field_name] = field_value
 
         # Include tags (if applicable)
@@ -122,8 +128,8 @@ class CloningMixin(models.Model):
             attrs['tags'] = [tag.pk for tag in self.tags.all()]
 
         # Include any cloneable custom fields
-        if hasattr(self, 'custom_field_data'):
-            for field in self.get_custom_fields():
+        if hasattr(self, 'custom_fields'):
+            for field in self.custom_fields:
                 if field.is_cloneable:
                     attrs[f'cf_{field.name}'] = self.custom_field_data.get(field.name)
 
@@ -289,12 +295,30 @@ class ExportTemplatesMixin(models.Model):
         abstract = True
 
 
-class JobResultsMixin(models.Model):
+class JobsMixin(models.Model):
     """
     Enables support for job results.
     """
+    jobs = GenericRelation(
+        to='core.Job',
+        content_type_field='object_type',
+        object_id_field='object_id',
+        for_concrete_model=False
+    )
+
     class Meta:
         abstract = True
+
+    def get_latest_jobs(self):
+        """
+        Return a dictionary mapping of the most recent jobs for this instance.
+        """
+        return {
+            job.name: job
+            for job in self.jobs.filter(
+                status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
+            ).order_by('name', '-created').distinct('name').defer('data')
+        }
 
 
 class JournalingMixin(models.Model):
@@ -335,7 +359,7 @@ class WebhooksMixin(models.Model):
 
 class SyncedDataMixin(models.Model):
     """
-    Enables population of local data from a DataFile object, synchronized from a remote DatSource.
+    Enables population of local data from a DataFile object, synchronized from a remote DataSource.
     """
     data_source = models.ForeignKey(
         to='core.DataSource',
@@ -372,16 +396,15 @@ class SyncedDataMixin(models.Model):
         return self.data_file and self.data_synced >= self.data_file.last_updated
 
     def clean(self):
-        if self.data_file:
-            self.sync_data()
-            self.data_path = self.data_file.path
 
-        if self.data_source and not self.data_file:
-            raise ValidationError({
-                'data_file': _(f"Must specify a data file when designating a data source.")
-            })
-        if self.data_file and not self.data_source:
+        if self.data_file:
             self.data_source = self.data_file.source
+            self.data_path = self.data_file.path
+            self.sync()
+        else:
+            self.data_source = None
+            self.data_path = ''
+            self.data_synced = None
 
         super().clean()
 
@@ -398,7 +421,19 @@ class SyncedDataMixin(models.Model):
             except DataFile.DoesNotExist:
                 pass
 
+    def sync(self):
+        """
+        Synchronize the object from it's assigned DataFile (if any). This wraps sync_data() and updates
+        the synced_data timestamp.
+        """
+        self.sync_data()
+        self.data_synced = timezone.now()
+
     def sync_data(self):
+        """
+        Inheriting models must override this method with specific logic to copy data from the assigned DataFile
+        to the local instance. This method should *NOT* call save() on the instance.
+        """
         raise NotImplementedError(f"{self.__class__} must implement a sync_data() method.")
 
 
@@ -406,7 +441,7 @@ FEATURES_MAP = {
     'custom_fields': CustomFieldsMixin,
     'custom_links': CustomLinksMixin,
     'export_templates': ExportTemplatesMixin,
-    'job_results': JobResultsMixin,
+    'jobs': JobsMixin,
     'journaling': JournalingMixin,
     'synced_data': SyncedDataMixin,
     'tags': TagsMixin,
@@ -438,6 +473,12 @@ def _register_features(sender, **kwargs):
             'changelog',
             kwargs={'model': sender}
         )('netbox.views.generic.ObjectChangeLogView')
+    if issubclass(sender, JobsMixin):
+        register_model_view(
+            sender,
+            'jobs',
+            kwargs={'model': sender}
+        )('netbox.views.generic.ObjectJobsView')
     if issubclass(sender, SyncedDataMixin):
         register_model_view(
             sender,

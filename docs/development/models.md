@@ -18,7 +18,7 @@ Depending on its classification, each NetBox model may support various features 
 | [Custom links](../customization/custom-links.md)           | `CustomLinksMixin`      | `custom_links`     | These models support the assignment of custom links                            |
 | [Custom validation](../customization/custom-validation.md) | `CustomValidationMixin` | -                  | Supports the enforcement of custom validation rules                            |
 | [Export templates](../customization/export-templates.md)   | `ExportTemplatesMixin`  | `export_templates` | Users can create custom export templates for these models                      |
-| [Job results](../features/background-jobs.md)              | `JobResultsMixin`       | `job_results`      | Users can create custom export templates for these models                      |
+| [Job results](../features/background-jobs.md)              | `JobsMixin`             | `jobs`             | Users can create custom export templates for these models                      |
 | [Journaling](../features/journaling.md)                    | `JournalingMixin`       | `journaling`       | These models support persistent historical commentary                          |
 | [Synchronized data](../integrations/synchronized-data.md)  | `SyncedDataMixin`       | `synced_data`      | Certain model data can be automatically synchronized from a remote data source |
 | [Tagging](../models/extras/tag.md)                         | `TagsMixin`             | `tags`             | The models can be tagged with user-defined tags                                |
@@ -32,6 +32,7 @@ These are considered the "core" application models which are used to model netwo
 
 * [circuits.Circuit](../models/circuits/circuit.md)
 * [circuits.Provider](../models/circuits/provider.md)
+* [circuits.ProviderAccount](../models/circuits/provideracount.md)
 * [circuits.ProviderNetwork](../models/circuits/providernetwork.md)
 * [core.DataSource](../models/core/datasource.md)
 * [dcim.Cable](../models/dcim/cable.md)

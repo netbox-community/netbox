@@ -1,6 +1,7 @@
+import json
+
 import django_tables2 as tables
 from django.conf import settings
-from django.utils.translation import gettext as _
 
 from extras.models import *
 from netbox.tables import NetBoxTable, columns
@@ -12,7 +13,6 @@ __all__ = (
     'CustomFieldTable',
     'CustomLinkTable',
     'ExportTemplateTable',
-    'JobResultTable',
     'JournalEntryTable',
     'ObjectChangeTable',
     'SavedFilterTable',
@@ -39,35 +39,6 @@ class CustomFieldTable(NetBoxTable):
             'last_updated',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
-
-
-class JobResultTable(NetBoxTable):
-    name = tables.Column(
-        linkify=True
-    )
-    obj_type = columns.ContentTypeColumn(
-        verbose_name=_('Type')
-    )
-    status = columns.ChoiceFieldColumn()
-    created = columns.DateTimeColumn()
-    scheduled = columns.DateTimeColumn()
-    interval = columns.DurationColumn()
-    started = columns.DateTimeColumn()
-    completed = columns.DateTimeColumn()
-    actions = columns.ActionsColumn(
-        actions=('delete',)
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = JobResult
-        fields = (
-            'pk', 'id', 'obj_type', 'name', 'status', 'created', 'scheduled', 'interval', 'started', 'completed',
-            'user', 'job_id',
-        )
-        default_columns = (
-            'pk', 'id', 'obj_type', 'name', 'status', 'created', 'scheduled', 'interval', 'started', 'completed',
-            'user',
-        )
 
 
 class CustomLinkTable(NetBoxTable):
@@ -122,11 +93,14 @@ class SavedFilterTable(NetBoxTable):
     enabled = columns.BooleanColumn()
     shared = columns.BooleanColumn()
 
+    def value_parameters(self, value):
+        return json.dumps(value)
+
     class Meta(NetBoxTable.Meta):
         model = SavedFilter
         fields = (
             'pk', 'id', 'name', 'slug', 'content_types', 'description', 'user', 'weight', 'enabled', 'shared',
-            'created', 'last_updated',
+            'created', 'last_updated', 'parameters'
         )
         default_columns = (
             'pk', 'name', 'content_types', 'user', 'description', 'enabled', 'shared',

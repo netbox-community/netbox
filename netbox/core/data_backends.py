@@ -91,15 +91,14 @@ class GitBackend(DataBackend):
         username = self.params.get('username')
         password = self.params.get('password')
         if username and password:
-            url_components = list(urlparse(self.url))
-            # Prepend username & password to netloc
-            url_components[1] = quote(f'{username}@{password}:') + url_components[1]
-            url = urlunparse(url_components)
+            # Add username & password to URL
+            parsed = urlparse(self.url)
+            url = f'{parsed.scheme}://{quote(username)}:{quote(password)}@{parsed.netloc}{parsed.path}'
         else:
             url = self.url
 
         # Compile git arguments
-        args = ['git', 'clone', '--depth', '1']
+        args = [settings.GIT_PATH, 'clone', '--depth', '1']
         if branch := self.params.get('branch'):
             args.extend(['--branch', branch])
         args.extend([url, local_path.name])
@@ -112,10 +111,13 @@ class GitBackend(DataBackend):
         logger.debug(f"Cloning git repo: {' '.join(args)}")
         try:
             subprocess.run(args, check=True, capture_output=True, env=env_vars)
-        except subprocess.CalledProcessError as e:
+        except FileNotFoundError as e:
             raise SyncError(
-                f"Fetching remote data failed: {e.stderr}"
+                f"Unable to fetch: git executable not found. Check that the git executable exists at the "
+                f"configured path: {settings.GIT_PATH}"
             )
+        except subprocess.CalledProcessError as e:
+            raise SyncError(f"Fetching remote data failed: {e.stderr}")
 
         yield local_path.name
 

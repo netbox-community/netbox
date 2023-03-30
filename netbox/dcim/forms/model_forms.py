@@ -283,7 +283,7 @@ class DeviceTypeForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Device Type', ('manufacturer', 'model', 'slug', 'description', 'tags', 'default_platform')),
+        ('Device Type', ('manufacturer', 'model', 'slug', 'default_platform', 'description', 'tags')),
         ('Chassis', (
             'u_height', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
         )),
@@ -293,8 +293,9 @@ class DeviceTypeForm(NetBoxModelForm):
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
-            'weight', 'weight_unit', 'front_image', 'rear_image', 'description', 'comments', 'tags', 'default_platform'
+            'manufacturer', 'model', 'slug', 'default_platform', 'part_number', 'u_height', 'is_full_depth',
+            'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image', 'description',
+            'comments', 'tags',
         ]
         widgets = {
             'front_image': ClearableFileInput(attrs={

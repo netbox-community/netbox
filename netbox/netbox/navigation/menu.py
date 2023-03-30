@@ -245,6 +245,7 @@ CIRCUITS_MENU = Menu(
             label=_('Providers'),
             items=(
                 get_model_item('circuits', 'provider', _('Providers')),
+                get_model_item('circuits', 'provideraccount', _('Provider Accounts')),
                 get_model_item('circuits', 'providernetwork', _('Provider Networks')),
             ),
         ),
@@ -265,17 +266,24 @@ POWER_MENU = Menu(
     ),
 )
 
-OTHER_MENU = Menu(
-    label=_('Other'),
-    icon_class='mdi mdi-notification-clear-all',
+PROVISIONING_MENU = Menu(
+    label=_('Provisioning'),
+    icon_class='mdi mdi-file-document-multiple-outline',
     groups=(
         MenuGroup(
-            label=_('Logging'),
+            label=_('Configurations'),
             items=(
-                get_model_item('extras', 'journalentry', _('Journal Entries'), actions=[]),
-                get_model_item('extras', 'objectchange', _('Change Log'), actions=[]),
+                get_model_item('extras', 'configcontext', _('Config Contexts'), actions=['add']),
+                get_model_item('extras', 'configtemplate', _('Config Templates'), actions=['add']),
             ),
         ),
+    ),
+)
+
+CUSTOMIZATION_MENU = Menu(
+    label=_('Customization'),
+    icon_class='mdi mdi-toolbox-outline',
+    groups=(
         MenuGroup(
             label=_('Customization'),
             items=(
@@ -283,13 +291,12 @@ OTHER_MENU = Menu(
                 get_model_item('extras', 'customlink', _('Custom Links')),
                 get_model_item('extras', 'exporttemplate', _('Export Templates')),
                 get_model_item('extras', 'savedfilter', _('Saved Filters')),
+                get_model_item('extras', 'tag', 'Tags'),
             ),
         ),
         MenuGroup(
-            label=_('Integrations'),
+            label=_('Reports & Scripts'),
             items=(
-                get_model_item('core', 'datasource', _('Data Sources')),
-                get_model_item('extras', 'webhook', _('Webhooks')),
                 MenuItem(
                     link='extras:report_list',
                     link_text=_('Reports'),
@@ -300,19 +307,37 @@ OTHER_MENU = Menu(
                     link_text=_('Scripts'),
                     permissions=['extras.view_script']
                 ),
+            ),
+        ),
+    ),
+)
+
+OPERATIONS_MENU = Menu(
+    label=_('Operations'),
+    icon_class='mdi mdi-cogs',
+    groups=(
+        MenuGroup(
+            label=_('Integrations'),
+            items=(
+                get_model_item('core', 'datasource', _('Data Sources')),
+                get_model_item('extras', 'webhook', _('Webhooks')),
+            ),
+        ),
+        MenuGroup(
+            label=_('Jobs'),
+            items=(
                 MenuItem(
-                    link='extras:jobresult_list',
+                    link='core:job_list',
                     link_text=_('Jobs'),
-                    permissions=['extras.view_jobresult'],
+                    permissions=['core.view_job'],
                 ),
             ),
         ),
         MenuGroup(
-            label=_('Other'),
+            label=_('Logging'),
             items=(
-                get_model_item('extras', 'tag', 'Tags'),
-                get_model_item('extras', 'configcontext', _('Config Contexts'), actions=['add']),
-                get_model_item('extras', 'configtemplate', _('Config Templates'), actions=['add']),
+                get_model_item('extras', 'journalentry', _('Journal Entries'), actions=[]),
+                get_model_item('extras', 'objectchange', _('Change Log'), actions=[]),
             ),
         ),
     ),
@@ -329,7 +354,9 @@ MENUS = [
     VIRTUALIZATION_MENU,
     CIRCUITS_MENU,
     POWER_MENU,
-    OTHER_MENU,
+    PROVISIONING_MENU,
+    CUSTOMIZATION_MENU,
+    OPERATIONS_MENU,
 ]
 
 #

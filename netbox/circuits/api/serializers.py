@@ -18,6 +18,12 @@ from .nested_serializers import *
 
 class ProviderSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
+    accounts = SerializedPKRelatedField(
+        queryset=ProviderAccount.objects.all(),
+        serializer=NestedProviderAccountSerializer,
+        required=False,
+        many=True
+    )
     asns = SerializedPKRelatedField(
         queryset=ASN.objects.all(),
         serializer=NestedASNSerializer,
@@ -31,8 +37,24 @@ class ProviderSerializer(NetBoxModelSerializer):
     class Meta:
         model = Provider
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'account', 'description', 'comments', 'asns', 'tags',
+            'id', 'url', 'display', 'name', 'slug', 'accounts', 'description', 'comments', 'asns', 'tags',
             'custom_fields', 'created', 'last_updated', 'circuit_count',
+        ]
+
+
+#
+# Provider Accounts
+#
+
+class ProviderAccountSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provideraccount-detail')
+    provider = NestedProviderSerializer()
+
+    class Meta:
+        model = ProviderAccount
+        fields = [
+            'id', 'url', 'display', 'provider', 'name', 'account', 'description', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
 
 
@@ -84,6 +106,7 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
 class CircuitSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
     provider = NestedProviderSerializer()
+    provider_account = NestedProviderAccountSerializer()
     status = ChoiceField(choices=CircuitStatusChoices, required=False)
     type = NestedCircuitTypeSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
@@ -93,9 +116,9 @@ class CircuitSerializer(NetBoxModelSerializer):
     class Meta:
         model = Circuit
         fields = [
-            'id', 'url', 'display', 'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'termination_date',
-            'commit_rate', 'description', 'termination_a', 'termination_z', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'cid', 'provider', 'provider_account', 'type', 'status', 'tenant', 'install_date',
+            'termination_date', 'commit_rate', 'description', 'termination_a', 'termination_z', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 

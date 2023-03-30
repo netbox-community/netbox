@@ -54,10 +54,7 @@ def get_dashboard(user):
 
 def get_default_dashboard():
     from extras.models import Dashboard
-    dashboard = Dashboard(
-        layout=[],
-        config={}
-    )
+    dashboard = Dashboard()
     for widget in DEFAULT_DASHBOARD:
         id = str(uuid.uuid4())
         dashboard.layout.append({
@@ -70,6 +67,7 @@ def get_default_dashboard():
         dashboard.config[id] = {
             'class': widget['widget'],
             'title': widget.get('title'),
+            'color': widget.get('color'),
             'config': widget.get('config', {}),
         }
 

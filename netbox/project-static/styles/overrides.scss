@@ -42,3 +42,9 @@ input[type='search']::-webkit-search-results-button,
 input[type='search']::-webkit-search-results-decoration {
   -webkit-appearance: none !important;
 }
+
+// Remove x-axis padding from highlighted text
+mark {
+  padding-left: 0;
+  padding-right: 0;
+}

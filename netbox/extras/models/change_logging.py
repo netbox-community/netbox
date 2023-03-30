@@ -7,6 +7,10 @@ from django.urls import reverse
 from extras.choices import *
 from utilities.querysets import RestrictedQuerySet
 
+__all__ = (
+    'ObjectChange',
+)
+
 
 class ObjectChange(models.Model):
     """
@@ -31,7 +35,8 @@ class ObjectChange(models.Model):
         editable=False
     )
     request_id = models.UUIDField(
-        editable=False
+        editable=False,
+        db_index=True
     )
     action = models.CharField(
         max_length=50,

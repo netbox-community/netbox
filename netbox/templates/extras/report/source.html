@@ -1,0 +1,6 @@
+{% extends 'extras/report/base.html' %}
+
+{% block content %}
+  <code class="h6 my-3 d-block">{{ report.filename }}</code>
+  <pre class="block">{{ report.source }}</pre>
+{% endblock %}

@@ -11,6 +11,7 @@ __all__ = [
     'NestedCircuitTypeSerializer',
     'NestedProviderNetworkSerializer',
     'NestedProviderSerializer',
+    'NestedProviderAccountSerializer',
 ]
 
 
@@ -40,6 +41,18 @@ class NestedProviderSerializer(WritableNestedSerializer):
     class Meta:
         model = Provider
         fields = ['id', 'url', 'display', 'name', 'slug', 'circuit_count']
+
+
+#
+# Provider Accounts
+#
+
+class NestedProviderAccountSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provideraccount-detail')
+
+    class Meta:
+        model = ProviderAccount
+        fields = ['id', 'url', 'display', 'name', 'account']
 
 
 #

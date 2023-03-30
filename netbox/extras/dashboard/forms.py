@@ -1,5 +1,6 @@
 from django import forms
 from django.urls import reverse_lazy
+from django.utils.translation import gettext as _
 
 from netbox.registry import registry
 from utilities.forms import BootstrapMixin, add_blank_choice
@@ -33,6 +34,7 @@ class DashboardWidgetAddForm(DashboardWidgetForm):
                 'hx-get': reverse_lazy('extras:dashboardwidget_add'),
                 'hx-target': '#widget_add_form',
             }
-        )
+        ),
+        label=_('Widget type')
     )
     field_order = ('widget_class', 'title', 'color')

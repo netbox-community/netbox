@@ -685,6 +685,10 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         choices=InterfaceTypeChoices,
         null_value=None
     )
+    bridge_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='bridge',
+        queryset=InterfaceTemplate.objects.all()
+    )
     poe_mode = django_filters.MultipleChoiceFilter(
         choices=InterfacePoEModeChoices
     )
