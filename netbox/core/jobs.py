@@ -24,7 +24,10 @@ def sync_datasource(job, *args, **kwargs):
 
         job.terminate()
 
-    except (SyncError, JobTimeoutException) as e:
+    except Exception as e:
         job.terminate(status=JobStatusChoices.STATUS_ERRORED)
         DataSource.objects.filter(pk=datasource.pk).update(status=DataSourceStatusChoices.FAILED)
-        logging.error(e)
+        if type(e) in (SyncError, JobTimeoutException):
+            logging.error(e)
+        else:
+            raise e
