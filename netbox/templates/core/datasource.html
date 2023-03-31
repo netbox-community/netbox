@@ -57,7 +57,11 @@
             <tr>
               <th scope="row">URL</th>
               <td>
-                <a href="{{ object.source_url }}">{{ object.source_url }}</a>
+                {% if not object.is_local %}
+                  <a href="{{ object.source_url }}">{{ object.source_url }}</a>
+                {% else %}
+                  {{ object.source_url }}
+                {% endif %}
               </td>
             </tr>
             <tr>

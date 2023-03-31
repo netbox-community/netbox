@@ -71,6 +71,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 ### Bug Fixes (From Beta1)
 
 * [#12109](https://github.com/netbox-community/netbox/issues/12109) - Fix migration error when replicating more than 100 job results
+* [#12112](https://github.com/netbox-community/netbox/issues/12112) - Do not link data source URL for local paths
 
 ### Other Changes
 

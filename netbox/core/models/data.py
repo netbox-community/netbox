@@ -96,6 +96,10 @@ class DataSource(JobsMixin, PrimaryModel):
         return urlparse(self.source_url).scheme.lower()
 
     @property
+    def is_local(self):
+        return self.type == DataSourceTypeChoices.LOCAL
+
+    @property
     def ready_for_sync(self):
         return self.enabled and self.status not in (
             DataSourceStatusChoices.QUEUED,
