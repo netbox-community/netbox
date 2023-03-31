@@ -22,6 +22,11 @@ export function initDashboard(): void {
   // Initialize the grid
   let grid = GridStack.init({
     cellHeight: 100,
+    draggable: {
+      handle: '.grid-stack-item-content .card-header',
+      appendTo: 'body',
+      scroll: true
+    }
   });
 
   // Create a listener for the dashboard save button
