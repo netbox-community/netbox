@@ -799,7 +799,7 @@ class Device(PrimaryModel, ConfigContextModel):
         if is_new and not self.airflow:
             self.airflow = self.device_type.airflow
 
-        if self.rack:
+        if self.rack and self.rack.location:
             self.location = self.rack.location
 
         super().save(*args, **kwargs)
