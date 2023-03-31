@@ -60,15 +60,23 @@ Context:
       {# Extra buttons #}
       {% block extra_controls %}{% endblock %}
 
+      {% block clone_button %}
       {% if request.user|can_add:object %}
         {% clone_button object %}
       {% endif %}
+      {% endblock clone_button %}
+
+      {% block edit_button %}
       {% if request.user|can_change:object %}
         {% edit_button object %}
       {% endif %}
+      {% endblock edit_button %}
+
+      {% block delete_button %}
       {% if request.user|can_delete:object %}
         {% delete_button object %}
       {% endif %}
+      {% endblock delete_button %}
 
     </div>
     <div class="control-group">
