@@ -659,8 +659,6 @@ class Device(PrimaryModel, ConfigContextModel):
             raise ValidationError({
                 'rack': f"Rack {self.rack} does not belong to location {self.location}.",
             })
-        elif self.rack:
-            self.location = self.rack.location
 
         if self.rack is None:
             if self.face:
@@ -800,6 +798,9 @@ class Device(PrimaryModel, ConfigContextModel):
         # Inherit airflow attribute from DeviceType if not set
         if is_new and not self.airflow:
             self.airflow = self.device_type.airflow
+
+        if self.rack:
+            self.location = self.rack.location
 
         super().save(*args, **kwargs)
 

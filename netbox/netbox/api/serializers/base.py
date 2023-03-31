@@ -39,9 +39,4 @@ class ValidatedModelSerializer(BaseModelSerializer):
             for k, v in attrs.items():
                 setattr(instance, k, v)
         instance.full_clean()
-
-        # copy any changes to data made in full_clean
-        for k, v in attrs.items():
-            data[k] = getattr(instance, k)
-
         return data
