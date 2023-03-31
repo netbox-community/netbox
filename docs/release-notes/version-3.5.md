@@ -1,6 +1,6 @@
 # NetBox v3.5
 
-## v3.5-beta1 (2023-03-30)
+## v3.5.0 (FUTURE)
 
 ### Breaking Changes
 
@@ -67,6 +67,10 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#11968](https://github.com/netbox-community/netbox/issues/11968) - Add navigation menu buttons to create device & VM components
 * [#12068](https://github.com/netbox-community/netbox/issues/12068) - Enable generic foreign key relationships from jobs to NetBox objects
 * [#12085](https://github.com/netbox-community/netbox/issues/12085) - Add a file source view for reports
+
+### Bug Fixes (From Beta1)
+
+* [#12109](https://github.com/netbox-community/netbox/issues/12109) - Fix migration error when replicating more than 100 job results
 
 ### Other Changes
 

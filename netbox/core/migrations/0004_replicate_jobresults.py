@@ -27,6 +27,7 @@ def replicate_jobresults(apps, schema_editor):
         )
         if len(jobs) == 100:
             Job.objects.bulk_create(jobs)
+            jobs = []
     if jobs:
         Job.objects.bulk_create(jobs)
 
