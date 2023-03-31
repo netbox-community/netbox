@@ -11,6 +11,7 @@ from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext as _
 
+from extras.utils import FeatureQuery
 from utilities.forms import BootstrapMixin
 from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
@@ -29,7 +30,9 @@ __all__ = (
 def get_content_type_labels():
     return [
         (content_type_identifier(ct), content_type_name(ct))
-        for ct in ContentType.objects.order_by('app_label', 'model')
+        for ct in ContentType.objects.filter(
+            FeatureQuery('export_templates').get_query()
+        ).order_by('app_label', 'model')
     ]
 
 

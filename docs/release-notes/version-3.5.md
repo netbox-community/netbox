@@ -70,6 +70,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 
 ### Bug Fixes (From Beta1)
 
+* [#12103](https://github.com/netbox-community/netbox/issues/12103) - Limit the types of objects available for object count & list widgets
 * [#12105](https://github.com/netbox-community/netbox/issues/12105) - Prevent data sources from becoming stuck in "syncing" status when an exception is raised
 * [#12106](https://github.com/netbox-community/netbox/issues/12106) - Fix exception when saving dashboard widget with minimum width/height
 * [#12108](https://github.com/netbox-community/netbox/issues/12108) - Limit the draggable area of widgets to their headers
