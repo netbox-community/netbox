@@ -58,8 +58,8 @@ class DashboardWidget:
         return self.title or self.__class__.__name__
 
     def set_layout(self, grid_item):
-        self.width = grid_item['w']
-        self.height = grid_item['h']
+        self.width = grid_item.get('w', 1)
+        self.height = grid_item.get('h', 1)
         self.x = grid_item.get('x')
         self.y = grid_item.get('y')
 
