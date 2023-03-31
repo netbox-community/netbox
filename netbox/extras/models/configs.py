@@ -245,7 +245,10 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
 
         # Initialize the Jinja2 environment and instantiate the Template
         environment = self._get_environment()
-        template = environment.from_string(self.template_code)
+        if self.data_file:
+            template = environment.get_template(self.data_file.path)
+        else:
+            template = environment.from_string(self.template_code)
         output = template.render(**context)
 
         # Replace CRLF-style line terminators
