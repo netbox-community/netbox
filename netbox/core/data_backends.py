@@ -1,17 +1,18 @@
 import logging
 import os
 import re
-import subprocess
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
-from urllib.parse import quote, urlunparse, urlparse
+from urllib.parse import urlparse
 
 import boto3
 from botocore.config import Config as Boto3Config
 from django import forms
 from django.conf import settings
 from django.utils.translation import gettext as _
+from dulwich import porcelain
+from dulwich.config import StackedConfig
 
 from netbox.registry import registry
 from .choices import DataSourceTypeChoices
@@ -88,37 +89,23 @@ class GitBackend(DataBackend):
     def fetch(self):
         local_path = tempfile.TemporaryDirectory()
 
-        # Add authentication credentials to URL (if specified)
         username = self.params.get('username')
         password = self.params.get('password')
-        if username and password:
-            # Add username & password to URL
-            parsed = urlparse(self.url)
-            url = f'{parsed.scheme}://{quote(username)}:{quote(password)}@{parsed.netloc}{parsed.path}'
-        else:
-            url = self.url
+        branch = self.params.get('branch')
+        config = StackedConfig.default()
 
-        # Compile git arguments
-        args = [settings.GIT_PATH, 'clone', '--depth', '1']
-        if branch := self.params.get('branch'):
-            args.extend(['--branch', branch])
-        args.extend([url, local_path.name])
-
-        # Prep environment variables
-        env_vars = {}
         if settings.HTTP_PROXIES and self.url_scheme in ('http', 'https'):
-            env_vars['http_proxy'] = settings.HTTP_PROXIES.get(self.url_scheme)
+            if proxy := settings.HTTP_PROXIES.get(self.url_scheme):
+                config.set("http", "proxy", proxy)
 
-        logger.debug(f"Cloning git repo: {' '.join(args)}")
+        logger.debug(f"Cloning git repo: {self.url}")
         try:
-            subprocess.run(args, check=True, capture_output=True, env=env_vars)
-        except FileNotFoundError as e:
-            raise SyncError(
-                f"Unable to fetch: git executable not found. Check that the git executable exists at the "
-                f"configured path: {settings.GIT_PATH}"
+            porcelain.clone(
+                self.url, local_path.name, depth=1, branch=branch, username=username, password=password,
+                config=config, quiet=True, errstream=porcelain.NoneStream()
             )
-        except subprocess.CalledProcessError as e:
-            raise SyncError(f"Fetching remote data failed: {e.stderr}")
+        except BaseException as e:
+            raise SyncError(f"Fetching remote data failed ({type(e).__name__}): {e}")
 
         yield local_path.name
 

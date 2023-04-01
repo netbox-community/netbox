@@ -17,6 +17,7 @@ django-timezone-field==5.0
 djangorestframework==3.14.0
 drf-spectacular==0.26.1
 drf-spectacular-sidecar==2023.4.1
+dulwich==0.21.3
 feedparser==6.0.10
 graphene-django==3.0.0
 gunicorn==20.1.0
