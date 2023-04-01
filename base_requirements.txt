@@ -74,6 +74,10 @@ drf-spectacular
 # https://github.com/tfranzel/drf-spectacular-sidecar
 drf-spectacular-sidecar
 
+# Git client for file sync
+# https://github.com/jelmer/dulwich/releases
+dulwich
+
 # RSS feed parser
 # https://github.com/kurtmckee/feedparser/blob/develop/CHANGELOG.rst
 feedparser
