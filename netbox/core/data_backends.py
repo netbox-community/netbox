@@ -20,6 +20,7 @@ from .exceptions import SyncError
 __all__ = (
     'LocalBackend',
     'GitBackend',
+    'S3Backend',
 )
 
 logger = logging.getLogger('netbox.data_backends')
