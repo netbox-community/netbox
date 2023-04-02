@@ -321,7 +321,7 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
             'mode': forms.Select(
                 attrs={
                     'hx-get': '.',
-                    'hx-include': '#form_fields input',
+                    'hx-include': '#form_fields input, #form_fields select',
                     'hx-target': '#form_fields',
                 }
             ),
