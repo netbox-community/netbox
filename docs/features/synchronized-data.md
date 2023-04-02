@@ -20,4 +20,4 @@ The following NetBox models can be associated with replicated data files:
 * Config templates
 * Export templates
 
-Once a data has been designated for a local instance, its data will be replaced with the content of the replicated file. When the replicated file is updated in the future (via synchronization jobs), the local instance will be flagged as having out-of-date data. A user can then synchronize these objects individually or in bulk to effect the update. This two-stgae process ensures that automated synchronization tasks do not immediately affect production data.
+Once a data has been designated for a local instance, its data will be replaced with the content of the replicated file. When the replicated file is updated in the future (via synchronization jobs), the local instance will be flagged as having out-of-date data. A user can then synchronize these objects individually or in bulk to effect the update. This two-stage process ensures that automated synchronization tasks do not immediately affect production data.
