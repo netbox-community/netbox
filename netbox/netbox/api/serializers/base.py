@@ -39,4 +39,5 @@ class ValidatedModelSerializer(BaseModelSerializer):
             for k, v in attrs.items():
                 setattr(instance, k, v)
         instance.full_clean()
+
         return data
