@@ -8,7 +8,9 @@
 
 ### Bug Fixes
 
+* [#12074](https://github.com/netbox-community/netbox/issues/12074) - Fix the automatic assignment of racks to devices via the REST API
 * [#12084](https://github.com/netbox-community/netbox/issues/12084) - Fix exception when attempting to create a saved filter for applied filters
+* [#12117](https://github.com/netbox-community/netbox/issues/12117) - Hide clone button for objects with no clonable attributes
 
 ---
 
