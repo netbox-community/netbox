@@ -12,10 +12,10 @@ from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import (
-    APISelect, add_blank_choice, BootstrapMixin, ClearableFileInput, CommentField, ContentTypeChoiceField,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SelectWithPK,
-    SlugField, SelectSpeedWidget
+    add_blank_choice, BootstrapMixin, ClearableFileInput, CommentField, ContentTypeChoiceField,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SlugField,
 )
+from utilities.forms.widgets import APISelect, HTMXSelect, SelectSpeedWidget, SelectWithPK
 from virtualization.models import Cluster
 from wireless.models import WirelessLAN, WirelessLANGroup
 from .common import InterfaceCommonForm, ModuleCommonForm
@@ -1136,13 +1136,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         ]
         widgets = {
             'speed': SelectSpeedWidget(),
-            'mode': forms.Select(
-                attrs={
-                    'hx-get': '.',
-                    'hx-include': '#form_fields input',
-                    'hx-target': '#form_fields',
-                }
-            ),
+            'mode': HTMXSelect(),
         }
         labels = {
             'mode': '802.1Q Mode',

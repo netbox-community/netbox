@@ -78,6 +78,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#12112](https://github.com/netbox-community/netbox/issues/12112) - Do not link data source URL for local paths
 * [#12115](https://github.com/netbox-community/netbox/issues/12115) - Fix rendering config templates from a data file
 * [#12144](https://github.com/netbox-community/netbox/issues/12144) - Ensure consistent treatment of context data when rendering config templates via UI & API
+* [#12145](https://github.com/netbox-community/netbox/issues/12145) - Employ `HTMXSelect` widget to fix inclusion of `<select>` field values during form regeneration
 * [#12146](https://github.com/netbox-community/netbox/issues/12146) - Do not display object selector for disabled fields
 
 ### Other Changes

@@ -7,6 +7,7 @@ from extras.forms.mixins import SyncedDataMixin
 from netbox.forms import NetBoxModelForm
 from netbox.registry import registry
 from utilities.forms import CommentField, get_field_value
+from utilities.forms.widgets import HTMXSelect
 
 __all__ = (
     'DataSourceForm',
@@ -23,13 +24,7 @@ class DataSourceForm(NetBoxModelForm):
             'name', 'type', 'source_url', 'enabled', 'description', 'comments', 'ignore_rules', 'tags',
         ]
         widgets = {
-            'type': forms.Select(
-                attrs={
-                    'hx-get': '.',
-                    'hx-include': '#form_fields input',
-                    'hx-target': '#form_fields',
-                }
-            ),
+            'type': HTMXSelect(),
             'ignore_rules': forms.Textarea(
                 attrs={
                     'rows': 5,

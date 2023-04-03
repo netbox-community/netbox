@@ -12,6 +12,7 @@ from utilities.forms import (
     BootstrapMixin, CommentField, ConfirmationForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
     JSONField, SlugField,
 )
+from utilities.forms.widgets import HTMXSelect
 from virtualization.models import *
 
 __all__ = (
@@ -318,13 +319,7 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
             'mode': '802.1Q Mode',
         }
         widgets = {
-            'mode': forms.Select(
-                attrs={
-                    'hx-get': '.',
-                    'hx-include': '#form_fields input',
-                    'hx-target': '#form_fields',
-                }
-            ),
+            'mode': HTMXSelect(),
         }
 
     def __init__(self, *args, **kwargs):

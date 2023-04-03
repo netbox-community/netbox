@@ -16,6 +16,7 @@ __all__ = (
     'ColorSelect',
     'DatePicker',
     'DateTimePicker',
+    'HTMXSelect',
     'MarkdownWidget',
     'NumericArrayField',
     'SelectDurationWidget',
@@ -293,3 +294,19 @@ class TimePicker(forms.TextInput):
         super().__init__(*args, **kwargs)
         self.attrs['class'] = 'time-picker'
         self.attrs['placeholder'] = 'hh:mm:ss'
+
+
+class HTMXSelect(forms.Select):
+    """
+    Selection widget that will re-generate the HTML form upon the selection of a new option.
+    """
+    def __init__(self, hx_url='.', hx_target_id='form_fields', attrs=None, **kwargs):
+        _attrs = {
+            'hx-get': hx_url,
+            'hx-include': f'#{hx_target_id}',
+            'hx-target': f'#{hx_target_id}',
+        }
+        if attrs:
+            _attrs.update(attrs)
+
+        super().__init__(attrs=_attrs, **kwargs)
