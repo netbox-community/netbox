@@ -20,6 +20,8 @@ def clone_button(instance):
     param_string = prepare_cloned_fields(instance).urlencode()
     if param_string:
         url = f'{url}?{param_string}'
+    else:
+        url = None
 
     return {
         'url': url,
