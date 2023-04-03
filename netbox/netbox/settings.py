@@ -345,6 +345,7 @@ INSTALLED_APPS = [
     'wireless',
     'django_rq',  # Must come after extras to allow overriding management commands
     'drf_spectacular',
+    'drf_spectacular_sidecar',
 ]
 
 # Middleware
@@ -584,6 +585,9 @@ SPECTACULAR_SETTINGS = {
     "LICENSE": {"name": "Apache v2 License"},
     "VERSION": VERSION,
     'COMPONENT_SPLIT_REQUEST': True,
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
 }
 
 #
