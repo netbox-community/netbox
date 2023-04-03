@@ -1,6 +1,7 @@
 import uuid
 from functools import cached_property
 from hashlib import sha256
+from urllib.parse import urlencode
 
 import feedparser
 from django import forms
@@ -24,6 +25,7 @@ __all__ = (
     'ObjectCountsWidget',
     'ObjectListWidget',
     'RSSFeedWidget',
+    'WidgetConfigForm',
 )
 
 
@@ -34,6 +36,22 @@ def get_content_type_labels():
             FeatureQuery('export_templates').get_query()
         ).order_by('app_label', 'model')
     ]
+
+
+def get_models_from_content_types(content_types):
+    """
+    Return a list of models corresponding to the given content types, identified by natural key.
+    """
+    models = []
+    for content_type_id in content_types:
+        app_label, model_name = content_type_id.split('.')
+        content_type = ContentType.objects.get_by_natural_key(app_label, model_name)
+        models.append(content_type.model_class())
+    return models
+
+
+class WidgetConfigForm(BootstrapMixin, forms.Form):
+    pass
 
 
 class DashboardWidget:
@@ -53,7 +71,7 @@ class DashboardWidget:
     width = 4
     height = 3
 
-    class ConfigForm(BootstrapMixin, forms.Form):
+    class ConfigForm(WidgetConfigForm):
         """
         The widget's configuration form.
         """
@@ -106,7 +124,7 @@ class NoteWidget(DashboardWidget):
     default_title = _('Note')
     description = _('Display some arbitrary custom content. Markdown is supported.')
 
-    class ConfigForm(DashboardWidget.ConfigForm):
+    class ConfigForm(WidgetConfigForm):
         content = forms.CharField(
             widget=forms.Textarea()
         )
@@ -121,19 +139,40 @@ class ObjectCountsWidget(DashboardWidget):
     description = _('Display a set of NetBox models and the number of objects created for each type.')
     template_name = 'extras/dashboard/widgets/objectcounts.html'
 
-    class ConfigForm(DashboardWidget.ConfigForm):
+    class ConfigForm(WidgetConfigForm):
         models = forms.MultipleChoiceField(
             choices=get_content_type_labels
         )
+        filters = forms.JSONField(
+            required=False,
+            label='Object filters',
+            help_text=_("Only objects matching the specified filters will be counted")
+        )
+
+        def clean_filters(self):
+            if data := self.cleaned_data['filters']:
+                try:
+                    dict(data)
+                except TypeError:
+                    raise forms.ValidationError("Invalid format. Object filters must be passed as a dictionary.")
+                for model in get_models_from_content_types(self.cleaned_data.get('models')):
+                    try:
+                        # Validate the filters by creating a QuerySet
+                        model.objects.filter(**data).none()
+                    except Exception:
+                        model_name = model._meta.verbose_name_plural
+                        raise forms.ValidationError(f"Invalid filter specification for {model_name}.")
+            return data
 
     def render(self, request):
         counts = []
-        for content_type_id in self.config['models']:
-            app_label, model_name = content_type_id.split('.')
-            model = ContentType.objects.get_by_natural_key(app_label, model_name).model_class()
+        for model in get_models_from_content_types(self.config['models']):
             permission = get_permission_for_model(model, 'view')
             if request.user.has_perm(permission):
-                object_count = model.objects.restrict(request.user, 'view').count
+                qs = model.objects.restrict(request.user, 'view')
+                if filters := self.config.get('filters'):
+                    qs = qs.filter(**filters)
+                object_count = qs.count
                 counts.append((model, object_count))
             else:
                 counts.append((model, None))
@@ -151,7 +190,7 @@ class ObjectListWidget(DashboardWidget):
     width = 12
     height = 4
 
-    class ConfigForm(DashboardWidget.ConfigForm):
+    class ConfigForm(WidgetConfigForm):
         model = forms.ChoiceField(
             choices=get_content_type_labels
         )
@@ -161,6 +200,18 @@ class ObjectListWidget(DashboardWidget):
             max_value=100,
             help_text=_('The default number of objects to display')
         )
+        url_params = forms.JSONField(
+            required=False,
+            label='URL parameters'
+        )
+
+        def clean_url_params(self):
+            if data := self.cleaned_data['url_params']:
+                try:
+                    urlencode(data)
+                except (TypeError, ValueError):
+                    raise forms.ValidationError("Invalid format. URL parameters must be passed as a dictionary.")
+            return data
 
     def render(self, request):
         app_label, model_name = self.config['model'].split('.')
@@ -176,6 +227,11 @@ class ObjectListWidget(DashboardWidget):
             htmx_url = reverse(viewname)
         except NoReverseMatch:
             htmx_url = None
+        if parameters := self.config.get('url_params'):
+            try:
+                htmx_url = f'{htmx_url}?{urlencode(parameters)}'
+            except ValueError:
+                pass
         return render_to_string(self.template_name, {
             'viewname': viewname,
             'has_permission': has_permission,
@@ -196,7 +252,7 @@ class RSSFeedWidget(DashboardWidget):
     width = 6
     height = 4
 
-    class ConfigForm(DashboardWidget.ConfigForm):
+    class ConfigForm(WidgetConfigForm):
         feed_url = forms.URLField(
             label=_('Feed URL')
         )

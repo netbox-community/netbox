@@ -9,7 +9,7 @@ Each NetBox user can customize his or her personal dashboard by adding and remov
 
 All dashboard widgets must inherit from NetBox's `DashboardWidget` base class. Subclasses must provide a `render()` method, and may override the base class' default characteristics.
 
-Widgets which require configuration by a user must also include a `ConfigForm` child class. This form is used to render the user configuration options for the widget.
+Widgets which require configuration by a user must also include a `ConfigForm` child class which inherits from `WidgetConfigForm`. This form is used to render the user configuration options for the widget.
 
 ::: extras.dashboard.widgets.DashboardWidget
 
@@ -34,7 +34,7 @@ class MyWidget2(DashboardWidget):
 ```python
 from django import forms
 from extras.dashboard.utils import register_widget
-from extras.dashboard.widgets import DashboardWidget
+from extras.dashboard.widgets import DashboardWidget, WidgetConfigForm
 
 
 @register_widget
@@ -42,7 +42,7 @@ class ReminderWidget(DashboardWidget):
     default_title = 'Reminder'
     description = 'Add a virtual sticky note'
 
-    class ConfigForm(forms.Form):
+    class ConfigForm(WidgetConfigForm):
         content = forms.CharField(
             widget=forms.Textarea()
         )
