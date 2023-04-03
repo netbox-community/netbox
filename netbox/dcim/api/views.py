@@ -423,9 +423,13 @@ class DeviceViewSet(ConfigContextQuerySetMixin, ConfigTemplateRenderMixin, NetBo
         configtemplate = device.get_config_template()
         if not configtemplate:
             return Response({'error': 'No config template found for this device.'}, status=HTTP_400_BAD_REQUEST)
-        context = {**request.data, 'device': device}
 
-        return self.render_configtemplate(request, configtemplate, context)
+        # Compile context data
+        context_data = device.get_config_context()
+        context_data.update(request.data)
+        context_data.update({'device': device})
+
+        return self.render_configtemplate(request, configtemplate, context_data)
 
 
 class VirtualDeviceContextViewSet(NetBoxModelViewSet):

@@ -2010,10 +2010,8 @@ class DeviceRenderConfigView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         # Compile context data
-        context_data = {
-            'device': instance,
-        }
-        context_data.update(**instance.get_config_context())
+        context_data = instance.get_config_context()
+        context_data.update({'device': instance})
 
         # Render the config template
         rendered_config = None
