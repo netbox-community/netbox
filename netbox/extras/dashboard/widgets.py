@@ -37,13 +37,26 @@ def get_content_type_labels():
 
 
 class DashboardWidget:
+    """
+    Base class for custom dashboard widgets.
+
+    Attributes:
+        description: A brief, user-friendly description of the widget's function
+        default_title: The string to show for the widget's title when none has been specified.
+        default_config: Default configuration parameters, as a dictionary mapping
+        width: The widget's default width (1 to 12)
+        height: The widget's default height; the number of rows it consumes
+    """
+    description = None
     default_title = None
     default_config = {}
-    description = None
     width = 4
     height = 3
 
-    class ConfigForm(forms.Form):
+    class ConfigForm(BootstrapMixin, forms.Form):
+        """
+        The widget's configuration form.
+        """
         pass
 
     def __init__(self, id=None, title=None, color=None, config=None, width=None, height=None, x=None, y=None):
@@ -67,6 +80,12 @@ class DashboardWidget:
         self.y = grid_item.get('y')
 
     def render(self, request):
+        """
+        This method is called to render the widget's content.
+
+        Params:
+            request: The current request
+        """
         raise NotImplementedError(f"{self.__class__} must define a render() method.")
 
     @property
@@ -87,7 +106,7 @@ class NoteWidget(DashboardWidget):
     default_title = _('Note')
     description = _('Display some arbitrary custom content. Markdown is supported.')
 
-    class ConfigForm(BootstrapMixin, forms.Form):
+    class ConfigForm(DashboardWidget.ConfigForm):
         content = forms.CharField(
             widget=forms.Textarea()
         )
@@ -102,7 +121,7 @@ class ObjectCountsWidget(DashboardWidget):
     description = _('Display a set of NetBox models and the number of objects created for each type.')
     template_name = 'extras/dashboard/widgets/objectcounts.html'
 
-    class ConfigForm(BootstrapMixin, forms.Form):
+    class ConfigForm(DashboardWidget.ConfigForm):
         models = forms.MultipleChoiceField(
             choices=get_content_type_labels
         )
@@ -132,7 +151,7 @@ class ObjectListWidget(DashboardWidget):
     width = 12
     height = 4
 
-    class ConfigForm(BootstrapMixin, forms.Form):
+    class ConfigForm(DashboardWidget.ConfigForm):
         model = forms.ChoiceField(
             choices=get_content_type_labels
         )
@@ -177,7 +196,7 @@ class RSSFeedWidget(DashboardWidget):
     width = 6
     height = 4
 
-    class ConfigForm(BootstrapMixin, forms.Form):
+    class ConfigForm(DashboardWidget.ConfigForm):
         feed_url = forms.URLField(
             label=_('Feed URL')
         )
