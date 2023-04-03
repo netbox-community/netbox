@@ -1,4 +1,4 @@
-{% if widget.attrs.selector %}
+{% if widget.attrs.selector and not widget.attrs.disabled %}
   <div class="d-flex">
     {% include 'django/forms/widgets/select.html' %}
     <button
