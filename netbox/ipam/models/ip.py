@@ -178,9 +178,6 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
 
         if self.prefix:
 
-            # Clear host bits from prefix
-            self.prefix = self.prefix.cidr
-
             # /0 masks are not acceptable
             if self.prefix.prefixlen == 0:
                 raise ValidationError({

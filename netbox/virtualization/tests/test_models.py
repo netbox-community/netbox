@@ -72,7 +72,7 @@ class VirtualMachineTestCase(TestCase):
 
         # VM with cluster site but no direct site should have its site set automatically
         vm = VirtualMachine(name='vm1', site=None, cluster=clusters[0])
-        vm.full_clean()
+        vm.save()
         self.assertEqual(vm.site, sites[0])
 
     def test_vm_name_case_sensitivity(self):
