@@ -70,6 +70,10 @@ djangorestframework
 # https://github.com/tfranzel/drf-spectacular
 drf-spectacular
 
+# Serve self-contained distribution builds of Swagger UI and Redoc with Django.
+# https://github.com/tfranzel/drf-spectacular-sidecar
+drf-spectacular-sidecar
+
 # RSS feed parser
 # https://github.com/kurtmckee/feedparser
 feedparser
