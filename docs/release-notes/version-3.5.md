@@ -80,6 +80,8 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#12144](https://github.com/netbox-community/netbox/issues/12144) - Ensure consistent treatment of context data when rendering config templates via UI & API
 * [#12145](https://github.com/netbox-community/netbox/issues/12145) - Employ `HTMXSelect` widget to fix inclusion of `<select>` field values during form regeneration
 * [#12146](https://github.com/netbox-community/netbox/issues/12146) - Do not display object selector for disabled fields
+* [#12151](https://github.com/netbox-community/netbox/issues/12151) - Remove incorrect OpenAPI string mapping for choice fields
+* [#12167](https://github.com/netbox-community/netbox/issues/12167) - Catch and report on exceptions raised when rendering a config template
 
 ### Other Changes
 

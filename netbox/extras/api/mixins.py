@@ -1,3 +1,4 @@
+from jinja2.exceptions import TemplateError
 from rest_framework.response import Response
 
 from .nested_serializers import NestedConfigTemplateSerializer
@@ -32,7 +33,12 @@ class ConfigContextQuerySetMixin:
 class ConfigTemplateRenderMixin:
 
     def render_configtemplate(self, request, configtemplate, context):
-        output = configtemplate.render(context=context)
+        try:
+            output = configtemplate.render(context=context)
+        except TemplateError as e:
+            return Response({
+                'detail': f"An error occurred while rendering the template (line {e.lineno}): {e}"
+            }, status=500)
 
         # If the client has requested "text/plain", return the raw content.
         if request.accepted_renderer.format == 'txt':
