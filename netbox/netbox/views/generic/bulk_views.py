@@ -507,14 +507,14 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         for name in standard_fields:
             try:
                 model_field = self.queryset.model._meta.get_field(name)
-                if isinstance(model_field, ManyToManyField):
+                if isinstance(model_field, (ManyToManyField, ManyToManyRel)):
                     m2m_fields[name] = model_field
                 else:
                     model_fields[name] = model_field
 
             except FieldDoesNotExist:
                 # This form field is used to modify a field rather than set its value directly
-                model_field = None
+                model_fields[name] = None
 
         for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
 
@@ -526,8 +526,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             for name, model_field in model_fields.items():
                 # Handle nullification
                 if name in form.nullable_fields and name in nullified_fields:
-                    if not isinstance(model_field, ManyToManyField):
-                        setattr(obj, name, None if model_field.null else '')
+                    setattr(obj, name, None if model_field.null else '')
                 # Normal fields
                 elif name in form.changed_data:
                     setattr(obj, name, form.cleaned_data[name])
