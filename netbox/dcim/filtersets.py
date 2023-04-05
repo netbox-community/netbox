@@ -1729,8 +1729,7 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
 
     def filter_by_cable_end(self, queryset, name, value, side):
         # Filter by termination id and cable_end type
-        qs = queryset.filter(**{f'{name}__in': value, 'terminations__cable_end': side}).distinct()
-        return qs
+        return queryset.filter(**{f'{name}__in': value, 'terminations__cable_end': side}).distinct()
 
     def filter_by_cable_end_a(self, queryset, name, value):
         # Filter by termination id and cable_end type
