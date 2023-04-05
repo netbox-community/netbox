@@ -503,7 +503,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         model_fields = {}
         m2m_fields = {}
 
-        # Update standard fields. If a field is listed in _nullify, delete its value.
+        # Build list of model fields and m2m fields for later iteration
         for name in standard_fields:
             try:
                 model_field = self.queryset.model._meta.get_field(name)
