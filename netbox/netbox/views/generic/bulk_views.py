@@ -547,7 +547,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             # Handle M2M fields after save
             for name, m2m_field in m2m_fields.items():
                 if name in form.nullable_fields and name in nullified_fields:
-                    getattr(obj, name).set([])
+                    getattr(obj, name).clear()
                 else:
                     getattr(obj, name).set(form.cleaned_data[name])
 
