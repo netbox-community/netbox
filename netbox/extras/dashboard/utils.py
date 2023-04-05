@@ -1,5 +1,6 @@
 import uuid
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from netbox.registry import registry
@@ -54,8 +55,11 @@ def get_dashboard(user):
 
 def get_default_dashboard():
     from extras.models import Dashboard
+
     dashboard = Dashboard()
-    for widget in DEFAULT_DASHBOARD:
+    default_config = settings.DEFAULT_DASHBOARD or DEFAULT_DASHBOARD
+
+    for widget in default_config:
         id = str(uuid.uuid4())
         dashboard.layout.append({
             'id': id,
