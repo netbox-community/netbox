@@ -836,7 +836,7 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
 
         self.add_permissions('ipam.delete_vlan')
         url = reverse('ipam-api:vlan-detail', kwargs={'pk': vlan.pk})
-        with disable_warnings('django.request'):
+        with disable_warnings('netbox.api.views.ModelViewSet'):
             response = self.client.delete(url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
