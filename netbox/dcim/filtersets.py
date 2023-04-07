@@ -1354,6 +1354,7 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
         label=_('L2VPN'),
     )
 
+
 class InterfaceFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
