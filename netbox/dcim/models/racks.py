@@ -222,8 +222,6 @@ class Rack(PrimaryModel, WeightMixin):
         # Validate outer dimensions and unit
         if (self.outer_width is not None or self.outer_depth is not None) and not self.outer_unit:
             raise ValidationError("Must specify a unit when setting an outer width/depth")
-        elif self.outer_width is None and self.outer_depth is None:
-            self.outer_unit = ''
 
         # Validate max_weight and weight_unit
         if self.max_weight and not self.weight_unit:
@@ -258,6 +256,10 @@ class Rack(PrimaryModel, WeightMixin):
             self._abs_max_weight = to_grams(self.max_weight, self.weight_unit)
         else:
             self._abs_max_weight = None
+
+        # Clear unit if outer width & depth are not set
+        if self.outer_width is None and self.outer_depth is None:
+            self.outer_unit = ''
 
         super().save(*args, **kwargs)
 

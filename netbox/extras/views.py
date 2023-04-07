@@ -422,6 +422,7 @@ class ConfigContextDeleteView(generic.ObjectDeleteView):
 
 class ConfigContextBulkDeleteView(generic.BulkDeleteView):
     queryset = ConfigContext.objects.all()
+    filterset = filtersets.ConfigContextFilterSet
     table = tables.ConfigContextTable
 
 

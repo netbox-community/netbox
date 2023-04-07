@@ -8,6 +8,9 @@ theme:
   custom_dir: docs/_theme/
   icon:
     repo: fontawesome/brands/github
+  features:
+    - content.code.copy
+    - navigation.footer
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -20,7 +23,8 @@ theme:
         icon: material/lightbulb
         name: Switch to Light Mode
 plugins:
-  - search
+  - search:
+      lang: en
   - mkdocstrings:
       handlers:
         python:

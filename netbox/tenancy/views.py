@@ -83,6 +83,7 @@ class TenantGroupBulkDeleteView(generic.BulkDeleteView):
         'tenant_count',
         cumulative=True
     )
+    filterset = filtersets.TenantGroupFilterSet
     table = tables.TenantGroupTable
 
 
@@ -233,6 +234,7 @@ class ContactGroupBulkDeleteView(generic.BulkDeleteView):
         'contact_count',
         cumulative=True
     )
+    filterset = filtersets.ContactGroupFilterSet
     table = tables.ContactGroupTable
 
 
@@ -286,6 +288,7 @@ class ContactRoleBulkEditView(generic.BulkEditView):
 
 class ContactRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = ContactRole.objects.all()
+    filterset = filtersets.ContactRoleFilterSet
     table = tables.ContactRoleTable
 
 

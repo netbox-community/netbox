@@ -25,6 +25,7 @@ __all__ = (
     'CableFilterSet',
     'CabledObjectFilterSet',
     'CableTerminationFilterSet',
+    'CommonInterfaceFilterSet',
     'ConsoleConnectionFilterSet',
     'ConsolePortFilterSet',
     'ConsolePortTemplateFilterSet',
@@ -1348,11 +1349,45 @@ class PowerOutletFilterSet(
         fields = ['id', 'name', 'label', 'feed_leg', 'description', 'cable_end']
 
 
+class CommonInterfaceFilterSet(django_filters.FilterSet):
+    vlan_id = django_filters.CharFilter(
+        method='filter_vlan_id',
+        label=_('Assigned VLAN')
+    )
+    vlan = django_filters.CharFilter(
+        method='filter_vlan',
+        label=_('Assigned VID')
+    )
+    vrf_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vrf',
+        queryset=VRF.objects.all(),
+        label=_('VRF'),
+    )
+    vrf = django_filters.ModelMultipleChoiceFilter(
+        field_name='vrf__rd',
+        queryset=VRF.objects.all(),
+        to_field_name='rd',
+        label=_('VRF (RD)'),
+    )
+    l2vpn_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='l2vpn_terminations__l2vpn',
+        queryset=L2VPN.objects.all(),
+        label=_('L2VPN (ID)'),
+    )
+    l2vpn = django_filters.ModelMultipleChoiceFilter(
+        field_name='l2vpn_terminations__l2vpn__identifier',
+        queryset=L2VPN.objects.all(),
+        to_field_name='identifier',
+        label=_('L2VPN'),
+    )
+
+
 class InterfaceFilterSet(
     ModularDeviceComponentFilterSet,
     NetBoxModelFilterSet,
     CabledObjectFilterSet,
-    PathEndpointFilterSet
+    PathEndpointFilterSet,
+    CommonInterfaceFilterSet
 ):
     # Override device and device_id filters from DeviceComponentFilterSet to match against any peer virtual chassis
     # members
@@ -1397,14 +1432,6 @@ class InterfaceFilterSet(
     poe_type = django_filters.MultipleChoiceFilter(
         choices=InterfacePoETypeChoices
     )
-    vlan_id = django_filters.CharFilter(
-        method='filter_vlan_id',
-        label=_('Assigned VLAN')
-    )
-    vlan = django_filters.CharFilter(
-        method='filter_vlan',
-        label=_('Assigned VID')
-    )
     type = django_filters.MultipleChoiceFilter(
         choices=InterfaceTypeChoices,
         null_value=None
@@ -1414,17 +1441,6 @@ class InterfaceFilterSet(
     )
     rf_channel = django_filters.MultipleChoiceFilter(
         choices=WirelessChannelChoices
-    )
-    vrf_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='vrf',
-        queryset=VRF.objects.all(),
-        label=_('VRF'),
-    )
-    vrf = django_filters.ModelMultipleChoiceFilter(
-        field_name='vrf__rd',
-        queryset=VRF.objects.all(),
-        to_field_name='rd',
-        label=_('VRF (RD)'),
     )
     vdc_id = django_filters.ModelMultipleChoiceFilter(
         field_name='vdcs',
@@ -1442,17 +1458,6 @@ class InterfaceFilterSet(
         queryset=VirtualDeviceContext.objects.all(),
         to_field_name='name',
         label='Virtual Device Context',
-    )
-    l2vpn_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='l2vpn_terminations__l2vpn',
-        queryset=L2VPN.objects.all(),
-        label=_('L2VPN (ID)'),
-    )
-    l2vpn = django_filters.ModelMultipleChoiceFilter(
-        field_name='l2vpn_terminations__l2vpn__identifier',
-        queryset=L2VPN.objects.all(),
-        to_field_name='identifier',
-        label=_('L2VPN'),
     )
 
     class Meta:

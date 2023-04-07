@@ -74,6 +74,7 @@ class ClusterTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = ClusterType.objects.annotate(
         cluster_count=count_related(Cluster, 'type')
     )
+    filterset = filtersets.ClusterTypeFilterSet
     table = tables.ClusterTypeTable
 
 
@@ -135,6 +136,7 @@ class ClusterGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
     )
+    filterset = filtersets.ClusterGroupFilterSet
     table = tables.ClusterGroupTable
 
 

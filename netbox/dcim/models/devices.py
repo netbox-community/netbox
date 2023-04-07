@@ -707,8 +707,6 @@ class Device(PrimaryModel, ConfigContextModel):
             raise ValidationError({
                 'rack': f"Rack {self.rack} does not belong to location {self.location}.",
             })
-        elif self.rack:
-            self.location = self.rack.location
 
         if self.rack is None:
             if self.face:
@@ -824,8 +822,10 @@ class Device(PrimaryModel, ConfigContextModel):
             bulk_create: If True, bulk_create() will be called to create all components in a single query
                          (default). Otherwise, save() will be called on each instance individually.
         """
-        components = [obj.instantiate(device=self) for obj in queryset]
-        if components and bulk_create:
+        if bulk_create:
+            components = [obj.instantiate(device=self) for obj in queryset]
+            if not components:
+                return
             model = components[0]._meta.model
             model.objects.bulk_create(components)
             # Manually send the post_save signal for each of the newly created components
@@ -838,8 +838,9 @@ class Device(PrimaryModel, ConfigContextModel):
                     using='default',
                     update_fields=None
                 )
-        elif components:
-            for component in components:
+        else:
+            for obj in queryset:
+                component = obj.instantiate(device=self)
                 component.save()
 
     def save(self, *args, **kwargs):
@@ -852,6 +853,10 @@ class Device(PrimaryModel, ConfigContextModel):
         # Inherit default_platform from DeviceType if not set
         if is_new and not self.platform:
             self.platform = self.device_type.default_platform
+
+        # Inherit location from Rack if not set
+        if self.rack and self.rack.location:
+            self.location = self.rack.location
 
         super().save(*args, **kwargs)
 

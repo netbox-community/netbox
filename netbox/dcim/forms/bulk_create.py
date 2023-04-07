@@ -103,9 +103,9 @@ class RearPortBulkCreateForm(
 
 class ModuleBayBulkCreateForm(DeviceBulkAddComponentForm):
     model = ModuleBay
-    field_order = ('name', 'label', 'position_pattern', 'description', 'tags')
+    field_order = ('name', 'label', 'position', 'description', 'tags')
     replication_fields = ('name', 'label', 'position')
-    position_pattern = ExpandableNameField(
+    position = ExpandableNameField(
         label=_('Position'),
         required=False,
         help_text=_('Alphanumeric ranges are supported. (Must match the number of names being created.)')

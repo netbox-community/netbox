@@ -578,6 +578,7 @@ class RackRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = RackRole.objects.annotate(
         rack_count=count_related(Rack, 'role')
     )
+    filterset = filtersets.RackRoleFilterSet
     table = tables.RackRoleTable
 
 
@@ -867,6 +868,7 @@ class ManufacturerBulkDeleteView(generic.BulkDeleteView):
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
         platform_count=count_related(Platform, 'manufacturer')
     )
+    filterset = filtersets.ManufacturerFilterSet
     table = tables.ManufacturerTable
 
 
@@ -1728,6 +1730,7 @@ class DeviceRoleBulkDeleteView(generic.BulkDeleteView):
         device_count=count_related(Device, 'device_role'),
         vm_count=count_related(VirtualMachine, 'role')
     )
+    filterset = filtersets.DeviceRoleFilterSet
     table = tables.DeviceRoleTable
 
 
@@ -1785,6 +1788,7 @@ class PlatformBulkEditView(generic.BulkEditView):
 
 class PlatformBulkDeleteView(generic.BulkDeleteView):
     queryset = Platform.objects.all()
+    filterset = filtersets.PlatformFilterSet
     table = tables.PlatformTable
 
 
@@ -2853,6 +2857,7 @@ class InventoryItemBulkRenameView(generic.BulkRenameView):
 
 class InventoryItemBulkDeleteView(generic.BulkDeleteView):
     queryset = InventoryItem.objects.all()
+    filterset = filtersets.InventoryItemFilterSet
     table = tables.InventoryItemTable
     template_name = 'dcim/inventoryitem_bulk_delete.html'
 
@@ -2909,6 +2914,7 @@ class InventoryItemRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = InventoryItemRole.objects.annotate(
         inventoryitem_count=count_related(InventoryItem, 'role'),
     )
+    filterset = filtersets.InventoryItemRoleFilterSet
     table = tables.InventoryItemRoleTable
 
 
