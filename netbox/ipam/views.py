@@ -431,6 +431,7 @@ class RoleBulkEditView(generic.BulkEditView):
 
 class RoleBulkDeleteView(generic.BulkDeleteView):
     queryset = Role.objects.all()
+    filterset = filtersets.RoleFilterSet
     table = tables.RoleTable
 
 
