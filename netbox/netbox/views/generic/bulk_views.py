@@ -16,7 +16,6 @@ from django_tables2.export import TableExport
 
 from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
-from utilities.choices import ImportFormatChoices
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, ImportForm, restrict_form_fields
