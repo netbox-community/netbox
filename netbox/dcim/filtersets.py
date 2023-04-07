@@ -1354,6 +1354,24 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
         label=_('L2VPN'),
     )
 
+    def filter_vlan_id(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        return queryset.filter(
+            Q(untagged_vlan_id=value) |
+            Q(tagged_vlans=value)
+        )
+
+    def filter_vlan(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        return queryset.filter(
+            Q(untagged_vlan_id__vid=value) |
+            Q(tagged_vlans__vid=value)
+        )
+
 
 class InterfaceFilterSet(
     ModularDeviceComponentFilterSet,
@@ -1460,24 +1478,6 @@ class InterfaceFilterSet(
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()
-
-    def filter_vlan_id(self, queryset, name, value):
-        value = value.strip()
-        if not value:
-            return queryset
-        return queryset.filter(
-            Q(untagged_vlan_id=value) |
-            Q(tagged_vlans=value)
-        )
-
-    def filter_vlan(self, queryset, name, value):
-        value = value.strip()
-        if not value:
-            return queryset
-        return queryset.filter(
-            Q(untagged_vlan_id__vid=value) |
-            Q(tagged_vlans__vid=value)
-        )
 
     def filter_kind(self, queryset, name, value):
         value = value.strip().lower()
