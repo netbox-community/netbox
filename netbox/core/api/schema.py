@@ -231,7 +231,13 @@ class NetBoxAutoSchema(AutoSchema):
 
         # If a docstring is provided, use it.
         if self.view.__doc__:
-            return self.view.__doc__
+            return get_doc(self.view.__class__)
+
+        # When the action method is decorated with @action, use the docstring
+        # of the method.
+        action_or_method = getattr(self.view, getattr(self.view, 'action', self.method.lower()), None)
+        if action_or_method and action_or_method.__doc__:
+            return get_doc(action_or_method)
 
         # Else, generate a description from the class name.
         description = self.view.__class__.__name__
