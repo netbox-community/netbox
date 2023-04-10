@@ -255,10 +255,8 @@ class NetBoxAutoSchema(AutoSchema):
         else:
             is_list = True
 
-        description = self.view.__class__.__name__
-        if description.endswith('ViewSet'):
-            description = description[:-len('ViewSet')]
+        model_name = self.view.queryset.model._meta.verbose_name
 
         if is_list:
-            return f"{self.method.capitalize()} a list of {description} objects."
-        return f"{self.method.capitalize()} a {description} object."
+            return f"{self.method.capitalize()} a list of {model_name} objects."
+        return f"{self.method.capitalize()} a {model_name} object."
