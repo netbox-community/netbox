@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.validators import ValidationError
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
@@ -57,6 +58,33 @@ class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
 
     class Meta:
         abstract = True
+
+    def clean(self):
+        """
+        Validate the model for GenericForeignKey fields to ensure that the content type and object ID exist.
+        """
+        super().clean()
+
+        for field in self._meta.get_fields():
+            if isinstance(field, GenericForeignKey):
+                ct_field = getattr(self, field.ct_field)
+                fk_field = getattr(self, field.fk_field)
+
+                if ct_field is None and fk_field is not None:
+                    raise ValidationError({
+                        field.ct_field: "This field cannot be null.",
+                    })
+                if fk_field is None and ct_field is not None:
+                    raise ValidationError({
+                        field.fk_field: "This field cannot be null.",
+                    })
+
+                if ct_field and fk_field:
+                    klass = getattr(self, field.ct_field).model_class()
+                    if not klass.objects.filter(pk=fk_field).exists():
+                        raise ValidationError({
+                            field.fk_field: f"Invalid {fk_field}: object does not exist on {ct_field}."
+                        })
 
 
 class PrimaryModel(NetBoxModel):
