@@ -12,6 +12,7 @@ from drf_spectacular.plumbing import (
     build_basic_type,
     build_media_type_object,
     build_object_type,
+    get_doc,
     is_serializer,
 )
 from drf_spectacular.types import OpenApiTypes
@@ -222,3 +223,35 @@ class NetBoxAutoSchema(AutoSchema):
         if request_body_required:
             request_body['required'] = request_body_required
         return request_body
+
+    def get_description(self):
+        """
+        Return a string description for the ViewSet.
+        """
+
+        # If a docstring is provided, use it.
+        if self.view.__doc__:
+            return self.view.__doc__
+
+        # Else, generate a description from the class name.
+        description = self.view.__class__.__name__
+        if description.endswith('ViewSet'):
+            description = description[:-len('ViewSet')]
+
+        description = re.sub(r'(?<!^)(?=[A-Z])', ' ', description)
+        description = description[0].lower() + description[1:]
+
+        if self.method == 'GET':
+            description = f"Get a list of {description} objects."
+        elif self.method == 'POST':
+            description = f"Create a {description} object."
+        elif self.method == 'PUT':
+            description = f"Update a {description} object."
+        elif self.method == 'PATCH':
+            description = f"Update a {description} object."
+        elif self.method == 'DELETE':
+            description = f"Delete a {description} object."
+        else:
+            description = f"Perform an action on a {description} object."
+
+        return description
