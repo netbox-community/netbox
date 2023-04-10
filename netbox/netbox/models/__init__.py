@@ -67,22 +67,23 @@ class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
 
         for field in self._meta.get_fields():
             if isinstance(field, GenericForeignKey):
-                if getattr(self, field.ct_field) is None and getattr(self, field.fk_field) is not None:
+                ct_field = getattr(self, field.ct_field)
+                fk_field = getattr(self, field.fk_field)
+
+                if ct_field is None and fk_field is not None:
                     raise ValidationError({
                         field.ct_field: "This field cannot be null.",
                     })
-                if getattr(self, field.fk_field) is None and getattr(self, field.ct_field) is not None:
+                if fk_field is None and ct_field is not None:
                     raise ValidationError({
                         field.fk_field: "This field cannot be null.",
                     })
 
-                if getattr(self, field.ct_field) and getattr(self, field.fk_field):
+                if ct_field and fk_field:
                     klass = getattr(self, field.ct_field).model_class()
-                    try:
-                        klass.objects.get(pk=getattr(self, field.fk_field))
-                    except klass.DoesNotExist:
+                    if not klass.objects.filter(pk=fk_field).exists():
                         raise ValidationError({
-                            field.fk_field: f"Invalid {getattr(self, field.fk_field)}: object does not exist on {getattr(self, field.ct_field)}."
+                            field.fk_field: f"Invalid {fk_field}: object does not exist on {ct_field}."
                         })
 
 
