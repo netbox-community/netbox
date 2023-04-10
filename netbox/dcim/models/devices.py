@@ -120,6 +120,10 @@ class DeviceType(PrimaryModel, WeightMixin):
         blank=True
     )
 
+    images = GenericRelation(
+        to='extras.ImageAttachment'
+    )
+
     clone_fields = (
         'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
     )

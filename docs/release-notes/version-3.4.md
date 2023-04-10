@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#10414](https://github.com/netbox-community/netbox/issues/10414) - Enable general purpose image attachments for device types
 * [#10600](https://github.com/netbox-community/netbox/issues/10600) - Allow custom object fields to reference a user or group
 * [#11015](https://github.com/netbox-community/netbox/issues/11015) - Remove unit from commit rate column header in circuits table
 * [#11431](https://github.com/netbox-community/netbox/issues/11431) - Disallow changing custom field type after creation
