@@ -18,13 +18,11 @@
 {% endblock %}
 
 {% block extra_controls %}
-  <div class="btn-group d-lg-none" role="group" aria-label="RackNavigation">
+  <div class="btn-group" role="group" aria-label="RackNavigation">
     {% if prev_rack %}
     <a href="{% url 'dcim:rack' pk=prev_rack.pk %}" class="btn btn-sm btn-primary">
         <i class="mdi mdi-chevron-left" aria-hidden="true"></i> {{ prev_rack }}
     </a>
-    {% else %}
-    <button class="btn btn-sm btn-primary">First</button>
     {% endif %}
     
     {% if peer_racks %}
@@ -40,24 +38,11 @@
 
     {% if next_rack %}
     <a href="{% url 'dcim:rack' pk=next_rack.pk %}" class="btn btn-sm btn-primary">
-        <i class="mdi mdi-chevron-right" aria-hidden="true"></i> {{ next_rack }}
+        {{ next_rack }} <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
     </a>
-    {% else %}
-    <button class="btn btn-sm btn-primary">Last</button>
     {% endif %}
 
   </div>
-  
-  <div class="btn-group d-none d-lg-block" role="group" aria-label="RackNavigation">
-    {% if peer_racks %}
-      <div class="btn-group" role="group">
-        {% for peer_rack in peer_racks %}
-        <a class="btn btn-sm btn-primary{% if peer_rack.pk == object.pk %} active{% endif %}" href="{% url 'dcim:rack' pk=peer_rack.pk %}">{{ peer_rack }}</a>
-        {% endfor %}
-      </div>
-    {% endif %}
-  </div>
-
 {% endblock %}
 
 {% block content %}
