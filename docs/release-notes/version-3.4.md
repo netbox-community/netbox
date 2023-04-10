@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#10600](https://github.com/netbox-community/netbox/issues/10600) - Allow custom object fields to reference a user or group
+* [#11015](https://github.com/netbox-community/netbox/issues/11015) - Remove unit from commit rate column header in circuits table
 * [#11431](https://github.com/netbox-community/netbox/issues/11431) - Disallow changing custom field type after creation
 * [#11453](https://github.com/netbox-community/netbox/issues/11453) - Display a warning banner when `DEBUG` is enabled
 * [#12007](https://github.com/netbox-community/netbox/issues/12007) - Enable filtering of VM Interfaces by assigned VLAN
