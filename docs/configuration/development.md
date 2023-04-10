@@ -18,4 +18,4 @@ interface.
 
 Default: False
 
-This parameter serves as a safeguard to prevent some potentially dangerous behavior, such as generating new database schema migrations. Set this to `True` **only** if you are actively developing the NetBox code base.
+This parameter serves as a safeguard to prevent some potentially dangerous behavior, such as generating new database schema migrations. Additionally, enabling this setting disables the debug warning banner in the UI. Set this to `True` **only** if you are actively developing the NetBox code base.

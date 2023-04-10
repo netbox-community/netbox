@@ -70,10 +70,17 @@ Blocks:
           </div>
         {% endif %}
 
+        {% if settings.DEBUG and not settings.DEVELOPER %}
+          <div class="alert alert-warning text-center mx-3" role="alert">
+            <strong><i class="mdi mdi-alert"></i> Debug mode is enabled.</strong>
+            Performance may be limited. Debugging should never be enabled on a production system.
+          </div>
+        {% endif %}
+
         {% if config.MAINTENANCE_MODE %}
           <div class="alert alert-warning text-center mx-3" role="alert">
-            <h4><i class="mdi mdi-alert"></i> Maintenance Mode</h4>
-            <span>NetBox is currently in maintenance mode. Functionality may be limited.</span>
+            <h5><i class="mdi mdi-alert"></i> Maintenance Mode</h5>
+            NetBox is currently in maintenance mode. Functionality may be limited.
           </div>
         {% endif %}
 

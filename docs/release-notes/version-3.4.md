@@ -4,11 +4,13 @@
 
 ### Enhancements
 
+* [#11453](https://github.com/netbox-community/netbox/issues/11453) - Display a warning banner when `DEBUG` is enabled
 * [#12007](https://github.com/netbox-community/netbox/issues/12007) - Enable filtering of VM Interfaces by assigned VLAN
 * [#12095](https://github.com/netbox-community/netbox/issues/12095) - Specify UTF-8 encoding for default export template MIME type
 
 ### Bug Fixes
 
+* [#10615](https://github.com/netbox-community/netbox/issues/10615) - Fix filtering of cable terminations by A/B end
 * [#11746](https://github.com/netbox-community/netbox/issues/11746) - Fix cleanup of object data when deleting a custom field
 * [#12011](https://github.com/netbox-community/netbox/issues/12011) - Fix KeyError exception when attempting to add module bays in bulk
 * [#12074](https://github.com/netbox-community/netbox/issues/12074) - Fix the automatic assignment of racks to devices via the REST API
