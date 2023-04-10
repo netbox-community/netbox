@@ -97,6 +97,12 @@ class CustomFieldSerializer(ValidatedModelSerializer):
             'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'created', 'last_updated',
         ]
 
+    def validate_type(self, value):
+        if self.instance and self.instance.type != value:
+            raise serializers.ValidationError('Changing the type of custom fields is not supported.')
+
+        return value
+
     def get_data_type(self, obj):
         types = CustomFieldTypeChoices
         if obj.type == types.TYPE_INTEGER:
