@@ -233,31 +233,32 @@ class NetBoxAutoSchema(AutoSchema):
         if self.view.__doc__:
             return get_doc(self.view.__class__)
 
-        # When the action method is decorated with @action, use the docstring
-        # of the method.
+        # When the action method is decorated with @action, use the docstring of the method.
         action_or_method = getattr(self.view, getattr(self.view, 'action', self.method.lower()), None)
         if action_or_method and action_or_method.__doc__:
             return get_doc(action_or_method)
 
         # Else, generate a description from the class name.
+        return self._generate_description()
+
+    def _generate_description(self):
+        """
+        Generate a docstring for the method. It also takes into account whether the method is for list or detail.
+        """
+
+        # Determine if the method is for list or detail.
+        if self.is_bulk_action:
+            is_list = True
+        # Determine using the URL path if the method is for list or detail.
+        elif '{id}' in self.path:
+            is_list = False
+        else:
+            is_list = True
+
         description = self.view.__class__.__name__
         if description.endswith('ViewSet'):
             description = description[:-len('ViewSet')]
 
-        description = re.sub(r'(?<!^)(?=[A-Z])', ' ', description)
-        description = description[0].lower() + description[1:]
-
-        if self.method == 'GET':
-            description = f"Get a list of {description} objects."
-        elif self.method == 'POST':
-            description = f"Create a {description} object."
-        elif self.method == 'PUT':
-            description = f"Update a {description} object."
-        elif self.method == 'PATCH':
-            description = f"Update a {description} object."
-        elif self.method == 'DELETE':
-            description = f"Delete a {description} object."
-        else:
-            description = f"Perform an action on a {description} object."
-
-        return description
+        if is_list:
+            return f"{self.method.capitalize()} a list of {description} objects."
+        return f"{self.method.capitalize()} a {description} object."
