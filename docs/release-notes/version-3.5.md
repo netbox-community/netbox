@@ -54,6 +54,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#10242](https://github.com/netbox-community/netbox/issues/10242) - Redirect to filtered objects list after bulk import
 * [#10374](https://github.com/netbox-community/netbox/issues/10374) - Require unique tenant names & slugs per group
 * [#10729](https://github.com/netbox-community/netbox/issues/10729) - Add date & time custom field type
+* [#11029](https://github.com/netbox-community/netbox/issues/11029) - Enable change logging for cable terminations
 * [#11254](https://github.com/netbox-community/netbox/issues/11254) - Introduce the `X-Request-ID` HTTP header to annotate the unique ID of each request for change logging
 * [#11291](https://github.com/netbox-community/netbox/issues/11291) - Optimized GraphQL API request handling
 * [#11440](https://github.com/netbox-community/netbox/issues/11440) - Add an `enabled` field for device type interfaces
@@ -111,6 +112,8 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
     * Added the optional `account` foreign key to ProviderAccount
 * circuits.Provider
     * Removed the `account` field
+* dcim.CableTermination
+    * Added `default_platform` foreign key (optional)
 * dcim.DeviceType
     * Added `default_platform` foreign key (optional)
 * dcim.InterfaceTemplate

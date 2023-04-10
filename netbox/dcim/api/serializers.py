@@ -1097,7 +1097,8 @@ class CableTerminationSerializer(NetBoxModelSerializer):
     class Meta:
         model = CableTermination
         fields = [
-            'id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id', 'termination'
+            'id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id', 'termination',
+            'created', 'last_updated',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0167_module_status'),
+        ('dcim', '0171_devicetype_add_bridge'),
     ]
 
     operations = [
