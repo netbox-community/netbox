@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
@@ -414,6 +415,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, ConfigTemplateRenderMixin, NetBo
 
         return serializers.DeviceWithConfigContextSerializer
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         # do validate / create for each item in serial instead of validating all data at once
         data_list = request.data if isinstance(request.data, list) else [request.data, ]
