@@ -360,6 +360,45 @@ class ConfigContextTestCase(
         }
 
 
+class ConfigTemplateTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
+    model = ConfigTemplate
+
+    @classmethod
+    def setUpTestData(cls):
+        TEMPLATE_CODE = """Foo: {{ foo }}"""
+
+        config_templates = (
+            ConfigTemplate(name='Config Template 1', template_code=TEMPLATE_CODE),
+            ConfigTemplate(name='Config Template 2', template_code=TEMPLATE_CODE),
+            ConfigTemplate(name='Config Template 3', template_code=TEMPLATE_CODE),
+        )
+        ConfigTemplate.objects.bulk_create(config_templates)
+
+        cls.form_data = {
+            'name': 'Config Template X',
+            'description': 'Config template',
+            'template_code': TEMPLATE_CODE,
+        }
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{config_templates[0].pk},Config Template 7",
+            f"{config_templates[1].pk},Config Template 8",
+            f"{config_templates[2].pk},Config Template 9",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+
 # TODO: Convert to StandardTestCases.Views
 class ObjectChangeTestCase(TestCase):
     user_permissions = (

@@ -513,6 +513,46 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(rendered_context['bar'], 456)
 
 
+class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
+    model = ConfigTemplate
+    brief_fields = ['display', 'id', 'name', 'url']
+    create_data = [
+        {
+            'name': 'Config Template 4',
+            'template_code': 'Foo: {{ foo }}',
+        },
+        {
+            'name': 'Config Template 5',
+            'template_code': 'Bar: {{ bar }}',
+        },
+        {
+            'name': 'Config Template 6',
+            'template_code': 'Baz: {{ baz }}',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        config_templates = (
+            ConfigTemplate(
+                name='Config Template 1',
+                template_code='Foo: {{ foo }}'
+            ),
+            ConfigTemplate(
+                name='Config Template 2',
+                template_code='Bar: {{ bar }}'
+            ),
+            ConfigTemplate(
+                name='Config Template 3',
+                template_code='Baz: {{ baz }}'
+            ),
+        )
+        ConfigTemplate.objects.bulk_create(config_templates)
+
+
 class ReportTest(APITestCase):
 
     class TestReport(Report):

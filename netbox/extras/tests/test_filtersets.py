@@ -790,6 +790,28 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
+class ConfigTemplateTestCase(TestCase, BaseFilterSetTests):
+    queryset = ConfigTemplate.objects.all()
+    filterset = ConfigTemplateFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        config_templates = (
+            ConfigTemplate(name='Config Template 1', template_code='TESTING', description='foobar1'),
+            ConfigTemplate(name='Config Template 2', template_code='TESTING', description='foobar2'),
+            ConfigTemplate(name='Config Template 3', template_code='TESTING'),
+        )
+        ConfigTemplate.objects.bulk_create(config_templates)
+
+    def test_name(self):
+        params = {'name': ['Config Template 1', 'Config Template 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Tag.objects.all()
     filterset = TagFilterSet

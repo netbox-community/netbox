@@ -25,7 +25,7 @@ class ConfigContextType(ObjectType):
         filterset_class = filtersets.ConfigContextFilterSet
 
 
-class ConfigTemplateType(ObjectType):
+class ConfigTemplateType(TagsMixin, ObjectType):
 
     class Meta:
         model = models.ConfigTemplate
