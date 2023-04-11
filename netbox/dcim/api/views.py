@@ -416,7 +416,9 @@ class DeviceViewSet(ConfigContextQuerySetMixin, ConfigTemplateRenderMixin, NetBo
 
     def create(self, request, *args, **kwargs):
         # do validate / create for each item in serial instead of validating all data at once
-        for data in request.data:
+        data_list = request.data if isinstance(request.data, list) else [request.data, ]
+
+        for data in data_list:
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
