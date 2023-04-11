@@ -4,6 +4,7 @@
 
 ### Breaking Changes
 
+* The `account` field has been removed from the provider model. This information is now tracked using the new provider account model. Multiple accounts can be assigned per provider.
 * The JobResult model has been moved from the `extras` app to `core` and renamed to Job. Accordingly, its REST API endpoint has been moved from `/api/extras/job-results/` to `/api/core/jobs/`.
 * The `obj_type` field on the Job model (previously JobResult) has been renamed to `object_type` for consistency with other models.
 * The `JOBRESULT_RETENTION` configuration parameter has been renamed to `JOB_RETENTION`.
@@ -86,6 +87,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 
 ### Other Changes
 
+* [#9608](https://github.com/netbox-community/netbox/issues/9608) - Upgrade REST API schema to OpenAPI 3.0
 * [#10604](https://github.com/netbox-community/netbox/issues/10604) - Remove unused `extra_tabs` block from `object.html` generic template
 * [#10923](https://github.com/netbox-community/netbox/issues/10923) - Remove unused `NetBoxModelCSVForm` class (replaced by `NetBoxModelImportForm`)
 * [#11489](https://github.com/netbox-community/netbox/issues/11489) - Consolidated several middleware classes
