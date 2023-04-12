@@ -245,12 +245,9 @@ class NetBoxAutoSchema(AutoSchema):
         """
         Generate a docstring for the method. It also takes into account whether the method is for list or detail.
         """
-
-        # Determine if the method is for list or detail.
-        is_list = not '{id}' in self.path
-
         model_name = self.view.queryset.model._meta.verbose_name
 
-        if is_list:
-            return f"{self.method.capitalize()} a list of {model_name} objects."
-        return f"{self.method.capitalize()} a {model_name} object."
+        # Determine if the method is for list or detail.
+        if '{id}' in self.path:
+            return f"{self.method.capitalize()} a {model_name} object."
+        return f"{self.method.capitalize()} a list of {model_name} objects."
