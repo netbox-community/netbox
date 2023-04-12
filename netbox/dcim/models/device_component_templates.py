@@ -122,7 +122,9 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.__original_device_type = self.device_type_id
+
+        # Cache the original DeviceType ID for reference under clean()
+        self._original_device_type = self.device_type_id
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
@@ -135,9 +137,9 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
     def clean(self):
         super().clean()
 
-        if self.pk is not None and self.__original_device_type != self.device_type_id:
+        if self.pk is not None and self._original_device_type != self.device_type_id:
             raise ValidationError({
-                "device": "device_type field is read-only and not updatable."
+                "device_type": "Component templates cannot be moved to a different device type."
             })
 
         # A component template must belong to a DeviceType *or* to a ModuleType

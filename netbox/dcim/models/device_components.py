@@ -80,7 +80,9 @@ class ComponentModel(NetBoxModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.__original_device = self.device_id
+
+        # Cache the original Device ID for reference under clean()
+        self._original_device = self.device_id
 
     def __str__(self):
         if self.label:
@@ -95,9 +97,9 @@ class ComponentModel(NetBoxModel):
     def clean(self):
         super().clean()
 
-        if self.pk is not None and self.__original_device != self.device_id:
+        if self.pk is not None and self._original_device != self.device_id:
             raise ValidationError({
-                "device": "Device field is read-only and not updatable."
+                "device": "Components cannot be moved to a different device."
             })
 
     @property
