@@ -155,33 +155,21 @@ class TokenTest(
 
     def test_provision_token_other_user(self):
         """
-        Test the behavior of the token provisioning view when invalid credentials are supplied.
+        Test provisioning a Token for a different User with & without the grant_token permission.
         """
+        self.add_permissions('users.add_token')
         user2 = User.objects.create_user(username='testuser2')
         data = {
             'user': user2.id,
         }
         url = reverse('users-api:token-list')
 
+        # Attempt to create a new Token for User2 *without* the grant_token permission
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 403)
 
-    def test_provision_token_permission(self):
-        object_type = ContentType.objects.get(app_label='users', model='token')
-
-        objectpermission = ObjectPermission(
-            name=f'Permission Token',
-            actions=['view', 'add', 'change', 'delete', 'grant'],
-        )
-        objectpermission.save()
-        objectpermission.object_types.add(object_type)
-        objectpermission.users.add(self.user)
-        user2 = User.objects.create_user(username='testuser2')
-        data = {
-            'user': user2.id,
-        }
-        url = reverse('users-api:token-list')
-
+        # Assign grant_token permission and successfully create a new Token for User2
+        self.add_permissions('users.grant_token')
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 201)
 
