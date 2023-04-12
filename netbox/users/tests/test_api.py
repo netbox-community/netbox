@@ -153,6 +153,26 @@ class TokenTest(
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 403)
 
+    def test_provision_token_other_user(self):
+        """
+        Test provisioning a Token for a different User with & without the grant_token permission.
+        """
+        self.add_permissions('users.add_token')
+        user2 = User.objects.create_user(username='testuser2')
+        data = {
+            'user': user2.id,
+        }
+        url = reverse('users-api:token-list')
+
+        # Attempt to create a new Token for User2 *without* the grant_token permission
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Assign grant_token permission and successfully create a new Token for User2
+        self.add_permissions('users.grant_token')
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 201)
+
 
 class ObjectPermissionTest(
     # No GraphQL support for ObjectPermission

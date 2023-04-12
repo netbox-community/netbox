@@ -1,16 +1,30 @@
 # NetBox v3.4
 
-## v3.4.8 (FUTURE)
+## v3.4.9 (FUTURE)
+
+---
+
+## v3.4.8 (2023-04-12)
 
 ### Enhancements
 
+* [#10414](https://github.com/netbox-community/netbox/issues/10414) - Enable general purpose image attachments for device types
+* [#10600](https://github.com/netbox-community/netbox/issues/10600) - Allow custom object fields to reference a user or group
+* [#11015](https://github.com/netbox-community/netbox/issues/11015) - Remove unit from commit rate column header in circuits table
+* [#11431](https://github.com/netbox-community/netbox/issues/11431) - Disallow changing custom field type after creation
+* [#11453](https://github.com/netbox-community/netbox/issues/11453) - Display a warning banner when `DEBUG` is enabled
 * [#12007](https://github.com/netbox-community/netbox/issues/12007) - Enable filtering of VM Interfaces by assigned VLAN
 * [#12095](https://github.com/netbox-community/netbox/issues/12095) - Specify UTF-8 encoding for default export template MIME type
+* [#12207](https://github.com/netbox-community/netbox/issues/12207) - Introduce the `grant_token` permission for controlling the creation of API tokens on behalf of other users
 
 ### Bug Fixes
 
+* [#10221](https://github.com/netbox-community/netbox/issues/10221) - Validate generic foreign key relations assigned via REST API requests
+* [#11432](https://github.com/netbox-community/netbox/issues/11432) - Prevent existing components & component templates from being reassigned to different devices/device types via the REST API
+* [#11454](https://github.com/netbox-community/netbox/issues/11454) - Raise validation error if generic foreign key assignment does not specify both object type and ID
 * [#11746](https://github.com/netbox-community/netbox/issues/11746) - Fix cleanup of object data when deleting a custom field
 * [#12011](https://github.com/netbox-community/netbox/issues/12011) - Fix KeyError exception when attempting to add module bays in bulk
+* [#12040](https://github.com/netbox-community/netbox/issues/12040) - Display relevant UI tab upon bulk import validation failure
 * [#12074](https://github.com/netbox-community/netbox/issues/12074) - Fix the automatic assignment of racks to devices via the REST API
 * [#12084](https://github.com/netbox-community/netbox/issues/12084) - Fix exception when attempting to create a saved filter for applied filters
 * [#12087](https://github.com/netbox-community/netbox/issues/12087) - Fix bulk editing of many-to-many relationships
@@ -18,6 +32,7 @@
 * [#12118](https://github.com/netbox-community/netbox/issues/12118) - Fix instantiation of nested inventory item templates when creating a device
 * [#12184](https://github.com/netbox-community/netbox/issues/12184) - Fix filtered bulk deletion for various models
 * [#12190](https://github.com/netbox-community/netbox/issues/12190) - Fix form layout for plugin textarea fields
+* [#12227](https://github.com/netbox-community/netbox/issues/12227) - Fix tenant assignment on bulk import of L2VPNs
 
 ---
 

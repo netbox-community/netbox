@@ -103,6 +103,11 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    update_data = {
+        'content_types': ['dcim.device'],
+        'name': 'New_Name',
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):

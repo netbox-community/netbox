@@ -104,6 +104,12 @@ class CustomFieldSerializer(ValidatedModelSerializer):
             'last_updated',
         ]
 
+    def validate_type(self, value):
+        if self.instance and self.instance.type != value:
+            raise serializers.ValidationError('Changing the type of custom fields is not supported.')
+
+        return value
+
     @extend_schema_field(OpenApiTypes.STR)
     def get_data_type(self, obj):
         types = CustomFieldTypeChoices
