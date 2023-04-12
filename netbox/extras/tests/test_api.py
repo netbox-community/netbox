@@ -1,13 +1,10 @@
 import datetime
-from unittest import skipIf
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import make_aware
-from django_rq.queues import get_connection
 from rest_framework import status
-from rq import Worker
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
 from extras.api.views import ReportViewSet, ScriptViewSet
@@ -15,8 +12,6 @@ from extras.models import *
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
-
-rq_worker_running = Worker.count(get_connection('default'))
 
 
 class AppTest(APITestCase):
@@ -105,6 +100,11 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
         },
     ]
     bulk_update_data = {
+        'description': 'New description',
+    }
+    update_data = {
+        'content_types': ['dcim.device'],
+        'name': 'New_Name',
         'description': 'New description',
     }
 
@@ -539,16 +539,6 @@ class ReportTest(APITestCase):
 
         self.assertEqual(response.data['name'], self.TestReport.__name__)
 
-    @skipIf(not rq_worker_running, "RQ worker not running")
-    def test_run_report(self):
-        self.add_permissions('extras.run_script')
-
-        url = reverse('extras-api:report-run', kwargs={'pk': None})
-        response = self.client.post(url, {}, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-
-        self.assertEqual(response.data['result']['status']['value'], 'pending')
-
 
 class ScriptTest(APITestCase):
 
@@ -588,27 +578,6 @@ class ScriptTest(APITestCase):
         self.assertEqual(response.data['vars']['var1'], 'StringVar')
         self.assertEqual(response.data['vars']['var2'], 'IntegerVar')
         self.assertEqual(response.data['vars']['var3'], 'BooleanVar')
-
-    @skipIf(not rq_worker_running, "RQ worker not running")
-    def test_run_script(self):
-        self.add_permissions('extras.run_script')
-
-        script_data = {
-            'var1': 'FooBar',
-            'var2': 123,
-            'var3': False,
-        }
-
-        data = {
-            'data': script_data,
-            'commit': True,
-        }
-
-        url = reverse('extras-api:script-detail', kwargs={'pk': None})
-        response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-
-        self.assertEqual(response.data['result']['status']['value'], 'pending')
 
 
 class CreatedUpdatedFilterTest(APITestCase):

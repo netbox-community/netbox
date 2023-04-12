@@ -12,7 +12,7 @@ class AppTest(APITestCase):
     def test_root(self):
 
         url = reverse('users-api:api-root')
-        response = self.client.get('{}?format=api'.format(url), **self.header)
+        response = self.client.get(f'{url}?format=api', **self.header)
 
         self.assertEqual(response.status_code, 200)
 
@@ -36,14 +36,17 @@ class UserTest(APIViewTestCases.APIViewTestCase):
             'password': 'password6',
         },
     ]
+    bulk_update_data = {
+        'email': 'test@example.com',
+    }
 
     @classmethod
     def setUpTestData(cls):
 
         users = (
-            User(username='User_1'),
-            User(username='User_2'),
-            User(username='User_3'),
+            User(username='User_1', password='password1'),
+            User(username='User_2', password='password2'),
+            User(username='User_3', password='password3'),
         )
         User.objects.bulk_create(users)
 
@@ -73,6 +76,12 @@ class GroupTest(APIViewTestCases.APIViewTestCase):
             Group(name='Group 3'),
         )
         Group.objects.bulk_create(users)
+
+    def test_bulk_update_objects(self):
+        """
+        Disabled test. There's no attribute we can set in bulk for Groups.
+        """
+        return
 
 
 class TokenTest(
@@ -143,6 +152,26 @@ class TokenTest(
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 403)
+
+    def test_provision_token_other_user(self):
+        """
+        Test provisioning a Token for a different User with & without the grant_token permission.
+        """
+        self.add_permissions('users.add_token')
+        user2 = User.objects.create_user(username='testuser2')
+        data = {
+            'user': user2.id,
+        }
+        url = reverse('users-api:token-list')
+
+        # Attempt to create a new Token for User2 *without* the grant_token permission
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Assign grant_token permission and successfully create a new Token for User2
+        self.add_permissions('users.grant_token')
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 201)
 
 
 class ObjectPermissionTest(

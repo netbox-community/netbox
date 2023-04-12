@@ -443,7 +443,8 @@ class L2VPNImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = L2VPN
-        fields = ('identifier', 'name', 'slug', 'type', 'description', 'comments', 'tags')
+        fields = ('identifier', 'name', 'slug', 'tenant', 'type', 'description',
+                  'comments', 'tags')
 
 
 class L2VPNTerminationImportForm(NetBoxModelImportForm):

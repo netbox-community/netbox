@@ -3,11 +3,8 @@
 
 <div class="row mb-3{% if field.errors %} has-errors{% endif %}">
 
-  {# Render the field label, except for: #}
-  {#   1. Checkboxes (label appears to the right of the field #}
-  {#   2. Textareas with no label set (will expand across entire row) #}
-  {% if field|widget_type == 'checkboxinput' or field|widget_type == 'textarea' or field|widget_type == 'markdownwidget' and not label %}
-  {% else %}
+  {# Render the field label, except for checkboxes #}
+  {% if field|widget_type != 'checkboxinput' %}
     <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label text-lg-end{% if field.field.required %} required{% endif %}">
       {{ label }}
     </label>

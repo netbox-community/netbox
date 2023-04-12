@@ -78,6 +78,12 @@ class ComponentModel(NetBoxModel):
             ),
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Cache the original Device ID for reference under clean()
+        self._original_device = self.device_id
+
     def __str__(self):
         if self.label:
             return f"{self.name} ({self.label})"
@@ -87,6 +93,14 @@ class ComponentModel(NetBoxModel):
         objectchange = super().to_objectchange(action)
         objectchange.related_object = self.device
         return objectchange
+
+    def clean(self):
+        super().clean()
+
+        if self.pk is not None and self._original_device != self.device_id:
+            raise ValidationError({
+                "device": "Components cannot be moved to a different device."
+            })
 
     @property
     def parent_object(self):
@@ -794,8 +808,6 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
                 raise ValidationError({
                     'rf_channel_frequency': "Cannot specify custom frequency with channel selected.",
                 })
-        elif self.rf_channel:
-            self.rf_channel_frequency = get_channel_attr(self.rf_channel, 'frequency')
 
         # Validate channel width against interface type and selected channel (if any)
         if self.rf_channel_width:
@@ -803,8 +815,6 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
                 raise ValidationError({'rf_channel_width': "Channel width may be set only on wireless interfaces."})
             if self.rf_channel and self.rf_channel_width != get_channel_attr(self.rf_channel, 'width'):
                 raise ValidationError({'rf_channel_width': "Cannot specify custom width with channel selected."})
-        elif self.rf_channel:
-            self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
 
         # VLAN validation
 
@@ -814,6 +824,16 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
                 'untagged_vlan': f"The untagged VLAN ({self.untagged_vlan}) must belong to the same site as the "
                                  f"interface's parent device, or it must be global."
             })
+
+    def save(self, *args, **kwargs):
+
+        # Set absolute channel attributes from selected options
+        if self.rf_channel and not self.rf_channel_frequency:
+            self.rf_channel_frequency = get_channel_attr(self.rf_channel, 'frequency')
+        if self.rf_channel and not self.rf_channel_width:
+            self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
+
+        super().save(*args, **kwargs)
 
     @property
     def _occupied(self):

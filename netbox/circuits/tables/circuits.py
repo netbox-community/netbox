@@ -57,7 +57,9 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         template_code=CIRCUITTERMINATION_LINK,
         verbose_name='Side Z'
     )
-    commit_rate = CommitRateColumn()
+    commit_rate = CommitRateColumn(
+        verbose_name='Commit Rate'
+    )
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='circuits:circuit_list'

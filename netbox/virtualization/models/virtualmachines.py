@@ -169,8 +169,6 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
             raise ValidationError({
                 'cluster': f'The selected cluster ({self.cluster}) is not assigned to this site ({self.site}).'
             })
-        elif self.cluster:
-            self.site = self.cluster.site
 
         # Validate assigned cluster device
         if self.device and not self.cluster:
@@ -200,6 +198,14 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
                     raise ValidationError({
                         field: f"The specified IP address ({ip}) is not assigned to this VM.",
                     })
+
+    def save(self, *args, **kwargs):
+
+        # Assign site from cluster if not set
+        if self.cluster and not self.site:
+            self.site = self.cluster.site
+
+        super().save(*args, **kwargs)
 
     def get_status_color(self):
         return VirtualMachineStatusChoices.colors.get(self.status)

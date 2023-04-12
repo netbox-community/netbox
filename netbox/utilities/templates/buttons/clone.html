@@ -1,3 +1,5 @@
-<a href="{{ url }}" class="btn btn-sm btn-success" role="button">
-    <i class="mdi mdi-content-copy" aria-hidden="true"></i>&nbsp;Clone
-</a>
+{% if url %}
+  <a href="{{ url }}" class="btn btn-sm btn-success" role="button">
+    <i class="mdi mdi-content-copy" aria-hidden="true"></i> Clone
+  </a>
+{% endif %}

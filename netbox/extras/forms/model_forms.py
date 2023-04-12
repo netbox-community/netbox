@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
@@ -37,7 +38,7 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     object_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
         # TODO: Come up with a canonical way to register suitable models
-        limit_choices_to=FeatureQuery('webhooks'),
+        limit_choices_to=FeatureQuery('webhooks').get_query() | Q(app_label='auth', model__in=['user', 'group']),
         required=False,
         help_text=_("Type of the related object (for object/multi-object fields only)")
     )
@@ -63,6 +64,13 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
             'filter_logic': StaticSelect(),
             'ui_visibility': StaticSelect(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Disable changing the type of a CustomField as it almost universally causes errors if custom field data is already present.
+        if self.instance.pk:
+            self.fields['type'].disabled = True
 
 
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):
