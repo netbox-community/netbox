@@ -78,6 +78,12 @@ class ComponentModel(NetBoxModel):
             ),
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Cache the original Device ID for reference under clean()
+        self._original_device = self.device_id
+
     def __str__(self):
         if self.label:
             return f"{self.name} ({self.label})"
@@ -87,6 +93,14 @@ class ComponentModel(NetBoxModel):
         objectchange = super().to_objectchange(action)
         objectchange.related_object = self.device
         return objectchange
+
+    def clean(self):
+        super().clean()
+
+        if self.pk is not None and self._original_device != self.device_id:
+            raise ValidationError({
+                "device": "Components cannot be moved to a different device."
+            })
 
     @property
     def parent_object(self):
