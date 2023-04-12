@@ -247,13 +247,7 @@ class NetBoxAutoSchema(AutoSchema):
         """
 
         # Determine if the method is for list or detail.
-        if self.is_bulk_action:
-            is_list = True
-        # Determine using the URL path if the method is for list or detail.
-        elif '{id}' in self.path:
-            is_list = False
-        else:
-            is_list = True
+        is_list = not '{id}' in self.path
 
         model_name = self.view.queryset.model._meta.verbose_name
 
