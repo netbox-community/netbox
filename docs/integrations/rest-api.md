@@ -584,11 +584,16 @@ Additionally, a token can be set to expire at a specific time. This can be usefu
 
 #### Client IP Restriction
 
-!!! note
-    This feature was introduced in NetBox v3.3.
-
 Each API token can optionally be restricted by client IP address. If one or more allowed IP prefixes/addresses is defined for a token, authentication will fail for any client connecting from an IP address outside the defined range(s). This enables restricting the use a token to a specific client. (By default, any client IP address is permitted.)
 
+#### Creating Tokens for Other Users
+
+It is possible to provision authentication tokens for other users via the REST API. To do, so the requesting user must have the `users.grant_token` permission assigned. While all users have inherent permission to create their own tokens, this permission is required to enable the creation of tokens for other users.
+
+![Adding the grant action to a permission](../media/admin_ui_grant_permission.png)
+
+!!! warning "Exercise Caution"
+    The ability to create tokens on behalf of other users enables the requestor to access the created token. This ability is intended e.g. for the provisioning of tokens by automated services, and should be used with extreme caution to avoid a security compromise.
 
 ### Authenticating to the API
 
