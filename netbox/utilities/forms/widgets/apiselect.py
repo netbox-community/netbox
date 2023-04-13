@@ -1,119 +1,13 @@
 import json
-from typing import Dict, Sequence, List, Tuple, Union
+from typing import Dict, List, Tuple
 
 from django import forms
 from django.conf import settings
-from django.contrib.postgres.forms import SimpleArrayField
-
-from utilities.choices import ColorChoices
-from .utils import add_blank_choice, parse_numeric_range
 
 __all__ = (
     'APISelect',
     'APISelectMultiple',
-    'BulkEditNullBooleanSelect',
-    'ClearableFileInput',
-    'ColorSelect',
-    'DatePicker',
-    'DateTimePicker',
-    'HTMXSelect',
-    'MarkdownWidget',
-    'NumericArrayField',
-    'SelectDurationWidget',
-    'SelectSpeedWidget',
-    'SelectWithPK',
-    'SlugWidget',
-    'TimePicker',
 )
-
-JSONPrimitive = Union[str, bool, int, float, None]
-QueryParamValue = Union[JSONPrimitive, Sequence[JSONPrimitive]]
-QueryParam = Dict[str, QueryParamValue]
-ProcessedParams = Sequence[Dict[str, Sequence[JSONPrimitive]]]
-
-
-class SlugWidget(forms.TextInput):
-    """
-    Subclass TextInput and add a slug regeneration button next to the form field.
-    """
-    template_name = 'widgets/sluginput.html'
-
-
-class ColorSelect(forms.Select):
-    """
-    Extends the built-in Select widget to colorize each <option>.
-    """
-    option_template_name = 'widgets/colorselect_option.html'
-
-    def __init__(self, *args, **kwargs):
-        kwargs['choices'] = add_blank_choice(ColorChoices)
-        super().__init__(*args, **kwargs)
-        self.attrs['class'] = 'netbox-color-select'
-
-
-class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
-    """
-    A Select widget for NullBooleanFields
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Override the built-in choice labels
-        self.choices = (
-            ('1', '---------'),
-            ('2', 'Yes'),
-            ('3', 'No'),
-        )
-        self.attrs['class'] = 'netbox-static-select'
-
-
-class SelectWithPK(forms.Select):
-    """
-    Include the primary key of each option in the option label (e.g. "Router7 (4721)").
-    """
-    option_template_name = 'widgets/select_option_with_pk.html'
-
-
-class SelectSpeedWidget(forms.NumberInput):
-    """
-    Speed field with dropdown selections for convenience.
-    """
-    template_name = 'widgets/select_speed.html'
-
-
-class SelectDurationWidget(forms.NumberInput):
-    """
-    Dropdown to select one of several common options for a time duration (in minutes).
-    """
-    template_name = 'widgets/select_duration.html'
-
-
-class MarkdownWidget(forms.Textarea):
-    template_name = 'widgets/markdown_input.html'
-
-
-class NumericArrayField(SimpleArrayField):
-
-    def clean(self, value):
-        if value and not self.to_python(value):
-            raise forms.ValidationError(f'Invalid list ({value}). '
-                                        f'Must be numeric and ranges must be in ascending order')
-        return super().clean(value)
-
-    def to_python(self, value):
-        if not value:
-            return []
-        if isinstance(value, str):
-            value = ','.join([str(n) for n in parse_numeric_range(value)])
-        return super().to_python(value)
-
-
-class ClearableFileInput(forms.ClearableFileInput):
-    """
-    Override Django's stock ClearableFileInput with a custom template.
-    """
-    template_name = 'widgets/clearable_file_input.html'
 
 
 class APISelect(forms.Select):
@@ -144,7 +38,7 @@ class APISelect(forms.Select):
         result.static_params = {}
         return result
 
-    def _process_query_param(self, key: str, value: JSONPrimitive) -> None:
+    def _process_query_param(self, key, value) -> None:
         """
         Based on query param value's type and value, update instance's dynamic/static params.
         """
@@ -187,7 +81,7 @@ class APISelect(forms.Select):
             else:
                 self.static_params[key] = [value]
 
-    def _process_query_params(self, query_params: QueryParam) -> None:
+    def _process_query_params(self, query_params):
         """
         Process an entire query_params dictionary, and handle primitive or list values.
         """
@@ -199,7 +93,7 @@ class APISelect(forms.Select):
             else:
                 self._process_query_param(key, value)
 
-    def _serialize_params(self, key: str, params: ProcessedParams) -> None:
+    def _serialize_params(self, key, params):
         """
         Serialize dynamic or static query params to JSON and add the serialized value to
         the widget attributes by `key`.
@@ -214,7 +108,7 @@ class APISelect(forms.Select):
         # attributes to HTML elements and parsed on the client.
         self.attrs[key] = json.dumps([*current, *params], separators=(',', ':'))
 
-    def _add_dynamic_params(self) -> None:
+    def _add_dynamic_params(self):
         """
         Convert post-processed dynamic query params to data structure expected by front-
         end, serialize the value to JSON, and add it to the widget attributes.
@@ -227,7 +121,7 @@ class APISelect(forms.Select):
             except IndexError as error:
                 raise RuntimeError(f"Missing required value for dynamic query param: '{self.dynamic_params}'") from error
 
-    def _add_static_params(self) -> None:
+    def _add_static_params(self):
         """
         Convert post-processed static query params to data structure expected by front-
         end, serialize the value to JSON, and add it to the widget attributes.
@@ -240,7 +134,7 @@ class APISelect(forms.Select):
             except IndexError as error:
                 raise RuntimeError(f"Missing required value for static query param: '{self.static_params}'") from error
 
-    def add_query_params(self, query_params: QueryParam) -> None:
+    def add_query_params(self, query_params):
         """
         Proccess & add a dictionary of URL query parameters to the widget attributes.
         """
@@ -251,7 +145,7 @@ class APISelect(forms.Select):
         # Add processed static parameters to widget attributes.
         self._add_static_params()
 
-    def add_query_param(self, key: str, value: QueryParamValue) -> None:
+    def add_query_param(self, key, value) -> None:
         """
         Process & add a key/value pair of URL query parameters to the widget attributes.
         """
@@ -264,49 +158,3 @@ class APISelectMultiple(APISelect, forms.SelectMultiple):
         super().__init__(*args, **kwargs)
 
         self.attrs['data-multiple'] = 1
-
-
-class DatePicker(forms.TextInput):
-    """
-    Date picker using Flatpickr.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.attrs['class'] = 'date-picker'
-        self.attrs['placeholder'] = 'YYYY-MM-DD'
-
-
-class DateTimePicker(forms.TextInput):
-    """
-    DateTime picker using Flatpickr.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.attrs['class'] = 'datetime-picker'
-        self.attrs['placeholder'] = 'YYYY-MM-DD hh:mm:ss'
-
-
-class TimePicker(forms.TextInput):
-    """
-    Time picker using Flatpickr.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.attrs['class'] = 'time-picker'
-        self.attrs['placeholder'] = 'hh:mm:ss'
-
-
-class HTMXSelect(forms.Select):
-    """
-    Selection widget that will re-generate the HTML form upon the selection of a new option.
-    """
-    def __init__(self, hx_url='.', hx_target_id='form_fields', attrs=None, **kwargs):
-        _attrs = {
-            'hx-get': hx_url,
-            'hx-include': f'#{hx_target_id}',
-            'hx-target': f'#{hx_target_id}',
-        }
-        if attrs:
-            _attrs.update(attrs)
-
-        super().__init__(attrs=_attrs, **kwargs)
