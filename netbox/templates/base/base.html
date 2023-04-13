@@ -101,24 +101,6 @@
       }
       window.addEventListener('resize', function(){ checkSideNav() });
       checkSideNav();
-
-      window.addEventListener('DOMContentLoaded', function() {
-        secretToggle = document.querySelector('.secret-toggle')
-        secret = document.querySelector('.secret')
-        secret_value = secret.innerHTML
-        obfuscated = "••••••••"
-        secret.innerHTML = obfuscated
-
-        secretToggle.addEventListener('click', function() {
-          if (secretToggle.classList.contains('active')) {
-            secret.innerHTML = secret_value
-            secretToggle.innerHTML = 'Hide'
-          } else {
-            secret.innerHTML = obfuscated
-            secretToggle.innerHTML = 'Show'
-          }
-        })
-      })
     </script>
 
     {# Page layout #}

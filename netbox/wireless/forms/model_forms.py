@@ -102,7 +102,10 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
             'status': StaticSelect,
             'auth_type': StaticSelect,
             'auth_cipher': StaticSelect,
-            'auth_psk': PasswordInput(attrs={'data-toggle': 'password'})
+            'auth_psk': PasswordInput(
+                render_value=True,
+                attrs={'data-toggle': 'password'}
+            ),
         }
 
 
@@ -208,7 +211,10 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'status': StaticSelect,
             'auth_type': StaticSelect,
             'auth_cipher': StaticSelect,
-            'auth_psk': PasswordInput(attrs={'data-toggle': 'password'}),
+            'auth_psk': PasswordInput(
+                render_value=True,
+                attrs={'data-toggle': 'password'}
+            ),
         }
         labels = {
             'auth_type': 'Type',
