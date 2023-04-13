@@ -22,7 +22,7 @@ function toggleSecretButton(hidden: boolean, button: HTMLButtonElement): void {
 function showSecret(): void {
   const secret = getElement('secret');
   if (isTruthy(secret)) {
-    const value = secret.getAttribute('data-secret')
+    const value = secret.getAttribute('data-secret');
     if (isTruthy(value)) {
       secret.innerText = value;
     }
@@ -35,7 +35,7 @@ function showSecret(): void {
 function hideSecret(): void {
   const secret = getElement('secret');
   if (isTruthy(secret)) {
-    const value = secret.getAttribute('data-secret')
+    const value = secret.getAttribute('data-secret');
     if (isTruthy(value)) {
       secret.innerText = '••••••••';
     }
@@ -64,7 +64,7 @@ function handleSecretToggle(state: StateManager<SecretState>, button: HTMLButton
  * Initialize secret toggle button.
  */
 export function initSecretToggle(): void {
-  hideSecret()
+  hideSecret();
   for (const button of getElements<HTMLButtonElement>('button.toggle-secret')) {
     button.addEventListener(
       'click',
