@@ -30,7 +30,6 @@ __all__ = (
     'meters_to_feet',
     'percentage',
     'querystring',
-    'simplify_decimal',
     'startswith',
     'status_from_tag',
     'table_config_form',
@@ -105,19 +104,6 @@ def humanize_megabytes(mb):
     if not mb % 1024:
         return f'{int(mb / 1024)} GB'
     return f'{mb} MB'
-
-
-@register.filter()
-def simplify_decimal(value):
-    """
-    Return the simplest expression of a decimal value. Examples:
-      1.00 => '1'
-      1.20 => '1.2'
-      1.23 => '1.23'
-    """
-    if type(value) is not decimal.Decimal:
-        return value
-    return str(value).rstrip('0').rstrip('.')
 
 
 @register.filter(expects_localtime=True)

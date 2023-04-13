@@ -12,12 +12,12 @@ LINKTERMINATION = """
 
 CABLE_LENGTH = """
 {% load helpers %}
-{% if record.length %}{{ record.length|simplify_decimal }} {{ record.length_unit }}{% endif %}
+{% if record.length %}{{ record.length|floatformat:"-2" }} {{ record.length_unit }}{% endif %}
 """
 
 WEIGHT = """
 {% load helpers %}
-{% if value %}{{ value|simplify_decimal }} {{ record.weight_unit }}{% endif %}
+{% if value %}{{ value|floatformat:"-2" }} {{ record.weight_unit }}{% endif %}
 """
 
 DEVICE_LINK = """
