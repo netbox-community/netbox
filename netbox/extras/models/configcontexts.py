@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from extras.querysets import ConfigContextQuerySet
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import WebhooksMixin
+from netbox.models.features import CloningMixin, WebhooksMixin
 from utilities.utils import deepmerge
 
 
@@ -19,7 +19,7 @@ __all__ = (
 # Config contexts
 #
 
-class ConfigContext(WebhooksMixin, ChangeLoggedModel):
+class ConfigContext(CloningMixin, WebhooksMixin, ChangeLoggedModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
     qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
@@ -107,6 +107,12 @@ class ConfigContext(WebhooksMixin, ChangeLoggedModel):
     data = models.JSONField()
 
     objects = ConfigContextQuerySet.as_manager()
+
+    clone_fields = (
+        'weight', 'is_active', 'regions', 'site_groups', 'sites', 'locations', 'device_types',
+        'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
+        'tenants', 'tags', 'data',
+    )
 
     class Meta:
         ordering = ['weight', 'name']

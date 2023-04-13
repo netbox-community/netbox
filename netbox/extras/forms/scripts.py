@@ -52,7 +52,7 @@ class ScriptForm(BootstrapMixin, forms.Form):
 
         # When interval is used without schedule at, raise an exception
         if self.cleaned_data['_interval'] and not scheduled_time:
-            raise forms.ValidationError(_('Scheduled time must be set when recurs is used.'))
+            self.cleaned_data['_schedule_at'] = local_now()
 
         return self.cleaned_data
 

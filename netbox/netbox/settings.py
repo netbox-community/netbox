@@ -24,7 +24,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.4.7-dev'
+VERSION = '3.4.8-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -396,8 +396,10 @@ TEMPLATES = [
 ]
 
 # Set up authentication backends
+if type(REMOTE_AUTH_BACKEND) not in (list, tuple):
+    REMOTE_AUTH_BACKEND = [REMOTE_AUTH_BACKEND]
 AUTHENTICATION_BACKENDS = [
-    REMOTE_AUTH_BACKEND,
+    *REMOTE_AUTH_BACKEND,
     'netbox.authentication.ObjectPermissionBackend',
 ]
 

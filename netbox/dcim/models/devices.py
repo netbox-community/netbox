@@ -120,6 +120,10 @@ class DeviceType(PrimaryModel, WeightMixin):
         blank=True
     )
 
+    images = GenericRelation(
+        to='extras.ImageAttachment'
+    )
+
     clone_fields = (
         'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
     )
@@ -659,8 +663,6 @@ class Device(PrimaryModel, ConfigContextModel):
             raise ValidationError({
                 'rack': f"Rack {self.rack} does not belong to location {self.location}.",
             })
-        elif self.rack:
-            self.location = self.rack.location
 
         if self.rack is None:
             if self.face:
@@ -776,8 +778,10 @@ class Device(PrimaryModel, ConfigContextModel):
             bulk_create: If True, bulk_create() will be called to create all components in a single query
                          (default). Otherwise, save() will be called on each instance individually.
         """
-        components = [obj.instantiate(device=self) for obj in queryset]
-        if components and bulk_create:
+        if bulk_create:
+            components = [obj.instantiate(device=self) for obj in queryset]
+            if not components:
+                return
             model = components[0]._meta.model
             model.objects.bulk_create(components)
             # Manually send the post_save signal for each of the newly created components
@@ -790,8 +794,9 @@ class Device(PrimaryModel, ConfigContextModel):
                     using='default',
                     update_fields=None
                 )
-        elif components:
-            for component in components:
+        else:
+            for obj in queryset:
+                component = obj.instantiate(device=self)
                 component.save()
 
     def save(self, *args, **kwargs):
@@ -800,6 +805,9 @@ class Device(PrimaryModel, ConfigContextModel):
         # Inherit airflow attribute from DeviceType if not set
         if is_new and not self.airflow:
             self.airflow = self.device_type.airflow
+
+        if self.rack and self.rack.location:
+            self.location = self.rack.location
 
         super().save(*args, **kwargs)
 

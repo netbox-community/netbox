@@ -58,8 +58,6 @@ as the cornerstone for network automation in thousands of organizations.
   [![NetBox Labs](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/netbox_labs.png)](https://netboxlabs.com)
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   [![DigitalOcean](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/digitalocean.png)](https://try.digitalocean.com/developer-cloud)
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  [![NS1](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/ns1.png)](https://ns1.com)
   <br />
   [![Sentry](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/sentry.png)](https://sentry.io)
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

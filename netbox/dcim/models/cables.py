@@ -152,8 +152,6 @@ class Cable(PrimaryModel):
         # Validate length and length_unit
         if self.length is not None and not self.length_unit:
             raise ValidationError("Must specify a unit when setting a cable length")
-        elif self.length is None:
-            self.length_unit = ''
 
         if self.pk is None and (not self.a_terminations or not self.b_terminations):
             raise ValidationError("Must define A and B terminations when creating a new cable.")
@@ -186,6 +184,10 @@ class Cable(PrimaryModel):
             self._abs_length = to_meters(self.length, self.length_unit)
         else:
             self._abs_length = None
+
+        # Clear length_unit if no length is defined
+        if self.length is None:
+            self.length_unit = ''
 
         super().save(*args, **kwargs)
 

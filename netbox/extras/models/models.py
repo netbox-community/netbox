@@ -245,7 +245,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
     )
 
     clone_fields = (
-        'enabled', 'weight', 'group_name', 'button_class', 'new_window',
+        'content_types', 'enabled', 'weight', 'group_name', 'button_class', 'new_window',
     )
 
     class Meta:
@@ -280,7 +280,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
         }
 
 
-class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class ExportTemplate(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='export_templates',
@@ -301,7 +301,7 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         max_length=50,
         blank=True,
         verbose_name='MIME type',
-        help_text=_('Defaults to <code>text/plain</code>')
+        help_text=_('Defaults to <code>text/plain; charset=utf-8</code>')
     )
     file_extension = models.CharField(
         max_length=15,
@@ -311,6 +311,10 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     as_attachment = models.BooleanField(
         default=True,
         help_text=_("Download file as attachment")
+    )
+
+    clone_fields = (
+        'content_types', 'template_code', 'mime_type', 'file_extension', 'as_attachment',
     )
 
     class Meta:
@@ -353,7 +357,7 @@ class ExportTemplate(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         Render the template to an HTTP response, delivered as a named file attachment
         """
         output = self.render(queryset)
-        mime_type = 'text/plain' if not self.mime_type else self.mime_type
+        mime_type = 'text/plain; charset=utf-8' if not self.mime_type else self.mime_type
 
         # Build the response
         response = HttpResponse(output, content_type=mime_type)
@@ -406,7 +410,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
     parameters = models.JSONField()
 
     clone_fields = (
-        'enabled', 'weight',
+        'content_types', 'weight', 'enabled', 'parameters',
     )
 
     class Meta:

@@ -16,7 +16,6 @@ from django_tables2.export import TableExport
 
 from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
-from utilities.choices import ImportFormatChoices
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, ImportForm, restrict_form_fields
@@ -500,6 +499,21 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         ]
         nullified_fields = request.POST.getlist('_nullify')
         updated_objects = []
+        model_fields = {}
+        m2m_fields = {}
+
+        # Build list of model fields and m2m fields for later iteration
+        for name in standard_fields:
+            try:
+                model_field = self.queryset.model._meta.get_field(name)
+                if isinstance(model_field, (ManyToManyField, ManyToManyRel)):
+                    m2m_fields[name] = model_field
+                else:
+                    model_fields[name] = model_field
+
+            except FieldDoesNotExist:
+                # This form field is used to modify a field rather than set its value directly
+                model_fields[name] = None
 
         for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
 
@@ -508,25 +522,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 obj.snapshot()
 
             # Update standard fields. If a field is listed in _nullify, delete its value.
-            for name in standard_fields:
-
-                try:
-                    model_field = self.queryset.model._meta.get_field(name)
-                except FieldDoesNotExist:
-                    # This form field is used to modify a field rather than set its value directly
-                    model_field = None
-
+            for name, model_field in model_fields.items():
                 # Handle nullification
                 if name in form.nullable_fields and name in nullified_fields:
-                    if isinstance(model_field, ManyToManyField):
-                        getattr(obj, name).set([])
-                    else:
-                        setattr(obj, name, None if model_field.null else '')
-
-                # ManyToManyFields
-                elif isinstance(model_field, (ManyToManyField, ManyToManyRel)):
-                    if form.cleaned_data[name]:
-                        getattr(obj, name).set(form.cleaned_data[name])
+                    setattr(obj, name, None if model_field.null else '')
                 # Normal fields
                 elif name in form.changed_data:
                     setattr(obj, name, form.cleaned_data[name])
@@ -543,6 +542,13 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             obj.full_clean()
             obj.save()
             updated_objects.append(obj)
+
+            # Handle M2M fields after save
+            for name, m2m_field in m2m_fields.items():
+                if name in form.nullable_fields and name in nullified_fields:
+                    getattr(obj, name).clear()
+                else:
+                    getattr(obj, name).set(form.cleaned_data[name])
 
             # Add/remove tags
             if form.cleaned_data.get('add_tags', None):

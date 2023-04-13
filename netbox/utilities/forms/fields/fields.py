@@ -34,8 +34,8 @@ class CommentField(forms.CharField):
         Markdown</a> syntax is supported
     """
 
-    def __init__(self, *, label='', help_text=help_text, required=False, **kwargs):
-        super().__init__(label=label, help_text=help_text, required=required, **kwargs)
+    def __init__(self, *, help_text=help_text, required=False, **kwargs):
+        super().__init__(help_text=help_text, required=required, **kwargs)
 
 
 class SlugField(forms.SlugField):

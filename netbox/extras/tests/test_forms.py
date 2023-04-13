@@ -4,6 +4,7 @@ from django.test import TestCase
 from dcim.forms import SiteForm
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
+from extras.forms import SavedFilterForm
 from extras.models import CustomField
 
 
@@ -77,3 +78,24 @@ class CustomFieldModelFormTest(TestCase):
         for field_type, _ in CustomFieldTypeChoices.CHOICES:
             self.assertIn(field_type, instance.custom_field_data)
             self.assertIsNone(instance.custom_field_data[field_type])
+
+
+class SavedFilterFormTest(TestCase):
+
+    def test_basic_submit(self):
+        """
+        Test form submission and validation
+        """
+        form = SavedFilterForm({
+            'name': 'test-sf',
+            'slug': 'test-sf',
+            'content_types': [ContentType.objects.get_for_model(Site).pk],
+            'weight': 100,
+            'parameters': {
+                "status": [
+                    "active"
+                ]
+            }
+        })
+        self.assertTrue(form.is_valid())
+        form.save()
