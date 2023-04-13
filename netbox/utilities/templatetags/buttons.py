@@ -5,6 +5,18 @@ from django.urls import NoReverseMatch, reverse
 from extras.models import ExportTemplate
 from utilities.utils import get_viewname, prepare_cloned_fields
 
+__all__ = (
+    'add_button',
+    'bulk_delete_button',
+    'bulk_edit_button',
+    'clone_button',
+    'delete_button',
+    'edit_button',
+    'export_button',
+    'import_button',
+    'sync_button',
+)
+
 register = template.Library()
 
 

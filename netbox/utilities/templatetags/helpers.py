@@ -15,6 +15,30 @@ from django.utils.safestring import mark_safe
 from utilities.forms import get_selected_values, TableConfigForm
 from utilities.utils import get_viewname
 
+__all__ = (
+    'annotated_date',
+    'annotated_now',
+    'applied_filters',
+    'as_range',
+    'divide',
+    'get_item',
+    'get_key',
+    'humanize_megabytes',
+    'humanize_speed',
+    'icon_from_status',
+    'kg_to_pounds',
+    'meters_to_feet',
+    'percentage',
+    'querystring',
+    'simplify_decimal',
+    'startswith',
+    'status_from_tag',
+    'table_config_form',
+    'utilization_graph',
+    'validated_viewname',
+    'viewname',
+)
+
 register = template.Library()
 
 
@@ -143,14 +167,6 @@ def percentage(x, y):
         return None
 
     return round(x / y * 100, 1)
-
-
-@register.filter()
-def has_perms(user, permissions_list):
-    """
-    Return True if the user has *all* permissions in the list.
-    """
-    return user.has_perms(permissions_list)
 
 
 @register.filter()

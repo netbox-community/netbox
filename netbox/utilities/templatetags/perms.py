@@ -1,5 +1,13 @@
 from django import template
 
+__all__ = (
+    'can_add',
+    'can_change',
+    'can_delete',
+    'can_sync',
+    'can_view',
+)
+
 register = template.Library()
 
 
