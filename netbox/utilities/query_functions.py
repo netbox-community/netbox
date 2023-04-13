@@ -1,5 +1,10 @@
 from django.contrib.postgres.aggregates import JSONBAgg
-from django.db.models import F, Func
+from django.db.models import Func
+
+__all__ = (
+    'CollateAsChar',
+    'EmptyGroupByJSONBAgg',
+)
 
 
 class CollateAsChar(Func):

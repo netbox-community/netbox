@@ -1,5 +1,10 @@
 import re
 
+__all__ = (
+    'naturalize',
+    'naturalize_interface',
+)
+
 INTERFACE_NAME_REGEX = r'(^(?P<type>[^\d\.:]+)?)' \
                        r'((?P<slot>\d+)/)?' \
                        r'((?P<subslot>\d+)/)?' \

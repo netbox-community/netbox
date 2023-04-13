@@ -1,21 +1,23 @@
 from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.core.validators import RegexValidator
 from django.db import models
 
 from utilities.ordering import naturalize
 from .forms import ColorSelect
+from .validators import ColorValidator
 
-ColorValidator = RegexValidator(
-    regex='^[0-9a-f]{6}$',
-    message='Enter a valid hexadecimal RGB color code.',
-    code='invalid'
+__all__ = (
+    'ColorField',
+    'NaturalOrderingField',
+    'NullableCharField',
+    'RestrictedGenericForeignKey',
 )
 
 
 # Deprecated: Retained only to ensure successful migration from early releases
 # Use models.CharField(null=True) instead
+# TODO: Remove in v4.0
 class NullableCharField(models.CharField):
     description = "Stores empty values as NULL rather than ''"
 

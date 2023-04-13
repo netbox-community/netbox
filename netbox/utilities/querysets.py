@@ -3,6 +3,11 @@ from django.db.models import Prefetch, QuerySet
 from users.constants import CONSTRAINT_TOKEN_USER
 from utilities.permissions import permission_is_exempt, qs_filter_from_constraints
 
+__all__ = (
+    'RestrictedPrefetch',
+    'RestrictedQuerySet',
+)
+
 
 class RestrictedPrefetch(Prefetch):
     """

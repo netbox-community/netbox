@@ -2,6 +2,12 @@ from django.core.paginator import Paginator, Page
 
 from netbox.config import get_config
 
+__all__ = (
+    'EnhancedPage',
+    'EnhancedPaginator',
+    'get_paginate_count',
+)
+
 
 class EnhancedPaginator(Paginator):
     default_page_lengths = (

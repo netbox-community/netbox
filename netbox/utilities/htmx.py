@@ -1,5 +1,10 @@
 from urllib.parse import urlparse
 
+__all__ = (
+    'is_embedded',
+    'is_htmx',
+)
+
 
 def is_htmx(request):
     """
