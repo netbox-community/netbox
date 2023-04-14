@@ -1,6 +1,5 @@
 from django import forms
 
-from utilities.forms import widgets
 from utilities.utils import content_type_name
 
 __all__ = (

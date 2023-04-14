@@ -15,6 +15,7 @@ __all__ = (
     'get_serializer_for_model',
     'get_view_name',
     'is_api_request',
+    'rest_api_server_error',
 )
 
 
