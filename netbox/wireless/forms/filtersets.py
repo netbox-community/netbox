@@ -4,7 +4,8 @@ from django.utils.translation import gettext as _
 from dcim.choices import LinkStatusChoices
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
-from utilities.forms import add_blank_choice, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from wireless.choices import *
 from wireless.models import *
 

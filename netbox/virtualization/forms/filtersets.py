@@ -6,9 +6,8 @@ from extras.forms import LocalConfigContextFilterForm
 from ipam.models import L2VPN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
-from utilities.forms import (
-    DynamicModelMultipleChoiceField, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
-)
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
+from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from virtualization.choices import *
 from virtualization.models import *
 

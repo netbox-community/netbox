@@ -1,5 +1,9 @@
 import hashlib
 
+__all__ = (
+    'sha256_hash',
+)
+
 
 def sha256_hash(filepath):
     """

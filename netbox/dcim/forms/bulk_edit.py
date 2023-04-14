@@ -10,10 +10,9 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import (
-    add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, CommentField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, form_from_model, SelectSpeedWidget,
-)
+from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
+from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.widgets import BulkEditNullBooleanSelect, SelectSpeedWidget
 
 __all__ = (
     'CableBulkEditForm',

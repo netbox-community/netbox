@@ -4,7 +4,9 @@ from django.utils.translation import gettext as _
 from core.choices import DataSourceTypeChoices
 from core.models import *
 from netbox.forms import NetBoxModelBulkEditForm
-from utilities.forms import add_blank_choice, BulkEditNullBooleanSelect, CommentField
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import CommentField
+from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 __all__ = (
     'DataSourceBulkEditForm',

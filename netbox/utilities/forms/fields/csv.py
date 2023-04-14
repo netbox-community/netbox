@@ -1,14 +1,9 @@
-import csv
-from io import StringIO
-
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Q
-from django.utils.translation import gettext as _
 
 from utilities.choices import unpack_grouped_choices
-from utilities.forms.utils import parse_csv, validate_csv
 from utilities.utils import content_type_identifier
 
 __all__ = (

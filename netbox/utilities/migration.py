@@ -3,6 +3,10 @@ from timezone_field import TimeZoneField
 
 from netbox.config import ConfigItem
 
+__all__ = (
+    'custom_deconstruct',
+)
+
 
 SKIP_FIELDS = (
     TimeZoneField,

@@ -12,9 +12,10 @@ from extras.models import *
 from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
-from utilities.forms import (
-    add_blank_choice, BootstrapMixin, CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField,
-    DynamicModelMultipleChoiceField, JSONField, SlugField,
+from utilities.forms import BootstrapMixin, add_blank_choice
+from utilities.forms.fields import (
+    CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, JSONField,
+    SlugField,
 )
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 

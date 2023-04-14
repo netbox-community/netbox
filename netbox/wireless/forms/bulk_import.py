@@ -1,10 +1,11 @@
 from django.utils.translation import gettext as _
+
 from dcim.choices import LinkStatusChoices
 from dcim.models import Interface
 from ipam.models import VLAN
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms import CSVChoiceField, CSVModelChoiceField, SlugField
+from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
 from wireless.choices import *
 from wireless.models import *
 

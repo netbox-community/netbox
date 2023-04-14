@@ -1,9 +1,10 @@
 from django.utils.translation import gettext as _
-from dcim.models import Device, Interface, Location, Region, Site, SiteGroup
-from ipam.models import VLAN, VLANGroup
+
+from dcim.models import Device, Interface, Location, Site
+from ipam.models import VLAN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import CommentField, DynamicModelChoiceField, SlugField
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
 from wireless.models import *
 
 __all__ = (

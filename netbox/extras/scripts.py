@@ -21,7 +21,8 @@ from extras.signals import clear_webhooks
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortScript, AbortTransaction
-from utilities.forms import add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .context_managers import change_logging
 from .forms import ScriptForm
 

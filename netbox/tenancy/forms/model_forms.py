@@ -2,9 +2,8 @@ from django import forms
 
 from netbox.forms import NetBoxModelForm
 from tenancy.models import *
-from utilities.forms import (
-    BootstrapMixin, CommentField, DynamicModelChoiceField, SlugField,
-)
+from utilities.forms import BootstrapMixin
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
 
 __all__ = (
     'ContactAssignmentForm',

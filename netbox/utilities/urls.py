@@ -4,6 +4,10 @@ from django.views.generic import View
 
 from netbox.registry import registry
 
+__all__ = (
+    'get_model_urls',
+)
+
 
 def get_model_urls(app_label, model_name):
     """

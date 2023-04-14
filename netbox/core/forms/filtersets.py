@@ -8,10 +8,9 @@ from core.models import *
 from extras.forms.mixins import SavedFiltersMixin
 from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelFilterSetForm
-from utilities.forms import (
-    APISelectMultiple, BOOLEAN_WITH_BLANK_CHOICES, ContentTypeChoiceField, DateTimePicker,
-    DynamicModelMultipleChoiceField, FilterForm,
-)
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
+from utilities.forms.fields import ContentTypeChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.widgets import APISelectMultiple, DateTimePicker
 
 __all__ = (
     'DataFileFilterForm',

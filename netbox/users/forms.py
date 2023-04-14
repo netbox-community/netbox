@@ -7,7 +7,8 @@ from django.utils.translation import gettext as _
 
 from ipam.formfields import IPNetworkFormField
 from netbox.preferences import PREFERENCES
-from utilities.forms import BootstrapMixin, DateTimePicker
+from utilities.forms import BootstrapMixin
+from utilities.forms.widgets import DateTimePicker
 from utilities.utils import flatten_dict
 from .models import Token, UserConfig
 

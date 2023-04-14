@@ -8,9 +8,9 @@ from ipam.constants import *
 from ipam.models import *
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
-from utilities.forms import (
-    add_blank_choice, ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, add_blank_choice
+from utilities.forms.fields import (
+    ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
 from virtualization.models import VirtualMachine
 

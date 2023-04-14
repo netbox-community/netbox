@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django_pglocks import advisory_lock
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -15,7 +15,7 @@ from ipam.models import *
 from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
 from netbox.config import get_config
-from utilities.constants import ADVISORY_LOCK_KEYS
+from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.utils import count_related
 from . import serializers
 from ipam.models import L2VPN, L2VPNTermination

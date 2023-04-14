@@ -1,19 +1,22 @@
 import functools
 
-import graphql
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import ForeignKey, Prefetch
+from django.db.models import ForeignKey
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields.reverse_related import ManyToOneRel
 from graphene import InputObjectType
 from graphene.types.generic import GenericScalar
 from graphene.types.resolver import default_resolver
 from graphene_django import DjangoObjectType
-from graphql import FieldNode, GraphQLObjectType, GraphQLResolveInfo, GraphQLSchema
+from graphql import GraphQLResolveInfo, GraphQLSchema
 from graphql.execution.execute import get_field_def
 from graphql.language.ast import FragmentSpreadNode, InlineFragmentNode, VariableNode
 from graphql.pyutils import Path
 from graphql.type.definition import GraphQLInterfaceType, GraphQLUnionType
+
+__all__ = (
+    'gql_query_optimizer',
+)
 
 
 def gql_query_optimizer(queryset, info, **options):
