@@ -17,5 +17,5 @@ def auto_sync(instance, **kwargs):
     """
     from .models import AutoSyncRecord
 
-    for autosync in AutoSyncRecord.objects.filter(datafile__source=instance):
+    for autosync in AutoSyncRecord.objects.filter(datafile__source=instance).prefetch_related('object'):
         autosync.object.sync(save=True)

@@ -453,6 +453,8 @@ class SyncedDataMixin(models.Model):
         """
         Synchronize the object from it's assigned DataFile (if any). This wraps sync_data() and updates
         the synced_data timestamp.
+
+        :param save: If true, save() will be called after data has been synchronized
         """
         self.sync_data()
         self.data_synced = timezone.now()
