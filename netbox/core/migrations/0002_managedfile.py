@@ -23,6 +23,7 @@ class Migration(migrations.Migration):
                 ('file_path', models.FilePathField(editable=False)),
                 ('data_file', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='core.datafile')),
                 ('data_source', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='core.datasource')),
+                ('auto_sync_enabled', models.BooleanField(default=False)),
             ],
             options={
                 'ordering': ('file_root', 'file_path'),

@@ -28,6 +28,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='configcontext',
+            name='auto_sync_enabled',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='configcontext',
             name='data_synced',
             field=models.DateTimeField(blank=True, editable=False, null=True),
         ),
@@ -46,6 +51,11 @@ class Migration(migrations.Migration):
             model_name='exporttemplate',
             name='data_source',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='core.datasource'),
+        ),
+        migrations.AddField(
+            model_name='exporttemplate',
+            name='auto_sync_enabled',
+            field=models.BooleanField(default=False),
         ),
         migrations.AddField(
             model_name='exporttemplate',

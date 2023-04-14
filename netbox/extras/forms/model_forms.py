@@ -112,7 +112,7 @@ class ExportTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
 
     fieldsets = (
         ('Export Template', ('name', 'content_types', 'description', 'template_code')),
-        ('Data Source', ('data_source', 'data_file')),
+        ('Data Source', ('data_source', 'data_file', 'auto_sync_enabled')),
         ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
     )
 
@@ -271,7 +271,7 @@ class ConfigContextForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
 
     fieldsets = (
         ('Config Context', ('name', 'weight', 'description', 'data', 'is_active')),
-        ('Data Source', ('data_source', 'data_file')),
+        ('Data Source', ('data_source', 'data_file', 'auto_sync_enabled')),
         ('Assignment', (
             'regions', 'site_groups', 'sites', 'locations', 'device_types', 'roles', 'platforms', 'cluster_types',
             'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags',
@@ -283,7 +283,7 @@ class ConfigContextForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
         fields = (
             'name', 'weight', 'description', 'data', 'is_active', 'regions', 'site_groups', 'sites', 'locations',
             'roles', 'device_types', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
-            'tenants', 'tags', 'data_source', 'data_file',
+            'tenants', 'tags', 'data_source', 'data_file', 'auto_sync_enabled',
         )
 
     def __init__(self, *args, initial=None, **kwargs):
@@ -322,7 +322,7 @@ class ConfigTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
     fieldsets = (
         ('Config Template', ('name', 'description', 'environment_params', 'tags')),
         ('Content', ('template_code',)),
-        ('Data Source', ('data_source', 'data_file')),
+        ('Data Source', ('data_source', 'data_file', 'auto_sync_enabled')),
     )
 
     class Meta:
