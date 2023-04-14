@@ -153,6 +153,29 @@ class ExternalAuthenticationTestCase(TestCase):
 
     @override_settings(
         REMOTE_AUTH_ENABLED=True,
+        LOGIN_REQUIRED=True
+    )
+    def test_remote_auth_user_profile(self):
+        """
+        Test remote authentication with user profile details.
+        """
+        headers = {
+            'HTTP_REMOTE_USER': 'remoteuser1',
+            'HTTP_REMOTE_USER_FIRST_NAME': 'John',
+            'HTTP_REMOTE_USER_LAST_NAME': 'Smith',
+            'HTTP_REMOTE_USER_EMAIL': 'johnsmith@example.com',
+        }
+
+        response = self.client.get(reverse('home'), follow=True, **headers)
+        self.assertEqual(response.status_code, 200)
+
+        self.user = User.objects.get(username='remoteuser1')
+        self.assertEqual(self.user.first_name, "John", msg='User first name was not updated')
+        self.assertEqual(self.user.last_name, "Smith", msg='User last name was not updated')
+        self.assertEqual(self.user.email, "johnsmith@example.com", msg='User email was not updated')
+
+    @override_settings(
+        REMOTE_AUTH_ENABLED=True,
         REMOTE_AUTH_AUTO_CREATE_USER=True,
         LOGIN_REQUIRED=True
     )
