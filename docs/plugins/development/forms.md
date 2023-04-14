@@ -145,23 +145,23 @@ class MyModelFilterForm(NetBoxModelFilterSetForm):
 
 In addition to the [form fields provided by Django](https://docs.djangoproject.com/en/stable/ref/forms/fields/), NetBox provides several field classes for use within forms to handle specific types of data. These can be imported from `utilities.forms.fields` and are documented below.
 
-::: utilities.forms.ColorField
+::: utilities.forms.fields.ColorField
     options:
       members: false
 
-::: utilities.forms.CommentField
+::: utilities.forms.fields.CommentField
     options:
       members: false
 
-::: utilities.forms.JSONField
+::: utilities.forms.fields.JSONField
     options:
       members: false
 
-::: utilities.forms.MACAddressField
+::: utilities.forms.fields.MACAddressField
     options:
       members: false
 
-::: utilities.forms.SlugField
+::: utilities.forms.fields.SlugField
     options:
       members: false
 
@@ -170,52 +170,52 @@ In addition to the [form fields provided by Django](https://docs.djangoproject.c
 !!! warning "Obsolete Fields"
     NetBox's custom `ChoiceField` and `MultipleChoiceField` classes are no longer necessary thanks to improvements made to the user interface. Django's native form fields can be used instead. These custom field classes will be removed in NetBox v3.6.
 
-::: utilities.forms.ChoiceField
+::: utilities.forms.fields.ChoiceField
     options:
       members: false
 
-::: utilities.forms.MultipleChoiceField
+::: utilities.forms.fields.MultipleChoiceField
     options:
       members: false
 
 ## Dynamic Object Fields
 
-::: utilities.forms.DynamicModelChoiceField
+::: utilities.forms.fields.DynamicModelChoiceField
     options:
       members: false
 
-::: utilities.forms.DynamicModelMultipleChoiceField
+::: utilities.forms.fields.DynamicModelMultipleChoiceField
     options:
       members: false
 
 ## Content Type Fields
 
-::: utilities.forms.ContentTypeChoiceField
+::: utilities.forms.fields.ContentTypeChoiceField
     options:
       members: false
 
-::: utilities.forms.ContentTypeMultipleChoiceField
+::: utilities.forms.fields.ContentTypeMultipleChoiceField
     options:
       members: false
 
 ## CSV Import Fields
 
-::: utilities.forms.CSVChoiceField
+::: utilities.forms.fields.CSVChoiceField
     options:
       members: false
 
-::: utilities.forms.CSVMultipleChoiceField
+::: utilities.forms.fields.CSVMultipleChoiceField
     options:
       members: false
 
-::: utilities.forms.CSVModelChoiceField
+::: utilities.forms.fields.CSVModelChoiceField
     options:
       members: false
 
-::: utilities.forms.CSVContentTypeField
+::: utilities.forms.fields.CSVContentTypeField
     options:
       members: false
 
-::: utilities.forms.CSVMultipleContentTypeField
+::: utilities.forms.fields.CSVMultipleContentTypeField
     options:
       members: false
