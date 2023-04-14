@@ -10,23 +10,23 @@ __all__ = (
     'ConfirmationForm',
     'CSVModelForm',
     'FilterForm',
-    'ReturnURLForm',
     'TableConfigForm',
 )
 
 
-class ReturnURLForm(forms.Form):
+class ConfirmationForm(BootstrapMixin, forms.Form):
     """
-    Provides a hidden return URL field to control where the user is directed after the form is submitted.
+    A generic confirmation form. The form is not valid unless the `confirm` field is checked.
     """
-    return_url = forms.CharField(required=False, widget=forms.HiddenInput())
-
-
-class ConfirmationForm(BootstrapMixin, ReturnURLForm):
-    """
-    A generic confirmation form. The form is not valid unless the confirm field is checked.
-    """
-    confirm = forms.BooleanField(required=True, widget=forms.HiddenInput(), initial=True)
+    return_url = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+    confirm = forms.BooleanField(
+        required=True,
+        widget=forms.HiddenInput(),
+        initial=True
+    )
 
 
 class BulkEditForm(BootstrapMixin, forms.Form):
