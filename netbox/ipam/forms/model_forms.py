@@ -11,10 +11,12 @@ from ipam.models import *
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.exceptions import PermissionsViolation
-from utilities.forms import (
-    add_blank_choice, BootstrapMixin, CommentField, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, NumericArrayField, SlugField,
+from utilities.forms import BootstrapMixin, add_blank_choice
+from utilities.forms.fields import (
+    CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
+    SlugField,
 )
+from utilities.forms.widgets import DatePicker
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 
 __all__ = (

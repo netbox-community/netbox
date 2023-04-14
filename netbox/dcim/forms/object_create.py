@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 from dcim.models import *
 from netbox.forms import NetBoxModelForm
-from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField
 from . import model_forms
 
 __all__ = (

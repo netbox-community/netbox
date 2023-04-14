@@ -7,7 +7,8 @@ from django.utils.translation import gettext as _
 from extras.choices import CustomFieldVisibilityChoices, CustomFieldTypeChoices
 from extras.models import *
 from extras.utils import FeatureQuery
-from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelForm, CSVMultipleContentTypeField, SlugField
+from utilities.forms import CSVModelForm
+from utilities.forms.fields import CSVChoiceField, CSVContentTypeField, CSVMultipleContentTypeField, SlugField
 
 __all__ = (
     'ConfigTemplateImportForm',

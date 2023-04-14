@@ -6,7 +6,8 @@ from core.models import *
 from extras.forms.mixins import SyncedDataMixin
 from netbox.forms import NetBoxModelForm
 from netbox.registry import registry
-from utilities.forms import CommentField, get_field_value
+from utilities.forms import get_field_value
+from utilities.forms.fields import CommentField
 from utilities.forms.widgets import HTMXSelect
 
 __all__ = (

@@ -8,9 +8,9 @@ from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGr
 from ipam.models import IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import (
-    BootstrapMixin, CommentField, ConfirmationForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    JSONField, SlugField,
+from utilities.forms import BootstrapMixin, ConfirmationForm
+from utilities.forms.fields import (
+    CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
 from utilities.forms.widgets import HTMXSelect
 from virtualization.models import *

@@ -1,8 +1,8 @@
 from django import forms
-from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from utilities.forms import BootstrapMixin, DateTimePicker, SelectDurationWidget
+from utilities.forms import BootstrapMixin
+from utilities.forms.widgets import DateTimePicker, SelectDurationWidget
 from utilities.utils import local_now
 
 __all__ = (

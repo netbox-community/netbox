@@ -7,10 +7,9 @@ from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from ipam.models import VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import (
-    add_blank_choice, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField
-)
+from utilities.forms import BulkRenameForm, add_blank_choice
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.widgets import BulkEditNullBooleanSelect
 from virtualization.choices import *
 from virtualization.models import *
 

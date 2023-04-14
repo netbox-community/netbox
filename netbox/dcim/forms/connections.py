@@ -1,9 +1,9 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from circuits.models import Circuit, CircuitTermination, Provider
+from circuits.models import Circuit, CircuitTermination
 from dcim.models import *
-from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .model_forms import CableForm
 
 

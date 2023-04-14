@@ -10,10 +10,9 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, L2VPN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
-from utilities.forms import (
-    APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm,
-    TagFilterField, BOOLEAN_WITH_BLANK_CHOICES, SelectSpeedWidget,
-)
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
+from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.widgets import APISelectMultiple, SelectSpeedWidget
 from wireless.choices import *
 
 __all__ = (

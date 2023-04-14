@@ -10,10 +10,9 @@ from extras.models import *
 from extras.utils import FeatureQuery
 from netbox.forms.base import NetBoxModelFilterSetForm
 from tenancy.models import Tenant, TenantGroup
-from utilities.forms import (
-    add_blank_choice, APISelectMultiple, BOOLEAN_WITH_BLANK_CHOICES, ContentTypeMultipleChoiceField, DateTimePicker,
-    DynamicModelMultipleChoiceField, FilterForm, TagFilterField,
-)
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
+from utilities.forms.fields import ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.widgets import APISelectMultiple, DateTimePicker
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .mixins import SavedFiltersMixin
 

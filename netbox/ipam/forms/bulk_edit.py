@@ -8,10 +8,11 @@ from ipam.models import *
 from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import (
-    add_blank_choice, BulkEditNullBooleanSelect, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    NumericArrayField,
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import (
+    CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
 )
+from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 __all__ = (
     'AggregateBulkEditForm',

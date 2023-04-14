@@ -6,9 +6,9 @@ from circuits.models import *
 from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import (
-    add_blank_choice, CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-)
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.widgets import DatePicker
 
 __all__ = (
     'CircuitBulkEditForm',

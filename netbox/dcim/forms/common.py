@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 from dcim.choices import *
 from dcim.constants import *
-from utilities.forms.utils import get_field_value
+from utilities.forms import get_field_value
 
 __all__ = (
     'InterfaceCommonForm',

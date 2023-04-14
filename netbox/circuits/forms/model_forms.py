@@ -5,9 +5,8 @@ from dcim.models import Site
 from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import (
-    CommentField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SelectSpeedWidget, SlugField,
-)
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from utilities.forms.widgets import DatePicker, SelectSpeedWidget
 
 __all__ = (
     'CircuitForm',

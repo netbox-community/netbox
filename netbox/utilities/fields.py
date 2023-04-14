@@ -4,7 +4,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
 
 from utilities.ordering import naturalize
-from .forms import ColorSelect
+from .forms.widgets import ColorSelect
 from .validators import ColorValidator
 
 __all__ = (

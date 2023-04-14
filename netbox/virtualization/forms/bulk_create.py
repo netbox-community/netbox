@@ -1,7 +1,8 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from utilities.forms import BootstrapMixin, ExpandableNameField, form_from_model
+from utilities.forms import BootstrapMixin, form_from_model
+from utilities.forms.fields import ExpandableNameField
 from virtualization.models import VMInterface, VirtualMachine
 
 __all__ = (

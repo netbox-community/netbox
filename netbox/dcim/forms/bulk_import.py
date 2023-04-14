@@ -12,8 +12,9 @@ from extras.models import ConfigTemplate
 from ipam.models import VRF
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms import (
-    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField, SlugField, CSVModelMultipleChoiceField
+from utilities.forms.fields import (
+    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVTypedChoiceField,
+    SlugField,
 )
 from virtualization.models import Cluster
 from wireless.choices import WirelessRoleChoices

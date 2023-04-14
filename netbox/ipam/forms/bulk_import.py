@@ -9,7 +9,7 @@ from ipam.constants import *
 from ipam.models import *
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField
+from utilities.forms.fields import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField
 from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (

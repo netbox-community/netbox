@@ -6,7 +6,8 @@ from dcim.models import Site
 from django.utils.translation import gettext as _
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms import BootstrapMixin, CSVChoiceField, CSVModelChoiceField, SlugField
+from utilities.forms import BootstrapMixin
+from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
 
 __all__ = (
     'CircuitImportForm',

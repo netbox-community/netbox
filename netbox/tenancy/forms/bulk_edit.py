@@ -3,7 +3,8 @@ from django import forms
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.choices import ContactPriorityChoices
 from tenancy.models import *
-from utilities.forms import CommentField, DynamicModelChoiceField, add_blank_choice
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import CommentField, DynamicModelChoiceField
 
 __all__ = (
     'ContactAssignmentBulkEditForm',

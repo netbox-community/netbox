@@ -3,9 +3,9 @@ from django.utils.translation import gettext as _
 
 from extras.choices import *
 from extras.models import *
-from utilities.forms import (
-    add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField,
-)
+from utilities.forms import BulkEditForm, add_blank_choice
+from utilities.forms.fields import ColorField
+from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 __all__ = (
     'ConfigContextBulkEditForm',
