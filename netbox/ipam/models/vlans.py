@@ -113,7 +113,7 @@ class VLANGroup(OrganizationalModel):
         if available_vids:
             return available_vids[0]
         return None
-    
+
     def get_utilization(self):
         """
         Return the percentage of utilization for this vlan group.
