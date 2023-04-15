@@ -184,12 +184,13 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
     scope = serializers.SerializerMethodField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
+    utilization = serializers.CharField(source='get_utilization')
 
     class Meta:
         model = VLANGroup
         fields = [
             'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'min_vid', 'max_vid',
-            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count',
+            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count', 'utilization'
         ]
         validators = []
 
