@@ -71,7 +71,7 @@ class VLANGroupTable(NetBoxTable):
         verbose_name='VLANs'
     )
     get_utilization = columns.UtilizationColumn(
-        orderable=False, 
+        orderable=False,
         verbose_name='Utilization'
     )
     tags = columns.TagColumn(
