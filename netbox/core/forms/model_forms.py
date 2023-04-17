@@ -80,12 +80,12 @@ class ManagedFileForm(SyncedDataMixin, NetBoxModelForm):
 
     fieldsets = (
         ('File Upload', ('upload_file',)),
-        ('Data Source', ('data_source', 'data_file')),
+        ('Data Source', ('data_source', 'data_file', 'auto_sync_enabled')),
     )
 
     class Meta:
         model = ManagedFile
-        fields = ('data_source', 'data_file')
+        fields = ('data_source', 'data_file', 'auto_sync_enabled')
 
     def clean(self):
         super().clean()

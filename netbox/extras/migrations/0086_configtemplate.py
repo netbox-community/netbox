@@ -25,6 +25,7 @@ class Migration(migrations.Migration):
                 ('environment_params', models.JSONField(blank=True, default=dict, null=True)),
                 ('data_file', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='core.datafile')),
                 ('data_source', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='core.datasource')),
+                ('auto_sync_enabled', models.BooleanField(default=False)),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={

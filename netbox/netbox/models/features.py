@@ -3,6 +3,7 @@ from collections import defaultdict
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
 from django.db.models.signals import class_prepared
@@ -382,6 +383,10 @@ class SyncedDataMixin(models.Model):
         editable=False,
         help_text=_("Path to remote file (relative to data source root)")
     )
+    auto_sync_enabled = models.BooleanField(
+        default=False,
+        help_text=_("Enable automatic synchronization of data when the data file is updated")
+    )
     data_synced = models.DateTimeField(
         blank=True,
         null=True,
@@ -404,9 +409,32 @@ class SyncedDataMixin(models.Model):
         else:
             self.data_source = None
             self.data_path = ''
+            self.auto_sync_enabled = False
             self.data_synced = None
 
         super().clean()
+
+    def save(self, *args, **kwargs):
+        from core.models import AutoSyncRecord
+
+        ret = super().save(*args, **kwargs)
+
+        # Create/delete AutoSyncRecord as needed
+        content_type = ContentType.objects.get_for_model(self)
+        if self.auto_sync_enabled:
+            AutoSyncRecord.objects.get_or_create(
+                datafile=self.data_file,
+                object_type=content_type,
+                object_id=self.pk
+            )
+        else:
+            AutoSyncRecord.objects.filter(
+                datafile=self.data_file,
+                object_type=content_type,
+                object_id=self.pk
+            ).delete()
+
+        return ret
 
     def resolve_data_file(self):
         """
@@ -421,13 +449,17 @@ class SyncedDataMixin(models.Model):
             except DataFile.DoesNotExist:
                 pass
 
-    def sync(self):
+    def sync(self, save=False):
         """
         Synchronize the object from it's assigned DataFile (if any). This wraps sync_data() and updates
         the synced_data timestamp.
+
+        :param save: If true, save() will be called after data has been synchronized
         """
         self.sync_data()
         self.data_synced = timezone.now()
+        if save:
+            self.save()
 
     def sync_data(self):
         """

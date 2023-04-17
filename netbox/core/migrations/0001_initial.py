@@ -63,4 +63,21 @@ class Migration(migrations.Migration):
             model_name='datafile',
             index=models.Index(fields=['source', 'path'], name='core_datafile_source_path'),
         ),
+        migrations.CreateModel(
+            name='AutoSyncRecord',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
+                ('object_id', models.PositiveBigIntegerField()),
+                ('datafile', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='core.datafile')),
+                ('object_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='contenttypes.contenttype')),
+            ],
+        ),
+        migrations.AddIndex(
+            model_name='autosyncrecord',
+            index=models.Index(fields=['object_type', 'object_id'], name='core_autosy_object__c17bac_idx'),
+        ),
+        migrations.AddConstraint(
+            model_name='autosyncrecord',
+            constraint=models.UniqueConstraint(fields=('object_type', 'object_id'), name='core_autosyncrecord_object'),
+        ),
     ]

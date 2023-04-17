@@ -5,7 +5,8 @@ from fnmatch import fnmatchcase
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -25,6 +26,7 @@ from ..signals import post_sync, pre_sync
 from .jobs import Job
 
 __all__ = (
+    'AutoSyncRecord',
     'DataFile',
     'DataSource',
 )
@@ -327,3 +329,35 @@ class DataFile(models.Model):
 
         with open(path, 'wb+') as new_file:
             new_file.write(self.data)
+
+
+class AutoSyncRecord(models.Model):
+    """
+    Maps a DataFile to a synced object for efficient automatic updating.
+    """
+    datafile = models.ForeignKey(
+        to=DataFile,
+        on_delete=models.CASCADE,
+        related_name='+'
+    )
+    object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE,
+        related_name='+'
+    )
+    object_id = models.PositiveBigIntegerField()
+    object = GenericForeignKey(
+        ct_field='object_type',
+        fk_field='object_id'
+    )
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('object_type', 'object_id'),
+                name='%(app_label)s_%(class)s_object'
+            ),
+        )
+        indexes = (
+            models.Index(fields=('object_type', 'object_id')),
+        )
