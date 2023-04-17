@@ -83,6 +83,7 @@ class Report(object):
     }
     """
     description = None
+    scheduling_enabled = True
     job_timeout = None
 
     def __init__(self):

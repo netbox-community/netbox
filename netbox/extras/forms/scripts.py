@@ -44,12 +44,12 @@ class ScriptForm(BootstrapMixin, forms.Form):
             self.fields.pop('_interval')
 
     def clean(self):
-        scheduled_time = self.cleaned_data['_schedule_at']
+        scheduled_time = self.cleaned_data.get('_schedule_at')
         if scheduled_time and scheduled_time < local_now():
             raise forms.ValidationError(_('Scheduled time must be in the future.'))
 
         # When interval is used without schedule at, schedule for the current time
-        if self.cleaned_data['_interval'] and not scheduled_time:
+        if self.cleaned_data.get('_interval') and not scheduled_time:
             self.cleaned_data['_schedule_at'] = local_now()
 
         return self.cleaned_data

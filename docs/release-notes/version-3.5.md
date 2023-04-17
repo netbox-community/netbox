@@ -57,6 +57,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#10729](https://github.com/netbox-community/netbox/issues/10729) - Add date & time custom field type
 * [#11029](https://github.com/netbox-community/netbox/issues/11029) - Enable change logging for cable terminations
 * [#11254](https://github.com/netbox-community/netbox/issues/11254) - Introduce the `X-Request-ID` HTTP header to annotate the unique ID of each request for change logging
+* [#11255](https://github.com/netbox-community/netbox/issues/11255) - Introduce the `scheduling_enabled` settings for reports & scripts
 * [#11291](https://github.com/netbox-community/netbox/issues/11291) - Optimized GraphQL API request handling
 * [#11440](https://github.com/netbox-community/netbox/issues/11440) - Add an `enabled` field for device type interfaces
 * [#11494](https://github.com/netbox-community/netbox/issues/11494) - Enable filtering objects by create/update request IDs
