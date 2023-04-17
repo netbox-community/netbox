@@ -10,6 +10,7 @@ from drf_spectacular.plumbing import (
     ComponentRegistry,
     ResolvedComponent,
     build_basic_type,
+    build_choice_field,
     build_media_type_object,
     build_object_type,
     is_serializer,
@@ -38,7 +39,7 @@ class ChoiceFieldFix(OpenApiSerializerFieldExtension):
 
     def map_serializer_field(self, auto_schema, direction):
         if direction == 'request':
-            return build_basic_type(OpenApiTypes.STR)
+            return build_choice_field(self.target)
 
         elif direction == "response":
             return build_object_type(
