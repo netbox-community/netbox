@@ -22,6 +22,7 @@ urlpatterns = (
     # Job results
     path('jobs/', views.JobListView.as_view(), name='job_list'),
     path('jobs/delete/', views.JobBulkDeleteView.as_view(), name='job_bulk_delete'),
+    path('jobs/<int:pk>/', views.JobView.as_view(), name='job'),
     path('jobs/<int:pk>/delete/', views.JobDeleteView.as_view(), name='job_delete'),
 
 )

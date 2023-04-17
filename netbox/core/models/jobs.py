@@ -102,6 +102,7 @@ class Job(models.Model):
             return reverse(f'extras:report_result', kwargs={'job_pk': self.pk})
         if self.object_type.model == 'scriptmodule':
             return reverse(f'extras:script_result', kwargs={'job_pk': self.pk})
+        return reverse('core:job', args=[self.pk])
 
     def get_status_color(self):
         return JobStatusChoices.colors.get(self.status)

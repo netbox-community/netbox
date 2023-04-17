@@ -127,7 +127,11 @@ class JobListView(generic.ObjectListView):
     filterset = filtersets.JobFilterSet
     filterset_form = forms.JobFilterForm
     table = tables.JobTable
-    actions = ('export', 'delete', 'bulk_delete', )
+    actions = ('export', 'delete', 'bulk_delete')
+
+
+class JobView(generic.ObjectView):
+    queryset = Job.objects.all()
 
 
 class JobDeleteView(generic.ObjectDeleteView):
