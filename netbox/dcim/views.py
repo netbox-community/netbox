@@ -6,6 +6,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import Prefetch
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -2011,6 +2012,24 @@ class DeviceRenderConfigView(generic.ObjectView):
         permission='extras.view_configtemplate',
         weight=2100
     )
+
+    def get(self, request, **kwargs):
+        instance = self.get_object(**kwargs)
+        context = self.get_extra_context(request, instance)
+
+        # If a direct export has been requested, return the rendered template content as a
+        # downloadable file.
+        if request.GET.get('export'):
+            response = HttpResponse(context['rendered_config'], content_type='text')
+            filename = f"{instance.name or 'config'}.txt"
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+
+        return render(request, self.get_template_name(), {
+            'object': instance,
+            'tab': self.tab,
+            **context,
+        })
 
     def get_extra_context(self, request, instance):
         # Compile context data
