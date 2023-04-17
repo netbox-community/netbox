@@ -297,6 +297,12 @@ class BaseScript:
     def full_name(self):
         return f'{self.module}.{self.class_name}'
 
+    @classmethod
+    def root_module(cls):
+        return cls.__module__.split(".")[0]
+
+    # Author-defined attributes
+
     @classproperty
     def name(self):
         return getattr(self.Meta, 'name', self.__name__)
@@ -305,13 +311,25 @@ class BaseScript:
     def description(self):
         return getattr(self.Meta, 'description', '')
 
-    @classmethod
-    def root_module(cls):
-        return cls.__module__.split(".")[0]
+    @classproperty
+    def field_order(self):
+        return getattr(self.Meta, 'field_order', None)
+
+    @classproperty
+    def fieldsets(self):
+        return getattr(self.Meta, 'fieldsets', None)
+
+    @classproperty
+    def commit_default(self):
+        return getattr(self.Meta, 'commit_default', True)
 
     @classproperty
     def job_timeout(self):
         return getattr(self.Meta, 'job_timeout', None)
+
+    @classproperty
+    def scheduling_enabled(self):
+        return getattr(self.Meta, 'scheduling_enabled', True)
 
     @classmethod
     def _get_vars(cls):
@@ -328,11 +346,10 @@ class BaseScript:
                     vars[name] = attr
 
         # Order variables according to field_order
-        field_order = getattr(cls.Meta, 'field_order', None)
-        if not field_order:
+        if not cls.field_order:
             return vars
         ordered_vars = {
-            field: vars.pop(field) for field in field_order if field in vars
+            field: vars.pop(field) for field in cls.field_order if field in vars
         }
         ordered_vars.update(vars)
 
@@ -340,6 +357,23 @@ class BaseScript:
 
     def run(self, data, commit):
         raise NotImplementedError("The script must define a run() method.")
+
+    # Form rendering
+
+    def get_fieldsets(self):
+        fieldsets = []
+
+        if self.fieldsets:
+            fieldsets.extend(self.fieldsets)
+        else:
+            fields = (name for name, _ in self._get_vars().items())
+            fieldsets.append(('Script Data', fields))
+
+        # Append the default fieldset if defined in the Meta class
+        exec_parameters = ('_schedule_at', '_interval', '_commit') if self.scheduling_enabled else ('_commit',)
+        fieldsets.append(('Script Execution Parameters', exec_parameters))
+
+        return fieldsets
 
     def as_form(self, data=None, files=None, initial=None):
         """
@@ -354,19 +388,7 @@ class BaseScript:
         form = FormClass(data, files, initial=initial)
 
         # Set initial "commit" checkbox state based on the script's Meta parameter
-        form.fields['_commit'].initial = getattr(self.Meta, 'commit_default', True)
-
-        # Append the default fieldset if defined in the Meta class
-        default_fieldset = (
-            ('Script Execution Parameters', ('_schedule_at', '_interval', '_commit')),
-        )
-        if not hasattr(self.Meta, 'fieldsets'):
-            fields = (
-                name for name, _ in self._get_vars().items()
-            )
-            self.Meta.fieldsets = (('Script Data', fields),)
-
-        self.Meta.fieldsets += default_fieldset
+        form.fields['_commit'].initial = self.commit_default
 
         return form
 

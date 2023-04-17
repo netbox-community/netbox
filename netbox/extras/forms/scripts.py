@@ -31,27 +31,24 @@ class ScriptForm(BootstrapMixin, forms.Form):
         help_text=_("Interval at which this script is re-run (in minutes)")
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, scheduling_enabled=True, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Annotate the current system time for reference
         now = local_now().strftime('%Y-%m-%d %H:%M:%S')
         self.fields['_schedule_at'].help_text += f' (current time: <strong>{now}</strong>)'
 
-        # Move _commit and _schedule_at to the end of the form
-        schedule_at = self.fields.pop('_schedule_at')
-        interval = self.fields.pop('_interval')
-        commit = self.fields.pop('_commit')
-        self.fields['_schedule_at'] = schedule_at
-        self.fields['_interval'] = interval
-        self.fields['_commit'] = commit
+        # Remove scheduling fields if scheduling is disabled
+        if not scheduling_enabled:
+            self.fields.pop('_schedule_at')
+            self.fields.pop('_interval')
 
     def clean(self):
         scheduled_time = self.cleaned_data['_schedule_at']
         if scheduled_time and scheduled_time < local_now():
             raise forms.ValidationError(_('Scheduled time must be in the future.'))
 
-        # When interval is used without schedule at, raise an exception
+        # When interval is used without schedule at, schedule for the current time
         if self.cleaned_data['_interval'] and not scheduled_time:
             self.cleaned_data['_schedule_at'] = local_now()
 
