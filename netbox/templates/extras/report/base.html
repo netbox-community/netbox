@@ -32,7 +32,9 @@
       <a class="nav-link{% if tab == 'source' %} active{% endif %}" href="{% url 'extras:report_source' module=report.module name=report.class_name %}">Source</a>
     </li>
     <li class="nav-item" role="presentation">
-      <a class="nav-link{% if tab == 'jobs' %} active{% endif %}" href="{% url 'extras:report_jobs' module=report.module name=report.class_name %}">Jobs</a>
+      <a class="nav-link{% if tab == 'jobs' %} active{% endif %}" href="{% url 'extras:report_jobs' module=report.module name=report.class_name %}">
+        Jobs {% badge module.jobs.count %}
+      </a>
     </li>
   </ul>
 {% endblock tabs %}

@@ -945,8 +945,7 @@ class ReportJobsView(ContentTypePermissionRequiredMixin, View):
         jobs = Job.objects.filter(
             object_type=object_type,
             object_id=module.pk,
-            name=report.name,
-            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
+            name=report.name
         )
 
         jobs_table = JobTable(
@@ -1119,8 +1118,7 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
         jobs = Job.objects.filter(
             object_type=object_type,
             object_id=module.pk,
-            name=script.class_name,
-            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
+            name=script.class_name
         )
 
         jobs_table = JobTable(
