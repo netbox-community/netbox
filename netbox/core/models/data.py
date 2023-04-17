@@ -113,7 +113,7 @@ class DataSource(JobsMixin, PrimaryModel):
         # Ensure URL scheme matches selected type
         if self.type == DataSourceTypeChoices.LOCAL and self.url_scheme not in ('file', ''):
             raise ValidationError({
-                'url': f"URLs for local sources must start with file:// (or omit the scheme)"
+                'source_url': f"URLs for local sources must start with file:// (or specify no scheme)"
             })
 
     def enqueue_sync_job(self, request):
