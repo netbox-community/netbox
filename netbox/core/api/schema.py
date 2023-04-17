@@ -150,8 +150,12 @@ class NetBoxAutoSchema(AutoSchema):
     def get_writable_class(self, serializer):
         properties = {}
         fields = {} if hasattr(serializer, 'child') else serializer.fields
+        remove_fields = []
 
         for child_name, child in fields.items():
+            # read_only fields don't need to be in writable (write only) serializers
+            if 'read_only' in dir(child) and child.read_only:
+                remove_fields.append(child_name)
             if isinstance(child, (ChoiceField, WritableNestedSerializer)):
                 properties[child_name] = None
             elif isinstance(child, ManyRelatedField) and isinstance(child.child_relation, SerializedPKRelatedField):
@@ -165,7 +169,12 @@ class NetBoxAutoSchema(AutoSchema):
             meta_class = getattr(type(serializer), 'Meta', None)
             if meta_class:
                 ref_name = 'Writable' + self.get_serializer_ref_name(serializer)
-                writable_meta = type('Meta', (meta_class,), {'ref_name': ref_name})
+                # remove read_only fields from write-only serializers
+                fields = list(meta_class.fields)
+                for field in remove_fields:
+                    fields.remove(field)
+                writable_meta = type('Meta', (meta_class,), {'ref_name': ref_name, 'fields': fields})
+
                 properties['Meta'] = writable_meta
 
             self.writable_serializers[type(serializer)] = type(writable_name, (type(serializer),), properties)
