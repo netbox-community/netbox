@@ -91,6 +91,10 @@ As you can see, reports are completely customizable. Validation logic can be as 
 
 A human-friendly description of what your report does.
 
+### `scheduling_enabled`
+
+By default, a report can be scheduled for execution at a later time. Setting `scheduling_enabled` to False disables this ability: Only immediate execution will be possible. (This also disables the ability to set a recurring execution interval.)
+
 ### `job_timeout`
 
 Set the maximum allowed runtime for the report. If not set, `RQ_DEFAULT_TIMEOUT` will be used.

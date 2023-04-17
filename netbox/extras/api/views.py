@@ -244,8 +244,12 @@ class ReportViewSet(ViewSet):
             raise RQWorkerNotRunningException()
 
         # Retrieve and run the Report. This will create a new Job.
-        module, report = self._get_report(pk)
-        input_serializer = serializers.ReportInputSerializer(data=request.data)
+        module, report_cls = self._get_report(pk)
+        report = report_cls()
+        input_serializer = serializers.ReportInputSerializer(
+            data=request.data,
+            context={'report': report}
+        )
 
         if input_serializer.is_valid():
             report.result = Job.enqueue(

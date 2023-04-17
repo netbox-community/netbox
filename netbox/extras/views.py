@@ -876,7 +876,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         return render(request, 'extras/report.html', {
             'module': module,
             'report': report,
-            'form': ReportForm(),
+            'form': ReportForm(scheduling_enabled=report.scheduling_enabled),
         })
 
     def post(self, request, module, name):
@@ -885,7 +885,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
 
         module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path__startswith=module)
         report = module.reports[name]()
-        form = ReportForm(request.POST)
+        form = ReportForm(request.POST, scheduling_enabled=report.scheduling_enabled)
 
         if form.is_valid():
 

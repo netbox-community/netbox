@@ -443,6 +443,16 @@ class ReportInputSerializer(serializers.Serializer):
     schedule_at = serializers.DateTimeField(required=False, allow_null=True)
     interval = serializers.IntegerField(required=False, allow_null=True)
 
+    def validate_schedule_at(self, value):
+        if value and not self.context['report'].scheduling_enabled:
+            raise serializers.ValidationError("Scheduling is not enabled for this report.")
+        return value
+
+    def validate_interval(self, value):
+        if value and not self.context['report'].scheduling_enabled:
+            raise serializers.ValidationError("Scheduling is not enabled for this report.")
+        return value
+
 
 #
 # Scripts
