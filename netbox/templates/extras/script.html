@@ -16,27 +16,19 @@
         {% csrf_token %}
         <div class="field-group my-4">
           {% if form.requires_input %}
-            {% if script.Meta.fieldsets %}
-              {# Render grouped fields according to declared fieldsets #}
-              {% for group, fields in script.Meta.fieldsets %}
-                <div class="field-group mb-5">
-                  <div class="row mb-2">
-                    <h5 class="offset-sm-3">{{ group }}</h5>
-                  </div>
-                  {% for name in fields %}
-                    {% with field=form|getfield:name %}
-                      {% render_field field %}
-                    {% endwith %}
-                  {% endfor %}
+            {# Render grouped fields according to declared fieldsets #}
+            {% for group, fields in script.get_fieldsets %}
+              <div class="field-group mb-5">
+                <div class="row mb-2">
+                  <h5 class="offset-sm-3">{{ group }}</h5>
                 </div>
-              {% endfor %}
-            {% else %}
-              {# Render all fields as a single group #}
-              <div class="row mb-2">
-                <h5 class="offset-sm-3">Script Data</h5>
+                {% for name in fields %}
+                  {% with field=form|getfield:name %}
+                    {% render_field field %}
+                  {% endwith %}
+                {% endfor %}
               </div>
-              {% render_form form %}
-            {% endif %}
+            {% endfor %}
           {% else %}
             <div class="alert alert-info">
               <i class="mdi mdi-information"></i>

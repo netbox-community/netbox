@@ -329,7 +329,10 @@ class ScriptViewSet(ViewSet):
             raise PermissionDenied("This user does not have permission to run scripts.")
 
         module, script = self._get_script(pk)
-        input_serializer = serializers.ScriptInputSerializer(data=request.data)
+        input_serializer = serializers.ScriptInputSerializer(
+            data=request.data,
+            context={'script': script}
+        )
 
         # Check that at least one RQ worker is running
         if not Worker.count(get_connection('default')):
