@@ -9,11 +9,11 @@ from django.utils.translation import gettext as _
 from core.forms.mixins import SyncedDataMixin
 from utilities.choices import ImportFormatChoices
 from utilities.forms.utils import parse_csv
+from .mixins import BootstrapMixin
 from ..choices import ImportMethodChoices
-from .forms import BootstrapMixin
 
 
-class ImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
+class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
     import_method = forms.ChoiceField(
         choices=ImportMethodChoices,
         required=False
