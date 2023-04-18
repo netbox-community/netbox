@@ -1,6 +1,6 @@
 # NetBox v3.5
 
-## v3.5.0 (FUTURE)
+## v3.5-beta2 (2023-04-18)
 
 ### Breaking Changes
 

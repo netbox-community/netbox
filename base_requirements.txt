@@ -3,7 +3,7 @@
 bleach<6.0
 
 # Python client for Amazon AWS API
-# https://github.com/boto/boto3
+# https://github.com/boto/boto3/blob/develop/CHANGELOG.rst
 boto3
 
 # The Python web framework on which NetBox is built

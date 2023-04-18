@@ -1,5 +1,5 @@
 bleach==5.0.1
-boto3==1.26.91
+boto3==1.26.115
 Django==4.1.8
 django-cors-headers==3.14.0
 django-debug-toolbar==4.0.0
@@ -15,7 +15,7 @@ django-tables2==2.5.3
 django-taggit==3.1.0
 django-timezone-field==5.0
 djangorestframework==3.14.0
-drf-spectacular==0.26.1
+drf-spectacular==0.26.2
 drf-spectacular-sidecar==2023.4.1
 dulwich==0.21.3
 feedparser==6.0.10
