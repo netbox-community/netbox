@@ -1,11 +1,14 @@
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from ipam import models
 from ipam.models.l2vpn import L2VPNTermination, L2VPN
+from ipam.validators import validate_ipaddress_with_mask
 from netbox.api.serializers import WritableNestedSerializer
 
 __all__ = [
+    'IPAddressField',
     'NestedAggregateSerializer',
     'NestedASNSerializer',
     'NestedASNRangeSerializer',
@@ -25,6 +28,23 @@ __all__ = [
     'NestedVLANSerializer',
     'NestedVRFSerializer',
 ]
+
+
+#
+# IP address field
+#
+
+class IPAddressField(serializers.CharField):
+    """IPAddressField with mask"""
+
+    default_error_messages = {
+        'invalid': _('Enter a valid IPv4 or IPv6 address with optional mask.'),
+    }
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        validator = validate_ipaddress_with_mask
+        self.validators.append(validator)
 
 
 #
@@ -182,6 +202,8 @@ class NestedPrefixSerializer(WritableNestedSerializer):
 class NestedIPRangeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:iprange-detail')
     family = serializers.IntegerField(read_only=True)
+    start_address = IPAddressField()
+    end_address = IPAddressField()
 
     class Meta:
         model = models.IPRange
@@ -195,6 +217,7 @@ class NestedIPRangeSerializer(WritableNestedSerializer):
 class NestedIPAddressSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
     family = serializers.IntegerField(read_only=True)
+    address = IPAddressField()
 
     class Meta:
         model = models.IPAddress

@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -7,7 +6,6 @@ from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerial
 from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, VLANGROUP_SCOPE_TYPES
 from ipam.models import *
-from ipam.validators import validate_ipaddress_with_mask
 from netaddr import AddrFormatError, IPNetwork
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
@@ -372,6 +370,8 @@ class AvailablePrefixSerializer(serializers.Serializer):
 class IPRangeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:iprange-detail')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
+    start_address = IPAddressField()
+    end_address = IPAddressField()
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=IPRangeStatusChoices, required=False)
@@ -390,18 +390,6 @@ class IPRangeSerializer(NetBoxModelSerializer):
 #
 # IP addresses
 #
-class IPAddressField(serializers.CharField):
-    """IPAddressField with mask"""
-
-    default_error_messages = {
-        'invalid': _('Enter a valid IPv4 or IPv6 address with optional mask.'),
-    }
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        validator = validate_ipaddress_with_mask
-        self.validators.append(validator)
-
 
 class IPAddressSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
