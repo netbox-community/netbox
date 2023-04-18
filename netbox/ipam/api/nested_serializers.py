@@ -6,6 +6,7 @@ from ipam import models
 from ipam.models.l2vpn import L2VPNTermination, L2VPN
 from ipam.validators import validate_ipaddress_with_mask
 from netbox.api.serializers import WritableNestedSerializer
+from netaddr import IPNetwork
 
 __all__ = [
     'IPAddressField',
@@ -45,6 +46,12 @@ class IPAddressField(serializers.CharField):
         super().__init__(**kwargs)
         validator = validate_ipaddress_with_mask
         self.validators.append(validator)
+
+    def to_internal_value(self, data):
+        return IPNetwork(data)
+
+    def to_representation(self, value):
+        return str(value)
 
 
 #
