@@ -49,7 +49,7 @@ class IPAddressField(serializers.CharField):
 
     def to_internal_value(self, data):
         try:
-            IPNetwork(data)
+            return IPNetwork(data)
         except AddrFormatError:
             raise serializers.ValidationError("Invalid IP address format: {}".format(data))
         except (TypeError, ValueError) as e:
