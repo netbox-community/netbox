@@ -6,7 +6,7 @@ import yaml
 from django import forms
 from django.utils.translation import gettext as _
 
-from extras.forms.mixins import SyncedDataMixin
+from core.forms.mixins import SyncedDataMixin
 from utilities.choices import ImportFormatChoices
 from utilities.forms.utils import parse_csv
 from ..choices import ImportMethodChoices

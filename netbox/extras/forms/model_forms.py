@@ -5,9 +5,9 @@ from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
+from core.forms.mixins import SyncedDataMixin
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
-from extras.forms.mixins import SyncedDataMixin
 from extras.models import *
 from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelForm
