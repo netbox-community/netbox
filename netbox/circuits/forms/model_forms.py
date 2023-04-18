@@ -1,12 +1,13 @@
 from django.utils.translation import gettext as _
 
+from circuits.choices import CircuitCommitRateChoices, CircuitTerminationPortSpeedChoices
 from circuits.models import *
 from dcim.models import Site
 from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
-from utilities.forms.widgets import DatePicker, SelectSpeedWidget
+from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitForm',
@@ -116,7 +117,9 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
         widgets = {
             'install_date': DatePicker(),
             'termination_date': DatePicker(),
-            'commit_rate': SelectSpeedWidget(),
+            'commit_rate': NumberWithOptions(
+                options=CircuitCommitRateChoices
+            ),
         }
 
 
@@ -143,6 +146,10 @@ class CircuitTerminationForm(NetBoxModelForm):
             'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         widgets = {
-            'port_speed': SelectSpeedWidget(),
-            'upstream_speed': SelectSpeedWidget(),
+            'port_speed': NumberWithOptions(
+                options=CircuitTerminationPortSpeedChoices
+            ),
+            'upstream_speed': NumberWithOptions(
+                options=CircuitTerminationPortSpeedChoices
+            ),
         }

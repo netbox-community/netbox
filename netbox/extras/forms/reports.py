@@ -1,8 +1,9 @@
 from django import forms
 from django.utils.translation import gettext as _
 
+from extras.choices import DurationChoices
 from utilities.forms import BootstrapMixin
-from utilities.forms.widgets import DateTimePicker, SelectDurationWidget
+from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 from utilities.utils import local_now
 
 __all__ = (
@@ -21,7 +22,9 @@ class ReportForm(BootstrapMixin, forms.Form):
         required=False,
         min_value=1,
         label=_("Recurs every"),
-        widget=SelectDurationWidget(),
+        widget=NumberWithOptions(
+            options=DurationChoices
+        ),
         help_text=_("Interval at which this report is re-run (in minutes)")
     )
 

@@ -7,8 +7,6 @@ __all__ = (
     'BulkEditNullBooleanSelect',
     'ColorSelect',
     'HTMXSelect',
-    'SelectDurationWidget',
-    'SelectSpeedWidget',
     'SelectWithPK',
 )
 
@@ -63,17 +61,3 @@ class SelectWithPK(forms.Select):
     Include the primary key of each option in the option label (e.g. "Router7 (4721)").
     """
     option_template_name = 'widgets/select_option_with_pk.html'
-
-
-class SelectDurationWidget(forms.NumberInput):
-    """
-    Dropdown to select one of several common options for a time duration (in minutes).
-    """
-    template_name = 'widgets/select_duration.html'
-
-
-class SelectSpeedWidget(forms.NumberInput):
-    """
-    Speed field with dropdown selections for convenience.
-    """
-    template_name = 'widgets/select_speed.html'

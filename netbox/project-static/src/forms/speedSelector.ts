@@ -4,7 +4,7 @@ import { getElements } from '../util';
  * Set the value of the number input field based on the selection of the dropdown.
  */
 export function initSpeedSelector(): void {
-  for (const element of getElements<HTMLAnchorElement>('a.set_speed')) {
+  for (const element of getElements<HTMLAnchorElement>('a.set_field_value')) {
     if (element !== null) {
       function handleClick(event: Event) {
         // Don't reload the page (due to href="#").

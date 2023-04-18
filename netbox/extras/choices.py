@@ -116,7 +116,7 @@ class JournalEntryKindChoices(ChoiceSet):
 
 
 #
-# Log Levels for Reports and Scripts
+# Reports and Scripts
 #
 
 class LogLevelChoices(ChoiceSet):
@@ -133,6 +133,17 @@ class LogLevelChoices(ChoiceSet):
         (LOG_INFO, 'Info', 'cyan'),
         (LOG_WARNING, 'Warning', 'yellow'),
         (LOG_FAILURE, 'Failure', 'red'),
+    )
+
+
+class DurationChoices(ChoiceSet):
+
+    CHOICES = (
+        (60, 'Hourly'),
+        (720, '12 hours'),
+        (1440, 'Daily'),
+        (10080, 'Weekly'),
+        (43200, '30 days'),
     )
 
 
