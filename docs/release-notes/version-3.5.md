@@ -8,6 +8,7 @@
 * The JobResult model has been moved from the `extras` app to `core` and renamed to Job. Accordingly, its REST API endpoint has been moved from `/api/extras/job-results/` to `/api/core/jobs/`.
 * The `obj_type` field on the Job model (previously JobResult) has been renamed to `object_type` for consistency with other models.
 * The `JOBRESULT_RETENTION` configuration parameter has been renamed to `JOB_RETENTION`.
+* The `obj` context variable is no longer passed when rendering custom links: Use `object` instead.
 * The REST API schema is now generated using the OpenAPI 3.0 spec
 * The URLs for the REST API schema documentation have changed:
     * `/api/docs/` is now `/api/schema/swagger-ui/`
