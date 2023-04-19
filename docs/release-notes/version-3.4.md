@@ -2,6 +2,10 @@
 
 ## v3.4.9 (FUTURE)
 
+### Bug Fixes
+
+* [#12296](https://github.com/netbox-community/netbox/issues/12296) - Fix "mark connected" form field for bulk editing front & rear ports
+
 ---
 
 ## v3.4.8 (2023-04-12)
