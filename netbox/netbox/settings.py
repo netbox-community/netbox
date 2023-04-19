@@ -586,9 +586,10 @@ SPECTACULAR_SETTINGS = {
     "LICENSE": {"name": "Apache v2 License"},
     "VERSION": VERSION,
     'COMPONENT_SPLIT_REQUEST': True,
+    'REDOC_DIST': 'SIDECAR',
+    "SERVERS": [{"url": "/api"}, ],
     'SWAGGER_UI_DIST': 'SIDECAR',
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
-    'REDOC_DIST': 'SIDECAR',
 }
 
 #
