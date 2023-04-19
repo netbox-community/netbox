@@ -479,8 +479,8 @@ class CustomLinkTest(TestCase):
     def test_view_object_with_custom_link(self):
         customlink = CustomLink(
             name='Test',
-            link_text='FOO {{ obj.name }} BAR',
-            link_url='http://example.com/?site={{ obj.slug }}',
+            link_text='FOO {{ object.name }} BAR',
+            link_url='http://example.com/?site={{ object.slug }}',
             new_window=False
         )
         customlink.save()
