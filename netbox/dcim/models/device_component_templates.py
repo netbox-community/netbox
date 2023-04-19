@@ -82,6 +82,12 @@ class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
         """
         raise NotImplementedError()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Cache the original DeviceType ID for reference under clean()
+        self._original_device_type = self.device_type_id
+
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
         objectchange.related_object = self.device_type
@@ -90,7 +96,7 @@ class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
     def clean(self):
         super().clean()
 
-        if (not self._can_switch_device) and (self.pk is not None) and (self._original_device != self.device_id):
+        if (not self._can_switch_device) and (self.pk is not None) and (self._original_device_type != self.device_type_id):
             raise ValidationError({
                 "device_type": "Component templates cannot be moved to a different device type."
             })
@@ -128,12 +134,6 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
                 name='%(app_label)s_%(class)s_unique_module_type_name'
             ),
         )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Cache the original DeviceType ID for reference under clean()
-        self._original_device_type = self.device_type_id
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
