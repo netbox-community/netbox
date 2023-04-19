@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#12270](https://github.com/netbox-community/netbox/issues/12270) - Fix pre-population of list values when creating a saved filter
 * [#12296](https://github.com/netbox-community/netbox/issues/12296) - Fix "mark connected" form field for bulk editing front & rear ports
 
 ---
