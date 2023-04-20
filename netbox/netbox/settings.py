@@ -587,9 +587,10 @@ SPECTACULAR_SETTINGS = {
     'VERSION': VERSION,
     'COMPONENT_SPLIT_REQUEST': True,
     'REDOC_DIST': 'SIDECAR',
-    'SERVERS': [{'url': f'/{BASE_PATH}api'}, ],
+    'SERVERS': [{'url': f'/{BASE_PATH}api'}],
     'SWAGGER_UI_DIST': 'SIDECAR',
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'POSTPROCESSING_HOOKS': [],
 }
 
 #
