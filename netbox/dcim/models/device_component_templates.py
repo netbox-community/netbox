@@ -59,7 +59,6 @@ class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
         max_length=200,
         blank=True
     )
-    _can_switch_device = False
 
     class Meta:
         abstract = True
@@ -96,7 +95,7 @@ class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
     def clean(self):
         super().clean()
 
-        if (not self._can_switch_device) and (self.pk is not None) and (self._original_device_type != self.device_type_id):
+        if self.pk is not None and self._original_device_type != self.device_type_id:
             raise ValidationError({
                 "device_type": "Component templates cannot be moved to a different device type."
             })
@@ -642,7 +641,6 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
 
     objects = TreeManager()
     component_model = InventoryItem
-    _can_switch_device = True
 
     class Meta:
         ordering = ('device_type__id', 'parent__id', '_name')
