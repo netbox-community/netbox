@@ -2,8 +2,8 @@ import copy
 
 from django import forms
 
+from core.forms.mixins import SyncedDataMixin
 from core.models import *
-from extras.forms.mixins import SyncedDataMixin
 from netbox.forms import NetBoxModelForm
 from netbox.registry import registry
 from utilities.forms import get_field_value

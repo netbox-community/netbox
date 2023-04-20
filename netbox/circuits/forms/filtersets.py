@@ -1,14 +1,14 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from circuits.choices import CircuitStatusChoices
+from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
-from utilities.forms.widgets import DatePicker
+from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitFilterForm',
@@ -168,6 +168,9 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
     commit_rate = forms.IntegerField(
         required=False,
         min_value=0,
-        label=_('Commit rate (Kbps)')
+        label=_('Commit rate (Kbps)'),
+        widget=NumberWithOptions(
+            options=CircuitCommitRateChoices
+        )
     )
     tag = TagFilterField(model)

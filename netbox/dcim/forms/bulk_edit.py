@@ -12,7 +12,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from utilities.forms.widgets import BulkEditNullBooleanSelect, SelectSpeedWidget
+from utilities.forms.widgets import BulkEditNullBooleanSelect, NumberWithOptions
 
 __all__ = (
     'CableBulkEditForm',
@@ -1169,8 +1169,9 @@ class InterfaceBulkEditForm(
     )
     speed = forms.IntegerField(
         required=False,
-        widget=SelectSpeedWidget(),
-        label=_('Speed')
+        widget=NumberWithOptions(
+            options=InterfaceSpeedChoices
+        )
     )
     mgmt_only = forms.NullBooleanField(
         required=False,

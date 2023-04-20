@@ -1,0 +1,11 @@
+<div class="input-group">
+  {% include 'django/forms/widgets/number.html' %}
+  <button type="button" class="btn btn-outline-dark border-input dropdown-toggle" data-bs-toggle="dropdown"></button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    {% for value, label in widget.options %}
+      <li>
+        <a href="#" target="id_{{ widget.name }}" data="{{ value }}" class="set_field_value dropdown-item">{{ label }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

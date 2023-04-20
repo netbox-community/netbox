@@ -1,16 +1,14 @@
-from django.contrib.contenttypes.models import ContentType
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
-from core.models import DataFile, DataSource
-from extras.models import *
 from extras.choices import CustomFieldVisibilityChoices
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from extras.models import *
+from utilities.forms.fields import DynamicModelMultipleChoiceField
 
 __all__ = (
     'CustomFieldsMixin',
     'SavedFiltersMixin',
-    'SyncedDataMixin',
 )
 
 
@@ -72,21 +70,5 @@ class SavedFiltersMixin(forms.Form):
         label=_('Saved Filter'),
         query_params={
             'usable': True,
-        }
-    )
-
-
-class SyncedDataMixin(forms.Form):
-    data_source = DynamicModelChoiceField(
-        queryset=DataSource.objects.all(),
-        required=False,
-        label=_('Data source')
-    )
-    data_file = DynamicModelChoiceField(
-        queryset=DataFile.objects.all(),
-        required=False,
-        label=_('File'),
-        query_params={
-            'source_id': '$data_source',
         }
     )

@@ -1,7 +1,6 @@
 # Dashboard Widgets
 
-!!! note "Introduced in v3.5"
-    Support for custom dashboard widgets was introduced in NetBox v3.5.
+!!! info "This feature was introduced in NetBox v3.5."
 
 Each NetBox user can customize his or her personal dashboard by adding and removing widgets and by manipulating the size and position of each. Plugins can register their own dashboard widgets to complement those already available natively.
 

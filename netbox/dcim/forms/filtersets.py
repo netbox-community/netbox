@@ -12,7 +12,7 @@ from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
-from utilities.forms.widgets import APISelectMultiple, SelectSpeedWidget
+from utilities.forms.widgets import APISelectMultiple, NumberWithOptions
 from wireless.choices import *
 
 __all__ = (
@@ -1154,8 +1154,9 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     )
     speed = forms.IntegerField(
         required=False,
-        label='Speed',
-        widget=SelectSpeedWidget()
+        widget=NumberWithOptions(
+            options=InterfaceSpeedChoices
+        )
     )
     duplex = forms.MultipleChoiceField(
         choices=InterfaceDuplexChoices,

@@ -20,7 +20,7 @@ from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
-from utilities.forms.bulk_import import ImportForm
+from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import is_embedded, is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.utils import get_viewname
@@ -425,7 +425,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     #
 
     def get(self, request):
-        form = ImportForm()
+        form = BulkImportForm()
 
         return render(request, self.template_name, {
             'model': self.model_form._meta.model,
@@ -438,7 +438,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkImportView')
         model = self.model_form._meta.model
-        form = ImportForm(request.POST, request.FILES)
+        form = BulkImportForm(request.POST, request.FILES)
 
         if form.is_valid():
             logger.debug("Import form validation was successful")

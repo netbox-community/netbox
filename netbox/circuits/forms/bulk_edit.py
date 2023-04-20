@@ -1,14 +1,14 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from circuits.choices import CircuitStatusChoices
+from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices
 from circuits.models import *
 from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from utilities.forms.widgets import DatePicker
+from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitBulkEditForm',
@@ -139,7 +139,10 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
     )
     commit_rate = forms.IntegerField(
         required=False,
-        label=_('Commit rate (Kbps)')
+        label=_('Commit rate (Kbps)'),
+        widget=NumberWithOptions(
+            options=CircuitCommitRateChoices
+        )
     )
     description = forms.CharField(
         max_length=100,

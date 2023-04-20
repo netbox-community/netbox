@@ -1096,6 +1096,20 @@ class InterfaceTypeChoices(ChoiceSet):
     )
 
 
+class InterfaceSpeedChoices(ChoiceSet):
+    key = 'Interface.speed'
+
+    CHOICES = [
+        (10000, '10 Mbps'),
+        (100000, '100 Mbps'),
+        (1000000, '1 Gbps'),
+        (10000000, '10 Gbps'),
+        (25000000, '25 Gbps'),
+        (40000000, '40 Gbps'),
+        (100000000, '100 Gbps'),
+    ]
+
+
 class InterfaceDuplexChoices(ChoiceSet):
 
     DUPLEX_HALF = 'half'
