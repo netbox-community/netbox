@@ -581,14 +581,15 @@ REST_FRAMEWORK = {
 #
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "NetBox API",
-    "DESCRIPTION": "API to access NetBox",
-    "LICENSE": {"name": "Apache v2 License"},
-    "VERSION": VERSION,
+    'TITLE': 'NetBox API',
+    'DESCRIPTION': 'API to access NetBox',
+    'LICENSE': {'name': 'Apache v2 License'},
+    'VERSION': VERSION,
     'COMPONENT_SPLIT_REQUEST': True,
+    'REDOC_DIST': 'SIDECAR',
+    'SERVERS': [{'url': f'/{BASE_PATH}api'}],
     'SWAGGER_UI_DIST': 'SIDECAR',
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
-    'REDOC_DIST': 'SIDECAR',
     'POSTPROCESSING_HOOKS': [],
 }
 
