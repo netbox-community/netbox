@@ -87,7 +87,17 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
         else:
             user = auth.authenticate(request, remote_user=username)
         if user:
-            # User is valid.  Set request.user and persist user in the session
+            # User is valid.
+            # Update the User's Profile if set by request headers
+            if settings.REMOTE_AUTH_USER_FIRST_NAME in request.META:
+                user.first_name = request.META[settings.REMOTE_AUTH_USER_FIRST_NAME]
+            if settings.REMOTE_AUTH_USER_LAST_NAME in request.META:
+                user.last_name = request.META[settings.REMOTE_AUTH_USER_LAST_NAME]
+            if settings.REMOTE_AUTH_USER_EMAIL in request.META:
+                user.email = request.META[settings.REMOTE_AUTH_USER_EMAIL]
+            user.save()
+
+            # Set request.user and persist user in the session
             # by logging the user in.
             request.user = user
             auth.login(request, user)
