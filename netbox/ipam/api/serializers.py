@@ -14,6 +14,7 @@ from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
 from .nested_serializers import *
+from .field_serializers import IPAddressField
 
 
 #

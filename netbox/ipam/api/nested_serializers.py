@@ -1,15 +1,12 @@
-from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from ipam import models
 from ipam.models.l2vpn import L2VPNTermination, L2VPN
-from ipam.validators import validate_ipaddress_with_mask
 from netbox.api.serializers import WritableNestedSerializer
-from netaddr import AddrFormatError, IPNetwork
+from .field_serializers import IPAddressField
 
 __all__ = [
-    'IPAddressField',
     'NestedAggregateSerializer',
     'NestedASNSerializer',
     'NestedASNRangeSerializer',
@@ -29,34 +26,6 @@ __all__ = [
     'NestedVLANSerializer',
     'NestedVRFSerializer',
 ]
-
-
-#
-# IP address field
-#
-
-class IPAddressField(serializers.CharField):
-    """IPAddressField with mask"""
-
-    default_error_messages = {
-        'invalid': _('Enter a valid IPv4 or IPv6 address with optional mask.'),
-    }
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        validator = validate_ipaddress_with_mask
-        self.validators.append(validator)
-
-    def to_internal_value(self, data):
-        try:
-            return IPNetwork(data)
-        except AddrFormatError:
-            raise serializers.ValidationError("Invalid IP address format: {}".format(data))
-        except (TypeError, ValueError) as e:
-            raise serializers.ValidationError(e)
-
-    def to_representation(self, value):
-        return str(value)
 
 
 #
