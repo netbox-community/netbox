@@ -6,7 +6,6 @@ from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerial
 from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, VLANGROUP_SCOPE_TYPES
 from ipam.models import *
-from netaddr import AddrFormatError, IPNetwork
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
