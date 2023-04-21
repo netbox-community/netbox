@@ -114,7 +114,7 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
     parent = NestedVMInterfaceSerializer(required=False, allow_null=True)
     bridge = NestedVMInterfaceSerializer(required=False, allow_null=True)
-    mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False, allow_null=True)
+    mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),
