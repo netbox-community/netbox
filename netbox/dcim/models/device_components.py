@@ -67,7 +67,6 @@ class ComponentModel(NetBoxModel):
         max_length=200,
         blank=True
     )
-    _can_switch_device = False
 
     class Meta:
         abstract = True
@@ -98,7 +97,8 @@ class ComponentModel(NetBoxModel):
     def clean(self):
         super().clean()
 
-        if (not self._can_switch_device) and (self.pk is not None) and (self._original_device != self.device_id):
+        # Check list of Modules that allow device field to be changed
+        if (type(self) not in [InventoryItem]) and (self.pk is not None) and (self._original_device != self.device_id):
             raise ValidationError({
                 "device": "Components cannot be moved to a different device."
             })
@@ -1129,7 +1129,6 @@ class InventoryItem(MPTTModel, ComponentModel):
     objects = TreeManager()
 
     clone_fields = ('device', 'parent', 'role', 'manufacturer', 'part_id',)
-    _can_switch_device = True
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')
