@@ -229,7 +229,7 @@ class ObjectListWidget(DashboardWidget):
             htmx_url = None
         if parameters := self.config.get('url_params'):
             try:
-                htmx_url = f'{htmx_url}?{urlencode(parameters)}'
+                htmx_url = f'{htmx_url}?{urlencode(parameters, doseq=True)}'
             except ValueError:
                 pass
         return render_to_string(self.template_name, {

@@ -77,6 +77,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#12149](https://github.com/netbox-community/netbox/issues/12149) - Fix OpenAPI schema warnings relating to enum collisions
 * [#12256](https://github.com/netbox-community/netbox/issues/12256) - Fix OpenAPI schema warnings relating to nested serializers
 * [#12288](https://github.com/netbox-community/netbox/issues/12288) - Include `servers` definition in OpenAPI spec
+* [#12299](https://github.com/netbox-community/netbox/issues/12299) - Fix object list widget support for filtering by multiple values
 
 ### Other Changes
 
