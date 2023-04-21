@@ -28,8 +28,14 @@ The default [configuration template](../extras/configtemplate.md) for devices as
 
 ### NAPALM Driver
 
+!!! warning "Deprecated Field"
+    NAPALM integration was removed from NetBox core in v3.5 and is now available as a [plugin](https://github.com/netbox-community/netbox-napalm). This field will be removed in NetBox v3.6.
+
 The [NAPALM driver](https://napalm.readthedocs.io/en/latest/support/index.html) associated with this platform.
 
 ### NAPALM Arguments
+
+!!! warning "Deprecated Field"
+    NAPALM integration was removed from NetBox core in v3.5 and is now available as a [plugin](https://github.com/netbox-community/netbox-napalm). This field will be removed in NetBox v3.6.
 
 Any additional arguments to send when invoking the NAPALM driver assigned to this platform.

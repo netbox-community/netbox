@@ -108,7 +108,6 @@ nav:
         - Default Values: 'configuration/default-values.md'
         - Error Reporting: 'configuration/error-reporting.md'
         - Plugins: 'configuration/plugins.md'
-        - NAPALM: 'configuration/napalm.md'
         - Date & Time: 'configuration/date-time.md'
         - Miscellaneous: 'configuration/miscellaneous.md'
         - Development: 'configuration/development.md'
@@ -124,7 +123,6 @@ nav:
         - GraphQL API: 'integrations/graphql-api.md'
         - Webhooks: 'integrations/webhooks.md'
         - Synchronized Data: 'integrations/synchronized-data.md'
-        - NAPALM: 'integrations/napalm.md'
         - Prometheus Metrics: 'integrations/prometheus-metrics.md'
     - Plugins:
         - Using Plugins: 'plugins/index.md'
