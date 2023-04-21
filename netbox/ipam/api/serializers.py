@@ -13,6 +13,7 @@ from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
 from .nested_serializers import *
+from .field_serializers import IPAddressField
 
 
 #
@@ -369,6 +370,8 @@ class AvailablePrefixSerializer(serializers.Serializer):
 class IPRangeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:iprange-detail')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
+    start_address = IPAddressField()
+    end_address = IPAddressField()
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=IPRangeStatusChoices, required=False)
@@ -391,6 +394,7 @@ class IPRangeSerializer(NetBoxModelSerializer):
 class IPAddressSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
+    address = IPAddressField()
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=IPAddressStatusChoices, required=False)

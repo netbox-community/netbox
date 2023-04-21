@@ -4,6 +4,7 @@ from rest_framework import serializers
 from ipam import models
 from ipam.models.l2vpn import L2VPNTermination, L2VPN
 from netbox.api.serializers import WritableNestedSerializer
+from .field_serializers import IPAddressField
 
 __all__ = [
     'NestedAggregateSerializer',
@@ -182,6 +183,8 @@ class NestedPrefixSerializer(WritableNestedSerializer):
 class NestedIPRangeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:iprange-detail')
     family = serializers.IntegerField(read_only=True)
+    start_address = IPAddressField()
+    end_address = IPAddressField()
 
     class Meta:
         model = models.IPRange
@@ -195,6 +198,7 @@ class NestedIPRangeSerializer(WritableNestedSerializer):
 class NestedIPAddressSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
     family = serializers.IntegerField(read_only=True)
+    address = IPAddressField()
 
     class Meta:
         model = models.IPAddress
