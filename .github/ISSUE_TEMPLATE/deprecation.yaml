@@ -1,0 +1,24 @@
+---
+name: 🗑️ Deprecation
+description: The removal of an existing feature or resource
+labels: ["type: deprecation"]
+body:
+  - type: textarea
+    attributes:
+      label: Proposed Changes
+      description: >
+        Describe in detail the proposed changes. What is being removed?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Justification
+      description: Please provide justification for the proposed change(s).
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Impact
+      description: List all areas of the application that will be affected by this change.
+    validations:
+      required: true
