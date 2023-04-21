@@ -30,14 +30,6 @@ A webhook is a mechanism for conveying to some external system a change that too
 
 To learn more about this feature, check out the [webhooks documentation](../integrations/webhooks.md).
 
-## NAPALM
-
-[NAPALM](https://github.com/napalm-automation/napalm) is a Python library which enables direct interaction with network devices of various platforms. When configured, NetBox supports fetching live operational and status data directly from network devices to be compared to what has been defined in NetBox. This allows for easily validating the device's operational state against its desired state. Additionally, NetBox's REST API can act as a sort of proxy for NAPALM commands, allowing external clients to interact with network devices by sending HTTP requests to the appropriate API endpoint.
-
-To learn more about this feature, check out the [NAPALM documentation](../integrations/napalm.md).
-
-As of NetBox v3.5, NAPALM integration has been moved to a plugin.  Please see the [netbox_napalm_plugin](https://github.com/netbox-community/netbox-napalm) for installation instructions.
-
 ## Prometheus Metrics
 
 NetBox includes a special `/metrics` view which exposes metrics for a [Prometheus](https://prometheus.io/) scraper, powered by the open source [django-prometheus](https://github.com/korfuri/django-prometheus) library. To learn more about this feature, check out the [Prometheus metrics documentation](../integrations/prometheus-metrics.md).

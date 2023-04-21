@@ -172,6 +172,7 @@ class PlatformIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('slug', 110),
+        ('napalm_driver', 300),
         ('description', 500),
     )
 

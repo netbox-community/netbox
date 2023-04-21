@@ -20,7 +20,7 @@ There are four core actions that can be permitted for each type of object within
 * **Change** - Modify an existing object
 * **Delete** - Delete an existing object
 
-In addition to these, permissions can also grant custom actions that may be required by a specific model or plugin. For example, the `napalm_read` permission on the device model allows a user to execute NAPALM queries on a device via NetBox's REST API. These can be specified when granting a permission in the "additional actions" field.
+In addition to these, permissions can also grant custom actions that may be required by a specific model or plugin. For example, the `run` permission for scripts allows a user to execute custom scripts. These can be specified when granting a permission in the "additional actions" field.
 
 !!! note
     Internally, all actions granted by a permission (both built-in and custom) are stored as strings in an array field named `actions`.

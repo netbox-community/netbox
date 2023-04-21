@@ -1498,9 +1498,9 @@ class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
         Manufacturer.objects.bulk_create(manufacturers)
 
         platforms = (
-            Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturers[0], description='A'),
-            Platform(name='Platform 2', slug='platform-2', manufacturer=manufacturers[1], description='B'),
-            Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturers[2], description='C'),
+            Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturers[0], napalm_driver='driver-1', description='A'),
+            Platform(name='Platform 2', slug='platform-2', manufacturer=manufacturers[1], napalm_driver='driver-2', description='B'),
+            Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturers[2], napalm_driver='driver-3', description='C'),
         )
         Platform.objects.bulk_create(platforms)
 
@@ -1514,6 +1514,10 @@ class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_description(self):
         params = {'description': ['A', 'B']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_napalm_driver(self):
+        params = {'napalm_driver': ['driver-1', 'driver-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_manufacturer(self):
