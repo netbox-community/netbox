@@ -2,7 +2,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from ipam import models
-from ipam.validators import validate_ipaddress_with_mask
 from netaddr import AddrFormatError, IPNetwork
 
 __all__ = [
@@ -20,11 +19,6 @@ class IPAddressField(serializers.CharField):
     default_error_messages = {
         'invalid': _('Enter a valid IPv4 or IPv6 address with optional mask.'),
     }
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        validator = validate_ipaddress_with_mask
-        self.validators.append(validator)
 
     def to_internal_value(self, data):
         try:

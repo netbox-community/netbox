@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import BaseValidator, RegexValidator
-from netaddr import AddrFormatError, IPNetwork
 
 
 def prefix_validator(prefix):
@@ -29,13 +28,3 @@ DNSValidator = RegexValidator(
     message='Only alphanumeric characters, asterisks, hyphens, periods, and underscores are allowed in DNS names',
     code='invalid'
 )
-
-
-def validate_ipaddress_with_mask(address):
-    if address:
-        try:
-            IPNetwork(address)
-        except AddrFormatError:
-            raise ValidationError("Invalid IP address format: {}".format(address))
-        except (TypeError, ValueError) as e:
-            raise ValidationError(e)
