@@ -72,20 +72,11 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#12068](https://github.com/netbox-community/netbox/issues/12068) - Enable generic foreign key relationships from jobs to NetBox objects
 * [#12085](https://github.com/netbox-community/netbox/issues/12085) - Add a file source view for reports
 
-### Bug Fixes (From Beta1)
+### Bug Fixes (From Beta2)
 
-* [#12103](https://github.com/netbox-community/netbox/issues/12103) - Limit the types of objects available for object count & list widgets
-* [#12105](https://github.com/netbox-community/netbox/issues/12105) - Prevent data sources from becoming stuck in "syncing" status when an exception is raised
-* [#12106](https://github.com/netbox-community/netbox/issues/12106) - Fix exception when saving dashboard widget with minimum width/height
-* [#12108](https://github.com/netbox-community/netbox/issues/12108) - Limit the draggable area of widgets to their headers
-* [#12109](https://github.com/netbox-community/netbox/issues/12109) - Fix migration error when replicating more than 100 job results
-* [#12112](https://github.com/netbox-community/netbox/issues/12112) - Do not link data source URL for local paths
-* [#12115](https://github.com/netbox-community/netbox/issues/12115) - Fix rendering config templates from a data file
-* [#12144](https://github.com/netbox-community/netbox/issues/12144) - Ensure consistent treatment of context data when rendering config templates via UI & API
-* [#12145](https://github.com/netbox-community/netbox/issues/12145) - Employ `HTMXSelect` widget to fix inclusion of `<select>` field values during form regeneration
-* [#12146](https://github.com/netbox-community/netbox/issues/12146) - Do not display object selector for disabled fields
-* [#12151](https://github.com/netbox-community/netbox/issues/12151) - Remove incorrect OpenAPI string mapping for choice fields
-* [#12167](https://github.com/netbox-community/netbox/issues/12167) - Catch and report on exceptions raised when rendering a config template
+* [#12149](https://github.com/netbox-community/netbox/issues/12149) - Fix OpenAPI schema warnings relating to enum collisions
+* [#12256](https://github.com/netbox-community/netbox/issues/12256) - Fix OpenAPI schema warnings relating to nested serializers
+* [#12288](https://github.com/netbox-community/netbox/issues/12288) - Include `servers` definition in OpenAPI spec
 
 ### Other Changes
 
