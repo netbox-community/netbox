@@ -2,8 +2,15 @@
 
 ## v3.4.9 (FUTURE)
 
+### Enhancements
+
+* [#12205](https://github.com/netbox-community/netbox/issues/12205) - Sanitize rendered custom links to mitigate malicious links
+* [#12226](https://github.com/netbox-community/netbox/issues/12226) - Enable setting user name & email values via remote authenticate headers
+
 ### Bug Fixes
 
+* [#11383](https://github.com/netbox-community/netbox/issues/11383) - Fix ordering of global search results by object type
+* [#12255](https://github.com/netbox-community/netbox/issues/12255) - Restore the ability to move inventory items among devices
 * [#12270](https://github.com/netbox-community/netbox/issues/12270) - Fix pre-population of list values when creating a saved filter
 * [#12296](https://github.com/netbox-community/netbox/issues/12296) - Fix "mark connected" form field for bulk editing front & rear ports
 
