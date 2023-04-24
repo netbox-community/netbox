@@ -7,13 +7,7 @@
   data-netbox-url-name="{{ request.resolver_match.url_name }}"
   data-netbox-base-path="{{ settings.BASE_PATH }}"
   {% with preferences|get_key:'ui.colormode' as color_mode %}
-    {% if color_mode == 'dark'%}
-      data-netbox-color-mode="dark"
-    {% elif color_mode == 'light' %}
-      data-netbox-color-mode="light"
-    {% else %}
-      data-netbox-color-mode="unset"
-    {% endif %}
+    data-netbox-color-mode={{ color_mode }}
   {% endwith %}
   >
   <head>

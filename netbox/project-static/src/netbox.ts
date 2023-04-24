@@ -3,7 +3,6 @@ import { initBootstrap } from './bs';
 import { initQuickSearch } from './search';
 import { initSelect } from './select';
 import { initButtons } from './buttons';
-import { initColorMode } from './colorMode';
 import { initMessages } from './messages';
 import { initClipboard } from './clipboard';
 import { initDateSelector } from './dateSelector';
@@ -18,7 +17,6 @@ import { initHtmx } from './htmx';
 function initDocument(): void {
   for (const init of [
     initBootstrap,
-    initColorMode,
     initMessages,
     initForms,
     initQuickSearch,
