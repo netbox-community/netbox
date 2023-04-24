@@ -18,8 +18,9 @@ PREFERENCES = {
         choices=(
             ('light', 'Light'),
             ('dark', 'Dark'),
+            ('system', 'System')
         ),
-        default='light',
+        default='system',
     ),
     'pagination.per_page': UserPreference(
         label=_('Page length'),
@@ -45,6 +46,7 @@ PREFERENCES = {
             ('json', 'JSON'),
             ('yaml', 'YAML'),
         ),
+        default='json',
     ),
 
 }
