@@ -37,6 +37,7 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
                 'coerce': preference.coerce,
                 'required': False,
                 'widget': forms.Select,
+                'initial': preference.default,
             }
             preference_fields[field_name] = forms.TypedChoiceField(**field_kwargs)
         attrs.update(preference_fields)
