@@ -18,12 +18,31 @@
 {% endblock %}
 
 {% block extra_controls %}
-  <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}{% endif %}" class="btn btn-sm btn-primary{% if not prev_rack %} disabled{% endif %}">
-    <i class="mdi mdi-chevron-left" aria-hidden="true"></i> Previous
-  </a>
-  <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}{% endif %}" class="btn btn-sm btn-primary{% if not next_rack %} disabled{% endif %}">
-    <i class="mdi mdi-chevron-right" aria-hidden="true"></i> Next
-  </a>
+  <div class="btn-group" role="group" aria-label="RackNavigation">
+    {% if prev_rack %}
+      <a href="{{ prev_rack.get_absolute_url }}" class="btn btn-sm btn-primary">
+        <i class="mdi mdi-chevron-left" aria-hidden="true"></i> {{ prev_rack }}
+      </a>
+    {% endif %}
+    
+    {% if peer_racks %}
+      <div class="btn-group" role="group">
+        <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ object }}</button>
+        <ul class="dropdown-menu">
+          {% for peer_rack in peer_racks %}
+            <li><a class="dropdown-item{% if peer_rack.pk == object.pk %} active{% endif %}" href="{{ peer_rack.get_absolute_url }}">{{ peer_rack }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    {% if next_rack %}
+      <a href="{{ next_rack.get_absolute_url }}" class="btn btn-sm btn-primary">
+        {{ next_rack }} <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+      </a>
+    {% endif %}
+
+  </div>
 {% endblock %}
 
 {% block content %}
