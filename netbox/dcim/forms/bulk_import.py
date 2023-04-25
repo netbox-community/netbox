@@ -928,7 +928,7 @@ class InventoryItemImportForm(NetBoxModelImportForm):
         component_name = self.cleaned_data.get('component_name')
         device = self.cleaned_data.get("device")
 
-        if not device and hasattr(self, 'instance'):
+        if not device and hasattr(self, 'instance') and hasattr(self.instance, 'device'):
             device = self.instance.device
 
         if not all([device, content_type, component_name]):
