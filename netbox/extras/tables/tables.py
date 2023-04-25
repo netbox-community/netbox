@@ -3,6 +3,7 @@ import json
 import django_tables2 as tables
 from django.conf import settings
 from django.utils.translation import gettext as _
+from utilities.templatetags.builtins.filters import render_markdown
 
 from extras.models import *
 from netbox.tables import NetBoxTable, columns
@@ -30,6 +31,7 @@ class CustomFieldTable(NetBoxTable):
     content_types = columns.ContentTypesColumn()
     required = columns.BooleanColumn()
     ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
+    description = columns.MarkdownColumn()
 
     class Meta(NetBoxTable.Meta):
         model = CustomField
