@@ -71,11 +71,14 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#11968](https://github.com/netbox-community/netbox/issues/11968) - Add navigation menu buttons to create device & VM components
 * [#12068](https://github.com/netbox-community/netbox/issues/12068) - Enable generic foreign key relationships from jobs to NetBox objects
 * [#12085](https://github.com/netbox-community/netbox/issues/12085) - Add a file source view for reports
+* [#12218](https://github.com/netbox-community/netbox/issues/12218) - Provide more relevant API endpoint descriptions in schema
 
 ### Bug Fixes (From Beta2)
 
 * [#12149](https://github.com/netbox-community/netbox/issues/12149) - Fix OpenAPI schema warnings relating to enum collisions
+* [#12195](https://github.com/netbox-community/netbox/issues/12195) - Fix exception when setting IP address role to null via REST API
 * [#12256](https://github.com/netbox-community/netbox/issues/12256) - Fix OpenAPI schema warnings relating to nested serializers
+* [#12278](https://github.com/netbox-community/netbox/issues/12278) - Fix schema warnings related to IPAddressField
 * [#12288](https://github.com/netbox-community/netbox/issues/12288) - Include `servers` definition in OpenAPI spec
 * [#12299](https://github.com/netbox-community/netbox/issues/12299) - Fix object list widget support for filtering by multiple values
 
