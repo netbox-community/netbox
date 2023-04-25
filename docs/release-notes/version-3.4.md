@@ -4,6 +4,9 @@
 
 ### Enhancements
 
+* [#10987](https://github.com/netbox-community/netbox/issues/10987) - Show peer racks as a dropdown list under rack view
+* [#11386](https://github.com/netbox-community/netbox/issues/11386) - Introduce `CSRF_COOKIE_SECURE`, `SECURE_SSL_REDIRECT`, and `SESSION_COOKIE_SECURE` configuration parameters
+* [#11623](https://github.com/netbox-community/netbox/issues/11623) - Hide PSK strings under wireless LAN & link views
 * [#12205](https://github.com/netbox-community/netbox/issues/12205) - Sanitize rendered custom links to mitigate malicious links
 * [#12226](https://github.com/netbox-community/netbox/issues/12226) - Enable setting user name & email values via remote authenticate headers
 
