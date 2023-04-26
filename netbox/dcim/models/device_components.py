@@ -97,7 +97,8 @@ class ComponentModel(NetBoxModel):
     def clean(self):
         super().clean()
 
-        if self.pk is not None and self._original_device != self.device_id:
+        # Check list of Modules that allow device field to be changed
+        if (type(self) not in [InventoryItem]) and (self.pk is not None) and (self._original_device != self.device_id):
             raise ValidationError({
                 "device": "Components cannot be moved to a different device."
             })

@@ -14,7 +14,12 @@
       </tr>
       <tr>
           <th scope="row">PSK</th>
-          <td class="font-monospace">{{ object.auth_psk|placeholder }}</td>
+          <td>
+            <span id="secret" class="font-monospace" data-secret="{{ object.auth_psk }}">{{ object.auth_psk|placeholder }}</span>
+            {% if object.auth_psk %}
+            <button type="button" class="btn btn-sm btn-primary toggle-secret float-end" data-bs-toggle="button">Show Secret</button>
+            {% endif %}
+          </td>
       </tr>
     </table>
   </div>

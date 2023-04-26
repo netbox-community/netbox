@@ -5,6 +5,7 @@ import { initReslug } from './reslug';
 import { initSelectAll } from './selectAll';
 import { initSelectMultiple } from './selectMultiple';
 import { initMarkdownPreviews } from './markdownPreview';
+import { initSecretToggle } from './secretToggle';
 
 export function initButtons(): void {
   for (const func of [
@@ -15,6 +16,7 @@ export function initButtons(): void {
     initSelectMultiple,
     initMoveButtons,
     initMarkdownPreviews,
+    initSecretToggle,
   ]) {
     func();
   }

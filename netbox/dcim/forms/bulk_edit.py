@@ -1310,6 +1310,11 @@ class FrontPortBulkEditForm(
     form_from_model(FrontPort, ['label', 'type', 'color', 'mark_connected', 'description']),
     ComponentBulkEditForm
 ):
+    mark_connected = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect
+    )
+
     model = FrontPort
     fieldsets = (
         (None, ('module', 'type', 'label', 'color', 'description', 'mark_connected')),
@@ -1321,6 +1326,11 @@ class RearPortBulkEditForm(
     form_from_model(RearPort, ['label', 'type', 'color', 'mark_connected', 'description']),
     ComponentBulkEditForm
 ):
+    mark_connected = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect
+    )
+
     model = RearPort
     fieldsets = (
         (None, ('module', 'type', 'label', 'color', 'description', 'mark_connected')),

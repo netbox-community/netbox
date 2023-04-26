@@ -323,7 +323,7 @@ def applied_filters(context, model, form, query_params):
     save_link = None
     if user.has_perm('extras.add_savedfilter') and 'filter_id' not in context['request'].GET:
         content_type = ContentType.objects.get_for_model(model).pk
-        parameters = json.dumps(context['request'].GET)
+        parameters = json.dumps(dict(context['request'].GET.lists()))
         url = reverse('extras:savedfilter_add')
         save_link = f"{url}?content_types={content_type}&parameters={quote(parameters)}"
 

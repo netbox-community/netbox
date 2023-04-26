@@ -80,10 +80,24 @@ class ComponentTemplateModel(ChangeLoggedModel):
         """
         raise NotImplementedError()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Cache the original DeviceType ID for reference under clean()
+        self._original_device_type = self.device_type_id
+
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
         objectchange.related_object = self.device_type
         return objectchange
+
+    def clean(self):
+        super().clean()
+
+        if self.pk is not None and self._original_device_type != self.device_type_id:
+            raise ValidationError({
+                "device_type": "Component templates cannot be moved to a different device type."
+            })
 
 
 class ModularComponentTemplateModel(ComponentTemplateModel):
@@ -119,12 +133,6 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
             ),
         )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Cache the original DeviceType ID for reference under clean()
-        self._original_device_type = self.device_type_id
-
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
         if self.device_type is not None:
@@ -135,11 +143,6 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
 
     def clean(self):
         super().clean()
-
-        if self.pk is not None and self._original_device_type != self.device_type_id:
-            raise ValidationError({
-                "device_type": "Component templates cannot be moved to a different device type."
-            })
 
         # A component template must belong to a DeviceType *or* to a ModuleType
         if self.device_type and self.module_type:
