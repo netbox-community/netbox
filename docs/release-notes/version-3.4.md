@@ -1,5 +1,27 @@
 # NetBox v3.4
 
+## v3.4.9 (2023-04-26)
+
+### Enhancements
+
+* [#10987](https://github.com/netbox-community/netbox/issues/10987) - Show peer racks as a dropdown list under rack view
+* [#11386](https://github.com/netbox-community/netbox/issues/11386) - Introduce `CSRF_COOKIE_SECURE`, `SECURE_SSL_REDIRECT`, and `SESSION_COOKIE_SECURE` configuration parameters
+* [#11623](https://github.com/netbox-community/netbox/issues/11623) - Hide PSK strings under wireless LAN & link views
+* [#12205](https://github.com/netbox-community/netbox/issues/12205) - Sanitize rendered custom links to mitigate malicious links
+* [#12226](https://github.com/netbox-community/netbox/issues/12226) - Enable setting user name & email values via remote authenticate headers
+* [#12337](https://github.com/netbox-community/netbox/issues/12337) - Enable anonymized reporting of census data
+
+### Bug Fixes
+
+* [#11383](https://github.com/netbox-community/netbox/issues/11383) - Fix ordering of global search results by object type
+* [#11902](https://github.com/netbox-community/netbox/issues/11902) - Fix import of inventory items for devices with duplicated names
+* [#12238](https://github.com/netbox-community/netbox/issues/12238) - Improve error message for API token IP prefix validation failures
+* [#12255](https://github.com/netbox-community/netbox/issues/12255) - Restore the ability to move inventory items among devices
+* [#12270](https://github.com/netbox-community/netbox/issues/12270) - Fix pre-population of list values when creating a saved filter
+* [#12296](https://github.com/netbox-community/netbox/issues/12296) - Fix "mark connected" form field for bulk editing front & rear ports
+
+---
+
 ## v3.4.8 (2023-04-12)
 
 ### Enhancements

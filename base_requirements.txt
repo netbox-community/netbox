@@ -1,57 +1,57 @@
 # HTML sanitizer
-# https://github.com/mozilla/bleach
+# https://github.com/mozilla/bleach/blob/main/CHANGES
 bleach<6.0
 
 # The Python web framework on which NetBox is built
-# https://github.com/django/django
+# https://docs.djangoproject.com/en/stable/releases/
 Django<4.2
 
 # Django middleware which permits cross-domain API requests
-# https://github.com/OttoYiu/django-cors-headers
+# https://github.com/adamchainz/django-cors-headers/blob/main/CHANGELOG.rst
 django-cors-headers
 
 # Runtime UI tool for debugging Django
-# https://github.com/jazzband/django-debug-toolbar
+# https://github.com/jazzband/django-debug-toolbar/blob/main/docs/changes.rst
 django-debug-toolbar
 
 # Library for writing reusable URL query filters
-# https://github.com/carltongibson/django-filter
+# https://github.com/carltongibson/django-filter/blob/main/CHANGES.rst
 django-filter
 
 # Django debug toolbar extension with support for GraphiQL
-# https://github.com/flavors/django-graphiql-debug-toolbar/
+# https://github.com/flavors/django-graphiql-debug-toolbar/blob/main/CHANGES.rst
 django-graphiql-debug-toolbar
 
 # Modified Preorder Tree Traversal (recursive nesting of objects)
-# https://github.com/django-mptt/django-mptt
+# https://github.com/django-mptt/django-mptt/blob/main/CHANGELOG.rst
 django-mptt
 
 # Context managers for PostgreSQL advisory locks
-# https://github.com/Xof/django-pglocks
+# https://github.com/Xof/django-pglocks/blob/master/CHANGES.txt
 django-pglocks
 
 # Prometheus metrics library for Django
-# https://github.com/korfuri/django-prometheus
+# https://github.com/korfuri/django-prometheus/blob/master/CHANGELOG.md
 django-prometheus
 
 # Django caching backend using Redis
-# https://github.com/jazzband/django-redis
+# https://github.com/jazzband/django-redis/blob/master/CHANGELOG.rst
 django-redis
 
 # Django extensions for Rich (terminal text rendering)
-# https://github.com/adamchainz/django-rich
+# https://github.com/adamchainz/django-rich/blob/main/CHANGELOG.rst
 django-rich
 
 # Django integration for RQ (Reqis queuing)
-# https://github.com/rq/django-rq
+# https://github.com/rq/django-rq/blob/master/CHANGELOG.md
 django-rq
 
 # Abstraction models for rendering and paginating HTML tables
-# https://github.com/jieter/django-tables2
+# https://github.com/jieter/django-tables2/blob/master/CHANGELOG.md
 django-tables2
 
 # User-defined tags for objects
-# https://github.com/alex/django-taggit
+# https://github.com/jazzband/django-taggit/blob/master/CHANGELOG.rst
 django-taggit
 
 # A Django field for representing time zones
@@ -59,27 +59,27 @@ django-taggit
 django-timezone-field
 
 # A REST API framework for Django projects
-# https://github.com/encode/django-rest-framework
+# https://www.django-rest-framework.org/community/release-notes/
 djangorestframework
 
 # Swagger/OpenAPI schema generation for REST APIs
-# https://github.com/axnsan12/drf-yasg
+# https://drf-yasg.readthedocs.io/en/stable/changelog.html
 drf-yasg[validation]
 
 # Django wrapper for Graphene (GraphQL support)
-# https://github.com/graphql-python/graphene-django
+# https://github.com/graphql-python/graphene-django/releases
 graphene_django
 
 # WSGI HTTP server
-# https://gunicorn.org/
+# https://docs.gunicorn.org/en/latest/news.html
 gunicorn
 
 # Platform-agnostic template rendering engine
-# https://github.com/pallets/jinja
+# https://jinja.palletsprojects.com/changes/
 Jinja2
 
 # Simple markup language for rendering HTML
-# https://github.com/Python-Markdown/markdown
+# https://python-markdown.github.io/change_log/
 # mkdocs currently requires Markdown v3.3
 Markdown<3.4
 
@@ -88,50 +88,50 @@ Markdown<3.4
 markdown-include
 
 # MkDocs Material theme (for documentation build)
-# https://github.com/squidfunk/mkdocs-material
+# https://squidfunk.github.io/mkdocs-material/changelog/
 mkdocs-material
 
 # Introspection for embedded code
-# https://github.com/mkdocstrings/mkdocstrings
+# https://github.com/mkdocstrings/mkdocstrings/blob/master/CHANGELOG.md
 mkdocstrings[python-legacy]
 
 # Library for manipulating IP prefixes and addresses
-# https://github.com/netaddr/netaddr
+# https://github.com/netaddr/netaddr/blob/master/CHANGELOG
 netaddr
 
 # Fork of PIL (Python Imaging Library) for image processing
-# https://github.com/python-pillow/Pillow
+# https://github.com/python-pillow/Pillow/blob/main/CHANGES.rst
 Pillow
 
 # PostgreSQL database adapter for Python
-# https://github.com/psycopg/psycopg2
+# https://www.psycopg.org/docs/news.html
 psycopg2-binary
 
 # YAML rendering library
-# https://github.com/yaml/pyyaml
+# https://github.com/yaml/pyyaml/blob/master/CHANGES
 PyYAML
 
 # Sentry SDK
-# https://github.com/getsentry/sentry-python
+# https://github.com/getsentry/sentry-python/blob/master/CHANGELOG.md
 sentry-sdk
 
 # Social authentication framework
-# https://github.com/python-social-auth/social-core
+# https://github.com/python-social-auth/social-core/blob/master/CHANGELOG.md
 social-auth-core
 
 # Django app for social-auth-core
-# https://github.com/python-social-auth/social-app-django
+# https://github.com/python-social-auth/social-app-django/blob/master/CHANGELOG.md
 # See https://github.com/python-social-auth/social-app-django/issues/429
 social-auth-app-django==5.0.0
 
 # SVG image rendering (used for rack elevations)
-# https://github.com/mozman/svgwrite
+# hhttps://github.com/mozman/svgwrite/blob/master/NEWS.rst
 svgwrite
 
 # Tabular dataset library (for table-based exports)
-# https://github.com/jazzband/tablib
+# https://github.com/jazzband/tablib/blob/master/HISTORY.md
 tablib
 
 # Timezone data (required by django-timezone-field on Python 3.9+)
-# https://github.com/python/tzdata
+# https://github.com/python/tzdata/blob/master/NEWS.md
 tzdata

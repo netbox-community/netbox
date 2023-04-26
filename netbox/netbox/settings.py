@@ -3,9 +3,10 @@ import importlib
 import importlib.util
 import os
 import platform
+import requests
 import sys
 import warnings
-from urllib.parse import urlsplit
+from urllib.parse import urlencode, urlsplit
 
 import django
 import sentry_sdk
@@ -24,7 +25,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.4.8'
+VERSION = '3.4.9'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -78,10 +79,12 @@ BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
 CSRF_COOKIE_PATH = LANGUAGE_COOKIE_PATH = SESSION_COOKIE_PATH = f'/{BASE_PATH.rstrip("/")}'
+CENSUS_REPORTING_ENABLED = getattr(configuration, 'CENSUS_REPORTING_ENABLED', True)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
 CSRF_COOKIE_NAME = getattr(configuration, 'CSRF_COOKIE_NAME', 'csrftoken')
+CSRF_COOKIE_SECURE = getattr(configuration, 'CSRF_COOKIE_SECURE', False)
 CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
 DATE_FORMAT = getattr(configuration, 'DATE_FORMAT', 'N j, Y')
 DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
@@ -113,6 +116,9 @@ REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_GROUPS'
 REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_PERMISSIONS', {})
 REMOTE_AUTH_ENABLED = getattr(configuration, 'REMOTE_AUTH_ENABLED', False)
 REMOTE_AUTH_HEADER = getattr(configuration, 'REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER')
+REMOTE_AUTH_USER_FIRST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_FIRST_NAME', 'HTTP_REMOTE_USER_FIRST_NAME')
+REMOTE_AUTH_USER_LAST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_LAST_NAME', 'HTTP_REMOTE_USER_LAST_NAME')
+REMOTE_AUTH_USER_EMAIL = getattr(configuration, 'REMOTE_AUTH_USER_EMAIL', 'HTTP_REMOTE_USER_EMAIL')
 REMOTE_AUTH_GROUP_HEADER = getattr(configuration, 'REMOTE_AUTH_GROUP_HEADER', 'HTTP_REMOTE_USER_GROUP')
 REMOTE_AUTH_GROUP_SYNC_ENABLED = getattr(configuration, 'REMOTE_AUTH_GROUP_SYNC_ENABLED', False)
 REMOTE_AUTH_SUPERUSER_GROUPS = getattr(configuration, 'REMOTE_AUTH_SUPERUSER_GROUPS', [])
@@ -124,6 +130,7 @@ REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 're
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
 SEARCH_BACKEND = getattr(configuration, 'SEARCH_BACKEND', 'netbox.search.backends.CachedValueSearchBackend')
+SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', DEFAULT_SENTRY_DSN)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
@@ -131,6 +138,7 @@ SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
+SESSION_COOKIE_SECURE = getattr(configuration, 'SESSION_COOKIE_SECURE', False)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
@@ -491,6 +499,24 @@ if SENTRY_ENABLED:
     # If using the default DSN, append a unique deployment ID tag for error correlation
     if SENTRY_DSN == DEFAULT_SENTRY_DSN:
         sentry_sdk.set_tag('netbox.deployment_id', DEPLOYMENT_ID)
+
+
+#
+# Census collection
+#
+
+CENSUS_URL = 'https://census.netbox.dev/api/v1/'
+CENSUS_PARAMS = {
+    'version': VERSION,
+    'python_version': sys.version.split()[0],
+    'deployment_id': DEPLOYMENT_ID,
+}
+if CENSUS_REPORTING_ENABLED and not DEBUG and 'test' not in sys.argv:
+    try:
+        # Report anonymous census data
+        requests.get(f'{CENSUS_URL}?{urlencode(CENSUS_PARAMS)}', timeout=3, proxies=HTTP_PROXIES)
+    except requests.exceptions.RequestException:
+        pass
 
 
 #

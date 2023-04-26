@@ -1,4 +1,5 @@
 import json
+import urllib.parse
 import uuid
 
 from django.conf import settings
@@ -28,7 +29,7 @@ from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, TagsMixin, WebhooksMixin,
 )
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import render_jinja2
+from utilities.utils import clean_html, render_jinja2
 
 __all__ = (
     'ConfigRevision',
@@ -272,6 +273,18 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
             return {}
         link = render_jinja2(self.link_url, context)
         link_target = ' target="_blank"' if self.new_window else ''
+
+        # Sanitize link text
+        allowed_schemes = get_config().ALLOWED_URL_SCHEMES
+        text = clean_html(text, allowed_schemes)
+
+        # Sanitize link
+        link = urllib.parse.quote_plus(link, safe='/:?&')
+
+        # Verify link scheme is allowed
+        result = urllib.parse.urlparse(link)
+        if result.scheme and result.scheme not in allowed_schemes:
+            link = ""
 
         return {
             'text': text,
