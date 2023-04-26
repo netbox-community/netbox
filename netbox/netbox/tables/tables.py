@@ -204,7 +204,8 @@ class SearchTable(tables.Table):
         order_by="object___meta__verbose_name",
     )
     object = tables.Column(
-        linkify=True
+        linkify=True,
+        order_by=('name', )
     )
     field = tables.Column()
     value = tables.Column()
