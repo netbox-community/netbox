@@ -3,9 +3,10 @@ import importlib
 import importlib.util
 import os
 import platform
+import requests
 import sys
 import warnings
-from urllib.parse import urlsplit
+from urllib.parse import urlencode, urlsplit
 
 import django
 import sentry_sdk
@@ -78,6 +79,7 @@ BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
 CSRF_COOKIE_PATH = LANGUAGE_COOKIE_PATH = SESSION_COOKIE_PATH = f'/{BASE_PATH.rstrip("/")}'
+CENSUS_REPORTING_ENABLED = getattr(configuration, 'CENSUS_REPORTING_ENABLED', True)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
@@ -497,6 +499,24 @@ if SENTRY_ENABLED:
     # If using the default DSN, append a unique deployment ID tag for error correlation
     if SENTRY_DSN == DEFAULT_SENTRY_DSN:
         sentry_sdk.set_tag('netbox.deployment_id', DEPLOYMENT_ID)
+
+
+#
+# Census collection
+#
+
+CENSUS_URL = 'https://census.netbox.dev/api/v1/'
+CENSUS_PARAMS = {
+    'version': VERSION,
+    'python_version': sys.version.split()[0],
+    'deployment_id': DEPLOYMENT_ID,
+}
+if CENSUS_REPORTING_ENABLED and not DEBUG and 'test' not in sys.argv:
+    try:
+        # Report anonymous census data
+        requests.get(f'{CENSUS_URL}?{urlencode(CENSUS_PARAMS)}', timeout=3, proxies=HTTP_PROXIES)
+    except requests.exceptions.RequestException:
+        pass
 
 
 #

@@ -45,6 +45,16 @@ Sets content for the top banner in the user interface.
 
 ---
 
+## CENSUS_REPORTING_ENABLED
+
+Default: True
+
+Enables anonymous census reporting. To opt out of census reporting, set this to False.
+
+This data enables the project maintainers to estimate how many NetBox deployments exist and track the adoption of new versions over time. Census reporting effects a single HTTP request each time a worker starts. The only data reported by this function are the NetBox version, Python version, and a pseudorandom unique identifier.
+
+---
+
 ## CHANGELOG_RETENTION
 
 !!! tip "Dynamic Configuration Parameter"

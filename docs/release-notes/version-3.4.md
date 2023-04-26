@@ -9,6 +9,7 @@
 * [#11623](https://github.com/netbox-community/netbox/issues/11623) - Hide PSK strings under wireless LAN & link views
 * [#12205](https://github.com/netbox-community/netbox/issues/12205) - Sanitize rendered custom links to mitigate malicious links
 * [#12226](https://github.com/netbox-community/netbox/issues/12226) - Enable setting user name & email values via remote authenticate headers
+* [#12337](https://github.com/netbox-community/netbox/issues/12337) - Enable anonymized reporting of census data
 
 ### Bug Fixes
 
