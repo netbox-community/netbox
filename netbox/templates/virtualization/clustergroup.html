@@ -28,12 +28,6 @@
             <th scope="row">Description</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
-          <tr>
-            <th scope="row">Clusters</th>
-            <td>
-              <a href="{% url 'virtualization:cluster_list' %}?group_id={{ object.pk }}">{{ clusters_table.rows|length }}</a>
-            </td>
-          </tr>
         </table>
       </div>
     </div>
@@ -41,6 +35,7 @@
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% include 'inc/panels/contacts.html' %}
     {% plugin_right_page object %}
@@ -48,13 +43,6 @@
 </div>
 <div class="row">
 	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">Clusters</h5>
-      <div class="card-body table-responsive">
-        {% render_table clusters_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=clusters_table.paginator page=clusters_table.page %}
-      </div>
-    </div>
     {% plugin_full_width_page object %}
   </div>
 </div>

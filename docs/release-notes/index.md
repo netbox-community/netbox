@@ -10,6 +10,16 @@ Minor releases are published in April, August, and December of each calendar yea
 
 This page contains a history of all major and minor releases since NetBox v2.0. For more detail on a specific patch release, please see the release notes page for that specific minor release.
 
+#### [Version 3.5](./version-3.5.md) (April 2023)
+
+* Customizable Dashboard ([#9416](https://github.com/netbox-community/netbox/issues/9416))
+* Remote Data Sources ([#11558](https://github.com/netbox-community/netbox/issues/11558))
+* Configuration Template Rendering ([#11559](https://github.com/netbox-community/netbox/issues/11559))
+* NAPALM Integration Plugin ([#10520](https://github.com/netbox-community/netbox/issues/10520))
+* ASN Ranges ([#8550](https://github.com/netbox-community/netbox/issues/8550))
+* Provider Accounts ([#9047](https://github.com/netbox-community/netbox/issues/9047))
+* Job-Triggered Webhooks  ([#8958](https://github.com/netbox-community/netbox/issues/8958))
+
 #### [Version 3.4](./version-3.4.md) (December 2022)
 
 * New Global Search ([#10560](https://github.com/netbox-community/netbox/issues/10560))

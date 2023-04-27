@@ -1,6 +1,6 @@
+import decimal
 import re
 from datetime import datetime, date
-import decimal
 
 import django_filters
 from django import forms
@@ -17,18 +17,17 @@ from django.utils.translation import gettext as _
 from extras.choices import *
 from extras.utils import FeatureQuery
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import CloningMixin, ExportTemplatesMixin, WebhooksMixin
+from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from netbox.search import FieldTypes
 from utilities import filters
 from utilities.forms.fields import (
     CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, JSONField, LaxURLField,
 )
-from utilities.forms.widgets import DatePicker, StaticSelectMultiple, StaticSelect
 from utilities.forms.utils import add_blank_choice
+from utilities.forms.widgets import DatePicker, DateTimePicker
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
-
 
 __all__ = (
     'CustomField',
@@ -56,7 +55,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
@@ -148,8 +147,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         validators=[validate_regex],
         max_length=500,
         verbose_name='Validation regex',
-        help_text=_('Regular expression to enforce on text field values. Use ^ and $ to force matching of entire string. '
-                    'For example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.')
+        help_text=_(
+            'Regular expression to enforce on text field values. Use ^ and $ to force matching of entire string. For '
+            'example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
+        )
     )
     choices = ArrayField(
         base_field=models.CharField(max_length=100),
@@ -164,13 +165,18 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         verbose_name='UI visibility',
         help_text=_('Specifies the visibility of custom field in the UI')
     )
+    is_cloneable = models.BooleanField(
+        default=False,
+        verbose_name='Cloneable',
+        help_text=_('Replicate this value when cloning objects')
+    )
 
     objects = CustomFieldManager()
 
     clone_fields = (
         'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
         'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices',
-        'ui_visibility',
+        'ui_visibility', 'is_cloneable',
     )
 
     class Meta:
@@ -309,6 +315,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
             return value
         if self.type == CustomFieldTypeChoices.TYPE_DATE and type(value) is date:
             return value.isoformat()
+        if self.type == CustomFieldTypeChoices.TYPE_DATETIME and type(value) is datetime:
+            return value.isoformat()
         if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             return value.pk
         if self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
@@ -324,6 +332,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         if self.type == CustomFieldTypeChoices.TYPE_DATE:
             try:
                 return date.fromisoformat(value)
+            except ValueError:
+                return value
+        if self.type == CustomFieldTypeChoices.TYPE_DATETIME:
+            try:
+                return datetime.fromisoformat(value)
             except ValueError:
                 return value
         if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
@@ -374,12 +387,16 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
                 (False, 'False'),
             )
             field = forms.NullBooleanField(
-                required=required, initial=initial, widget=StaticSelect(choices=choices)
+                required=required, initial=initial, widget=forms.Select(choices=choices)
             )
 
         # Date
         elif self.type == CustomFieldTypeChoices.TYPE_DATE:
             field = forms.DateField(required=required, initial=initial, widget=DatePicker())
+
+        # Date & time
+        elif self.type == CustomFieldTypeChoices.TYPE_DATETIME:
+            field = forms.DateTimeField(required=required, initial=initial, widget=DateTimePicker())
 
         # Select
         elif self.type in (CustomFieldTypeChoices.TYPE_SELECT, CustomFieldTypeChoices.TYPE_MULTISELECT):
@@ -395,14 +412,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
 
             if self.type == CustomFieldTypeChoices.TYPE_SELECT:
                 field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
-                field = field_class(
-                    choices=choices, required=required, initial=initial, widget=StaticSelect()
-                )
+                field = field_class(choices=choices, required=required, initial=initial)
             else:
                 field_class = CSVMultipleChoiceField if for_csv_import else forms.MultipleChoiceField
-                field = field_class(
-                    choices=choices, required=required, initial=initial, widget=StaticSelectMultiple()
-                )
+                field = field_class(choices=choices, required=required, initial=initial)
 
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
@@ -495,6 +508,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         elif self.type == CustomFieldTypeChoices.TYPE_DATE:
             filter_class = filters.MultiValueDateFilter
 
+        # Date & time
+        elif self.type == CustomFieldTypeChoices.TYPE_DATETIME:
+            filter_class = filters.MultiValueDateTimeFilter
+
         # Select
         elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
             filter_class = filters.MultiValueCharFilter
@@ -563,9 +580,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
             elif self.type == CustomFieldTypeChoices.TYPE_DATE:
                 if type(value) is not date:
                     try:
-                        datetime.strptime(value, '%Y-%m-%d')
+                        date.fromisoformat(value)
                     except ValueError:
-                        raise ValidationError("Date values must be in the format YYYY-MM-DD.")
+                        raise ValidationError("Date values must be in ISO 8601 format (YYYY-MM-DD).")
+
+            # Validate date & time
+            elif self.type == CustomFieldTypeChoices.TYPE_DATETIME:
+                if type(value) is not datetime:
+                    try:
+                        datetime.fromisoformat(value)
+                    except ValueError:
+                        raise ValidationError("Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS).")
 
             # Validate selected choice
             elif self.type == CustomFieldTypeChoices.TYPE_SELECT:

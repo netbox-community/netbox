@@ -2,9 +2,6 @@ import inspect
 import json
 import logging
 import os
-import pkgutil
-import sys
-import threading
 import traceback
 from datetime import timedelta
 
@@ -15,18 +12,21 @@ from django.core.validators import RegexValidator
 from django.db import transaction
 from django.utils.functional import classproperty
 
+from core.choices import JobStatusChoices
+from core.models import Job
 from extras.api.serializers import ScriptOutputSerializer
-from extras.choices import JobResultStatusChoices, LogLevelChoices
-from extras.models import JobResult
+from extras.choices import LogLevelChoices
+from extras.models import ScriptModule
 from extras.signals import clear_webhooks
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortScript, AbortTransaction
-from utilities.forms import add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .context_managers import change_logging
 from .forms import ScriptForm
 
-__all__ = [
+__all__ = (
     'BaseScript',
     'BooleanVar',
     'ChoiceVar',
@@ -41,9 +41,9 @@ __all__ = [
     'Script',
     'StringVar',
     'TextVar',
-]
-
-lock = threading.Lock()
+    'get_module_and_script',
+    'run_script',
+)
 
 
 #
@@ -272,7 +272,7 @@ class BaseScript:
     def __init__(self):
 
         # Initiate the log
-        self.logger = logging.getLogger(f"netbox.scripts.{self.module()}.{self.__class__.__name__}")
+        self.logger = logging.getLogger(f"netbox.scripts.{self.__module__}.{self.__class__.__name__}")
         self.log = []
 
         # Declare the placeholder for the current request
@@ -286,28 +286,50 @@ class BaseScript:
         return self.name
 
     @classproperty
-    def name(self):
-        return getattr(self.Meta, 'name', self.__name__)
+    def module(self):
+        return self.__module__
+
+    @classproperty
+    def class_name(self):
+        return self.__name__
 
     @classproperty
     def full_name(self):
-        return '.'.join([self.__module__, self.__name__])
-
-    @classproperty
-    def description(self):
-        return getattr(self.Meta, 'description', '')
-
-    @classmethod
-    def module(cls):
-        return cls.__module__
+        return f'{self.module}.{self.class_name}'
 
     @classmethod
     def root_module(cls):
         return cls.__module__.split(".")[0]
 
+    # Author-defined attributes
+
+    @classproperty
+    def name(self):
+        return getattr(self.Meta, 'name', self.__name__)
+
+    @classproperty
+    def description(self):
+        return getattr(self.Meta, 'description', '')
+
+    @classproperty
+    def field_order(self):
+        return getattr(self.Meta, 'field_order', None)
+
+    @classproperty
+    def fieldsets(self):
+        return getattr(self.Meta, 'fieldsets', None)
+
+    @classproperty
+    def commit_default(self):
+        return getattr(self.Meta, 'commit_default', True)
+
     @classproperty
     def job_timeout(self):
         return getattr(self.Meta, 'job_timeout', None)
+
+    @classproperty
+    def scheduling_enabled(self):
+        return getattr(self.Meta, 'scheduling_enabled', True)
 
     @classmethod
     def _get_vars(cls):
@@ -324,11 +346,10 @@ class BaseScript:
                     vars[name] = attr
 
         # Order variables according to field_order
-        field_order = getattr(cls.Meta, 'field_order', None)
-        if not field_order:
+        if not cls.field_order:
             return vars
         ordered_vars = {
-            field: vars.pop(field) for field in field_order if field in vars
+            field: vars.pop(field) for field in cls.field_order if field in vars
         }
         ordered_vars.update(vars)
 
@@ -336,6 +357,23 @@ class BaseScript:
 
     def run(self, data, commit):
         raise NotImplementedError("The script must define a run() method.")
+
+    # Form rendering
+
+    def get_fieldsets(self):
+        fieldsets = []
+
+        if self.fieldsets:
+            fieldsets.extend(self.fieldsets)
+        else:
+            fields = (name for name, _ in self._get_vars().items())
+            fieldsets.append(('Script Data', fields))
+
+        # Append the default fieldset if defined in the Meta class
+        exec_parameters = ('_schedule_at', '_interval', '_commit') if self.scheduling_enabled else ('_commit',)
+        fieldsets.append(('Script Execution Parameters', exec_parameters))
+
+        return fieldsets
 
     def as_form(self, data=None, files=None, initial=None):
         """
@@ -350,19 +388,7 @@ class BaseScript:
         form = FormClass(data, files, initial=initial)
 
         # Set initial "commit" checkbox state based on the script's Meta parameter
-        form.fields['_commit'].initial = getattr(self.Meta, 'commit_default', True)
-
-        # Append the default fieldset if defined in the Meta class
-        default_fieldset = (
-            ('Script Execution Parameters', ('_schedule_at', '_interval', '_commit')),
-        )
-        if not hasattr(self.Meta, 'fieldsets'):
-            fields = (
-                name for name, _ in self._get_vars().items()
-            )
-            self.Meta.fieldsets = (('Script Data', fields),)
-
-        self.Meta.fieldsets += default_fieldset
+        form.fields['_commit'].initial = self.commit_default
 
         return form
 
@@ -427,15 +453,6 @@ class Script(BaseScript):
 # Functions
 #
 
-def is_script(obj):
-    """
-    Returns True if the object is a Script.
-    """
-    try:
-        return issubclass(obj, Script) and obj != Script
-    except TypeError:
-        return False
-
 
 def is_variable(obj):
     """
@@ -444,18 +461,23 @@ def is_variable(obj):
     return isinstance(obj, ScriptVariable)
 
 
-def run_script(data, request, commit=True, *args, **kwargs):
+def get_module_and_script(module_name, script_name):
+    module = ScriptModule.objects.get(file_path=f'{module_name}.py')
+    script = module.scripts.get(script_name)
+    return module, script
+
+
+def run_script(data, request, job, commit=True, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
     exists outside the Script class to ensure it cannot be overridden by a script author.
     """
-    job_result = kwargs.pop('job_result')
-    job_result.start()
+    job.start()
 
-    module, script_name = job_result.name.split('.', 1)
-    script = get_script(module, script_name)()
+    module = ScriptModule.objects.get(pk=job.object_id)
+    script = module.scripts.get(job.name)()
 
-    logger = logging.getLogger(f"netbox.scripts.{module}.{script_name}")
+    logger = logging.getLogger(f"netbox.scripts.{script.full_name}")
     logger.info(f"Running script (commit={commit})")
 
     # Add files to form data
@@ -472,38 +494,30 @@ def run_script(data, request, commit=True, *args, **kwargs):
         the change_logging context manager (which is bypassed if commit == False).
         """
         try:
-            with transaction.atomic():
-                script.output = script.run(data=data, commit=commit)
-                job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
-
-                if not commit:
-                    raise AbortTransaction()
-
-        except AbortTransaction:
-            script.log_info("Database changes have been reverted automatically.")
-            clear_webhooks.send(request)
-        except AbortScript as e:
-            script.log_failure(
-                f"Script aborted with error: {e}"
-            )
-            script.log_info("Database changes have been reverted due to error.")
-            logger.error(f"Script aborted with error: {e}")
-            job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-            clear_webhooks.send(request)
+            try:
+                with transaction.atomic():
+                    script.output = script.run(data=data, commit=commit)
+                    if not commit:
+                        raise AbortTransaction()
+            except AbortTransaction:
+                script.log_info("Database changes have been reverted automatically.")
+                clear_webhooks.send(request)
+            job.data = ScriptOutputSerializer(script).data
+            job.terminate()
         except Exception as e:
-            stacktrace = traceback.format_exc()
-            script.log_failure(
-                f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"
-            )
+            if type(e) is AbortScript:
+                script.log_failure(f"Script aborted with error: {e}")
+                logger.error(f"Script aborted with error: {e}")
+            else:
+                stacktrace = traceback.format_exc()
+                script.log_failure(f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```")
+                logger.error(f"Exception raised during script execution: {e}")
             script.log_info("Database changes have been reverted due to error.")
-            logger.error(f"Exception raised during script execution: {e}")
-            job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
+            job.data = ScriptOutputSerializer(script).data
+            job.terminate(status=JobStatusChoices.STATUS_ERRORED)
             clear_webhooks.send(request)
-        finally:
-            job_result.data = ScriptOutputSerializer(script).data
-            job_result.save()
 
-        logger.info(f"Script completed in {job_result.duration}")
+        logger.info(f"Script completed in {job.duration}")
 
     # Execute the script. If commit is True, wrap it with the change_logging context manager to ensure we process
     # change logging, webhooks, etc.
@@ -514,72 +528,17 @@ def run_script(data, request, commit=True, *args, **kwargs):
         _run_script()
 
     # Schedule the next job if an interval has been set
-    if job_result.interval:
-        new_scheduled_time = job_result.scheduled + timedelta(minutes=job_result.interval)
-        JobResult.enqueue_job(
+    if job.interval:
+        new_scheduled_time = job.scheduled + timedelta(minutes=job.interval)
+        Job.enqueue(
             run_script,
-            name=job_result.name,
-            obj_type=job_result.obj_type,
-            user=job_result.user,
+            instance=job.object,
+            name=job.name,
+            user=job.user,
             schedule_at=new_scheduled_time,
-            interval=job_result.interval,
+            interval=job.interval,
             job_timeout=script.job_timeout,
             data=data,
             request=request,
             commit=commit
         )
-
-
-def get_scripts(use_names=False):
-    """
-    Return a dict of dicts mapping all scripts to their modules. Set use_names to True to use each module's human-
-    defined name in place of the actual module name.
-    """
-    scripts = {}
-
-    # Get all modules within the scripts path. These are the user-created files in which scripts are
-    # defined.
-    modules = list(pkgutil.iter_modules([settings.SCRIPTS_ROOT]))
-    modules_bases = set([name.split(".")[0] for _, name, _ in modules])
-
-    # Deleting from sys.modules needs to done behind a lock to prevent race conditions where a module is
-    # removed from sys.modules while another thread is importing
-    with lock:
-        for module_name in list(sys.modules.keys()):
-            # Everything sharing a base module path with a module in the script folder is removed.
-            # We also remove all modules with a base module called "scripts". This allows modifying imported
-            # non-script modules without having to reload the RQ worker.
-            module_base = module_name.split(".")[0]
-            if module_base == "scripts" or module_base in modules_bases:
-                del sys.modules[module_name]
-
-    for importer, module_name, _ in modules:
-        module = importer.find_module(module_name).load_module(module_name)
-
-        if use_names and hasattr(module, 'name'):
-            module_name = module.name
-
-        module_scripts = {}
-        script_order = getattr(module, "script_order", ())
-        ordered_scripts = [cls for cls in script_order if is_script(cls)]
-        unordered_scripts = [cls for _, cls in inspect.getmembers(module, is_script) if cls not in script_order]
-
-        for cls in [*ordered_scripts, *unordered_scripts]:
-            # For scripts in submodules use the full import path w/o the root module as the name
-            script_name = cls.full_name.split(".", maxsplit=1)[1]
-            module_scripts[script_name] = cls
-
-        if module_scripts:
-            scripts[module_name] = module_scripts
-
-    return scripts
-
-
-def get_script(module_name, script_name):
-    """
-    Retrieve a script class by module and name. Returns None if the script does not exist.
-    """
-    scripts = get_scripts()
-    module = scripts.get(module_name)
-    if module:
-        return module.get(script_name)

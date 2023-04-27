@@ -26,24 +26,38 @@ class DynamicModelChoiceMixin:
             choice (optional)
         fetch_trigger: The event type which will cause the select element to
             fetch data from the API. Must be 'load', 'open', or 'collapse'. (optional)
+        selector: Include an advanced object selection widget to assist the user in identifying the desired object
     """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None,
-                 fetch_trigger=None, empty_label=None, *args, **kwargs):
+    def __init__(
+            self,
+            queryset,
+            *,
+            query_params=None,
+            initial_params=None,
+            null_option=None,
+            disabled_indicator=None,
+            fetch_trigger=None,
+            empty_label=None,
+            selector=False,
+            **kwargs
+    ):
+        self.model = queryset.model
         self.query_params = query_params or {}
         self.initial_params = initial_params or {}
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
         self.fetch_trigger = fetch_trigger
+        self.selector = selector
 
         # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
         # by widget_attrs()
         self.to_field_name = kwargs.get('to_field_name')
         self.empty_option = empty_label or ""
 
-        super().__init__(*args, **kwargs)
+        super().__init__(queryset, **kwargs)
 
     def widget_attrs(self, widget):
         attrs = {
@@ -69,6 +83,10 @@ class DynamicModelChoiceMixin:
         # Attach any static query parameters
         if (len(self.query_params) > 0):
             widget.add_query_params(self.query_params)
+
+        # Include object selector?
+        if self.selector:
+            attrs['selector'] = self.model._meta.label_lower
 
         return attrs
 

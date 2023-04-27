@@ -1,0 +1,39 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load form_helpers %}
+{% load log_levels %}
+
+{% block title %}{{ script }}{% endblock %}
+
+{% block object_identifier %}
+  {{ script.full_name }}
+{% endblock object_identifier %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module{{ module.pk }}">{{ module|bettertitle }}</a></li>
+{% endblock breadcrumbs %}
+
+{% block subtitle %}
+  <div class="object-subtitle">
+    <div class="text-muted">{{ script.Meta.description|markdown }}</div>
+  </div>
+{% endblock subtitle %}
+
+{% block controls %}{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link{% if not tab %} active{% endif %}" href="{% url 'extras:script' module=script.module name=script.class_name %}">Script</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link{% if tab == 'source' %} active{% endif %}" href="{% url 'extras:script_source' module=script.module name=script.class_name %}">Source</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link{% if tab == 'jobs' %} active{% endif %}" href="{% url 'extras:script_jobs' module=script.module name=script.class_name %}">
+        Jobs {% badge module.jobs.count %}
+      </a>
+    </li>
+  </ul>
+{% endblock tabs %}

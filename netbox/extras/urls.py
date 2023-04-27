@@ -29,6 +29,7 @@ urlpatterns = [
     path('export-templates/import/', views.ExportTemplateBulkImportView.as_view(), name='exporttemplate_import'),
     path('export-templates/edit/', views.ExportTemplateBulkEditView.as_view(), name='exporttemplate_bulk_edit'),
     path('export-templates/delete/', views.ExportTemplateBulkDeleteView.as_view(), name='exporttemplate_bulk_delete'),
+    path('export-templates/sync/', views.ExportTemplateBulkSyncDataView.as_view(), name='exporttemplate_bulk_sync'),
     path('export-templates/<int:pk>/', include(get_model_urls('extras', 'exporttemplate'))),
 
     # Saved filters
@@ -60,7 +61,16 @@ urlpatterns = [
     path('config-contexts/add/', views.ConfigContextEditView.as_view(), name='configcontext_add'),
     path('config-contexts/edit/', views.ConfigContextBulkEditView.as_view(), name='configcontext_bulk_edit'),
     path('config-contexts/delete/', views.ConfigContextBulkDeleteView.as_view(), name='configcontext_bulk_delete'),
+    path('config-contexts/sync/', views.ConfigContextBulkSyncDataView.as_view(), name='configcontext_bulk_sync'),
     path('config-contexts/<int:pk>/', include(get_model_urls('extras', 'configcontext'))),
+
+    # Config templates
+    path('config-templates/', views.ConfigTemplateListView.as_view(), name='configtemplate_list'),
+    path('config-templates/add/', views.ConfigTemplateEditView.as_view(), name='configtemplate_add'),
+    path('config-templates/edit/', views.ConfigTemplateBulkEditView.as_view(), name='configtemplate_bulk_edit'),
+    path('config-templates/delete/', views.ConfigTemplateBulkDeleteView.as_view(), name='configtemplate_bulk_delete'),
+    path('config-templates/sync/', views.ConfigTemplateBulkSyncDataView.as_view(), name='configtemplate_bulk_sync'),
+    path('config-templates/<int:pk>/', include(get_model_urls('extras', 'configtemplate'))),
 
     # Image attachments
     path('image-attachments/add/', views.ImageAttachmentEditView.as_view(), name='imageattachment_add'),
@@ -77,20 +87,29 @@ urlpatterns = [
     path('changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),
     path('changelog/<int:pk>/', include(get_model_urls('extras', 'objectchange'))),
 
+    # User dashboard
+    path('dashboard/reset/', views.DashboardResetView.as_view(), name='dashboard_reset'),
+    path('dashboard/widgets/add/', views.DashboardWidgetAddView.as_view(), name='dashboardwidget_add'),
+    path('dashboard/widgets/<uuid:id>/configure/', views.DashboardWidgetConfigView.as_view(), name='dashboardwidget_config'),
+    path('dashboard/widgets/<uuid:id>/delete/', views.DashboardWidgetDeleteView.as_view(), name='dashboardwidget_delete'),
+
     # Reports
     path('reports/', views.ReportListView.as_view(), name='report_list'),
-    path('reports/results/<int:job_result_pk>/', views.ReportResultView.as_view(), name='report_result'),
-    re_path(r'^reports/(?P<module>.([^.]+)).(?P<name>.(.+))/', views.ReportView.as_view(), name='report'),
-
-    # Job results
-    path('job-results/', views.JobResultListView.as_view(), name='jobresult_list'),
-    path('job-results/delete/', views.JobResultBulkDeleteView.as_view(), name='jobresult_bulk_delete'),
-    path('job-results/<int:pk>/delete/', views.JobResultDeleteView.as_view(), name='jobresult_delete'),
+    path('reports/add/', views.ReportModuleCreateView.as_view(), name='reportmodule_add'),
+    path('reports/results/<int:job_pk>/', views.ReportResultView.as_view(), name='report_result'),
+    path('reports/<int:pk>/', include(get_model_urls('extras', 'reportmodule'))),
+    path('reports/<str:module>/<str:name>/', views.ReportView.as_view(), name='report'),
+    path('reports/<str:module>/<str:name>/source/', views.ReportSourceView.as_view(), name='report_source'),
+    path('reports/<str:module>/<str:name>/jobs/', views.ReportJobsView.as_view(), name='report_jobs'),
 
     # Scripts
     path('scripts/', views.ScriptListView.as_view(), name='script_list'),
-    path('scripts/results/<int:job_result_pk>/', views.ScriptResultView.as_view(), name='script_result'),
-    re_path(r'^scripts/(?P<module>.([^.]+)).(?P<name>.(.+))/', views.ScriptView.as_view(), name='script'),
+    path('scripts/add/', views.ScriptModuleCreateView.as_view(), name='scriptmodule_add'),
+    path('scripts/results/<int:job_pk>/', views.ScriptResultView.as_view(), name='script_result'),
+    path('scripts/<int:pk>/', include(get_model_urls('extras', 'scriptmodule'))),
+    path('scripts/<str:module>/<str:name>/', views.ScriptView.as_view(), name='script'),
+    path('scripts/<str:module>/<str:name>/source/', views.ScriptSourceView.as_view(), name='script_source'),
+    path('scripts/<str:module>/<str:name>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
 
     # Markdown
     path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown")

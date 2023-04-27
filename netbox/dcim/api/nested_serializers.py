@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from dcim import models
@@ -53,6 +54,9 @@ __all__ = [
 # Regions/sites
 #
 
+@extend_schema_serializer(
+    exclude_fields=('site_count',),
+)
 class NestedRegionSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:region-detail')
     site_count = serializers.IntegerField(read_only=True)
@@ -63,6 +67,9 @@ class NestedRegionSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name', 'slug', 'site_count', '_depth']
 
 
+@extend_schema_serializer(
+    exclude_fields=('site_count',),
+)
 class NestedSiteGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:sitegroup-detail')
     site_count = serializers.IntegerField(read_only=True)
@@ -85,6 +92,9 @@ class NestedSiteSerializer(WritableNestedSerializer):
 # Racks
 #
 
+@extend_schema_serializer(
+    exclude_fields=('rack_count',),
+)
 class NestedLocationSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:location-detail')
     rack_count = serializers.IntegerField(read_only=True)
@@ -95,6 +105,9 @@ class NestedLocationSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name', 'slug', 'rack_count', '_depth']
 
 
+@extend_schema_serializer(
+    exclude_fields=('rack_count',),
+)
 class NestedRackRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackrole-detail')
     rack_count = serializers.IntegerField(read_only=True)
@@ -104,6 +117,9 @@ class NestedRackRoleSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name', 'slug', 'rack_count']
 
 
+@extend_schema_serializer(
+    exclude_fields=('device_count',),
+)
 class NestedRackSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rack-detail')
     device_count = serializers.IntegerField(read_only=True)
@@ -129,6 +145,9 @@ class NestedRackReservationSerializer(WritableNestedSerializer):
 # Device/module types
 #
 
+@extend_schema_serializer(
+    exclude_fields=('devicetype_count',),
+)
 class NestedManufacturerSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:manufacturer-detail')
     devicetype_count = serializers.IntegerField(read_only=True)
@@ -138,6 +157,9 @@ class NestedManufacturerSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name', 'slug', 'devicetype_count']
 
 
+@extend_schema_serializer(
+    exclude_fields=('device_count',),
+)
 class NestedDeviceTypeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicetype-detail')
     manufacturer = NestedManufacturerSerializer(read_only=True)
@@ -247,6 +269,9 @@ class NestedInventoryItemTemplateSerializer(WritableNestedSerializer):
 # Devices
 #
 
+@extend_schema_serializer(
+    exclude_fields=('device_count', 'virtualmachine_count'),
+)
 class NestedDeviceRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicerole-detail')
     device_count = serializers.IntegerField(read_only=True)
@@ -257,6 +282,9 @@ class NestedDeviceRoleSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name', 'slug', 'device_count', 'virtualmachine_count']
 
 
+@extend_schema_serializer(
+    exclude_fields=('device_count', 'virtualmachine_count'),
+)
 class NestedPlatformSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:platform-detail')
     device_count = serializers.IntegerField(read_only=True)
@@ -386,7 +414,7 @@ class NestedFrontPortSerializer(WritableNestedSerializer):
 
 class NestedModuleBaySerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebay-detail')
-    module = NestedModuleSerializer(read_only=True)
+    module = NestedModuleSerializer(required=False, read_only=True, allow_null=True)
 
     class Meta:
         model = models.ModuleBay
@@ -412,6 +440,9 @@ class NestedInventoryItemSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'device', 'name', '_depth']
 
 
+@extend_schema_serializer(
+    exclude_fields=('inventoryitem_count',),
+)
 class NestedInventoryItemRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitemrole-detail')
     inventoryitem_count = serializers.IntegerField(read_only=True)
@@ -437,6 +468,9 @@ class NestedCableSerializer(WritableNestedSerializer):
 # Virtual chassis
 #
 
+@extend_schema_serializer(
+    exclude_fields=('member_count',),
+)
 class NestedVirtualChassisSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
     master = NestedDeviceSerializer()
@@ -451,6 +485,9 @@ class NestedVirtualChassisSerializer(WritableNestedSerializer):
 # Power panels/feeds
 #
 
+@extend_schema_serializer(
+    exclude_fields=('powerfeed_count',),
+)
 class NestedPowerPanelSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerpanel-detail')
     powerfeed_count = serializers.IntegerField(read_only=True)

@@ -1,0 +1,11 @@
+{% if htmx_url and has_permission %}
+  <div class="htmx-container" hx-get="{{ htmx_url }}{% if page_size %}?per_page={{ page_size }}{% endif %}" hx-trigger="load"></div>
+{% elif htmx_url %}
+  <div class="text-muted text-center">
+    <i class="mdi mdi-lock-outline"></i> No permission to view this content.
+  </div>
+{% else %}
+  <div class="text-danger text-center">
+    <i class="mdi mdi-alert"></i> Unable to load content. Invalid view name: <span class="font-monospace">{{ viewname }}</span>
+  </div>
+{% endif %}

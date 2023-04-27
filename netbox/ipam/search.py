@@ -23,6 +23,14 @@ class ASNIndex(SearchIndex):
 
 
 @register_search
+class ASNRangeIndex(SearchIndex):
+    model = models.ASNRange
+    fields = (
+        ('description', 500),
+    )
+
+
+@register_search
 class FHRPGroupIndex(SearchIndex):
     model = models.FHRPGroup
     fields = (

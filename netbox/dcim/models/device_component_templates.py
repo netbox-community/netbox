@@ -9,7 +9,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 from dcim.choices import *
 from dcim.constants import *
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import WebhooksMixin
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
@@ -33,7 +32,7 @@ __all__ = (
 )
 
 
-class ComponentTemplateModel(WebhooksMixin, ChangeLoggedModel):
+class ComponentTemplateModel(ChangeLoggedModel):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
@@ -358,9 +357,20 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         max_length=50,
         choices=InterfaceTypeChoices
     )
+    enabled = models.BooleanField(
+        default=True
+    )
     mgmt_only = models.BooleanField(
         default=False,
         verbose_name='Management only'
+    )
+    bridge = models.ForeignKey(
+        to='self',
+        on_delete=models.SET_NULL,
+        related_name='bridge_interfaces',
+        null=True,
+        blank=True,
+        verbose_name='Bridge interface'
     )
     poe_mode = models.CharField(
         max_length=50,
@@ -377,11 +387,27 @@ class InterfaceTemplate(ModularComponentTemplateModel):
 
     component_model = Interface
 
+    def clean(self):
+        super().clean()
+
+        if self.bridge:
+            if self.pk and self.bridge_id == self.pk:
+                raise ValidationError({'bridge': "An interface cannot be bridged to itself."})
+            if self.device_type and self.device_type != self.bridge.device_type:
+                raise ValidationError({
+                    'bridge': f"Bridge interface ({self.bridge}) must belong to the same device type"
+                })
+            if self.module_type and self.module_type != self.bridge.module_type:
+                raise ValidationError({
+                    'bridge': f"Bridge interface ({self.bridge}) must belong to the same module type"
+                })
+
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
+            enabled=self.enabled,
             mgmt_only=self.mgmt_only,
             poe_mode=self.poe_mode,
             poe_type=self.poe_type,
@@ -392,9 +418,11 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         return {
             'name': self.name,
             'type': self.type,
+            'enabled': self.enabled,
             'mgmt_only': self.mgmt_only,
             'label': self.label,
             'description': self.description,
+            'bridge': self.bridge.name if self.bridge else None,
             'poe_mode': self.poe_mode,
             'poe_type': self.poe_type,
         }

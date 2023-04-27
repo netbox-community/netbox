@@ -1,5 +1,14 @@
 from django import template
 
+__all__ = (
+    'getfield',
+    'render_custom_fields',
+    'render_errors',
+    'render_field',
+    'render_form',
+    'widget_type',
+)
+
 
 register = template.Library()
 
@@ -11,9 +20,12 @@ register = template.Library()
 @register.filter()
 def getfield(form, fieldname):
     """
-    Return the specified field of a Form.
+    Return the specified bound field of a Form.
     """
-    return form[fieldname]
+    try:
+        return form[fieldname]
+    except KeyError:
+        return None
 
 
 @register.filter(name='widget_type')

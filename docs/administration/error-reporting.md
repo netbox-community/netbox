@@ -4,7 +4,7 @@
 
 ### Enabling Error Reporting
 
-NetBox v3.2.3 and later support native integration with [Sentry](https://sentry.io/) for automatic error reporting. To enable this functionality, simply set `SENTRY_ENABLED` to True in `configuration.py`. Errors will be sent to a Sentry ingestor maintained by the NetBox team for analysis.
+NetBox supports native integration with [Sentry](https://sentry.io/) for automatic error reporting. To enable this functionality, simply set `SENTRY_ENABLED` to True in `configuration.py`. Errors will be sent to a Sentry ingestor maintained by the NetBox team for analysis.
 
 ```python
 SENTRY_ENABLED = True

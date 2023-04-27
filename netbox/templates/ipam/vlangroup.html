@@ -42,12 +42,6 @@
             <th scope="row">Permitted VIDs</th>
             <td>{{ object.min_vid }} - {{ object.max_vid }}</td>
           </tr>
-          <tr>
-            <th scope="row">VLANs</th>
-            <td>
-              <a href="{% url 'ipam:vlan_list' %}?group_id={{ object.pk }}">{{ vlans_count }}</a>
-            </td>
-          </tr>
         </table>
       </div>
     </div>
@@ -55,6 +49,7 @@
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
   </div>

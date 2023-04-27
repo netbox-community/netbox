@@ -7,9 +7,9 @@
       <div class="btn-group btn-group-sm" role="group" aria-label="Pages">
         {% if page.has_previous %}
           <a href="#"
-             hx-get="{% querystring request page=page.previous_page_number %}"
-             hx-target="#object_list"
-             hx-push-url="true"
+             hx-get="{{ table.htmx_url }}{% querystring request page=page.previous_page_number %}"
+             hx-target="closest .htmx-container"
+             {% if not table.embedded %}hx-push-url="true"{% endif %}
              class="btn btn-outline-secondary"
           >
             <i class="mdi mdi-chevron-double-left"></i>
@@ -18,9 +18,9 @@
         {% for p in page.smart_pages %}
           {% if p %}
             <a href="#"
-               hx-get="{% querystring request page=p %}"
-               hx-target="#object_list"
-               hx-push-url="true"
+               hx-get="{{ table.htmx_url }}{% querystring request page=p %}"
+               hx-target="closest .htmx-container"
+             {% if not table.embedded %}hx-push-url="true"{% endif %}
                class="btn btn-outline-secondary{% if page.number == p %} active{% endif %}"
             >
               {{ p }}
@@ -33,9 +33,9 @@
         {% endfor %}
         {% if page.has_next %}
           <a href="#"
-             hx-get="{% querystring request page=page.next_page_number %}"
-             hx-target="#object_list"
-             hx-push-url="true"
+             hx-get="{{ table.htmx_url }}{% querystring request page=page.next_page_number %}"
+             hx-target="closest .htmx-container"
+             {% if not table.embedded %}hx-push-url="true"{% endif %}
              class="btn btn-outline-secondary"
           >
             <i class="mdi mdi-chevron-double-right"></i>
@@ -55,9 +55,9 @@
           {% for n in page.paginator.get_page_lengths %}
             <li>
               <a href="#"
-                 hx-get="{% querystring request per_page=n %}"
-                 hx-target="#object_list"
-                 hx-push-url="true"
+                 hx-get="{{ table.htmx_url }}{% querystring request per_page=n %}"
+                 hx-target="closest .htmx-container"
+                 {% if not table.embedded %}hx-push-url="true"{% endif %}
                  class="dropdown-item"
               >{{ n }}</a>
             </li>

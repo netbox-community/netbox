@@ -1,6 +1,10 @@
 import markdown
 from markdown.inlinepatterns import SimpleTagPattern
 
+__all__ = (
+    'StrikethroughExtension',
+)
+
 STRIKE_RE = r'(~{2})(.+?)(~{2})'
 
 

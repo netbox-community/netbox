@@ -3,15 +3,19 @@ from collections import defaultdict
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericRelation
-from django.db.models.signals import class_prepared
-from django.dispatch import receiver
-
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
+from django.db.models.signals import class_prepared
+from django.dispatch import receiver
+from django.utils import timezone
+from django.utils.translation import gettext as _
 from taggit.managers import TaggableManager
 
+from core.choices import JobStatusChoices
 from extras.choices import CustomFieldVisibilityChoices, ObjectChangeActionChoices
 from extras.utils import is_taggable, register_features
+from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.json import CustomFieldJSONEncoder
 from utilities.utils import serialize_object
@@ -24,8 +28,9 @@ __all__ = (
     'CustomLinksMixin',
     'CustomValidationMixin',
     'ExportTemplatesMixin',
-    'JobResultsMixin',
+    'JobsMixin',
     'JournalingMixin',
+    'SyncedDataMixin',
     'TagsMixin',
     'WebhooksMixin',
 )
@@ -122,6 +127,12 @@ class CloningMixin(models.Model):
         # Include tags (if applicable)
         if is_taggable(self):
             attrs['tags'] = [tag.pk for tag in self.tags.all()]
+
+        # Include any cloneable custom fields
+        if hasattr(self, 'custom_fields'):
+            for field in self.custom_fields:
+                if field.is_cloneable:
+                    attrs[f'cf_{field.name}'] = self.custom_field_data.get(field.name)
 
         return attrs
 
@@ -285,12 +296,30 @@ class ExportTemplatesMixin(models.Model):
         abstract = True
 
 
-class JobResultsMixin(models.Model):
+class JobsMixin(models.Model):
     """
     Enables support for job results.
     """
+    jobs = GenericRelation(
+        to='core.Job',
+        content_type_field='object_type',
+        object_id_field='object_id',
+        for_concrete_model=False
+    )
+
     class Meta:
         abstract = True
+
+    def get_latest_jobs(self):
+        """
+        Return a dictionary mapping of the most recent jobs for this instance.
+        """
+        return {
+            job.name: job
+            for job in self.jobs.filter(
+                status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
+            ).order_by('name', '-created').distinct('name').defer('data')
+        }
 
 
 class JournalingMixin(models.Model):
@@ -329,21 +358,137 @@ class WebhooksMixin(models.Model):
         abstract = True
 
 
-FEATURES_MAP = (
-    ('custom_fields', CustomFieldsMixin),
-    ('custom_links', CustomLinksMixin),
-    ('export_templates', ExportTemplatesMixin),
-    ('job_results', JobResultsMixin),
-    ('journaling', JournalingMixin),
-    ('tags', TagsMixin),
-    ('webhooks', WebhooksMixin),
-)
+class SyncedDataMixin(models.Model):
+    """
+    Enables population of local data from a DataFile object, synchronized from a remote DataSource.
+    """
+    data_source = models.ForeignKey(
+        to='core.DataSource',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        related_name='+',
+        help_text=_("Remote data source")
+    )
+    data_file = models.ForeignKey(
+        to='core.DataFile',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='+'
+    )
+    data_path = models.CharField(
+        max_length=1000,
+        blank=True,
+        editable=False,
+        help_text=_("Path to remote file (relative to data source root)")
+    )
+    auto_sync_enabled = models.BooleanField(
+        default=False,
+        help_text=_("Enable automatic synchronization of data when the data file is updated")
+    )
+    data_synced = models.DateTimeField(
+        blank=True,
+        null=True,
+        editable=False
+    )
+
+    class Meta:
+        abstract = True
+
+    @property
+    def is_synced(self):
+        return self.data_file and self.data_synced >= self.data_file.last_updated
+
+    def clean(self):
+
+        if self.data_file:
+            self.data_source = self.data_file.source
+            self.data_path = self.data_file.path
+            self.sync()
+        else:
+            self.data_source = None
+            self.data_path = ''
+            self.auto_sync_enabled = False
+            self.data_synced = None
+
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        from core.models import AutoSyncRecord
+
+        ret = super().save(*args, **kwargs)
+
+        # Create/delete AutoSyncRecord as needed
+        content_type = ContentType.objects.get_for_model(self)
+        if self.auto_sync_enabled:
+            AutoSyncRecord.objects.get_or_create(
+                datafile=self.data_file,
+                object_type=content_type,
+                object_id=self.pk
+            )
+        else:
+            AutoSyncRecord.objects.filter(
+                datafile=self.data_file,
+                object_type=content_type,
+                object_id=self.pk
+            ).delete()
+
+        return ret
+
+    def resolve_data_file(self):
+        """
+        Determine the designated DataFile object identified by its parent DataSource and its path. Returns None if
+        either attribute is unset, or if no matching DataFile is found.
+        """
+        from core.models import DataFile
+
+        if self.data_source and self.data_path:
+            try:
+                return DataFile.objects.get(source=self.data_source, path=self.data_path)
+            except DataFile.DoesNotExist:
+                pass
+
+    def sync(self, save=False):
+        """
+        Synchronize the object from it's assigned DataFile (if any). This wraps sync_data() and updates
+        the synced_data timestamp.
+
+        :param save: If true, save() will be called after data has been synchronized
+        """
+        self.sync_data()
+        self.data_synced = timezone.now()
+        if save:
+            self.save()
+
+    def sync_data(self):
+        """
+        Inheriting models must override this method with specific logic to copy data from the assigned DataFile
+        to the local instance. This method should *NOT* call save() on the instance.
+        """
+        raise NotImplementedError(f"{self.__class__} must implement a sync_data() method.")
+
+
+FEATURES_MAP = {
+    'custom_fields': CustomFieldsMixin,
+    'custom_links': CustomLinksMixin,
+    'export_templates': ExportTemplatesMixin,
+    'jobs': JobsMixin,
+    'journaling': JournalingMixin,
+    'synced_data': SyncedDataMixin,
+    'tags': TagsMixin,
+    'webhooks': WebhooksMixin,
+}
+
+registry['model_features'].update({
+    feature: defaultdict(set) for feature in FEATURES_MAP.keys()
+})
 
 
 @receiver(class_prepared)
 def _register_features(sender, **kwargs):
     features = {
-        feature for feature, cls in FEATURES_MAP if issubclass(sender, cls)
+        feature for feature, cls in FEATURES_MAP.items() if issubclass(sender, cls)
     }
     register_features(sender, features)
 
@@ -360,3 +505,15 @@ def _register_features(sender, **kwargs):
             'changelog',
             kwargs={'model': sender}
         )('netbox.views.generic.ObjectChangeLogView')
+    if issubclass(sender, JobsMixin):
+        register_model_view(
+            sender,
+            'jobs',
+            kwargs={'model': sender}
+        )('netbox.views.generic.ObjectJobsView')
+    if issubclass(sender, SyncedDataMixin):
+        register_model_view(
+            sender,
+            'sync',
+            kwargs={'model': sender}
+        )('netbox.views.generic.ObjectSyncDataView')

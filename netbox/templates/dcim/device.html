@@ -9,9 +9,7 @@
     <div class="row">
         <div class="col col-12 col-xl-6">
             <div class="card">
-                <h5 class="card-header">
-                    Device
-                </h5>
+                <h5 class="card-header">Device</h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
                         <tr>
@@ -111,6 +109,10 @@
                             <th scope="row">Asset Tag</th>
                             <td class="font-monospace">{{ object.asset_tag|placeholder }}</td>
                         </tr>
+                        <tr>
+                            <th scope="row">Config Template</th>
+                            <td>{{ object.config_template|linkify|placeholder }}</td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -157,28 +159,10 @@
             {% include 'inc/panels/comments.html' %}
             <div class="card">
               <h5 class="card-header">Virtual Device Contexts</h5>
-              <div class="card-body">
-                {% if vdcs %}
-                  <table class="table table-hover">
-                    <tr>
-                      <th>Name</th>
-                      <th>Status</th>
-                      <th>Identifier</th>
-                      <th>Tenant</th>
-                    </tr>
-                    {% for vdc in vdcs %}
-                      <tr>
-                        <td>{{ vdc|linkify }}</td>
-                        <td>{% badge vdc.get_status_display bg_color=vdc.get_status_color %}</td>
-                        <td>{{ vdc.identifier|placeholder }}</td>
-                        <td>{{ vdc.tenant|linkify|placeholder }}</td>
-                      </tr>
-                    {% endfor %}
-                  </table>
-                {% else %}
-                  <div class="text-muted">None</div>
-                {% endif %}
-              </div>
+              <div class="card-body htmx-container table-responsive"
+                hx-get="{% url 'dcim:virtualdevicecontext_list' %}?device_id={{ object.pk }}"
+                hx-trigger="load"
+              ></div>
               {% if perms.dcim.add_virtualdevicecontext %}
                 <div class="card-footer text-end noprint">
                   <a href="{% url 'dcim:virtualdevicecontext_add' %}?device={{ object.pk }}" class="btn btn-sm btn-primary">
@@ -300,7 +284,20 @@
                     </div>
                 </div>
             {% endif %}
-            {% include 'inc/panels/services.html' %}
+            <div class="card">
+              <h5 class="card-header">Services</h5>
+              <div class="card-body htmx-container table-responsive"
+                hx-get="{% url 'ipam:service_list' %}?device_id={{ object.pk }}"
+                hx-trigger="load"
+              ></div>
+              {% if perms.ipam.add_service %}
+                <div class="card-footer text-end noprint">
+                  <a href="{% url 'ipam:service_add' %}?device={{ object.pk }}" class="btn btn-sm btn-primary">
+                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add a service
+                  </a>
+                </div>
+              {% endif %}
+            </div>
             {% include 'inc/panels/contacts.html' %}
             {% include 'inc/panels/image_attachments.html' %}
             {% if object.rack and object.position %}

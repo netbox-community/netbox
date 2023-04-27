@@ -82,6 +82,14 @@ class DeviceType(PrimaryModel, WeightMixin):
     slug = models.SlugField(
         max_length=100
     )
+    default_platform = models.ForeignKey(
+        to='dcim.Platform',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name='Default platform'
+    )
     part_number = models.CharField(
         max_length=50,
         blank=True,
@@ -125,7 +133,7 @@ class DeviceType(PrimaryModel, WeightMixin):
     )
 
     clone_fields = (
-        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
+        'manufacturer', 'default_platform', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit'
     )
     prerequisite_models = (
         'dcim.Manufacturer',
@@ -169,6 +177,7 @@ class DeviceType(PrimaryModel, WeightMixin):
             'manufacturer': self.manufacturer.name,
             'model': self.model,
             'slug': self.slug,
+            'default_platform': self.default_platform.name if self.default_platform else None,
             'part_number': self.part_number,
             'u_height': float(self.u_height),
             'is_full_depth': self.is_full_depth,
@@ -405,6 +414,13 @@ class DeviceRole(OrganizationalModel):
         verbose_name='VM Role',
         help_text=_('Virtual machines may be assigned to this role')
     )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='device_roles',
+        blank=True,
+        null=True
+    )
 
     def get_absolute_url(self):
         return reverse('dcim:devicerole', args=[self.pk])
@@ -424,6 +440,13 @@ class Platform(OrganizationalModel):
         null=True,
         help_text=_('Optionally limit this platform to devices of a certain manufacturer')
     )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='platforms',
+        blank=True,
+        null=True
+    )
     napalm_driver = models.CharField(
         max_length=50,
         blank=True,
@@ -439,6 +462,20 @@ class Platform(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('dcim:platform', args=[self.pk])
+
+
+def update_interface_bridges(device, interface_templates, module=None):
+    """
+    Used for device and module instantiation. Iterates all InterfaceTemplates with a bridge assigned
+    and applies it to the actual interfaces.
+    """
+    for interface_template in interface_templates.exclude(bridge=None):
+        interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
+
+        if interface_template.bridge:
+            interface.bridge = Interface.objects.get(device=device, name=interface_template.bridge.resolve_name(module=module))
+            interface.full_clean()
+            interface.save()
 
 
 class Device(PrimaryModel, ConfigContextModel):
@@ -461,7 +498,8 @@ class Device(PrimaryModel, ConfigContextModel):
     device_role = models.ForeignKey(
         to='dcim.DeviceRole',
         on_delete=models.PROTECT,
-        related_name='devices'
+        related_name='devices',
+        help_text=_("The function this device serves")
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -491,7 +529,8 @@ class Device(PrimaryModel, ConfigContextModel):
     serial = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='Serial number'
+        verbose_name='Serial number',
+        help_text=_("Chassis serial number, assigned by the manufacturer")
     )
     asset_tag = models.CharField(
         max_length=50,
@@ -578,12 +617,21 @@ class Device(PrimaryModel, ConfigContextModel):
     vc_position = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
-        validators=[MaxValueValidator(255)]
+        validators=[MaxValueValidator(255)],
+        help_text=_('Virtual chassis position')
     )
     vc_priority = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
-        validators=[MaxValueValidator(255)]
+        validators=[MaxValueValidator(255)],
+        help_text=_('Virtual chassis master election priority')
+    )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='devices',
+        blank=True,
+        null=True
     )
 
     # Generic relations
@@ -806,6 +854,11 @@ class Device(PrimaryModel, ConfigContextModel):
         if is_new and not self.airflow:
             self.airflow = self.device_type.airflow
 
+        # Inherit default_platform from DeviceType if not set
+        if is_new and not self.platform:
+            self.platform = self.device_type.default_platform
+
+        # Inherit location from Rack if not set
         if self.rack and self.rack.location:
             self.location = self.rack.location
 
@@ -824,6 +877,8 @@ class Device(PrimaryModel, ConfigContextModel):
             self._instantiate_components(self.device_type.devicebaytemplates.all())
             # Disable bulk_create to accommodate MPTT
             self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
+            # Interface bridges have to be set after interface instantiation
+            update_interface_bridges(self, self.device_type.interfacetemplates.all())
 
         # Update Site and Rack assignment for any child Devices
         devices = Device.objects.filter(parent_bay__device=self)
@@ -856,6 +911,17 @@ class Device(PrimaryModel, ConfigContextModel):
     @property
     def interfaces_count(self):
         return self.vc_interfaces().count()
+
+    def get_config_template(self):
+        """
+        Return the appropriate ConfigTemplate (if any) for this Device.
+        """
+        if self.config_template:
+            return self.config_template
+        if self.device_role.config_template:
+            return self.device_role.config_template
+        if self.platform and self.platform.config_template:
+            return self.platform.config_template
 
     def get_vc_master(self):
         """
@@ -1048,6 +1114,9 @@ class Module(PrimaryModel, ConfigContextModel):
                     using='default',
                     update_fields=update_fields
                 )
+
+        # Interface bridges have to be set after interface instantiation
+        update_interface_bridges(self.device, self.module_type.interfacetemplates, self)
 
 
 #

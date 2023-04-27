@@ -22,10 +22,20 @@ A unique URL-friendly identifier. (This value can be used for filtering.)
 
 If designated, this platform will be available for use only to devices assigned to this [manufacturer](./manufacturer.md). This can be handy e.g. for limiting network operating systems to use on hardware produced by the relevant vendor. However, it should not be used when defining general-purpose software platforms.
 
+### Configuration Template
+
+The default [configuration template](../extras/configtemplate.md) for devices assigned to this platform.
+
 ### NAPALM Driver
+
+!!! warning "Deprecated Field"
+    NAPALM integration was removed from NetBox core in v3.5 and is now available as a [plugin](https://github.com/netbox-community/netbox-napalm). This field will be removed in NetBox v3.6.
 
 The [NAPALM driver](https://napalm.readthedocs.io/en/latest/support/index.html) associated with this platform.
 
 ### NAPALM Arguments
+
+!!! warning "Deprecated Field"
+    NAPALM integration was removed from NetBox core in v3.5 and is now available as a [plugin](https://github.com/netbox-community/netbox-napalm). This field will be removed in NetBox v3.6.
 
 Any additional arguments to send when invoking the NAPALM driver assigned to this platform.

@@ -3,6 +3,7 @@ from django.utils.translation import gettext as _
 
 from dcim.choices import *
 from dcim.constants import *
+from utilities.forms import get_field_value
 
 __all__ = (
     'InterfaceCommonForm',
@@ -22,6 +23,20 @@ class InterfaceCommonForm(forms.Form):
         max_value=INTERFACE_MTU_MAX,
         label=_('MTU')
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Determine the selected 802.1Q mode
+        interface_mode = get_field_value(self, 'mode')
+
+        # Delete VLAN tagging fields which are not relevant for the selected mode
+        if interface_mode in (InterfaceModeChoices.MODE_ACCESS, InterfaceModeChoices.MODE_TAGGED_ALL):
+            del self.fields['tagged_vlans']
+        elif not interface_mode:
+            del self.fields['vlan_group']
+            del self.fields['untagged_vlan']
+            del self.fields['tagged_vlans']
 
     def clean(self):
         super().clean()

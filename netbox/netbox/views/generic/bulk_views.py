@@ -11,6 +11,7 @@ from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django_tables2.export import TableExport
 
@@ -18,9 +19,11 @@ from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
-from utilities.forms import BulkRenameForm, ConfirmationForm, ImportForm, restrict_form_fields
-from utilities.htmx import is_htmx
+from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
+from utilities.forms.bulk_import import BulkImportForm
+from utilities.htmx import is_embedded, is_htmx
 from utilities.permissions import get_permission_for_model
+from utilities.utils import get_viewname
 from utilities.views import GetReturnURLMixin
 from .base import BaseMultiObjectView
 from .mixins import ActionsMixin, TableMixin
@@ -160,6 +163,11 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # If this is an HTMX request, return only the rendered table HTML
         if is_htmx(request):
+            if is_embedded(request):
+                table.embedded = True
+                # Hide selection checkboxes
+                if 'pk' in table.base_columns:
+                    table.columns.hide('pk')
             return render(request, 'htmx/table.html', {
                 'table': table,
             })
@@ -417,7 +425,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     #
 
     def get(self, request):
-        form = ImportForm()
+        form = BulkImportForm()
 
         return render(request, self.template_name, {
             'model': self.model_form._meta.model,
@@ -429,8 +437,8 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkImportView')
-
-        form = ImportForm(request.POST, request.FILES)
+        model = self.model_form._meta.model
+        form = BulkImportForm(request.POST, request.FILES)
 
         if form.is_valid():
             logger.debug("Import form validation was successful")
@@ -444,18 +452,14 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
                         raise PermissionsViolation
 
-                # Compile a table containing the imported objects
-                obj_table = self.table(new_objs)
-
                 if new_objs:
-                    msg = 'Imported {} {}'.format(len(new_objs), new_objs[0]._meta.verbose_name_plural)
+                    msg = f"Imported {len(new_objs)} {model._meta.verbose_name_plural}"
                     logger.info(msg)
                     messages.success(request, msg)
 
-                    return render(request, "import_success.html", {
-                        'table': obj_table,
-                        'return_url': self.get_return_url(request),
-                    })
+                    view_name = get_viewname(model, action='list')
+                    results_url = f"{reverse(view_name)}?created_by_request={request.id}"
+                    return redirect(results_url)
 
             except (AbortTransaction, ValidationError):
                 clear_webhooks.send(sender=self)
@@ -469,7 +473,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
-            'model': self.model_form._meta.model,
+            'model': model,
             'form': form,
             'fields': self.model_form().fields,
             'return_url': self.get_return_url(request),

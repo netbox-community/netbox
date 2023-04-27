@@ -1,6 +1,5 @@
 import json
 import urllib.parse
-import uuid
 
 from django.conf import settings
 from django.contrib import admin
@@ -8,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.core.validators import MinValueValidator, ValidationError
+from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse, QueryDict
 from django.urls import reverse
@@ -16,17 +15,15 @@ from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 from rest_framework.utils.encoders import JSONEncoder
-import django_rq
 
 from extras.choices import *
-from extras.constants import *
 from extras.conditions import ConditionSet
+from extras.constants import *
 from extras.utils import FeatureQuery, image_upload
 from netbox.config import get_config
-from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
-    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, JobResultsMixin, TagsMixin, WebhooksMixin,
+    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import clean_html, render_jinja2
@@ -36,16 +33,13 @@ __all__ = (
     'CustomLink',
     'ExportTemplate',
     'ImageAttachment',
-    'JobResult',
     'JournalEntry',
-    'Report',
     'SavedFilter',
-    'Script',
     'Webhook',
 )
 
 
-class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class Webhook(ExportTemplatesMixin, ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
@@ -64,15 +58,23 @@ class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
     )
     type_create = models.BooleanField(
         default=False,
-        help_text=_("Call this webhook when a matching object is created.")
+        help_text=_("Triggers when a matching object is created.")
     )
     type_update = models.BooleanField(
         default=False,
-        help_text=_("Call this webhook when a matching object is updated.")
+        help_text=_("Triggers when a matching object is updated.")
     )
     type_delete = models.BooleanField(
         default=False,
-        help_text=_("Call this webhook when a matching object is deleted.")
+        help_text=_("Triggers when a matching object is deleted.")
+    )
+    type_job_start = models.BooleanField(
+        default=False,
+        help_text=_("Triggers when a job for a matching object is started.")
+    )
+    type_job_end = models.BooleanField(
+        default=False,
+        help_text=_("Triggers when a job for a matching object terminates.")
     )
     payload_url = models.CharField(
         max_length=500,
@@ -158,8 +160,12 @@ class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         super().clean()
 
         # At least one action type must be selected
-        if not self.type_create and not self.type_delete and not self.type_update:
-            raise ValidationError("At least one type must be selected: create, update, and/or delete.")
+        if not any([
+            self.type_create, self.type_update, self.type_delete, self.type_job_start, self.type_job_end
+        ]):
+            raise ValidationError(
+                "At least one event type must be selected: create, update, delete, job_start, and/or job_end."
+            )
 
         if self.conditions:
             try:
@@ -202,7 +208,7 @@ class Webhook(ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
         return render_jinja2(self.payload_url, context)
 
 
-class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
@@ -293,7 +299,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
         }
 
 
-class ExportTemplate(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='export_templates',
@@ -351,6 +357,12 @@ class ExportTemplate(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLo
                 'name': f'"{self.name}" is a reserved name. Please choose a different name.'
             })
 
+    def sync_data(self):
+        """
+        Synchronize template content from the designated DataFile (if any).
+        """
+        self.template_code = self.data_file.data_as_string
+
     def render(self, queryset):
         """
         Render the contents of the template.
@@ -384,7 +396,7 @@ class ExportTemplate(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLo
         return response
 
 
-class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLoggedModel):
+class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A set of predefined keyword parameters that can be reused to filter for specific objects.
     """
@@ -455,7 +467,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogge
         return qd.urlencode()
 
 
-class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
+class ImageAttachment(ChangeLoggedModel):
     """
     An uploaded image which is associated with an object.
     """
@@ -531,7 +543,7 @@ class ImageAttachment(WebhooksMixin, ChangeLoggedModel):
         return objectchange
 
 
-class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin, ExportTemplatesMixin, ChangeLoggedModel):
+class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A historical remark concerning an object; collectively, these form an object's journal. The journal is used to
     preserve historical context around an object, and complements NetBox's built-in change logging. For example, you
@@ -582,155 +594,6 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, WebhooksMixin
         return JournalEntryKindChoices.colors.get(self.kind)
 
 
-class JobResult(models.Model):
-    """
-    This model stores the results from running a user-defined report.
-    """
-    name = models.CharField(
-        max_length=255
-    )
-    obj_type = models.ForeignKey(
-        to=ContentType,
-        related_name='job_results',
-        verbose_name='Object types',
-        limit_choices_to=FeatureQuery('job_results'),
-        help_text=_("The object type to which this job result applies"),
-        on_delete=models.CASCADE,
-    )
-    created = models.DateTimeField(
-        auto_now_add=True
-    )
-    scheduled = models.DateTimeField(
-        null=True,
-        blank=True
-    )
-    interval = models.PositiveIntegerField(
-        blank=True,
-        null=True,
-        validators=(
-            MinValueValidator(1),
-        ),
-        help_text=_("Recurrence interval (in minutes)")
-    )
-    started = models.DateTimeField(
-        null=True,
-        blank=True
-    )
-    completed = models.DateTimeField(
-        null=True,
-        blank=True
-    )
-    user = models.ForeignKey(
-        to=User,
-        on_delete=models.SET_NULL,
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    status = models.CharField(
-        max_length=30,
-        choices=JobResultStatusChoices,
-        default=JobResultStatusChoices.STATUS_PENDING
-    )
-    data = models.JSONField(
-        null=True,
-        blank=True
-    )
-    job_id = models.UUIDField(
-        unique=True
-    )
-
-    objects = RestrictedQuerySet.as_manager()
-
-    class Meta:
-        ordering = ['-created']
-
-    def __str__(self):
-        return str(self.job_id)
-
-    def delete(self, *args, **kwargs):
-        super().delete(*args, **kwargs)
-
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.obj_type.name, RQ_QUEUE_DEFAULT)
-        queue = django_rq.get_queue(rq_queue_name)
-        job = queue.fetch_job(str(self.job_id))
-
-        if job:
-            job.cancel()
-
-    def get_absolute_url(self):
-        return reverse(f'extras:{self.obj_type.name}_result', args=[self.pk])
-
-    def get_status_color(self):
-        return JobResultStatusChoices.colors.get(self.status)
-
-    @property
-    def duration(self):
-        if not self.completed:
-            return None
-
-        start_time = self.started or self.created
-
-        if not start_time:
-            return None
-
-        duration = self.completed - start_time
-        minutes, seconds = divmod(duration.total_seconds(), 60)
-
-        return f"{int(minutes)} minutes, {seconds:.2f} seconds"
-
-    def start(self):
-        """
-        Record the job's start time and update its status to "running."
-        """
-        if self.started is None:
-            self.started = timezone.now()
-            self.status = JobResultStatusChoices.STATUS_RUNNING
-            JobResult.objects.filter(pk=self.pk).update(started=self.started, status=self.status)
-
-    def set_status(self, status):
-        """
-        Helper method to change the status of the job result. If the target status is terminal, the completion
-        time is also set.
-        """
-        self.status = status
-        if status in JobResultStatusChoices.TERMINAL_STATE_CHOICES:
-            self.completed = timezone.now()
-
-    @classmethod
-    def enqueue_job(cls, func, name, obj_type, user, schedule_at=None, interval=None, *args, **kwargs):
-        """
-        Create a JobResult instance and enqueue a job using the given callable
-
-        Args:
-            func: The callable object to be enqueued for execution
-            name: Name for the JobResult instance
-            obj_type: ContentType to link to the JobResult instance obj_type
-            user: User object to link to the JobResult instance
-            schedule_at: Schedule the job to be executed at the passed date and time
-            interval: Recurrence interval (in minutes)
-        """
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(obj_type.name, RQ_QUEUE_DEFAULT)
-        queue = django_rq.get_queue(rq_queue_name)
-        status = JobResultStatusChoices.STATUS_SCHEDULED if schedule_at else JobResultStatusChoices.STATUS_PENDING
-        job_result: JobResult = JobResult.objects.create(
-            name=name,
-            status=status,
-            obj_type=obj_type,
-            scheduled=schedule_at,
-            interval=interval,
-            user=user,
-            job_id=uuid.uuid4()
-        )
-
-        if schedule_at:
-            queue.enqueue_at(schedule_at, func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
-        else:
-            queue.enqueue(func, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
-
-        return job_result
-
-
 class ConfigRevision(models.Model):
     """
     An atomic revision of NetBox's configuration.
@@ -766,27 +629,3 @@ class ConfigRevision(models.Model):
     @admin.display(boolean=True)
     def is_active(self):
         return cache.get('config_version') == self.pk
-
-
-#
-# Custom scripts & reports
-#
-
-class Script(JobResultsMixin, models.Model):
-    """
-    Dummy model used to generate permissions for custom scripts. Does not exist in the database.
-    """
-    class Meta:
-        managed = False
-
-
-#
-# Reports
-#
-
-class Report(JobResultsMixin, models.Model):
-    """
-    Dummy model used to generate permissions for reports. Does not exist in the database.
-    """
-    class Meta:
-        managed = False

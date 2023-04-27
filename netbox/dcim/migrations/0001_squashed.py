@@ -1,4 +1,5 @@
 import dcim.fields
+import ipam.fields
 import django.contrib.postgres.fields
 from utilities.json import CustomFieldJSONEncoder
 import django.core.validators
@@ -609,7 +610,7 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField(max_length=100, unique=True)),
                 ('status', models.CharField(default='active', max_length=50)),
                 ('facility', models.CharField(blank=True, max_length=50)),
-                ('asn', dcim.fields.ASNField(blank=True, null=True)),
+                ('asn', ipam.fields.ASNField(blank=True, null=True)),
                 ('time_zone', timezone_field.fields.TimeZoneField(blank=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('physical_address', models.CharField(blank=True, max_length=200)),

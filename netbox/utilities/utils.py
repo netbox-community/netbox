@@ -491,14 +491,14 @@ def clean_html(html, schemes):
     Also takes a list of allowed URI schemes.
     """
 
-    ALLOWED_TAGS = [
+    ALLOWED_TAGS = {
         "div", "pre", "code", "blockquote", "del",
         "hr", "h1", "h2", "h3", "h4", "h5", "h6",
         "ul", "ol", "li", "p", "br",
         "strong", "em", "a", "b", "i", "img",
         "table", "thead", "tbody", "tr", "th", "td",
         "dl", "dt", "dd",
-    ]
+    }
 
     ALLOWED_ATTRIBUTES = {
         "div": ['class'],

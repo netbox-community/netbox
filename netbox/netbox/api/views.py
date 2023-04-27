@@ -4,6 +4,8 @@ from django import __version__ as DJANGO_VERSION
 from django.apps import apps
 from django.conf import settings
 from django_rq.queues import get_connection
+from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
@@ -17,16 +19,17 @@ class APIRootView(APIView):
     This is the root of NetBox's REST API. API endpoints are arranged by app and model name; e.g. `/api/dcim/sites/`.
     """
     _ignore_model_permissions = True
-    exclude_from_schema = True
-    swagger_schema = None
+    # schema = None
 
     def get_view_name(self):
         return "API Root"
 
+    @extend_schema(exclude=True)
     def get(self, request, format=None):
 
         return Response({
             'circuits': reverse('circuits-api:api-root', request=request, format=format),
+            'core': reverse('core-api:api-root', request=request, format=format),
             'dcim': reverse('dcim-api:api-root', request=request, format=format),
             'extras': reverse('extras-api:api-root', request=request, format=format),
             'ipam': reverse('ipam-api:api-root', request=request, format=format),
@@ -45,6 +48,7 @@ class StatusView(APIView):
     """
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
 
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def get(self, request):
         # Gather the version numbers from all installed Django apps
         installed_apps = {}

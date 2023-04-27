@@ -31,7 +31,7 @@
       <th scope="row">Channel Frequency</th>
       <td>
         {% if interface.rf_channel_frequency %}
-          {{ interface.rf_channel_frequency|simplify_decimal }} MHz
+          {{ interface.rf_channel_frequency|floatformat:"-2" }} MHz
         {% else %}
           {{ ''|placeholder }}
         {% endif %}
@@ -41,7 +41,7 @@
       <th scope="row">Channel Width</th>
       <td>
         {% if interface.rf_channel_width %}
-          {{ interface.rf_channel_width|simplify_decimal }} MHz
+          {{ interface.rf_channel_width|floatformat:"-3" }} MHz
         {% else %}
           {{ ''|placeholder }}
         {% endif %}

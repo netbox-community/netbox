@@ -77,10 +77,10 @@
                       </button>
                       <ul class="dropdown-menu dropdown-menu-end">
                         <li>
-                          <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.powerport&a_terminations={{ object.pk }}&b_terminations_type=dcim.poweroutlet&termination_b_site={{ object.device.site.pk }}&termination_b_rack={{ object.device.rack.pk }}&return_url={{ object.get_absolute_url }}" class="dropdown-item">Power Outlet</a>
+                          <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.powerport&a_terminations={{ object.pk }}&b_terminations_type=dcim.poweroutlet&return_url={{ object.get_absolute_url }}" class="dropdown-item">Power Outlet</a>
                         </li>
                         <li>
-                          <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.powerport&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerfeed&termination_b_site={{ object.device.site.pk }}&termination_b_rack={{ object.device.rack.pk }}&return_url={{ object.get_absolute_url }}" class="dropdown-item">Power Feed</a>
+                          <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.powerport&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerfeed&return_url={{ object.get_absolute_url }}" class="dropdown-item">Power Feed</a>
                         </li>
                       </ul>
                     </span>

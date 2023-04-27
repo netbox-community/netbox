@@ -1,5 +1,13 @@
 from django import template
 
+__all__ = (
+    'can_add',
+    'can_change',
+    'can_delete',
+    'can_sync',
+    'can_view',
+)
+
 register = template.Library()
 
 
@@ -28,3 +36,8 @@ def can_change(user, instance):
 @register.filter()
 def can_delete(user, instance):
     return _check_permission(user, instance, 'delete')
+
+
+@register.filter()
+def can_sync(user, instance):
+    return _check_permission(user, instance, 'sync')

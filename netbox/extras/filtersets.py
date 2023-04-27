@@ -4,23 +4,24 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
+from core.models import DataSource
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
+from .filters import TagFilter
 from .models import *
-
 
 __all__ = (
     'ConfigContextFilterSet',
+    'ConfigTemplateFilterSet',
     'ContentTypeFilterSet',
     'CustomFieldFilterSet',
     'CustomLinkFilterSet',
     'ExportTemplateFilterSet',
     'ImageAttachmentFilterSet',
-    'JobResultFilterSet',
     'JournalEntryFilterSet',
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
@@ -46,8 +47,8 @@ class WebhookFilterSet(BaseFilterSet):
     class Meta:
         model = Webhook
         fields = [
-            'id', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url', 'enabled', 'http_method',
-            'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
+            'id', 'name', 'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'payload_url',
+            'enabled', 'http_method', 'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
         ]
 
     def search(self, queryset, name, value):
@@ -76,7 +77,7 @@ class CustomFieldFilterSet(BaseFilterSet):
         model = CustomField
         fields = [
             'id', 'content_types', 'name', 'group_name', 'required', 'search_weight', 'filter_logic', 'ui_visibility',
-            'weight', 'description',
+            'weight', 'is_cloneable', 'description',
         ]
 
     def search(self, queryset, name, value):
@@ -126,10 +127,18 @@ class ExportTemplateFilterSet(BaseFilterSet):
         field_name='content_types__id'
     )
     content_types = ContentTypeFilter()
+    data_source_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data source (ID)'),
+    )
+    data_file_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data file (ID)'),
+    )
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'content_types', 'name', 'description']
+        fields = ['id', 'content_types', 'name', 'description', 'data_synced']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -425,10 +434,18 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         to_field_name='slug',
         label=_('Tag (slug)'),
     )
+    data_source_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data source (ID)'),
+    )
+    data_file_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data file (ID)'),
+    )
 
     class Meta:
         model = ConfigContext
-        fields = ['id', 'name', 'is_active']
+        fields = ['id', 'name', 'is_active', 'data_synced']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -437,6 +454,34 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
             Q(name__icontains=value) |
             Q(description__icontains=value) |
             Q(data__icontains=value)
+        )
+
+
+class ConfigTemplateFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    data_source_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data source (ID)'),
+    )
+    data_file_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data file (ID)'),
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = ConfigTemplate
+        fields = ['id', 'name', 'description', 'data_synced']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
         )
 
 
@@ -488,69 +533,6 @@ class ObjectChangeFilterSet(BaseFilterSet):
         return queryset.filter(
             Q(user_name__icontains=value) |
             Q(object_repr__icontains=value)
-        )
-
-
-#
-# Job Results
-#
-
-class JobResultFilterSet(BaseFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label=_('Search'),
-    )
-    created = django_filters.DateTimeFilter()
-    created__before = django_filters.DateTimeFilter(
-        field_name='created',
-        lookup_expr='lte'
-    )
-    created__after = django_filters.DateTimeFilter(
-        field_name='created',
-        lookup_expr='gte'
-    )
-    scheduled = django_filters.DateTimeFilter()
-    scheduled__before = django_filters.DateTimeFilter(
-        field_name='scheduled',
-        lookup_expr='lte'
-    )
-    scheduled__after = django_filters.DateTimeFilter(
-        field_name='scheduled',
-        lookup_expr='gte'
-    )
-    started = django_filters.DateTimeFilter()
-    started__before = django_filters.DateTimeFilter(
-        field_name='started',
-        lookup_expr='lte'
-    )
-    started__after = django_filters.DateTimeFilter(
-        field_name='started',
-        lookup_expr='gte'
-    )
-    completed = django_filters.DateTimeFilter()
-    completed__before = django_filters.DateTimeFilter(
-        field_name='completed',
-        lookup_expr='lte'
-    )
-    completed__after = django_filters.DateTimeFilter(
-        field_name='completed',
-        lookup_expr='gte'
-    )
-    status = django_filters.MultipleChoiceFilter(
-        choices=JobResultStatusChoices,
-        null_value=None
-    )
-
-    class Meta:
-        model = JobResult
-        fields = ('id', 'interval', 'status', 'user', 'obj_type', 'name')
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(user__username__icontains=value) |
-            Q(name__icontains=value)
         )
 
 

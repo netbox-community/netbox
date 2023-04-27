@@ -11,7 +11,6 @@ Blocks:
   breadcrumbs: Breadcrumb list items (HTML <li> elements)
   object_identifier: Unique identifier for the object
   extra_controls: Additional action buttons to display
-  extra_tabs: Additional tabs to include
   content: Page content
 
 Context:
@@ -83,9 +82,6 @@ Context:
     <li class="nav-item" role="presentation">
       <a class="nav-link{% if not tab %} active{% endif %}" href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
     </li>
-
-    {# Include any extra tabs passed by the view #}
-    {% block extra_tabs %}{% endblock %}
 
     {# Include tabs for registered model views #}
     {% model_view_tabs object %}

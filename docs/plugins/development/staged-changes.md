@@ -3,9 +3,6 @@
 !!! danger "Experimental Feature"
     This feature is still under active development and considered experimental in nature. Its use in production is strongly discouraged at this time.
 
-!!! note
-    This feature was introduced in NetBox v3.4.
-
 NetBox provides a programmatic API to stage the creation, modification, and deletion of objects without actually committing those changes to the active database. This can be useful for performing a "dry run" of bulk operations, or preparing a set of changes for administrative approval, for example.
 
 To begin staging changes, first create a [branch](../../models/extras/branch.md):

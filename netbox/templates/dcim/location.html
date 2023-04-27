@@ -56,33 +56,15 @@
               {{ object.tenant|linkify|placeholder }}
             </td>
           </tr>
-          <tr>
-            <th scope="row">Racks</th>
-            <td class="position-relative">
-              {% if rack_count %}
-                <div class="position-absolute top-50 end-0 translate-middle-y noprint">
-                  <a href="{% url 'dcim:rack_elevation_list' %}?location_id={{ object.pk }}" class="btn btn-sm btn-primary" title="View elevations">
-                    <i class="mdi mdi-server"></i>
-                  </a>
-                </div>
-              {% endif %}
-              <a href="{% url 'dcim:rack_list' %}?location_id={{ object.pk }}">{{ rack_count }}</a>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">Devices</th>
-            <td>
-              <a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}">{{ device_count }}</a>
-            </td>
-          </tr>
         </table>
       </div>
     </div>
     {% include 'inc/panels/tags.html' %}
+    {% include 'inc/panels/custom_fields.html' %}
     {% plugin_left_page object %}
   </div>
 	<div class="col col-md-6">
-    {% include 'inc/panels/custom_fields.html' %}
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/contacts.html' %}
     {% include 'dcim/inc/nonracked_devices.html' %}
     {% include 'inc/panels/image_attachments.html' %}
@@ -92,11 +74,11 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">Locations</h5>
-      <div class="card-body table-responsive">
-        {% render_table child_locations_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=child_locations_table.paginator page=child_locations_table.page %}
-      </div>
+      <h5 class="card-header">Child Locations</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'dcim:location_list' %}?parent_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
     </div>
     {% plugin_full_width_page object %}
   </div>

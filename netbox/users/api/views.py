@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import Group, User
 from django.db.models import Count
+from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -55,9 +57,6 @@ class TokenViewSet(NetBoxModelViewSet):
         Limit the non-superusers to their own Tokens.
         """
         queryset = super().get_queryset()
-        # Workaround for schema generation (drf_yasg)
-        if getattr(self, 'swagger_fake_view', False):
-            return queryset.none()
         if not self.request.user.is_authenticated:
             return queryset.none()
         if self.request.user.is_superuser:
@@ -71,6 +70,7 @@ class TokenProvisionView(APIView):
     """
     permission_classes = []
 
+    # @extend_schema(methods=["post"], responses={201: serializers.TokenSerializer})
     def post(self, request):
         serializer = serializers.TokenProvisionSerializer(data=request.data)
         serializer.is_valid()
@@ -92,6 +92,9 @@ class TokenProvisionView(APIView):
         data['key'] = token.key
 
         return Response(data, status=HTTP_201_CREATED)
+
+    def get_serializer_class(self):
+        return serializers.TokenSerializer
 
 
 #
@@ -117,6 +120,7 @@ class UserConfigViewSet(ViewSet):
     def get_queryset(self):
         return UserConfig.objects.filter(user=self.request.user)
 
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def list(self, request):
         """
         Return the UserConfig for the currently authenticated User.
@@ -125,6 +129,7 @@ class UserConfigViewSet(ViewSet):
 
         return Response(userconfig.data)
 
+    @extend_schema(methods=["patch"], responses={201: OpenApiTypes.OBJECT})
     def patch(self, request):
         """
         Update the UserConfig for the currently authenticated User.

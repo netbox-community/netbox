@@ -49,14 +49,21 @@
               {{ object.tenant|linkify|placeholder }}
             </td>
           </tr>
+          <tr>
+            <th scope="row">Interfaces</th>
+            <td>
+              <a href="{% url 'dcim:interface_list' %}?vdc_id={{ object.pk }}">{{ object.interfaces.count }}</a>
+            </td>
+          </tr>
         </table>
       </div>
     </div>
     {% plugin_left_page object %}
+    {% include 'inc/panels/tags.html' %}
   </div>
   <div class="col col-md-6">
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/comments.html' %}
-    {% include 'inc/panels/tags.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
   </div>
@@ -65,10 +72,10 @@
   <div class="col col-md-12">
     <div class="card">
       <h5 class="card-header">Interfaces</h5>
-      <div class="card-body table-responsive">
-        {% render_table interfaces_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=interfaces_table.paginator page=interfaces_table.page %}
-      </div>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'dcim:interface_list' %}?vdc_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
     </div>
     {% plugin_full_width_page object %}
   </div>

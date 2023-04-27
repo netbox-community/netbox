@@ -1,10 +1,13 @@
 from django import forms
 
 from netbox.forms import NetBoxModelBulkEditForm
+from tenancy.choices import ContactPriorityChoices
 from tenancy.models import *
-from utilities.forms import CommentField, DynamicModelChoiceField
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import CommentField, DynamicModelChoiceField
 
 __all__ = (
+    'ContactAssignmentBulkEditForm',
     'ContactBulkEditForm',
     'ContactGroupBulkEditForm',
     'ContactRoleBulkEditForm',
@@ -114,3 +117,24 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
         (None, ('group', 'title', 'phone', 'email', 'address', 'link', 'description')),
     )
     nullable_fields = ('group', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments')
+
+
+class ContactAssignmentBulkEditForm(NetBoxModelBulkEditForm):
+    contact = DynamicModelChoiceField(
+        queryset=Contact.objects.all(),
+        required=False
+    )
+    role = DynamicModelChoiceField(
+        queryset=ContactRole.objects.all(),
+        required=False
+    )
+    priority = forms.ChoiceField(
+        choices=add_blank_choice(ContactPriorityChoices),
+        required=False
+    )
+
+    model = ContactAssignment
+    fieldsets = (
+        (None, ('contact', 'role', 'priority')),
+    )
+    nullable_fields = ('priority',)

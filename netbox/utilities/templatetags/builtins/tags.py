@@ -1,5 +1,12 @@
 from django import template
 
+__all__ = (
+    'badge',
+    'checkmark',
+    'customfield_value',
+    'tag',
+)
+
 register = template.Library()
 
 

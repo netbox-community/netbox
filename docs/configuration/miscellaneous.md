@@ -97,14 +97,16 @@ Setting this to False will disable the GraphQL API.
 
 ---
 
-## JOBRESULT_RETENTION
+## JOB_RETENTION
 
 !!! tip "Dynamic Configuration Parameter"
 
+!!! note
+    This parameter was renamed from `JOBRESULT_RETENTION` in NetBox v3.5.
+
 Default: 90
 
-The number of days to retain job results (scripts and reports). Set this to `0` to retain
-job results in the database indefinitely.
+The number of days to retain job results (scripts and reports). Set this to `0` to retain job results in the database indefinitely.
 
 !!! warning
     If enabling indefinite job results retention, it is recommended to periodically delete old entries. Otherwise, the database may eventually exceed capacity.

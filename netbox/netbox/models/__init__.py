@@ -39,7 +39,7 @@ class NetBoxFeatureSet(
 # Base model classes
 #
 
-class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, models.Model):
+class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, WebhooksMixin, models.Model):
     """
     Base model for ancillary models; provides limited functionality for models which don't
     support NetBox's full feature set.

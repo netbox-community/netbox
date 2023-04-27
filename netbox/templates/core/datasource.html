@@ -1,0 +1,120 @@
+{% extends 'generic/object.html' %}
+{% load static %}
+{% load helpers %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+
+{% block extra_controls %}
+  {% if perms.core.sync_datasource %}
+    {% if object.ready_for_sync %}
+      <form action="{% url 'core:datasource_sync' pk=object.pk %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-primary">
+          <i class="mdi mdi-sync" aria-hidden="true"></i> Sync
+        </button>
+      </form>
+    {% else %}
+      <span class="inline-block" tabindex="0" data-bs-toggle="tooltip" data-bs-delay="100" data-bs-placement="bottom">
+        <button class="btn btn-sm btn-primary" disabled>
+          <i class="mdi mdi-sync" aria-hidden="true"></i> Sync
+        </button>
+      </span>
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Data Source</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Type</th>
+              <td>{{ object.get_type_display }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Enabled</th>
+              <td>{% checkmark object.enabled %}</td>
+            </tr>
+            <tr>
+              <th scope="row">Status</th>
+              <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+            </tr>
+            <tr>
+              <th scope="row">Last synced</th>
+              <td>{{ object.last_synced|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">URL</th>
+              <td>
+                {% if not object.is_local %}
+                  <a href="{{ object.source_url }}">{{ object.source_url }}</a>
+                {% else %}
+                  {{ object.source_url }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Ignore rules</th>
+              <td>
+                {% if object.ignore_rules %}
+                  <pre>{{ object.ignore_rules }}</pre>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Backend</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            {% for name, field in object.get_backend.parameters.items %}
+              <tr>
+                <th scope="row">{{ field.label }}</th>
+                <td>{{ object.parameters|get_key:name|placeholder }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="2" class="text-muted">
+                  No parameters defined
+                </td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+      {% include 'inc/panels/related_objects.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Files</h5>
+        <div class="card-body htmx-container table-responsive"
+          hx-get="{% url 'core:datafile_list' %}?source_id={{ object.pk }}"
+          hx-trigger="load"
+        ></div>
+      </div>
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

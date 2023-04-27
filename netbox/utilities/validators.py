@@ -1,9 +1,23 @@
 import re
 
 from django.core.exceptions import ValidationError
-from django.core.validators import _lazy_re_compile, BaseValidator, URLValidator
+from django.core.validators import BaseValidator, RegexValidator, URLValidator, _lazy_re_compile
 
 from netbox.config import get_config
+
+__all__ = (
+    'ColorValidator',
+    'EnhancedURLValidator',
+    'ExclusionValidator',
+    'validate_regex',
+)
+
+
+ColorValidator = RegexValidator(
+    regex='^[0-9a-f]{6}$',
+    message='Enter a valid hexadecimal RGB color code.',
+    code='invalid'
+)
 
 
 class EnhancedURLValidator(URLValidator):

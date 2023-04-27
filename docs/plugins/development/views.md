@@ -157,9 +157,6 @@ These views are provided to enable or enhance certain NetBox model features, suc
 
 ### Additional Tabs
 
-!!! note
-    This feature was introduced in NetBox v3.4.
-
 Plugins can "attach" a custom view to a core NetBox model by registering it with `register_model_view()`. To include a tab for this view within the NetBox UI, declare a TabView instance named `tab`:
 
 ```python

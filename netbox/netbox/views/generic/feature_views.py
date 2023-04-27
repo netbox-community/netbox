@@ -1,16 +1,25 @@
 from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
+from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.generic import View
 
+from core.models import Job
+from core.tables import JobTable
 from extras import forms, tables
 from extras.models import *
-from utilities.views import ViewTab
+from utilities.permissions import get_permission_for_model
+from utilities.views import GetReturnURLMixin, ViewTab
+from .base import BaseMultiObjectView
 
 __all__ = (
+    'BulkSyncDataView',
     'ObjectChangeLogView',
+    'ObjectJobsView',
     'ObjectJournalView',
+    'ObjectSyncDataView',
 )
 
 
@@ -126,3 +135,100 @@ class ObjectJournalView(View):
             'base_template': self.base_template,
             'tab': self.tab,
         })
+
+
+class ObjectJobsView(View):
+    """
+    Render a list of all Job assigned to an object. For example:
+
+        path('data-sources/<int:pk>/jobs/', ObjectJobsView.as_view(), name='datasource_jobs', kwargs={'model': DataSource}),
+
+    Attributes:
+        base_template: The name of the template to extend. If not provided, "{app}/{model}.html" will be used.
+    """
+    base_template = None
+    tab = ViewTab(
+        label=_('Jobs'),
+        badge=lambda obj: obj.jobs.count(),
+        permission='core.view_job',
+        weight=11000
+    )
+
+    def get_object(self, request, **kwargs):
+        return get_object_or_404(self.model.objects.restrict(request.user, 'view'), **kwargs)
+
+    def get_jobs(self, instance):
+        object_type = ContentType.objects.get_for_model(instance)
+        return Job.objects.filter(
+            object_type=object_type,
+            object_id=instance.id
+        )
+
+    def get(self, request, model, **kwargs):
+        self.model = model
+        obj = self.get_object(request, **kwargs)
+
+        # Gather all Jobs for this object
+        jobs = self.get_jobs(obj)
+        jobs_table = JobTable(
+            data=jobs,
+            orderable=False,
+            user=request.user
+        )
+        jobs_table.configure(request)
+
+        # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
+        # fall back to using base.html.
+        if self.base_template is None:
+            self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
+
+        return render(request, 'core/object_jobs.html', {
+            'object': obj,
+            'table': jobs_table,
+            'base_template': self.base_template,
+            'tab': self.tab,
+        })
+
+
+class ObjectSyncDataView(View):
+
+    def post(self, request, model, **kwargs):
+        """
+        Synchronize data from the DataFile associated with this object.
+        """
+        qs = model.objects.all()
+        if hasattr(model.objects, 'restrict'):
+            qs = qs.restrict(request.user, 'sync')
+        obj = get_object_or_404(qs, **kwargs)
+
+        if not obj.data_file:
+            messages.error(request, f"Unable to synchronize data: No data file set.")
+            return redirect(obj.get_absolute_url())
+
+        obj.sync(save=True)
+        messages.success(request, f"Synchronized data for {model._meta.verbose_name} {obj}.")
+
+        return redirect(obj.get_absolute_url())
+
+
+class BulkSyncDataView(GetReturnURLMixin, BaseMultiObjectView):
+    """
+    Synchronize multiple instances of a model inheriting from SyncedDataMixin.
+    """
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'sync')
+
+    def post(self, request):
+        selected_objects = self.queryset.filter(
+            pk__in=request.POST.getlist('pk'),
+            data_file__isnull=False
+        )
+
+        with transaction.atomic():
+            for obj in selected_objects:
+                obj.sync(save=True)
+
+            model_name = self.queryset.model._meta.verbose_name_plural
+            messages.success(request, f"Synced {len(selected_objects)} {model_name}")
+
+        return redirect(self.get_return_url(request))

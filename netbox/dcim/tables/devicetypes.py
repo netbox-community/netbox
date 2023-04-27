@@ -49,7 +49,6 @@ class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
         url_params={'manufacturer_id': 'pk'},
         verbose_name='Platforms'
     )
-    slug = tables.Column()
     tags = columns.TagColumn(
         url_name='dcim:manufacturer_list'
     )
@@ -78,6 +77,9 @@ class DeviceTypeTable(NetBoxTable):
     manufacturer = tables.Column(
         linkify=True
     )
+    default_platform = tables.Column(
+        linkify=True
+    )
     is_full_depth = columns.BooleanColumn(
         verbose_name='Full Depth'
     )
@@ -101,7 +103,7 @@ class DeviceTypeTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.DeviceType
         fields = (
-            'pk', 'id', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
             'airflow', 'weight', 'description', 'comments', 'instance_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
@@ -174,6 +176,7 @@ class PowerOutletTemplateTable(ComponentTemplateTable):
 
 
 class InterfaceTemplateTable(ComponentTemplateTable):
+    enabled = columns.BooleanColumn()
     mgmt_only = columns.BooleanColumn(
         verbose_name='Management Only'
     )
@@ -184,7 +187,7 @@ class InterfaceTemplateTable(ComponentTemplateTable):
 
     class Meta(ComponentTemplateTable.Meta):
         model = models.InterfaceTemplate
-        fields = ('pk', 'name', 'label', 'mgmt_only', 'type', 'description', 'poe_mode', 'poe_type', 'actions')
+        fields = ('pk', 'name', 'label', 'enabled', 'mgmt_only', 'type', 'description', 'bridge', 'poe_mode', 'poe_type', 'actions')
         empty_text = "None"
 
 

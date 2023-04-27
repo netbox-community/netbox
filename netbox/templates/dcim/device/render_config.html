@@ -1,0 +1,55 @@
+{% extends 'dcim/device/base.html' %}
+{% load static %}
+
+{% block title %}{{ object }} - Config{% endblock %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col-5">
+      <div class="card">
+        <h5 class="card-header">Config Template</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Config Template</th>
+              <td>{{ config_template|linkify|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Data Source</th>
+              <td>{{ config_template.data_file.source|linkify|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Data File</th>
+              <td>{{ config_template.data_file|linkify|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-7">
+      <div class="card">
+        <h5 class="card-header">Context Data</h5>
+        <pre class="card-body">{{ context_data|pprint }}</pre>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          <div class="float-end">
+            <a href="?export=True" class="btn btn-sm btn-primary" role="button">
+              <i class="mdi mdi-download" aria-hidden="true"></i> Download
+            </a>
+          </div>
+          <h5>Rendered Config</h5>
+        </div>
+        {% if config_template %}
+          <pre class="card-body">{{ rendered_config }}</pre>
+        {% else %}
+          <div class="card-body text-muted">No configuration template found</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

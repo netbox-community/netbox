@@ -3,79 +3,69 @@
 {% load render_table from django_tables2 %}
 
 {% block header %}
-    {% if new_release %}
-        {# new_release is set only if the current user is a superuser or staff member #}
-        <div class="header-alert-container">
-          <div class="alert alert-info text-center mw-md-50" role="alert">
-            <h6 class="alert-heading">
-              <i class="mdi mdi-information-outline"></i><br/>New Release Available
-            </h6>
-            <small><a href="{{ new_release.url }}">NetBox v{{ new_release.version }}</a> is available.</small>
-            <hr class="my-2" />
-            <small class="mb-0">
-              <a href="https://docs.netbox.dev/en/stable/installation/upgrading/">Upgrade Instructions</a>
-            </small>
-          </div>
-        </div>
-    {% endif %}
+  {% if new_release %}
+    {# new_release is set only if the current user is a superuser or staff member #}
+    <div class="header-alert-container">
+      <div class="alert alert-info text-center mw-md-50" role="alert">
+        <h6 class="alert-heading">
+          <i class="mdi mdi-information-outline"></i><br/>New Release Available
+        </h6>
+        <small><a href="{{ new_release.url }}">NetBox v{{ new_release.version }}</a> is available.</small>
+        <hr class="my-2" />
+        <small class="mb-0">
+          <a href="https://docs.netbox.dev/en/stable/installation/upgrading/">Upgrade Instructions</a>
+        </small>
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block title %}Home{% endblock %}
 
 {% block content-wrapper %}
-  <div class="px-3">
-    {# General stats #}
-    <div class="row masonry">
-      {% for section, items, icon in stats %}
-        <div class="col col-sm-12 col-lg-6 col-xl-4 my-2 masonry-item">
-          <div class="card">
-            <h6 class="card-header text-center">
-              <i class="mdi mdi-{{ icon }}"></i>
-              <span class="ms-1">{{ section }}</span>
-            </h6>
-            <div class="card-body">
-              <div class="list-group list-group-flush">
-                {% for item in items %}
-                  {% if item.permission in perms %}
-                    <a href="{% url item.viewname %}" class="list-group-item list-group-item-action">
-                      <div class="d-flex w-100 justify-content-between align-items-center">
-                        {{ item.label }}
-                        <h4 class="mb-1">{{ item.count }}</h4>
-                      </div>
-                    </a>
-                  {% else %}
-                    <li class="list-group-item list-group-item-action disabled">
-                      <div class="d-flex w-100 justify-content-between align-items-center">
-                        {{ item.label }}
-                        <h4 class="mb-1">
-                          <i title="No permission" class="mdi mdi-lock"></i>
-                        </h4>
-                      </div>
-                    </li>
-                  {% endif %}
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-
-    {# Changelog #}
-    {% if perms.extras.view_objectchange %}
-      <div class="row my-4 flex-grow-1 changelog-container">
-        <div class="col">
-          <div class="card">
-            <h6 class="card-header text-center">
-              <i class="mdi mdi-clipboard-clock"></i>
-              <span class="ms-1">Change Log</span>
-            </h6>
-            <div class="card-body table-responsive">
-              {% render_table changelog_table 'inc/table.html' %}
-            </div>
-          </div>
-        </div>
+  {# Render the user's customized dashboard #}
+  <div class="grid-stack" id="dashboard">
+    {% for widget in dashboard %}
+      {% include 'extras/dashboard/widget.html' %}
+    {% endfor %}
+  </div>
+  <div class="collapse multi-collapse show">
+    <div class="d-flex px-3">
+      <div class="flex-grow-1">
+        <button type="button" id="unlock_dashboard" class="btn btn-light btn-sm" data-bs-toggle="collapse" data-bs-target=".multi-collapse">
+          <i class="mdi mdi-lock-open-outline"></i> Unlock Dashboard
+        </button>
       </div>
-    {% endif %}
+    </div>
+  </div>
+  <div class="collapse multi-collapse">
+    <div class="d-flex px-3">
+      <div class="flex-grow-1">
+        <button type="button" id="lock_dashboard" class="btn btn-light btn-sm" data-bs-toggle="collapse" data-bs-target=".multi-collapse">
+          <i class="mdi mdi-lock-outline"></i> Lock Dashboard
+        </button>
+      </div>
+      <div>
+        <a href="#"
+          hx-get="{% url 'extras:dashboardwidget_add' %}"
+          hx-target="#htmx-modal-content"
+          data-bs-toggle="modal"
+          data-bs-target="#htmx-modal"
+          class="btn btn-success btn-sm"
+        >
+          <i class="mdi mdi-plus"></i> Add Widget
+        </a>
+        <button id="save_dashboard" class="btn btn-primary btn-sm" data-url="{% url 'extras-api:dashboard' %}">
+          <i class="mdi mdi-content-save-outline"></i> Save Layout
+        </button>
+        <a href="{% url 'extras:dashboard_reset' %}" class="btn btn-danger btn-sm">
+          <i class="mdi mdi-backspace"></i>  Reset Dashboard
+        </a>
+      </div>
+    </div>
   </div>
 {% endblock content-wrapper %}
+
+{% block modals %}
+  {% include 'inc/htmx_modal.html' %}
+{% endblock modals %}

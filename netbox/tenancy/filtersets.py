@@ -81,6 +81,10 @@ class ContactFilterSet(NetBoxModelFilterSet):
 
 
 class ContactAssignmentFilterSet(ChangeLoggedModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
     content_type = ContentTypeFilter()
     contact_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Contact.objects.all(),
@@ -100,6 +104,14 @@ class ContactAssignmentFilterSet(ChangeLoggedModelFilterSet):
     class Meta:
         model = ContactAssignment
         fields = ['id', 'content_type_id', 'object_id', 'priority']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(contact__name__icontains=value) |
+            Q(role__name__icontains=value)
+        )
 
 
 class ContactModelFilterSet(django_filters.FilterSet):

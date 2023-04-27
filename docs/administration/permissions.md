@@ -1,6 +1,6 @@
 # Object-Based Permissions
 
-NetBox v2.9 introduced a new object-based permissions framework, which replaces Django's built-in permissions model. Object-based permissions enable an administrator to grant users or groups the ability to perform an action on arbitrary subsets of objects in NetBox, rather than all objects of a certain type. For example, it is possible to grant a user permission to view only sites within a particular region, or to modify only VLANs with a numeric ID within a certain range.
+NetBox employs a new object-based permissions framework, which replaces Django's built-in permissions model. Object-based permissions enable an administrator to grant users or groups the ability to perform an action on arbitrary subsets of objects in NetBox, rather than all objects of a certain type. For example, it is possible to grant a user permission to view only sites within a particular region, or to modify only VLANs with a numeric ID within a certain range.
 
 A permission in NetBox represents a relationship shared by several components:
 
@@ -20,7 +20,7 @@ There are four core actions that can be permitted for each type of object within
 * **Change** - Modify an existing object
 * **Delete** - Delete an existing object
 
-In addition to these, permissions can also grant custom actions that may be required by a specific model or plugin. For example, the `napalm_read` permission on the device model allows a user to execute NAPALM queries on a device via NetBox's REST API. These can be specified when granting a permission in the "additional actions" field.
+In addition to these, permissions can also grant custom actions that may be required by a specific model or plugin. For example, the `run` permission for scripts allows a user to execute custom scripts. These can be specified when granting a permission in the "additional actions" field.
 
 !!! note
     Internally, all actions granted by a permission (both built-in and custom) are stored as strings in an array field named `actions`.
@@ -57,8 +57,6 @@ To achieve a logical OR with a different set of constraints, define multiple obj
 Additionally, where multiple permissions have been assigned for an object type, their collective constraints will be merged using a logical "OR" operation.
 
 ### User Token
-
-!!! info "This feature was introduced in NetBox v3.3"
 
 When defining a permission constraint, administrators may use the special token `$user` to reference the current user at the time of evaluation. This can be helpful to restrict users to editing only their own journal entries, for example. Such a constraint might be defined as:
 
