@@ -425,7 +425,7 @@ class NestedInventoryItemRoleSerializer(WritableNestedSerializer):
 # Cables
 #
 
-class NestedCableSerializer(BaseModelSerializer):
+class NestedCableSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
 
     class Meta:
