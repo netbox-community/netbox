@@ -145,12 +145,11 @@ class CachedValueSearchBackend(SearchBackend):
         )
 
         # Omit any results pertaining to an object the user does not have permission to view
-        ret = [
-            r for r in results if r.object is not None
-        ]
-        for r in ret:
-            r.name = str(r.object)
-
+        ret = []
+        for r in results:
+            if r.object is not None:
+                r.name = str(r.object)
+                ret.append(r)
         return ret
 
     def cache(self, instances, indexer=None, remove_existing=True):
