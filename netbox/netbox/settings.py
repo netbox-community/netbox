@@ -68,6 +68,15 @@ DATABASE = getattr(configuration, 'DATABASE')
 REDIS = getattr(configuration, 'REDIS')
 SECRET_KEY = getattr(configuration, 'SECRET_KEY')
 
+# Enforce minimum length for SECRET_KEY
+if type(SECRET_KEY) is not str:
+    raise ImproperlyConfigured(f"SECRET_KEY must be a string (found {type(SECRET_KEY).__name__})")
+if len(SECRET_KEY) < 50:
+    raise ImproperlyConfigured(
+        f"SECRET_KEY must be at least 50 characters in length. To generate a suitable key, run the following command:\n"
+        f"  python {BASE_DIR}/generate_secret_key.py"
+    )
+
 # Calculate a unique deployment ID from the secret key
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
 

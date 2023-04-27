@@ -5,6 +5,7 @@
 ### Breaking Changes
 
 * The `account` field has been removed from the provider model. This information is now tracked using the new provider account model. Multiple accounts can be assigned per provider.
+* A minimum length of 50 characters is now enforced for the `SECRET_KEY` configuration parameter.
 * The JobResult model has been moved from the `extras` app to `core` and renamed to Job. Accordingly, its REST API endpoint has been moved from `/api/extras/job-results/` to `/api/core/jobs/`.
 * The `obj_type` field on the Job model (previously JobResult) has been renamed to `object_type` for consistency with other models.
 * The `JOBRESULT_RETENTION` configuration parameter has been renamed to `JOB_RETENTION`.
@@ -72,6 +73,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#12068](https://github.com/netbox-community/netbox/issues/12068) - Enable generic foreign key relationships from jobs to NetBox objects
 * [#12085](https://github.com/netbox-community/netbox/issues/12085) - Add a file source view for reports
 * [#12218](https://github.com/netbox-community/netbox/issues/12218) - Provide more relevant API endpoint descriptions in schema
+* [#12343](https://github.com/netbox-community/netbox/issues/12343) - Enforce a minimum length for `SECRET_KEY` configuration parameter
 
 ### Bug Fixes (From Beta2)
 
